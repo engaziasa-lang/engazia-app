@@ -3,14 +3,27 @@ import { MetadataRoute } from 'next';
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://engazia-app.vercel.app';
 
-  // قوائم الدمج لتوليد آلاف الكلمات المستهدفة بدقة
-  const platforms = ['سلة', 'زد', 'شوبيفاي', 'ووكومرس', 'متاجر', 'سوق دوت كوم', 'نون'];
-  const categories = ['العبايات', 'العطور', 'الإلكترونيات', 'المواد الغذائية', 'التجميل', 'المستلزمات الرجالية', 'الإكسسوارات', 'الأثاث', 'المستلزمات الرياضية'];
-  const cities = ['الرياض', 'جدة', 'الدمام', 'مكة', 'المدينة', 'القصيم', 'أبها', 'تبوك'];
+  // قائمة موسعة للمنصات وأنظمة المتاجر
+  const platforms = [
+    'سلة', 'زد', 'شوبيفاي', 'ووكومرس', 'متاجر', 'مريدي', 'مستقل', 'خمسات', 'سوق دوت كوم', 'نون'
+  ];
+
+  // قائمة موسعة للأنشطة والقطاعات التجارية
+  const categories = [
+    'العبايات', 'العطور', 'الإلكترونيات', 'المواد الغذائية', 'التجميل', 
+    'المستلزمات الرجالية', 'الإكسسوارات', 'الأثاث', 'المستلزمات الرياضية', 
+    'المجوهرات', 'الكتب', 'الألعاب', 'القهوة المختصة', 'الزهور والهدايا'
+  ];
+
+  // قائمة شاملة لمدن ومناطق استهداف التجار
+  const cities = [
+    'الرياض', 'جدة', 'الدمام', 'مكة', 'المدينة', 'القصيم', 
+    'أبها', 'تبوك', 'الخبر', 'الطائف', 'حائل', 'الخميس', 'الجبيل'
+  ];
 
   const generatedUrls: MetadataRoute.Sitemap = [];
 
-  // الرابط الرئيسي
+  // الصفحة الرئيسية
   generatedUrls.push({
     url: baseUrl,
     lastModified: new Date(),
@@ -18,10 +31,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 1,
   });
 
-  // توليد مصفوفة توافقية ذكية (Matrix Generation) لآلاف الصفحات المستهدفة
+  // توليد آلاف الروابط عبر التداخل الرياضي للمصفوفات (Matrix SEO)
   platforms.forEach((platform) => {
     categories.forEach((category) => {
-      // الدمج الأول: منصة + تصنيف
+      // مزيج المنصة + النشاط
       const combo1 = `${platform}-${category}`;
       generatedUrls.push({
         url: `${baseUrl}/${encodeURIComponent(combo1)}`,
@@ -30,7 +43,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 0.8,
       });
 
-      // الدمج الثاني مع المدن لمضاعفة النتائج واستهداف البحث المحلي (Local SEO)
+      // مزيج المنصة + النشاط + المدينة (لاستهداف البحث المحلي بدقة فائقة)
       cities.forEach((city) => {
         const combo2 = `${platform}-${category}-${city}`;
         generatedUrls.push({
