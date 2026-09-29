@@ -1,26 +1,37 @@
-import { MetadataRoute } from 'next'
+import { MetadataRoute } from 'next';
 
-export default function sitemap(): MetadataRoute.Sitemap {
-  // هنا نضع قائمة بالمنصات التي نستهدفها (يمكنك زيادة العدد لاحقاً إلى مئات)
-  const platforms = ['سلة', 'زد', 'شوبيفاي', 'ووكومرس', 'فايندي', 'متجري'];
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://engazia-app.vercel.app';
 
-  // توليد الروابط آلياً لكل منصة
-  const platformUrls = platforms.map((platform) => ({
-    url: `${baseUrl}/${platform}`,
+  // قائمة المنصات والأنشطة التجارية المستهدفة للانتشار الواسع
+  const platforms = [
+    'سلة',
+    'زد',
+    'شوبيفاي',
+    'ووكومرس',
+    'مريدي',
+    'متاجر العبايات',
+    'متاجر العطور',
+    'الأسر المنتجة',
+    'التجارة الإلكترونية',
+    'المتاجر الرقمية'
+  ];
+
+  // توليد رابط لكل منصة أو نشاط تجاري بشكل آلي
+  const platformSitemaps = platforms.map((platform) => ({
+    url: `${baseUrl}/${encodeURIComponent(platform)}`,
     lastModified: new Date(),
     changeFrequency: 'weekly' as const,
     priority: 0.8,
   }));
 
-  // إرجاع الخريطة النهائية لجوجل
   return [
     {
-      url: baseUrl, // رابط الصفحة الرئيسية
+      url: baseUrl,
       lastModified: new Date(),
       changeFrequency: 'monthly',
       priority: 1,
     },
-    ...platformUrls, // روابط المنصات
-  ]
+    ...platformSitemaps,
+  ];
 }
