@@ -5,7 +5,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ar" dir="rtl">
-      <body>{children}</body>
+      <head>
+        <meta name="google-site-verification" content="ZVVequa-9RPcw5v1AIWUlm2fR1jUrfAxvRtWCTliW_4" />
+      </head>
+      <body>
+        {children}
+      </body>
     </html>
   )
 }
