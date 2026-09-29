@@ -1,5 +1,7 @@
-export default function PlatformPage({ params }: { params: { platform: string } }) {
-  const platformName = decodeURIComponent(params.platform);
+export default async function PlatformPage({ params }: { params: Promise<{ platform: string }> }) {
+  // نطلب من النظام الانتظار حتى يقرأ الرابط بالكامل
+  const resolvedParams = await params;
+  const platformName = decodeURIComponent(resolvedParams.platform);
   
   return (
     <main style={{ padding: '50px', textAlign: 'center', fontFamily: 'Arial' }}>
