@@ -33,10 +33,10 @@ export default function EngaziaHomeHub() {
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
         
         .hub-container { background-color: #f8fafc; min-height: 100vh; font-family: 'Tajawal', sans-serif; direction: rtl; padding: 30px 20px 70px; }
-        .navbar { max-width: 1250px; margin: 0 auto 35px; padding: 20px 30px; background: #ffffff; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); border: 2px solid #e2e8f0; }
+        .navbar { max-width: 1250px; margin: 0 auto 35px; padding: 20px 30px; background: #ffffff; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); border: 2px solid #cbd5e1; }
         .brand { font-size: 22px; font-weight: 900; color: #0f172a; }
         .brand span { color: #4f46e5; }
-        .badge-live { background: #dcfce7; color: #166534; padding: 8px 16px; border-radius: 30px; font-size: 13px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+        .badge-live { background: #dcfce7; color: #166534; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 800; display: flex; align-items: center; gap: 8px; border: 1px solid #bbf7d0; }
         .badge-live::before { content: ''; width: 8px; height: 8px; background-color: #16a34a; border-radius: 50%; }
         
         .hero { text-align: center; max-width: 800px; margin: 0 auto 50px; }
@@ -44,38 +44,44 @@ export default function EngaziaHomeHub() {
         .hero h1 span { color: #4f46e5; }
         .hero p { color: #475569; font-size: 16px; line-height: 1.7; font-weight: 500; }
 
-        .cards-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; max-width: 1250px; margin: 0 auto; }
+        .cards-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; max-width: 1250px; margin: 0 auto; }
         
-        /* التحديث هنا: إضافة حدود واضحة وظل للبطاقات */
+        /* الحدود الواضحة المربعة لكل أداة */
         .card { 
           background: #ffffff; 
-          border-radius: 20px; 
-          padding: 26px; 
-          border: 2px solid #e2e8f0; /* تحديد بحدود بلون رمادي فاتح */
-          box-shadow: 0 4px 6px rgba(0,0,0,0.05); /* ظل خفيف للعمق */
+          border-radius: 12px; /* زوايا أقرب للمربع */
+          padding: 24px; 
+          border: 2px solid #cbd5e1; /* حدود رمادية غامقة واضحة تفصل الأدوات */
+          box-shadow: 0 2px 4px rgba(0,0,0,0.02); 
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
           display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden;
         }
         
-        /* تأثير عند تمرير الماوس: يتغير لون الحدود والظل */
+        /* البروز القوي عند التمرير (التكبير للخارج والظل العميق) */
         .card:hover { 
-          transform: translateY(-8px); 
-          border-color: #4f46e5; /* يتغير لون الحدود إلى النيلي */
-          box-shadow: 0 20px 40px -10px rgba(79, 70, 229, 0.15); 
+          transform: scale(1.03) translateY(-5px); /* تكبير المربع وبروزه للأمام */
+          border-color: #4f46e5; /* يتحول الإطار للون النيلي */
+          box-shadow: 0 25px 30px -5px rgba(79, 70, 229, 0.2), 0 10px 10px -5px rgba(79, 70, 229, 0.1); 
+          z-index: 10;
         }
 
         .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
-        .card-icon { font-size: 28px; background: #f8fafc; width: 55px; height: 55px; display: flex; align-items: center; justify-content: center; border-radius: 14px; border: 2px solid #e2e8f0; }
-        .card-badge { background: #f1f5f9; color: #334155; font-size: 14px; font-weight: 900; padding: 6px 14px; border-radius: 30px; border: 2px solid #e2e8f0; }
+        .card-icon { font-size: 28px; background: #f8fafc; width: 55px; height: 55px; display: flex; align-items: center; justify-content: center; border-radius: 10px; border: 2px solid #cbd5e1; transition: all 0.3s ease; }
+        .card:hover .card-icon { border-color: #c7d2fe; background: #e0e7ff; }
+        
+        .card-badge { background: #f1f5f9; color: #334155; font-size: 14px; font-weight: 900; padding: 6px 14px; border-radius: 8px; border: 2px solid #cbd5e1; }
+        .card:hover .card-badge { border-color: #c7d2fe; color: #4f46e5; }
 
-        .card h3 { font-size: 18px; font-weight: 900; color: #0f172a; margin-bottom: 10px; line-height: 1.4; }
+        .card h3 { font-size: 18px; font-weight: 900; color: #0f172a; margin-bottom: 10px; line-height: 1.4; transition: color 0.3s ease; }
+        .card:hover h3 { color: #4f46e5; }
+        
         .card p { color: #64748b; font-size: 14px; line-height: 1.6; font-weight: 500; margin-bottom: 24px; min-height: 48px; }
         
         .card-btn { 
           background: #e0e7ff; 
           color: #4f46e5; 
-          text-align: center; padding: 14px; border-radius: 12px; font-weight: 800; font-size: 14px; 
-          transition: all 0.3s ease; border: none; display: flex; align-items: center; justify-content: center; gap: 8px; 
+          text-align: center; padding: 14px; border-radius: 8px; font-weight: 800; font-size: 14px; 
+          transition: all 0.3s ease; border: 2px solid transparent; display: flex; align-items: center; justify-content: center; gap: 8px; 
         }
         
         .card:hover .card-btn { 
