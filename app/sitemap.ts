@@ -3,35 +3,15 @@ import { MetadataRoute } from 'next';
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://engazia-app.vercel.app';
 
-  // المنصات التجارية
-  const platforms = [
-    'سلة', 'زد', 'شوبيفاي', 'ووكومرس', 'متاجر', 'مريدي', 'مستقل', 'خمسات', 'سوق دوت كوم', 'نون', 'اكسترا'
-  ];
-
-  // الأنشطة والقطاعات التجارية الواسعة
-  const categories = [
-    'العبايات', 'العطور', 'الإلكترونيات', 'المواد الغذائية', 'التجميل', 
-    'المستلزمات الرجالية', 'الإكسسوارات', 'الأثاث', 'المستلزمات الرياضية', 
-    'المجوهرات', 'الكتب', 'الألعاب', 'القهوة المختصة', 'الزهور والهدايا',
-    'المنتجات الرقمية', 'الدورات التدريبية', 'الخدمات الاستشارية', 'الملابس النسائية',
-    'مستحضرات التجميل', 'المستلزمات الطبية', 'إهداءات ومواليد', 'المكسرات والحلويات'
-  ];
-
-  // المدن والمناطق الإقليمية
-  const cities = [
-    'الرياض', 'جدة', 'الدمام', 'مكة', 'المدينة', 'القصيم', 
-    'أبها', 'تبوك', 'الخبر', 'الطائف', 'حائل', 'الخميس', 
-    'الجبيل', 'جازان', 'نجران', 'بريدة', 'الكويت', 'دبي', 'الدوحة'
-  ];
-
-  // مصطلحات البحث الاحترافية (Long-tail Intent Modifiers)
-  const intents = [
-    'إدارة-عملاء', 'سلال-متروكة', 'ردود-آلية', 'crm-واتساب', 'زيادة-مبيعات'
-  ];
+  // قوائم المتغيرات التي ستدمجها "الطابعة السحرية" لتوليد آلاف الصفحات
+  const platforms = ['سلة', 'زد', 'شوبيفاي', 'ووكومرس', 'متاجر', 'مريدي'];
+  const categories = ['العبايات', 'العطور', 'الإلكترونيات', 'المواد الغذائية', 'التجميل', 'المستلزمات الرجالية'];
+  const cities = ['الرياض', 'جدة', 'الدمام', 'مكة', 'المدينة', 'القصيم', 'أبها', 'تبوك'];
+  const intents = ['إدارة-عملاء', 'سلال-متروكة', 'ردود-آلية', 'crm-واتساب'];
 
   const generatedUrls: MetadataRoute.Sitemap = [];
 
-  // الصفحة الرئيسية
+  // الصفحة الرئيسية للموقع
   generatedUrls.push({
     url: baseUrl,
     lastModified: new Date(),
@@ -39,15 +19,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 1,
   });
 
-  // توليد شبكة ضخمة جداً من الروابط (عشرات الآلاف من الصفحات المستهدفة)
+  // توليد شبكة الصفحات الديناميكية تلقائياً عبر دمج المصفوفات رياضياً
   platforms.forEach((platform) => {
     categories.forEach((category) => {
       cities.forEach((city) => {
         intents.forEach((intent) => {
-          // دمج ذكي وعميق يولد آلاف الصفحات الدقيقة لكل كلمة بحث محتملة
-          const uniqueSlug = `${platform}-${category}-${city}-${intent}`;
+          const dynamicSlug = `${platform}-${category}-${city}-${intent}`;
           generatedUrls.push({
-            url: `${baseUrl}/${encodeURIComponent(uniqueSlug)}`,
+            url: `${baseUrl}/${encodeURIComponent(dynamicSlug)}`,
             lastModified: new Date(),
             changeFrequency: 'weekly',
             priority: 0.7,
