@@ -4,111 +4,114 @@ type Props = {
   params: Promise<{ platform: string }>;
 };
 
-// خلاط النصوص الضخم (Spinner) لضمان تفرد 100% لكل صفحة
-const templates = {
-  heroTitles: [
-    "ضاعف مبيعات {X} عبر الإدارة الذكية لمحادثات الواتساب",
-    "نظام احترافي مخصص لـ {X} لتحويل رسائل الواتساب إلى أرباح",
-    "ارتقِ بخدمة عملاء {X} وتتبع السلال المتروكة بضغطة زر",
-    "الحل الأذكى لأصحاب {X} لزيادة معدلات التحويل اليومية",
-    "حوّل واتساب ويب إلى CRM متكامل يخدم {X} باحترافية",
-    "تخلص من فوضى الرسائل في {X} مع نظام إنجازيا المطور",
-    "السر وراء نجاح {X}: تواصل أسرع، تنظيم أدق، ومبيعات أكثر",
-    "دليلك الشامل لإدارة طلبات {X} عبر واتساب بكل سهولة",
-    "أتمتة الردود ومتابعة عملاء {X} لم تكن بهذه السهولة من قبل",
-    "أداة الواتساب الأقوى المصممة خصيصاً لدعم {X}"
+// قاموس ضخم جداً لتوليد نصوص مختلفة بالكامل لكل صفحة لمنع التكرار نهائياً
+const spinTemplates = {
+  hookTitles: [
+    "كيف تضاعف مبيعات {cat} على منصة {plat} في {loc} عبر واتساب؟",
+    "الدليل الشامل لتجار {cat} في {loc} لاستخدام نظام {plat} وإدارة الواتساب",
+    "الحل النهائي لأصحاب {cat} عبر {plat} بمدينة {loc}: أتمتة الردود واسترجاع السلال",
+    "أقوى أداة مخصصة لتاجر {cat} في {loc} لربط متجرك على {plat} بنظام CRM",
+    "وداعاً لضياع العملاء: إدارة محادثات {cat} على {plat} في {loc} بضغطة زر واحدة",
+    "استراتيجية مضاعفة الأرباح لمتاجر {cat} عبر {plat} لمستسوقي {loc}"
   ],
-  heroSubtitles: [
-    "لا تفوت أي طلب بعد اليوم. تواصل مع عملائك باحترافية وسرعة فائقة.",
-    "أدوات متقدمة لتصنيف الزوار، إرسال روابط الدفع، ومضاعفة ولاء العملاء.",
-    "وفر ساعات من العمل اليدوي مع قوالب الرد الجاهزة واستخراج التقارير.",
-    "نظم رسائلك، استهدف السلال المتروكة، وشاهد أرباحك ترتفع بسلاسة.",
-    "اربط جهودك التسويقية بنتائج فعلية عبر تنظيم محادثات الشراء خطوة بخطوة.",
-    "تجنب خسارة العملاء بسبب التأخر في الرد، وقم بأتمتة تواصلك التجاري.",
-    "حل متكامل يتيح لك تقسيم العملاء وإعادة استهدافهم بعروض حصرية.",
-    "من الاستفسار الأول حتى استلام الطلب، أدر عملياتك من شاشة واحدة.",
-    "وداعاً لضياع أرقام العملاء، مرحباً بقاعدة بيانات منظمة وجاهزة للتصدير.",
-    "صُمم خصيصاً للتجار الذين يبحثون عن رفع كفاءة المبيعات وتقليل الجهد."
+  intros: [
+    "إذا كنت تبحث عن طريقة احترافية لرفع كفاءة متجرك، فإن ربط محادثات العملاء بنظام ذكي يغير معادلة المبيعات بالكامل.",
+    "تواجه متاجر {cat} في {loc} تحديات كبيرة في سرعة الرد ومتابعة السلال المتروكة، وهذا الحل صمم خصيصاً لحل هذه المشكلة الجذرية.",
+    "من خلال استغلال قوة الواتساب وتكامله مع {plat}، تستطيع اليوم تحويل كل استفسار عادي إلى عملية شراء مؤكدة في سوق {loc}.",
+    "التجارة الإلكترونية الناجحة تعتمد على سرعة الاستجابة وتتبع العملاء المهتمين، وهذا ما توفره لك أداتنا المخصصة لتجار {cat}."
   ],
-  feature1: [
-    { title: "تصنيف دقيق لعملاء {X}", desc: "نظام علامات (Tags) يوضح لك حالة كل متسوق لسرعة الوصول وإتمام البيع." },
-    { title: "فلترة متقدمة للطلبات", desc: "افصل محادثات تأكيد الدفع عن الاستفسارات العادية لتنظيم وقت فريق الدعم." },
-    { title: "تقسيم ذكي للمحادثات", desc: "إدارة سلسة تفصل السلال المتروكة عن العملاء الجدد في ثوانٍ معدودة." },
-    { title: "إدارة مسارات البيع", desc: "تابع العميل منذ سؤاله الأول وحتى استلام شحنته بكل دقة واحترافية." },
-    { title: "تنظيم جهات الاتصال", desc: "ضع علامات مخصصة لعملاء الـ VIP لتقديم خدمة استثنائية لهم دائماً." }
+  f1: [
+    { title: "تصنيف متقدم لعملاء {cat}", desc: "نظام علامات ذكي يتيح لك فرز عملاء {plat} في {loc} حسب مرحلة الشراء (سلة متروكة، بانتظار الدفع، عميل مميز)." },
+    { title: "فلترة ذكية لرسائل {loc}", desc: "تنظيم محادثات واتساب ويب الخاصة بمتجرك على {plat} لفصل طلبات الشحن عن الاستفسارات العامة." },
+    { title: "إدارة مسارات الشراء", desc: "تابع عملاء نشاطك بدقة من لحظة الاستفسار وحتى استلام الطلب بنجاح داخل {loc}." }
   ],
-  feature2: [
-    { title: "قوالب ردود جاهزة", desc: "احفظ نصوص الترحيب وروابط الدفع لتجنب الكتابة المتكررة وتوفير وقتك." },
-    { title: "إرسال الفواتير بضغطة", desc: "جهز تفاصيل الحسابات البنكية أو روابط الدفع السريع وأرسلها فوراً." },
-    { title: "أتمتة الرسائل المتكررة", desc: "أجب على الأسئلة الشائعة حول مواعيد العمل والشحن بنقرة واحدة." },
-    { title: "نصوص بيعية مخصصة", desc: "أنشئ رسائل إقناع جاهزة لتحفيز المترددين على إكمال عملية الشراء." },
-    { title: "ردود سريعة متعددة", desc: "خصص قوالب تناسب كل مرحلة من مراحل الشراء لتجربة عميل ممتازة." }
+  f2: [
+    { title: "قوالب ردود جاهزة لـ {plat}", desc: "احفظ تفاصيل الحسابات البنكية، روابط الدفع السريع، ونصوص الشرح وأرسلها لعملاء {cat} بنقرة واحدة." },
+    { title: "أتمتة الردود لمتجرك", desc: "وفر ساعات من الكتابة اليدوية وأجب على الأسئلة المتكررة لمتسوقي {loc} فوراً." },
+    { title: "مكتبة الرسائل التسويقية", desc: "ارسل عروضاً حصرية مخصصة لعملاء نشاطك لرفع معدلات الولاء والشراء المتكرر." }
   ],
-  feature3: [
-    { title: "تصدير البيانات لـ Excel", desc: "حمل بيانات المهتمين في شيت إكسل لتسهيل حملات إعادة الاستهداف لاحقاً." },
-    { title: "بناء قاعدة بيانات", desc: "اجمع أرقام عملائك وصنفهم في ملفات جاهزة لرفعها لمنصات الإعلانات." },
-    { title: "تقارير أداء العملاء", desc: "استخرج قوائم بالسلال المتروكة للتواصل معهم عبر حملات مخصصة." },
-    { title: "حفظ النسخ الاحتياطية", desc: "لا تخسر جهات اتصالك أبداً، قم بتصدير أرقام عملائك بشكل دوري وآمن." },
-    { title: "تحليل بيانات المتسوقين", desc: "انقل بيانات الشراء لجداول خارجية لتتبع أداء مبيعاتك ونموك الشهري." }
+  f3: [
+    { title: "تصدير بيانات عملاء {loc} لـ Excel", desc: "احفظ أرقام وقوائم المهتمين بمنتجاتك في شيت إكسل لتسهيل حملات إعادة الاستهداف الإعلانية." },
+    { title: "بناء قاعدة بيانات آمنة", desc: "تأكد من عدم ضياع أي عميل محتمل لمتجرك عبر تصدير السجلات الاحتياطية ودراسة أداء المبيعات." },
+    { title: "تحليل حركة المتسوقين", desc: "استخرج تقارير دقيقة عن السلال غير المكتملة وتابع نمو أرباحك الشهري بسهولة." }
   ]
 };
 
-// دالة متقدمة لتوليد رقم ثابت لكل كلمة، لضمان استقرار أرشفة جوجل لنفس الصفحة دائماً
-const getIndex = (word: string, max: number, salt: number = 0) => {
-  let sum = 0;
-  for (let i = 0; i < word.length; i++) {
-    sum += word.charCodeAt(i) * (i + 1);
+// خوارزمية توليد مؤشرات فريدة بناءً على نص الرابط (Slug) لضمان ثبات وثوقية الصفحات لدى جوجل
+const getHashIndex = (str: string, max: number, salt: number) => {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = (hash * 31 + str.charCodeAt(i) * salt) % max;
   }
-  return (sum + salt) % max;
+  return Math.abs(hash);
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const resolvedParams = await params;
-  const rawTarget = decodeURIComponent(resolvedParams.platform);
-  const platformName = rawTarget.replace(/-/g, ' ');
-  
-  const titleIndex = getIndex(rawTarget, templates.heroTitles.length, 1);
-  const metaTitle = templates.heroTitles[titleIndex].replace('{X}', platformName);
-  
+  const rawSlug = decodeURIComponent(resolvedParams.platform);
+  const parts = rawSlug.split('-');
+  const platform = parts[0] || 'المتجر';
+  const category = parts.slice(1, -1).join(' ').replace(/-/g, ' ') || 'التجارة الإلكترونية';
+  const location = parts[parts.length - 1] || 'المملكة';
+
+  const tIdx = getHashIndex(rawSlug, spinTemplates.hookTitles.length, 1);
+  const title = spinTemplates.hookTitles[tIdx]
+    .replace('{plat}', platform)
+    .replace('{cat}', category)
+    .replace('{loc}', location);
+
   return {
-    title: metaTitle,
-    description: `استكشف أفضل طريقة لـ ${platformName} عبر تنظيم رسائل الواتساب، رفع المبيعات، وبناء قاعدة عملاء قوية بضغطة زر.`,
+    title: `${title} | مساعد إنجازيا Pro Max`,
+    description: `اكتشف كيف تزيد مبيعات ${category} في ${location} عبر ربط ${platform} بواتساب وتتبع السلال المتروكة.`,
   };
 }
 
-export default async function ProgrammaticLandingPage({ params }: Props) {
+export default async function ProgrammaticPage({ params }: Props) {
   const resolvedParams = await params;
-  const rawTarget = decodeURIComponent(resolvedParams.platform);
-  const platformName = rawTarget.replace(/-/g, ' ');
+  const rawSlug = decodeURIComponent(resolvedParams.platform);
+  const parts = rawSlug.split('-');
+  const platform = parts[0] || 'المتجر';
+  const category = parts.slice(1, -1).join(' ').replace(/-/g, ' ') || 'التجارة الإلكترونية';
+  const location = parts[parts.length - 1] || 'المملكة';
 
-  // توزيع عشوائي (لكنه ثابت لكل كلمة مفتاحية) للمحتوى
-  const tIndex = getIndex(rawTarget, templates.heroTitles.length, 1);
-  const sIndex = getIndex(rawTarget, templates.heroSubtitles.length, 2);
-  const f1Index = getIndex(rawTarget, templates.feature1.length, 3);
-  const f2Index = getIndex(rawTarget, templates.feature2.length, 4);
-  const f3Index = getIndex(rawTarget, templates.feature3.length, 5);
+  // اختيار عناصر مختلفة لكل صفحة بناءً على الـ Slug لمنع التطابق نهائياً
+  const tIdx = getHashIndex(rawSlug, spinTemplates.hookTitles.length, 1);
+  const introIdx = getHashIndex(rawSlug, spinTemplates.intros.length, 2);
+  const f1Idx = getHashIndex(rawSlug, spinTemplates.f1.length, 3);
+  const f2Idx = getHashIndex(rawSlug, spinTemplates.f2.length, 4);
+  const f3Idx = getHashIndex(rawSlug, spinTemplates.f3.length, 5);
 
-  const heroTitle = templates.heroTitles[tIndex].replace('{X}', platformName);
-  const heroSubtitle = templates.heroSubtitles[sIndex];
-  const f1 = templates.feature1[f1Index];
-  const f2 = templates.feature2[f2Index];
-  const f3 = templates.feature3[f3Index];
+  const heroTitle = spinTemplates.hookTitles[tIdx].replace('{plat}', platform).replace('{cat}', category).replace('{loc}', location);
+  const introText = spinTemplates.intros[introIdx].replace('{plat}', platform).replace('{cat}', category).replace('{loc}', location);
+  
+  const feature1 = {
+    title: spinTemplates.f1[f1Idx].title.replace('{plat}', platform).replace('{cat}', category).replace('{loc}', location),
+    desc: spinTemplates.f1[f1Idx].desc.replace('{plat}', platform).replace('{cat}', category).replace('{loc}', location)
+  };
+  const feature2 = {
+    title: spinTemplates.f2[f2Idx].title.replace('{plat}', platform).replace('{cat}', category).replace('{loc}', location),
+    desc: spinTemplates.f2[f2Idx].desc.replace('{plat}', platform).replace('{cat}', category).replace('{loc}', location)
+  };
+  const feature3 = {
+    title: spinTemplates.f3[f3Idx].title.replace('{plat}', platform).replace('{cat}', category).replace('{loc}', location),
+    desc: spinTemplates.f3[f3Idx].desc.replace('{plat}', platform).replace('{cat}', category).replace('{loc}', location)
+  };
 
   return (
     <div className="landing-wrapper">
       <style>{`
-        .landing-wrapper { background-color: #f8fafc; color: #1e293b; min-height: 100vh; font-family: 'Tajawal', sans-serif; line-height: 1.6; direction: rtl; }
+        .landing-wrapper { background-color: #f8fafc; color: #1e293b; min-height: 100vh; font-family: 'Tajawal', sans-serif; line-height: 1.7; direction: rtl; }
         .landing-wrapper * { box-sizing: border-box; margin: 0; padding: 0; }
         .header { background: #ffffff; padding: 16px 0; border-bottom: 1px solid #e2e8f0; text-align: center; }
         .logo-container { display: flex; align-items: center; justify-content: center; gap: 12px; }
         .app-icon { width: 44px; height: 44px; border-radius: 10px; }
         .logo-text { font-size: 22px; font-weight: 800; color: #0f172a; }
-        .hero { max-width: 900px; margin: 35px auto 20px auto; padding: 0 20px; text-align: center; }
+        .hero { max-width: 900px; margin: 40px auto 25px auto; padding: 0 20px; text-align: center; }
         .badge { display: inline-block; background-color: #e0f2fe; color: #0369a1; padding: 6px 18px; border-radius: 20px; font-size: 14px; font-weight: 700; margin-bottom: 15px; }
         .landing-wrapper h1 { font-size: 30px; font-weight: 800; color: #0f172a; margin-bottom: 15px; }
         .landing-wrapper p.subtitle { font-size: 17px; color: #64748b; margin-bottom: 25px; }
         
-        .cta-container { margin-bottom: 20px; }
+        .cta-container { margin-bottom: 25px; }
         .cta-btn { display: inline-flex; align-items: center; justify-content: center; background-color: #25d366; color: #ffffff; font-size: 18px; font-weight: 700; padding: 14px 32px; border-radius: 12px; text-decoration: none; box-shadow: 0 10px 20px -5px rgba(37, 211, 102, 0.4); transition: all 0.3s ease; }
         .cta-btn:hover { background-color: #20bd5a; }
         .cta-note { font-size: 13px; color: #64748b; margin-top: 10px; font-weight: 500; }
@@ -134,37 +137,37 @@ export default async function ProgrammaticLandingPage({ params }: Props) {
       </header>
 
       <section className="hero">
-        <span className="badge">متوافق ومُحسن لدعم {platformName}</span>
+        <span className="badge">حل تقني مخصص لقطاع {category} في {location} ({platform})</span>
         <h1>{heroTitle}</h1>
-        <p className="subtitle">{heroSubtitle}</p>
+        <p className="subtitle">{introText}</p>
         
         <div className="cta-container">
           <a href="https://chromewebstore.google.com/detail/dpocelchhijafgbmjgnfaafcmhmgbjej" className="cta-btn" target="_blank" rel="noopener noreferrer">ابدأ التجربة المجانية الآن ⚡</a>
-          <div className="cta-note">✨ 7 أيام تجربة مجانية بالكامل • ثم 9.99$ شهرياً • إلغاء في أي وقت</div>
+          <div className="cta-note">✨ 7 أيام تجربة مجانية بالكامل • ثم 9.99$ شهرياً • تدعم حتى 3 أجهزة • إلغاء في أي وقت</div>
         </div>
       </section>
 
       <section className="preview-section">
         <div className="preview-card">
-          <img src="https://i.ibb.co/pvWnMm0n/2.png" alt={`طريقة عمل النظام لـ ${platformName}`} className="preview-img" />
+          <img src="https://i.ibb.co/pvWnMm0n/2.png" alt={`تشغيل نظام إنجازيا لتاجر ${category}`} className="preview-img" />
         </div>
       </section>
 
       <section className="features">
         <div className="feature-card">
           <span className="feature-icon">🏷️</span>
-          <h3>{f1.title.replace('{X}', platformName)}</h3>
-          <p>{f1.desc}</p>
+          <h3>{feature1.title}</h3>
+          <p>{feature1.desc}</p>
         </div>
         <div className="feature-card">
           <span className="feature-icon">⚡</span>
-          <h3>{f2.title.replace('{X}', platformName)}</h3>
-          <p>{f2.desc}</p>
+          <h3>{feature2.title}</h3>
+          <p>{feature2.desc}</p>
         </div>
         <div className="feature-card">
           <span className="feature-icon">📊</span>
-          <h3>{f3.title.replace('{X}', platformName)}</h3>
-          <p>{f3.desc}</p>
+          <h3>{feature3.title}</h3>
+          <p>{feature3.desc}</p>
         </div>
       </section>
 
