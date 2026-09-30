@@ -8,12 +8,13 @@ interface Customer {
   name: string;
   phone: string;
   category: string;
+  status: string;
   note: string;
   date: string;
 }
 
 export default function WhatsAppUltimatePage() {
-  const [activeTab, setActiveTab] = useState<'generator' | 'contacts' | 'broadcast' | 'templates' | 'linkmaker' | 'tips'>('generator');
+  const [activeTab, setActiveTab] = useState<'generator' | 'contacts' | 'broadcast' | 'templates' | 'linkmaker' | 'promos' | 'tips'>('generator');
 
   // مولد الرسائل
   const [customerName, setCustomerName] = useState('');
@@ -23,19 +24,20 @@ export default function WhatsAppUltimatePage() {
   const [extraInfo, setExtraInfo] = useState('');
   const [generatedMsg, setGeneratedMsg] = useState('');
 
-  // قاعدة بيانات العملاء CRM
+  // CRM العملاء
   const [contacts, setContacts] = useState<Customer[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('all');
   const [newName, setNewName] = useState('');
   const [newPhone, setNewPhone] = useState('');
   const [newCategory, setNewCategory] = useState('عميل جديد');
+  const [newStatus, setNewStatus] = useState('قيد المتابعة');
   const [newNote, setNewNote] = useState('');
 
   // الردود الجاهزة
   const [customTemplates, setCustomTemplates] = useState([
-    { id: 1, title: 'تأكيد السداد والبدء بالتجهيز', text: 'أهلاً بك، تم تأكيد عملية السداد بنجاح ونقوم الآن بتغليف طلبك بعناية فائقة 📦' },
-    { id: 2, title: 'اعتذار عن تأخير الشحنة', text: 'عذراً على أي تأخير بسيط، شحنتك الآن في الطريق إليك ونتابعها لحظة بلحظة 🚚' }
+    { id: 1, title: 'تأكيد السداد والبدء بالتجهيز', text: 'أهلاً بك [الاسم]، تم تأكيد عملية السداد لطلبك رقم [الطلب] ونقوم الآن بتغليفه 📦' },
+    { id: 2, title: 'عرض خصم استرجاع السلة', text: 'مرحباً [الاسم]، يسعدنا منحك خصماً خاصاً 10% لإتمام طلبك المعلق عبر الرابط التالي: [الرابط]' }
   ]);
   const [newTemplateTitle, setNewTemplateTitle] = useState('');
   const [newTemplateText, setNewTemplateText] = useState('');
@@ -45,12 +47,17 @@ export default function WhatsAppUltimatePage() {
   const [linkText, setLinkText] = useState('');
   const [createdLink, setCreatedLink] = useState('');
 
-  // الحملات الجماعية
+  // الحملات
   const [broadcastCat, setBroadcastCat] = useState('سلة متروكة');
-  const [broadcastText, setBroadcastText] = useState('مرحباً بك، لاحظنا عدم إتمام طلبك الأخير في متجرنا. هل ترغب بمساعدتنا لك؟');
+  const [broadcastText, setBroadcastText] = useState('مرحباً بك، يسعدنا تقديم شحن مجاني لك اليوم لإتمام طلبك المعلق بمتجرنا.');
+
+  // مولد أكواد الخصم
+  const [promoName, setPromoName] = useState('سلطان');
+  const [discountCode, setDiscountCode] = useState('ENGAZIA10');
+  const [promoMsg, setPromoMsg] = useState('');
 
   useEffect(() => {
-    const saved = localStorage.getItem('engazia_compact_crm');
+    const saved = localStorage.getItem('engazia_ultramax_crm');
     if (saved) {
       try { setContacts(JSON.parse(saved)); } catch (e) {}
     }
@@ -58,7 +65,7 @@ export default function WhatsAppUltimatePage() {
 
   const saveContacts = (updated: Customer[]) => {
     setContacts(updated);
-    localStorage.setItem('engazia_compact_crm', JSON.stringify(updated));
+    localStorage.setItem('engazia_ultramax_crm', JSON.stringify(updated));
   };
 
   const formatPhone = (phone: string) => {
@@ -69,12 +76,13 @@ export default function WhatsAppUltimatePage() {
 
   const addContact = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newName || !newPhone) return alert('يرجى إدخال الاسم ورقم الجوال.');
+    if (!newName || !newPhone) return alert('أدخل الاسم والرقم.');
     const newCust: Customer = {
       id: Date.now().toString(),
       name: newName,
       phone: formatPhone(newPhone),
       category: newCategory,
+      status: newStatus,
       note: newNote,
       date: new Date().toLocaleDateString('ar-SA')
     };
@@ -82,11 +90,11 @@ export default function WhatsAppUltimatePage() {
     setNewName('');
     setNewPhone('');
     setNewNote('');
-    alert('تم حفظ العميل وتنسيق رقمه بنجاح!');
+    alert('تم حفظ العميل بنجاح!');
   };
 
   const deleteContact = (id: string) => {
-    if (confirm('هل أنت متأكد من الحذف؟')) {
+    if (confirm('حذف هذا العميل؟')) {
       saveContacts(contacts.filter(c => c.id !== id));
     }
   };
@@ -98,16 +106,16 @@ export default function WhatsAppUltimatePage() {
 
     switch (templateType) {
       case 'confirm':
-        msg = `مرحباً بك يا ${name} 👋\nيسعدنا اختيارك لمتجرنا! تم تأكيد طلبك رقم (${order}) بنجاح، ونعمل حالياً على تجهيزه وشحنه لك بأسرع وقت. شكراً لثقتك 💙`;
+        msg = `مرحباً بك يا ${name} 👋\nتم تأكيد طلبك رقم (${order}) بنجاح، ونعمل حالياً على تجهيزه وشحنه لك. شكراً لثقتك بمتجرنا 💙`;
         break;
       case 'abandoned':
-        msg = `أهلاً بك يا ${name} 😊\nلاحظنا عدم إتمام طلبك رقم (${order}). هل تواجه مشكلة في إتمام الدفع؟ نحن هنا لخدمتك عبر متجرنا.`;
+        msg = `أهلاً بك يا ${name} 😊\nلاحظنا عدم إتمام طلبك رقم (${order}). هل تواجه مشكلة في الدفع؟ نحن هنا لمساعدتك.`;
         break;
       case 'shipping':
         msg = `مرحباً ${name} 📦\nتم تسليم طلبك رقم (${order}) لشركة الشحن، وسيصلك قريباً عبر تفاصيل التتبع.`;
         break;
       case 'payment':
-        msg = `مرحباً بك يا ${name} 💳\nلتسهيل إتمام طلبك رقم (${order})، يسعدنا تزويدك برابط الدفع السريع: ${extraInfo || '[رابط الدفع]'}`;
+        msg = `مرحباً بك يا ${name} 💳\nلتسهيل إتمام طلبك رقم (${order})، يسعدنا تزويدك برابط الدفع: ${extraInfo || '[رابط الدفع]'}`;
         break;
       default:
         msg = `مرحباً ${name}، بخصوص طلبك رقم (${order}). ${extraInfo}`;
@@ -122,14 +130,14 @@ export default function WhatsAppUltimatePage() {
   };
 
   const exportToCSV = () => {
-    if (contacts.length === 0) return alert('لا توجد بيانات لتصديرها.');
-    const headers = "الاسم,الجوال,التصنيف,الملاحظات,التاريخ\n";
-    const rows = contacts.map(c => `"${c.name}","${c.phone}","${c.category}","${c.note}","${c.date}"`).join("\n");
+    if (contacts.length === 0) return alert('لا توجد بيانات.');
+    const headers = "الاسم,الجوال,التصنيف,الحالة,الملاحظات,التاريخ\n";
+    const rows = contacts.map(c => `"${c.name}","${c.phone}","${c.category}","${c.status}","${c.note}","${c.date}"`).join("\n");
     const blob = new Blob(["\uFEFF" + headers + rows], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = "engazia_customers.csv";
+    link.download = "engazia_crm_backup.csv";
     link.click();
   };
 
@@ -150,15 +158,13 @@ export default function WhatsAppUltimatePage() {
         .title { font-size: 22px; font-weight: 900; color: #0f172a; }
         .desc { color: #64748b; font-size: 13px; }
 
-        /* مؤشرات مصغرة وأنيقة */
         .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
         .stat-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px; text-align: center; }
         .stat-num { font-size: 18px; font-weight: 900; color: #2563eb; }
         .stat-title { font-size: 11px; color: #64748b; font-weight: 700; }
 
-        /* تبويبات مدمجة */
-        .nav-tabs { display: flex; gap: 6px; border-bottom: 1px solid #e2e8f0; padding-bottom: 12px; margin-bottom: 20px; overflow-x: auto; }
-        .tab-btn { background: #f1f5f9; border: none; padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 12px; color: #475569; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+        .nav-tabs { display: flex; gap: 5px; border-bottom: 1px solid #e2e8f0; padding-bottom: 12px; margin-bottom: 20px; overflow-x: auto; }
+        .tab-btn { background: #f1f5f9; border: none; padding: 8px 12px; border-radius: 8px; font-weight: 700; font-size: 12px; color: #475569; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
         .tab-btn.active { background: #2563eb; color: #fff; box-shadow: 0 2px 6px rgba(37,99,235,0.2); }
 
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
@@ -179,15 +185,15 @@ export default function WhatsAppUltimatePage() {
         .action-row { display: flex; gap: 8px; }
         .btn-wa { background: #16a34a; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 700; font-size: 13px; cursor: pointer; flex: 1; display: flex; align-items: center; justify-content: center; gap: 5px; }
 
-        .contacts-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
-        .contacts-table th, .contacts-table td { padding: 10px; border-bottom: 1px solid #e2e8f0; text-align: right; }
+        .contacts-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
+        .contacts-table th, .contacts-table td { padding: 8px; border-bottom: 1px solid #e2e8f0; text-align: right; }
         .contacts-table th { background: #f1f5f9; color: #334155; font-weight: 700; }
-        .badge { padding: 3px 8px; border-radius: 15px; font-size: 10px; font-weight: 700; display: inline-block; }
+        .badge { padding: 3px 6px; border-radius: 12px; font-size: 10px; font-weight: 700; display: inline-block; }
         .badge-vip { background: #fef3c7; color: #d97706; }
         .badge-new { background: #dbeafe; color: #1d4ed8; }
         .badge-cart { background: #fee2e2; color: #dc2626; }
         .badge-done { background: #dcfce7; color: #15803d; }
-        .btn-sm { padding: 5px 10px; border-radius: 5px; font-size: 11px; font-weight: 700; cursor: pointer; border: none; }
+        .btn-sm { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; cursor: pointer; border: none; }
         .btn-danger { background: #fee2e2; color: #dc2626; }
         .btn-success { background: #dcfce7; color: #15803d; }
 
@@ -203,12 +209,12 @@ export default function WhatsAppUltimatePage() {
         
         <div className="header-flex">
           <div>
-            <h2 className="title">🚀 منصة إنجازيا لعملاء واتساب (PRO MAX)</h2>
-            <p className="desc">إدارة العملاء، أتمتة الرسائل، وتنسيق الأرقام بذكاء.</p>
+            <h2 className="title">🚀 منصة إنجازيا لعملاء واتساب (ULTRA PRO MAX 2.0)</h2>
+            <p className="desc">إدارة العملاء المتقدمة، أكواد الخصم السريعة، وأتمتة المبيعات.</p>
           </div>
         </div>
 
-        {/* مؤشرات حية مصغرة */}
+        {/* مؤشرات حية */}
         <div className="stats-grid">
           <div className="stat-card">
             <div className="stat-title">إجمالي العملاء</div>
@@ -224,14 +230,15 @@ export default function WhatsAppUltimatePage() {
           </div>
         </div>
 
-        {/* التبويبات المدمجة */}
+        {/* التبويبات */}
         <div className="nav-tabs">
           <button className={`tab-btn ${activeTab === 'generator' ? 'active' : ''}`} onClick={() => setActiveTab('generator')}>⚡ مولد الرسائل</button>
           <button className={`tab-btn ${activeTab === 'contacts' ? 'active' : ''}`} onClick={() => setActiveTab('contacts')}>👥 إدارة الـ CRM</button>
+          <button className={`tab-btn ${activeTab === 'promos' ? 'active' : ''}`} onClick={() => setActiveTab('promos')}>🏷️ أكواد الخصم</button>
           <button className={`tab-btn ${activeTab === 'broadcast' ? 'active' : ''}`} onClick={() => setActiveTab('broadcast')}>📢 الحملات</button>
-          <button className={`tab-btn ${activeTab === 'templates' ? 'active' : ''}`} onClick={() => setActiveTab('templates')}>📋 الردود الجاهزة</button>
-          <button className={`tab-btn ${activeTab === 'linkmaker' ? 'active' : ''}`} onClick={() => setActiveTab('linkmaker')}>🔗 صانع الروابط</button>
-          <button className={`tab-btn ${activeTab === 'tips' ? 'active' : ''}`} onClick={() => setActiveTab('tips')}>💡 أسرار المبيعات</button>
+          <button className={`tab-btn ${activeTab === 'templates' ? 'active' : ''}`} onClick={() => setActiveTab('templates')}>📋 الردود</button>
+          <button className={`tab-btn ${activeTab === 'linkmaker' ? 'active' : ''}`} onClick={() => setActiveTab('linkmaker')}>🔗 الروابط</button>
+          <button className={`tab-btn ${activeTab === 'tips' ? 'active' : ''}`} onClick={() => setActiveTab('tips')}>💡 الأسرار</button>
         </div>
 
         {/* 1. مولد الرسائل */}
@@ -284,7 +291,7 @@ export default function WhatsAppUltimatePage() {
         {activeTab === 'contacts' && (
           <div>
             <form onSubmit={addContact} style={{ background: '#f8fafc', padding: '15px', borderRadius: '10px', marginBottom: '20px', border: '1px solid #cbd5e1' }}>
-              <h3 style={{ fontSize: '13px', fontWeight: '800', marginBottom: '10px' }}>➕ إضافة عميل جديد</h3>
+              <h3 style={{ fontSize: '13px', fontWeight: '800', marginBottom: '10px' }}>➕ إضافة عميل جديد وحالته</h3>
               <div className="form-grid">
                 <div className="form-group">
                   <input type="text" className="form-control" placeholder="اسم العميل" value={newName} onChange={e => setNewName(e.target.value)} required />
@@ -301,10 +308,14 @@ export default function WhatsAppUltimatePage() {
                   </select>
                 </div>
                 <div className="form-group">
-                  <input type="text" className="form-control" placeholder="ملاحظات (اختياري)" value={newNote} onChange={e => setNewNote(e.target.value)} />
+                  <select className="form-control" value={newStatus} onChange={e => setNewStatus(e.target.value)}>
+                    <option value="قيد المتابعة">قيد المتابعة</option>
+                    <option value="تم التواصل وإرسال العرض">تم التواصل وإرسال العرض</option>
+                    <option value="تم إتمام الشراء بنجاح">تم إتمام الشراء 🎉</option>
+                  </select>
                 </div>
               </div>
-              <button type="submit" className="btn-main" style={{ padding: '8px' }}>حفظ العميل</button>
+              <button type="submit" className="btn-main" style={{ padding: '8px' }}>حفظ العميل في الـ CRM</button>
             </form>
 
             <div className="toolbar">
@@ -314,7 +325,6 @@ export default function WhatsAppUltimatePage() {
                   <option value="all">كل التصنيفات</option>
                   <option value="عميل VIP">عميل VIP</option>
                   <option value="سلة متروكة">سلة متروكة</option>
-                  <option value="تم التوصيل">تم التوصيل</option>
                 </select>
               </div>
               <button className="btn-sm btn-success" style={{ padding: '8px 12px' }} onClick={exportToCSV}>📥 تصدير إكسل</button>
@@ -330,7 +340,7 @@ export default function WhatsAppUltimatePage() {
                       <th>الاسم</th>
                       <th>الجوال</th>
                       <th>التصنيف</th>
-                      <th>الملاحظات</th>
+                      <th>حالة المتابعة</th>
                       <th>الإجراءات</th>
                     </tr>
                   </thead>
@@ -340,14 +350,14 @@ export default function WhatsAppUltimatePage() {
                         <td style={{ fontWeight: '700' }}>{c.name}</td>
                         <td>{c.phone}</td>
                         <td>
-                          <span className={`badge ${c.category === 'عميل VIP' ? 'badge-vip' : c.category === 'سلة متروكة' ? 'badge-cart' : c.category === 'تم التوصيل' ? 'badge-done' : 'badge-new'}`}>
+                          <span className={`badge ${c.category === 'عميل VIP' ? 'badge-vip' : c.category === 'سلة متروكة' ? 'badge-cart' : 'badge-new'}`}>
                             {c.category}
                           </span>
                         </td>
-                        <td style={{ color: '#64748b', fontSize: '12px' }}>{c.note || '---'}</td>
+                        <td style={{ color: '#475569', fontSize: '11px', fontWeight: '700' }}>{c.status}</td>
                         <td>
                           <div style={{ display: 'flex', gap: '4px' }}>
-                            <button className="btn-sm btn-success" onClick={() => openWhatsApp(c.phone, `مرحباً ${c.name}، معك متجر إنجازيا.`)}>💬 مراسلة</button>
+                            <button className="btn-sm btn-success" onClick={() => openWhatsApp(c.phone, `مرحباً ${c.name}، معك متجر إنجازيا بخصوص طلبك.`)}>💬 مراسلة</button>
                             <button className="btn-sm btn-danger" onClick={() => deleteContact(c.id)}>حذف</button>
                           </div>
                         </td>
@@ -360,7 +370,33 @@ export default function WhatsAppUltimatePage() {
           </div>
         )}
 
-        {/* 3. الحملات الجماعية */}
+        {/* 3. مولد أكواد الخصم */}
+        {activeTab === 'promos' && (
+          <div>
+            <h3 style={{ fontSize: '14px', fontWeight: '800', marginBottom: '8px' }}>🏷️ مولد رسائل أكواد الخصم السريعة</h3>
+            <p style={{ color: '#64748b', fontSize: '12px', marginBottom: '15px' }}>أنشئ رسالة مخصصة مع كود خصم فوري لإرسالها للعملاء المترددين.</p>
+            <div className="form-group">
+              <label>اسم العميل:</label>
+              <input type="text" className="form-control" value={promoName} onChange={e => setPromoName(e.target.value)} />
+            </div>
+            <div className="form-group">
+              <label>كود الخصم:</label>
+              <input type="text" className="form-control" value={discountCode} onChange={e => setDiscountCode(e.target.value)} />
+            </div>
+            <button className="btn-main" onClick={() => {
+              setPromoMsg(`أهلاً بك يا ${promoName} 🌟\nيسعدنا منحك خصماً خاصاً بقيمة 10% عبر استخدام الكود الحصري التالي في متجرنا:\n🎟️ كود الخصم: *${discountCode}*\nنتطلع بخدمتك دائماً!`);
+            }} style={{ padding: '8px' }}>توليد رسالة الخصم</button>
+
+            {promoMsg && (
+              <div className="result-box">
+                <div className="result-content">{promoMsg}</div>
+                <button className="btn-wa" onClick={() => openWhatsApp('', promoMsg)}>🟢 مشاركة عبر واتساب</button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* 4. الحملات الجماعية */}
         {activeTab === 'broadcast' && (
           <div>
             <h3 style={{ fontSize: '14px', fontWeight: '800', marginBottom: '8px' }}>📢 الحملات التسويقية السريعة</h3>
@@ -390,7 +426,7 @@ export default function WhatsAppUltimatePage() {
           </div>
         )}
 
-        {/* 4. الردود الجاهزة */}
+        {/* 5. الردود الجاهزة */}
         {activeTab === 'templates' && (
           <div>
             <div style={{ background: '#f8fafc', padding: '15px', borderRadius: '10px', marginBottom: '15px', border: '1px solid #cbd5e1' }}>
@@ -415,7 +451,7 @@ export default function WhatsAppUltimatePage() {
           </div>
         )}
 
-        {/* 5. صانع الروابط */}
+        {/* 6. صانع الروابط */}
         {activeTab === 'linkmaker' && (
           <div>
             <div className="form-group">
@@ -439,12 +475,12 @@ export default function WhatsAppUltimatePage() {
           </div>
         )}
 
-        {/* 6. أسرار المبيعات */}
+        {/* 7. أسرار المبيعات */}
         {activeTab === 'tips' && (
           <div>
             <div style={{ background: '#f8fafc', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', marginBottom: '10px' }}>
-              <h4 style={{ color: '#2563eb', fontWeight: '800', fontSize: '13px', marginBottom: '4px' }}>قاعدة الـ 15 دقيقة للسلال المتروكة</h4>
-              <p style={{ color: '#475569', fontSize: '12px' }}>مراسلة العميل خلال 15 دقيقة من ترك السلة ترفع نسبة إتمام الشراء بأكثر من 45%.</p>
+              <h4 style={{ color: '#2563eb', fontWeight: '800', fontSize: '13px', marginBottom: '4px' }}>استراتيجية متابعة السلال المتروكة</h4>
+              <p style={{ color: '#475569', fontSize: '12px' }}>استخدام كود خصم فوري (مثل 10%) عبر واتساب يرفع نسبة تحويل العميل المتردد من 5% إلى أكثر من 35%.</p>
             </div>
           </div>
         )}
