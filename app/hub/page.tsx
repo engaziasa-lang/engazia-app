@@ -10,26 +10,29 @@ export default function EngaziaHomeHub() {
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
 
         .hub-container {
-          background-color: #f8fafc;
+          background-color: #f1f5f9;
           color: #0f172a;
           min-height: 100vh;
           font-family: 'Tajawal', sans-serif;
           direction: rtl;
-          padding: 0 20px 60px;
+          padding: 30px 20px 60px;
         }
 
         .navbar {
-          max-width: 1200px;
-          margin: 0 auto;
-          padding: 24px 0;
+          max-width: 1100px;
+          margin: 0 auto 40px;
+          padding: 20px 30px;
+          background: #ffffff;
+          border-radius: 16px;
           display: flex;
           justify-content: space-between;
           align-items: center;
-          border-bottom: 1px solid #e2e8f0;
+          box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
+          border: 1px solid #e2e8f0;
         }
 
         .brand {
-          font-size: 22px;
+          font-size: 20px;
           font-weight: 900;
           color: #2563eb;
         }
@@ -37,11 +40,10 @@ export default function EngaziaHomeHub() {
         .badge-live {
           background: #dcfce7;
           color: #15803d;
-          padding: 6px 16px;
+          padding: 6px 14px;
           border-radius: 20px;
           font-size: 13px;
           font-weight: 700;
-          border: 1px solid #bbf7d0;
           display: flex;
           align-items: center;
           gap: 6px;
@@ -53,21 +55,19 @@ export default function EngaziaHomeHub() {
           height: 8px;
           background-color: #22c55e;
           border-radius: 50%;
-          box-shadow: 0 0 6px #22c55e;
         }
 
         .hero {
           text-align: center;
-          max-width: 800px;
-          margin: 50px auto 40px;
+          max-width: 750px;
+          margin: 0 auto 40px;
         }
 
         .hero h1 {
-          font-size: 38px;
+          font-size: 34px;
           font-weight: 900;
           color: #0f172a;
-          margin-bottom: 15px;
-          line-height: 1.3;
+          margin-bottom: 12px;
         }
 
         .hero h1 span {
@@ -76,81 +76,80 @@ export default function EngaziaHomeHub() {
 
         .hero p {
           color: #475569;
-          font-size: 17px;
+          font-size: 16px;
           line-height: 1.6;
-          max-width: 650px;
-          margin: 0 auto;
         }
 
-        /* شبكة البطاقات الفاتحة والواضحة */
+        /* شبكة المربعات بحجم مثالي ومرتب */
         .cards-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
           gap: 24px;
           max-width: 1100px;
-          margin: 40px auto 0;
+          margin: 0 auto;
         }
 
         .card {
           background: #ffffff;
-          border-radius: 20px;
-          padding: 35px 30px;
+          border-radius: 16px;
+          padding: 28px 24px;
           border: 1px solid #e2e8f0;
-          box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
-          transition: all 0.3s ease;
+          box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04);
+          transition: all 0.25s ease;
           display: flex;
           flex-direction: column;
           justify-content: space-between;
           text-decoration: none;
+          text-align: right;
         }
 
         .card:hover {
-          transform: translateY(-6px);
-          border-color: #2563eb;
-          box-shadow: 0 20px 30px -10px rgba(37, 99, 235, 0.15);
+          transform: translateY(-5px);
+          border-color: #3b82f6;
+          box-shadow: 0 20px 25px -5px rgba(37, 99, 235, 0.1);
         }
 
         .card-icon {
-          font-size: 36px;
+          font-size: 30px;
           background: #eff6ff;
-          width: 65px;
-          height: 65px;
+          width: 55px;
+          height: 55px;
           display: flex;
           align-items: center;
           justify-content: center;
-          border-radius: 16px;
-          margin-bottom: 20px;
+          border-radius: 12px;
+          margin-bottom: 18px;
           border: 1px solid #bfdbfe;
         }
 
         .card h3 {
-          font-size: 21px;
+          font-size: 19px;
           font-weight: 800;
           color: #1e293b;
-          margin-bottom: 12px;
+          margin-bottom: 10px;
         }
 
         .card p {
           color: #64748b;
-          font-size: 15px;
+          font-size: 14px;
           line-height: 1.6;
-          margin-bottom: 25px;
+          margin-bottom: 24px;
+          min-height: 45px;
         }
 
         .card-btn {
           background: #2563eb;
           color: #fff;
           text-align: center;
-          padding: 14px;
-          border-radius: 12px;
+          padding: 12px;
+          border-radius: 10px;
           font-weight: 700;
-          font-size: 15px;
+          font-size: 14px;
           transition: background 0.2s;
           display: flex;
           align-items: center;
           justify-content: center;
           gap: 8px;
-          box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
         }
 
         .card:hover .card-btn {
@@ -170,15 +169,15 @@ export default function EngaziaHomeHub() {
         <p>أدوات سحابية احترافية متكاملة لإدارة مبيعات متجرك، تحليل الأرباح، وأتمتة التواصل بضغطة زر واحدة.</p>
       </div>
 
-      {/* شبكة البطاقات (مرتبة من اليمين لليسار: واتساب -> الأرباح -> البيانات) */}
+      {/* المربعات الثلاثة المرتبة بدقة */}
       <div className="cards-grid">
         
-        {/* 1. أداة الواتساب (يمين) */}
+        {/* 1. أداة الواتساب */}
         <Link href="/hub/whatsapp" className="card">
           <div>
             <div className="card-icon">💬</div>
             <h3>قوالب وربط واتساب</h3>
-            <p>أنشئ قوالب رسائل الرد السريع، تأكيد الطلبات، وإدارة العملاء لتجار المتاجر الإلكترونية باحترافية تامة.</p>
+            <p>أنشئ قوالب رسائل الرد السريع، تأكيد الطلبات، وإدارة العملاء لتجار المتاجر باحترافية تامة.</p>
           </div>
           <div className="card-btn">
             <span>تشغيل الأداة مباشرة</span>
@@ -186,12 +185,12 @@ export default function EngaziaHomeHub() {
           </div>
         </Link>
 
-        {/* 2. حاسبة الأرباح (منتصف) */}
+        {/* 2. حاسبة الأرباح */}
         <Link href="/hub/profit" className="card">
           <div>
             <div className="card-icon">📊</div>
             <h3>حاسبة أرباح المتاجر</h3>
-            <p>احسب صافي أرباح المنتجات بدقة بعد خصم التكاليف التشغيلية ومصاريف الإعلانات للوصول لنقطة التعادل.</p>
+            <p>احسب صافي أرباح المنتجات بدقة بعد خصم التكاليف والإعلانات للوصول لنقطة التعادل.</p>
           </div>
           <div className="card-btn">
             <span>تشغيل الأداة مباشرة</span>
@@ -199,12 +198,12 @@ export default function EngaziaHomeHub() {
           </div>
         </Link>
 
-        {/* 3. استخراج البيانات (يسار) */}
+        {/* 3. استخراج البيانات */}
         <Link href="/hub/scraper" className="card">
           <div>
             <div className="card-icon">⚡</div>
             <h3>تنسيق واستخراج البيانات</h3>
-            <p>نظف الجداول والنصوص العشوائية وحولها فوراً إلى صيغة مرتبة ومتاحة كلياً للتحميل كملفات إكسل.</p>
+            <p>نظف الجداول والنصوص العشوائية وحولها فوراً لصيغة مرتبة ومتاحة للتحميل كملفات إكسل.</p>
           </div>
           <div className="card-btn">
             <span>تشغيل الأداة مباشرة</span>
