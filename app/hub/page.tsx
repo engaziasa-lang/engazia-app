@@ -57,11 +57,14 @@ export default function EngaziaHomeHub() {
         }
 
         .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
-        .card-icon { font-size: 28px; background: #f8fafc; width: 55px; height: 55px; display: flex; align-items: center; justify-content: center; border-radius: 10px; border: 2px solid #cbd5e1; transition: all 0.3s ease; }
-        .card:hover .card-icon { border-color: #c7d2fe; background: #e0e7ff; }
         
-        .card-badge { background: #f1f5f9; color: #334155; font-size: 14px; font-weight: 900; padding: 6px 14px; border-radius: 8px; border: 2px solid #cbd5e1; }
-        .card:hover .card-badge { border-color: #c7d2fe; color: #4f46e5; }
+        /* إزالة الحدود من الأيقونة وتغيير الخلفية */
+        .card-icon { font-size: 28px; background: #f1f5f9; width: 55px; height: 55px; display: flex; align-items: center; justify-content: center; border-radius: 10px; border: none; transition: all 0.3s ease; }
+        .card:hover .card-icon { background: #e0e7ff; }
+        
+        /* إزالة الحدود من الرقم (البادج) وتغيير الخلفية */
+        .card-badge { background: #f1f5f9; color: #475569; font-size: 14px; font-weight: 900; padding: 6px 14px; border-radius: 8px; border: none; }
+        .card:hover .card-badge { color: #4f46e5; background: #e0e7ff; }
 
         .card h3 { font-size: 18px; font-weight: 900; color: #0f172a; margin-bottom: 10px; line-height: 1.4; transition: color 0.3s ease; }
         .card:hover h3 { color: #4f46e5; }
@@ -75,7 +78,6 @@ export default function EngaziaHomeHub() {
         
         .card:hover .card-btn { background: #4f46e5; color: #ffffff; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25); }
 
-        /* تنسيقات الفوتر الاحترافي */
         .footer {
           max-width: 1250px;
           margin: 0 auto;
@@ -200,7 +202,6 @@ export default function EngaziaHomeHub() {
         ))}
       </div>
 
-      {/* الفوتر الاحترافي */}
       <footer className="footer">
         <div className="footer-content">
           <div className="footer-brand">
