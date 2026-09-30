@@ -152,7 +152,7 @@ export default function PaymentFeesCalculator() {
           <div className="result-box">
             <span className="result-label">الرسوم الأساسية + الضريبة على الرسوم</span>
             <span className="result-value" style={{ fontSize: '16px' }} dir="ltr">
-              {rawFee.toFixed(2)} + {vatToFixedOrNot => vatOnFee.toFixed(2)} ر.س
+              {rawFee.toFixed(2)} + {vatOnFee.toFixed(2)} ر.س
             </span>
           </div>
         </div>
