@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 
 type Props = {
   params: Promise<{ platform: string }>;
 };
 
-// قاموس ضخم جداً لتوليد نصوص مختلفة بالكامل لكل صفحة لمنع التكرار نهائياً
 const spinTemplates = {
   hookTitles: [
     "كيف تضاعف مبيعات {cat} على منصة {plat} في {loc} عبر واتساب؟",
@@ -37,7 +37,6 @@ const spinTemplates = {
   ]
 };
 
-// خوارزمية توليد مؤشرات فريدة بناءً على نص الرابط (Slug) لضمان ثبات وثوقية الصفحات لدى جوجل
 const getHashIndex = (str: string, max: number, salt: number) => {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
@@ -70,32 +69,43 @@ export default async function ProgrammaticPage({ params }: Props) {
   const resolvedParams = await params;
   const rawSlug = decodeURIComponent(resolvedParams.platform);
   const parts = rawSlug.split('-');
-  const platform = parts[0] || 'المتجر';
-  const category = parts.slice(1, -1).join(' ').replace(/-/g, ' ') || 'التجارة الإلكترونية';
-  const location = parts[parts.length - 1] || 'المملكة';
+  const platform = parts[0] || 'سلة';
+  const category = parts.slice(1, -1).join('-') || 'متاجر-العطور';
+  const location = parts[parts.length - 1] || 'الرياض';
 
-  // اختيار عناصر مختلفة لكل صفحة بناءً على الـ Slug لمنع التطابق نهائياً
+  const categoryName = category.replace(/-/g, ' ');
+  const locationName = location.replace(/-/g, ' ');
+
   const tIdx = getHashIndex(rawSlug, spinTemplates.hookTitles.length, 1);
   const introIdx = getHashIndex(rawSlug, spinTemplates.intros.length, 2);
   const f1Idx = getHashIndex(rawSlug, spinTemplates.f1.length, 3);
   const f2Idx = getHashIndex(rawSlug, spinTemplates.f2.length, 4);
   const f3Idx = getHashIndex(rawSlug, spinTemplates.f3.length, 5);
 
-  const heroTitle = spinTemplates.hookTitles[tIdx].replace('{plat}', platform).replace('{cat}', category).replace('{loc}', location);
-  const introText = spinTemplates.intros[introIdx].replace('{plat}', platform).replace('{cat}', category).replace('{loc}', location);
+  const heroTitle = spinTemplates.hookTitles[tIdx].replace('{plat}', platform).replace('{cat}', categoryName).replace('{loc}', locationName);
+  const introText = spinTemplates.intros[introIdx].replace('{plat}', platform).replace('{cat}', categoryName).replace('{loc}', locationName);
   
   const feature1 = {
-    title: spinTemplates.f1[f1Idx].title.replace('{plat}', platform).replace('{cat}', category).replace('{loc}', location),
-    desc: spinTemplates.f1[f1Idx].desc.replace('{plat}', platform).replace('{cat}', category).replace('{loc}', location)
+    title: spinTemplates.f1[f1Idx].title.replace('{plat}', platform).replace('{cat}', categoryName).replace('{loc}', locationName),
+    desc: spinTemplates.f1[f1Idx].desc.replace('{plat}', platform).replace('{cat}', categoryName).replace('{loc}', locationName)
   };
   const feature2 = {
-    title: spinTemplates.f2[f2Idx].title.replace('{plat}', platform).replace('{cat}', category).replace('{loc}', location),
-    desc: spinTemplates.f2[f2Idx].desc.replace('{plat}', platform).replace('{cat}', category).replace('{loc}', location)
+    title: spinTemplates.f2[f2Idx].title.replace('{plat}', platform).replace('{cat}', categoryName).replace('{loc}', locationName),
+    desc: spinTemplates.f2[f2Idx].desc.replace('{plat}', platform).replace('{cat}', categoryName).replace('{loc}', locationName)
   };
   const feature3 = {
-    title: spinTemplates.f3[f3Idx].title.replace('{plat}', platform).replace('{cat}', category).replace('{loc}', location),
-    desc: spinTemplates.f3[f3Idx].desc.replace('{plat}', platform).replace('{cat}', category).replace('{loc}', location)
+    title: spinTemplates.f3[f3Idx].title.replace('{plat}', platform).replace('{cat}', categoryName).replace('{loc}', locationName),
+    desc: spinTemplates.f3[f3Idx].desc.replace('{plat}', platform).replace('{cat}', categoryName).replace('{loc}', locationName)
   };
+
+  // توليد روابط مرتبطة ذكية (Internal Links) لتوجيه جوجل لصفحات أخرى فوراً
+  const samplePlatforms = ['سلة', 'زد', 'شوبيفاي', 'ووكومرس'];
+  const sampleLocations = ['الرياض', 'جدة', 'الدمام', 'مكة-المكرمة', 'التبوك'];
+  
+  const relatedLinks = samplePlatforms.map((p) => ({
+    name: `${p} - ${categoryName} في ${sampleLocations[Math.floor(rawSlug.length + p.length) % sampleLocations.length]}`,
+    slug: `${p}-${category}-${sampleLocations[Math.floor(rawSlug.length + p.length) % sampleLocations.length]}`
+  }));
 
   return (
     <div className="landing-wrapper">
@@ -126,7 +136,14 @@ export default async function ProgrammaticPage({ params }: Props) {
         .feature-card h3 { font-size: 18px; color: #0f172a; margin-bottom: 8px; font-weight: 700; }
         .feature-card p { font-size: 14px; color: #64748b; }
         
-        .footer { text-align: center; padding: 25px; font-size: 13px; color: #94a3b8; border-top: 1px solid #e2e8f0; margin-top: 50px; }
+        /* شبكة الروابط الداخلية للأرشفة السريعة */
+        .internal-links { max-width: 850px; margin: 50px auto 20px auto; padding: 25px; background: #ffffff; border-radius: 14px; border: 1px solid #e2e8f0; text-align: right; }
+        .internal-links h4 { font-size: 16px; color: #0f172a; margin-bottom: 15px; font-weight: 700; }
+        .links-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+        .internal-link-item { background: #f1f5f9; color: #0369a1; padding: 6px 12px; border-radius: 8px; font-size: 13px; text-decoration: none; transition: background 0.2s; }
+        .internal-link-item:hover { background: #e0f2fe; color: #0284c7; }
+
+        .footer { text-align: center; padding: 25px; font-size: 13px; color: #94a3b8; border-top: 1px solid #e2e8f0; margin-top: 30px; }
       `}</style>
 
       <header className="header">
@@ -137,7 +154,7 @@ export default async function ProgrammaticPage({ params }: Props) {
       </header>
 
       <section className="hero">
-        <span className="badge">حل تقني مخصص لقطاع {category} في {location} ({platform})</span>
+        <span className="badge">حل تقني مخصص لقطاع {categoryName} في {locationName} ({platform})</span>
         <h1>{heroTitle}</h1>
         <p className="subtitle">{introText}</p>
         
@@ -149,7 +166,7 @@ export default async function ProgrammaticPage({ params }: Props) {
 
       <section className="preview-section">
         <div className="preview-card">
-          <img src="https://i.ibb.co/pvWnMm0n/2.png" alt={`تشغيل نظام إنجازيا لتاجر ${category}`} className="preview-img" />
+          <img src="https://i.ibb.co/pvWnMm0n/2.png" alt={`تشغيل نظام إنجازيا لتاجر ${categoryName}`} className="preview-img" />
         </div>
       </section>
 
@@ -168,6 +185,18 @@ export default async function ProgrammaticPage({ params }: Props) {
           <span className="feature-icon">📊</span>
           <h3>{feature3.title}</h3>
           <p>{feature3.desc}</p>
+        </div>
+      </section>
+
+      {/* قسم شبكة الروابط الداخلية (لتأمين أرشفة جوجل الفورية) */}
+      <section className="internal-links">
+        <h4>🔗 تصفح صفحات إنجازيا المجاورة حسب المنصة والقطاع:</h4>
+        <div className="links-grid">
+          {relatedLinks.map((item, idx) => (
+            <Link key={idx} href={`/${item.slug}`} className="internal-link-item">
+              {item.name}
+            </Link>
+          ))}
         </div>
       </section>
 
