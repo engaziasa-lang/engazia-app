@@ -1,35 +1,39 @@
 import { MetadataRoute } from 'next'
 
-// قائمة شاملة تستهدف المنصات، القطاعات التجارية، ونية البحث الصريحة للتجار
-const activeTargets = [
-  // المنصات
-  'سلة', 'زد', 'شوبيفاي', 'ووكومرس', 'فايندر', 'مخزن', 'محلي',
-  // القطاعات التجارية
-  'متاجر-العطور', 'متاجر-العبايات', 'متاجر-القهوة', 'متاجر-الالكترونيات',
-  'متاجر-الملابس', 'متاجر-الهدايا', 'متاجر-التجميل', 'متاجر-الاحذية',
-  'الاسر-المنتجة', 'تجارة-الدروبشيبينغ',
-  // نية البحث (Search Intent) لحل المشاكل
-  'استرجاع-السلال-المتروكة', 'ادارة-عملاء-واتساب', 'رد-الي-واتساب-للمتاجر',
-  'زيادة-مبيعات-المتاجر', 'تنظيم-طلبات-الواتساب', 'تسويق-المتاجر-بالواتساب'
-];
-
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://engazia-app.vercel.app';
 
-  const dynamicRoutes = activeTargets.map((target) => ({
-    url: `${baseUrl}/${target}`,
-    lastModified: new Date(),
-    changeFrequency: 'weekly' as const,
-    priority: 0.9,
-  }));
+  // 1. قوائم المتغيرات الأساسية
+  const platforms = ['سلة', 'زد', 'شوبيفاي', 'ووكومرس'];
+  const categories = ['متاجر-العطور', 'متاجر-العبايات', 'متاجر-الالكترونيات', 'متاجر-القهوة', 'متاجر-التجميل'];
+  const cities = ['الرياض', 'جدة', 'الدمام', 'مكة', 'المدينة', 'القصيم', 'تبوك', 'أبها'];
+
+  const dynamicRoutes: MetadataRoute.Sitemap = [];
+
+  // 2. حلقة التكرار الذكية لدمج المتغيرات وتوليد آلاف الروابط الفريدة
+  for (const platform of platforms) {
+    for (const category of categories) {
+      for (const city of cities) {
+        // الناتج سيكون رابط فريد مثل: /سلة-متاجر-العطور-الرياض
+        const slug = `${platform}-${category}-${city}`;
+        
+        dynamicRoutes.push({
+          url: `${baseUrl}/${slug}`,
+          lastModified: new Date(),
+          changeFrequency: 'weekly',
+          priority: 0.8,
+        });
+      }
+    }
+  }
 
   return [
     {
-      url: baseUrl, 
+      url: baseUrl,
       lastModified: new Date(),
       changeFrequency: 'yearly',
       priority: 1,
     },
-    ...dynamicRoutes, 
-  ]
+    ...dynamicRoutes, // إدراج آلاف الروابط المتولدة تلقائياً
+  ];
 }
