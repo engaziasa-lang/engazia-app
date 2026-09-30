@@ -44,35 +44,36 @@ export default function EngaziaHomeHub() {
         .hero h1 span { color: #4f46e5; }
         .hero p { color: #475569; font-size: 16px; line-height: 1.7; font-weight: 500; }
 
-        /* حاوية الشبكة: تعمل كخلفية لخطوط الجدول (Grid Lines) */
+        /* استعادة نظام البطاقات المنفصلة مع مسافات (gap) */
         .cards-grid { 
           display: grid; 
           grid-template-columns: repeat(4, 1fr); 
-          gap: 1px; /* هذا ينشئ خطوط الشبكة بسمك 1 بكسل بين الخلايا */
-          background-color: #cbd5e1; /* لون خطوط الشبكة (رمادي) */
+          gap: 20px; 
           max-width: 1250px; 
           margin: 0 auto 60px; 
-          border: 1px solid #cbd5e1; /* الإطار الخارجي للشبكة */
-          border-radius: 12px;
-          overflow: hidden; 
-          box-shadow: 0 4px 10px rgba(0,0,0,0.05);
         }
         
-        /* الخلية الواحدة (Card): خلفية بيضاء تبرز خطوط الشبكة تحتها */
+        /* إضافة حدود واضحة للمربع (البطاقة) */
         .card { 
-          background: #ffffff; /* لون الخلية أبيض صلب */
+          background: #ffffff; 
+          border-radius: 12px; 
           padding: 24px; 
-          transition: background-color 0.2s ease; 
-          display: flex; flex-direction: column; justify-content: space-between; position: relative;
+          border: 2px solid #e2e8f0; /* حدود المربع المطلوبة */
+          box-shadow: 0 2px 4px rgba(0,0,0,0.02); 
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+          display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden;
         }
         
-        /* تأثير التمرير للخلية: يتغير لون الخلية ليبرزها */
         .card:hover { 
-          background-color: #f8fafc;
+          transform: translateY(-5px); 
+          border-color: #4f46e5; /* يبرز الإطار عند التمرير */
+          box-shadow: 0 15px 30px -5px rgba(79, 70, 229, 0.15); 
+          z-index: 10;
         }
 
         .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
         
+        /* أيقونة وبادج بدون حدود، خلفية ناعمة فقط */
         .card-icon { font-size: 28px; background: #f1f5f9; width: 55px; height: 55px; display: flex; align-items: center; justify-content: center; border-radius: 10px; border: none; transition: all 0.3s ease; }
         .card:hover .card-icon { background: #e0e7ff; }
         
