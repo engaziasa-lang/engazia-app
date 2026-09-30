@@ -36,7 +36,7 @@ export default function MarketingCopyGenerator() {
     }
     setGeneratedResult(`🔥 سر جديد لكل مهتم بـ ${targetAudience || 'التجارة والتسوق'}!
 
-إذا كنت تبحث عن طريقة فعالة لـ ${productBenefit..}, فـ "${productName}" هو الخيار الأمثل لك اليوم 🎯
+إذا كنت تبحث عن طريقة فعالة لـ ${productBenefit}، فـ "${productName}" هو الخيار الأمثل لك اليوم 🎯
 
 ✨ المميزات:
 - جودة عالية وتصميم عصري
