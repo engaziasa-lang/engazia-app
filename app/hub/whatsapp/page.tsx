@@ -83,32 +83,19 @@ export default function EngaziaWhatsAppCRM() {
   const suggestionsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // استعادة البيانات بمفاتيح إنجازيا القديمة حتى لا تفقد عملائك
     const savedContacts = localStorage.getItem('engazia_whatsapp_pro_crm_v4');
     if (savedContacts) {
-      try { 
-        setContacts(JSON.parse(savedContacts)); 
-      } catch (error) {
-        console.error("Error parsing contacts data:", error);
-      }
+      try { setContacts(JSON.parse(savedContacts)); } catch (e) { console.error(e); }
     }
     
     const savedCats = localStorage.getItem('engazia_whatsapp_categories');
     if (savedCats) {
-      try { 
-        setCategories(JSON.parse(savedCats)); 
-      } catch (error) {
-        console.error("Error parsing categories data:", error);
-      }
+      try { setCategories(JSON.parse(savedCats)); } catch (e) { console.error(e); }
     }
 
     const savedTpls = localStorage.getItem('engazia_templates_v2');
     if (savedTpls) {
-      try { 
-        setTemplates(JSON.parse(savedTpls)); 
-      } catch (error) {
-        console.error("Error parsing templates data:", error);
-      }
+      try { setTemplates(JSON.parse(savedTpls)); } catch (e) { console.error(e); }
     }
 
     const handleClickOutside = (event: MouseEvent) => {
@@ -183,7 +170,6 @@ export default function EngaziaWhatsAppCRM() {
     const updated = [...categories, { name: newCatName, bg: newCatBg, color: newCatColor }];
     saveCategories(updated);
     setNewCatName('');
-    alert('تمت إضافة التصنيف بنجاح!');
   };
 
   const deleteCategory = (catName: string) => {
@@ -194,7 +180,6 @@ export default function EngaziaWhatsAppCRM() {
     }
   };
 
-  // توجيه ذكي للمراسلة
   const routeToMessaging = (c: Customer) => {
     setCustomerName(c.name);
     setCustomerPhone(c.phone);
@@ -270,7 +255,8 @@ export default function EngaziaWhatsAppCRM() {
         .stat-title { font-size: 13px; color: #64748b; font-weight: 700; }
 
         .section-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 16px; padding: 25px; margin-bottom: 20px; }
-        .section-title { font-size: 16px; font-weight: 900; color: #1e293b; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+        .section-title { font-size: 16px; font-weight: 900; color: #1e293b; margin-bottom: 5px; display: flex; align-items: center; gap: 8px; }
+        .section-desc { font-size: 13px; color: #64748b; margin-bottom: 20px; font-weight: 500; }
 
         .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; }
         .form-group { margin-bottom: 15px; position: relative; }
@@ -278,7 +264,7 @@ export default function EngaziaWhatsAppCRM() {
         .form-control { width: 100%; padding: 12px 15px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 13px; outline: none; font-family: 'Tajawal', sans-serif; background: #fff; color: #1e293b; font-weight: 700; transition: border-color 0.2s; }
         .form-control:focus { border-color: #4f46e5; box-shadow: 0 0 0 3px rgba(79,70,229,0.1); }
 
-        .btn-main { background: #4f46e5; color: #fff; border: none; padding: 12px 24px; border-radius: 10px; font-weight: 800; font-size: 14px; cursor: pointer; transition: all 0.2s; width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-main { background: #4f46e5; color: #fff; border: none; padding: 12px 24px; border-radius: 10px; font-weight: 800; font-size: 14px; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
         .btn-main:hover { background: #4338ca; transform: translateY(-1px); }
         .btn-wa { background: #10b981; color: #fff; border: none; padding: 12px 24px; border-radius: 10px; font-weight: 800; font-size: 14px; cursor: pointer; transition: all 0.2s; flex: 1; display: inline-flex; justify-content: center; align-items: center; }
         .btn-wa:hover { background: #059669; }
@@ -299,18 +285,35 @@ export default function EngaziaWhatsAppCRM() {
         .suggestion-item { padding: 10px 15px; font-size: 13px; font-weight: 700; cursor: pointer; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; }
         .suggestion-item:hover { background: #f8fafc; color: #4f46e5; }
 
-        .templates-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 15px; }
-        .template-card { padding: 12px 10px; border: 2px solid #e2e8f0; border-radius: 12px; cursor: pointer; text-align: center; font-weight: 800; font-size: 12px; color: #64748b; transition: 0.2s; background: #fff; }
-        .template-card.active { border-color: #4f46e5; color: #4f46e5; background: #eef2ff; }
-
-        .result-box { background: #fff; border: 2px dashed #cbd5e1; padding: 20px; border-radius: 16px; margin-top: 20px; }
-        .msg-preview { background: #f8fafc; padding: 15px; border-radius: 10px; font-size: 14px; line-height: 1.7; white-space: pre-wrap; margin-bottom: 15px; color: #1e293b; font-weight: 500; border: 1px solid #e2e8f0; }
-
-        .badge { display: inline-block; padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 800; }
+        .badge { display: inline-block; padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 800; text-align: center; min-width: 90px; }
         
         .radio-group { display: flex; gap: 10px; margin-bottom: 20px; background: #e2e8f0; padding: 4px; border-radius: 12px; width: fit-content; }
         .radio-btn { padding: 8px 20px; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer; color: #64748b; border: none; background: transparent; transition: 0.3s; }
         .radio-btn.active { background: #fff; color: #1e293b; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+
+        /* -------------- تحسينات قسم الإعدادات الجديدة -------------- */
+        .settings-creation-box { display: flex; gap: 15px; align-items: flex-end; background: #fff; padding: 20px; border-radius: 12px; border: 2px dashed #cbd5e1; margin-bottom: 25px; flex-wrap: wrap; }
+        .settings-creation-box:focus-within { border-color: #4f46e5; }
+        .color-picker { padding: 2px; height: 44px; cursor: pointer; }
+        
+        .tags-list-container { display: flex; flex-direction: column; gap: 10px; }
+        .tag-row { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 12px 20px; border-radius: 12px; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 15px; transition: 0.2s; }
+        .tag-row:hover { border-color: #cbd5e1; box-shadow: 0 4px 12px rgba(0,0,0,0.02); }
+        .tag-input-clean { border: 1px solid transparent; background: transparent; font-weight: 800; font-size: 14px; max-width: 200px; padding: 8px 12px; border-radius: 8px; transition: 0.2s; }
+        .tag-input-clean:hover { background: #f8fafc; border-color: #e2e8f0; }
+        .tag-input-clean:focus { background: #fff; border-color: #4f46e5; outline: none; }
+        .tag-controls { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
+        .color-group { display: flex; align-items: center; gap: 8px; }
+        .color-label { font-size: 12px; color: #64748b; font-weight: 700; }
+        .color-picker-sm { width: 34px; height: 34px; border-radius: 8px; cursor: pointer; border: 1px solid #e2e8f0; padding: 0; }
+        
+        .template-creation-box { background: #fff; padding: 20px; border-radius: 12px; border: 2px dashed #cbd5e1; margin-bottom: 25px; }
+        .template-card-view { background: #fff; border: 1px solid #e2e8f0; padding: 20px; border-radius: 16px; display: flex; flex-direction: column; gap: 12px; transition: transform 0.2s, box-shadow 0.2s; }
+        .template-card-view:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(0,0,0,0.04); border-color: #cbd5e1; }
+        .template-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px; }
+        .template-title { font-weight: 900; color: #1e293b; font-size: 14px; }
+        .template-body { font-size: 13px; color: #475569; white-space: pre-wrap; line-height: 1.7; }
+        .btn-icon { padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 800; cursor: pointer; border: none; display: flex; align-items: center; gap: 5px; }
       `}</style>
 
       <div className="wrapper">
@@ -503,9 +506,9 @@ export default function EngaziaWhatsAppCRM() {
 
             <div className="section-box">
               <div className="section-title">2. اختر أو صمم رسالتك</div>
-              <div className="templates-grid">
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '10px', marginBottom: '15px' }}>
                 {templates.map(tpl => (
-                  <div key={tpl.id} className={`template-card ${activeTemplateId === tpl.id ? 'active' : ''}`} onClick={() => setActiveTemplateId(tpl.id)}>
+                  <div key={tpl.id} onClick={() => setActiveTemplateId(tpl.id)} style={{ padding: '12px 10px', border: '2px solid #e2e8f0', borderRadius: '12px', cursor: 'pointer', textAlign: 'center', fontWeight: 800, fontSize: '12px', color: activeTemplateId === tpl.id ? '#4f46e5' : '#64748b', background: activeTemplateId === tpl.id ? '#eef2ff' : '#fff', borderColor: activeTemplateId === tpl.id ? '#4f46e5' : '#e2e8f0', transition: '0.2s' }}>
                     {tpl.title}
                   </div>
                 ))}
@@ -528,11 +531,11 @@ export default function EngaziaWhatsAppCRM() {
 
             {messagingMode === 'single' ? (
               <>
-                <button className="btn-main" onClick={handleGenerateMessage}>⚡ توليد ومعاينة الرسالة</button>
+                <button className="btn-main" style={{ width: '100%' }} onClick={handleGenerateMessage}>⚡ توليد ومعاينة الرسالة</button>
                 {generatedMsg && (
-                  <div className="result-box">
+                  <div style={{ background: '#fff', border: '2px dashed #cbd5e1', padding: '20px', borderRadius: '16px', marginTop: '20px' }}>
                     <div className="section-title" style={{ fontSize: '13px', color: '#64748b' }}>شكل الرسالة النهائي:</div>
-                    <div className="msg-preview">{generatedMsg}</div>
+                    <div style={{ background: '#f8fafc', padding: '15px', borderRadius: '10px', fontSize: '14px', lineHeight: 1.7, whiteSpace: 'pre-wrap', marginBottom: '15px', color: '#1e293b', fontWeight: 500, border: '1px solid #e2e8f0' }}>{generatedMsg}</div>
                     <div style={{ display: 'flex', gap: '10px' }}>
                       <button className="btn-main" style={{ flex: 1, background: '#f1f5f9', color: '#1e293b' }} onClick={() => { navigator.clipboard.writeText(generatedMsg); alert('تم النسخ!'); }}>📋 نسخ فقط</button>
                       <button className="btn-wa" style={{ flex: 2 }} onClick={() => openWhatsApp(customerPhone, generatedMsg)}>🟢 إرسال عبر واتساب</button>
@@ -541,7 +544,7 @@ export default function EngaziaWhatsAppCRM() {
                 )}
               </>
             ) : (
-              <div className="result-box" style={{ background: '#f8fafc', border: '1px solid #e2e8f0' }}>
+              <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', padding: '20px', borderRadius: '16px', marginTop: '20px' }}>
                 {broadcastList.length === 0 ? (
                   <p style={{ textAlign: 'center', color: '#dc2626', fontWeight: 800 }}>لا يوجد عملاء في هذه الشريحة.</p>
                 ) : (
@@ -549,12 +552,12 @@ export default function EngaziaWhatsAppCRM() {
                     <p style={{ fontSize: '14px', fontWeight: 800, marginBottom: '15px' }}>
                       العميل الحالي: <span style={{ color: '#4f46e5' }}>{broadcastIndex + 1}</span> من {broadcastList.length}
                     </p>
-                    <div className="msg-preview" style={{ background: '#fff' }}>
+                    <div style={{ background: '#fff', padding: '15px', borderRadius: '10px', fontSize: '14px', lineHeight: 1.7, marginBottom: '15px', color: '#1e293b', fontWeight: 500, border: '1px solid #e2e8f0' }}>
                       يتم إرسال رسالة لـ: <strong>{broadcastList[broadcastIndex]?.name}</strong> <br/>
                       جوال: <span dir="ltr">{broadcastList[broadcastIndex]?.phone}</span> | طلب: {broadcastList[broadcastIndex]?.orderNumber}
                     </div>
                     <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
-                      <button className="btn-wa" onClick={() => {
+                      <button className="btn-wa" style={{ width: 'auto' }} onClick={() => {
                         const c = broadcastList[broadcastIndex];
                         setCustomerName(c.name); setOrderNumber(c.orderNumber); setCustomerPhone(c.phone);
                         const tpl = templates.find(t => t.id === activeTemplateId)?.text || '';
@@ -574,43 +577,61 @@ export default function EngaziaWhatsAppCRM() {
           </div>
         )}
 
-        {/* 4. Settings */}
+        {/* 4. Settings (Refactored UI) */}
         {activeTab === 'tags' && (
           <div>
             <div className="section-box">
               <div className="section-title">🏷️ تخصيص تصنيفات وحالات العملاء</div>
-              <form onSubmit={addCategory} className="form-grid" style={{ marginBottom: '20px' }}>
-                <div className="form-group"><label>اسم التصنيف الجديد</label><input type="text" className="form-control" value={newCatName} onChange={e => setNewCatName(e.target.value)} required /></div>
-                <div className="form-group" style={{ display: 'flex', gap: '10px' }}>
-                  <div style={{ flex: 1 }}><label>الخلفية</label><input type="color" className="form-control" style={{ padding: '2px', height: '44px' }} value={newCatBg} onChange={e => setNewCatBg(e.target.value)} /></div>
-                  <div style={{ flex: 1 }}><label>النص</label><input type="color" className="form-control" style={{ padding: '2px', height: '44px' }} value={newCatColor} onChange={e => setNewCatColor(e.target.value)} /></div>
+              <p className="section-desc">قم بإدارة وتلوين حالات الطلبات لتمييز عملائك بسهولة.</p>
+              
+              <form onSubmit={addCategory} className="settings-creation-box">
+                <div className="form-group" style={{ flex: 2, margin: 0 }}>
+                  <label>اسم التصنيف الجديد</label>
+                  <input type="text" className="form-control" placeholder="مثال: قيد التجهيز..." value={newCatName} onChange={e => setNewCatName(e.target.value)} required />
                 </div>
-                <div className="form-group" style={{ display: 'flex', alignItems: 'flex-end' }}>
-                  <button type="submit" className="btn-main">➕ إضافة التصنيف</button>
+                <div className="form-group" style={{ flex: 1, margin: 0, minWidth: '100px' }}>
+                  <label>لون الخلفية</label>
+                  <input type="color" className="form-control color-picker" value={newCatBg} onChange={e => setNewCatBg(e.target.value)} />
                 </div>
+                <div className="form-group" style={{ flex: 1, margin: 0, minWidth: '100px' }}>
+                  <label>لون النص</label>
+                  <input type="color" className="form-control color-picker" value={newCatColor} onChange={e => setNewCatColor(e.target.value)} />
+                </div>
+                <button type="submit" className="btn-main" style={{ height: '44px', padding: '0 30px', whiteSpace: 'nowrap' }}>➕ إضافة</button>
               </form>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <div className="tags-list-container">
                 {categories.map((cat, idx) => (
-                  <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fff', padding: '12px 15px', borderRadius: '10px', border: '1px solid #e2e8f0', flexWrap: 'wrap', gap: '10px' }}>
-                    <input type="text" className="form-control" value={cat.name} onChange={e => {
-                        const updatedCats = [...categories];
-                        updatedCats[idx].name = e.target.value;
-                        saveCategories(updatedCats);
-                    }} style={{ width: '150px', padding: '8px' }} />
-                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                      <input type="color" value={cat.bg} onChange={e => {
+                  <div key={idx} className="tag-row">
+                    <input 
+                      type="text" 
+                      className="tag-input-clean" 
+                      value={cat.name} 
+                      onChange={e => {
                           const updatedCats = [...categories];
-                          updatedCats[idx].bg = e.target.value;
+                          updatedCats[idx].name = e.target.value;
                           saveCategories(updatedCats);
-                      }} style={{ width: '35px', height: '35px', borderRadius: '8px', cursor: 'pointer', border: 'none' }} />
-                      <input type="color" value={cat.color} onChange={e => {
-                          const updatedCats = [...categories];
-                          updatedCats[idx].color = e.target.value;
-                          saveCategories(updatedCats);
-                      }} style={{ width: '35px', height: '35px', borderRadius: '8px', cursor: 'pointer', border: 'none' }} />
+                      }} 
+                    />
+                    <div className="tag-controls">
+                      <div className="color-group">
+                        <span className="color-label">الخلفية:</span>
+                        <input type="color" className="color-picker-sm" value={cat.bg} onChange={e => {
+                            const updatedCats = [...categories];
+                            updatedCats[idx].bg = e.target.value;
+                            saveCategories(updatedCats);
+                        }} />
+                      </div>
+                      <div className="color-group">
+                        <span className="color-label">النص:</span>
+                        <input type="color" className="color-picker-sm" value={cat.color} onChange={e => {
+                            const updatedCats = [...categories];
+                            updatedCats[idx].color = e.target.value;
+                            saveCategories(updatedCats);
+                        }} />
+                      </div>
                       <span className="badge" style={{ backgroundColor: cat.bg, color: cat.color }}>معاينة الشارة</span>
-                      <button className="btn-sm btn-danger" onClick={() => deleteCategory(cat.name)}>حذف</button>
+                      <button className="btn-icon btn-danger" onClick={() => deleteCategory(cat.name)}>🗑️ حذف</button>
                     </div>
                   </div>
                 ))}
@@ -618,26 +639,33 @@ export default function EngaziaWhatsAppCRM() {
             </div>
 
             <div className="section-box">
-              <div className="section-title">📝 قوالب الرسائل الجاهزة (تظهر في قسم المراسلات)</div>
-              <div className="form-grid" style={{ marginBottom: '15px' }}>
-                <div className="form-group"><label>عنوان القالب المستعار (للتنظيم)</label><input type="text" className="form-control" value={newTplTitle} onChange={e => setNewTplTitle(e.target.value)} /></div>
-                <div className="form-group"><label>نص الرسالة (استخدم المتغيرات: [الاسم]، [الطلب]، [إضافي])</label><textarea className="form-control" rows={2} value={newTplText} onChange={e => setNewTplText(e.target.value)}></textarea></div>
-                <div className="form-group" style={{ display: 'flex', alignItems: 'flex-end' }}>
-                  <button className="btn-main" onClick={() => {
-                    if (!newTplTitle || !newTplText) return;
-                    saveTemplates([...templates, { id: Date.now(), title: newTplTitle, text: newTplText }]);
-                    setNewTplTitle(''); setNewTplText('');
-                  }}>حفظ القالب</button>
+              <div className="section-title">📝 قوالب الرسائل الجاهزة</div>
+              <p className="section-desc">أنشئ نصوصاً جاهزة لاستخدامها بنقرة واحدة في قسم المراسلات.</p>
+
+              <div className="template-creation-box">
+                <div className="form-group">
+                  <label>عنوان القالب (للتنظيم)</label>
+                  <input type="text" className="form-control" placeholder="مثال: رسالة ترحيبية..." value={newTplTitle} onChange={e => setNewTplTitle(e.target.value)} />
                 </div>
+                <div className="form-group">
+                  <label>نص الرسالة (المتغيرات المدعومة: [الاسم]، [الطلب]، [إضافي])</label>
+                  <textarea className="form-control" rows={3} placeholder="أهلاً بك يا [الاسم]..." value={newTplText} onChange={e => setNewTplText(e.target.value)}></textarea>
+                </div>
+                <button className="btn-main" style={{ width: '100%' }} onClick={() => {
+                  if (!newTplTitle || !newTplText) return alert("الرجاء تعبئة العنوان والنص");
+                  saveTemplates([...templates, { id: Date.now(), title: newTplTitle, text: newTplText }]);
+                  setNewTplTitle(''); setNewTplText('');
+                }}>💾 حفظ القالب في النظام</button>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '15px' }}>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '15px' }}>
                 {templates.map(t => (
-                  <div key={t.id} style={{ background: '#fff', border: '1px solid #cbd5e1', padding: '15px', borderRadius: '12px' }}>
-                    <div style={{ fontWeight: '900', marginBottom: '8px', display: 'flex', justifyContent: 'space-between' }}>
-                      {t.title}
-                      {t.id > 4 && <button className="btn-sm btn-danger" onClick={() => saveTemplates(templates.filter(x => x.id !== t.id))}>حذف</button>}
+                  <div key={t.id} className="template-card-view">
+                    <div className="template-header">
+                      <span className="template-title">{t.title}</span>
+                      {t.id > 4 && <button className="btn-icon btn-danger" style={{ padding: '4px 8px' }} onClick={() => saveTemplates(templates.filter(x => x.id !== t.id))}>🗑️</button>}
                     </div>
-                    <div style={{ fontSize: '12px', color: '#64748b', whiteSpace: 'pre-wrap' }}>{t.text}</div>
+                    <div className="template-body">{t.text}</div>
                   </div>
                 ))}
               </div>
