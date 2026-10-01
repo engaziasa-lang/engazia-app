@@ -178,6 +178,18 @@ export default function JasmalWhatsAppCRM() {
     window.open(url, '_blank');
   };
 
+  const exportToCSV = () => {
+    if (contacts.length === 0) return alert('لا توجد بيانات للتصدير.');
+    const headers = "الاسم,الجوال,رقم الطلب,التصنيف,الحالة,إجمالي المشتريات (رس),الملاحظات,التاريخ\n";
+    const rows = contacts.map(c => `"${c.name}","${c.phone}","${c.orderNumber}","${c.category}","${c.status}",${c.amount},"${c.note}","${c.date}"`).join("\n");
+    const blob = new Blob(["\uFEFF" + headers + rows], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "jasmal_crm_export.csv";
+    link.click();
+  };
+
   const totalValidSales = contacts.filter(c => c.category !== 'سلة متروكة' && c.category !== 'بانتظار الدفع').reduce((acc, c) => acc + c.amount, 0);
   const filteredContacts = contacts.filter(c => 
     (c.name.toLowerCase().includes(searchTerm.toLowerCase()) || c.phone.includes(searchTerm) || c.orderNumber.includes(searchTerm)) &&
@@ -220,7 +232,7 @@ export default function JasmalWhatsAppCRM() {
 
         .btn-main { background: #4f46e5; color: #fff; border: none; padding: 12px 24px; border-radius: 10px; font-weight: 800; font-size: 14px; cursor: pointer; transition: all 0.2s; width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
         .btn-main:hover { background: #4338ca; transform: translateY(-1px); }
-        .btn-wa { background: #10b981; color: #fff; border: none; padding: 12px 24px; border-radius: 10px; font-weight: 800; font-size: 14px; cursor: pointer; transition: all 0.2s; flex: 1; }
+        .btn-wa { background: #10b981; color: #fff; border: none; padding: 12px 24px; border-radius: 10px; font-weight: 800; font-size: 14px; cursor: pointer; transition: all 0.2s; flex: 1; display: inline-flex; justify-content: center; align-items: center; }
         .btn-wa:hover { background: #059669; }
         
         .btn-sm { padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; border: none; transition: 0.2s; }
@@ -240,7 +252,7 @@ export default function JasmalWhatsAppCRM() {
         .suggestion-item:hover { background: #f8fafc; color: #4f46e5; }
 
         .templates-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 15px; }
-        .template-card { padding: 10px; border: 2px solid #e2e8f0; border-radius: 12px; cursor: pointer; text-align: center; font-weight: 800; font-size: 12px; color: #64748b; transition: 0.2s; background: #fff; }
+        .template-card { padding: 12px 10px; border: 2px solid #e2e8f0; border-radius: 12px; cursor: pointer; text-align: center; font-weight: 800; font-size: 12px; color: #64748b; transition: 0.2s; background: #fff; }
         .template-card.active { border-color: #4f46e5; color: #4f46e5; background: #eef2ff; }
 
         .result-box { background: #fff; border: 2px dashed #cbd5e1; padding: 20px; border-radius: 16px; margin-top: 20px; }
@@ -254,6 +266,8 @@ export default function JasmalWhatsAppCRM() {
       `}</style>
 
       <div className="wrapper">
+        <Link href="/hub" className="back-link" style={{ color: '#4f46e5', textDecoration: 'none', fontWeight: 700, fontSize: '13px', display: 'inline-block', marginBottom: '15px' }}>← العودة للوحة الرئيسية</Link>
+
         <div className="header-brand">
           <h1 className="brand-title">منصة <span>Jasmal</span> CRM</h1>
           <p className="brand-desc">النظام الأذكى لإدارة عملاء التجارة الإلكترونية وأتمتة المراسلات</p>
@@ -353,7 +367,7 @@ export default function JasmalWhatsAppCRM() {
                     {categories.map(cat => <option key={cat.name} value={cat.name}>{cat.name}</option>)}
                   </select>
                 </div>
-                <button className="btn-sm btn-edit" style={{ padding: '12px 20px' }} onClick={exportToCSV}>📥 تصدير CSV</button>
+                <button className="btn-sm btn-edit" style={{ padding: '12px 20px', fontWeight: 800 }} onClick={exportToCSV}>📥 تصدير CSV</button>
               </div>
             </div>
 
@@ -455,11 +469,11 @@ export default function JasmalWhatsAppCRM() {
                   <input type="text" className="form-control" placeholder="رابط الدفع، تفاصيل، الخ..." value={extraInfo} onChange={e => setExtraInfo(e.target.value)} />
                 </div>
                 <div className="form-group">
-                  <label>
-                    <input type="checkbox" checked={includeDiscount} onChange={e => setIncludeDiscount(e.target.checked)} style={{marginLeft: '8px'}}/>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                    <input type="checkbox" checked={includeDiscount} onChange={e => setIncludeDiscount(e.target.checked)} style={{ width: '16px', height: '16px', accentColor: '#4f46e5' }}/>
                     إرفاق كود خصم تحفيزي بنهاية الرسالة
                   </label>
-                  {includeDiscount && <input type="text" className="form-control" value={discountCode} onChange={e => setDiscountCode(e.target.value)} />}
+                  {includeDiscount && <input type="text" className="form-control" value={discountCode} onChange={e => setDiscountCode(e.target.value)} style={{ marginTop: '8px' }} />}
                 </div>
               </div>
             </div>
@@ -489,13 +503,12 @@ export default function JasmalWhatsAppCRM() {
                     </p>
                     <div className="msg-preview" style={{ background: '#fff' }}>
                       يتم إرسال رسالة لـ: <strong>{broadcastList[broadcastIndex]?.name}</strong> <br/>
-                      جوال: {broadcastList[broadcastIndex]?.phone} | طلب: {broadcastList[broadcastIndex]?.orderNumber}
+                      جوال: <span dir="ltr">{broadcastList[broadcastIndex]?.phone}</span> | طلب: {broadcastList[broadcastIndex]?.orderNumber}
                     </div>
                     <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
                       <button className="btn-wa" onClick={() => {
                         const c = broadcastList[broadcastIndex];
                         setCustomerName(c.name); setOrderNumber(c.orderNumber); setCustomerPhone(c.phone);
-                        // توليد وإرسال مباشر
                         const tpl = templates.find(t => t.id === activeTemplateId)?.text || '';
                         let msg = tpl.replace(/\[الاسم\]/g, c.name).replace(/\[الطلب\]/g, c.orderNumber).replace(/\[إضافي\]/g, extraInfo);
                         if(includeDiscount) msg += `\n\n🎁 كود خصم خاص لك: *${discountCode}*`;
@@ -532,10 +545,22 @@ export default function JasmalWhatsAppCRM() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 {categories.map((cat, idx) => (
                   <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fff', padding: '12px 15px', borderRadius: '10px', border: '1px solid #e2e8f0', flexWrap: 'wrap', gap: '10px' }}>
-                    <input type="text" className="form-control" value={cat.name} onChange={e => updateCategory(idx, 'name', e.target.value)} style={{ width: '150px', padding: '8px' }} />
+                    <input type="text" className="form-control" value={cat.name} onChange={e => {
+                        const updatedCats = [...categories];
+                        updatedCats[idx].name = e.target.value;
+                        saveCategories(updatedCats);
+                    }} style={{ width: '150px', padding: '8px' }} />
                     <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                      <input type="color" value={cat.bg} onChange={e => updateCategory(idx, 'bg', e.target.value)} style={{ width: '35px', height: '35px', borderRadius: '8px', cursor: 'pointer', border: 'none' }} />
-                      <input type="color" value={cat.color} onChange={e => updateCategory(idx, 'color', e.target.value)} style={{ width: '35px', height: '35px', borderRadius: '8px', cursor: 'pointer', border: 'none' }} />
+                      <input type="color" value={cat.bg} onChange={e => {
+                          const updatedCats = [...categories];
+                          updatedCats[idx].bg = e.target.value;
+                          saveCategories(updatedCats);
+                      }} style={{ width: '35px', height: '35px', borderRadius: '8px', cursor: 'pointer', border: 'none' }} />
+                      <input type="color" value={cat.color} onChange={e => {
+                          const updatedCats = [...categories];
+                          updatedCats[idx].color = e.target.value;
+                          saveCategories(updatedCats);
+                      }} style={{ width: '35px', height: '35px', borderRadius: '8px', cursor: 'pointer', border: 'none' }} />
                       <span className="badge" style={{ backgroundColor: cat.bg, color: cat.color }}>معاينة الشارة</span>
                       <button className="btn-sm btn-danger" onClick={() => deleteCategory(cat.name)}>حذف</button>
                     </div>
