@@ -31,6 +31,10 @@ interface Template {
 export default function EngaziaWhatsAppCRM() {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'crm' | 'messaging' | 'tags'>('dashboard');
 
+  // إعدادات هوية المتجر
+  const [storeName, setStoreName] = useState('متجري الإلكتروني');
+  const [storeLogo, setStoreLogo] = useState('🛍️');
+
   // إدارة العملاء CRM
   const [contacts, setContacts] = useState<Customer[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -113,9 +117,13 @@ export default function EngaziaWhatsAppCRM() {
     }
 
     const savedDisc = localStorage.getItem('engazia_default_discount');
-    if (savedDisc) {
-      setDefaultDiscountCode(savedDisc);
-    }
+    if (savedDisc) setDefaultDiscountCode(savedDisc);
+
+    const savedStoreName = localStorage.getItem('engazia_store_name');
+    if (savedStoreName) setStoreName(savedStoreName);
+
+    const savedStoreLogo = localStorage.getItem('engazia_store_logo');
+    if (savedStoreLogo) setStoreLogo(savedStoreLogo);
 
     const handleClickOutside = (event: MouseEvent) => {
       if (suggestionsRef.current && !suggestionsRef.current.contains(event.target as Node)) {
@@ -145,6 +153,14 @@ export default function EngaziaWhatsAppCRM() {
     setDefaultDiscountCode(code);
     localStorage.setItem('engazia_default_discount', code);
     showToast('تم تحديث كود الخصم الافتراضي بنجاح');
+  };
+
+  const handleSaveStoreInfo = (name: string, logo: string) => {
+    setStoreName(name);
+    setStoreLogo(logo);
+    localStorage.setItem('engazia_store_name', name);
+    localStorage.setItem('engazia_store_logo', logo);
+    showToast('✨ تم تحديث بيانات المتجر بنجاح');
   };
 
   const formatPhone = (phone: string) => {
@@ -325,14 +341,15 @@ export default function EngaziaWhatsAppCRM() {
         .app-container { background: #f1f5f9; color: #0f172a; min-height: 100vh; font-family: 'Tajawal', sans-serif; direction: rtl; padding: 30px 15px; position: relative; }
         .wrapper { max-width: 1100px; margin: 0 auto; background: #fff; border-radius: 20px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.04); border: 1px solid #e2e8f0; }
         
-        /* Toast Notification */
         .toast-banner { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #1e293b; color: #fff; padding: 12px 24px; border-radius: 12px; font-size: 14px; font-weight: 800; z-index: 9999; box-shadow: 0 10px 25px rgba(0,0,0,0.15); animation: fadeInOut 0.3s ease; }
         @keyframes fadeInOut { from { opacity: 0; transform: translate(-50%, -10px); } to { opacity: 1; transform: translate(-50%, 0); } }
 
-        .header-brand { text-align: center; margin-bottom: 30px; }
-        .brand-title { font-size: 28px; font-weight: 900; color: #1e293b; letter-spacing: -0.5px; margin-bottom: 5px; }
+        .header-brand { text-align: center; margin-bottom: 30px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+        .store-logo-badge { width: 64px; height: 64px; border-radius: 16px; background: #eef2ff; color: #4f46e5; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 900; box-shadow: 0 4px 12px rgba(79,70,229,0.1); border: 2px solid #c7d2fe; overflow: hidden; }
+        .store-logo-badge img { width: 100%; height: 100%; object-fit: cover; }
+        .brand-title { font-size: 28px; font-weight: 900; color: #1e293b; letter-spacing: -0.5px; margin: 0; }
         .brand-title span { color: #4f46e5; }
-        .brand-desc { color: #64748b; font-size: 14px; font-weight: 500; }
+        .brand-desc { color: #64748b; font-size: 14px; font-weight: 500; margin: 0; }
 
         .nav-tabs { display: flex; gap: 10px; border-bottom: 2px solid #e2e8f0; padding-bottom: 15px; margin-bottom: 25px; overflow-x: auto; justify-content: center; }
         .tab-btn { background: transparent; border: none; padding: 10px 20px; border-radius: 12px; font-weight: 800; font-size: 14px; color: #64748b; cursor: pointer; transition: all 0.3s; white-space: nowrap; }
@@ -382,7 +399,6 @@ export default function EngaziaWhatsAppCRM() {
         .radio-btn { padding: 8px 20px; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer; color: #64748b; border: none; background: transparent; transition: 0.3s; }
         .radio-btn.active { background: #fff; color: #1e293b; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
 
-        /* Quick Filter Chips */
         .filter-chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 15px; }
         .chip-btn { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 800; cursor: pointer; border: 1px solid #cbd5e1; background: #fff; color: #475569; transition: all 0.2s; white-space: nowrap; }
         .chip-btn:hover { border-color: #4f46e5; color: #4f46e5; }
@@ -417,8 +433,16 @@ export default function EngaziaWhatsAppCRM() {
       <div className="wrapper">
         <Link href="/hub" className="back-link" style={{ color: '#4f46e5', textDecoration: 'none', fontWeight: 700, fontSize: '13px', display: 'inline-block', marginBottom: '15px' }}>← العودة للوحة الرئيسية</Link>
 
+        {/* ترويسة المتجر الديناميكية */}
         <div className="header-brand">
-          <h1 className="brand-title">منصة <span>إنجازيا</span> CRM</h1>
+          <div className="store-logo-badge">
+            {storeLogo.startsWith('http') || storeLogo.startsWith('/') || storeLogo.startsWith('data:') ? (
+              <img src={storeLogo} alt="Logo" />
+            ) : (
+              <span>{storeLogo}</span>
+            )}
+          </div>
+          <h1 className="brand-title">CRM <span>{storeName}</span></h1>
           <p className="brand-desc">النظام الأذكى لإدارة عملاء التجارة الإلكترونية وأتمتة المراسلات</p>
         </div>
 
@@ -442,7 +466,6 @@ export default function EngaziaWhatsAppCRM() {
                 <div className="stat-title">إجمالي العملاء</div>
                 <div className="stat-num">{contacts.length}</div>
               </div>
-              {/* بطاقات ديناميكية لكل تصنيف أنشأه التاجر */}
               {categories.map(cat => (
                 <div key={cat.name} className="stat-card" style={{ borderBottom: `4px solid ${cat.color}` }}>
                   <div className="stat-title">{cat.name}</div>
@@ -509,15 +532,22 @@ export default function EngaziaWhatsAppCRM() {
             </div>
 
             <div className="section-box" style={{ padding: '15px 25px' }}>
-              <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap', alignItems: 'flex-end', marginBottom: '15px' }}>
+              <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: '15px' }}>
+                
+                {/* شريط البحث والفلاتر (يمين) */}
+                <div style={{ display: 'flex', gap: '15px', flex: 1, minWidth: '280px', flexWrap: 'wrap' }}>
+                  <div className="form-group" style={{ flex: 2, margin: 0, minWidth: '200px' }}>
+                    <input type="text" className="form-control" placeholder="🔍 بحث بالاسم، الجوال، أو رقم الطلب..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
+                  </div>
+                </div>
+
+                {/* أزرار التصدير والاستيراد (يسار) */}
                 <div style={{ display: 'flex', gap: '10px' }}>
-                  <button className="btn-sm btn-edit" style={{ padding: '12px 20px', fontWeight: 800 }} onClick={exportToCSV}>📥 تصدير CSV</button>
                   <button className="btn-sm btn-success" style={{ padding: '12px 20px', fontWeight: 800 }} onClick={() => fileInputRef.current?.click()}>📤 استيراد CSV</button>
                   <input type="file" ref={fileInputRef} onChange={handleImportCSV} accept=".csv" style={{ display: 'none' }} />
+                  <button className="btn-sm btn-edit" style={{ padding: '12px 20px', fontWeight: 800 }} onClick={exportToCSV}>📥 تصدير CSV</button>
                 </div>
-                <div className="form-group" style={{ flex: 2, margin: 0, minWidth: '220px' }}>
-                  <input type="text" className="form-control" placeholder="🔍 بحث بالاسم، الجوال، أو رقم الطلب..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
-                </div>
+
               </div>
 
               {/* أزرار الفلترة السريعة (Quick Filter Chips) */}
@@ -689,7 +719,24 @@ export default function EngaziaWhatsAppCRM() {
         {/* 4. Settings */}
         {activeTab === 'tags' && (
           <div>
+            {/* إعدادات هوية المتجر */}
             <div className="section-box" style={{ background: '#eef2ff', borderColor: '#c7d2fe' }}>
+              <div className="section-title">🛍️ إعدادات هوية المتجر</div>
+              <p className="section-desc">خصص اسم متجرك والشعار (أيقونة إيموجي أو رابط صورة) لتظهر باحترافية في أعلى المنصة.</p>
+              
+              <div className="form-grid">
+                <div className="form-group" style={{ margin: 0 }}>
+                  <label>اسم المتجر</label>
+                  <input type="text" className="form-control" value={storeName} onChange={e => handleSaveStoreInfo(e.target.value, storeLogo)} />
+                </div>
+                <div className="form-group" style={{ margin: 0 }}>
+                  <label>شعار المتجر (إيموجي 🛍️ أو رابط صورة 🔗)</label>
+                  <input type="text" className="form-control" value={storeLogo} onChange={e => handleSaveStoreInfo(storeName, e.target.value)} />
+                </div>
+              </div>
+            </div>
+
+            <div className="section-box">
               <div className="section-title">⚡ إعدادات النظام العامة</div>
               <p className="section-desc">تحكم بكود الخصم الافتراضي الذي يتم إرفاقه تلقائياً مع الرسائل التسويقية.</p>
               
