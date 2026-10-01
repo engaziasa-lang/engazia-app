@@ -33,7 +33,7 @@ export default function EngaziaWhatsAppCRM() {
 
   // إعدادات هوية المتجر
   const [storeName, setStoreName] = useState('متجري الإلكتروني');
-  const [storeLogo, setStoreLogo] = useState('🛍️️');
+  const [storeLogo, setStoreLogo] = useState('🛍');
 
   // إدارة العملاء CRM
   const [contacts, setContacts] = useState<Customer[]>([]);
@@ -162,7 +162,6 @@ export default function EngaziaWhatsAppCRM() {
     showToast('✨ تم تحديث اسم المتجر بنجاح');
   };
 
-  // رفع شعار المتجر من الجهاز وتحويله لـ Base64
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -269,17 +268,19 @@ export default function EngaziaWhatsAppCRM() {
     window.open(url, '_blank');
   };
 
+  // تصحيح مشكلة حروف اللغة العربية في برنامج إكسل عبر إضافة BOM (\uFEFF) بترميز UTF-8
   const exportToCSV = () => {
     if (contacts.length === 0) return showToast('⚠️ لا توجد بيانات للتصدير.');
     const headers = "الاسم,الجوال,رقم الطلب,التصنيف,الحالة,إجمالي المشتريات (رس),الملاحظات,التاريخ\n";
     const rows = contacts.map(c => `"${c.name}","${c.phone}","${c.orderNumber}","${c.category}","${c.status}",${c.amount},"${c.note}","${c.date}"`).join("\n");
+    
     const blob = new Blob(["\uFEFF" + headers + rows], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
     link.download = "engazia_crm_export.csv";
     link.click();
-    showToast('📥 تم تصدير ملف العملاء بنجاح');
+    showToast('📥 تم تصدير ملف العملاء بترميز سليم لإكسل');
   };
 
   const handleImportCSV = (e: React.ChangeEvent<HTMLInputElement>) => {
