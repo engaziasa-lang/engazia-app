@@ -19,7 +19,7 @@ interface TagConfig {
   name: string;
   bg: string;
   color: string;
-  isSale: boolean; // خاصية تحديد هل التصنيف يحسب ضمن المبيعات أم لا
+  isSale: boolean;
 }
 
 interface Template {
@@ -70,7 +70,7 @@ export default function EngaziaWhatsAppCRM() {
   const [newTplTitle, setNewTplTitle] = useState('');
   const [newTplText, setNewTplText] = useState('');
 
-  // التصنيفات (مع دعم خاصية حساب المبيعات isSale)
+  // التصنيفات
   const [categories, setCategories] = useState<TagConfig[]>([
     { name: 'عميل جديد', bg: '#dbeafe', color: '#1d4ed8', isSale: true },
     { name: 'سلة متروكة', bg: '#fee2e2', color: '#dc2626', isSale: false },
@@ -81,6 +81,9 @@ export default function EngaziaWhatsAppCRM() {
   const [newCatBg, setNewCatBg] = useState('#e0e7ff');
   const [newCatColor, setNewCatColor] = useState('#4f46e5');
   const [newCatIsSale, setNewCatIsSale] = useState(true);
+
+  // مرجع لملف الاستيراد المخفي
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Autocomplete
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -235,7 +238,64 @@ export default function EngaziaWhatsAppCRM() {
     link.click();
   };
 
-  // حساب المبيعات الفعلية ديناميكياً بناءً على ما حدده التاجر في التصنيفات (isSale)
+  // استيراد بيانات CSV
+  const handleImportCSV = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const text = event.target?.result as string;
+        const lines = text.split('\n').filter(line => line.trim() !== '');
+        // تخطي السطر الأول (العناوين)
+        const newImportedContacts: Customer[] = [];
+        
+        for (let i = 1; i < lines.length; i++) {
+          // تقسيم السطر مع مراعاة علامات التنصيص
+          const row = lines[i].match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || lines[i].split(',');
+          if (row.length >= 2) {
+            const cleanVal = (val: string) => val ? val.replace(/^"|"$/g, '').trim() : '';
+            const name = cleanVal(row[0]);
+            const phone = cleanVal(row[1]);
+            const orderNumber = cleanVal(row[2]) || '#---';
+            const category = cleanVal(row[3]) || 'عميل جديد';
+            const status = cleanVal(row[4]) || 'نشط';
+            const amount = Number(cleanVal(row[5])) || 0;
+            const note = cleanVal(row[6]) || '';
+            const date = cleanVal(row[7]) || new Date().toLocaleDateString('ar-SA');
+
+            if (name && phone) {
+              newImportedContacts.push({
+                id: Date.now().toString() + Math.random(),
+                name,
+                phone,
+                orderNumber,
+                category,
+                status,
+                amount,
+                note,
+                date
+              });
+            }
+          }
+        }
+
+        if (newImportedContacts.length > 0) {
+          saveContacts([...newImportedContacts, ...contacts]);
+          alert(`تم استيراد ${newImportedContacts.length} عميل بنجاح!`);
+        } else {
+          alert('لم يتم العثور على بيانات صالحة للاستيراد في الملف.');
+        }
+      } catch (err) {
+        alert('حدث خطأ أثناء قراءة الملف. تأكد من أنه ملف CSV صحيح.');
+      }
+      // إفراغ الحقل للسماح باستيراد نفس الملف مرة أخرى إن أُمِر
+      e.target.value = '';
+    };
+    reader.readAsText(file, 'utf-8');
+  };
+
   const saleCategoriesNames = categories.filter(cat => cat.isSale).map(cat => cat.name);
   const totalValidSales = contacts
     .filter(c => saleCategoriesNames.includes(c.category))
@@ -428,14 +488,20 @@ export default function EngaziaWhatsAppCRM() {
 
             <div className="section-box" style={{ padding: '15px 25px' }}>
               <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap', alignItems: 'flex-end' }}>
-                <div className="form-group" style={{ flex: 1, margin: 0 }}><input type="text" className="form-control" placeholder="🔍 بحث بالاسم، الجوال، أو رقم الطلب..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} /></div>
-                <div className="form-group" style={{ flex: 1, margin: 0 }}>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <button className="btn-sm btn-edit" style={{ padding: '12px 20px', fontWeight: 800 }} onClick={exportToCSV}>📥 تصدير CSV</button>
+                  <button className="btn-sm btn-success" style={{ padding: '12px 20px', fontWeight: 800 }} onClick={() => fileInputRef.current?.click()}>📤 استيراد CSV</button>
+                  <input type="file" ref={fileInputRef} onChange={handleImportCSV} accept=".csv" style={{ display: 'none' }} />
+                </div>
+                <div className="form-group" style={{ flex: 1, margin: 0, minWidth: '150px' }}>
                   <select className="form-control" value={filterCategory} onChange={e => setFilterCategory(e.target.value)}>
                     <option value="all">كل التصنيفات</option>
                     {categories.map(cat => <option key={cat.name} value={cat.name}>{cat.name}</option>)}
                   </select>
                 </div>
-                <button className="btn-sm btn-edit" style={{ padding: '12px 20px', fontWeight: 800 }} onClick={exportToCSV}>📥 تصدير CSV</button>
+                <div className="form-group" style={{ flex: 2, margin: 0, minWidth: '200px' }}>
+                  <input type="text" className="form-control" placeholder="🔍 بحث بالاسم، الجوال، أو رقم الطلب..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
+                </div>
               </div>
             </div>
 
@@ -593,10 +659,9 @@ export default function EngaziaWhatsAppCRM() {
           </div>
         )}
 
-        {/* 4. Settings (Templates Top, Tags with Sales Config Bottom) */}
+        {/* 4. Settings */}
         {activeTab === 'tags' && (
           <div>
-            {/* 1. إعدادات النظام العامة */}
             <div className="section-box" style={{ background: '#eef2ff', borderColor: '#c7d2fe' }}>
               <div className="section-title">⚡ إعدادات النظام العامة</div>
               <p className="section-desc">تحكم بكود الخصم الافتراضي الذي يتم إرفاقه تلقائياً مع الرسائل التسويقية.</p>
@@ -607,7 +672,6 @@ export default function EngaziaWhatsAppCRM() {
               </div>
             </div>
 
-            {/* 2. قوالب الرسائل الجاهزة */}
             <div className="section-box">
               <div className="section-title">📝 قوالب الرسائل الجاهزة</div>
               <p className="section-desc">أنشئ نصوصاً جاهزة لاستخدامها بنقرة واحدة في قسم المراسلات.</p>
@@ -641,7 +705,6 @@ export default function EngaziaWhatsAppCRM() {
               </div>
             </div>
 
-            {/* 3. تصنيفات وحالات العملاء (مع خيار حساب المبيعات لكل تصنيف) */}
             <div className="section-box">
               <div className="section-title">🏷️ تخصيص تصنيفات وحالات العملاء</div>
               <p className="section-desc">حدد التصنيفات التي ترغب بأن تُحسب مبيعاتها ضمن إجمالي لوحة القيادة.</p>
