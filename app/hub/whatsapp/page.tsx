@@ -278,9 +278,10 @@ export default function EngaziaWhatsAppCRM() {
               .replace(/[۰-۹]/g, (d) => String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d)));
   };
 
+  // التحقق من أن رقم الجوال يتكون من 10 أرقام على الأقل
   const isPhoneValid = (phone: string) => {
     const clean = toEnglishDigits(phone).replace(/\D/g, '');
-    return clean.length >= 9;
+    return clean.length >= 10;
   };
 
   const updateLastContact = (id: string) => {
@@ -295,6 +296,12 @@ export default function EngaziaWhatsAppCRM() {
     e.preventDefault();
     if (!newName || !newPhone) return showToast('⚠️ أدخل الاسم ورقم الجوال.');
     
+    // شرط 10 أرقام بحد أدنى للرفض
+    const cleanPhoneCheck = toEnglishDigits(newPhone).replace(/\D/g, '');
+    if (cleanPhoneCheck.length < 10) {
+      return showToast('❌ رقم الجوال يجب أن يكون 10 أرقام على الأقل!');
+    }
+
     const now = new Date();
     const enDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 
@@ -316,6 +323,12 @@ export default function EngaziaWhatsAppCRM() {
   };
 
   const updateCustomerField = (id: string, field: string, value: string) => {
+    if (field === 'phone') {
+      const cleanVal = toEnglishDigits(value).replace(/\D/g, '');
+      if (cleanVal.length > 0 && cleanVal.length < 10) {
+        showToast('⚠️️ تنبيه: رقم الجوال أقل من 10 أرقام');
+      }
+    }
     const cleanVal = (field === 'phone' || field === 'orderNumber' || field === 'amount') ? toEnglishDigits(value) : value;
     const updated = contacts.map(c => {
       if (c.id === id) {
@@ -336,7 +349,7 @@ export default function EngaziaWhatsAppCRM() {
   const addCategory = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newCatName) return showToast('⚠️ أدخل اسم التصنيف.');
-    if (categories.some(c => c.name === newCatName)) return showToast('⚠️ هذا التصنيف موجود مسبقاً.');
+    if (categories.some(c => c.name === newCatName)) return showToast('⚠️️ هذا التصنيف موجود مسبقاً.');
     const updated = [...categories, { name: newCatName, bg: newCatBg, color: newCatColor, isSale: newCatIsSale }];
     saveCategories(updated);
     setNewCatName('');
@@ -511,7 +524,7 @@ export default function EngaziaWhatsAppCRM() {
             const date = cleanVal(row[7]) || defaultEnDate;
             const lastContactDate = cleanVal(row[8]) || 'لم يتم التواصل';
 
-            if (name && phone) {
+            if (name && phone && phone.replace(/\D/g, '').length >= 10) {
               newImportedContacts.push({
                 id: Date.now().toString() + Math.random(),
                 name,
@@ -532,7 +545,7 @@ export default function EngaziaWhatsAppCRM() {
           saveContacts([...newImportedContacts, ...contacts]);
           showToast(`✨ تم استيراد ${newImportedContacts.length} عميل بنجاح!`);
         } else {
-          showToast('⚠️ لم يتم العثور على بيانات صالحة للاستيراد.');
+          showToast('⚠️ لم يتم العثور على أرقام جوال صالحة (10 أرقام فأكثر) للاستيراد.');
         }
       } catch (err) {
         showToast('❌ حدث خطأ أثناء قراءة ملف الـ CSV.');
@@ -686,7 +699,7 @@ export default function EngaziaWhatsAppCRM() {
               <div className="modal-item">
                 <div className="modal-item-label">رقم الجوال</div>
                 <div className="modal-item-val" style={{ direction: 'ltr', textAlign: 'right', color: isPhoneValid(selectedCustomer.phone) ? '#1e293b' : '#dc2626' }}>
-                  {selectedCustomer.phone} {!isPhoneValid(selectedCustomer.phone) && <span style={{fontSize:'10px', color:'#dc2626'}}>(رقم غير مكتمل)</span>}
+                  {selectedCustomer.phone} {!isPhoneValid(selectedCustomer.phone) && <span style={{fontSize:'10px', color:'#dc2626'}}>(أقل من 10 أرقام)</span>}
                 </div>
               </div>
               <div className="modal-item">
@@ -837,7 +850,7 @@ export default function EngaziaWhatsAppCRM() {
               <form onSubmit={addContact}>
                 <div className="form-grid" style={{ marginBottom: '20px' }}>
                   <div className="form-group"><label>اسم العميل</label><input type="text" className="form-control" value={newName} onChange={e => setNewName(e.target.value)} required /></div>
-                  <div className="form-group"><label>رقم الجوال (05x)</label><input type="text" className="form-control input-ltr" value={newPhone} onChange={e => setNewPhone(toEnglishDigits(e.target.value))} required /></div>
+                  <div className="form-group"><label>رقم الجوال (10 أرقام على الأقل)</label><input type="text" className="form-control input-ltr" value={newPhone} onChange={e => setNewPhone(toEnglishDigits(e.target.value))} required placeholder="05xxxxxxxx" /></div>
                   <div className="form-group"><label>رقم الطلب (#)</label><input type="text" className="form-control input-ltr" value={newOrderNumber} onChange={e => setNewOrderNumber(toEnglishDigits(e.target.value))} /></div>
                   <div className="form-group">
                     <label>التصنيف</label>
@@ -914,7 +927,7 @@ export default function EngaziaWhatsAppCRM() {
                           style={{ borderColor: isPhoneValid(c.phone) ? '#cbd5e1' : '#dc2626' }} 
                           value={c.phone} 
                           onChange={e => updateCustomerField(c.id, 'phone', e.target.value)} 
-                          title={isPhoneValid(c.phone) ? 'رقم صحيح' : 'رقم جوال غير مكتمل'}
+                          title={isPhoneValid(c.phone) ? 'رقم صحيح' : 'رقم جوال أقل من 10 أرقام'}
                         />
                       </td>
                       <td><input type="text" className="cell-input input-ltr" style={{ color: '#4f46e5' }} value={c.orderNumber} onChange={e => updateCustomerField(c.id, 'orderNumber', e.target.value)} /></td>
@@ -1097,7 +1110,7 @@ export default function EngaziaWhatsAppCRM() {
               
               <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
                 <button className="btn-main" style={{ background: '#10b981' }} onClick={exportBackupJSON}>📥 تحميل نسخة احتياطية (JSON)</button>
-                <button className="btn-main" style={{ background: '#fff', color: '#166534', border: '1px solid #bbf7d0' }} onClick={() => restoreFileRef.current?.click()}>♻️ استعادة البيانات من ملف</button>
+                <button className="btn-main" style={{ background: '#fff', color: '#166534', border: '1px solid #bbf7d0' }} onClick={() => restoreFileRef.current?.click()}>♻️️ استعادة البيانات من ملف</button>
                 <input type="file" ref={restoreFileRef} onChange={importBackupJSON} accept=".json" style={{ display: 'none' }} />
               </div>
             </div>
