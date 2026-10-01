@@ -19,6 +19,7 @@ interface TagConfig {
   name: string;
   bg: string;
   color: string;
+  isSale: boolean; // خاصية تحديد هل التصنيف يحسب ضمن المبيعات أم لا
 }
 
 interface Template {
@@ -69,28 +70,29 @@ export default function EngaziaWhatsAppCRM() {
   const [newTplTitle, setNewTplTitle] = useState('');
   const [newTplText, setNewTplText] = useState('');
 
-  // التصنيفات
+  // التصنيفات (مع دعم خاصية حساب المبيعات isSale)
   const [categories, setCategories] = useState<TagConfig[]>([
-    { name: 'عميل جديد', bg: '#dbeafe', color: '#1d4ed8' },
-    { name: 'سلة متروكة', bg: '#fee2e2', color: '#dc2626' },
-    { name: 'بانتظار الدفع', bg: '#fef3c7', color: '#d97706' },
-    { name: 'تم الشحن والتوصيل', bg: '#dcfce7', color: '#15803d' }
+    { name: 'عميل جديد', bg: '#dbeafe', color: '#1d4ed8', isSale: true },
+    { name: 'سلة متروكة', bg: '#fee2e2', color: '#dc2626', isSale: false },
+    { name: 'بانتظار الدفع', bg: '#fef3c7', color: '#d97706', isSale: false },
+    { name: 'تم الشحن والتوصيل', bg: '#dcfce7', color: '#15803d', isSale: true }
   ]);
   const [newCatName, setNewCatName] = useState('');
   const [newCatBg, setNewCatBg] = useState('#e0e7ff');
   const [newCatColor, setNewCatColor] = useState('#4f46e5');
+  const [newCatIsSale, setNewCatIsSale] = useState(true);
 
   // Autocomplete
   const [showSuggestions, setShowSuggestions] = useState(false);
   const suggestionsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const savedContacts = localStorage.getItem('engazia_whatsapp_pro_crm_v4');
+    const savedContacts = localStorage.getItem('engazia_whatsapp_pro_crm_v5');
     if (savedContacts) {
       try { setContacts(JSON.parse(savedContacts)); } catch (e) { console.error(e); }
     }
     
-    const savedCats = localStorage.getItem('engazia_whatsapp_categories');
+    const savedCats = localStorage.getItem('engazia_whatsapp_categories_v2');
     if (savedCats) {
       try { setCategories(JSON.parse(savedCats)); } catch (e) { console.error(e); }
     }
@@ -116,12 +118,12 @@ export default function EngaziaWhatsAppCRM() {
 
   const saveContacts = (updated: Customer[]) => {
     setContacts(updated);
-    localStorage.setItem('engazia_whatsapp_pro_crm_v4', JSON.stringify(updated));
+    localStorage.setItem('engazia_whatsapp_pro_crm_v5', JSON.stringify(updated));
   };
 
   const saveCategories = (updated: TagConfig[]) => {
     setCategories(updated);
-    localStorage.setItem('engazia_whatsapp_categories', JSON.stringify(updated));
+    localStorage.setItem('engazia_whatsapp_categories_v2', JSON.stringify(updated));
   };
 
   const saveTemplates = (updated: Template[]) => {
@@ -179,9 +181,10 @@ export default function EngaziaWhatsAppCRM() {
     e.preventDefault();
     if (!newCatName) return alert('أدخل اسم التصنيف.');
     if (categories.some(c => c.name === newCatName)) return alert('هذا التصنيف موجود مسبقاً.');
-    const updated = [...categories, { name: newCatName, bg: newCatBg, color: newCatColor }];
+    const updated = [...categories, { name: newCatName, bg: newCatBg, color: newCatColor, isSale: newCatIsSale }];
     saveCategories(updated);
     setNewCatName('');
+    setNewCatIsSale(true);
   };
 
   const deleteCategory = (catName: string) => {
@@ -232,7 +235,11 @@ export default function EngaziaWhatsAppCRM() {
     link.click();
   };
 
-  const totalValidSales = contacts.filter(c => c.category !== 'سلة متروكة' && c.category !== 'بانتظار الدفع').reduce((acc, c) => acc + c.amount, 0);
+  // حساب المبيعات الفعلية ديناميكياً بناءً على ما حدده التاجر في التصنيفات (isSale)
+  const saleCategoriesNames = categories.filter(cat => cat.isSale).map(cat => cat.name);
+  const totalValidSales = contacts
+    .filter(c => saleCategoriesNames.includes(c.category))
+    .reduce((acc, c) => acc + c.amount, 0);
   
   const filteredContacts = contacts.filter(c => {
     const matchSearch = c.name.toLowerCase().includes(searchTerm.toLowerCase()) || c.phone.includes(searchTerm) || c.orderNumber.includes(searchTerm);
@@ -586,10 +593,10 @@ export default function EngaziaWhatsAppCRM() {
           </div>
         )}
 
-        {/* 4. Settings (Templates Top, Tags Bottom + Clean Global Settings) */}
+        {/* 4. Settings (Templates Top, Tags with Sales Config Bottom) */}
         {activeTab === 'tags' && (
           <div>
-            {/* 1. إعدادات النظام العامة (بدون زر الحذف الأحمر) */}
+            {/* 1. إعدادات النظام العامة */}
             <div className="section-box" style={{ background: '#eef2ff', borderColor: '#c7d2fe' }}>
               <div className="section-title">⚡ إعدادات النظام العامة</div>
               <p className="section-desc">تحكم بكود الخصم الافتراضي الذي يتم إرفاقه تلقائياً مع الرسائل التسويقية.</p>
@@ -600,7 +607,7 @@ export default function EngaziaWhatsAppCRM() {
               </div>
             </div>
 
-            {/* 2. قوالب الرسائل الجاهزة (في الأعلى) */}
+            {/* 2. قوالب الرسائل الجاهزة */}
             <div className="section-box">
               <div className="section-title">📝 قوالب الرسائل الجاهزة</div>
               <p className="section-desc">أنشئ نصوصاً جاهزة لاستخدامها بنقرة واحدة في قسم المراسلات.</p>
@@ -634,25 +641,31 @@ export default function EngaziaWhatsAppCRM() {
               </div>
             </div>
 
-            {/* 3. تصنيفات وحالات العملاء (في الأسفل) */}
+            {/* 3. تصنيفات وحالات العملاء (مع خيار حساب المبيعات لكل تصنيف) */}
             <div className="section-box">
               <div className="section-title">🏷️ تخصيص تصنيفات وحالات العملاء</div>
-              <p className="section-desc">قم بإدارة وتلوين حالات الطلبات لتمييز عملائك بسهولة.</p>
+              <p className="section-desc">حدد التصنيفات التي ترغب بأن تُحسب مبيعاتها ضمن إجمالي لوحة القيادة.</p>
               
               <form onSubmit={addCategory} className="settings-creation-box">
                 <div className="form-group" style={{ flex: 2, margin: 0 }}>
                   <label>اسم التصنيف الجديد</label>
                   <input type="text" className="form-control" placeholder="مثال: قيد التجهيز..." value={newCatName} onChange={e => setNewCatName(e.target.value)} required />
                 </div>
-                <div className="form-group" style={{ flex: 1, margin: 0, minWidth: '100px' }}>
-                  <label>لون الخلفية</label>
+                <div className="form-group" style={{ flex: 1, margin: 0, minWidth: '90px' }}>
+                  <label>الخلفية</label>
                   <input type="color" className="form-control color-picker" value={newCatBg} onChange={e => setNewCatBg(e.target.value)} />
                 </div>
-                <div className="form-group" style={{ flex: 1, margin: 0, minWidth: '100px' }}>
-                  <label>لون النص</label>
+                <div className="form-group" style={{ flex: 1, margin: 0, minWidth: '90px' }}>
+                  <label>النص</label>
                   <input type="color" className="form-control color-picker" value={newCatColor} onChange={e => setNewCatColor(e.target.value)} />
                 </div>
-                <button type="submit" className="btn-main" style={{ height: '44px', padding: '0 30px', whiteSpace: 'nowrap' }}>➕ إضافة</button>
+                <div className="form-group" style={{ flex: 1, margin: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                  <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <input type="checkbox" checked={newCatIsSale} onChange={e => setNewCatIsSale(e.target.checked)} style={{ width: '16px', height: '16px', accentColor: '#4f46e5' }} />
+                    يُحسب كمبيعات؟
+                  </label>
+                </div>
+                <button type="submit" className="btn-main" style={{ height: '44px', padding: '0 25px', whiteSpace: 'nowrap' }}>➕ إضافة</button>
               </form>
 
               <div className="tags-list-container">
@@ -685,6 +698,14 @@ export default function EngaziaWhatsAppCRM() {
                             saveCategories(updatedCats);
                         }} />
                       </div>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '12px', fontWeight: 700, cursor: 'pointer', color: '#475569' }}>
+                        <input type="checkbox" checked={cat.isSale} onChange={e => {
+                            const updatedCats = [...categories];
+                            updatedCats[idx].isSale = e.target.checked;
+                            saveCategories(updatedCats);
+                        }} style={{ width: '15px', height: '15px', accentColor: '#4f46e5' }} />
+                        مبيعات
+                      </label>
                       <span className="badge" style={{ backgroundColor: cat.bg, color: cat.color }}>معاينة الشارة</span>
                       <button className="btn-icon btn-danger" onClick={() => deleteCategory(cat.name)}>🗑️ حذف</button>
                     </div>
