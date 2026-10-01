@@ -33,7 +33,7 @@ export default function EngaziaWhatsAppCRM() {
 
   // إعدادات هوية المتجر
   const [storeName, setStoreName] = useState('متجري الإلكتروني');
-  const [storeLogo, setStoreLogo] = useState('🛍️');
+  const [storeLogo, setStoreLogo] = useState('🛍️️');
 
   // إدارة العملاء CRM
   const [contacts, setContacts] = useState<Customer[]>([]);
@@ -93,12 +93,13 @@ export default function EngaziaWhatsAppCRM() {
     setTimeout(() => setToastMessage(null), 3000);
   };
 
-  // مرجع لملف الاستيراد المخفي
+  // المراجع
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const storeLogoFileRef = useRef<HTMLInputElement>(null);
+  const suggestionsRef = useRef<HTMLDivElement>(null);
 
   // Autocomplete
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const suggestionsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const savedContacts = localStorage.getItem('engazia_whatsapp_pro_crm_v5');
@@ -155,12 +156,27 @@ export default function EngaziaWhatsAppCRM() {
     showToast('تم تحديث كود الخصم الافتراضي بنجاح');
   };
 
-  const handleSaveStoreInfo = (name: string, logo: string) => {
+  const handleSaveStoreName = (name: string) => {
     setStoreName(name);
-    setStoreLogo(logo);
     localStorage.setItem('engazia_store_name', name);
-    localStorage.setItem('engazia_store_logo', logo);
-    showToast('✨ تم تحديث بيانات المتجر بنجاح');
+    showToast('✨ تم تحديث اسم المتجر بنجاح');
+  };
+
+  // رفع شعار المتجر من الجهاز وتحويله لـ Base64
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const result = event.target?.result as string;
+      if (result) {
+        setStoreLogo(result);
+        localStorage.setItem('engazia_store_logo', result);
+        showToast('🖼️ تم رفع شعار المتجر بنجاح!');
+      }
+    };
+    reader.readAsDataURL(file);
   };
 
   const formatPhone = (phone: string) => {
@@ -345,7 +361,7 @@ export default function EngaziaWhatsAppCRM() {
         @keyframes fadeInOut { from { opacity: 0; transform: translate(-50%, -10px); } to { opacity: 1; transform: translate(-50%, 0); } }
 
         .header-brand { text-align: center; margin-bottom: 30px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
-        .store-logo-badge { width: 64px; height: 64px; border-radius: 16px; background: #eef2ff; color: #4f46e5; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 900; box-shadow: 0 4px 12px rgba(79,70,229,0.1); border: 2px solid #c7d2fe; overflow: hidden; }
+        .store-logo-badge { width: 68px; height: 68px; border-radius: 18px; background: #eef2ff; color: #4f46e5; display: flex; align-items: center; justify-content: center; font-size: 30px; font-weight: 900; box-shadow: 0 4px 15px rgba(79,70,229,0.15); border: 2px solid #c7d2fe; overflow: hidden; }
         .store-logo-badge img { width: 100%; height: 100%; object-fit: cover; }
         .brand-title { font-size: 28px; font-weight: 900; color: #1e293b; letter-spacing: -0.5px; margin: 0; }
         .brand-title span { color: #4f46e5; }
@@ -436,8 +452,8 @@ export default function EngaziaWhatsAppCRM() {
         {/* ترويسة المتجر الديناميكية */}
         <div className="header-brand">
           <div className="store-logo-badge">
-            {storeLogo.startsWith('http') || storeLogo.startsWith('/') || storeLogo.startsWith('data:') ? (
-              <img src={storeLogo} alt="Logo" />
+            {storeLogo.startsWith('data:') || storeLogo.startsWith('http') || storeLogo.startsWith('/') ? (
+              <img src={storeLogo} alt="Store Logo" />
             ) : (
               <span>{storeLogo}</span>
             )}
@@ -722,16 +738,19 @@ export default function EngaziaWhatsAppCRM() {
             {/* إعدادات هوية المتجر */}
             <div className="section-box" style={{ background: '#eef2ff', borderColor: '#c7d2fe' }}>
               <div className="section-title">🛍️ إعدادات هوية المتجر</div>
-              <p className="section-desc">خصص اسم متجرك والشعار (أيقونة إيموجي أو رابط صورة) لتظهر باحترافية في أعلى المنصة.</p>
+              <p className="section-desc">خصص اسم متجرك وقم برفع شعار المتجر من جهاز الكمبيوتر ليظهر باحترافية في أعلى المنصة.</p>
               
-              <div className="form-grid">
+              <div className="form-grid" style={{ alignItems: 'flex-end' }}>
                 <div className="form-group" style={{ margin: 0 }}>
                   <label>اسم المتجر</label>
-                  <input type="text" className="form-control" value={storeName} onChange={e => handleSaveStoreInfo(e.target.value, storeLogo)} />
+                  <input type="text" className="form-control" value={storeName} onChange={e => handleSaveStoreName(e.target.value)} />
                 </div>
                 <div className="form-group" style={{ margin: 0 }}>
-                  <label>شعار المتجر (إيموجي 🛍️ أو رابط صورة 🔗)</label>
-                  <input type="text" className="form-control" value={storeLogo} onChange={e => handleSaveStoreInfo(storeName, e.target.value)} />
+                  <label>شعار المتجر (صورة من جهاز الكمبيوتر)</label>
+                  <button className="btn-main" style={{ width: '100%', background: '#fff', color: '#4f46e5', border: '1px solid #c7d2fe' }} onClick={() => storeLogoFileRef.current?.click()}>
+                    🖼️ اختر صورة الشعار من جهازك
+                  </button>
+                  <input type="file" ref={storeLogoFileRef} onChange={handleLogoUpload} accept="image/*" style={{ display: 'none' }} />
                 </div>
               </div>
             </div>
