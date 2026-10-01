@@ -20,7 +20,7 @@ interface Customer {
   responseState?: string;
   amount: string;
   note: string;
-  date: string;
+  date: string; // YYYY-MM-DD
   lastContactDate?: string;
   timeline?: TimelineLog[];
 }
@@ -61,6 +61,7 @@ export default function EngaziaWhatsAppCRM() {
   const [contacts, setContacts] = useState<Customer[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('all');
+  const [dateFilter, setDateFilter] = useState<'all' | 'this_week' | 'this_month'>('all');
   
   // نافذة تفاصيل العميل المنبثقة (Modal) التفاعلية والقابلة للتعديل
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
@@ -259,7 +260,7 @@ export default function EngaziaWhatsAppCRM() {
       statusOptions,
       responseStateOptions,
       templates,
-      version: '2.1'
+      version: '2.2'
     };
     const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -482,8 +483,8 @@ export default function EngaziaWhatsAppCRM() {
 
   const addResponseStateOption = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newRespName) return showToast('⚠️️ أدخل اسم حالة الرد.');
-    if (responseStateOptions.some(r => r.name === newRespName)) return showToast('⚠️ حالة الرد هذه موجودة مسبقاً.');
+    if (!newRespName) return showToast('⚠ أدخل اسم حالة الرد.');
+    if (responseStateOptions.some(r => r.name === newRespName)) return showToast('⚠️️ حالة الرد هذه موجودة مسبقاً.');
     const updated = [...responseStateOptions, { name: newRespName, bg: newRespBg, color: newRespColor }];
     saveResponseStates(updated);
     setNewRespName('');
@@ -532,12 +533,35 @@ export default function EngaziaWhatsAppCRM() {
     }
   };
 
+  // وظيفة فلترة التاريخ للعملاء والمبيعات
+  const filterByDateRange = (cList: Customer[]) => {
+    if (dateFilter === 'all') return cList;
+    const now = new Date();
+    return cList.filter(c => {
+      if (!c.date) return false;
+      const cDate = new Date(c.date);
+      if (isNaN(cDate.getTime())) return false;
+
+      if (dateFilter === 'this_month') {
+        return cDate.getFullYear() === now.getFullYear() && cDate.getMonth() === now.getMonth();
+      } else if (dateFilter === 'this_week') {
+        const firstDayOfWeek = new Date(now);
+        firstDayOfWeek.setDate(now.getDate() - now.getDay());
+        firstDayOfWeek.setHours(0, 0, 0, 0);
+        return cDate >= firstDayOfWeek;
+      }
+      return true;
+    });
+  };
+
+  const timeFilteredContacts = filterByDateRange(contacts);
+
   const saleCategoriesNames = categories.filter(cat => cat.isSale).map(cat => cat.name);
-  const totalValidSales = contacts
+  const totalValidSales = timeFilteredContacts
     .filter(c => saleCategoriesNames.includes(c.category))
     .reduce((acc, c) => acc + (Number(c.amount) || 0), 0);
   
-  const filteredContacts = contacts.filter(c => {
+  const filteredContacts = timeFilteredContacts.filter(c => {
     const matchSearch = c.name.toLowerCase().includes(searchTerm.toLowerCase()) || c.phone.includes(searchTerm) || c.orderNumber.includes(searchTerm);
     const matchCat = filterCategory === 'all' || c.category === filterCategory;
     return matchSearch && matchCat;
@@ -596,12 +620,24 @@ export default function EngaziaWhatsAppCRM() {
         .btn-edit { background: #e0e7ff; color: #4f46e5; }
         .btn-danger { background: #fee2e2; color: #dc2626; }
 
-        .table-container { width: 100%; background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; overflow-x: hidden; }
-        .contacts-table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: right; table-layout: fixed; }
-        .contacts-table th, .contacts-table td { padding: 8px 6px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; word-break: break-word; }
+        /* استجابة الجوال وتحويل الجدول إلى بطاقات (Cards) في الشاشات الصغيرة */
+        .table-container { width: 100%; background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; overflow-x: auto; }
+        .contacts-table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: right; min-width: 850px; }
+        .contacts-table th, .contacts-table td { padding: 10px 8px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
         .contacts-table th { background: #f8fafc; color: #475569; font-weight: 800; font-size: 11.5px; }
         .contacts-table tr:hover { background: #fcfcfc; }
         
+        .mobile-cards-view { display: none; flex-direction: column; gap: 12px; }
+        .customer-card-item { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+        .customer-card-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px; }
+        .customer-card-body { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 12px; color: #475569; }
+        .customer-card-footer { display: flex; gap: 8px; border-top: 1px solid #f1f5f9; padding-top: 10px; margin-top: 4px; }
+
+        @media (max-width: 768px) {
+          .table-container { display: none; }
+          .mobile-cards-view { display: flex; }
+        }
+
         .cell-input { padding: 5px 8px; font-size: 11.5px; border: 1px solid #cbd5e1; border-radius: 6px; background: #fff; font-family: 'Tajawal', sans-serif; font-weight: 700; color: #1e293b; width: 100%; outline: none; box-sizing: border-box; transition: 0.2s; }
         .cell-input:focus { border-color: #4f46e5; box-shadow: 0 0 0 2px rgba(79,70,229,0.1); }
 
@@ -823,6 +859,16 @@ export default function EngaziaWhatsAppCRM() {
           <button className={`tab-btn ${activeTab === 'tags' ? 'active' : ''}`} onClick={() => setActiveTab('tags')}>⚙️ الإعدادات</button>
         </div>
 
+        {/* شريط الفلترة الزمنية العام */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f8fafc', border: '1px solid #e2e8f0', padding: '12px 20px', borderRadius: '12px', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
+          <div style={{ fontSize: '13px', fontWeight: 800, color: '#475569' }}>📅 فلترة حسب الفترة الزمنية:</div>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button className={`chip-btn ${dateFilter === 'all' ? 'active' : ''}`} onClick={() => setDateFilter('all')}>كل الوقت</button>
+            <button className={`chip-btn ${dateFilter === 'this_month' ? 'active' : ''}`} onClick={() => setDateFilter('this_month')}>هذا الشهر</button>
+            <button className={`chip-btn ${dateFilter === 'this_week' ? 'active' : ''}`} onClick={() => setDateFilter('this_week')}>هذا الأسبوع</button>
+          </div>
+        </div>
+
         {/* 1. Dashboard */}
         {activeTab === 'dashboard' && (
           <div>
@@ -834,12 +880,12 @@ export default function EngaziaWhatsAppCRM() {
               </div>
               <div className="stat-card" style={{ borderBottom: '4px solid #10b981' }}>
                 <div className="stat-title">إجمالي العملاء</div>
-                <div className="stat-num">{contacts.length}</div>
+                <div className="stat-num">{timeFilteredContacts.length}</div>
               </div>
               {categories.map(cat => (
                 <div key={cat.name} className="stat-card" style={{ borderBottom: `4px solid ${cat.color}` }}>
                   <div className="stat-title">{cat.name}</div>
-                  <div className="stat-num">{contacts.filter(c => c.category === cat.name).length}</div>
+                  <div className="stat-num">{timeFilteredContacts.filter(c => c.category === cat.name).length}</div>
                 </div>
               ))}
             </div>
@@ -859,7 +905,7 @@ export default function EngaziaWhatsAppCRM() {
                   </tr>
                 </thead>
                 <tbody>
-                  {contacts.slice(0, 5).map(c => {
+                  {timeFilteredContacts.slice(0, 5).map(c => {
                     const respConf = responseStateOptions.find(r => r.name === c.responseState);
                     return (
                       <tr key={c.id}>
@@ -898,7 +944,7 @@ export default function EngaziaWhatsAppCRM() {
                       </tr>
                     );
                   })}
-                  {contacts.length === 0 && <tr><td colSpan={7} style={{textAlign: 'center', padding: '30px', color: '#64748b'}}>لا يوجد عملاء بعد. انتقل لإدارة العملاء لإضافتهم.</td></tr>}
+                  {timeFilteredContacts.length === 0 && <tr><td colSpan={7} style={{textAlign: 'center', padding: '30px', color: '#64748b'}}>لا يوجد عملاء بالفترة الزمنية المحددة.</td></tr>}
                 </tbody>
               </table>
             </div>
@@ -909,13 +955,13 @@ export default function EngaziaWhatsAppCRM() {
         {activeTab === 'analytics' && (
           <div>
             <div className="section-title">📈 التحليلات المتقدمة ونسب الاستجابة</div>
-            <p className="section-desc">تحليلات دقيقة لأداء متجرك، وتوزيع العملاء حسب حالات الرد والمبيعات.</p>
+            <p className="section-desc">تحليلات دقيقة لأداء متجرك بناءً على الفترة الزمنية المختارة.</p>
             
             <div className="dashboard-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))' }}>
               <div className="stat-card" style={{ textAlign: 'right', padding: '25px' }}>
                 <div className="stat-title" style={{ marginBottom: '10px' }}>📊 نسبة إتمام الصفقات</div>
                 <div className="stat-num" style={{ color: '#10b981', textAlign: 'right' }}>
-                  {contacts.length > 0 ? ((contacts.filter(c => c.responseState === 'تم الاتفاق').length / contacts.length) * 100).toFixed(1) : 0}%
+                  {timeFilteredContacts.length > 0 ? ((timeFilteredContacts.filter(c => c.responseState === 'تم الاتفاق').length / timeFilteredContacts.length) * 100).toFixed(1) : 0}%
                 </div>
                 <p style={{ fontSize: '12px', color: '#64748b', marginTop: '5px' }}>من إجمالي العملاء تم الاتفاق معهم.</p>
               </div>
@@ -923,7 +969,7 @@ export default function EngaziaWhatsAppCRM() {
               <div className="stat-card" style={{ textAlign: 'right', padding: '25px' }}>
                 <div className="stat-title" style={{ marginBottom: '10px' }}>⏳ العملاء بانتظار الرد</div>
                 <div className="stat-num" style={{ color: '#d97706', textAlign: 'right' }}>
-                  {contacts.filter(c => c.responseState === 'بانتظار الرد' || !c.responseState).length} عميل
+                  {timeFilteredContacts.filter(c => c.responseState === 'بانتظار الرد' || !c.responseState).length} عميل
                 </div>
                 <p style={{ fontSize: '12px', color: '#64748b', marginTop: '5px' }}>يحتاجون للمتابعة والتواصل الفوري.</p>
               </div>
@@ -931,7 +977,7 @@ export default function EngaziaWhatsAppCRM() {
               <div className="stat-card" style={{ textAlign: 'right', padding: '25px' }}>
                 <div className="stat-title" style={{ marginBottom: '10px' }}>💰 متوسط قيمة العميل (LTV)</div>
                 <div className="stat-num" style={{ color: '#4f46e5', textAlign: 'right' }}>
-                  {contacts.length > 0 ? (totalValidSales / contacts.length).toFixed(0) : 0} <span style={{fontSize:'12px'}}>ر.س</span>
+                  {timeFilteredContacts.length > 0 ? (totalValidSales / timeFilteredContacts.length).toFixed(0) : 0} <span style={{fontSize:'12px'}}>ر.س</span>
                 </div>
                 <p style={{ fontSize: '12px', color: '#64748b', marginTop: '5px' }}>متوسط المشتريات لكل عميل مسجل.</p>
               </div>
@@ -941,8 +987,8 @@ export default function EngaziaWhatsAppCRM() {
               <div className="section-title">🎯 توزيع الحالات والنسب المئوية للتصنيفات</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginTop: '15px' }}>
                 {categories.map(cat => {
-                  const count = contacts.filter(c => c.category === cat.name).length;
-                  const pct = contacts.length > 0 ? (count / contacts.length) * 100 : 0;
+                  const count = timeFilteredContacts.filter(c => c.category === cat.name).length;
+                  const pct = timeFilteredContacts.length > 0 ? (count / timeFilteredContacts.length) * 100 : 0;
                   return (
                     <div key={cat.name}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: 800, marginBottom: '5px' }}>
@@ -1011,15 +1057,16 @@ export default function EngaziaWhatsAppCRM() {
               </div>
 
               <div className="filter-chips">
-                <button className={`chip-btn ${filterCategory === 'all' ? 'active' : ''}`} onClick={() => setFilterCategory('all')}>جميع العملاء ({contacts.length})</button>
+                <button className={`chip-btn ${filterCategory === 'all' ? 'active' : ''}`} onClick={() => setFilterCategory('all')}>جميع التصنيفات ({timeFilteredContacts.length})</button>
                 {categories.map(cat => (
                   <button key={cat.name} className={`chip-btn ${filterCategory === cat.name ? 'active' : ''}`} onClick={() => setFilterCategory(cat.name)}>
-                    {cat.name} ({contacts.filter(c => c.category === cat.name).length})
+                    {cat.name} ({timeFilteredContacts.filter(c => c.category === cat.name).length})
                   </button>
                 ))}
               </div>
             </div>
 
+            {/* طريقة عرض الجدول للشاشات الكبيرة */}
             <div className="table-container">
               <table className="contacts-table">
                 <thead>
@@ -1089,6 +1136,42 @@ export default function EngaziaWhatsAppCRM() {
                   {filteredContacts.length === 0 && <tr><td colSpan={10} style={{textAlign: 'center', padding: '30px', color: '#64748b'}}>لا يوجد عملاء يطابقون بحثك.</td></tr>}
                 </tbody>
               </table>
+            </div>
+
+            {/* طريقة عرض البطاقات (Cards) المتجاوبة للشاشات الصغيرة والهواتف */}
+            <div className="mobile-cards-view">
+              {filteredContacts.map(c => {
+                const respConf = responseStateOptions.find(r => r.name === c.responseState);
+                return (
+                  <div key={c.id} className="customer-card-item">
+                    <div className="customer-card-header">
+                      <span 
+                        style={{ fontWeight: 900, color: '#4f46e5', fontSize: '15px', cursor: 'pointer' }}
+                        onClick={() => setSelectedCustomer(c)}
+                      >
+                        {c.name}
+                      </span>
+                      <span className="badge" style={{ background: categories.find(cat => cat.name === c.category)?.bg || '#eee', color: categories.find(cat => cat.name === c.category)?.color || '#000' }}>
+                        {c.category}
+                      </span>
+                    </div>
+
+                    <div className="customer-card-body">
+                      <div><strong>الجوال:</strong> <span dir="ltr">{c.phone}</span></div>
+                      <div><strong>الطلب:</strong> <span dir="ltr">{c.orderNumber}</span></div>
+                      <div><strong>المشتريات:</strong> <span dir="ltr">{c.amount} ر.س</span></div>
+                      <div><strong>حالة الرد:</strong> <span className="badge" style={{ background: respConf?.bg || '#fef3c7', color: respConf?.color || '#d97706' }}>{c.responseState || 'بانتظار الرد'}</span></div>
+                    </div>
+
+                    <div className="customer-card-footer">
+                      <button className="btn-sm btn-success" style={{ flex: 1, padding: '8px' }} onClick={() => routeToMessaging(c)}>💬 مراسلة واتساب</button>
+                      <button className="btn-sm btn-edit" style={{ padding: '8px 12px' }} onClick={() => setSelectedCustomer(c)}>✏ تعديل</button>
+                      <button className="btn-sm btn-danger" style={{ padding: '8px 12px' }} onClick={() => deleteContact(c.id)}>🗑️</button>
+                    </div>
+                  </div>
+                );
+              })}
+              {filteredContacts.length === 0 && <div style={{ textAlign: 'center', padding: '30px', color: '#64748b', background: '#fff', borderRadius: '12px' }}>لا يوجد عملاء يطابقون بحثك.</div>}
             </div>
           </div>
         )}
@@ -1475,7 +1558,7 @@ export default function EngaziaWhatsAppCRM() {
                         مبيعات
                       </label>
                       <span className="badge" style={{ backgroundColor: cat.bg, color: cat.color }}>معاينة الشارة</span>
-                      <button className="btn-icon btn-danger" onClick={() => deleteCategory(cat.name)}>🗑️️ حذف</button>
+                      <button className="btn-icon btn-danger" onClick={() => deleteCategory(cat.name)}>🗑 حذف</button>
                     </div>
                   </div>
                 ))}
