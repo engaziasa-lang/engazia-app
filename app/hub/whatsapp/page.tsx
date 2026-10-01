@@ -14,8 +14,14 @@ interface Customer {
   date: string;
 }
 
+interface TagConfig {
+  name: string;
+  bg: string;
+  color: string;
+}
+
 export default function WhatsAppProHub() {
-  const [activeTab, setActiveTab] = useState<'generator' | 'crm' | 'broadcast' | 'templates' | 'links'>('generator');
+  const [activeTab, setActiveTab] = useState<'generator' | 'crm' | 'broadcast' | 'templates' | 'links' | 'tags'>('generator');
 
   // مولد الرسائل والخصومات
   const [customerName, setCustomerName] = useState('');
@@ -26,6 +32,17 @@ export default function WhatsAppProHub() {
   const [includeDiscount, setIncludeDiscount] = useState(false);
   const [extraInfo, setExtraInfo] = useState('');
   const [generatedMsg, setGeneratedMsg] = useState('');
+
+  // إدارة التصنيفات المخصصة مع الألوان
+  const [categories, setCategories] = useState<TagConfig[]>([
+    { name: 'عميل جديد', bg: '#dbeafe', color: '#1d4ed8' },
+    { name: 'سلة متروكة', bg: '#fee2e2', color: '#dc2626' },
+    { name: 'بانتظار الدفع', bg: '#fef3c7', color: '#d97706' },
+    { name: 'تم الشحن والتوصيل', bg: '#dcfce7', color: '#15803d' }
+  ]);
+  const [newCatName, setNewCatName] = useState('');
+  const [newCatBg, setNewCatBg] = useState('#e0e7ff');
+  const [newCatColor, setNewCatColor] = useState('#4f46e5');
 
   // إدارة CRM العملاء
   const [contacts, setContacts] = useState<Customer[]>([]);
@@ -57,15 +74,24 @@ export default function WhatsAppProHub() {
   const [broadcastIndex, setBroadcastIndex] = useState(0);
 
   useEffect(() => {
-    const saved = localStorage.getItem('engazia_whatsapp_pro_crm_v2');
-    if (saved) {
-      try { setContacts(JSON.parse(saved)); } catch (e) {}
+    const savedContacts = localStorage.getItem('engazia_whatsapp_pro_crm_v3');
+    if (savedContacts) {
+      try { setContacts(JSON.parse(savedContacts)); } catch (e) {}
+    }
+    const savedCats = localStorage.getItem('engazia_whatsapp_categories');
+    if (savedCats) {
+      try { setCategories(JSON.parse(savedCats)); } catch (e) {}
     }
   }, []);
 
   const saveContacts = (updated: Customer[]) => {
     setContacts(updated);
-    localStorage.setItem('engazia_whatsapp_pro_crm_v2', JSON.stringify(updated));
+    localStorage.setItem('engazia_whatsapp_pro_crm_v3', JSON.stringify(updated));
+  };
+
+  const saveCategories = (updated: TagConfig[]) => {
+    setCategories(updated);
+    localStorage.setItem('engazia_whatsapp_categories', JSON.stringify(updated));
   };
 
   const formatPhone = (phone: string) => {
@@ -99,6 +125,34 @@ export default function WhatsAppProHub() {
     if (confirm('هل أنت متأكد من حذف هذا العميل؟')) {
       saveContacts(contacts.filter(c => c.id !== id));
     }
+  };
+
+  const addCategory = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newCatName) return alert('أدخل اسم التصنيف.');
+    if (categories.some(c => c.name === newCatName)) return alert('هذا التصنيف موجود مسبقاً.');
+    const updated = [...categories, { name: newCatName, bg: newCatBg, color: newCatColor }];
+    saveCategories(updated);
+    setNewCatName('');
+    alert('تمت إضافة التصنيف بنجاح!');
+  };
+
+  const deleteCategory = (catName: string) => {
+    if (categories.length <= 1) return alert('يجب أن يبقى تصنيف واحد على الأقل.');
+    if (confirm(`حذف التصنيف "${catName}"؟`)) {
+      const updated = categories.filter(c => c.name !== catName);
+      saveCategories(updated);
+      if (newCategory === catName) setNewCategory(updated[0].name);
+      if (broadcastCat === catName) setBroadcastCat(updated[0].name);
+    }
+  };
+
+  const getTagStyle = (catName: string) => {
+    const found = categories.find(c => c.name === catName);
+    if (found) {
+      return { backgroundColor: found.bg, color: found.color };
+    }
+    return { backgroundColor: '#e2e8f0', color: '#334155' };
   };
 
   const generateMessage = () => {
@@ -167,8 +221,8 @@ export default function WhatsAppProHub() {
         .title { font-size: 22px; font-weight: 900; color: #0f172a; }
         .desc { color: #64748b; font-size: 13px; }
 
-        .stats-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 20px; }
-        .stat-card { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px; padding: 12px 8px; text-align: center; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 20px; }
+        .stat-card { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px; padding: 12px 10px; text-align: center; }
         .stat-num { font-size: 16px; font-weight: 900; color: #4f46e5; margin-top: 4px; }
         .stat-title { font-size: 11px; color: #64748b; font-weight: 800; }
 
@@ -199,10 +253,6 @@ export default function WhatsAppProHub() {
         .contacts-table th, .contacts-table td { padding: 10px; border-bottom: 1px solid #e2e8f0; text-align: right; }
         .contacts-table th { background: #f1f5f9; color: #334155; font-weight: 800; }
         .badge { padding: 3px 8px; border-radius: 12px; font-size: 10px; font-weight: 800; display: inline-block; }
-        .badge-new { background: #dbeafe; color: #1d4ed8; }
-        .badge-cart { background: #fee2e2; color: #dc2626; }
-        .badge-pay { background: #fef3c7; color: #d97706; }
-        .badge-ship { background: #dcfce7; color: #15803d; }
 
         .btn-sm { padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; border: none; }
         .btn-danger { background: #fee2e2; color: #dc2626; }
@@ -221,31 +271,24 @@ export default function WhatsAppProHub() {
         <div className="header-flex">
           <div>
             <h2 className="title">🚀 منصة إنجازيا لعملاء واتساب (PRO MAX)</h2>
-            <p className="desc">إدارة العملاء وتصنيفاتهم التجارية المتقدمة، أتمتة الحملات بطابور ذكي.</p>
+            <p className="desc">إدارة العملاء، التصنيفات المخصصة والألوان، وأتمتة الحملات بطابور ذكي.</p>
           </div>
         </div>
 
-        {/* مؤشرات حية متقدمة تغطي كل جوانب العميل */}
+        {/* إحصائيات حية تتكيف ديناميكياً مع التصنيفات المضافة */}
         <div className="stats-grid">
-          <div className="stat-card">
-            <div className="stat-title">عملاء جدد</div>
-            <div className="stat-num">{contacts.filter(c => c.category === 'عميل جديد').length}</div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-title">السلال المتروكة</div>
-            <div className="stat-num">{contacts.filter(c => c.category === 'سلة متروكة').length}</div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-title">بانتظار الدفع</div>
-            <div className="stat-num">{contacts.filter(c => c.category === 'بانتظار الدفع').length}</div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-title">تم الشحن والتوصيل</div>
-            <div className="stat-num">{contacts.filter(c => c.category === 'تم الشحن والتوصيل').length}</div>
-          </div>
-          <div className="stat-card">
+          {categories.map(cat => {
+            const count = contacts.filter(c => c.category === cat.name).length;
+            return (
+              <div key={cat.name} className="stat-card" style={{ borderRight: `4px solid ${cat.color}` }}>
+                <div className="stat-title">{cat.name}</div>
+                <div className="stat-num">{count}</div>
+              </div>
+            );
+          })}
+          <div className="stat-card" style={{ borderRight: '4px solid #4f46e5' }}>
             <div className="stat-title">إجمالي المبيعات</div>
-            <div className="stat-num" style={{ fontSize: '14px' }}>{contacts.reduce((acc, c) => acc + c.amount, 0).toLocaleString()} ر.س</div>
+            <div className="stat-num" style={{ fontSize: '13px' }}>{contacts.reduce((acc, c) => acc + c.amount, 0).toLocaleString()} ر.س</div>
           </div>
         </div>
 
@@ -253,6 +296,7 @@ export default function WhatsAppProHub() {
         <div className="nav-tabs">
           <button className={`tab-btn ${activeTab === 'generator' ? 'active' : ''}`} onClick={() => setActiveTab('generator')}>⚡ مولد الرسائل والخصم</button>
           <button className={`tab-btn ${activeTab === 'crm' ? 'active' : ''}`} onClick={() => setActiveTab('crm')}>👥 إدارة العملاء (CRM)</button>
+          <button className={`tab-btn ${activeTab === 'tags' ? 'active' : ''}`} onClick={() => setActiveTab('tags')}>🏷️ إدارة التصنيفات والألوان</button>
           <button className={`tab-btn ${activeTab === 'broadcast' ? 'active' : ''}`} onClick={() => setActiveTab('broadcast')}>📢 الحملات الذكية</button>
           <button className={`tab-btn ${activeTab === 'templates' ? 'active' : ''}`} onClick={() => setActiveTab('templates')}>📋 الردود الجاهزة</button>
           <button className={`tab-btn ${activeTab === 'links' ? 'active' : ''}`} onClick={() => setActiveTab('links')}>🔗 صانع الروابط</button>
@@ -328,10 +372,9 @@ export default function WhatsAppProHub() {
                 </div>
                 <div className="form-group">
                   <select className="form-control" value={newCategory} onChange={e => setNewCategory(e.target.value)}>
-                    <option value="عميل جديد">عميل جديد 👤</option>
-                    <option value="سلة متروكة">سلة متروكة 🛒</option>
-                    <option value="بانتظار الدفع">بانتظار الدفع 💳</option>
-                    <option value="تم الشحن والتوصيل">تم الشحن والتوصيل 📦</option>
+                    {categories.map(cat => (
+                      <option key={cat.name} value={cat.name}>{cat.name}</option>
+                    ))}
                   </select>
                 </div>
                 <div className="form-group">
@@ -346,10 +389,9 @@ export default function WhatsAppProHub() {
                 <input type="text" placeholder="🔍 بحث بالاسم أو الجوال..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
                 <select value={filterCategory} onChange={e => setFilterCategory(e.target.value)}>
                   <option value="all">كل التصنيفات</option>
-                  <option value="عميل جديد">عميل جديد</option>
-                  <option value="سلة متروكة">سلة متروكة</option>
-                  <option value="بانتظار الدفع">بانتظار الدفع</option>
-                  <option value="تم الشحن والتوصيل">تم الشحن والتوصيل</option>
+                  {categories.map(cat => (
+                    <option key={cat.name} value={cat.name}>{cat.name}</option>
+                  ))}
                 </select>
               </div>
               <button className="btn-sm btn-success" style={{ padding: '8px 14px' }} onClick={exportToCSV}>📥 تصدير ملف إكسل CSV</button>
@@ -376,7 +418,7 @@ export default function WhatsAppProHub() {
                         <td style={{ fontWeight: '800' }}>{c.name}</td>
                         <td>{c.phone}</td>
                         <td>
-                          <span className={`badge ${c.category === 'سلة متروكة' ? 'badge-cart' : c.category === 'بانتظار الدفع' ? 'badge-pay' : c.category === 'تم الشحن والتوصيل' ? 'badge-ship' : 'badge-new'}`}>
+                          <span className="badge" style={getTagStyle(c.category)}>
                             {c.category}
                           </span>
                         </td>
@@ -397,17 +439,58 @@ export default function WhatsAppProHub() {
           </div>
         )}
 
-        {/* 3. الحملات الذكية مع نظام الطابور (Queue) */}
+        {/* 3. إدارة التصنيفات والألوان المخصصة */}
+        {activeTab === 'tags' && (
+          <div>
+            <h3 style={{ fontSize: '14px', fontWeight: '900', marginBottom: '10px' }}>🏷️ تخصيص وإضافة تصنيفات العملاء</h3>
+            <p style={{ color: '#64748b', fontSize: '12px', marginBottom: '15px' }}>قم بإنشاء تصنيفات جديدة تناسب نشاط متجرك واختر اللون المناسب لكل تصنيف.</p>
+            
+            <form onSubmit={addCategory} style={{ background: '#f8fafc', padding: '15px', borderRadius: '10px', marginBottom: '20px', border: '1px solid #cbd5e1' }}>
+              <div className="form-grid" style={{ alignItems: 'center' }}>
+                <div className="form-group" style={{ margin: 0 }}>
+                  <label>اسم التصنيف الجديد</label>
+                  <input type="text" className="form-control" placeholder="مثال: بانتظار الشحن" value={newCatName} onChange={e => setNewCatName(e.target.value)} required />
+                </div>
+                <div className="form-group" style={{ margin: 0, display: 'flex', gap: '10px' }}>
+                  <div style={{ flex: 1 }}>
+                    <label>لون الخلفية</label>
+                    <input type="color" className="form-control" style={{ height: '38px', padding: '2px' }} value={newCatBg} onChange={e => setNewCatBg(e.target.value)} />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <label>لون النص</label>
+                    <input type="color" className="form-control" style={{ height: '38px', padding: '2px' }} value={newCatColor} onChange={e => setNewCatColor(e.target.value)} />
+                  </div>
+                </div>
+              </div>
+              <button type="submit" className="btn-main" style={{ marginTop: '12px', padding: '10px' }}>➕ إضافة التصنيف الجديد</button>
+            </form>
+
+            <h4 style={{ fontSize: '13px', fontWeight: '900', marginBottom: '10px' }}>التصنيفات الحالية في المتجر:</h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {categories.map(cat => (
+                <div key={cat.name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fff', padding: '10px 15px', borderRadius: '8px', border: '1px solid #cbd5e1' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <span className="badge" style={{ backgroundColor: cat.bg, color: cat.color, padding: '5px 12px', fontSize: '12px' }}>
+                      {cat.name}
+                    </span>
+                  </div>
+                  <button className="btn-sm btn-danger" onClick={() => deleteCategory(cat.name)}>حذف التصنيف</button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* 4. الحملات الذكية مع نظام الطابور (Queue) */}
         {activeTab === 'broadcast' && (
           <div>
             <h3 style={{ fontSize: '14px', fontWeight: '900', marginBottom: '10px' }}>📢 الحملات التسويقية وطابور الإرسال الذكي</h3>
             <div className="form-group">
               <label>اختر الشريحة المستهدفة:</label>
               <select className="form-control" value={broadcastCat} onChange={e => { setBroadcastCat(e.target.value); setBroadcastIndex(0); }}>
-                <option value="عميل جديد">👤 العملاء الجدد ({contacts.filter(c => c.category === 'عميل جديد').length})</option>
-                <option value="سلة متروكة">🛒 السلال المتروكة ({contacts.filter(c => c.category === 'سلة متروكة').length})</option>
-                <option value="بانتظار الدفع">💳 بانتظار الدفع ({contacts.filter(c => c.category === 'بانتظار الدفع').length})</option>
-                <option value="تم الشحن والتوصيل">📦 تم الشحن والتوصيل ({contacts.filter(c => c.category === 'تم الشحن والتوصيل').length})</option>
+                {categories.map(cat => (
+                  <option key={cat.name} value={cat.name}>{cat.name} ({contacts.filter(c => c.category === cat.name).length})</option>
+                ))}
               </select>
             </div>
             <div className="form-group">
@@ -433,14 +516,14 @@ export default function WhatsAppProHub() {
                   <button className="btn-main" style={{ flex: 'none', width: 'auto', padding: '12px 25px' }} onClick={() => {
                     if (broadcastIndex < broadcastList.length - 1) setBroadcastIndex(broadcastIndex + 1);
                     else alert('لقد أتممت إرسال الحملة لكافة العملاء في هذه الشريحة!');
-                  }}>التالي ⬅️</button>
+                  }}>التالي ⬅️️</button>
                 </div>
               </div>
             )}
           </div>
         )}
 
-        {/* 4. الردود الجاهزة المخصصة */}
+        {/* 5. الردود الجاهزة المخصصة */}
         {activeTab === 'templates' && (
           <div>
             <div style={{ background: '#f8fafc', padding: '15px', borderRadius: '10px', marginBottom: '15px', border: '1px solid #cbd5e1' }}>
@@ -466,7 +549,7 @@ export default function WhatsAppProHub() {
           </div>
         )}
 
-        {/* 5. صانع روابط واتساب */}
+        {/* 6. صانع روابط واتساب */}
         {activeTab === 'links' && (
           <div>
             <h3 style={{ fontSize: '14px', fontWeight: '900', marginBottom: '10px' }}>🔗 صانع روابط واتساب المباشرة (لبايو إكس / تيك توك)</h3>
