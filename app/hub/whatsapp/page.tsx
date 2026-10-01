@@ -57,7 +57,7 @@ export default function WhatsAppProHub() {
   const [broadcastIndex, setBroadcastIndex] = useState(0);
 
   useEffect(() => {
-    const saved = localStorage.getItem('engazia_whatsapp_pro_crm');
+    const saved = localStorage.getItem('engazia_whatsapp_pro_crm_v2');
     if (saved) {
       try { setContacts(JSON.parse(saved)); } catch (e) {}
     }
@@ -65,7 +65,7 @@ export default function WhatsAppProHub() {
 
   const saveContacts = (updated: Customer[]) => {
     setContacts(updated);
-    localStorage.setItem('engazia_whatsapp_pro_crm', JSON.stringify(updated));
+    localStorage.setItem('engazia_whatsapp_pro_crm_v2', JSON.stringify(updated));
   };
 
   const formatPhone = (phone: string) => {
@@ -161,16 +161,16 @@ export default function WhatsAppProHub() {
       <style jsx>{`
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
         .app-container { background: #f8fafc; color: #0f172a; min-height: 100vh; font-family: 'Tajawal', sans-serif; direction: rtl; padding: 25px 15px 50px; }
-        .wrapper { max-width: 1000px; margin: 0 auto; background: #fff; border-radius: 16px; padding: 25px; border: 1px solid #cbd5e1; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+        .wrapper { max-width: 1050px; margin: 0 auto; background: #fff; border-radius: 16px; padding: 25px; border: 1px solid #cbd5e1; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
         .back-link { color: #4f46e5; text-decoration: none; font-weight: 700; font-size: 13px; display: inline-block; margin-bottom: 15px; }
         .header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
         .title { font-size: 22px; font-weight: 900; color: #0f172a; }
         .desc { color: #64748b; font-size: 13px; }
 
-        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
-        .stat-card { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px; padding: 12px; text-align: center; }
-        .stat-num { font-size: 18px; font-weight: 900; color: #4f46e5; }
-        .stat-title { font-size: 11px; color: #64748b; font-weight: 700; }
+        .stats-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 20px; }
+        .stat-card { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px; padding: 12px 8px; text-align: center; }
+        .stat-num { font-size: 16px; font-weight: 900; color: #4f46e5; margin-top: 4px; }
+        .stat-title { font-size: 11px; color: #64748b; font-weight: 800; }
 
         .nav-tabs { display: flex; gap: 6px; border-bottom: 1px solid #e2e8f0; padding-bottom: 12px; margin-bottom: 20px; overflow-x: auto; }
         .tab-btn { background: #f1f5f9; border: 1px solid #cbd5e1; padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 12px; color: #475569; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
@@ -199,10 +199,11 @@ export default function WhatsAppProHub() {
         .contacts-table th, .contacts-table td { padding: 10px; border-bottom: 1px solid #e2e8f0; text-align: right; }
         .contacts-table th { background: #f1f5f9; color: #334155; font-weight: 800; }
         .badge { padding: 3px 8px; border-radius: 12px; font-size: 10px; font-weight: 800; display: inline-block; }
-        .badge-vip { background: #fef3c7; color: #d97706; }
         .badge-new { background: #dbeafe; color: #1d4ed8; }
         .badge-cart { background: #fee2e2; color: #dc2626; }
-        .badge-done { background: #dcfce7; color: #15803d; }
+        .badge-pay { background: #fef3c7; color: #d97706; }
+        .badge-ship { background: #dcfce7; color: #15803d; }
+
         .btn-sm { padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; border: none; }
         .btn-danger { background: #fee2e2; color: #dc2626; }
         .btn-success { background: #dcfce7; color: #15803d; }
@@ -211,7 +212,7 @@ export default function WhatsAppProHub() {
         .toolbar-group { display: flex; gap: 8px; flex: 1; }
         .toolbar input, .toolbar select { padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; background: #fff; }
 
-        @media(max-width: 640px) { .form-grid { grid-template-columns: 1fr; } .templates-selector { grid-template-columns: 1fr 1fr; } .stats-grid { grid-template-columns: 1fr 1fr; } }
+        @media(max-width: 768px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } .form-grid { grid-template-columns: 1fr; } .templates-selector { grid-template-columns: 1fr 1fr; } }
       `}</style>
 
       <div className="wrapper">
@@ -220,31 +221,35 @@ export default function WhatsAppProHub() {
         <div className="header-flex">
           <div>
             <h2 className="title">🚀 منصة إنجازيا لعملاء واتساب (PRO MAX)</h2>
-            <p className="desc">إدارة العملاء، أتمتة الحملات بطابور ذكي، ومولد الرسائل المتقدم.</p>
+            <p className="desc">إدارة العملاء وتصنيفاتهم التجارية المتقدمة، أتمتة الحملات بطابور ذكي.</p>
           </div>
         </div>
 
-        {/* مؤشرات حية متقدمة */}
+        {/* مؤشرات حية متقدمة تغطي كل جوانب العميل */}
         <div className="stats-grid">
           <div className="stat-card">
-            <div className="stat-title">إجمالي العملاء</div>
-            <div className="stat-num">{contacts.length}</div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-title">عملاء VIP</div>
-            <div className="stat-num">{contacts.filter(c => c.category === 'عميل VIP').length}</div>
+            <div className="stat-title">عملاء جدد</div>
+            <div className="stat-num">{contacts.filter(c => c.category === 'عميل جديد').length}</div>
           </div>
           <div className="stat-card">
             <div className="stat-title">السلال المتروكة</div>
             <div className="stat-num">{contacts.filter(c => c.category === 'سلة متروكة').length}</div>
           </div>
           <div className="stat-card">
-            <div className="stat-title">إجمالي المبيعات المسجلة</div>
-            <div className="stat-num">{contacts.reduce((acc, c) => acc + c.amount, 0).toLocaleString()} ر.س</div>
+            <div className="stat-title">بانتظار الدفع</div>
+            <div className="stat-num">{contacts.filter(c => c.category === 'بانتظار الدفع').length}</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-title">تم الشحن والتوصيل</div>
+            <div className="stat-num">{contacts.filter(c => c.category === 'تم الشحن والتوصيل').length}</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-title">إجمالي المبيعات</div>
+            <div className="stat-num" style={{ fontSize: '14px' }}>{contacts.reduce((acc, c) => acc + c.amount, 0).toLocaleString()} ر.س</div>
           </div>
         </div>
 
-        {/* شريط التنقل الاحترافي (المبسط) */}
+        {/* شريط التنقل */}
         <div className="nav-tabs">
           <button className={`tab-btn ${activeTab === 'generator' ? 'active' : ''}`} onClick={() => setActiveTab('generator')}>⚡ مولد الرسائل والخصم</button>
           <button className={`tab-btn ${activeTab === 'crm' ? 'active' : ''}`} onClick={() => setActiveTab('crm')}>👥 إدارة العملاء (CRM)</button>
@@ -285,7 +290,7 @@ export default function WhatsAppProHub() {
               </div>
             </div>
 
-            <div style={{ background: '#f8fafc', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', marginBottom: '15px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ background: '#f8fafc', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', marginBottom: '15px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <input type="checkbox" id="discCheck" checked={includeDiscount} onChange={e => setIncludeDiscount(e.target.checked)} style={{ width: '18px', height: '18px', accentColor: '#4f46e5' }} />
                 <label htmlFor="discCheck" style={{ fontSize: '13px', fontWeight: '800', cursor: 'pointer', margin: 0 }}>إرفاق كود خصم تحفيزي مع الرسالة</label>
@@ -313,7 +318,7 @@ export default function WhatsAppProHub() {
         {activeTab === 'crm' && (
           <div>
             <form onSubmit={addContact} style={{ background: '#f8fafc', padding: '15px', borderRadius: '10px', marginBottom: '20px', border: '1px solid #cbd5e1' }}>
-              <h3 style={{ fontSize: '13px', fontWeight: '900', marginBottom: '10px' }}>➕ تسجيل عميل جديد وحجم المشتريات</h3>
+              <h3 style={{ fontSize: '13px', fontWeight: '900', marginBottom: '10px' }}>➕ تسجيل عميل جديد وتحديد تصنيفه</h3>
               <div className="form-grid">
                 <div className="form-group">
                   <input type="text" className="form-control" placeholder="اسم العميل" value={newName} onChange={e => setNewName(e.target.value)} required />
@@ -323,10 +328,10 @@ export default function WhatsAppProHub() {
                 </div>
                 <div className="form-group">
                   <select className="form-control" value={newCategory} onChange={e => setNewCategory(e.target.value)}>
-                    <option value="عميل جديد">عميل جديد</option>
-                    <option value="عميل VIP">عميل VIP 🌟</option>
+                    <option value="عميل جديد">عميل جديد 👤</option>
                     <option value="سلة متروكة">سلة متروكة 🛒</option>
-                    <option value="تم التوصيل">تم التوصيل ✅</option>
+                    <option value="بانتظار الدفع">بانتظار الدفع 💳</option>
+                    <option value="تم الشحن والتوصيل">تم الشحن والتوصيل 📦</option>
                   </select>
                 </div>
                 <div className="form-group">
@@ -341,9 +346,10 @@ export default function WhatsAppProHub() {
                 <input type="text" placeholder="🔍 بحث بالاسم أو الجوال..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
                 <select value={filterCategory} onChange={e => setFilterCategory(e.target.value)}>
                   <option value="all">كل التصنيفات</option>
-                  <option value="عميل VIP">عميل VIP</option>
-                  <option value="سلة متروكة">سلة متروكة</option>
                   <option value="عميل جديد">عميل جديد</option>
+                  <option value="سلة متروكة">سلة متروكة</option>
+                  <option value="بانتظار الدفع">بانتظار الدفع</option>
+                  <option value="تم الشحن والتوصيل">تم الشحن والتوصيل</option>
                 </select>
               </div>
               <button className="btn-sm btn-success" style={{ padding: '8px 14px' }} onClick={exportToCSV}>📥 تصدير ملف إكسل CSV</button>
@@ -358,7 +364,7 @@ export default function WhatsAppProHub() {
                     <tr>
                       <th>الاسم</th>
                       <th>الجوال</th>
-                      <th>التصنيف</th>
+                      <th>التصنيف التجاري</th>
                       <th>المشتريات</th>
                       <th>التاريخ</th>
                       <th>الإجراءات</th>
@@ -370,7 +376,7 @@ export default function WhatsAppProHub() {
                         <td style={{ fontWeight: '800' }}>{c.name}</td>
                         <td>{c.phone}</td>
                         <td>
-                          <span className={`badge ${c.category === 'عميل VIP' ? 'badge-vip' : c.category === 'سلة متروكة' ? 'badge-cart' : 'badge-new'}`}>
+                          <span className={`badge ${c.category === 'سلة متروكة' ? 'badge-cart' : c.category === 'بانتظار الدفع' ? 'badge-pay' : c.category === 'تم الشحن والتوصيل' ? 'badge-ship' : 'badge-new'}`}>
                             {c.category}
                           </span>
                         </td>
@@ -378,7 +384,7 @@ export default function WhatsAppProHub() {
                         <td style={{ color: '#64748b', fontSize: '11px' }}>{c.date}</td>
                         <td>
                           <div style={{ display: 'flex', gap: '5px' }}>
-                            <button className="btn-sm btn-success" onClick={() => openWhatsApp(c.phone, `مرحباً ${c.name}، معك متجر إنجازيا.`)}>💬 مراسلة</button>
+                            <button className="btn-sm btn-success" onClick={() => openWhatsApp(c.phone, `مرحباً ${c.name}، معك متجر إنجازيا بخصوص طلبك.`)}>💬 مراسلة</button>
                             <button className="btn-sm btn-danger" onClick={() => deleteContact(c.id)}>حذف</button>
                           </div>
                         </td>
@@ -394,13 +400,14 @@ export default function WhatsAppProHub() {
         {/* 3. الحملات الذكية مع نظام الطابور (Queue) */}
         {activeTab === 'broadcast' && (
           <div>
-            <h3 style={{ fontSize: '14px', fontWeight: '900', marginBottom: '10px' }}>📢 الحملات التسويقية والطابور الذكي</h3>
+            <h3 style={{ fontSize: '14px', fontWeight: '900', marginBottom: '10px' }}>📢 الحملات التسويقية وطابور الإرسال الذكي</h3>
             <div className="form-group">
               <label>اختر الشريحة المستهدفة:</label>
               <select className="form-control" value={broadcastCat} onChange={e => { setBroadcastCat(e.target.value); setBroadcastIndex(0); }}>
-                <option value="سلة متروكة">🛒 السلال المتروكة ({contacts.filter(c => c.category === 'سلة متروكة').length})</option>
-                <option value="عميل VIP">🌟 عملاء VIP ({contacts.filter(c => c.category === 'عميل VIP').length})</option>
                 <option value="عميل جديد">👤 العملاء الجدد ({contacts.filter(c => c.category === 'عميل جديد').length})</option>
+                <option value="سلة متروكة">🛒 السلال المتروكة ({contacts.filter(c => c.category === 'سلة متروكة').length})</option>
+                <option value="بانتظار الدفع">💳 بانتظار الدفع ({contacts.filter(c => c.category === 'بانتظار الدفع').length})</option>
+                <option value="تم الشحن والتوصيل">📦 تم الشحن والتوصيل ({contacts.filter(c => c.category === 'تم الشحن والتوصيل').length})</option>
               </select>
             </div>
             <div className="form-group">
@@ -418,7 +425,7 @@ export default function WhatsAppProHub() {
                 <div style={{ background: '#fff', padding: '15px', borderRadius: '8px', border: '1px solid #e2e8f0', marginBottom: '15px', fontWeight: '900', fontSize: '16px' }}>
                   {broadcastList[broadcastIndex]?.name} ({broadcastList[broadcastIndex]?.phone})
                 </div>
-                <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+                <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap' }}>
                   <button className="btn-wa" style={{ flex: 'none', padding: '12px 25px' }} onClick={() => {
                     const current = broadcastList[broadcastIndex];
                     openWhatsApp(current.phone, `مرحباً ${current.name}، ${broadcastText}`);
