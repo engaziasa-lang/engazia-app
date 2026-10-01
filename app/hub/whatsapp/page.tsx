@@ -27,7 +27,7 @@ interface Template {
   text: string;
 }
 
-export default function JasmalWhatsAppCRM() {
+export default function EngaziaWhatsAppCRM() {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'crm' | 'messaging' | 'tags'>('dashboard');
 
   // إدارة العملاء CRM
@@ -49,7 +49,7 @@ export default function JasmalWhatsAppCRM() {
   const [orderNumber, setOrderNumber] = useState('');
   const [extraInfo, setExtraInfo] = useState('');
   const [includeDiscount, setIncludeDiscount] = useState(false);
-  const [discountCode, setDiscountCode] = useState('JASMAL10');
+  const [discountCode, setDiscountCode] = useState('ENGAZIA10');
   const [generatedMsg, setGeneratedMsg] = useState('');
   
   // الطابور (Broadcast)
@@ -83,14 +83,33 @@ export default function JasmalWhatsAppCRM() {
   const suggestionsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const savedContacts = localStorage.getItem('jasmal_crm_data');
-    if (savedContacts) try { setContacts(JSON.parse(savedContacts)); } catch (e) {}
+    // استعادة البيانات بمفاتيح إنجازيا القديمة حتى لا تفقد عملائك
+    const savedContacts = localStorage.getItem('engazia_whatsapp_pro_crm_v4');
+    if (savedContacts) {
+      try { 
+        setContacts(JSON.parse(savedContacts)); 
+      } catch (error) {
+        console.error("Error parsing contacts data:", error);
+      }
+    }
     
-    const savedCats = localStorage.getItem('jasmal_tags_data');
-    if (savedCats) try { setCategories(JSON.parse(savedCats)); } catch (e) {}
+    const savedCats = localStorage.getItem('engazia_whatsapp_categories');
+    if (savedCats) {
+      try { 
+        setCategories(JSON.parse(savedCats)); 
+      } catch (error) {
+        console.error("Error parsing categories data:", error);
+      }
+    }
 
-    const savedTpls = localStorage.getItem('jasmal_templates');
-    if (savedTpls) try { setTemplates(JSON.parse(savedTpls)); } catch (e) {}
+    const savedTpls = localStorage.getItem('engazia_templates_v2');
+    if (savedTpls) {
+      try { 
+        setTemplates(JSON.parse(savedTpls)); 
+      } catch (error) {
+        console.error("Error parsing templates data:", error);
+      }
+    }
 
     const handleClickOutside = (event: MouseEvent) => {
       if (suggestionsRef.current && !suggestionsRef.current.contains(event.target as Node)) {
@@ -103,17 +122,17 @@ export default function JasmalWhatsAppCRM() {
 
   const saveContacts = (updated: Customer[]) => {
     setContacts(updated);
-    localStorage.setItem('jasmal_crm_data', JSON.stringify(updated));
+    localStorage.setItem('engazia_whatsapp_pro_crm_v4', JSON.stringify(updated));
   };
 
   const saveCategories = (updated: TagConfig[]) => {
     setCategories(updated);
-    localStorage.setItem('jasmal_tags_data', JSON.stringify(updated));
+    localStorage.setItem('engazia_whatsapp_categories', JSON.stringify(updated));
   };
 
   const saveTemplates = (updated: Template[]) => {
     setTemplates(updated);
-    localStorage.setItem('jasmal_templates', JSON.stringify(updated));
+    localStorage.setItem('engazia_templates_v2', JSON.stringify(updated));
   };
 
   const formatPhone = (phone: string) => {
@@ -141,12 +160,38 @@ export default function JasmalWhatsAppCRM() {
     alert('تم إضافة العميل بنجاح!');
   };
 
-  const updateCustomerField = (id: string, field: keyof Customer, value: any) => {
-    saveContacts(contacts.map(c => c.id === id ? { ...c, [field]: value } : c));
+  const updateCustomerField = (id: string, field: string, value: string | number) => {
+    const updated = contacts.map(c => {
+      if (c.id === id) {
+        return { ...c, [field]: value };
+      }
+      return c;
+    });
+    saveContacts(updated);
   };
 
   const deleteContact = (id: string) => {
-    if (confirm('تأكيد حذف العميل؟')) saveContacts(contacts.filter(c => c.id !== id));
+    if (window.confirm('هل أنت متأكد من حذف هذا العميل؟')) {
+      saveContacts(contacts.filter(c => c.id !== id));
+    }
+  };
+
+  const addCategory = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newCatName) return alert('أدخل اسم التصنيف.');
+    if (categories.some(c => c.name === newCatName)) return alert('هذا التصنيف موجود مسبقاً.');
+    const updated = [...categories, { name: newCatName, bg: newCatBg, color: newCatColor }];
+    saveCategories(updated);
+    setNewCatName('');
+    alert('تمت إضافة التصنيف بنجاح!');
+  };
+
+  const deleteCategory = (catName: string) => {
+    if (categories.length <= 1) return alert('يجب أن يبقى تصنيف واحد على الأقل.');
+    if (window.confirm(`حذف التصنيف "${catName}"؟`)) {
+      const updated = categories.filter(c => c.name !== catName);
+      saveCategories(updated);
+    }
   };
 
   // توجيه ذكي للمراسلة
@@ -186,15 +231,18 @@ export default function JasmalWhatsAppCRM() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = "jasmal_crm_export.csv";
+    link.download = "engazia_crm_export.csv";
     link.click();
   };
 
   const totalValidSales = contacts.filter(c => c.category !== 'سلة متروكة' && c.category !== 'بانتظار الدفع').reduce((acc, c) => acc + c.amount, 0);
-  const filteredContacts = contacts.filter(c => 
-    (c.name.toLowerCase().includes(searchTerm.toLowerCase()) || c.phone.includes(searchTerm) || c.orderNumber.includes(searchTerm)) &&
-    (filterCategory === 'all' || c.category === filterCategory)
-  );
+  
+  const filteredContacts = contacts.filter(c => {
+    const matchSearch = c.name.toLowerCase().includes(searchTerm.toLowerCase()) || c.phone.includes(searchTerm) || c.orderNumber.includes(searchTerm);
+    const matchCat = filterCategory === 'all' || c.category === filterCategory;
+    return matchSearch && matchCat;
+  });
+
   const matchingCustomers = customerName.trim() === '' ? [] : contacts.filter(c => c.name.toLowerCase().includes(customerName.toLowerCase()));
   const broadcastList = contacts.filter(c => c.category === broadcastCat);
 
@@ -269,7 +317,7 @@ export default function JasmalWhatsAppCRM() {
         <Link href="/hub" className="back-link" style={{ color: '#4f46e5', textDecoration: 'none', fontWeight: 700, fontSize: '13px', display: 'inline-block', marginBottom: '15px' }}>← العودة للوحة الرئيسية</Link>
 
         <div className="header-brand">
-          <h1 className="brand-title">منصة <span>Jasmal</span> CRM</h1>
+          <h1 className="brand-title">منصة <span>إنجازيا</span> CRM</h1>
           <p className="brand-desc">النظام الأذكى لإدارة عملاء التجارة الإلكترونية وأتمتة المراسلات</p>
         </div>
 
@@ -352,7 +400,7 @@ export default function JasmalWhatsAppCRM() {
                       {categories.map(cat => <option key={cat.name} value={cat.name}>{cat.name}</option>)}
                     </select>
                   </div>
-                  <div className="form-group"><label>المشتريات (ر.س)</label><input type="number" className="form-control" value={newAmount} onChange={e => setNewAmount(Number(e.target.value))} /></div>
+                  <div className="form-group"><label>المشتريات (ر.س)</label><input type="number" className="form-control" value={newAmount} onChange={e => setNewAmount(e.target.value === '' ? '' : Number(e.target.value))} /></div>
                 </div>
                 <button type="submit" className="btn-main" style={{ width: 'auto' }}>حفظ وإضافة العميل</button>
               </form>
@@ -409,7 +457,7 @@ export default function JasmalWhatsAppCRM() {
           </div>
         )}
 
-        {/* 3. Messaging Engine (Unified Single & Broadcast) */}
+        {/* 3. Messaging Engine */}
         {activeTab === 'messaging' && (
           <div>
             <div className="radio-group">
@@ -526,7 +574,7 @@ export default function JasmalWhatsAppCRM() {
           </div>
         )}
 
-        {/* 4. Settings (Tags & Templates) */}
+        {/* 4. Settings */}
         {activeTab === 'tags' && (
           <div>
             <div className="section-box">
@@ -596,7 +644,6 @@ export default function JasmalWhatsAppCRM() {
             </div>
           </div>
         )}
-
       </div>
     </div>
   );
