@@ -47,7 +47,7 @@ export default function EngaziaWhatsAppCRM() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('all');
   
-  // نافذة تفاصيل العميل المنبثقة (Modal)
+  // نافذة تفاصيل العميل المنبثقة (Modal) القابلة للتعديل
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   
   // إضافة عميل جديد
@@ -296,7 +296,6 @@ export default function EngaziaWhatsAppCRM() {
     e.preventDefault();
     if (!newName || !newPhone) return showToast('⚠️ أدخل الاسم ورقم الجوال.');
     
-    // شرط 10 أرقام بحد أدنى للرفض
     const cleanPhoneCheck = toEnglishDigits(newPhone).replace(/\D/g, '');
     if (cleanPhoneCheck.length < 10) {
       return showToast('❌ رقم الجوال يجب أن يكون 10 أرقام على الأقل!');
@@ -326,7 +325,7 @@ export default function EngaziaWhatsAppCRM() {
     if (field === 'phone') {
       const cleanVal = toEnglishDigits(value).replace(/\D/g, '');
       if (cleanVal.length > 0 && cleanVal.length < 10) {
-        showToast('⚠️️ تنبيه: رقم الجوال أقل من 10 أرقام');
+        showToast('⚠️ تنبيه: رقم الجوال أقل من 10 أرقام');
       }
     }
     const cleanVal = (field === 'phone' || field === 'orderNumber' || field === 'amount') ? toEnglishDigits(value) : value;
@@ -337,11 +336,17 @@ export default function EngaziaWhatsAppCRM() {
       return c;
     });
     saveContacts(updated);
+    
+    // تحديث العميل المختار في النافذة المنبثقة مباشرة لتبقى متزامنة
+    if (selectedCustomer && selectedCustomer.id === id) {
+      setSelectedCustomer({ ...selectedCustomer, [field]: cleanVal });
+    }
   };
 
   const deleteContact = (id: string) => {
     if (window.confirm('هل أنت متأكد من حذف هذا العميل؟')) {
       saveContacts(contacts.filter(c => c.id !== id));
+      setSelectedCustomer(null);
       showToast('🗑️ تم حذف العميل');
     }
   };
@@ -349,7 +354,7 @@ export default function EngaziaWhatsAppCRM() {
   const addCategory = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newCatName) return showToast('⚠️ أدخل اسم التصنيف.');
-    if (categories.some(c => c.name === newCatName)) return showToast('⚠️️ هذا التصنيف موجود مسبقاً.');
+    if (categories.some(c => c.name === newCatName)) return showToast('⚠️ هذا التصنيف موجود مسبقاً.');
     const updated = [...categories, { name: newCatName, bg: newCatBg, color: newCatColor, isSale: newCatIsSale }];
     saveCategories(updated);
     setNewCatName('');
@@ -643,18 +648,19 @@ export default function EngaziaWhatsAppCRM() {
         .chip-btn:hover { border-color: #4f46e5; color: #4f46e5; }
         .chip-btn.active { background: #4f46e5; color: #fff; border-color: #4f46e5; box-shadow: 0 2px 8px rgba(79,70,229,0.2); }
 
-        /* نافذة تفاصيل العميل المنبثقة (Modal) */
+        /* نافذة تفاصيل العميل المنبثقة (Modal) التفاعلية القابلة للتعديل */
         .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 9999; animation: fadeIn 0.2s ease; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        .modal-content { background: #fff; border-radius: 20px; padding: 30px; width: 100%; max-width: 500px; box-shadow: 0 20px 40px rgba(0,0,0,0.15); border: 1px solid #e2e8f0; position: relative; }
+        .modal-content { background: #fff; border-radius: 20px; padding: 30px; width: 100%; max-width: 540px; box-shadow: 0 20px 40px rgba(0,0,0,0.15); border: 1px solid #e2e8f0; position: relative; max-height: 90vh; overflow-y: auto; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #f1f5f9; padding-bottom: 15px; }
         .modal-title { font-size: 18px; font-weight: 900; color: #1e293b; margin: 0; display: flex; align-items: center; gap: 8px; }
         .close-modal-btn { background: #f1f5f9; border: none; width: 32px; height: 32px; border-radius: 50%; font-weight: 900; cursor: pointer; color: #64748b; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
         .close-modal-btn:hover { background: #fee2e2; color: #dc2626; }
         .modal-body-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
-        .modal-item { background: #f8fafc; padding: 12px 15px; border-radius: 12px; border: 1px solid #e2e8f0; }
-        .modal-item-label { font-size: 11px; font-weight: 800; color: #64748b; margin-bottom: 4px; }
-        .modal-item-val { font-size: 14px; font-weight: 900; color: #1e293b; }
+        .modal-item { background: #f8fafc; padding: 12px 15px; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 6px; }
+        .modal-item-label { font-size: 11.5px; font-weight: 800; color: #64748b; }
+        .modal-edit-input { width: 100%; background: #fff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 8px 12px; font-size: 13.5px; font-weight: 800; font-family: 'Tajawal', sans-serif; color: #1e293b; outline: none; box-sizing: border-box; transition: 0.2s; }
+        .modal-edit-input:focus { border-color: #4f46e5; box-shadow: 0 0 0 2px rgba(79,70,229,0.1); }
 
         /* إعدادات متقدمة */
         .settings-creation-box { display: flex; gap: 15px; align-items: flex-end; background: #fff; padding: 20px; border-radius: 12px; border: 2px dashed #cbd5e1; margin-bottom: 25px; flex-wrap: wrap; }
@@ -682,63 +688,102 @@ export default function EngaziaWhatsAppCRM() {
       {/* Toast Notification Banner */}
       {toastMessage && <div className="toast-banner">{toastMessage}</div>}
 
-      {/* نافذة تفاصيل العميل المنبثقة (Modal) */}
+      {/* نافذة ملف العميل الشامل التفاعلية (قابلة للتعديل المباشر) */}
       {selectedCustomer && (
         <div className="modal-overlay" onClick={() => setSelectedCustomer(null)}>
           <div className="modal-content" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
-              <h3 className="modal-title">👤 ملف العميل الشامل</h3>
+              <h3 className="modal-title">✏️ ملف العميل الشامل (تعديل سريع)</h3>
               <button className="close-modal-btn" onClick={() => setSelectedCustomer(null)}>✕</button>
             </div>
             
             <div className="modal-body-grid">
               <div className="modal-item" style={{ gridColumn: '1 / -1' }}>
-                <div className="modal-item-label">اسم العميل</div>
-                <div className="modal-item-val" style={{ color: '#4f46e5', fontSize: '16px' }}>{selectedCustomer.name}</div>
+                <span className="modal-item-label">اسم العميل</span>
+                <input 
+                  type="text" 
+                  className="modal-edit-input" 
+                  value={selectedCustomer.name} 
+                  onChange={e => updateCustomerField(selectedCustomer.id, 'name', e.target.value)} 
+                />
               </div>
+
               <div className="modal-item">
-                <div className="modal-item-label">رقم الجوال</div>
-                <div className="modal-item-val" style={{ direction: 'ltr', textAlign: 'right', color: isPhoneValid(selectedCustomer.phone) ? '#1e293b' : '#dc2626' }}>
-                  {selectedCustomer.phone} {!isPhoneValid(selectedCustomer.phone) && <span style={{fontSize:'10px', color:'#dc2626'}}>(أقل من 10 أرقام)</span>}
+                <span className="modal-item-label">رقم الجوال (10 أرقام على الأقل)</span>
+                <input 
+                  type="text" 
+                  className="modal-edit-input input-ltr" 
+                  style={{ borderColor: isPhoneValid(selectedCustomer.phone) ? '#cbd5e1' : '#dc2626' }}
+                  value={selectedCustomer.phone} 
+                  onChange={e => updateCustomerField(selectedCustomer.id, 'phone', e.target.value)} 
+                />
+              </div>
+
+              <div className="modal-item">
+                <span className="modal-item-label">رقم الطلب</span>
+                <input 
+                  type="text" 
+                  className="modal-edit-input input-ltr" 
+                  value={selectedCustomer.orderNumber} 
+                  onChange={e => updateCustomerField(selectedCustomer.id, 'orderNumber', e.target.value)} 
+                />
+              </div>
+
+              <div className="modal-item">
+                <span className="modal-item-label">التصنيف</span>
+                <select 
+                  className="modal-edit-input" 
+                  value={selectedCustomer.category} 
+                  onChange={e => updateCustomerField(selectedCustomer.id, 'category', e.target.value)}
+                >
+                  {categories.map(cat => <option key={cat.name} value={cat.name}>{cat.name}</option>)}
+                </select>
+              </div>
+
+              <div className="modal-item">
+                <span className="modal-item-label">الحالة</span>
+                <select 
+                  className="modal-edit-input" 
+                  value={selectedCustomer.status || 'نشط'} 
+                  onChange={e => updateCustomerField(selectedCustomer.id, 'status', e.target.value)}
+                >
+                  {statusOptions.map(st => <option key={st.name} value={st.name}>{st.name}</option>)}
+                </select>
+              </div>
+
+              <div className="modal-item">
+                <span className="modal-item-label">إجمالي المشتريات (ر.س)</span>
+                <input 
+                  type="text" 
+                  className="modal-edit-input input-ltr" 
+                  value={selectedCustomer.amount} 
+                  onChange={e => updateCustomerField(selectedCustomer.id, 'amount', e.target.value)} 
+                />
+              </div>
+
+              <div className="modal-item">
+                <span className="modal-item-label">آخر تاريخ تواصل</span>
+                <div style={{ padding: '8px 0', fontSize: '13px', fontWeight: 800, color: '#4f46e5', direction: 'ltr', textAlign: 'right' }}>
+                  {selectedCustomer.lastContactDate || 'لم يتم التواصل'}
                 </div>
               </div>
-              <div className="modal-item">
-                <div className="modal-item-label">رقم الطلب</div>
-                <div className="modal-item-val" style={{ direction: 'ltr', textAlign: 'right' }}>{selectedCustomer.orderNumber}</div>
-              </div>
-              <div className="modal-item">
-                <div className="modal-item-label">التصنيف</div>
-                <div className="modal-item-val">
-                  <span className="badge" style={{ background: categories.find(cat => cat.name === selectedCustomer.category)?.bg || '#eee', color: categories.find(cat => cat.name === selectedCustomer.category)?.color || '#000' }}>
-                    {selectedCustomer.category}
-                  </span>
-                </div>
-              </div>
-              <div className="modal-item">
-                <div className="modal-item-label">الحالة</div>
-                <div className="modal-item-val">
-                  <span className="badge" style={{ background: statusOptions.find(st => st.name === selectedCustomer.status)?.bg || '#eee', color: statusOptions.find(st => st.name === selectedCustomer.status)?.color || '#000' }}>
-                    {selectedCustomer.status || 'نشط'}
-                  </span>
-                </div>
-              </div>
-              <div className="modal-item">
-                <div className="modal-item-label">إجمالي المشتريات</div>
-                <div className="modal-item-val" style={{ direction: 'ltr', textAlign: 'right' }}>{selectedCustomer.amount} ر.س</div>
-              </div>
-              <div className="modal-item">
-                <div className="modal-item-label">آخر تاريخ تواصل</div>
-                <div className="modal-item-val" style={{ direction: 'ltr', textAlign: 'right', fontSize: '12px', color: '#4f46e5' }}>{selectedCustomer.lastContactDate || 'لم يتم التواصل'}</div>
-              </div>
+
               <div className="modal-item" style={{ gridColumn: '1 / -1' }}>
-                <div className="modal-item-label">ملاحظات العميل</div>
-                <div className="modal-item-val" style={{ fontWeight: 500, color: '#334155' }}>{selectedCustomer.note || 'لا توجد ملاحظات مسجلة.'}</div>
+                <span className="modal-item-label">ملاحظات العميل</span>
+                <input 
+                  type="text" 
+                  className="modal-edit-input" 
+                  value={selectedCustomer.note || ''} 
+                  onChange={e => updateCustomerField(selectedCustomer.id, 'note', e.target.value)} 
+                  placeholder="أدخل ملاحظات العميل..."
+                />
               </div>
             </div>
 
             <div style={{ display: 'flex', gap: '10px' }}>
-              <button className="btn-wa" style={{ flex: 1 }} onClick={() => openWhatsApp(selectedCustomer.phone, 'مرحباً بك', selectedCustomer.id)}>🟢 مراسلة عبر واتساب</button>
-              <button className="btn-main" style={{ background: '#f1f5f9', color: '#1e293b' }} onClick={() => setSelectedCustomer(null)}>إغلاق</button>
+              <button className="btn-wa" style={{ flex: 2 }} onClick={() => openWhatsApp(selectedCustomer.phone, 'مرحباً بك', selectedCustomer.id)}>🟢 مراسلة عبر واتساب</button>
+              <button className="btn-sm btn-danger" style={{ padding: '0 20px', fontSize: '13px', fontWeight: 800 }} onClick={() => deleteContact(selectedCustomer.id)}>🗑️ حذف</button>
+              <button className="btn-main" style={{ flex: 1, background: '#f1f5f9', color: '#1e293b' }} onClick={() => setSelectedCustomer(null)}>إغلاق</button>
             </div>
           </div>
         </div>
@@ -809,7 +854,7 @@ export default function EngaziaWhatsAppCRM() {
                         <span 
                           style={{ fontWeight: 800, color: '#4f46e5', cursor: 'pointer', textDecoration: 'underline', textDecorationStyle: 'dotted' }} 
                           onClick={() => setSelectedCustomer(c)}
-                          title="اضغط لعرض تفاصيل العميل كاملة"
+                          title="اضغط لتعديل ملف العميل"
                         >
                           {c.name}
                         </span>
@@ -919,7 +964,15 @@ export default function EngaziaWhatsAppCRM() {
                 <tbody>
                   {filteredContacts.map(c => (
                     <tr key={c.id}>
-                      <td><input type="text" className="cell-input" value={c.name} onChange={e => updateCustomerField(c.id, 'name', e.target.value)} /></td>
+                      <td>
+                        <span 
+                          style={{ fontWeight: 800, color: '#4f46e5', cursor: 'pointer', textDecoration: 'underline', textDecorationStyle: 'dotted' }} 
+                          onClick={() => setSelectedCustomer(c)}
+                          title="اضغط لتعديل ملف العميل"
+                        >
+                          {c.name}
+                        </span>
+                      </td>
                       <td>
                         <input 
                           type="text" 
@@ -1096,7 +1149,7 @@ export default function EngaziaWhatsAppCRM() {
                 <div className="form-group" style={{ margin: 0 }}>
                   <label>شعار المتجر (صورة من جهاز الكمبيوتر)</label>
                   <button className="btn-main" style={{ width: '100%', background: '#fff', color: '#4f46e5', border: '1px solid #c7d2fe' }} onClick={() => storeLogoFileRef.current?.click()}>
-                    🖼️ اختر صورة الشعار من جهازك
+                    🖼️️ اختر صورة الشعار من جهازك
                   </button>
                   <input type="file" ref={storeLogoFileRef} onChange={handleLogoUpload} accept="image/*" style={{ display: 'none' }} />
                 </div>
@@ -1110,7 +1163,7 @@ export default function EngaziaWhatsAppCRM() {
               
               <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
                 <button className="btn-main" style={{ background: '#10b981' }} onClick={exportBackupJSON}>📥 تحميل نسخة احتياطية (JSON)</button>
-                <button className="btn-main" style={{ background: '#fff', color: '#166534', border: '1px solid #bbf7d0' }} onClick={() => restoreFileRef.current?.click()}>♻️️ استعادة البيانات من ملف</button>
+                <button className="btn-main" style={{ background: '#fff', color: '#166534', border: '1px solid #bbf7d0' }} onClick={() => restoreFileRef.current?.click()}>♻️ استعادة البيانات من ملف</button>
                 <input type="file" ref={restoreFileRef} onChange={importBackupJSON} accept=".json" style={{ display: 'none' }} />
               </div>
             </div>
