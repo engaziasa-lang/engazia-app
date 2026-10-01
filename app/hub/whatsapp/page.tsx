@@ -184,7 +184,6 @@ export default function EngaziaWhatsAppCRM() {
     return clean;
   };
 
-  // تحويل الأرقام العربية إلى إنجليزية بدقة
   const toEnglishDigits = (str: string) => {
     if (!str) return '';
     return str.replace(/[٠-٩]/g, (d) => String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)))
@@ -446,10 +445,10 @@ export default function EngaziaWhatsAppCRM() {
         .section-title { font-size: 16px; font-weight: 900; color: #1e293b; margin-bottom: 5px; display: flex; align-items: center; gap: 8px; }
         .section-desc { font-size: 13px; color: #64748b; margin-bottom: 20px; font-weight: 500; }
 
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
         .form-group { margin-bottom: 15px; position: relative; }
-        .form-group label { display: block; font-size: 12px; font-weight: 800; color: #475569; margin-bottom: 6px; }
-        .form-control { width: 100%; padding: 12px 15px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 13px; outline: none; font-family: 'Tajawal', sans-serif; background: #fff; color: #1e293b; font-weight: 700; transition: border-color 0.2s; }
+        .form-group label { display: block; font-size: 12px; font-weight: 800; color: #475569; margin-bottom: 8px; }
+        .form-control { width: 100%; padding: 12px 15px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 13px; outline: none; font-family: 'Tajawal', sans-serif; background: #fff; color: #1e293b; font-weight: 700; transition: border-color 0.2s; box-sizing: border-box; }
         .form-control:focus { border-color: #4f46e5; box-shadow: 0 0 0 3px rgba(79,70,229,0.1); }
         .input-ltr { direction: ltr; text-align: right; }
 
@@ -480,8 +479,8 @@ export default function EngaziaWhatsAppCRM() {
         .radio-btn { padding: 8px 20px; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer; color: #64748b; border: none; background: transparent; transition: 0.3s; }
         .radio-btn.active { background: #fff; color: #1e293b; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
 
-        .filter-chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 15px; }
-        .chip-btn { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 800; cursor: pointer; border: 1px solid #cbd5e1; background: #fff; color: #475569; transition: all 0.2s; white-space: nowrap; }
+        .filter-chips { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        .chip-btn { padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 800; cursor: pointer; border: 1px solid #cbd5e1; background: #fff; color: #475569; transition: all 0.2s; white-space: nowrap; }
         .chip-btn:hover { border-color: #4f46e5; color: #4f46e5; }
         .chip-btn.active { background: #4f46e5; color: #fff; border-color: #4f46e5; box-shadow: 0 2px 8px rgba(79,70,229,0.2); }
 
@@ -596,7 +595,7 @@ export default function EngaziaWhatsAppCRM() {
             <div className="section-box">
               <div className="section-title">➕ تسجيل عميل جديد</div>
               <form onSubmit={addContact}>
-                <div className="form-grid">
+                <div className="form-grid" style={{ marginBottom: '20px' }}>
                   <div className="form-group"><label>اسم العميل</label><input type="text" className="form-control" value={newName} onChange={e => setNewName(e.target.value)} required /></div>
                   <div className="form-group"><label>رقم الجوال (05x)</label><input type="text" className="form-control input-ltr" value={newPhone} onChange={e => setNewPhone(toEnglishDigits(e.target.value))} required /></div>
                   <div className="form-group"><label>رقم الطلب (#)</label><input type="text" className="form-control input-ltr" value={newOrderNumber} onChange={e => setNewOrderNumber(toEnglishDigits(e.target.value))} /></div>
@@ -612,18 +611,18 @@ export default function EngaziaWhatsAppCRM() {
               </form>
             </div>
 
-            <div className="section-box" style={{ padding: '15px 25px' }}>
-              <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: '15px' }}>
+            <div className="section-box" style={{ padding: '20px 25px' }}>
+              <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: '20px' }}>
                 
                 {/* شريط البحث والفلاتر (يمين) */}
                 <div style={{ display: 'flex', gap: '15px', flex: 1, minWidth: '280px', flexWrap: 'wrap' }}>
-                  <div className="form-group" style={{ flex: 2, margin: 0, minWidth: '200px' }}>
+                  <div className="form-group" style={{ flex: 2, margin: 0, minWidth: '220px' }}>
                     <input type="text" className="form-control" placeholder="🔍 بحث بالاسم، الجوال، أو رقم الطلب..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
                   </div>
                 </div>
 
                 {/* أزرار التصدير والاستيراد (يسار) */}
-                <div style={{ display: 'flex', gap: '10px' }}>
+                <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                   <button className="btn-sm btn-success" style={{ padding: '12px 20px', fontWeight: 800 }} onClick={() => fileInputRef.current?.click()}>📤 استيراد CSV</button>
                   <input type="file" ref={fileInputRef} onChange={handleImportCSV} accept=".csv" style={{ display: 'none' }} />
                   <button className="btn-sm btn-edit" style={{ padding: '12px 20px', fontWeight: 800 }} onClick={exportToExcel}>📥 تصدير Excel</button>
@@ -658,18 +657,18 @@ export default function EngaziaWhatsAppCRM() {
                 <tbody>
                   {filteredContacts.map(c => (
                     <tr key={c.id}>
-                      <td><input type="text" className="form-control" style={{ padding: '6px', fontSize: '12px', width: '120px' }} value={c.name} onChange={e => updateCustomerField(c.id, 'name', e.target.value)} /></td>
-                      <td><input type="text" className="form-control input-ltr" style={{ padding: '6px', fontSize: '12px', width: '110px' }} value={c.phone} onChange={e => updateCustomerField(c.id, 'phone', e.target.value)} /></td>
-                      <td><input type="text" className="form-control input-ltr" style={{ padding: '6px', fontSize: '12px', width: '80px', color: '#4f46e5' }} value={c.orderNumber} onChange={e => updateCustomerField(c.id, 'orderNumber', e.target.value)} /></td>
+                      <td><input type="text" className="form-control" style={{ padding: '8px', fontSize: '12px', width: '130px' }} value={c.name} onChange={e => updateCustomerField(c.id, 'name', e.target.value)} /></td>
+                      <td><input type="text" className="form-control input-ltr" style={{ padding: '8px', fontSize: '12px', width: '120px' }} value={c.phone} onChange={e => updateCustomerField(c.id, 'phone', e.target.value)} /></td>
+                      <td><input type="text" className="form-control input-ltr" style={{ padding: '8px', fontSize: '12px', width: '90px', color: '#4f46e5' }} value={c.orderNumber} onChange={e => updateCustomerField(c.id, 'orderNumber', e.target.value)} /></td>
                       <td>
-                        <select className="form-control" style={{ padding: '6px', fontSize: '12px' }} value={c.category} onChange={e => updateCustomerField(c.id, 'category', e.target.value)}>
+                        <select className="form-control" style={{ padding: '8px', fontSize: '12px' }} value={c.category} onChange={e => updateCustomerField(c.id, 'category', e.target.value)}>
                           {categories.map(cat => <option key={cat.name} value={cat.name}>{cat.name}</option>)}
                         </select>
                       </td>
-                      <td><input type="text" className="form-control input-ltr" style={{ padding: '6px', fontSize: '12px', width: '80px' }} value={c.amount} onChange={e => updateCustomerField(c.id, 'amount', e.target.value)} /></td>
+                      <td><input type="text" className="form-control input-ltr" style={{ padding: '8px', fontSize: '12px', width: '90px' }} value={c.amount} onChange={e => updateCustomerField(c.id, 'amount', e.target.value)} /></td>
                       <td style={{ direction: 'ltr', textAlign: 'right', color: '#64748b', fontSize: '12px', fontWeight: 700 }}>{c.date}</td>
                       <td>
-                        <div style={{ display: 'flex', gap: '5px' }}>
+                        <div style={{ display: 'flex', gap: '8px' }}>
                           <button className="btn-sm btn-success" onClick={() => routeToMessaging(c)}>💬 مراسلة</button>
                           <button className="btn-sm btn-danger" onClick={() => deleteContact(c.id)}>حذف</button>
                         </div>
@@ -729,7 +728,7 @@ export default function EngaziaWhatsAppCRM() {
 
             <div className="section-box">
               <div className="section-title">2. اختر أو صمم رسالتك</div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '10px', marginBottom: '15px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '12px', marginBottom: '20px' }}>
                 {templates.map(tpl => (
                   <div key={tpl.id} onClick={() => setActiveTemplateId(tpl.id)} style={{ padding: '12px 10px', border: '2px solid #e2e8f0', borderRadius: '12px', cursor: 'pointer', textAlign: 'center', fontWeight: 800, fontSize: '12px', color: activeTemplateId === tpl.id ? '#4f46e5' : '#64748b', background: activeTemplateId === tpl.id ? '#eef2ff' : '#fff', borderColor: activeTemplateId === tpl.id ? '#4f46e5' : '#e2e8f0', transition: '0.2s' }}>
                     {tpl.title}
@@ -742,9 +741,9 @@ export default function EngaziaWhatsAppCRM() {
                   <label>معلومة إضافية متغيرة (تستبدل كلمة [إضافي] في القوالب)</label>
                   <input type="text" className="form-control" placeholder="رابط الدفع، تفاصيل، الخ..." value={extraInfo} onChange={e => setExtraInfo(e.target.value)} />
                 </div>
-                <div className="form-group">
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                    <input type="checkbox" checked={includeDiscount} onChange={e => setIncludeDiscount(e.target.checked)} style={{ width: '16px', height: '16px', accentColor: '#4f46e5' }}/>
+                <div className="form-group" style={{ display: 'flex', alignItems: 'center' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', margin: 0 }}>
+                    <input type="checkbox" checked={includeDiscount} onChange={e => setIncludeDiscount(e.target.checked)} style={{ width: '18px', height: '18px', accentColor: '#4f46e5' }}/>
                     إرفاق كود الخصم الافتراضي (*{defaultDiscountCode}*) بنهاية الرسالة
                   </label>
                 </div>
@@ -758,7 +757,7 @@ export default function EngaziaWhatsAppCRM() {
                   <div style={{ background: '#fff', border: '2px dashed #cbd5e1', padding: '20px', borderRadius: '16px', marginTop: '20px' }}>
                     <div className="section-title" style={{ fontSize: '13px', color: '#64748b' }}>شكل الرسالة النهائي:</div>
                     <div style={{ background: '#f8fafc', padding: '15px', borderRadius: '10px', fontSize: '14px', lineHeight: 1.7, whiteSpace: 'pre-wrap', marginBottom: '15px', color: '#1e293b', fontWeight: 500, border: '1px solid #e2e8f0' }}>{generatedMsg}</div>
-                    <div style={{ display: 'flex', gap: '10px' }}>
+                    <div style={{ display: 'flex', gap: '12px' }}>
                       <button className="btn-main" style={{ flex: 1, background: '#f1f5f9', color: '#1e293b' }} onClick={() => { navigator.clipboard.writeText(generatedMsg); showToast('📋 تم نسخ النص بنجاح!'); }}>📋 نسخ فقط</button>
                       <button className="btn-wa" style={{ flex: 2 }} onClick={() => openWhatsApp(customerPhone, generatedMsg)}>🟢 إرسال عبر واتساب</button>
                     </div>
@@ -778,7 +777,7 @@ export default function EngaziaWhatsAppCRM() {
                       يتم إرسال رسالة لـ: <strong>{broadcastList[broadcastIndex]?.name}</strong> <br/>
                       جوال: <span dir="ltr">{broadcastList[broadcastIndex]?.phone}</span> | طلب: <span dir="ltr">{broadcastList[broadcastIndex]?.orderNumber}</span>
                     </div>
-                    <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+                    <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
                       <button className="btn-wa" style={{ width: 'auto' }} onClick={() => {
                         const c = broadcastList[broadcastIndex];
                         setCustomerName(c.name); setOrderNumber(c.orderNumber); setCustomerPhone(c.phone);
@@ -804,7 +803,7 @@ export default function EngaziaWhatsAppCRM() {
           <div>
             {/* إعدادات هوية المتجر */}
             <div className="section-box" style={{ background: '#eef2ff', borderColor: '#c7d2fe' }}>
-              <div className="section-title">🛍️ إعدادات هوية المتجر</div>
+              <div className="section-title">🛍️️ إعدادات هوية المتجر</div>
               <p className="section-desc">خصص اسم متجرك وقم برفع شعار المتجر من جهاز الكمبيوتر ليظهر باحترافية في أعلى المنصة.</p>
               
               <div className="form-grid" style={{ alignItems: 'flex-end' }}>
@@ -871,20 +870,20 @@ export default function EngaziaWhatsAppCRM() {
               <p className="section-desc">حدد التصنيفات التي ترغب بأن تُحسب مبيعاتها ضمن إجمالي لوحة القيادة.</p>
               
               <form onSubmit={addCategory} className="settings-creation-box">
-                <div className="form-group" style={{ flex: 2, margin: 0 }}>
+                <div className="form-group" style={{ flex: 2, margin: 0, minWidth: '200px' }}>
                   <label>اسم التصنيف الجديد</label>
                   <input type="text" className="form-control" placeholder="مثال: قيد التجهيز..." value={newCatName} onChange={e => setNewCatName(e.target.value)} required />
                 </div>
-                <div className="form-group" style={{ flex: 1, margin: 0, minWidth: '90px' }}>
+                <div className="form-group" style={{ flex: 1, margin: 0, minWidth: '100px' }}>
                   <label>الخلفية</label>
                   <input type="color" className="form-control color-picker" value={newCatBg} onChange={e => setNewCatBg(e.target.value)} />
                 </div>
-                <div className="form-group" style={{ flex: 1, margin: 0, minWidth: '90px' }}>
+                <div className="form-group" style={{ flex: 1, margin: 0, minWidth: '100px' }}>
                   <label>النص</label>
                   <input type="color" className="form-control color-picker" value={newCatColor} onChange={e => setNewCatColor(e.target.value)} />
                 </div>
-                <div className="form-group" style={{ flex: 1, margin: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                  <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <div className="form-group" style={{ flex: 1, margin: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center', minWidth: '130px' }}>
+                  <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
                     <input type="checkbox" checked={newCatIsSale} onChange={e => setNewCatIsSale(e.target.checked)} style={{ width: '16px', height: '16px', accentColor: '#4f46e5' }} />
                     يُحسب كمبيعات؟
                   </label>
@@ -922,12 +921,12 @@ export default function EngaziaWhatsAppCRM() {
                             saveCategories(updatedCats);
                         }} />
                       </div>
-                      <label style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '12px', fontWeight: 700, cursor: 'pointer', color: '#475569' }}>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 700, cursor: 'pointer', color: '#475569' }}>
                         <input type="checkbox" checked={cat.isSale} onChange={e => {
                             const updatedCats = [...categories];
                             updatedCats[idx].isSale = e.target.checked;
                             saveCategories(updatedCats);
-                        }} style={{ width: '15px', height: '15px', accentColor: '#4f46e5' }} />
+                        }} style={{ width: '16px', height: '16px', accentColor: '#4f46e5' }} />
                         مبيعات
                       </label>
                       <span className="badge" style={{ backgroundColor: cat.bg, color: cat.color }}>معاينة الشارة</span>
