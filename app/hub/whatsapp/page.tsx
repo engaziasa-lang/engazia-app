@@ -268,19 +268,67 @@ export default function EngaziaWhatsAppCRM() {
     window.open(url, '_blank');
   };
 
-  // تصحيح مشكلة حروف اللغة العربية في برنامج إكسل عبر إضافة BOM (\uFEFF) بترميز UTF-8
-  const exportToCSV = () => {
+  // حل جذرى: تصدير البيانات كملف HTML مخصص ليعمل كجدول Excel نظامي يدعم اللغة العربية 100% بدون رموز غريبة
+  const exportToExcel = () => {
     if (contacts.length === 0) return showToast('⚠️ لا توجد بيانات للتصدير.');
-    const headers = "الاسم,الجوال,رقم الطلب,التصنيف,الحالة,إجمالي المشتريات (رس),الملاحظات,التاريخ\n";
-    const rows = contacts.map(c => `"${c.name}","${c.phone}","${c.orderNumber}","${c.category}","${c.status}",${c.amount},"${c.note}","${c.date}"`).join("\n");
-    
-    const blob = new Blob(["\uFEFF" + headers + rows], { type: 'text/csv;charset=utf-8;' });
+
+    let htmlTable = `
+      <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+      <head>
+        <meta charset="utf-8" />
+        <style>
+          body { font-family: 'Tajawal', Tahoma, sans-serif; direction: rtl; }
+          table { border-collapse: collapse; width: 100%; }
+          th { background-color: #4f46e5; color: #ffffff; font-weight: bold; border: 1px solid #cbd5e1; padding: 10px; text-align: center; }
+          td { border: 1px solid #cbd5e1; padding: 8px; text-align: center; mso-number-format:"\\@"; }
+        </style>
+      </head>
+      <body>
+        <table>
+          <thead>
+            <tr>
+              <th>الاسم</th>
+              <th>الجوال</th>
+              <th>رقم الطلب</th>
+              <th>التصنيف</th>
+              <th>الحالة</th>
+              <th>إجمالي المشتريات (رس)</th>
+              <th>الملاحظات</th>
+              <th>التاريخ</th>
+            </tr>
+          </thead>
+          <tbody>
+    `;
+
+    contacts.forEach(c => {
+      htmlTable += `
+        <tr>
+          <td>${c.name}</td>
+          <td>${c.phone}</td>
+          <td>${c.orderNumber}</td>
+          <td>${c.category}</td>
+          <td>${c.status}</td>
+          <td>${c.amount}</td>
+          <td>${c.note || ''}</td>
+          <td>${c.date}</td>
+        </tr>
+      `;
+    });
+
+    htmlTable += `
+          </tbody>
+        </table>
+      </body>
+      </html>
+    `;
+
+    const blob = new Blob(['\ufeff' + htmlTable], { type: 'application/vnd.ms-excel;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = "engazia_crm_export.csv";
+    link.download = `engazia_crm_${storeName.replace(/\s+/g, '_')}.xls`;
     link.click();
-    showToast('📥 تم تصدير ملف العملاء بترميز سليم لإكسل');
+    showToast('📥 تم تصدير ملف إكسل بترميز عربي سليم 100%');
   };
 
   const handleImportCSV = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -562,7 +610,7 @@ export default function EngaziaWhatsAppCRM() {
                 <div style={{ display: 'flex', gap: '10px' }}>
                   <button className="btn-sm btn-success" style={{ padding: '12px 20px', fontWeight: 800 }} onClick={() => fileInputRef.current?.click()}>📤 استيراد CSV</button>
                   <input type="file" ref={fileInputRef} onChange={handleImportCSV} accept=".csv" style={{ display: 'none' }} />
-                  <button className="btn-sm btn-edit" style={{ padding: '12px 20px', fontWeight: 800 }} onClick={exportToCSV}>📥 تصدير CSV</button>
+                  <button className="btn-sm btn-edit" style={{ padding: '12px 20px', fontWeight: 800 }} onClick={exportToExcel}>📥 تصدير Excel</button>
                 </div>
 
               </div>
