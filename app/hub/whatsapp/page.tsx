@@ -7,6 +7,7 @@ interface Customer {
   id: string;
   name: string;
   phone: string;
+  orderNumber: string;
   category: string;
   status: string;
   amount: number;
@@ -52,6 +53,7 @@ export default function WhatsAppProHub() {
   const [filterCategory, setFilterCategory] = useState('all');
   const [newName, setNewName] = useState('');
   const [newPhone, setNewPhone] = useState('');
+  const [newOrderNumber, setNewOrderNumber] = useState('');
   const [newCategory, setNewCategory] = useState('عميل جديد');
   const [newStatus, setNewStatus] = useState('قيد المتابعة');
   const [newAmount, setNewAmount] = useState<number>(0);
@@ -76,7 +78,7 @@ export default function WhatsAppProHub() {
   const [broadcastIndex, setBroadcastIndex] = useState(0);
 
   useEffect(() => {
-    const savedContacts = localStorage.getItem('engazia_whatsapp_pro_crm_v3');
+    const savedContacts = localStorage.getItem('engazia_whatsapp_pro_crm_v4');
     if (savedContacts) {
       try { setContacts(JSON.parse(savedContacts)); } catch (e) {}
     }
@@ -96,7 +98,7 @@ export default function WhatsAppProHub() {
 
   const saveContacts = (updated: Customer[]) => {
     setContacts(updated);
-    localStorage.setItem('engazia_whatsapp_pro_crm_v3', JSON.stringify(updated));
+    localStorage.setItem('engazia_whatsapp_pro_crm_v4', JSON.stringify(updated));
   };
 
   const saveCategories = (updated: TagConfig[]) => {
@@ -117,6 +119,7 @@ export default function WhatsAppProHub() {
       id: Date.now().toString(),
       name: newName,
       phone: formatPhone(newPhone),
+      orderNumber: newOrderNumber || '#---',
       category: newCategory,
       status: newStatus,
       amount: Number(newAmount) || 0,
@@ -126,6 +129,7 @@ export default function WhatsAppProHub() {
     saveContacts([newCust, ...contacts]);
     setNewName('');
     setNewPhone('');
+    setNewOrderNumber('');
     setNewAmount(0);
     setNewNote('');
     alert('تم حفظ العميل في النظام بنجاح!');
@@ -209,8 +213,8 @@ export default function WhatsAppProHub() {
 
   const exportToCSV = () => {
     if (contacts.length === 0) return alert('لا توجد بيانات للتصدير.');
-    const headers = "الاسم,الجوال,التصنيف,الحالة,إجمالي المشتريات (رس),الملاحظات,التاريخ\n";
-    const rows = contacts.map(c => `"${c.name}","${c.phone}","${c.category}","${c.status}",${c.amount},"${c.note}","${c.date}"`).join("\n");
+    const headers = "الاسم,الجوال,رقم الطلب,التصنيف,الحالة,إجمالي المشتريات (رس),الملاحظات,التاريخ\n";
+    const rows = contacts.map(c => `"${c.name}","${c.phone}","${c.orderNumber}","${c.category}","${c.status}",${c.amount},"${c.note}","${c.date}"`).join("\n");
     const blob = new Blob(["\uFEFF" + headers + rows], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -220,7 +224,7 @@ export default function WhatsAppProHub() {
   };
 
   const filteredContacts = contacts.filter(c => {
-    const matchesSearch = c.name.toLowerCase().includes(searchTerm.toLowerCase()) || c.phone.includes(searchTerm);
+    const matchesSearch = c.name.toLowerCase().includes(searchTerm.toLowerCase()) || c.phone.includes(searchTerm) || (c.orderNumber && c.orderNumber.includes(searchTerm));
     const matchesCat = filterCategory === 'all' || c.category === filterCategory;
     return matchesSearch && matchesCat;
   });
@@ -293,7 +297,7 @@ export default function WhatsAppProHub() {
         <div className="header-flex">
           <div>
             <h2 className="title">🚀 منصة إنجازيا لعملاء واتساب (PRO MAX)</h2>
-            <p className="desc">إدارة العملاء، التعديل الشامل والمباشر للبيانات، وأتمتة الحملات.</p>
+            <p className="desc">إدارة العملاء، أرقام الطلبات، والربط الشامل مع المولد.</p>
           </div>
         </div>
 
@@ -318,7 +322,7 @@ export default function WhatsAppProHub() {
         <div className="nav-tabs">
           <button className={`tab-btn ${activeTab === 'generator' ? 'active' : ''}`} onClick={() => setActiveTab('generator')}>⚡ مولد الرسائل والخصم</button>
           <button className={`tab-btn ${activeTab === 'crm' ? 'active' : ''}`} onClick={() => setActiveTab('crm')}>👥 إدارة العملاء (CRM)</button>
-          <button className={`tab-btn ${activeTab === 'tags' ? 'active' : ''}`} onClick={() => setActiveTab('tags')}>🏷️️ إدارة التصنيفات والألوان</button>
+          <button className={`tab-btn ${activeTab === 'tags' ? 'active' : ''}`} onClick={() => setActiveTab('tags')}>🏷️ إدارة التصنيفات والألوان</button>
           <button className={`tab-btn ${activeTab === 'broadcast' ? 'active' : ''}`} onClick={() => setActiveTab('broadcast')}>📢 الحملات الذكية</button>
           <button className={`tab-btn ${activeTab === 'templates' ? 'active' : ''}`} onClick={() => setActiveTab('templates')}>📋 الردود الجاهزة</button>
           <button className={`tab-btn ${activeTab === 'links' ? 'active' : ''}`} onClick={() => setActiveTab('links')}>🔗 صانع الروابط</button>
@@ -360,10 +364,11 @@ export default function WhatsAppProHub() {
                         onClick={() => {
                           setCustomerName(cust.name);
                           setCustomerPhone(cust.phone);
+                          setOrderNumber(cust.orderNumber || '');
                           setShowSuggestions(false);
                         }}
                       >
-                        <span>{cust.name}</span>
+                        <span>{cust.name} ({cust.orderNumber})</span>
                         <span style={{ color: '#64748b', fontSize: '11px' }}>{cust.phone}</span>
                       </div>
                     ))}
@@ -384,7 +389,13 @@ export default function WhatsAppProHub() {
 
               <div className="form-group">
                 <label>رقم الطلب أو الفاتورة</label>
-                <input type="text" className="form-control" placeholder="#5421" value={orderNumber} onChange={e => setOrderNumber(e.target.value)} />
+                <input 
+                  type="text" 
+                  className="form-control" 
+                  placeholder="#5421 (يظهر تلقائياً عند اختيار العميل)" 
+                  value={orderNumber} 
+                  onChange={e => setOrderNumber(e.target.value)} 
+                />
               </div>
               
               <div className="form-group">
@@ -421,7 +432,7 @@ export default function WhatsAppProHub() {
         {activeTab === 'crm' && (
           <div>
             <form onSubmit={addContact} style={{ background: '#f8fafc', padding: '15px', borderRadius: '10px', marginBottom: '20px', border: '1px solid #cbd5e1' }}>
-              <h3 style={{ fontSize: '13px', fontWeight: '900', marginBottom: '10px' }}>➕ تسجيل عميل جديد وتحديد تصنيفه</h3>
+              <h3 style={{ fontSize: '13px', fontWeight: '900', marginBottom: '10px' }}>➕ تسجيل عميل جديد مع رقم الطلب والتصنيف</h3>
               <div className="form-grid">
                 <div className="form-group">
                   <input type="text" className="form-control" placeholder="اسم العميل" value={newName} onChange={e => setNewName(e.target.value)} required />
@@ -430,13 +441,16 @@ export default function WhatsAppProHub() {
                   <input type="text" className="form-control" placeholder="رقم الجوال (05xxxxxxx)" value={newPhone} onChange={e => setNewPhone(e.target.value)} required />
                 </div>
                 <div className="form-group">
+                  <input type="text" className="form-control" placeholder="رقم الطلب أو الفاتورة (مثال: #5421)" value={newOrderNumber} onChange={e => setNewOrderNumber(e.target.value)} />
+                </div>
+                <div className="form-group">
                   <select className="form-control" value={newCategory} onChange={e => setNewCategory(e.target.value)}>
                     {categories.map(cat => (
                       <option key={cat.name} value={cat.name}>{cat.name}</option>
                     ))}
                   </select>
                 </div>
-                <div className="form-group">
+                <div className="form-group" style={{ gridColumn: 'span 2' }}>
                   <input type="number" className="form-control" placeholder="إجمالي المشتريات (ر.س)" value={newAmount || ''} onChange={e => setNewAmount(Number(e.target.value))} />
                 </div>
               </div>
@@ -445,7 +459,7 @@ export default function WhatsAppProHub() {
 
             <div className="toolbar">
               <div className="toolbar-group">
-                <input type="text" placeholder="🔍 بحث بالاسم أو الجوال..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
+                <input type="text" placeholder="🔍 بحث بالاسم، الجوال، أو رقم الطلب..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
                 <select value={filterCategory} onChange={e => setFilterCategory(e.target.value)}>
                   <option value="all">كل التصنيفات</option>
                   {categories.map(cat => (
@@ -465,6 +479,7 @@ export default function WhatsAppProHub() {
                     <tr>
                       <th>الاسم</th>
                       <th>الجوال</th>
+                      <th>رقم الطلب</th>
                       <th>التصنيف التجاري</th>
                       <th>المشتريات</th>
                       <th>التاريخ</th>
@@ -478,7 +493,7 @@ export default function WhatsAppProHub() {
                           <input 
                             type="text" 
                             className="form-control" 
-                            style={{ padding: '4px 8px', fontSize: '12px', fontWeight: '800', width: '130px' }} 
+                            style={{ padding: '4px 8px', fontSize: '12px', fontWeight: '800', width: '120px' }} 
                             value={c.name} 
                             onChange={e => updateCustomerField(c.id, 'name', e.target.value)} 
                           />
@@ -487,9 +502,19 @@ export default function WhatsAppProHub() {
                           <input 
                             type="text" 
                             className="form-control" 
-                            style={{ padding: '4px 8px', fontSize: '12px', width: '120px', fontWeight: '800' }} 
+                            style={{ padding: '4px 8px', fontSize: '12px', width: '110px', fontWeight: '800' }} 
                             value={c.phone} 
                             onChange={e => updateCustomerField(c.id, 'phone', e.target.value)} 
+                          />
+                        </td>
+                        <td>
+                          <input 
+                            type="text" 
+                            className="form-control" 
+                            style={{ padding: '4px 8px', fontSize: '12px', width: '90px', fontWeight: '800', color: '#0f172a' }} 
+                            value={c.orderNumber || ''} 
+                            placeholder="#..."
+                            onChange={e => updateCustomerField(c.id, 'orderNumber', e.target.value)} 
                           />
                         </td>
                         <td>
@@ -516,8 +541,8 @@ export default function WhatsAppProHub() {
                         <td style={{ color: '#64748b', fontSize: '11px' }}>{c.date}</td>
                         <td>
                           <div style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
-                            <button className="btn-sm btn-success" onClick={() => openWhatsApp(c.phone, `مرحباً ${c.name}، معك متجر إنجازيا بخصوص طلبك.`)}>💬 مراسلة</button>
-                            <button className="btn-sm btn-edit" title="تم الحفظ تلقائياً" onClick={() => alert('التعديلات يتم حفظها وفهرستها تلقائياً بمجرد الكتابة أو التغيير! ✅')}>✏️ تعديل</button>
+                            <button className="btn-sm btn-success" onClick={() => openWhatsApp(c.phone, `مرحباً ${c.name}، معك متجر إنجازيا بخصوص طلبك رقم (${c.orderNumber}).`)}>💬 مراسلة</button>
+                            <button className="btn-sm btn-edit" title="الحفظ تلقائي" onClick={() => alert('تم حفظ التعديلات تلقائياً بنجاح! ✅')}>✏️ تعديل</button>
                             <button className="btn-sm btn-danger" onClick={() => deleteContact(c.id)}>حذف</button>
                           </div>
                         </td>
@@ -597,7 +622,7 @@ export default function WhatsAppProHub() {
                   العميل الحالي في الطابور: <span style={{ color: '#4f46e5' }}>{broadcastIndex + 1}</span> من {broadcastList.length}
                 </p>
                 <div style={{ background: '#fff', padding: '15px', borderRadius: '8px', border: '1px solid #e2e8f0', marginBottom: '15px', fontWeight: '900', fontSize: '16px' }}>
-                  {broadcastList[broadcastIndex]?.name} ({broadcastList[broadcastIndex]?.phone})
+                  {broadcastList[broadcastIndex]?.name} ({broadcastList[broadcastIndex]?.phone}) - طلب #{broadcastList[broadcastIndex]?.orderNumber}
                 </div>
                 <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap' }}>
                   <button className="btn-wa" style={{ flex: 'none', padding: '12px 25px' }} onClick={() => {
@@ -607,7 +632,7 @@ export default function WhatsAppProHub() {
                   <button className="btn-main" style={{ flex: 'none', width: 'auto', padding: '12px 25px' }} onClick={() => {
                     if (broadcastIndex < broadcastList.length - 1) setBroadcastIndex(broadcastIndex + 1);
                     else alert('لقد أتممت إرسال الحملة لكافة العملاء في هذه الشريحة!');
-                  }}>التالي ⬅</button>
+                  }}>التالي ⬅️</button>
                 </div>
               </div>
             )}
