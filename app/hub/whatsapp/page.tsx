@@ -82,6 +82,13 @@ export default function EngaziaWhatsAppCRM() {
   const [newCatColor, setNewCatColor] = useState('#4f46e5');
   const [newCatIsSale, setNewCatIsSale] = useState(true);
 
+  // إشعار Toast عصري
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 3000);
+  };
+
   // مرجع لملف الاستيراد المخفي
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -137,6 +144,7 @@ export default function EngaziaWhatsAppCRM() {
   const saveDefaultDiscount = (code: string) => {
     setDefaultDiscountCode(code);
     localStorage.setItem('engazia_default_discount', code);
+    showToast('تم تحديث كود الخصم الافتراضي بنجاح');
   };
 
   const formatPhone = (phone: string) => {
@@ -147,7 +155,7 @@ export default function EngaziaWhatsAppCRM() {
 
   const addContact = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newName || !newPhone) return alert('أدخل الاسم ورقم الجوال.');
+    if (!newName || !newPhone) return showToast('⚠️ أدخل الاسم ورقم الجوال.');
     const newCust: Customer = {
       id: Date.now().toString(),
       name: newName,
@@ -161,7 +169,7 @@ export default function EngaziaWhatsAppCRM() {
     };
     saveContacts([newCust, ...contacts]);
     setNewName(''); setNewPhone(''); setNewOrderNumber(''); setNewAmount('');
-    alert('تم إضافة العميل بنجاح!');
+    showToast('✨ تم إضافة العميل بنجاح!');
   };
 
   const updateCustomerField = (id: string, field: string, value: string | number) => {
@@ -177,24 +185,27 @@ export default function EngaziaWhatsAppCRM() {
   const deleteContact = (id: string) => {
     if (window.confirm('هل أنت متأكد من حذف هذا العميل؟')) {
       saveContacts(contacts.filter(c => c.id !== id));
+      showToast('🗑️ تم حذف العميل');
     }
   };
 
   const addCategory = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newCatName) return alert('أدخل اسم التصنيف.');
-    if (categories.some(c => c.name === newCatName)) return alert('هذا التصنيف موجود مسبقاً.');
+    if (!newCatName) return showToast('⚠️ أدخل اسم التصنيف.');
+    if (categories.some(c => c.name === newCatName)) return showToast('⚠️ هذا التصنيف موجود مسبقاً.');
     const updated = [...categories, { name: newCatName, bg: newCatBg, color: newCatColor, isSale: newCatIsSale }];
     saveCategories(updated);
     setNewCatName('');
     setNewCatIsSale(true);
+    showToast('🏷️ تم إضافة التصنيف بنجاح');
   };
 
   const deleteCategory = (catName: string) => {
-    if (categories.length <= 1) return alert('يجب أن يبقى تصنيف واحد على الأقل.');
+    if (categories.length <= 1) return showToast('⚠️ يجب أن يبقى تصنيف واحد على الأقل.');
     if (window.confirm(`حذف التصنيف "${catName}"؟`)) {
       const updated = categories.filter(c => c.name !== catName);
       saveCategories(updated);
+      showToast('🗑️ تم حذف التصنيف');
     }
   };
 
@@ -227,7 +238,7 @@ export default function EngaziaWhatsAppCRM() {
   };
 
   const exportToCSV = () => {
-    if (contacts.length === 0) return alert('لا توجد بيانات للتصدير.');
+    if (contacts.length === 0) return showToast('⚠️ لا توجد بيانات للتصدير.');
     const headers = "الاسم,الجوال,رقم الطلب,التصنيف,الحالة,إجمالي المشتريات (رس),الملاحظات,التاريخ\n";
     const rows = contacts.map(c => `"${c.name}","${c.phone}","${c.orderNumber}","${c.category}","${c.status}",${c.amount},"${c.note}","${c.date}"`).join("\n");
     const blob = new Blob(["\uFEFF" + headers + rows], { type: 'text/csv;charset=utf-8;' });
@@ -236,9 +247,9 @@ export default function EngaziaWhatsAppCRM() {
     link.href = url;
     link.download = "engazia_crm_export.csv";
     link.click();
+    showToast('📥 تم تصدير ملف العملاء بنجاح');
   };
 
-  // استيراد بيانات CSV
   const handleImportCSV = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -248,11 +259,9 @@ export default function EngaziaWhatsAppCRM() {
       try {
         const text = event.target?.result as string;
         const lines = text.split('\n').filter(line => line.trim() !== '');
-        // تخطي السطر الأول (العناوين)
         const newImportedContacts: Customer[] = [];
         
         for (let i = 1; i < lines.length; i++) {
-          // تقسيم السطر مع مراعاة علامات التنصيص
           const row = lines[i].match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || lines[i].split(',');
           if (row.length >= 2) {
             const cleanVal = (val: string) => val ? val.replace(/^"|"$/g, '').trim() : '';
@@ -283,14 +292,13 @@ export default function EngaziaWhatsAppCRM() {
 
         if (newImportedContacts.length > 0) {
           saveContacts([...newImportedContacts, ...contacts]);
-          alert(`تم استيراد ${newImportedContacts.length} عميل بنجاح!`);
+          showToast(`✨ تم استيراد ${newImportedContacts.length} عميل بنجاح!`);
         } else {
-          alert('لم يتم العثور على بيانات صالحة للاستيراد في الملف.');
+          showToast('⚠️ لم يتم العثور على بيانات صالحة للاستيراد.');
         }
       } catch (err) {
-        alert('حدث خطأ أثناء قراءة الملف. تأكد من أنه ملف CSV صحيح.');
+        showToast('❌ حدث خطأ أثناء قراءة ملف الـ CSV.');
       }
-      // إفراغ الحقل للسماح باستيراد نفس الملف مرة أخرى إن أُمِر
       e.target.value = '';
     };
     reader.readAsText(file, 'utf-8');
@@ -314,9 +322,13 @@ export default function EngaziaWhatsAppCRM() {
     <div className="app-container">
       <style jsx>{`
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
-        .app-container { background: #f1f5f9; color: #0f172a; min-height: 100vh; font-family: 'Tajawal', sans-serif; direction: rtl; padding: 30px 15px; }
+        .app-container { background: #f1f5f9; color: #0f172a; min-height: 100vh; font-family: 'Tajawal', sans-serif; direction: rtl; padding: 30px 15px; position: relative; }
         .wrapper { max-width: 1100px; margin: 0 auto; background: #fff; border-radius: 20px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.04); border: 1px solid #e2e8f0; }
         
+        /* Toast Notification */
+        .toast-banner { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #1e293b; color: #fff; padding: 12px 24px; border-radius: 12px; font-size: 14px; font-weight: 800; z-index: 9999; box-shadow: 0 10px 25px rgba(0,0,0,0.15); animation: fadeInOut 0.3s ease; }
+        @keyframes fadeInOut { from { opacity: 0; transform: translate(-50%, -10px); } to { opacity: 1; transform: translate(-50%, 0); } }
+
         .header-brand { text-align: center; margin-bottom: 30px; }
         .brand-title { font-size: 28px; font-weight: 900; color: #1e293b; letter-spacing: -0.5px; margin-bottom: 5px; }
         .brand-title span { color: #4f46e5; }
@@ -370,6 +382,12 @@ export default function EngaziaWhatsAppCRM() {
         .radio-btn { padding: 8px 20px; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer; color: #64748b; border: none; background: transparent; transition: 0.3s; }
         .radio-btn.active { background: #fff; color: #1e293b; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
 
+        /* Quick Filter Chips */
+        .filter-chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 15px; }
+        .chip-btn { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 800; cursor: pointer; border: 1px solid #cbd5e1; background: #fff; color: #475569; transition: all 0.2s; white-space: nowrap; }
+        .chip-btn:hover { border-color: #4f46e5; color: #4f46e5; }
+        .chip-btn.active { background: #4f46e5; color: #fff; border-color: #4f46e5; box-shadow: 0 2px 8px rgba(79,70,229,0.2); }
+
         /* إعدادات متقدمة */
         .settings-creation-box { display: flex; gap: 15px; align-items: flex-end; background: #fff; padding: 20px; border-radius: 12px; border: 2px dashed #cbd5e1; margin-bottom: 25px; flex-wrap: wrap; }
         .color-picker { padding: 2px; height: 44px; cursor: pointer; }
@@ -392,6 +410,9 @@ export default function EngaziaWhatsAppCRM() {
         .template-body { font-size: 13px; color: #475569; white-space: pre-wrap; line-height: 1.7; }
         .btn-icon { padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 800; cursor: pointer; border: none; display: flex; align-items: center; gap: 5px; }
       `}</style>
+
+      {/* Toast Notification Banner */}
+      {toastMessage && <div className="toast-banner">{toastMessage}</div>}
 
       <div className="wrapper">
         <Link href="/hub" className="back-link" style={{ color: '#4f46e5', textDecoration: 'none', fontWeight: 700, fontSize: '13px', display: 'inline-block', marginBottom: '15px' }}>← العودة للوحة الرئيسية</Link>
@@ -421,7 +442,8 @@ export default function EngaziaWhatsAppCRM() {
                 <div className="stat-title">إجمالي العملاء</div>
                 <div className="stat-num">{contacts.length}</div>
               </div>
-              {categories.slice(0, 3).map(cat => (
+              {/* بطاقات ديناميكية لكل تصنيف أنشأه التاجر */}
+              {categories.map(cat => (
                 <div key={cat.name} className="stat-card" style={{ borderBottom: `4px solid ${cat.color}` }}>
                   <div className="stat-title">{cat.name}</div>
                   <div className="stat-num">{contacts.filter(c => c.category === cat.name).length}</div>
@@ -487,21 +509,25 @@ export default function EngaziaWhatsAppCRM() {
             </div>
 
             <div className="section-box" style={{ padding: '15px 25px' }}>
-              <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap', alignItems: 'flex-end' }}>
+              <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap', alignItems: 'flex-end', marginBottom: '15px' }}>
                 <div style={{ display: 'flex', gap: '10px' }}>
                   <button className="btn-sm btn-edit" style={{ padding: '12px 20px', fontWeight: 800 }} onClick={exportToCSV}>📥 تصدير CSV</button>
                   <button className="btn-sm btn-success" style={{ padding: '12px 20px', fontWeight: 800 }} onClick={() => fileInputRef.current?.click()}>📤 استيراد CSV</button>
                   <input type="file" ref={fileInputRef} onChange={handleImportCSV} accept=".csv" style={{ display: 'none' }} />
                 </div>
-                <div className="form-group" style={{ flex: 1, margin: 0, minWidth: '150px' }}>
-                  <select className="form-control" value={filterCategory} onChange={e => setFilterCategory(e.target.value)}>
-                    <option value="all">كل التصنيفات</option>
-                    {categories.map(cat => <option key={cat.name} value={cat.name}>{cat.name}</option>)}
-                  </select>
-                </div>
-                <div className="form-group" style={{ flex: 2, margin: 0, minWidth: '200px' }}>
+                <div className="form-group" style={{ flex: 2, margin: 0, minWidth: '220px' }}>
                   <input type="text" className="form-control" placeholder="🔍 بحث بالاسم، الجوال، أو رقم الطلب..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
                 </div>
+              </div>
+
+              {/* أزرار الفلترة السريعة (Quick Filter Chips) */}
+              <div className="filter-chips">
+                <button className={`chip-btn ${filterCategory === 'all' ? 'active' : ''}`} onClick={() => setFilterCategory('all')}>جميع العملاء ({contacts.length})</button>
+                {categories.map(cat => (
+                  <button key={cat.name} className={`chip-btn ${filterCategory === cat.name ? 'active' : ''}`} onClick={() => setFilterCategory(cat.name)}>
+                    {cat.name} ({contacts.filter(c => c.category === cat.name).length})
+                  </button>
+                ))}
               </div>
             </div>
 
@@ -537,6 +563,7 @@ export default function EngaziaWhatsAppCRM() {
                       </td>
                     </tr>
                   ))}
+                  {filteredContacts.length === 0 && <tr><td colSpan={6} style={{textAlign: 'center', padding: '30px', color: '#64748b'}}>لا يوجد عملاء يطابقون بحثك.</td></tr>}
                 </tbody>
               </table>
             </div>
@@ -619,7 +646,7 @@ export default function EngaziaWhatsAppCRM() {
                     <div className="section-title" style={{ fontSize: '13px', color: '#64748b' }}>شكل الرسالة النهائي:</div>
                     <div style={{ background: '#f8fafc', padding: '15px', borderRadius: '10px', fontSize: '14px', lineHeight: 1.7, whiteSpace: 'pre-wrap', marginBottom: '15px', color: '#1e293b', fontWeight: 500, border: '1px solid #e2e8f0' }}>{generatedMsg}</div>
                     <div style={{ display: 'flex', gap: '10px' }}>
-                      <button className="btn-main" style={{ flex: 1, background: '#f1f5f9', color: '#1e293b' }} onClick={() => { navigator.clipboard.writeText(generatedMsg); alert('تم النسخ!'); }}>📋 نسخ فقط</button>
+                      <button className="btn-main" style={{ flex: 1, background: '#f1f5f9', color: '#1e293b' }} onClick={() => { navigator.clipboard.writeText(generatedMsg); showToast('📋 تم نسخ النص بنجاح!'); }}>📋 نسخ فقط</button>
                       <button className="btn-wa" style={{ flex: 2 }} onClick={() => openWhatsApp(customerPhone, generatedMsg)}>🟢 إرسال عبر واتساب</button>
                     </div>
                   </div>
@@ -649,7 +676,7 @@ export default function EngaziaWhatsAppCRM() {
                       }}>🟢 إرسال للعميل الحالي</button>
                       <button className="btn-main" style={{ width: 'auto', background: '#334155' }} onClick={() => {
                         if (broadcastIndex < broadcastList.length - 1) setBroadcastIndex(broadcastIndex + 1);
-                        else alert('انتهت القائمة!');
+                        else showToast('⚠️ لقد وصلت لنهاية القائمة!');
                       }}>التالي ⬅️</button>
                     </div>
                   </div>
@@ -686,9 +713,10 @@ export default function EngaziaWhatsAppCRM() {
                   <textarea className="form-control" rows={3} placeholder="أهلاً بك يا [الاسم]..." value={newTplText} onChange={e => setNewTplText(e.target.value)}></textarea>
                 </div>
                 <button className="btn-main" style={{ width: '100%' }} onClick={() => {
-                  if (!newTplTitle || !newTplText) return alert("الرجاء تعبئة العنوان والنص");
+                  if (!newTplTitle || !newTplText) return showToast("⚠️ الرجاء تعبئة العنوان والنص");
                   saveTemplates([...templates, { id: Date.now(), title: newTplTitle, text: newTplText }]);
                   setNewTplTitle(''); setNewTplText('');
+                  showToast('💾 تم حفظ القالب بنجاح');
                 }}>💾 حفظ القالب في النظام</button>
               </div>
 
@@ -697,7 +725,7 @@ export default function EngaziaWhatsAppCRM() {
                   <div key={t.id} className="template-card-view">
                     <div className="template-header">
                       <span className="template-title">{t.title}</span>
-                      {t.id > 4 && <button className="btn-icon btn-danger" style={{ padding: '4px 8px' }} onClick={() => saveTemplates(templates.filter(x => x.id !== t.id))}>🗑️</button>}
+                      {t.id > 4 && <button className="btn-icon btn-danger" style={{ padding: '4px 8px' }} onClick={() => { saveTemplates(templates.filter(x => x.id !== t.id)); showToast('🗑️ تم حذف القالب'); }}>🗑️</button>}
                     </div>
                     <div className="template-body">{t.text}</div>
                   </div>
