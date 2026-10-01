@@ -57,11 +57,6 @@ export default function EngaziaWhatsAppCRM() {
   const [storeName, setStoreName] = useState('متجري الإلكتروني');
   const [storeLogo, setStoreLogo] = useState('🛍');
 
-  // إعدادات الربط السحابي (Supabase Simulation)
-  const [cloudSyncEnabled, setCloudSyncEnabled] = useState(false);
-  const [cloudApiKey, setCloudApiKey] = useState('');
-  const [isSyncing, setIsSyncing] = useState(false);
-
   // إدارة العملاء CRM
   const [contacts, setContacts] = useState<Customer[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -105,9 +100,8 @@ export default function EngaziaWhatsAppCRM() {
   // الإعدادات العامة (كود الخصم الافتراضي)
   const [defaultDiscountCode, setDefaultDiscountCode] = useState('ENGAZIA10');
 
-  // المراسلات (الدمج الذكي + واتساب السحابي الآلي)
+  // المراسلات (الدمج الذكي اليدوي عبر Wa.me)
   const [messagingMode, setMessagingMode] = useState<'single' | 'broadcast'>('single');
-  const [sendMethod, setSendMethod] = useState<'wa_me' | 'cloud_api'>('wa_me');
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
   const [orderNumber, setOrderNumber] = useState('');
@@ -159,7 +153,7 @@ export default function EngaziaWhatsAppCRM() {
   const [showSuggestions, setShowSuggestions] = useState(false);
 
   useEffect(() => {
-    const savedContacts = localStorage.getItem('engazia_whatsapp_pro_crm_v15');
+    const savedContacts = localStorage.getItem('engazia_whatsapp_pro_crm_v16');
     if (savedContacts) {
       try { setContacts(JSON.parse(savedContacts)); } catch (e) { console.error(e); }
     }
@@ -193,12 +187,6 @@ export default function EngaziaWhatsAppCRM() {
     const savedStoreLogo = localStorage.getItem('engazia_store_logo');
     if (savedStoreLogo) setStoreLogo(savedStoreLogo);
 
-    const savedCloudKey = localStorage.getItem('engazia_cloud_api_key');
-    if (savedCloudKey) {
-      setCloudApiKey(savedCloudKey);
-      setCloudSyncEnabled(true);
-    }
-
     const handleClickOutside = (event: MouseEvent) => {
       if (suggestionsRef.current && !suggestionsRef.current.contains(event.target as Node)) {
         setShowSuggestions(false);
@@ -210,12 +198,7 @@ export default function EngaziaWhatsAppCRM() {
 
   const saveContacts = (updated: Customer[]) => {
     setContacts(updated);
-    localStorage.setItem('engazia_whatsapp_pro_crm_v15', JSON.stringify(updated));
-    if (cloudSyncEnabled) {
-      // محاكاة مزامنة سحابية تلقائية في الخلفية
-      setIsSyncing(true);
-      setTimeout(() => setIsSyncing(false), 800);
-    }
+    localStorage.setItem('engazia_whatsapp_pro_crm_v16', JSON.stringify(updated));
   };
 
   const saveCategories = (updated: TagConfig[]) => {
@@ -276,7 +259,7 @@ export default function EngaziaWhatsAppCRM() {
       statusOptions,
       responseStateOptions,
       templates,
-      version: '2.0'
+      version: '2.1'
     };
     const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -296,7 +279,7 @@ export default function EngaziaWhatsAppCRM() {
         const data = JSON.parse(event.target?.result as string);
         if (data && data.contacts) {
           setContacts(data.contacts);
-          localStorage.setItem('engazia_whatsapp_pro_crm_v15', JSON.stringify(data.contacts));
+          localStorage.setItem('engazia_whatsapp_pro_crm_v16', JSON.stringify(data.contacts));
         }
         if (data && data.categories) {
           setCategories(data.categories);
@@ -351,7 +334,7 @@ export default function EngaziaWhatsAppCRM() {
           id: Date.now().toString(),
           date: dateStr,
           action: 'تم التواصل عبر واتساب',
-          note: customNote || 'إرسال رسالة تفاعلية'
+          note: customNote || 'فتح رابط المحادثة'
         };
         const existingTimeline = c.timeline || [];
         return { 
@@ -499,8 +482,8 @@ export default function EngaziaWhatsAppCRM() {
 
   const addResponseStateOption = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newRespName) return showToast('⚠️ أدخل اسم حالة الرد.');
-    if (responseStateOptions.some(r => r.name === newRespName)) return showToast('⚠️️ حالة الرد هذه موجودة مسبقاً.');
+    if (!newRespName) return showToast('⚠️️ أدخل اسم حالة الرد.');
+    if (responseStateOptions.some(r => r.name === newRespName)) return showToast('⚠️ حالة الرد هذه موجودة مسبقاً.');
     const updated = [...responseStateOptions, { name: newRespName, bg: newRespBg, color: newRespColor }];
     saveResponseStates(updated);
     setNewRespName('');
@@ -539,22 +522,13 @@ export default function EngaziaWhatsAppCRM() {
     setGeneratedMsg(msg);
   };
 
-  const executeWhatsAppDispatch = (phone: string, text: string, customerId?: string) => {
+  const openWhatsAppDirect = (phone: string, text: string, customerId?: string) => {
     const clean = formatPhone(phone);
-    if (sendMethod === 'cloud_api') {
-      // محاكاة إرسال تلقائي سحابي في الخلفية عبر WhatsApp Cloud API
-      showToast('🌐 جاري الإرسال التلقائي في الخلفية عبر WhatsApp API...');
-      setTimeout(() => {
-        showToast('✅ تم إرسال الرسالة بنجاح في الخلفية!');
-        if (customerId) updateLastContact(customerId, 'إرسال آلي عبر WhatsApp API');
-      }, 1000);
-    } else {
-      const encodedText = encodeURIComponent(text);
-      const url = clean ? `https://wa.me/${clean}?text=${encodedText}` : `https://wa.me/?text=${encodedText}`;
-      window.open(url, '_blank');
-      if (customerId) {
-        updateLastContact(customerId, 'إرسال يدوي عبر Wa.me');
-      }
+    const encodedText = encodeURIComponent(text);
+    const url = clean ? `https://wa.me/${clean}?text=${encodedText}` : `https://wa.me/?text=${encodedText}`;
+    window.open(url, '_blank');
+    if (customerId) {
+      updateLastContact(customerId, 'مراسلة عبر Wa.me');
     }
   };
 
@@ -690,14 +664,13 @@ export default function EngaziaWhatsAppCRM() {
 
       {/* Toast Notification Banner */}
       {toastMessage && <div className="toast-banner">{toastMessage}</div>}
-      {isSyncing && <div style={{ position: 'fixed', bottom: 20, left: 20, background: '#4f46e5', color: '#fff', padding: '8px 16px', borderRadius: '10px', fontSize: '12px', fontWeight: 800, zIndex: 9999 }}>🔄 جاري المزامنة السحابية...</div>}
 
       {/* نافذة ملف العميل الشامل مع الأرشيف والتعديل المباشر */}
       {selectedCustomer && (
         <div className="modal-overlay" onClick={() => setSelectedCustomer(null)}>
           <div className="modal-content" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
-              <h3 className="modal-title">✏️️ ملف العميل الشامل والأرشيف السجلي</h3>
+              <h3 className="modal-title">✏ ملف العميل الشامل والأرشيف السجلي</h3>
               <button className="close-modal-btn" onClick={() => setSelectedCustomer(null)}>✕</button>
             </div>
             
@@ -818,7 +791,7 @@ export default function EngaziaWhatsAppCRM() {
             </div>
 
             <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
-              <button className="btn-wa" style={{ flex: 2 }} onClick={() => executeWhatsAppDispatch(selectedCustomer.phone, 'مرحباً بك', selectedCustomer.id)}>🟢 مراسلة عبر واتساب</button>
+              <button className="btn-wa" style={{ flex: 2 }} onClick={() => openWhatsAppDirect(selectedCustomer.phone, 'مرحباً بك', selectedCustomer.id)}>🟢 مراسلة عبر واتساب</button>
               <button className="btn-sm btn-danger" style={{ padding: '0 20px', fontSize: '13px', fontWeight: 800 }} onClick={() => deleteContact(selectedCustomer.id)}>🗑️ حذف</button>
               <button className="btn-main" style={{ flex: 1, background: '#f1f5f9', color: '#1e293b' }} onClick={() => setSelectedCustomer(null)}>إغلاق</button>
             </div>
@@ -1123,16 +1096,9 @@ export default function EngaziaWhatsAppCRM() {
         {/* 3. Messaging Engine */}
         {activeTab === 'messaging' && (
           <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px', marginBottom: '15px' }}>
-              <div className="radio-group" style={{ margin: 0 }}>
-                <button className={`radio-btn ${messagingMode === 'single' ? 'active' : ''}`} onClick={() => setMessagingMode('single')}>رسالة لعميل محدد</button>
-                <button className={`radio-btn ${messagingMode === 'broadcast' ? 'active' : ''}`} onClick={() => setMessagingMode('broadcast')}>حملة جماعية (طابور)</button>
-              </div>
-
-              <div className="radio-group" style={{ margin: 0, background: '#cbd5e1' }}>
-                <button className={`radio-btn ${sendMethod === 'wa_me' ? 'active' : ''}`} onClick={() => setSendMethod('wa_me')}>🔗 إرسال عبر Wa.me</button>
-                <button className={`radio-btn ${sendMethod === 'cloud_api' ? 'active' : ''}`} onClick={() => setSendMethod('cloud_api')}>🌐 إرسال آلي (Cloud API)</button>
-              </div>
+            <div className="radio-group">
+              <button className={`radio-btn ${messagingMode === 'single' ? 'active' : ''}`} onClick={() => setMessagingMode('single')}>رسالة لعميل محدد</button>
+              <button className={`radio-btn ${messagingMode === 'broadcast' ? 'active' : ''}`} onClick={() => setMessagingMode('broadcast')}>حملة جماعية (طابور)</button>
             </div>
 
             <div className="section-box">
@@ -1206,8 +1172,8 @@ export default function EngaziaWhatsAppCRM() {
                       <button className="btn-main" style={{ flex: 1, background: '#f1f5f9', color: '#1e293b' }} onClick={() => { navigator.clipboard.writeText(generatedMsg); showToast('📋 تم نسخ النص بنجاح!'); }}>📋 نسخ فقط</button>
                       <button className="btn-wa" style={{ flex: 2 }} onClick={() => {
                         const target = contacts.find(c => c.phone === formatPhone(customerPhone));
-                        executeWhatsAppDispatch(customerPhone, generatedMsg, target?.id);
-                      }}>{sendMethod === 'cloud_api' ? '🌐 إرسال آلي عبر API' : '🟢 إرسال عبر واتساب'}</button>
+                        openWhatsAppDirect(customerPhone, generatedMsg, target?.id);
+                      }}>🟢 إرسال عبر واتساب (Wa.me)</button>
                     </div>
                   </div>
                 )}
@@ -1232,12 +1198,12 @@ export default function EngaziaWhatsAppCRM() {
                         const tpl = templates.find(t => t.id === activeTemplateId)?.text || '';
                         let msg = tpl.replace(/\[الاسم\]/g, c.name).replace(/\[الطلب\]/g, c.orderNumber).replace(/\[إضافي\]/g, extraInfo);
                         if(includeDiscount) msg += `\n\n🎁 كود خصم خاص لك: *${defaultDiscountCode}*`;
-                        executeWhatsAppDispatch(c.phone, msg, c.id);
+                        openWhatsAppDirect(c.phone, msg, c.id);
                         if (broadcastIndex < broadcastList.length - 1) setBroadcastIndex(broadcastIndex + 1);
-                      }}>{sendMethod === 'cloud_api' ? '🌐 إرسال آلي وانتقل للتالي' : '🟢 إرسال والانتقال للتالي'}</button>
+                      }}>🟢 إرسال عبر Wa.me والانتقال للتالي</button>
                       <button className="btn-main" style={{ width: 'auto', background: '#334155' }} onClick={() => {
                         if (broadcastIndex < broadcastList.length - 1) setBroadcastIndex(broadcastIndex + 1);
-                        else showToast('⚠️️ لقد وصلت لنهاية القائمة!');
+                        else showToast('⚠️ لقد وصلت لنهاية القائمة!');
                       }}>تخطي ⬅</button>
                     </div>
                   </div>
@@ -1266,39 +1232,6 @@ export default function EngaziaWhatsAppCRM() {
                     🖼 اختر صورة الشعار من جهازك
                   </button>
                   <input type="file" ref={storeLogoFileRef} onChange={handleLogoUpload} accept="image/*" style={{ display: 'none' }} />
-                </div>
-              </div>
-            </div>
-
-            {/* إعدادات الربط السحابي (Supabase Cloud Sync) */}
-            <div className="section-box" style={{ background: '#f5f3ff', borderColor: '#ddd6fe' }}>
-              <div className="section-title" style={{ color: '#6d28d9' }}>☁️ الربط السحابي للبيانات (Supabase / Cloud Sync)</div>
-              <p className="section-desc">قم بربط مفتاح السحابة الخاص بك لتفعيل المزامنة الفورية لبيانات العملاء across devices.</p>
-              
-              <div className="form-grid" style={{ alignItems: 'flex-end' }}>
-                <div className="form-group" style={{ margin: 0, flex: 2 }}>
-                  <label>مفتاح الربط السحابي (Cloud API Key)</label>
-                  <input 
-                    type="text" 
-                    className="form-control input-ltr" 
-                    placeholder="eyJhbGciOiJIUzI1Ni..." 
-                    value={cloudApiKey} 
-                    onChange={e => {
-                      setCloudApiKey(e.target.value);
-                      localStorage.setItem('engazia_cloud_api_key', e.target.value);
-                      if(e.target.value.trim() !== '') {
-                        setCloudSyncEnabled(true);
-                        showToast('☁️ تم تفعيل المزامنة السحابية بنجاح');
-                      } else {
-                        setCloudSyncEnabled(false);
-                      }
-                    }} 
-                  />
-                </div>
-                <div className="form-group" style={{ margin: 0 }}>
-                  <span className="badge" style={{ background: cloudSyncEnabled ? '#dcfce7' : '#fee2e2', color: cloudSyncEnabled ? '#15803d' : '#dc2626', padding: '10px 15px', display: 'block', textAlign: 'center' }}>
-                    {cloudSyncEnabled ? '🟢 السحابة متصلة وتعمل' : '🔴 غير متصل'}
-                  </span>
                 </div>
               </div>
             </div>
@@ -1339,7 +1272,7 @@ export default function EngaziaWhatsAppCRM() {
                   <textarea className="form-control" rows={3} placeholder="أهلاً بك يا [الاسم]..." value={newTplText} onChange={e => setNewTplText(e.target.value)}></textarea>
                 </div>
                 <button className="btn-main" style={{ width: '100%' }} onClick={() => {
-                  if (!newTplTitle || !newTplText) return showToast("⚠ الرجاء تعبئة العنوان والنص");
+                  if (!newTplTitle || !newTplText) return showToast("⚠️ الرجاء تعبئة العنوان والنص");
                   saveTemplates([...templates, { id: Date.now(), title: newTplTitle, text: newTplText }]);
                   setNewTplTitle(''); setNewTplText('');
                   showToast('💾 تم حفظ القالب بنجاح');
@@ -1542,7 +1475,7 @@ export default function EngaziaWhatsAppCRM() {
                         مبيعات
                       </label>
                       <span className="badge" style={{ backgroundColor: cat.bg, color: cat.color }}>معاينة الشارة</span>
-                      <button className="btn-icon btn-danger" onClick={() => deleteCategory(cat.name)}>🗑️ حذف</button>
+                      <button className="btn-icon btn-danger" onClick={() => deleteCategory(cat.name)}>🗑️️ حذف</button>
                     </div>
                   </div>
                 ))}
