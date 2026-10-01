@@ -40,6 +40,9 @@ export default function EngaziaWhatsAppCRM() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('all');
   
+  // نافذة تفاصيل العميل المنبثقة (Modal)
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
+  
   // إضافة عميل جديد
   const [newName, setNewName] = useState('');
   const [newPhone, setNewPhone] = useState('');
@@ -107,7 +110,7 @@ export default function EngaziaWhatsAppCRM() {
   const [showSuggestions, setShowSuggestions] = useState(false);
 
   useEffect(() => {
-    const savedContacts = localStorage.getItem('engazia_whatsapp_pro_crm_v11');
+    const savedContacts = localStorage.getItem('engazia_whatsapp_pro_crm_v12');
     if (savedContacts) {
       try { setContacts(JSON.parse(savedContacts)); } catch (e) { console.error(e); }
     }
@@ -142,7 +145,7 @@ export default function EngaziaWhatsAppCRM() {
 
   const saveContacts = (updated: Customer[]) => {
     setContacts(updated);
-    localStorage.setItem('engazia_whatsapp_pro_crm_v11', JSON.stringify(updated));
+    localStorage.setItem('engazia_whatsapp_pro_crm_v12', JSON.stringify(updated));
   };
 
   const saveCategories = (updated: TagConfig[]) => {
@@ -244,7 +247,7 @@ export default function EngaziaWhatsAppCRM() {
     saveCategories(updated);
     setNewCatName('');
     setNewCatIsSale(true);
-    showToast('🏷️️ تم إضافة التصنيف بنجاح');
+    showToast('🏷️ تم إضافة التصنيف بنجاح');
   };
 
   const deleteCategory = (catName: string) => {
@@ -257,6 +260,7 @@ export default function EngaziaWhatsAppCRM() {
   };
 
   const routeToMessaging = (c: Customer) => {
+    setSelectedCustomer(null);
     setCustomerName(c.name);
     setCustomerPhone(c.phone);
     setOrderNumber(c.orderNumber);
@@ -482,14 +486,12 @@ export default function EngaziaWhatsAppCRM() {
         .btn-edit { background: #e0e7ff; color: #4f46e5; }
         .btn-danger { background: #fee2e2; color: #dc2626; }
 
-        /* تعديلات الجدول لإلغاء شريط التمرير وعرض الجدول كاملاً داخل الشاشة */
         .table-container { width: 100%; background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; overflow-x: hidden; }
         .contacts-table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: right; table-layout: fixed; }
         .contacts-table th, .contacts-table td { padding: 8px 6px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; word-break: break-word; }
         .contacts-table th { background: #f8fafc; color: #475569; font-weight: 800; font-size: 11.5px; }
         .contacts-table tr:hover { background: #fcfcfc; }
         
-        /* حقول جدول الـ CRM المدمجة لتتناسب 100% بدون شريط تمرير */
         .cell-input { padding: 5px 8px; font-size: 11.5px; border: 1px solid #cbd5e1; border-radius: 6px; background: #fff; font-family: 'Tajawal', sans-serif; font-weight: 700; color: #1e293b; width: 100%; outline: none; box-sizing: border-box; transition: 0.2s; }
         .cell-input:focus { border-color: #4f46e5; box-shadow: 0 0 0 2px rgba(79,70,229,0.1); }
 
@@ -507,6 +509,19 @@ export default function EngaziaWhatsAppCRM() {
         .chip-btn { padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 800; cursor: pointer; border: 1px solid #cbd5e1; background: #fff; color: #475569; transition: all 0.2s; white-space: nowrap; }
         .chip-btn:hover { border-color: #4f46e5; color: #4f46e5; }
         .chip-btn.active { background: #4f46e5; color: #fff; border-color: #4f46e5; box-shadow: 0 2px 8px rgba(79,70,229,0.2); }
+
+        /* تنسيق نافذة تفاصيل العميل المنبثقة (Modal) */
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 9999; animation: fadeIn 0.2s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .modal-content { background: #fff; border-radius: 20px; padding: 30px; width: 100%; max-width: 500px; box-shadow: 0 20px 40px rgba(0,0,0,0.15); border: 1px solid #e2e8f0; position: relative; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #f1f5f9; padding-bottom: 15px; }
+        .modal-title { font-size: 18px; font-weight: 900; color: #1e293b; margin: 0; display: flex; align-items: center; gap: 8px; }
+        .close-modal-btn { background: #f1f5f9; border: none; width: 32px; height: 32px; border-radius: 50%; font-weight: 900; cursor: pointer; color: #64748b; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
+        .close-modal-btn:hover { background: #fee2e2; color: #dc2626; }
+        .modal-body-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .modal-item { background: #f8fafc; padding: 12px 15px; border-radius: 12px; border: 1px solid #e2e8f0; }
+        .modal-item-label { font-size: 11px; font-weight: 800; color: #64748b; margin-bottom: 4px; }
+        .modal-item-val { font-size: 14px; font-weight: 900; color: #1e293b; }
 
         /* إعدادات متقدمة */
         .settings-creation-box { display: flex; gap: 15px; align-items: flex-end; background: #fff; padding: 20px; border-radius: 12px; border: 2px dashed #cbd5e1; margin-bottom: 25px; flex-wrap: wrap; }
@@ -533,6 +548,62 @@ export default function EngaziaWhatsAppCRM() {
 
       {/* Toast Notification Banner */}
       {toastMessage && <div className="toast-banner">{toastMessage}</div>}
+
+      {/* نافذة تفاصيل العميل المنبثقة (Modal) */}
+      {selectedCustomer && (
+        <div className="modal-overlay" onClick={() => setSelectedCustomer(null)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3 className="modal-title">👤 ملف العميل الشامل</h3>
+              <button className="close-modal-btn" onClick={() => setSelectedCustomer(null)}>✕</button>
+            </div>
+            
+            <div className="modal-body-grid">
+              <div className="modal-item" style={{ gridColumn: '1 / -1' }}>
+                <div className="modal-item-label">اسم العميل</div>
+                <div className="modal-item-val" style={{ color: '#4f46e5', fontSize: '16px' }}>{selectedCustomer.name}</div>
+              </div>
+              <div className="modal-item">
+                <div className="modal-item-label">رقم الجوال</div>
+                <div className="modal-item-val" style={{ direction: 'ltr', textAlign: 'right' }}>{selectedCustomer.phone}</div>
+              </div>
+              <div className="modal-item">
+                <div className="modal-item-label">رقم الطلب</div>
+                <div className="modal-item-val" style={{ direction: 'ltr', textAlign: 'right' }}>{selectedCustomer.orderNumber}</div>
+              </div>
+              <div className="modal-item">
+                <div className="modal-item-label">التصنيف</div>
+                <div className="modal-item-val">
+                  <span className="badge" style={{ background: categories.find(cat => cat.name === selectedCustomer.category)?.bg || '#eee', color: categories.find(cat => cat.name === selectedCustomer.category)?.color || '#000' }}>
+                    {selectedCustomer.category}
+                  </span>
+                </div>
+              </div>
+              <div className="modal-item">
+                <div className="modal-item-label">الحالة</div>
+                <div className="modal-item-val" style={{ color: selectedCustomer.status === 'نشط' ? '#15803d' : '#64748b' }}>{selectedCustomer.status || 'نشط'}</div>
+              </div>
+              <div className="modal-item">
+                <div className="modal-item-label">إجمالي المشتريات</div>
+                <div className="modal-item-val" style={{ direction: 'ltr', textAlign: 'right' }}>{selectedCustomer.amount} ر.س</div>
+              </div>
+              <div className="modal-item">
+                <div className="modal-item-label">تاريخ التسجيل</div>
+                <div className="modal-item-val" style={{ direction: 'ltr', textAlign: 'right' }}>{selectedCustomer.date}</div>
+              </div>
+              <div className="modal-item" style={{ gridColumn: '1 / -1' }}>
+                <div className="modal-item-label">ملاحظات العميل</div>
+                <div className="modal-item-val" style={{ fontWeight: 500, color: '#334155' }}>{selectedCustomer.note || 'لا توجد ملاحظات مسجلة.'}</div>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button className="btn-wa" style={{ flex: 1 }} onClick={() => routeToMessaging(selectedCustomer)}>🟢 مراسلة عبر واتساب</button>
+              <button className="btn-main" style={{ background: '#f1f5f9', color: '#1e293b' }} onClick={() => setSelectedCustomer(null)}>إغلاق</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="wrapper">
         <Link href="/hub" className="back-link" style={{ color: '#4f46e5', textDecoration: 'none', fontWeight: 700, fontSize: '13px', display: 'inline-block', marginBottom: '15px' }}>← العودة للوحة الرئيسية</Link>
@@ -595,7 +666,15 @@ export default function EngaziaWhatsAppCRM() {
                 <tbody>
                   {contacts.slice(0, 5).map(c => (
                     <tr key={c.id}>
-                      <td style={{fontWeight: 800}}>{c.name}</td>
+                      <td>
+                        <span 
+                          style={{ fontWeight: 800, color: '#4f46e5', cursor: 'pointer', textDecoration: 'underline', textDecorationStyle: 'dotted' }} 
+                          onClick={() => setSelectedCustomer(c)}
+                          title="اضغط لعرض تفاصيل العميل كاملة"
+                        >
+                          {c.name}
+                        </span>
+                      </td>
                       <td style={{direction: 'ltr', textAlign: 'right'}}>{c.orderNumber}</td>
                       <td>
                         <span className="badge" style={{ background: categories.find(cat => cat.name === c.category)?.bg || '#eee', color: categories.find(cat => cat.name === c.category)?.color || '#000' }}>
@@ -973,7 +1052,7 @@ export default function EngaziaWhatsAppCRM() {
                         مبيعات
                       </label>
                       <span className="badge" style={{ backgroundColor: cat.bg, color: cat.color }}>معاينة الشارة</span>
-                      <button className="btn-icon btn-danger" onClick={() => deleteCategory(cat.name)}>🗑️ حذف</button>
+                      <button className="btn-icon btn-danger" onClick={() => deleteCategory(cat.name)}>🗑️️ حذف</button>
                     </div>
                   </div>
                 ))}
