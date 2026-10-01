@@ -107,7 +107,7 @@ export default function EngaziaWhatsAppCRM() {
   const [showSuggestions, setShowSuggestions] = useState(false);
 
   useEffect(() => {
-    const savedContacts = localStorage.getItem('engazia_whatsapp_pro_crm_v8');
+    const savedContacts = localStorage.getItem('engazia_whatsapp_pro_crm_v9');
     if (savedContacts) {
       try { setContacts(JSON.parse(savedContacts)); } catch (e) { console.error(e); }
     }
@@ -142,7 +142,7 @@ export default function EngaziaWhatsAppCRM() {
 
   const saveContacts = (updated: Customer[]) => {
     setContacts(updated);
-    localStorage.setItem('engazia_whatsapp_pro_crm_v8', JSON.stringify(updated));
+    localStorage.setItem('engazia_whatsapp_pro_crm_v9', JSON.stringify(updated));
   };
 
   const saveCategories = (updated: TagConfig[]) => {
@@ -232,7 +232,7 @@ export default function EngaziaWhatsAppCRM() {
   const deleteContact = (id: string) => {
     if (window.confirm('هل أنت متأكد من حذف هذا العميل؟')) {
       saveContacts(contacts.filter(c => c.id !== id));
-      showToast('🗑️ تم حذف العميل');
+      showToast('🗑️️ تم حذف العميل');
     }
   };
 
@@ -482,10 +482,10 @@ export default function EngaziaWhatsAppCRM() {
         .btn-edit { background: #e0e7ff; color: #4f46e5; }
         .btn-danger { background: #fee2e2; color: #dc2626; }
 
-        /* ضبط الجدول لمنع تداخل الكلمات */
+        /* ضبط الجدول ومقاسات المربعات المخصصة لتتناسب تماماً مع المحتوى */
         .table-container { overflow-x: auto; background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; }
-        .contacts-table { width: 100%; min-width: 1150px; border-collapse: collapse; font-size: 13px; text-align: right; }
-        .contacts-table th, .contacts-table td { padding: 14px 16px; border-bottom: 1px solid #f1f5f9; white-space: nowrap; vertical-align: middle; }
+        .contacts-table { width: 100%; min-width: 1050px; border-collapse: collapse; font-size: 13px; text-align: right; }
+        .contacts-table th, .contacts-table td { padding: 12px 14px; border-bottom: 1px solid #f1f5f9; white-space: nowrap; vertical-align: middle; }
         .contacts-table th { background: #f8fafc; color: #475569; font-weight: 800; }
         .contacts-table tr:hover { background: #fcfcfc; }
 
@@ -690,24 +690,24 @@ export default function EngaziaWhatsAppCRM() {
                 <tbody>
                   {filteredContacts.map(c => (
                     <tr key={c.id}>
-                      <td><input type="text" className="form-control" style={{ padding: '8px 10px', fontSize: '13px', width: '140px' }} value={c.name} onChange={e => updateCustomerField(c.id, 'name', e.target.value)} /></td>
-                      <td><input type="text" className="form-control input-ltr" style={{ padding: '8px 10px', fontSize: '13px', width: '130px' }} value={c.phone} onChange={e => updateCustomerField(c.id, 'phone', e.target.value)} /></td>
-                      <td><input type="text" className="form-control input-ltr" style={{ padding: '8px 10px', fontSize: '13px', width: '90px', color: '#4f46e5' }} value={c.orderNumber} onChange={e => updateCustomerField(c.id, 'orderNumber', e.target.value)} /></td>
+                      <td><input type="text" className="form-control" style={{ padding: '7px 10px', fontSize: '13px', width: '130px' }} value={c.name} onChange={e => updateCustomerField(c.id, 'name', e.target.value)} /></td>
+                      <td><input type="text" className="form-control input-ltr" style={{ padding: '7px 10px', fontSize: '13px', width: '125px' }} value={c.phone} onChange={e => updateCustomerField(c.id, 'phone', e.target.value)} /></td>
+                      <td><input type="text" className="form-control input-ltr" style={{ padding: '7px 10px', fontSize: '13px', width: '85px', color: '#4f46e5' }} value={c.orderNumber} onChange={e => updateCustomerField(c.id, 'orderNumber', e.target.value)} /></td>
                       <td>
-                        <select className="form-control" style={{ padding: '8px 10px', fontSize: '13px', width: '130px' }} value={c.category} onChange={e => updateCustomerField(c.id, 'category', e.target.value)}>
+                        <select className="form-control" style={{ padding: '7px 10px', fontSize: '13px', width: '120px' }} value={c.category} onChange={e => updateCustomerField(c.id, 'category', e.target.value)}>
                           {categories.map(cat => <option key={cat.name} value={cat.name}>{cat.name}</option>)}
                         </select>
                       </td>
                       <td>
-                        <select className="form-control" style={{ padding: '8px 10px', fontSize: '13px', width: '120px' }} value={c.status || 'نشط'} onChange={e => updateCustomerField(c.id, 'status', e.target.value)}>
+                        <select className="form-control" style={{ padding: '7px 10px', fontSize: '13px', width: '105px' }} value={c.status || 'نشط'} onChange={e => updateCustomerField(c.id, 'status', e.target.value)}>
                           {statusOptions.map(st => <option key={st} value={st}>{st}</option>)}
                         </select>
                       </td>
-                      <td><input type="text" className="form-control input-ltr" style={{ padding: '8px 10px', fontSize: '13px', width: '90px' }} value={c.amount} onChange={e => updateCustomerField(c.id, 'amount', e.target.value)} /></td>
-                      <td><input type="text" className="form-control" style={{ padding: '8px 10px', fontSize: '13px', width: '180px' }} value={c.note || ''} onChange={e => updateCustomerField(c.id, 'note', e.target.value)} placeholder="أضف ملاحظة..." /></td>
-                      <td style={{ direction: 'ltr', textAlign: 'right', color: '#64748b', fontSize: '13px', fontWeight: 700, width: '100px' }}>{c.date}</td>
+                      <td><input type="text" className="form-control input-ltr" style={{ padding: '7px 10px', fontSize: '13px', width: '85px' }} value={c.amount} onChange={e => updateCustomerField(c.id, 'amount', e.target.value)} /></td>
+                      <td><input type="text" className="form-control" style={{ padding: '7px 10px', fontSize: '13px', width: '160px' }} value={c.note || ''} onChange={e => updateCustomerField(c.id, 'note', e.target.value)} placeholder="أضف ملاحظة..." /></td>
+                      <td style={{ direction: 'ltr', textAlign: 'right', color: '#64748b', fontSize: '13px', fontWeight: 700, width: '95px' }}>{c.date}</td>
                       <td>
-                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                        <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
                           <button className="btn-sm btn-success" onClick={() => routeToMessaging(c)}>💬 مراسلة</button>
                           <button className="btn-sm btn-danger" onClick={() => deleteContact(c.id)}>حذف</button>
                         </div>
