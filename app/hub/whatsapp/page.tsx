@@ -187,6 +187,11 @@ export default function EngaziaWhatsAppCRM() {
   const addContact = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newName || !newPhone) return showToast('⚠️ أدخل الاسم ورقم الجوال.');
+    
+    // توليد التاريخ بالأرقام الإنجليزية الصرفة YYYY-MM-DD
+    const now = new Date();
+    const enDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+
     const newCust: Customer = {
       id: Date.now().toString(),
       name: newName,
@@ -196,7 +201,7 @@ export default function EngaziaWhatsAppCRM() {
       status: 'نشط',
       amount: Number(newAmount) || 0,
       note: '',
-      date: new Date().toLocaleDateString('ar-SA')
+      date: enDate
     };
     saveContacts([newCust, ...contacts]);
     setNewName(''); setNewPhone(''); setNewOrderNumber(''); setNewAmount('');
@@ -268,7 +273,7 @@ export default function EngaziaWhatsAppCRM() {
     window.open(url, '_blank');
   };
 
-  // حل جذرى: تصدير البيانات كملف HTML مخصص ليعمل كجدول Excel نظامي يدعم اللغة العربية 100% بدون رموز غريبة
+  // تصدير Excel باحث الإتجاه من اليمين لليسار (dir="rtl") مع فرض الأرقام الإنجليزية
   const exportToExcel = () => {
     if (contacts.length === 0) return showToast('⚠️ لا توجد بيانات للتصدير.');
 
@@ -278,13 +283,14 @@ export default function EngaziaWhatsAppCRM() {
         <meta charset="utf-8" />
         <style>
           body { font-family: 'Tajawal', Tahoma, sans-serif; direction: rtl; }
-          table { border-collapse: collapse; width: 100%; }
-          th { background-color: #4f46e5; color: #ffffff; font-weight: bold; border: 1px solid #cbd5e1; padding: 10px; text-align: center; }
-          td { border: 1px solid #cbd5e1; padding: 8px; text-align: center; mso-number-format:"\\@"; }
+          table { border-collapse: collapse; width: 100%; direction: rtl; }
+          th { background-color: #4f46e5; color: #ffffff; font-weight: bold; border: 1px solid #cbd5e1; padding: 10px; text-align: right; }
+          td { border: 1px solid #cbd5e1; padding: 8px; text-align: right; mso-number-format:"\\@"; }
+          .num-cell { text-align: left; direction: ltr; mso-number-format:"0"; }
         </style>
       </head>
       <body>
-        <table>
+        <table dir="rtl">
           <thead>
             <tr>
               <th>الاسم</th>
@@ -304,13 +310,13 @@ export default function EngaziaWhatsAppCRM() {
       htmlTable += `
         <tr>
           <td>${c.name}</td>
-          <td>${c.phone}</td>
-          <td>${c.orderNumber}</td>
+          <td class="num-cell">${c.phone}</td>
+          <td class="num-cell">${c.orderNumber}</td>
           <td>${c.category}</td>
           <td>${c.status}</td>
-          <td>${c.amount}</td>
+          <td class="num-cell">${c.amount}</td>
           <td>${c.note || ''}</td>
-          <td>${c.date}</td>
+          <td class="num-cell">${c.date}</td>
         </tr>
       `;
     });
@@ -328,7 +334,7 @@ export default function EngaziaWhatsAppCRM() {
     link.href = url;
     link.download = `engazia_crm_${storeName.replace(/\s+/g, '_')}.xls`;
     link.click();
-    showToast('📥 تم تصدير ملف إكسل بترميز عربي سليم 100%');
+    showToast('📥 تم تصدير ملف إكسل من اليمين ليسار وبأرقام إنجليزية سليمة');
   };
 
   const handleImportCSV = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -353,7 +359,10 @@ export default function EngaziaWhatsAppCRM() {
             const status = cleanVal(row[4]) || 'نشط';
             const amount = Number(cleanVal(row[5])) || 0;
             const note = cleanVal(row[6]) || '';
-            const date = cleanVal(row[7]) || new Date().toLocaleDateString('ar-SA');
+            
+            const now = new Date();
+            const defaultEnDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+            const date = cleanVal(row[7]) || defaultEnDate;
 
             if (name && phone) {
               newImportedContacts.push({
@@ -424,7 +433,7 @@ export default function EngaziaWhatsAppCRM() {
         .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 30px; }
         .stat-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.02); transition: transform 0.2s; }
         .stat-card:hover { transform: translateY(-3px); }
-        .stat-num { font-size: 24px; font-weight: 900; color: #1e293b; margin-top: 8px; }
+        .stat-num { font-size: 24px; font-weight: 900; color: #1e293b; margin-top: 8px; direction: ltr; unicode-bidi: embed; }
         .stat-title { font-size: 13px; color: #64748b; font-weight: 700; }
 
         .section-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 16px; padding: 25px; margin-bottom: 20px; }
@@ -436,6 +445,7 @@ export default function EngaziaWhatsAppCRM() {
         .form-group label { display: block; font-size: 12px; font-weight: 800; color: #475569; margin-bottom: 6px; }
         .form-control { width: 100%; padding: 12px 15px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 13px; outline: none; font-family: 'Tajawal', sans-serif; background: #fff; color: #1e293b; font-weight: 700; transition: border-color 0.2s; }
         .form-control:focus { border-color: #4f46e5; box-shadow: 0 0 0 3px rgba(79,70,229,0.1); }
+        .input-ltr { direction: ltr; text-align: right; }
 
         .btn-main { background: #4f46e5; color: #fff; border: none; padding: 12px 24px; border-radius: 10px; font-weight: 800; font-size: 14px; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
         .btn-main:hover { background: #4338ca; transform: translateY(-1px); }
@@ -555,13 +565,13 @@ export default function EngaziaWhatsAppCRM() {
                   {contacts.slice(0, 5).map(c => (
                     <tr key={c.id}>
                       <td style={{fontWeight: 800}}>{c.name}</td>
-                      <td>{c.orderNumber}</td>
+                      <td style={{direction: 'ltr', textAlign: 'right'}}>{c.orderNumber}</td>
                       <td>
                         <span className="badge" style={{ background: categories.find(cat => cat.name === c.category)?.bg || '#eee', color: categories.find(cat => cat.name === c.category)?.color || '#000' }}>
                           {c.category}
                         </span>
                       </td>
-                      <td style={{ color: '#64748b' }}>{c.date}</td>
+                      <td style={{ color: '#64748b', direction: 'ltr', textAlign: 'right' }}>{c.date}</td>
                       <td>
                         <button className="btn-sm btn-success" onClick={() => routeToMessaging(c)}>💬 مراسلة</button>
                       </td>
@@ -582,15 +592,15 @@ export default function EngaziaWhatsAppCRM() {
               <form onSubmit={addContact}>
                 <div className="form-grid">
                   <div className="form-group"><label>اسم العميل</label><input type="text" className="form-control" value={newName} onChange={e => setNewName(e.target.value)} required /></div>
-                  <div className="form-group"><label>رقم الجوال (05x)</label><input type="text" className="form-control" value={newPhone} onChange={e => setNewPhone(e.target.value)} required /></div>
-                  <div className="form-group"><label>رقم الطلب (#)</label><input type="text" className="form-control" value={newOrderNumber} onChange={e => setNewOrderNumber(e.target.value)} /></div>
+                  <div className="form-group"><label>رقم الجوال (05x)</label><input type="text" className="form-control input-ltr" value={newPhone} onChange={e => setNewPhone(e.target.value)} required /></div>
+                  <div className="form-group"><label>رقم الطلب (#)</label><input type="text" className="form-control input-ltr" value={newOrderNumber} onChange={e => setNewOrderNumber(e.target.value)} /></div>
                   <div className="form-group">
                     <label>التصنيف</label>
                     <select className="form-control" value={newCategory} onChange={e => setNewCategory(e.target.value)}>
                       {categories.map(cat => <option key={cat.name} value={cat.name}>{cat.name}</option>)}
                     </select>
                   </div>
-                  <div className="form-group"><label>المشتريات (ر.س)</label><input type="number" className="form-control" value={newAmount} onChange={e => setNewAmount(e.target.value === '' ? '' : Number(e.target.value))} /></div>
+                  <div className="form-group"><label>المشتريات (ر.س)</label><input type="number" className="form-control input-ltr" value={newAmount} onChange={e => setNewAmount(e.target.value === '' ? '' : Number(e.target.value))} /></div>
                 </div>
                 <button type="submit" className="btn-main" style={{ width: 'auto' }}>حفظ وإضافة العميل</button>
               </form>
@@ -635,6 +645,7 @@ export default function EngaziaWhatsAppCRM() {
                     <th>الطلب</th>
                     <th>التصنيف</th>
                     <th>المشتريات</th>
+                    <th>التاريخ</th>
                     <th>الإجراءات</th>
                   </tr>
                 </thead>
@@ -642,14 +653,15 @@ export default function EngaziaWhatsAppCRM() {
                   {filteredContacts.map(c => (
                     <tr key={c.id}>
                       <td><input type="text" className="form-control" style={{ padding: '6px', fontSize: '12px', width: '120px' }} value={c.name} onChange={e => updateCustomerField(c.id, 'name', e.target.value)} /></td>
-                      <td><input type="text" className="form-control" style={{ padding: '6px', fontSize: '12px', width: '110px' }} value={c.phone} onChange={e => updateCustomerField(c.id, 'phone', e.target.value)} /></td>
-                      <td><input type="text" className="form-control" style={{ padding: '6px', fontSize: '12px', width: '80px', color: '#4f46e5' }} value={c.orderNumber} onChange={e => updateCustomerField(c.id, 'orderNumber', e.target.value)} /></td>
+                      <td><input type="text" className="form-control input-ltr" style={{ padding: '6px', fontSize: '12px', width: '110px' }} value={c.phone} onChange={e => updateCustomerField(c.id, 'phone', e.target.value)} /></td>
+                      <td><input type="text" className="form-control input-ltr" style={{ padding: '6px', fontSize: '12px', width: '80px', color: '#4f46e5' }} value={c.orderNumber} onChange={e => updateCustomerField(c.id, 'orderNumber', e.target.value)} /></td>
                       <td>
                         <select className="form-control" style={{ padding: '6px', fontSize: '12px' }} value={c.category} onChange={e => updateCustomerField(c.id, 'category', e.target.value)}>
                           {categories.map(cat => <option key={cat.name} value={cat.name}>{cat.name}</option>)}
                         </select>
                       </td>
-                      <td><input type="number" className="form-control" style={{ padding: '6px', fontSize: '12px', width: '80px' }} value={c.amount} onChange={e => updateCustomerField(c.id, 'amount', Number(e.target.value))} /></td>
+                      <td><input type="number" className="form-control input-ltr" style={{ padding: '6px', fontSize: '12px', width: '80px' }} value={c.amount} onChange={e => updateCustomerField(c.id, 'amount', Number(e.target.value))} /></td>
+                      <td style={{ direction: 'ltr', textAlign: 'right', color: '#64748b', fontSize: '12px', fontWeight: 700 }}>{c.date}</td>
                       <td>
                         <div style={{ display: 'flex', gap: '5px' }}>
                           <button className="btn-sm btn-success" onClick={() => routeToMessaging(c)}>💬 مراسلة</button>
@@ -658,7 +670,7 @@ export default function EngaziaWhatsAppCRM() {
                       </td>
                     </tr>
                   ))}
-                  {filteredContacts.length === 0 && <tr><td colSpan={6} style={{textAlign: 'center', padding: '30px', color: '#64748b'}}>لا يوجد عملاء يطابقون بحثك.</td></tr>}
+                  {filteredContacts.length === 0 && <tr><td colSpan={7} style={{textAlign: 'center', padding: '30px', color: '#64748b'}}>لا يوجد عملاء يطابقون بحثك.</td></tr>}
                 </tbody>
               </table>
             </div>
@@ -686,14 +698,14 @@ export default function EngaziaWhatsAppCRM() {
                           {matchingCustomers.map(cust => (
                             <div key={cust.id} className="suggestion-item" onClick={() => { setCustomerName(cust.name); setCustomerPhone(cust.phone); setOrderNumber(cust.orderNumber); setShowSuggestions(false); }}>
                               <span>{cust.name} <small style={{color: '#94a3b8'}}>({cust.orderNumber})</small></span>
-                              <span style={{ color: '#4f46e5' }}>{cust.phone}</span>
+                              <span style={{ color: '#4f46e5', direction: 'ltr' }}>{cust.phone}</span>
                             </div>
                           ))}
                         </div>
                       )}
                     </div>
-                    <div className="form-group"><label>رقم الجوال</label><input type="text" className="form-control" value={customerPhone} onChange={e => setCustomerPhone(e.target.value)} /></div>
-                    <div className="form-group"><label>رقم الطلب</label><input type="text" className="form-control" value={orderNumber} onChange={e => setOrderNumber(e.target.value)} /></div>
+                    <div className="form-group"><label>رقم الجوال</label><input type="text" className="form-control input-ltr" value={customerPhone} onChange={e => setCustomerPhone(e.target.value)} /></div>
+                    <div className="form-group"><label>رقم الطلب</label><input type="text" className="form-control input-ltr" value={orderNumber} onChange={e => setOrderNumber(e.target.value)} /></div>
                   </div>
                 </>
               ) : (
@@ -754,11 +766,11 @@ export default function EngaziaWhatsAppCRM() {
                 ) : (
                   <div style={{ textAlign: 'center' }}>
                     <p style={{ fontSize: '14px', fontWeight: 800, marginBottom: '15px' }}>
-                      العميل الحالي: <span style={{ color: '#4f46e5' }}>{broadcastIndex + 1}</span> من {broadcastList.length}
+                      العميل الحالي: <span style={{ color: '#4f46e5', direction: 'ltr', display: 'inline-block' }}>{broadcastIndex + 1}</span> من <span style={{ direction: 'ltr', display: 'inline-block' }}>{broadcastList.length}</span>
                     </p>
                     <div style={{ background: '#fff', padding: '15px', borderRadius: '10px', fontSize: '14px', lineHeight: 1.7, marginBottom: '15px', color: '#1e293b', fontWeight: 500, border: '1px solid #e2e8f0' }}>
                       يتم إرسال رسالة لـ: <strong>{broadcastList[broadcastIndex]?.name}</strong> <br/>
-                      جوال: <span dir="ltr">{broadcastList[broadcastIndex]?.phone}</span> | طلب: {broadcastList[broadcastIndex]?.orderNumber}
+                      جوال: <span dir="ltr">{broadcastList[broadcastIndex]?.phone}</span> | طلب: <span dir="ltr">{broadcastList[broadcastIndex]?.orderNumber}</span>
                     </div>
                     <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
                       <button className="btn-wa" style={{ width: 'auto' }} onClick={() => {
@@ -797,7 +809,7 @@ export default function EngaziaWhatsAppCRM() {
                 <div className="form-group" style={{ margin: 0 }}>
                   <label>شعار المتجر (صورة من جهاز الكمبيوتر)</label>
                   <button className="btn-main" style={{ width: '100%', background: '#fff', color: '#4f46e5', border: '1px solid #c7d2fe' }} onClick={() => storeLogoFileRef.current?.click()}>
-                    🖼️ اختر صورة الشعار من جهازك
+                    🖼️️ اختر صورة الشعار من جهازك
                   </button>
                   <input type="file" ref={storeLogoFileRef} onChange={handleLogoUpload} accept="image/*" style={{ display: 'none' }} />
                 </div>
@@ -849,7 +861,7 @@ export default function EngaziaWhatsAppCRM() {
             </div>
 
             <div className="section-box">
-              <div className="section-title">🏷️ تخصيص تصنيفات وحالات العملاء</div>
+              <div className="section-title">🏷️️ تخصيص تصنيفات وحالات العملاء</div>
               <p className="section-desc">حدد التصنيفات التي ترغب بأن تُحسب مبيعاتها ضمن إجمالي لوحة القيادة.</p>
               
               <form onSubmit={addCategory} className="settings-creation-box">
