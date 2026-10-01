@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 
 interface Customer {
@@ -21,7 +21,7 @@ interface TagConfig {
 }
 
 export default function WhatsAppProHub() {
-  const [activeTab, setActiveTab] = useState<'generator' | 'crm' | 'broadcast' | 'templates' | 'links' | 'tags'>('generator');
+  const [activeTab, setActiveTab] = useState<'generator' | 'crm' | 'tags' | 'broadcast' | 'templates' | 'links'>('generator');
 
   // مولد الرسائل والخصومات
   const [customerName, setCustomerName] = useState('');
@@ -32,6 +32,8 @@ export default function WhatsAppProHub() {
   const [includeDiscount, setIncludeDiscount] = useState(false);
   const [extraInfo, setExtraInfo] = useState('');
   const [generatedMsg, setGeneratedMsg] = useState('');
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const suggestionsRef = useRef<HTMLDivElement>(null);
 
   // إدارة التصنيفات المخصصة مع الألوان
   const [categories, setCategories] = useState<TagConfig[]>([
@@ -82,6 +84,14 @@ export default function WhatsAppProHub() {
     if (savedCats) {
       try { setCategories(JSON.parse(savedCats)); } catch (e) {}
     }
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (suggestionsRef.current && !suggestionsRef.current.contains(event.target as Node)) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   const saveContacts = (updated: Customer[]) => {
@@ -208,6 +218,7 @@ export default function WhatsAppProHub() {
     return matchesSearch && matchesCat;
   });
 
+  const matchingCustomers = customerName.trim() === '' ? [] : contacts.filter(c => c.name.toLowerCase().includes(customerName.toLowerCase()));
   const broadcastList = contacts.filter(c => c.category === broadcastCat);
 
   return (
@@ -231,10 +242,14 @@ export default function WhatsAppProHub() {
         .tab-btn.active { background: #4f46e5; color: #fff; border-color: #4f46e5; box-shadow: 0 2px 6px rgba(79,70,229,0.2); }
 
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
-        .form-group { margin-bottom: 12px; }
+        .form-group { margin-bottom: 12px; position: relative; }
         .form-group label { display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 5px; }
         .form-control { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; outline: none; font-family: 'Tajawal', sans-serif; background: #f8fafc; color: #0f172a; font-weight: 700; }
         .form-control:focus { border-color: #4f46e5; background: #fff; box-shadow: 0 0 0 3px rgba(79,70,229,0.1); }
+
+        .suggestions-box { position: absolute; top: 100%; right: 0; left: 0; background: #fff; border: 1px solid #cbd5e1; border-radius: 8px; max-height: 160px; overflow-y: auto; z-index: 10; box-shadow: 0 4px 10px rgba(0,0,0,0.08); margin-top: 4px; }
+        .suggestion-item { padding: 8px 12px; font-size: 13px; font-weight: 700; cursor: pointer; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; }
+        .suggestion-item:hover { background: #f8fafc; color: #4f46e5; }
 
         .templates-selector { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 15px; }
         .template-btn { padding: 8px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; font-weight: 700; font-size: 12px; color: #334155; cursor: pointer; text-align: center; }
@@ -271,11 +286,11 @@ export default function WhatsAppProHub() {
         <div className="header-flex">
           <div>
             <h2 className="title">🚀 منصة إنجازيا لعملاء واتساب (PRO MAX)</h2>
-            <p className="desc">إدارة العملاء، التصنيفات المخصصة والألوان، وأتمتة الحملات بطابور ذكي.</p>
+            <p className="desc">إدارة العملاء، الربط الذكي بالمولد، وأتمتة الحملات.</p>
           </div>
         </div>
 
-        {/* إحصائيات حية تتكيف ديناميكياً مع التصنيفات المضافة */}
+        {/* إحصائيات حية */}
         <div className="stats-grid">
           {categories.map(cat => {
             const count = contacts.filter(c => c.category === cat.name).length;
@@ -302,7 +317,7 @@ export default function WhatsAppProHub() {
           <button className={`tab-btn ${activeTab === 'links' ? 'active' : ''}`} onClick={() => setActiveTab('links')}>🔗 صانع الروابط</button>
         </div>
 
-        {/* 1. مولد الرسائل والخصومات */}
+        {/* 1. مولد الرسائل والخصومات (مرتبط بالـ CRM) */}
         {activeTab === 'generator' && (
           <div>
             <div className="form-group">
@@ -316,18 +331,55 @@ export default function WhatsAppProHub() {
             </div>
 
             <div className="form-grid">
-              <div className="form-group">
-                <label>اسم العميل</label>
-                <input type="text" className="form-control" placeholder="مثال: سلطان" value={customerName} onChange={e => setCustomerName(e.target.value)} />
+              <div className="form-group" ref={suggestionsRef}>
+                <label>اسم العميل (اختر من الـ CRM)</label>
+                <input 
+                  type="text" 
+                  className="form-control" 
+                  placeholder="ابدأ كتابة اسم العميل..." 
+                  value={customerName} 
+                  onChange={e => {
+                    setCustomerName(e.target.value);
+                    setShowSuggestions(true);
+                  }}
+                  onFocus={() => setShowSuggestions(true)}
+                />
+                {showSuggestions && matchingCustomers.length > 0 && (
+                  <div className="suggestions-box">
+                    {matchingCustomers.map(cust => (
+                      <div 
+                        key={cust.id} 
+                        className="suggestion-item"
+                        onClick={() => {
+                          setCustomerName(cust.name);
+                          setCustomerPhone(cust.phone);
+                          setShowSuggestions(false);
+                        }}
+                      >
+                        <span>{cust.name}</span>
+                        <span style={{ color: '#64748b', fontSize: '11px' }}>{cust.phone}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
+
               <div className="form-group">
                 <label>رقم جوال العميل</label>
-                <input type="text" className="form-control" placeholder="0551234567" value={customerPhone} onChange={e => setCustomerPhone(e.target.value)} />
+                <input 
+                  type="text" 
+                  className="form-control" 
+                  placeholder="يظهر تلقائياً..." 
+                  value={customerPhone} 
+                  onChange={e => setCustomerPhone(e.target.value)} 
+                />
               </div>
+
               <div className="form-group">
                 <label>رقم الطلب أو الفاتورة</label>
                 <input type="text" className="form-control" placeholder="#5421" value={orderNumber} onChange={e => setOrderNumber(e.target.value)} />
               </div>
+              
               <div className="form-group">
                 <label>رابط الدفع السريع (اختياري)</label>
                 <input type="text" className="form-control" placeholder="https://..." value={extraInfo} onChange={e => setExtraInfo(e.target.value)} />
@@ -516,7 +568,7 @@ export default function WhatsAppProHub() {
                   <button className="btn-main" style={{ flex: 'none', width: 'auto', padding: '12px 25px' }} onClick={() => {
                     if (broadcastIndex < broadcastList.length - 1) setBroadcastIndex(broadcastIndex + 1);
                     else alert('لقد أتممت إرسال الحملة لكافة العملاء في هذه الشريحة!');
-                  }}>التالي ⬅️️</button>
+                  }}>التالي ⬅</button>
                 </div>
               </div>
             )}
