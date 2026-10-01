@@ -42,6 +42,9 @@ export default function EngaziaWhatsAppCRM() {
   const [newCategory, setNewCategory] = useState('عميل جديد');
   const [newAmount, setNewAmount] = useState<number | ''>('');
 
+  // الإعدادات العامة (كود الخصم الافتراضي)
+  const [defaultDiscountCode, setDefaultDiscountCode] = useState('ENGAZIA10');
+
   // المراسلات (الدمج الذكي)
   const [messagingMode, setMessagingMode] = useState<'single' | 'broadcast'>('single');
   const [customerName, setCustomerName] = useState('');
@@ -49,7 +52,6 @@ export default function EngaziaWhatsAppCRM() {
   const [orderNumber, setOrderNumber] = useState('');
   const [extraInfo, setExtraInfo] = useState('');
   const [includeDiscount, setIncludeDiscount] = useState(false);
-  const [discountCode, setDiscountCode] = useState('ENGAZIA10');
   const [generatedMsg, setGeneratedMsg] = useState('');
   
   // الطابور (Broadcast)
@@ -98,6 +100,11 @@ export default function EngaziaWhatsAppCRM() {
       try { setTemplates(JSON.parse(savedTpls)); } catch (e) { console.error(e); }
     }
 
+    const savedDisc = localStorage.getItem('engazia_default_discount');
+    if (savedDisc) {
+      setDefaultDiscountCode(savedDisc);
+    }
+
     const handleClickOutside = (event: MouseEvent) => {
       if (suggestionsRef.current && !suggestionsRef.current.contains(event.target as Node)) {
         setShowSuggestions(false);
@@ -120,6 +127,11 @@ export default function EngaziaWhatsAppCRM() {
   const saveTemplates = (updated: Template[]) => {
     setTemplates(updated);
     localStorage.setItem('engazia_templates_v2', JSON.stringify(updated));
+  };
+
+  const saveDefaultDiscount = (code: string) => {
+    setDefaultDiscountCode(code);
+    localStorage.setItem('engazia_default_discount', code);
   };
 
   const formatPhone = (phone: string) => {
@@ -198,7 +210,7 @@ export default function EngaziaWhatsAppCRM() {
       .replace(/\[الطلب\]/g, orderNumber || '---')
       .replace(/\[إضافي\]/g, extraInfo);
       
-    if (includeDiscount) msg += `\n\n🎁 كود خصم خاص لك: *${discountCode}*`;
+    if (includeDiscount) msg += `\n\n🎁 كود خصم خاص لك: *${defaultDiscountCode}*`;
     setGeneratedMsg(msg);
   };
 
@@ -291,11 +303,9 @@ export default function EngaziaWhatsAppCRM() {
         .radio-btn { padding: 8px 20px; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer; color: #64748b; border: none; background: transparent; transition: 0.3s; }
         .radio-btn.active { background: #fff; color: #1e293b; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
 
-        /* -------------- تحسينات قسم الإعدادات الجديدة -------------- */
+        /* إعدادات متقدمة */
         .settings-creation-box { display: flex; gap: 15px; align-items: flex-end; background: #fff; padding: 20px; border-radius: 12px; border: 2px dashed #cbd5e1; margin-bottom: 25px; flex-wrap: wrap; }
-        .settings-creation-box:focus-within { border-color: #4f46e5; }
         .color-picker { padding: 2px; height: 44px; cursor: pointer; }
-        
         .tags-list-container { display: flex; flex-direction: column; gap: 10px; }
         .tag-row { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 12px 20px; border-radius: 12px; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 15px; transition: 0.2s; }
         .tag-row:hover { border-color: #cbd5e1; box-shadow: 0 4px 12px rgba(0,0,0,0.02); }
@@ -522,9 +532,8 @@ export default function EngaziaWhatsAppCRM() {
                 <div className="form-group">
                   <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
                     <input type="checkbox" checked={includeDiscount} onChange={e => setIncludeDiscount(e.target.checked)} style={{ width: '16px', height: '16px', accentColor: '#4f46e5' }}/>
-                    إرفاق كود خصم تحفيزي بنهاية الرسالة
+                    إرفاق كود الخصم الافتراضي (*{defaultDiscountCode}*) بنهاية الرسالة
                   </label>
-                  {includeDiscount && <input type="text" className="form-control" value={discountCode} onChange={e => setDiscountCode(e.target.value)} style={{ marginTop: '8px' }} />}
                 </div>
               </div>
             </div>
@@ -562,7 +571,7 @@ export default function EngaziaWhatsAppCRM() {
                         setCustomerName(c.name); setOrderNumber(c.orderNumber); setCustomerPhone(c.phone);
                         const tpl = templates.find(t => t.id === activeTemplateId)?.text || '';
                         let msg = tpl.replace(/\[الاسم\]/g, c.name).replace(/\[الطلب\]/g, c.orderNumber).replace(/\[إضافي\]/g, extraInfo);
-                        if(includeDiscount) msg += `\n\n🎁 كود خصم خاص لك: *${discountCode}*`;
+                        if(includeDiscount) msg += `\n\n🎁 كود خصم خاص لك: *${defaultDiscountCode}*`;
                         openWhatsApp(c.phone, msg);
                       }}>🟢 إرسال للعميل الحالي</button>
                       <button className="btn-main" style={{ width: 'auto', background: '#334155' }} onClick={() => {
@@ -577,9 +586,65 @@ export default function EngaziaWhatsAppCRM() {
           </div>
         )}
 
-        {/* 4. Settings (Refactored UI) */}
+        {/* 4. Settings (Templates Top, Tags Bottom + New Global Settings) */}
         {activeTab === 'tags' && (
           <div>
+            {/* 1. إعدادات النظام العامة (الإضافة الجديدة الاحترافية) */}
+            <div className="section-box" style={{ background: '#eef2ff', borderColor: '#c7d2fe' }}>
+              <div className="section-title">⚡ إعدادات النظام العامة وتخزين البيانات</div>
+              <p className="section-desc">تحكم بكود الخصم الافتراضي وإدارة ذاكرة المتجر المحلي.</p>
+              
+              <div className="form-grid">
+                <div className="form-group" style={{ margin: 0 }}>
+                  <label>كود الخصم الافتراضي المرفق مع الرسائل</label>
+                  <input type="text" className="form-control" value={defaultDiscountCode} onChange={e => saveDefaultDiscount(e.target.value)} />
+                </div>
+                <div className="form-group" style={{ margin: 0, display: 'flex', alignItems: 'flex-end' }}>
+                  <button className="btn-main" style={{ background: '#dc2626', width: '100%' }} onClick={() => {
+                    if (window.confirm('هل أنت متأكد من تصفية وحذف كافة بيانات العملاء والقوالب؟ لا يمكن التراجع عن هذا الإجراء.')) {
+                      localStorage.clear();
+                      window.location.reload();
+                    }
+                  }}>🗑️ تصفية وحذف ذاكرة التخزين</button>
+                </div>
+              </div>
+            </div>
+
+            {/* 2. قوالب الرسائل الجاهزة (في الأعلى بناءً على طلبك) */}
+            <div className="section-box">
+              <div className="section-title">📝 قوالب الرسائل الجاهزة</div>
+              <p className="section-desc">أنشئ نصوصاً جاهزة لاستخدامها بنقرة واحدة في قسم المراسلات.</p>
+
+              <div className="template-creation-box">
+                <div className="form-group">
+                  <label>عنوان القالب (للتنظيم)</label>
+                  <input type="text" className="form-control" placeholder="مثال: رسالة ترحيبية..." value={newTplTitle} onChange={e => setNewTplTitle(e.target.value)} />
+                </div>
+                <div className="form-group">
+                  <label>نص الرسالة (المتغيرات المدعومة: [الاسم]، [الطلب]، [إضافي])</label>
+                  <textarea className="form-control" rows={3} placeholder="أهلاً بك يا [الاسم]..." value={newTplText} onChange={e => setNewTplText(e.target.value)}></textarea>
+                </div>
+                <button className="btn-main" style={{ width: '100%' }} onClick={() => {
+                  if (!newTplTitle || !newTplText) return alert("الرجاء تعبئة العنوان والنص");
+                  saveTemplates([...templates, { id: Date.now(), title: newTplTitle, text: newTplText }]);
+                  setNewTplTitle(''); setNewTplText('');
+                }}>💾 حفظ القالب في النظام</button>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '15px' }}>
+                {templates.map(t => (
+                  <div key={t.id} className="template-card-view">
+                    <div className="template-header">
+                      <span className="template-title">{t.title}</span>
+                      {t.id > 4 && <button className="btn-icon btn-danger" style={{ padding: '4px 8px' }} onClick={() => saveTemplates(templates.filter(x => x.id !== t.id))}>🗑️</button>}
+                    </div>
+                    <div className="template-body">{t.text}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* 3. تصنيفات وحالات العملاء (في الأسفل بناءً على طلبك) */}
             <div className="section-box">
               <div className="section-title">🏷️ تخصيص تصنيفات وحالات العملاء</div>
               <p className="section-desc">قم بإدارة وتلوين حالات الطلبات لتمييز عملائك بسهولة.</p>
@@ -638,38 +703,6 @@ export default function EngaziaWhatsAppCRM() {
               </div>
             </div>
 
-            <div className="section-box">
-              <div className="section-title">📝 قوالب الرسائل الجاهزة</div>
-              <p className="section-desc">أنشئ نصوصاً جاهزة لاستخدامها بنقرة واحدة في قسم المراسلات.</p>
-
-              <div className="template-creation-box">
-                <div className="form-group">
-                  <label>عنوان القالب (للتنظيم)</label>
-                  <input type="text" className="form-control" placeholder="مثال: رسالة ترحيبية..." value={newTplTitle} onChange={e => setNewTplTitle(e.target.value)} />
-                </div>
-                <div className="form-group">
-                  <label>نص الرسالة (المتغيرات المدعومة: [الاسم]، [الطلب]، [إضافي])</label>
-                  <textarea className="form-control" rows={3} placeholder="أهلاً بك يا [الاسم]..." value={newTplText} onChange={e => setNewTplText(e.target.value)}></textarea>
-                </div>
-                <button className="btn-main" style={{ width: '100%' }} onClick={() => {
-                  if (!newTplTitle || !newTplText) return alert("الرجاء تعبئة العنوان والنص");
-                  saveTemplates([...templates, { id: Date.now(), title: newTplTitle, text: newTplText }]);
-                  setNewTplTitle(''); setNewTplText('');
-                }}>💾 حفظ القالب في النظام</button>
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '15px' }}>
-                {templates.map(t => (
-                  <div key={t.id} className="template-card-view">
-                    <div className="template-header">
-                      <span className="template-title">{t.title}</span>
-                      {t.id > 4 && <button className="btn-icon btn-danger" style={{ padding: '4px 8px' }} onClick={() => saveTemplates(templates.filter(x => x.id !== t.id))}>🗑️</button>}
-                    </div>
-                    <div className="template-body">{t.text}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
           </div>
         )}
       </div>
