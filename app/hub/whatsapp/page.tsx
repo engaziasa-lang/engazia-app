@@ -131,6 +131,16 @@ export default function WhatsAppProHub() {
     alert('تم حفظ العميل في النظام بنجاح!');
   };
 
+  const updateCustomerField = (id: string, field: keyof Customer, value: any) => {
+    const updated = contacts.map(c => {
+      if (c.id === id) {
+        return { ...c, [field]: value };
+      }
+      return c;
+    });
+    saveContacts(updated);
+  };
+
   const deleteContact = (id: string) => {
     if (confirm('هل أنت متأكد من حذف هذا العميل؟')) {
       saveContacts(contacts.filter(c => c.id !== id));
@@ -164,6 +174,11 @@ export default function WhatsAppProHub() {
     }
     return { backgroundColor: '#e2e8f0', color: '#334155' };
   };
+
+  // إجمالي المبيعات لا يشمل السلة المتروكة وبانتظار الدفع
+  const totalValidSales = contacts
+    .filter(c => c.category !== 'سلة متروكة' && c.category !== 'بانتظار الدفع')
+    .reduce((acc, c) => acc + c.amount, 0);
 
   const generateMessage = () => {
     let name = customerName || 'عالمنا الكريم';
@@ -286,7 +301,7 @@ export default function WhatsAppProHub() {
         <div className="header-flex">
           <div>
             <h2 className="title">🚀 منصة إنجازيا لعملاء واتساب (PRO MAX)</h2>
-            <p className="desc">إدارة العملاء، الربط الذكي بالمولد، وأتمتة الحملات.</p>
+            <p className="desc">إدارة العملاء، الربط الذكي بالمولد، وتعديل المشتريات والتصنيفات مباشرة.</p>
           </div>
         </div>
 
@@ -302,8 +317,8 @@ export default function WhatsAppProHub() {
             );
           })}
           <div className="stat-card" style={{ borderRight: '4px solid #4f46e5' }}>
-            <div className="stat-title">إجمالي المبيعات</div>
-            <div className="stat-num" style={{ fontSize: '13px' }}>{contacts.reduce((acc, c) => acc + c.amount, 0).toLocaleString()} ر.س</div>
+            <div className="stat-title">إجمالي المبيعات الفعلية</div>
+            <div className="stat-num" style={{ fontSize: '13px' }}>{totalValidSales.toLocaleString()} ر.س</div>
           </div>
         </div>
 
@@ -470,11 +485,26 @@ export default function WhatsAppProHub() {
                         <td style={{ fontWeight: '800' }}>{c.name}</td>
                         <td>{c.phone}</td>
                         <td>
-                          <span className="badge" style={getTagStyle(c.category)}>
-                            {c.category}
-                          </span>
+                          <select 
+                            className="form-control" 
+                            style={{ padding: '4px 8px', fontSize: '11px', fontWeight: '800', width: 'auto' }} 
+                            value={c.category} 
+                            onChange={e => updateCustomerField(c.id, 'category', e.target.value)}
+                          >
+                            {categories.map(cat => (
+                              <option key={cat.name} value={cat.name}>{cat.name}</option>
+                            ))}
+                          </select>
                         </td>
-                        <td style={{ fontWeight: '800', color: '#4f46e5' }}>{c.amount} ر.س</td>
+                        <td>
+                          <input 
+                            type="number" 
+                            className="form-control" 
+                            style={{ padding: '4px 8px', fontSize: '11px', width: '90px', fontWeight: '800', color: '#4f46e5' }} 
+                            value={c.amount} 
+                            onChange={e => updateCustomerField(c.id, 'amount', Number(e.target.value))} 
+                          />
+                        </td>
                         <td style={{ color: '#64748b', fontSize: '11px' }}>{c.date}</td>
                         <td>
                           <div style={{ display: 'flex', gap: '5px' }}>
