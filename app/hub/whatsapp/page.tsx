@@ -161,6 +161,12 @@ export default function WhatsAppProHub() {
     alert('تمت إضافة التصنيف بنجاح!');
   };
 
+  const updateCategory = (index: number, field: keyof TagConfig, value: string) => {
+    const updated = [...categories];
+    updated[index] = { ...updated[index], [field]: value };
+    saveCategories(updated);
+  };
+
   const deleteCategory = (catName: string) => {
     if (categories.length <= 1) return alert('يجب أن يبقى تصنيف واحد على الأقل.');
     if (confirm(`حذف التصنيف "${catName}"؟`)) {
@@ -297,7 +303,7 @@ export default function WhatsAppProHub() {
         <div className="header-flex">
           <div>
             <h2 className="title">🚀 منصة إنجازيا لعملاء واتساب (PRO MAX)</h2>
-            <p className="desc">إدارة العملاء، أرقام الطلبات، والربط الشامل مع المولد.</p>
+            <p className="desc">إدارة العملاء، التصنيفات المخصصة، والتعديل الفوري للألوان والأسماء.</p>
           </div>
         </div>
 
@@ -555,11 +561,11 @@ export default function WhatsAppProHub() {
           </div>
         )}
 
-        {/* 3. إدارة التصنيفات والألوان المخصصة */}
+        {/* 3. إدارة التصنيفات والألوان المخصصة (مع إمكانية التعديل المباشر في الأسفل) */}
         {activeTab === 'tags' && (
           <div>
             <h3 style={{ fontSize: '14px', fontWeight: '900', marginBottom: '10px' }}>🏷️ تخصيص وإضافة تصنيفات العملاء</h3>
-            <p style={{ color: '#64748b', fontSize: '12px', marginBottom: '15px' }}>قم بإنشاء تصنيفات جديدة تناسب نشاط متجرك واختر اللون المناسب لكل تصنيف.</p>
+            <p style={{ color: '#64748b', fontSize: '12px', marginBottom: '15px' }}>قم بإنشاء تصنيفات جديدة أو تعديل تصنيفاتك الحالية وألوانها بكل سهولة.</p>
             
             <form onSubmit={addCategory} style={{ background: '#f8fafc', padding: '15px', borderRadius: '10px', marginBottom: '20px', border: '1px solid #cbd5e1' }}>
               <div className="form-grid" style={{ alignItems: 'center' }}>
@@ -581,16 +587,43 @@ export default function WhatsAppProHub() {
               <button type="submit" className="btn-main" style={{ marginTop: '12px', padding: '10px' }}>➕ إضافة التصنيف الجديد</button>
             </form>
 
-            <h4 style={{ fontSize: '13px', fontWeight: '900', marginBottom: '10px' }}>التصنيفات الحالية في المتجر:</h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {categories.map(cat => (
-                <div key={cat.name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fff', padding: '10px 15px', borderRadius: '8px', border: '1px solid #cbd5e1' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <span className="badge" style={{ backgroundColor: cat.bg, color: cat.color, padding: '5px 12px', fontSize: '12px' }}>
-                      {cat.name}
-                    </span>
+            <h4 style={{ fontSize: '13px', fontWeight: '900', marginBottom: '10px' }}>التصنيفات الحالية في المتجر (قابل للتعديل المباشر):</h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {categories.map((cat, idx) => (
+                <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fff', padding: '12px 15px', borderRadius: '8px', border: '1px solid #cbd5e1', flexWrap: 'wrap', gap: '10px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1, minWidth: '220px' }}>
+                    <input 
+                      type="text" 
+                      className="form-control" 
+                      value={cat.name} 
+                      onChange={e => updateCategory(idx, 'name', e.target.value)} 
+                      style={{ fontWeight: '800', width: '160px' }}
+                    />
                   </div>
-                  <button className="btn-sm btn-danger" onClick={() => deleteCategory(cat.name)}>حذف التصنيف</button>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                      <span style={{ fontSize: '11px', fontWeight: '700', color: '#64748b' }}>خلفية:</span>
+                      <input 
+                        type="color" 
+                        value={cat.bg} 
+                        onChange={e => updateCategory(idx, 'bg', e.target.value)} 
+                        style={{ width: '32px', height: '32px', border: '1px solid #cbd5e1', borderRadius: '6px', cursor: 'pointer', padding: 0 }}
+                      />
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                      <span style={{ fontSize: '11px', fontWeight: '700', color: '#64748b' }}>نص:</span>
+                      <input 
+                        type="color" 
+                        value={cat.color} 
+                        onChange={e => updateCategory(idx, 'color', e.target.value)} 
+                        style={{ width: '32px', height: '32px', border: '1px solid #cbd5e1', borderRadius: '6px', cursor: 'pointer', padding: 0 }}
+                      />
+                    </div>
+                    <span className="badge" style={{ backgroundColor: cat.bg, color: cat.color, padding: '6px 12px', fontSize: '11px' }}>
+                      معاينة الشارة
+                    </span>
+                    <button className="btn-sm btn-danger" onClick={() => deleteCategory(cat.name)}>حذف</button>
+                  </div>
                 </div>
               ))}
             </div>
