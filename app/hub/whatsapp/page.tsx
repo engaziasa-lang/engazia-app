@@ -586,31 +586,21 @@ export default function EngaziaWhatsAppCRM() {
           </div>
         )}
 
-        {/* 4. Settings (Templates Top, Tags Bottom + New Global Settings) */}
+        {/* 4. Settings (Templates Top, Tags Bottom + Clean Global Settings) */}
         {activeTab === 'tags' && (
           <div>
-            {/* 1. إعدادات النظام العامة (الإضافة الجديدة الاحترافية) */}
+            {/* 1. إعدادات النظام العامة (بدون زر الحذف الأحمر) */}
             <div className="section-box" style={{ background: '#eef2ff', borderColor: '#c7d2fe' }}>
-              <div className="section-title">⚡ إعدادات النظام العامة وتخزين البيانات</div>
-              <p className="section-desc">تحكم بكود الخصم الافتراضي وإدارة ذاكرة المتجر المحلي.</p>
+              <div className="section-title">⚡ إعدادات النظام العامة</div>
+              <p className="section-desc">تحكم بكود الخصم الافتراضي الذي يتم إرفاقه تلقائياً مع الرسائل التسويقية.</p>
               
-              <div className="form-grid">
-                <div className="form-group" style={{ margin: 0 }}>
-                  <label>كود الخصم الافتراضي المرفق مع الرسائل</label>
-                  <input type="text" className="form-control" value={defaultDiscountCode} onChange={e => saveDefaultDiscount(e.target.value)} />
-                </div>
-                <div className="form-group" style={{ margin: 0, display: 'flex', alignItems: 'flex-end' }}>
-                  <button className="btn-main" style={{ background: '#dc2626', width: '100%' }} onClick={() => {
-                    if (window.confirm('هل أنت متأكد من تصفية وحذف كافة بيانات العملاء والقوالب؟ لا يمكن التراجع عن هذا الإجراء.')) {
-                      localStorage.clear();
-                      window.location.reload();
-                    }
-                  }}>🗑️ تصفية وحذف ذاكرة التخزين</button>
-                </div>
+              <div className="form-group" style={{ maxWidth: '400px', margin: 0 }}>
+                <label>كود الخصم الافتراضي</label>
+                <input type="text" className="form-control" value={defaultDiscountCode} onChange={e => saveDefaultDiscount(e.target.value)} />
               </div>
             </div>
 
-            {/* 2. قوالب الرسائل الجاهزة (في الأعلى بناءً على طلبك) */}
+            {/* 2. قوالب الرسائل الجاهزة (في الأعلى) */}
             <div className="section-box">
               <div className="section-title">📝 قوالب الرسائل الجاهزة</div>
               <p className="section-desc">أنشئ نصوصاً جاهزة لاستخدامها بنقرة واحدة في قسم المراسلات.</p>
@@ -644,7 +634,7 @@ export default function EngaziaWhatsAppCRM() {
               </div>
             </div>
 
-            {/* 3. تصنيفات وحالات العملاء (في الأسفل بناءً على طلبك) */}
+            {/* 3. تصنيفات وحالات العملاء (في الأسفل) */}
             <div className="section-box">
               <div className="section-title">🏷️ تخصيص تصنيفات وحالات العملاء</div>
               <p className="section-desc">قم بإدارة وتلوين حالات الطلبات لتمييز عملائك بسهولة.</p>
