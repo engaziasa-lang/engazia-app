@@ -10,7 +10,7 @@ interface Customer {
   orderNumber: string;
   category: string;
   status: string;
-  amount: string; // تم تحويلها إلى نص لضمان بقاء الأرقام إنجليزية صرفة
+  amount: string;
   note: string;
   date: string;
 }
@@ -184,13 +184,11 @@ export default function EngaziaWhatsAppCRM() {
     return clean;
   };
 
-  // تحويل الأرقام العربية المشرقية إلى إنجليزية لضمان عدم حدوث أي تباين
+  // تحويل الأرقام العربية إلى إنجليزية بدقة
   const toEnglishDigits = (str: string) => {
     if (!str) return '';
-    const arabicNumbers = /[\u0660-\u0669\u06F0-\u06F9]/g;
-    return str.replace(arabicNumbers, (char) => {
-      return String(char.charCodeAt(0) & 0xf);
-    });
+    return str.replace(/[٠-٩]/g, (d) => String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)))
+              .replace(/[۰-۹]/g, (d) => String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d)));
   };
 
   const addContact = (e: React.FormEvent) => {
@@ -366,6 +364,7 @@ export default function EngaziaWhatsAppCRM() {
             const category = cleanVal(row[3]) || 'عميل جديد';
             const status = cleanVal(row[4]) || 'نشط';
             const amount = cleanVal(row[5]) || '0';
+            const note = cleanVal(row[6]) || '';
             
             const now = new Date();
             const defaultEnDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
@@ -790,8 +789,8 @@ export default function EngaziaWhatsAppCRM() {
                       }}>🟢 إرسال للعميل الحالي</button>
                       <button className="btn-main" style={{ width: 'auto', background: '#334155' }} onClick={() => {
                         if (broadcastIndex < broadcastList.length - 1) setBroadcastIndex(broadcastIndex + 1);
-                        else showToast('⚠️️ لقد وصلت لنهاية القائمة!');
-                      }}>التالي ⬅️</button>
+                        else showToast('⚠️ لقد وصلت لنهاية القائمة!');
+                      }}>التالي ⬅️️</button>
                     </div>
                   </div>
                 )}
