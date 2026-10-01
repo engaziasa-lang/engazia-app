@@ -22,6 +22,12 @@ interface TagConfig {
   isSale: boolean;
 }
 
+interface StatusConfig {
+  name: string;
+  bg: string;
+  color: string;
+}
+
 interface Template {
   id: number;
   title: string;
@@ -52,8 +58,16 @@ export default function EngaziaWhatsAppCRM() {
   const [newAmount, setNewAmount] = useState('');
   const [newNote, setNewNote] = useState('');
 
-  // قائمة الحالات المقترحة
-  const statusOptions = ['نشط', 'مميز VIP', 'متوقف', 'محظور'];
+  // حالات العملاء القابلة للتخصيص
+  const [statusOptions, setStatusOptions] = useState<StatusConfig[]>([
+    { name: 'نشط', bg: '#dcfce7', color: '#15803d' },
+    { name: 'مميز VIP', bg: '#fef3c7', color: '#d97706' },
+    { name: 'متوقف', bg: '#fee2e2', color: '#dc2626' },
+    { name: 'محظور', bg: '#f1f5f9', color: '#475569' }
+  ]);
+  const [newStatusName, setNewStatusName] = useState('');
+  const [newStatusBg, setNewStatusBg] = useState('#e0e7ff');
+  const [newStatusColor, setNewStatusColor] = useState('#4f46e5');
 
   // الإعدادات العامة (كود الخصم الافتراضي)
   const [defaultDiscountCode, setDefaultDiscountCode] = useState('ENGAZIA10');
@@ -110,7 +124,7 @@ export default function EngaziaWhatsAppCRM() {
   const [showSuggestions, setShowSuggestions] = useState(false);
 
   useEffect(() => {
-    const savedContacts = localStorage.getItem('engazia_whatsapp_pro_crm_v12');
+    const savedContacts = localStorage.getItem('engazia_whatsapp_pro_crm_v13');
     if (savedContacts) {
       try { setContacts(JSON.parse(savedContacts)); } catch (e) { console.error(e); }
     }
@@ -118,6 +132,11 @@ export default function EngaziaWhatsAppCRM() {
     const savedCats = localStorage.getItem('engazia_whatsapp_categories_v2');
     if (savedCats) {
       try { setCategories(JSON.parse(savedCats)); } catch (e) { console.error(e); }
+    }
+
+    const savedStatuses = localStorage.getItem('engazia_whatsapp_statuses_v1');
+    if (savedStatuses) {
+      try { setStatusOptions(JSON.parse(savedStatuses)); } catch (e) { console.error(e); }
     }
 
     const savedTpls = localStorage.getItem('engazia_templates_v2');
@@ -145,12 +164,17 @@ export default function EngaziaWhatsAppCRM() {
 
   const saveContacts = (updated: Customer[]) => {
     setContacts(updated);
-    localStorage.setItem('engazia_whatsapp_pro_crm_v12', JSON.stringify(updated));
+    localStorage.setItem('engazia_whatsapp_pro_crm_v13', JSON.stringify(updated));
   };
 
   const saveCategories = (updated: TagConfig[]) => {
     setCategories(updated);
     localStorage.setItem('engazia_whatsapp_categories_v2', JSON.stringify(updated));
+  };
+
+  const saveStatuses = (updated: StatusConfig[]) => {
+    setStatusOptions(updated);
+    localStorage.setItem('engazia_whatsapp_statuses_v1', JSON.stringify(updated));
   };
 
   const saveTemplates = (updated: Template[]) => {
@@ -256,6 +280,25 @@ export default function EngaziaWhatsAppCRM() {
       const updated = categories.filter(c => c.name !== catName);
       saveCategories(updated);
       showToast('🗑️ تم حذف التصنيف');
+    }
+  };
+
+  const addStatusOption = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newStatusName) return showToast('⚠️ أدخل اسم الحالة.');
+    if (statusOptions.some(s => s.name === newStatusName)) return showToast('⚠️ هذه الحالة موجودة مسبقاً.');
+    const updated = [...statusOptions, { name: newStatusName, bg: newStatusBg, color: newStatusColor }];
+    saveStatuses(updated);
+    setNewStatusName('');
+    showToast('✨ تم إضافة الحالة بنجاح');
+  };
+
+  const deleteStatusOption = (stName: string) => {
+    if (statusOptions.length <= 1) return showToast('⚠️ يجب أن تبقى حالة واحدة على الأقل.');
+    if (window.confirm(`حذف الحالة "${stName}"؟`)) {
+      const updated = statusOptions.filter(s => s.name !== stName);
+      saveStatuses(updated);
+      showToast('🗑️ تم حذف الحالة');
     }
   };
 
@@ -510,7 +553,7 @@ export default function EngaziaWhatsAppCRM() {
         .chip-btn:hover { border-color: #4f46e5; color: #4f46e5; }
         .chip-btn.active { background: #4f46e5; color: #fff; border-color: #4f46e5; box-shadow: 0 2px 8px rgba(79,70,229,0.2); }
 
-        /* تنسيق نافذة تفاصيل العميل المنبثقة (Modal) */
+        /* نافذة تفاصيل العميل المنبثقة (Modal) */
         .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 9999; animation: fadeIn 0.2s ease; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .modal-content { background: #fff; border-radius: 20px; padding: 30px; width: 100%; max-width: 500px; box-shadow: 0 20px 40px rgba(0,0,0,0.15); border: 1px solid #e2e8f0; position: relative; }
@@ -581,7 +624,11 @@ export default function EngaziaWhatsAppCRM() {
               </div>
               <div className="modal-item">
                 <div className="modal-item-label">الحالة</div>
-                <div className="modal-item-val" style={{ color: selectedCustomer.status === 'نشط' ? '#15803d' : '#64748b' }}>{selectedCustomer.status || 'نشط'}</div>
+                <div className="modal-item-val">
+                  <span className="badge" style={{ background: statusOptions.find(st => st.name === selectedCustomer.status)?.bg || '#eee', color: statusOptions.find(st => st.name === selectedCustomer.status)?.color || '#000' }}>
+                    {selectedCustomer.status || 'نشط'}
+                  </span>
+                </div>
               </div>
               <div className="modal-item">
                 <div className="modal-item-label">إجمالي المشتريات</div>
@@ -681,7 +728,11 @@ export default function EngaziaWhatsAppCRM() {
                           {c.category}
                         </span>
                       </td>
-                      <td><span style={{ fontWeight: 700, color: c.status === 'نشط' ? '#15803d' : '#64748b' }}>{c.status || 'نشط'}</span></td>
+                      <td>
+                        <span className="badge" style={{ background: statusOptions.find(st => st.name === c.status)?.bg || '#eee', color: statusOptions.find(st => st.name === c.status)?.color || '#000' }}>
+                          {c.status || 'نشط'}
+                        </span>
+                      </td>
                       <td style={{ color: '#475569' }}>{c.note || '---'}</td>
                       <td style={{ color: '#64748b', direction: 'ltr', textAlign: 'right' }}>{c.date}</td>
                       <td>
@@ -715,7 +766,7 @@ export default function EngaziaWhatsAppCRM() {
                   <div className="form-group">
                     <label>حالة العميل</label>
                     <select className="form-control" value={newStatus} onChange={e => setNewStatus(e.target.value)}>
-                      {statusOptions.map(st => <option key={st} value={st}>{st}</option>)}
+                      {statusOptions.map(st => <option key={st.name} value={st.name}>{st.name}</option>)}
                     </select>
                   </div>
                   <div className="form-group"><label>المشتريات (ر.س)</label><input type="text" className="form-control input-ltr" value={newAmount} onChange={e => setNewAmount(toEnglishDigits(e.target.value))} placeholder="0" /></div>
@@ -783,7 +834,7 @@ export default function EngaziaWhatsAppCRM() {
                       </td>
                       <td>
                         <select className="cell-input" value={c.status || 'نشط'} onChange={e => updateCustomerField(c.id, 'status', e.target.value)}>
-                          {statusOptions.map(st => <option key={st} value={st}>{st}</option>)}
+                          {statusOptions.map(st => <option key={st.name} value={st.name}>{st.name}</option>)}
                         </select>
                       </td>
                       <td><input type="text" className="cell-input input-ltr" value={c.amount} onChange={e => updateCustomerField(c.id, 'amount', e.target.value)} /></td>
@@ -987,6 +1038,65 @@ export default function EngaziaWhatsAppCRM() {
               </div>
             </div>
 
+            {/* إعدادات وتخصيص حالات العملاء الجديدة */}
+            <div className="section-box">
+              <div className="section-title">📌 تخصيص حالات العملاء</div>
+              <p className="section-desc">أنشئ وعدل حالات العملاء (مثل نشط، مميز، محظور...) وتحكم بألوانها.</p>
+              
+              <form onSubmit={addStatusOption} className="settings-creation-box">
+                <div className="form-group" style={{ flex: 2, margin: 0, minWidth: '200px' }}>
+                  <label>اسم الحالة الجديدة</label>
+                  <input type="text" className="form-control" placeholder="مثال: بانتظار الشحن..." value={newStatusName} onChange={e => setNewStatusName(e.target.value)} required />
+                </div>
+                <div className="form-group" style={{ flex: 1, margin: 0, minWidth: '100px' }}>
+                  <label>الخلفية</label>
+                  <input type="color" className="form-control color-picker" value={newStatusBg} onChange={e => setNewStatusBg(e.target.value)} />
+                </div>
+                <div className="form-group" style={{ flex: 1, margin: 0, minWidth: '100px' }}>
+                  <label>النص</label>
+                  <input type="color" className="form-control color-picker" value={newStatusColor} onChange={e => setNewStatusColor(e.target.value)} />
+                </div>
+                <button type="submit" className="btn-main" style={{ height: '44px', padding: '0 25px', whiteSpace: 'nowrap' }}>➕ إضافة حالة</button>
+              </form>
+
+              <div className="tags-list-container">
+                {statusOptions.map((st, idx) => (
+                  <div key={idx} className="tag-row">
+                    <input 
+                      type="text" 
+                      className="tag-input-clean" 
+                      value={st.name} 
+                      onChange={e => {
+                          const updated = [...statusOptions];
+                          updated[idx].name = e.target.value;
+                          saveStatuses(updated);
+                      }} 
+                    />
+                    <div className="tag-controls">
+                      <div className="color-group">
+                        <span className="color-label">الخلفية:</span>
+                        <input type="color" className="color-picker-sm" value={st.bg} onChange={e => {
+                            const updated = [...statusOptions];
+                            updated[idx].bg = e.target.value;
+                            saveStatuses(updated);
+                        }} />
+                      </div>
+                      <div className="color-group">
+                        <span className="color-label">النص:</span>
+                        <input type="color" className="color-picker-sm" value={st.color} onChange={e => {
+                            const updated = [...statusOptions];
+                            updated[idx].color = e.target.value;
+                            saveStatuses(updated);
+                        }} />
+                      </div>
+                      <span className="badge" style={{ backgroundColor: st.bg, color: st.color }}>معاينة الحالة</span>
+                      <button className="btn-icon btn-danger" onClick={() => deleteStatusOption(st.name)}>🗑️ حذف</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
             <div className="section-box">
               <div className="section-title">🏷️ تخصيص تصنيفات وحالات العملاء</div>
               <p className="section-desc">حدد التصنيفات التي ترغب بأن تُحسب مبيعاتها ضمن إجمالي لوحة القيادة.</p>
@@ -1052,7 +1162,7 @@ export default function EngaziaWhatsAppCRM() {
                         مبيعات
                       </label>
                       <span className="badge" style={{ backgroundColor: cat.bg, color: cat.color }}>معاينة الشارة</span>
-                      <button className="btn-icon btn-danger" onClick={() => deleteCategory(cat.name)}>🗑️️ حذف</button>
+                      <button className="btn-icon btn-danger" onClick={() => deleteCategory(cat.name)}>🗑️ حذف</button>
                     </div>
                   </div>
                 ))}
