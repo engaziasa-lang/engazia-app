@@ -107,7 +107,7 @@ export default function EngaziaWhatsAppCRM() {
   const [showSuggestions, setShowSuggestions] = useState(false);
 
   useEffect(() => {
-    const savedContacts = localStorage.getItem('engazia_whatsapp_pro_crm_v7');
+    const savedContacts = localStorage.getItem('engazia_whatsapp_pro_crm_v8');
     if (savedContacts) {
       try { setContacts(JSON.parse(savedContacts)); } catch (e) { console.error(e); }
     }
@@ -142,7 +142,7 @@ export default function EngaziaWhatsAppCRM() {
 
   const saveContacts = (updated: Customer[]) => {
     setContacts(updated);
-    localStorage.setItem('engazia_whatsapp_pro_crm_v7', JSON.stringify(updated));
+    localStorage.setItem('engazia_whatsapp_pro_crm_v8', JSON.stringify(updated));
   };
 
   const saveCategories = (updated: TagConfig[]) => {
@@ -284,7 +284,6 @@ export default function EngaziaWhatsAppCRM() {
     window.open(url, '_blank');
   };
 
-  // تصدير إكسل من اليمين لليسار مع حماية التاريخ من التحول لرقم مسلسل
   const exportToExcel = () => {
     if (contacts.length === 0) return showToast('⚠️ لا توجد بيانات للتصدير.');
 
@@ -359,7 +358,7 @@ export default function EngaziaWhatsAppCRM() {
     link.href = url;
     link.download = `engazia_crm_${storeName.replace(/\s+/g, '_')}.xls`;
     link.click();
-    showToast('📥 تم تصدير ملف إكسل بنجاح (التاريخ والبيانات منسقة بدقة)');
+    showToast('📥 تم تصدير ملف إكسل بنجاح');
   };
 
   const handleImportCSV = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -438,7 +437,7 @@ export default function EngaziaWhatsAppCRM() {
       <style jsx>{`
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
         .app-container { background: #f1f5f9; color: #0f172a; min-height: 100vh; font-family: 'Tajawal', sans-serif; direction: rtl; padding: 30px 15px; position: relative; }
-        .wrapper { max-width: 1100px; margin: 0 auto; background: #fff; border-radius: 20px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.04); border: 1px solid #e2e8f0; }
+        .wrapper { max-width: 1200px; margin: 0 auto; background: #fff; border-radius: 20px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.04); border: 1px solid #e2e8f0; }
         
         .toast-banner { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #1e293b; color: #fff; padding: 12px 24px; border-radius: 12px; font-size: 14px; font-weight: 800; z-index: 9999; box-shadow: 0 10px 25px rgba(0,0,0,0.15); animation: fadeInOut 0.3s ease; }
         @keyframes fadeInOut { from { opacity: 0; transform: translate(-50%, -10px); } to { opacity: 1; transform: translate(-50%, 0); } }
@@ -477,16 +476,17 @@ export default function EngaziaWhatsAppCRM() {
         .btn-wa { background: #10b981; color: #fff; border: none; padding: 12px 24px; border-radius: 10px; font-weight: 800; font-size: 14px; cursor: pointer; transition: all 0.2s; flex: 1; display: inline-flex; justify-content: center; align-items: center; }
         .btn-wa:hover { background: #059669; }
         
-        .btn-sm { padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; border: none; transition: 0.2s; }
+        .btn-sm { padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; border: none; transition: 0.2s; white-space: nowrap; }
         .btn-success { background: #dcfce7; color: #15803d; }
         .btn-success:hover { background: #bbf7d0; }
         .btn-edit { background: #e0e7ff; color: #4f46e5; }
         .btn-danger { background: #fee2e2; color: #dc2626; }
 
+        /* ضبط الجدول لمنع تداخل الكلمات */
         .table-container { overflow-x: auto; background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; }
-        .contacts-table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: right; }
-        .contacts-table th, .contacts-table td { padding: 12px 15px; border-bottom: 1px solid #f1f5f9; }
-        .contacts-table th { background: #f8fafc; color: #475569; font-weight: 800; white-space: nowrap; }
+        .contacts-table { width: 100%; min-width: 1150px; border-collapse: collapse; font-size: 13px; text-align: right; }
+        .contacts-table th, .contacts-table td { padding: 14px 16px; border-bottom: 1px solid #f1f5f9; white-space: nowrap; vertical-align: middle; }
+        .contacts-table th { background: #f8fafc; color: #475569; font-weight: 800; }
         .contacts-table tr:hover { background: #fcfcfc; }
 
         .suggestions-box { position: absolute; top: 100%; right: 0; left: 0; background: #fff; border: 1px solid #cbd5e1; border-radius: 10px; max-height: 180px; overflow-y: auto; z-index: 10; box-shadow: 0 10px 25px rgba(0,0,0,0.1); margin-top: 5px; }
@@ -690,24 +690,24 @@ export default function EngaziaWhatsAppCRM() {
                 <tbody>
                   {filteredContacts.map(c => (
                     <tr key={c.id}>
-                      <td><input type="text" className="form-control" style={{ padding: '8px', fontSize: '12px', width: '110px' }} value={c.name} onChange={e => updateCustomerField(c.id, 'name', e.target.value)} /></td>
-                      <td><input type="text" className="form-control input-ltr" style={{ padding: '8px', fontSize: '12px', width: '110px' }} value={c.phone} onChange={e => updateCustomerField(c.id, 'phone', e.target.value)} /></td>
-                      <td><input type="text" className="form-control input-ltr" style={{ padding: '8px', fontSize: '12px', width: '80px', color: '#4f46e5' }} value={c.orderNumber} onChange={e => updateCustomerField(c.id, 'orderNumber', e.target.value)} /></td>
+                      <td><input type="text" className="form-control" style={{ padding: '8px 10px', fontSize: '13px', width: '140px' }} value={c.name} onChange={e => updateCustomerField(c.id, 'name', e.target.value)} /></td>
+                      <td><input type="text" className="form-control input-ltr" style={{ padding: '8px 10px', fontSize: '13px', width: '130px' }} value={c.phone} onChange={e => updateCustomerField(c.id, 'phone', e.target.value)} /></td>
+                      <td><input type="text" className="form-control input-ltr" style={{ padding: '8px 10px', fontSize: '13px', width: '90px', color: '#4f46e5' }} value={c.orderNumber} onChange={e => updateCustomerField(c.id, 'orderNumber', e.target.value)} /></td>
                       <td>
-                        <select className="form-control" style={{ padding: '8px', fontSize: '12px' }} value={c.category} onChange={e => updateCustomerField(c.id, 'category', e.target.value)}>
+                        <select className="form-control" style={{ padding: '8px 10px', fontSize: '13px', width: '130px' }} value={c.category} onChange={e => updateCustomerField(c.id, 'category', e.target.value)}>
                           {categories.map(cat => <option key={cat.name} value={cat.name}>{cat.name}</option>)}
                         </select>
                       </td>
                       <td>
-                        <select className="form-control" style={{ padding: '8px', fontSize: '12px' }} value={c.status || 'نشط'} onChange={e => updateCustomerField(c.id, 'status', e.target.value)}>
+                        <select className="form-control" style={{ padding: '8px 10px', fontSize: '13px', width: '120px' }} value={c.status || 'نشط'} onChange={e => updateCustomerField(c.id, 'status', e.target.value)}>
                           {statusOptions.map(st => <option key={st} value={st}>{st}</option>)}
                         </select>
                       </td>
-                      <td><input type="text" className="form-control input-ltr" style={{ padding: '8px', fontSize: '12px', width: '80px' }} value={c.amount} onChange={e => updateCustomerField(c.id, 'amount', e.target.value)} /></td>
-                      <td><input type="text" className="form-control" style={{ padding: '8px', fontSize: '12px', width: '130px' }} value={c.note || ''} onChange={e => updateCustomerField(c.id, 'note', e.target.value)} placeholder="أضف ملاحظة..." /></td>
-                      <td style={{ direction: 'ltr', textAlign: 'right', color: '#64748b', fontSize: '12px', fontWeight: 700 }}>{c.date}</td>
+                      <td><input type="text" className="form-control input-ltr" style={{ padding: '8px 10px', fontSize: '13px', width: '90px' }} value={c.amount} onChange={e => updateCustomerField(c.id, 'amount', e.target.value)} /></td>
+                      <td><input type="text" className="form-control" style={{ padding: '8px 10px', fontSize: '13px', width: '180px' }} value={c.note || ''} onChange={e => updateCustomerField(c.id, 'note', e.target.value)} placeholder="أضف ملاحظة..." /></td>
+                      <td style={{ direction: 'ltr', textAlign: 'right', color: '#64748b', fontSize: '13px', fontWeight: 700, width: '100px' }}>{c.date}</td>
                       <td>
-                        <div style={{ display: 'flex', gap: '8px' }}>
+                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                           <button className="btn-sm btn-success" onClick={() => routeToMessaging(c)}>💬 مراسلة</button>
                           <button className="btn-sm btn-danger" onClick={() => deleteContact(c.id)}>حذف</button>
                         </div>
