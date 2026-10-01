@@ -107,7 +107,7 @@ export default function EngaziaWhatsAppCRM() {
   const [showSuggestions, setShowSuggestions] = useState(false);
 
   useEffect(() => {
-    const savedContacts = localStorage.getItem('engazia_whatsapp_pro_crm_v10');
+    const savedContacts = localStorage.getItem('engazia_whatsapp_pro_crm_v11');
     if (savedContacts) {
       try { setContacts(JSON.parse(savedContacts)); } catch (e) { console.error(e); }
     }
@@ -142,7 +142,7 @@ export default function EngaziaWhatsAppCRM() {
 
   const saveContacts = (updated: Customer[]) => {
     setContacts(updated);
-    localStorage.setItem('engazia_whatsapp_pro_crm_v10', JSON.stringify(updated));
+    localStorage.setItem('engazia_whatsapp_pro_crm_v11', JSON.stringify(updated));
   };
 
   const saveCategories = (updated: TagConfig[]) => {
@@ -244,7 +244,7 @@ export default function EngaziaWhatsAppCRM() {
     saveCategories(updated);
     setNewCatName('');
     setNewCatIsSale(true);
-    showToast('🏷️ تم إضافة التصنيف بنجاح');
+    showToast('🏷️️ تم إضافة التصنيف بنجاح');
   };
 
   const deleteCategory = (catName: string) => {
@@ -476,28 +476,28 @@ export default function EngaziaWhatsAppCRM() {
         .btn-wa { background: #10b981; color: #fff; border: none; padding: 12px 24px; border-radius: 10px; font-weight: 800; font-size: 14px; cursor: pointer; transition: all 0.2s; flex: 1; display: inline-flex; justify-content: center; align-items: center; }
         .btn-wa:hover { background: #059669; }
         
-        .btn-sm { padding: 5px 10px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; border: none; transition: 0.2s; white-space: nowrap; }
+        .btn-sm { padding: 5px 8px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; border: none; transition: 0.2s; white-space: nowrap; }
         .btn-success { background: #dcfce7; color: #15803d; }
         .btn-success:hover { background: #bbf7d0; }
         .btn-edit { background: #e0e7ff; color: #4f46e5; }
         .btn-danger { background: #fee2e2; color: #dc2626; }
 
-        /* ضبط الجدول ومقاسات المربعات المرنة لتتلائم تماماً مع طول النصوص */
-        .table-container { overflow-x: auto; background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; }
-        .contacts-table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: right; }
-        .contacts-table th, .contacts-table td { padding: 10px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; white-space: nowrap; }
-        .contacts-table th { background: #f8fafc; color: #475569; font-weight: 800; }
+        /* تعديلات الجدول لإلغاء شريط التمرير وعرض الجدول كاملاً داخل الشاشة */
+        .table-container { width: 100%; background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; overflow-x: hidden; }
+        .contacts-table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: right; table-layout: fixed; }
+        .contacts-table th, .contacts-table td { padding: 8px 6px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; word-break: break-word; }
+        .contacts-table th { background: #f8fafc; color: #475569; font-weight: 800; font-size: 11.5px; }
         .contacts-table tr:hover { background: #fcfcfc; }
         
-        /* حقول جدول الـ CRM المحسّنة (عرض تلقائي مرن ومضغوط) */
-        .cell-input { padding: 6px 10px; font-size: 13px; border: 1px solid #cbd5e1; border-radius: 8px; background: #fff; font-family: 'Tajawal', sans-serif; font-weight: 700; color: #1e293b; width: auto; max-width: 100%; outline: none; transition: 0.2s; }
+        /* حقول جدول الـ CRM المدمجة لتتناسب 100% بدون شريط تمرير */
+        .cell-input { padding: 5px 8px; font-size: 11.5px; border: 1px solid #cbd5e1; border-radius: 6px; background: #fff; font-family: 'Tajawal', sans-serif; font-weight: 700; color: #1e293b; width: 100%; outline: none; box-sizing: border-box; transition: 0.2s; }
         .cell-input:focus { border-color: #4f46e5; box-shadow: 0 0 0 2px rgba(79,70,229,0.1); }
 
         .suggestions-box { position: absolute; top: 100%; right: 0; left: 0; background: #fff; border: 1px solid #cbd5e1; border-radius: 10px; max-height: 180px; overflow-y: auto; z-index: 10; box-shadow: 0 10px 25px rgba(0,0,0,0.1); margin-top: 5px; }
         .suggestion-item { padding: 10px 15px; font-size: 13px; font-weight: 700; cursor: pointer; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; }
         .suggestion-item:hover { background: #f8fafc; color: #4f46e5; }
 
-        .badge { display: inline-block; padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 800; text-align: center; min-width: 90px; }
+        .badge { display: inline-block; padding: 4px 8px; border-radius: 20px; font-size: 10.5px; font-weight: 800; text-align: center; }
         
         .radio-group { display: flex; gap: 10px; margin-bottom: 20px; background: #e2e8f0; padding: 4px; border-radius: 12px; width: fit-content; }
         .radio-btn { padding: 8px 20px; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer; color: #64748b; border: none; background: transparent; transition: 0.3s; }
@@ -583,13 +583,13 @@ export default function EngaziaWhatsAppCRM() {
               <table className="contacts-table">
                 <thead>
                   <tr>
-                    <th>الاسم</th>
-                    <th>الطلب</th>
-                    <th>التصنيف</th>
-                    <th>الحالة</th>
-                    <th>الملاحظات</th>
-                    <th>التاريخ</th>
-                    <th>إجراء سريع</th>
+                    <th style={{ width: '15%' }}>الاسم</th>
+                    <th style={{ width: '10%' }}>الطلب</th>
+                    <th style={{ width: '15%' }}>التصنيف</th>
+                    <th style={{ width: '12%' }}>الحالة</th>
+                    <th style={{ width: '22%' }}>الملاحظات</th>
+                    <th style={{ width: '13%' }}>التاريخ</th>
+                    <th style={{ width: '13%' }}>إجراء</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -680,39 +680,39 @@ export default function EngaziaWhatsAppCRM() {
               <table className="contacts-table">
                 <thead>
                   <tr>
-                    <th>الاسم</th>
-                    <th>الجوال</th>
-                    <th>الطلب</th>
-                    <th>التصنيف</th>
-                    <th>الحالة</th>
-                    <th>المشتريات</th>
-                    <th>الملاحظات</th>
-                    <th>التاريخ</th>
-                    <th>الإجراءات</th>
+                    <th style={{ width: '13%' }}>الاسم</th>
+                    <th style={{ width: '13%' }}>الجوال</th>
+                    <th style={{ width: '8%' }}>الطلب</th>
+                    <th style={{ width: '13%' }}>التصنيف</th>
+                    <th style={{ width: '10%' }}>الحالة</th>
+                    <th style={{ width: '8%' }}>المشتريات</th>
+                    <th style={{ width: '16%' }}>الملاحظات</th>
+                    <th style={{ width: '10%' }}>التاريخ</th>
+                    <th style={{ width: '9%' }}>الإجراءات</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredContacts.map(c => (
                     <tr key={c.id}>
-                      <td><input type="text" className="cell-input" style={{ width: '120px' }} value={c.name} onChange={e => updateCustomerField(c.id, 'name', e.target.value)} /></td>
-                      <td><input type="text" className="cell-input input-ltr" style={{ width: '120px' }} value={c.phone} onChange={e => updateCustomerField(c.id, 'phone', e.target.value)} /></td>
-                      <td><input type="text" className="cell-input input-ltr" style={{ width: '80px', color: '#4f46e5' }} value={c.orderNumber} onChange={e => updateCustomerField(c.id, 'orderNumber', e.target.value)} /></td>
+                      <td><input type="text" className="cell-input" value={c.name} onChange={e => updateCustomerField(c.id, 'name', e.target.value)} /></td>
+                      <td><input type="text" className="cell-input input-ltr" value={c.phone} onChange={e => updateCustomerField(c.id, 'phone', e.target.value)} /></td>
+                      <td><input type="text" className="cell-input input-ltr" style={{ color: '#4f46e5' }} value={c.orderNumber} onChange={e => updateCustomerField(c.id, 'orderNumber', e.target.value)} /></td>
                       <td>
-                        <select className="cell-input" style={{ width: '115px' }} value={c.category} onChange={e => updateCustomerField(c.id, 'category', e.target.value)}>
+                        <select className="cell-input" value={c.category} onChange={e => updateCustomerField(c.id, 'category', e.target.value)}>
                           {categories.map(cat => <option key={cat.name} value={cat.name}>{cat.name}</option>)}
                         </select>
                       </td>
                       <td>
-                        <select className="cell-input" style={{ width: '100px' }} value={c.status || 'نشط'} onChange={e => updateCustomerField(c.id, 'status', e.target.value)}>
+                        <select className="cell-input" value={c.status || 'نشط'} onChange={e => updateCustomerField(c.id, 'status', e.target.value)}>
                           {statusOptions.map(st => <option key={st} value={st}>{st}</option>)}
                         </select>
                       </td>
-                      <td><input type="text" className="cell-input input-ltr" style={{ width: '80px' }} value={c.amount} onChange={e => updateCustomerField(c.id, 'amount', e.target.value)} /></td>
-                      <td><input type="text" className="cell-input" style={{ width: '150px' }} value={c.note || ''} onChange={e => updateCustomerField(c.id, 'note', e.target.value)} placeholder="أضف ملاحظة..." /></td>
-                      <td style={{ direction: 'ltr', textAlign: 'right', color: '#64748b', fontSize: '13px', fontWeight: 700, width: '90px' }}>{c.date}</td>
+                      <td><input type="text" className="cell-input input-ltr" value={c.amount} onChange={e => updateCustomerField(c.id, 'amount', e.target.value)} /></td>
+                      <td><input type="text" className="cell-input" value={c.note || ''} onChange={e => updateCustomerField(c.id, 'note', e.target.value)} placeholder="أضف ملاحظة..." /></td>
+                      <td style={{ direction: 'ltr', textAlign: 'right', color: '#64748b', fontSize: '11px', fontWeight: 700 }}>{c.date}</td>
                       <td>
-                        <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-                          <button className="btn-sm btn-success" onClick={() => routeToMessaging(c)}>💬 مراسلة</button>
+                        <div style={{ display: 'flex', gap: '3px', alignItems: 'center' }}>
+                          <button className="btn-sm btn-success" onClick={() => routeToMessaging(c)}>💬</button>
                           <button className="btn-sm btn-danger" onClick={() => deleteContact(c.id)}>حذف</button>
                         </div>
                       </td>
