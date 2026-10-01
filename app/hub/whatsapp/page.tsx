@@ -167,14 +167,6 @@ export default function WhatsAppProHub() {
     }
   };
 
-  const getTagStyle = (catName: string) => {
-    const found = categories.find(c => c.name === catName);
-    if (found) {
-      return { backgroundColor: found.bg, color: found.color };
-    }
-    return { backgroundColor: '#e2e8f0', color: '#334155' };
-  };
-
   // إجمالي المبيعات لا يشمل السلة المتروكة وبانتظار الدفع
   const totalValidSales = contacts
     .filter(c => c.category !== 'سلة متروكة' && c.category !== 'بانتظار الدفع')
@@ -282,11 +274,11 @@ export default function WhatsAppProHub() {
         .contacts-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
         .contacts-table th, .contacts-table td { padding: 10px; border-bottom: 1px solid #e2e8f0; text-align: right; }
         .contacts-table th { background: #f1f5f9; color: #334155; font-weight: 800; }
-        .badge { padding: 3px 8px; border-radius: 12px; font-size: 10px; font-weight: 800; display: inline-block; }
 
         .btn-sm { padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; border: none; }
         .btn-danger { background: #fee2e2; color: #dc2626; }
         .btn-success { background: #dcfce7; color: #15803d; }
+        .btn-edit { background: #e0e7ff; color: #4f46e5; }
 
         .toolbar { display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap; justify-content: space-between; align-items: center; }
         .toolbar-group { display: flex; gap: 8px; flex: 1; }
@@ -301,7 +293,7 @@ export default function WhatsAppProHub() {
         <div className="header-flex">
           <div>
             <h2 className="title">🚀 منصة إنجازيا لعملاء واتساب (PRO MAX)</h2>
-            <p className="desc">إدارة العملاء، الربط الذكي بالمولد، وتعديل المشتريات والتصنيفات مباشرة.</p>
+            <p className="desc">إدارة العملاء، التعديل الشامل والمباشر للبيانات، وأتمتة الحملات.</p>
           </div>
         </div>
 
@@ -326,13 +318,13 @@ export default function WhatsAppProHub() {
         <div className="nav-tabs">
           <button className={`tab-btn ${activeTab === 'generator' ? 'active' : ''}`} onClick={() => setActiveTab('generator')}>⚡ مولد الرسائل والخصم</button>
           <button className={`tab-btn ${activeTab === 'crm' ? 'active' : ''}`} onClick={() => setActiveTab('crm')}>👥 إدارة العملاء (CRM)</button>
-          <button className={`tab-btn ${activeTab === 'tags' ? 'active' : ''}`} onClick={() => setActiveTab('tags')}>🏷️ إدارة التصنيفات والألوان</button>
+          <button className={`tab-btn ${activeTab === 'tags' ? 'active' : ''}`} onClick={() => setActiveTab('tags')}>🏷️️ إدارة التصنيفات والألوان</button>
           <button className={`tab-btn ${activeTab === 'broadcast' ? 'active' : ''}`} onClick={() => setActiveTab('broadcast')}>📢 الحملات الذكية</button>
           <button className={`tab-btn ${activeTab === 'templates' ? 'active' : ''}`} onClick={() => setActiveTab('templates')}>📋 الردود الجاهزة</button>
           <button className={`tab-btn ${activeTab === 'links' ? 'active' : ''}`} onClick={() => setActiveTab('links')}>🔗 صانع الروابط</button>
         </div>
 
-        {/* 1. مولد الرسائل والخصومات (مرتبط بالـ CRM) */}
+        {/* 1. مولد الرسائل والخصومات */}
         {activeTab === 'generator' && (
           <div>
             <div className="form-group">
@@ -482,8 +474,24 @@ export default function WhatsAppProHub() {
                   <tbody>
                     {filteredContacts.map(c => (
                       <tr key={c.id}>
-                        <td style={{ fontWeight: '800' }}>{c.name}</td>
-                        <td>{c.phone}</td>
+                        <td>
+                          <input 
+                            type="text" 
+                            className="form-control" 
+                            style={{ padding: '4px 8px', fontSize: '12px', fontWeight: '800', width: '130px' }} 
+                            value={c.name} 
+                            onChange={e => updateCustomerField(c.id, 'name', e.target.value)} 
+                          />
+                        </td>
+                        <td>
+                          <input 
+                            type="text" 
+                            className="form-control" 
+                            style={{ padding: '4px 8px', fontSize: '12px', width: '120px', fontWeight: '800' }} 
+                            value={c.phone} 
+                            onChange={e => updateCustomerField(c.id, 'phone', e.target.value)} 
+                          />
+                        </td>
                         <td>
                           <select 
                             className="form-control" 
@@ -500,15 +508,16 @@ export default function WhatsAppProHub() {
                           <input 
                             type="number" 
                             className="form-control" 
-                            style={{ padding: '4px 8px', fontSize: '11px', width: '90px', fontWeight: '800', color: '#4f46e5' }} 
+                            style={{ padding: '4px 8px', fontSize: '11px', width: '80px', fontWeight: '800', color: '#4f46e5' }} 
                             value={c.amount} 
                             onChange={e => updateCustomerField(c.id, 'amount', Number(e.target.value))} 
                           />
                         </td>
                         <td style={{ color: '#64748b', fontSize: '11px' }}>{c.date}</td>
                         <td>
-                          <div style={{ display: 'flex', gap: '5px' }}>
+                          <div style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
                             <button className="btn-sm btn-success" onClick={() => openWhatsApp(c.phone, `مرحباً ${c.name}، معك متجر إنجازيا بخصوص طلبك.`)}>💬 مراسلة</button>
+                            <button className="btn-sm btn-edit" title="تم الحفظ تلقائياً" onClick={() => alert('التعديلات يتم حفظها وفهرستها تلقائياً بمجرد الكتابة أو التغيير! ✅')}>✏️ تعديل</button>
                             <button className="btn-sm btn-danger" onClick={() => deleteContact(c.id)}>حذف</button>
                           </div>
                         </td>
