@@ -13,6 +13,7 @@ interface Customer {
   amount: string;
   note: string;
   date: string;
+  lastContactDate?: string;
 }
 
 interface TagConfig {
@@ -118,13 +119,14 @@ export default function EngaziaWhatsAppCRM() {
   // المراجع
   const fileInputRef = useRef<HTMLInputElement>(null);
   const storeLogoFileRef = useRef<HTMLInputElement>(null);
+  const restoreFileRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
 
   // Autocomplete
   const [showSuggestions, setShowSuggestions] = useState(false);
 
   useEffect(() => {
-    const savedContacts = localStorage.getItem('engazia_whatsapp_pro_crm_v13');
+    const savedContacts = localStorage.getItem('engazia_whatsapp_pro_crm_v14');
     if (savedContacts) {
       try { setContacts(JSON.parse(savedContacts)); } catch (e) { console.error(e); }
     }
@@ -164,7 +166,7 @@ export default function EngaziaWhatsAppCRM() {
 
   const saveContacts = (updated: Customer[]) => {
     setContacts(updated);
-    localStorage.setItem('engazia_whatsapp_pro_crm_v13', JSON.stringify(updated));
+    localStorage.setItem('engazia_whatsapp_pro_crm_v14', JSON.stringify(updated));
   };
 
   const saveCategories = (updated: TagConfig[]) => {
@@ -210,6 +212,60 @@ export default function EngaziaWhatsAppCRM() {
     reader.readAsDataURL(file);
   };
 
+  // نظام النسخ الاحتياطي والاستعادة
+  const exportBackupJSON = () => {
+    const backupData = {
+      storeName,
+      storeLogo,
+      defaultDiscountCode,
+      contacts,
+      categories,
+      statusOptions,
+      templates,
+      version: '1.4'
+    };
+    const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `engazia_backup_${storeName.replace(/\s+/g, '_')}_${new Date().toISOString().slice(0, 10)}.json`;
+    link.click();
+    showToast('📦 تم تصدير نسخة الاحتياط بنجاح');
+  };
+
+  const importBackupJSON = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const data = JSON.parse(event.target?.result as string);
+        if (data && data.contacts) {
+          setContacts(data.contacts);
+          localStorage.setItem('engazia_whatsapp_pro_crm_v14', JSON.stringify(data.contacts));
+        }
+        if (data && data.categories) {
+          setCategories(data.categories);
+          localStorage.setItem('engazia_whatsapp_categories_v2', JSON.stringify(data.categories));
+        }
+        if (data && data.statusOptions) {
+          setStatusOptions(data.statusOptions);
+          localStorage.setItem('engazia_whatsapp_statuses_v1', JSON.stringify(data.statusOptions));
+        }
+        if (data && data.templates) {
+          setTemplates(data.templates);
+          localStorage.setItem('engazia_templates_v2', JSON.stringify(data.templates));
+        }
+        if (data && data.storeName) handleSaveStoreName(data.storeName);
+        showToast('♻️ تم استعادة النسخة الاحتياطية بنجاح!');
+      } catch (err) {
+        showToast('❌ ملف النسخ الاحتياطي غير صالح.');
+      }
+      e.target.value = '';
+    };
+    reader.readAsText(file);
+  };
+
   const formatPhone = (phone: string) => {
     let clean = phone.replace(/\D/g, '');
     if (clean.startsWith('0')) clean = '966' + clean.substring(1);
@@ -220,6 +276,19 @@ export default function EngaziaWhatsAppCRM() {
     if (!str) return '';
     return str.replace(/[٠-٩]/g, (d) => String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)))
               .replace(/[۰-۹]/g, (d) => String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d)));
+  };
+
+  const isPhoneValid = (phone: string) => {
+    const clean = toEnglishDigits(phone).replace(/\D/g, '');
+    return clean.length >= 9;
+  };
+
+  const updateLastContact = (id: string) => {
+    const now = new Date();
+    const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    const updated = contacts.map(c => c.id === id ? { ...c, lastContactDate: dateStr } : c);
+    saveContacts(updated);
+    showToast('🕒 تم تسجيل وقت التواصل بنجاح');
   };
 
   const addContact = (e: React.FormEvent) => {
@@ -238,7 +307,8 @@ export default function EngaziaWhatsAppCRM() {
       status: newStatus,
       amount: toEnglishDigits(newAmount || '0'),
       note: newNote,
-      date: enDate
+      date: enDate,
+      lastContactDate: 'لم يتم التواصل'
     };
     saveContacts([newCust, ...contacts]);
     setNewName(''); setNewPhone(''); setNewOrderNumber(''); setNewAmount(''); setNewNote('');
@@ -325,10 +395,13 @@ export default function EngaziaWhatsAppCRM() {
     setGeneratedMsg(msg);
   };
 
-  const openWhatsApp = (phone: string, text: string) => {
+  const openWhatsApp = (phone: string, text: string, customerId?: string) => {
     const clean = formatPhone(phone);
     const url = clean ? `https://wa.me/${clean}?text=${encodeURIComponent(text)}` : `https://wa.me/?text=${encodeURIComponent(text)}`;
     window.open(url, '_blank');
+    if (customerId) {
+      updateLastContact(customerId);
+    }
   };
 
   const exportToExcel = () => {
@@ -372,6 +445,7 @@ export default function EngaziaWhatsAppCRM() {
               <th>إجمالي المشتريات (رس)</th>
               <th>الملاحظات</th>
               <th>التاريخ</th>
+              <th>آخر تواصل</th>
             </tr>
           </thead>
           <tbody>
@@ -388,6 +462,7 @@ export default function EngaziaWhatsAppCRM() {
           <td class="num-cell">${c.amount}</td>
           <td>${c.note || ''}</td>
           <td class="date-cell">&nbsp;${c.date}</td>
+          <td class="date-cell">&nbsp;${c.lastContactDate || 'لم يتم'}</td>
         </tr>
       `;
     });
@@ -434,6 +509,7 @@ export default function EngaziaWhatsAppCRM() {
             const now = new Date();
             const defaultEnDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
             const date = cleanVal(row[7]) || defaultEnDate;
+            const lastContactDate = cleanVal(row[8]) || 'لم يتم التواصل';
 
             if (name && phone) {
               newImportedContacts.push({
@@ -445,7 +521,8 @@ export default function EngaziaWhatsAppCRM() {
                 status,
                 amount,
                 note,
-                date
+                date,
+                lastContactDate
               });
             }
           }
@@ -608,7 +685,9 @@ export default function EngaziaWhatsAppCRM() {
               </div>
               <div className="modal-item">
                 <div className="modal-item-label">رقم الجوال</div>
-                <div className="modal-item-val" style={{ direction: 'ltr', textAlign: 'right' }}>{selectedCustomer.phone}</div>
+                <div className="modal-item-val" style={{ direction: 'ltr', textAlign: 'right', color: isPhoneValid(selectedCustomer.phone) ? '#1e293b' : '#dc2626' }}>
+                  {selectedCustomer.phone} {!isPhoneValid(selectedCustomer.phone) && <span style={{fontSize:'10px', color:'#dc2626'}}>(رقم غير مكتمل)</span>}
+                </div>
               </div>
               <div className="modal-item">
                 <div className="modal-item-label">رقم الطلب</div>
@@ -635,8 +714,8 @@ export default function EngaziaWhatsAppCRM() {
                 <div className="modal-item-val" style={{ direction: 'ltr', textAlign: 'right' }}>{selectedCustomer.amount} ر.س</div>
               </div>
               <div className="modal-item">
-                <div className="modal-item-label">تاريخ التسجيل</div>
-                <div className="modal-item-val" style={{ direction: 'ltr', textAlign: 'right' }}>{selectedCustomer.date}</div>
+                <div className="modal-item-label">آخر تاريخ تواصل</div>
+                <div className="modal-item-val" style={{ direction: 'ltr', textAlign: 'right', fontSize: '12px', color: '#4f46e5' }}>{selectedCustomer.lastContactDate || 'لم يتم التواصل'}</div>
               </div>
               <div className="modal-item" style={{ gridColumn: '1 / -1' }}>
                 <div className="modal-item-label">ملاحظات العميل</div>
@@ -645,7 +724,7 @@ export default function EngaziaWhatsAppCRM() {
             </div>
 
             <div style={{ display: 'flex', gap: '10px' }}>
-              <button className="btn-wa" style={{ flex: 1 }} onClick={() => routeToMessaging(selectedCustomer)}>🟢 مراسلة عبر واتساب</button>
+              <button className="btn-wa" style={{ flex: 1 }} onClick={() => openWhatsApp(selectedCustomer.phone, 'مرحباً بك', selectedCustomer.id)}>🟢 مراسلة عبر واتساب</button>
               <button className="btn-main" style={{ background: '#f1f5f9', color: '#1e293b' }} onClick={() => setSelectedCustomer(null)}>إغلاق</button>
             </div>
           </div>
@@ -705,9 +784,9 @@ export default function EngaziaWhatsAppCRM() {
                     <th style={{ width: '10%' }}>الطلب</th>
                     <th style={{ width: '15%' }}>التصنيف</th>
                     <th style={{ width: '12%' }}>الحالة</th>
-                    <th style={{ width: '22%' }}>الملاحظات</th>
-                    <th style={{ width: '13%' }}>التاريخ</th>
-                    <th style={{ width: '13%' }}>إجراء</th>
+                    <th style={{ width: '18%' }}>الملاحظات</th>
+                    <th style={{ width: '15%' }}>آخر تواصل</th>
+                    <th style={{ width: '15%' }}>إجراء</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -734,9 +813,12 @@ export default function EngaziaWhatsAppCRM() {
                         </span>
                       </td>
                       <td style={{ color: '#475569' }}>{c.note || '---'}</td>
-                      <td style={{ color: '#64748b', direction: 'ltr', textAlign: 'right' }}>{c.date}</td>
+                      <td style={{ color: '#4f46e5', fontSize: '11px', fontWeight: 700, direction: 'ltr', textAlign: 'right' }}>{c.lastContactDate || 'لم يتم'}</td>
                       <td>
-                        <button className="btn-sm btn-success" onClick={() => routeToMessaging(c)}>💬 مراسلة</button>
+                        <div style={{ display: 'flex', gap: '4px' }}>
+                          <button className="btn-sm btn-success" onClick={() => routeToMessaging(c)}>💬 مراسلة</button>
+                          <button className="btn-sm btn-edit" title="تسجيل تم التواصل الآن" onClick={() => updateLastContact(c.id)}>🕒</button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -810,22 +892,31 @@ export default function EngaziaWhatsAppCRM() {
               <table className="contacts-table">
                 <thead>
                   <tr>
-                    <th style={{ width: '13%' }}>الاسم</th>
-                    <th style={{ width: '13%' }}>الجوال</th>
+                    <th style={{ width: '12%' }}>الاسم</th>
+                    <th style={{ width: '12%' }}>الجوال</th>
                     <th style={{ width: '8%' }}>الطلب</th>
-                    <th style={{ width: '13%' }}>التصنيف</th>
+                    <th style={{ width: '12%' }}>التصنيف</th>
                     <th style={{ width: '10%' }}>الحالة</th>
                     <th style={{ width: '8%' }}>المشتريات</th>
-                    <th style={{ width: '16%' }}>الملاحظات</th>
-                    <th style={{ width: '10%' }}>التاريخ</th>
-                    <th style={{ width: '9%' }}>الإجراءات</th>
+                    <th style={{ width: '14%' }}>الملاحظات</th>
+                    <th style={{ width: '13%' }}>آخر تواصل</th>
+                    <th style={{ width: '11%' }}>الإجراءات</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredContacts.map(c => (
                     <tr key={c.id}>
                       <td><input type="text" className="cell-input" value={c.name} onChange={e => updateCustomerField(c.id, 'name', e.target.value)} /></td>
-                      <td><input type="text" className="cell-input input-ltr" value={c.phone} onChange={e => updateCustomerField(c.id, 'phone', e.target.value)} /></td>
+                      <td>
+                        <input 
+                          type="text" 
+                          className="cell-input input-ltr" 
+                          style={{ borderColor: isPhoneValid(c.phone) ? '#cbd5e1' : '#dc2626' }} 
+                          value={c.phone} 
+                          onChange={e => updateCustomerField(c.id, 'phone', e.target.value)} 
+                          title={isPhoneValid(c.phone) ? 'رقم صحيح' : 'رقم جوال غير مكتمل'}
+                        />
+                      </td>
                       <td><input type="text" className="cell-input input-ltr" style={{ color: '#4f46e5' }} value={c.orderNumber} onChange={e => updateCustomerField(c.id, 'orderNumber', e.target.value)} /></td>
                       <td>
                         <select className="cell-input" value={c.category} onChange={e => updateCustomerField(c.id, 'category', e.target.value)}>
@@ -838,11 +929,12 @@ export default function EngaziaWhatsAppCRM() {
                         </select>
                       </td>
                       <td><input type="text" className="cell-input input-ltr" value={c.amount} onChange={e => updateCustomerField(c.id, 'amount', e.target.value)} /></td>
-                      <td><input type="text" className="cell-input" value={c.note || ''} onChange={e => updateCustomerField(c.id, 'note', e.target.value)} placeholder="أضف ملاحظة..." /></td>
-                      <td style={{ direction: 'ltr', textAlign: 'right', color: '#64748b', fontSize: '11px', fontWeight: 700 }}>{c.date}</td>
+                      <td><input type="text" className="cell-input" value={c.note || ''} onChange={e => updateCustomerField(c.id, 'note', e.target.value)} placeholder="ملاحظة..." /></td>
+                      <td style={{ direction: 'ltr', textAlign: 'right', color: '#4f46e5', fontSize: '10.5px', fontWeight: 700 }}>{c.lastContactDate || 'لم يتم'}</td>
                       <td>
                         <div style={{ display: 'flex', gap: '3px', alignItems: 'center' }}>
                           <button className="btn-sm btn-success" onClick={() => routeToMessaging(c)}>💬</button>
+                          <button className="btn-sm btn-edit" title="تم التواصل" onClick={() => updateLastContact(c.id)}>🕒</button>
                           <button className="btn-sm btn-danger" onClick={() => deleteContact(c.id)}>حذف</button>
                         </div>
                       </td>
@@ -932,7 +1024,10 @@ export default function EngaziaWhatsAppCRM() {
                     <div style={{ background: '#f8fafc', padding: '15px', borderRadius: '10px', fontSize: '14px', lineHeight: 1.7, whiteSpace: 'pre-wrap', marginBottom: '15px', color: '#1e293b', fontWeight: 500, border: '1px solid #e2e8f0' }}>{generatedMsg}</div>
                     <div style={{ display: 'flex', gap: '12px' }}>
                       <button className="btn-main" style={{ flex: 1, background: '#f1f5f9', color: '#1e293b' }} onClick={() => { navigator.clipboard.writeText(generatedMsg); showToast('📋 تم نسخ النص بنجاح!'); }}>📋 نسخ فقط</button>
-                      <button className="btn-wa" style={{ flex: 2 }} onClick={() => openWhatsApp(customerPhone, generatedMsg)}>🟢 إرسال عبر واتساب</button>
+                      <button className="btn-wa" style={{ flex: 2 }} onClick={() => {
+                        const target = contacts.find(c => c.phone === formatPhone(customerPhone));
+                        openWhatsApp(customerPhone, generatedMsg, target?.id);
+                      }}>🟢 إرسال عبر واتساب</button>
                     </div>
                   </div>
                 )}
@@ -957,12 +1052,13 @@ export default function EngaziaWhatsAppCRM() {
                         const tpl = templates.find(t => t.id === activeTemplateId)?.text || '';
                         let msg = tpl.replace(/\[الاسم\]/g, c.name).replace(/\[الطلب\]/g, c.orderNumber).replace(/\[إضافي\]/g, extraInfo);
                         if(includeDiscount) msg += `\n\n🎁 كود خصم خاص لك: *${defaultDiscountCode}*`;
-                        openWhatsApp(c.phone, msg);
-                      }}>🟢 إرسال للعميل الحالي</button>
+                        openWhatsApp(c.phone, msg, c.id);
+                        if (broadcastIndex < broadcastList.length - 1) setBroadcastIndex(broadcastIndex + 1);
+                      }}>🟢 إرسال والانتقال للتالي</button>
                       <button className="btn-main" style={{ width: 'auto', background: '#334155' }} onClick={() => {
                         if (broadcastIndex < broadcastList.length - 1) setBroadcastIndex(broadcastIndex + 1);
                         else showToast('⚠️ لقد وصلت لنهاية القائمة!');
-                      }}>التالي ⬅</button>
+                      }}>تخطي ⬅</button>
                     </div>
                   </div>
                 )}
@@ -991,6 +1087,18 @@ export default function EngaziaWhatsAppCRM() {
                   </button>
                   <input type="file" ref={storeLogoFileRef} onChange={handleLogoUpload} accept="image/*" style={{ display: 'none' }} />
                 </div>
+              </div>
+            </div>
+
+            {/* نظام النسخ الاحتياطي والاستعادة */}
+            <div className="section-box" style={{ background: '#f0fdf4', borderColor: '#bbf7d0' }}>
+              <div className="section-title" style={{ color: '#166534' }}>💾 النسخ الاحتياطي واستعادة البيانات</div>
+              <p className="section-desc">قم بتنزيل نسخة احتياطية لبيانات متجرك بملف JSON أو استعادتها بأي وقت لحماية بياناتك من الضياع.</p>
+              
+              <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
+                <button className="btn-main" style={{ background: '#10b981' }} onClick={exportBackupJSON}>📥 تحميل نسخة احتياطية (JSON)</button>
+                <button className="btn-main" style={{ background: '#fff', color: '#166534', border: '1px solid #bbf7d0' }} onClick={() => restoreFileRef.current?.click()}>♻️ استعادة البيانات من ملف</button>
+                <input type="file" ref={restoreFileRef} onChange={importBackupJSON} accept=".json" style={{ display: 'none' }} />
               </div>
             </div>
 
