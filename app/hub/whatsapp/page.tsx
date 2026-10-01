@@ -21,22 +21,53 @@ interface TagConfig {
   color: string;
 }
 
-export default function WhatsAppProHub() {
-  const [activeTab, setActiveTab] = useState<'generator' | 'crm' | 'tags' | 'broadcast' | 'templates' | 'links'>('generator');
+interface Template {
+  id: number;
+  title: string;
+  text: string;
+}
 
-  // مولد الرسائل والخصومات
+export default function JasmalWhatsAppCRM() {
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'crm' | 'messaging' | 'tags'>('dashboard');
+
+  // إدارة العملاء CRM
+  const [contacts, setContacts] = useState<Customer[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterCategory, setFilterCategory] = useState('all');
+  
+  // إضافة عميل جديد
+  const [newName, setNewName] = useState('');
+  const [newPhone, setNewPhone] = useState('');
+  const [newOrderNumber, setNewOrderNumber] = useState('');
+  const [newCategory, setNewCategory] = useState('عميل جديد');
+  const [newAmount, setNewAmount] = useState<number | ''>('');
+
+  // المراسلات (الدمج الذكي)
+  const [messagingMode, setMessagingMode] = useState<'single' | 'broadcast'>('single');
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
   const [orderNumber, setOrderNumber] = useState('');
-  const [templateType, setTemplateType] = useState('confirm');
-  const [discountCode, setDiscountCode] = useState('ENGAZIA10');
-  const [includeDiscount, setIncludeDiscount] = useState(false);
   const [extraInfo, setExtraInfo] = useState('');
+  const [includeDiscount, setIncludeDiscount] = useState(false);
+  const [discountCode, setDiscountCode] = useState('JASMAL10');
   const [generatedMsg, setGeneratedMsg] = useState('');
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const suggestionsRef = useRef<HTMLDivElement>(null);
+  
+  // الطابور (Broadcast)
+  const [broadcastCat, setBroadcastCat] = useState('سلة متروكة');
+  const [broadcastIndex, setBroadcastIndex] = useState(0);
 
-  // إدارة التصنيفات المخصصة مع الألوان
+  // القوالب والردود
+  const [activeTemplateId, setActiveTemplateId] = useState<number>(1);
+  const [templates, setTemplates] = useState<Template[]>([
+    { id: 1, title: '✅ تأكيد الطلب', text: 'مرحباً بك يا [الاسم] 👋\nتم تأكيد طلبك رقم ([الطلب]) بنجاح، ونعمل حالياً على تجهيزه وشحنه لك. شكراً لثقتك بمتجرنا 💙' },
+    { id: 2, title: '🛒 سلة متروكة', text: 'أهلاً بك يا [الاسم] 😊\nلاحظنا عدم إتمام طلبك رقم ([الطلب]). هل تواجه مشكلة في الدفع؟ نحن هنا لمساعدتك.' },
+    { id: 3, title: '📦 تتبع الشحنة', text: 'مرحباً [الاسم] 📦\nتم تسليم طلبك رقم ([الطلب]) لشركة الشحن، وسيصلك قريباً.' },
+    { id: 4, title: '💳 رابط الدفع', text: 'مرحباً بك يا [الاسم] 💳\nلتسهيل إتمام طلبك، يسعدنا تزويدك برابط الدفع السريع: [إضافي]' }
+  ]);
+  const [newTplTitle, setNewTplTitle] = useState('');
+  const [newTplText, setNewTplText] = useState('');
+
+  // التصنيفات
   const [categories, setCategories] = useState<TagConfig[]>([
     { name: 'عميل جديد', bg: '#dbeafe', color: '#1d4ed8' },
     { name: 'سلة متروكة', bg: '#fee2e2', color: '#dc2626' },
@@ -47,45 +78,19 @@ export default function WhatsAppProHub() {
   const [newCatBg, setNewCatBg] = useState('#e0e7ff');
   const [newCatColor, setNewCatColor] = useState('#4f46e5');
 
-  // إدارة CRM العملاء
-  const [contacts, setContacts] = useState<Customer[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterCategory, setFilterCategory] = useState('all');
-  const [newName, setNewName] = useState('');
-  const [newPhone, setNewPhone] = useState('');
-  const [newOrderNumber, setNewOrderNumber] = useState('');
-  const [newCategory, setNewCategory] = useState('عميل جديد');
-  const [newStatus, setNewStatus] = useState('قيد المتابعة');
-  const [newAmount, setNewAmount] = useState<number>(0);
-  const [newNote, setNewNote] = useState('');
-
-  // الردود الجاهزة
-  const [customTemplates, setCustomTemplates] = useState([
-    { id: 1, title: 'تأكيد السداد والبدء بالتجهيز', text: 'أهلاً بك [الاسم]، تم تأكيد عملية السداد لطلبك رقم [الطلب] ونقوم الآن بتغليفه 📦' },
-    { id: 2, title: 'عرض خصم استرجاع السلة', text: 'مرحباً [الاسم]، يسعدنا منحك خصماً خاصاً 10% عبر كود: [الكود] لإتمام طلبك المعلق.' }
-  ]);
-  const [newTitle, setNewTitle] = useState('');
-  const [newText, setNewText] = useState('');
-
-  // صانع الروابط
-  const [linkPhone, setLinkPhone] = useState('');
-  const [linkText, setLinkText] = useState('');
-  const [createdLink, setCreatedLink] = useState('');
-
-  // الحملات الجماعية الذكية (Broadcast Queue)
-  const [broadcastCat, setBroadcastCat] = useState('سلة متروكة');
-  const [broadcastText, setBroadcastText] = useState('مرحباً بك، يسعدنا تقديم عرض خاص لك اليوم بمتجرنا.');
-  const [broadcastIndex, setBroadcastIndex] = useState(0);
+  // Autocomplete
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const suggestionsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const savedContacts = localStorage.getItem('engazia_whatsapp_pro_crm_v4');
-    if (savedContacts) {
-      try { setContacts(JSON.parse(savedContacts)); } catch (e) {}
-    }
-    const savedCats = localStorage.getItem('engazia_whatsapp_categories');
-    if (savedCats) {
-      try { setCategories(JSON.parse(savedCats)); } catch (e) {}
-    }
+    const savedContacts = localStorage.getItem('jasmal_crm_data');
+    if (savedContacts) try { setContacts(JSON.parse(savedContacts)); } catch (e) {}
+    
+    const savedCats = localStorage.getItem('jasmal_tags_data');
+    if (savedCats) try { setCategories(JSON.parse(savedCats)); } catch (e) {}
+
+    const savedTpls = localStorage.getItem('jasmal_templates');
+    if (savedTpls) try { setTemplates(JSON.parse(savedTpls)); } catch (e) {}
 
     const handleClickOutside = (event: MouseEvent) => {
       if (suggestionsRef.current && !suggestionsRef.current.contains(event.target as Node)) {
@@ -98,12 +103,17 @@ export default function WhatsAppProHub() {
 
   const saveContacts = (updated: Customer[]) => {
     setContacts(updated);
-    localStorage.setItem('engazia_whatsapp_pro_crm_v4', JSON.stringify(updated));
+    localStorage.setItem('jasmal_crm_data', JSON.stringify(updated));
   };
 
   const saveCategories = (updated: TagConfig[]) => {
     setCategories(updated);
-    localStorage.setItem('engazia_whatsapp_categories', JSON.stringify(updated));
+    localStorage.setItem('jasmal_tags_data', JSON.stringify(updated));
+  };
+
+  const saveTemplates = (updated: Template[]) => {
+    setTemplates(updated);
+    localStorage.setItem('jasmal_templates', JSON.stringify(updated));
   };
 
   const formatPhone = (phone: string) => {
@@ -121,93 +131,44 @@ export default function WhatsAppProHub() {
       phone: formatPhone(newPhone),
       orderNumber: newOrderNumber || '#---',
       category: newCategory,
-      status: newStatus,
+      status: 'نشط',
       amount: Number(newAmount) || 0,
-      note: newNote,
+      note: '',
       date: new Date().toLocaleDateString('ar-SA')
     };
     saveContacts([newCust, ...contacts]);
-    setNewName('');
-    setNewPhone('');
-    setNewOrderNumber('');
-    setNewAmount(0);
-    setNewNote('');
-    alert('تم حفظ العميل في النظام بنجاح!');
+    setNewName(''); setNewPhone(''); setNewOrderNumber(''); setNewAmount('');
+    alert('تم إضافة العميل بنجاح!');
   };
 
   const updateCustomerField = (id: string, field: keyof Customer, value: any) => {
-    const updated = contacts.map(c => {
-      if (c.id === id) {
-        return { ...c, [field]: value };
-      }
-      return c;
-    });
-    saveContacts(updated);
+    saveContacts(contacts.map(c => c.id === id ? { ...c, [field]: value } : c));
   };
 
   const deleteContact = (id: string) => {
-    if (confirm('هل أنت متأكد من حذف هذا العميل؟')) {
-      saveContacts(contacts.filter(c => c.id !== id));
-    }
+    if (confirm('تأكيد حذف العميل؟')) saveContacts(contacts.filter(c => c.id !== id));
   };
 
-  const addCategory = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newCatName) return alert('أدخل اسم التصنيف.');
-    if (categories.some(c => c.name === newCatName)) return alert('هذا التصنيف موجود مسبقاً.');
-    const updated = [...categories, { name: newCatName, bg: newCatBg, color: newCatColor }];
-    saveCategories(updated);
-    setNewCatName('');
-    alert('تمت إضافة التصنيف بنجاح!');
+  // توجيه ذكي للمراسلة
+  const routeToMessaging = (c: Customer) => {
+    setCustomerName(c.name);
+    setCustomerPhone(c.phone);
+    setOrderNumber(c.orderNumber);
+    setMessagingMode('single');
+    setActiveTab('messaging');
+    window.scrollTo(0, 0);
   };
 
-  const updateCategory = (index: number, field: keyof TagConfig, value: string) => {
-    const updated = [...categories];
-    updated[index] = { ...updated[index], [field]: value };
-    saveCategories(updated);
-  };
-
-  const deleteCategory = (catName: string) => {
-    if (categories.length <= 1) return alert('يجب أن يبقى تصنيف واحد على الأقل.');
-    if (confirm(`حذف التصنيف "${catName}"؟`)) {
-      const updated = categories.filter(c => c.name !== catName);
-      saveCategories(updated);
-      if (newCategory === catName) setNewCategory(updated[0].name);
-      if (broadcastCat === catName) setBroadcastCat(updated[0].name);
-    }
-  };
-
-  // إجمالي المبيعات لا يشمل السلة المتروكة وبانتظار الدفع
-  const totalValidSales = contacts
-    .filter(c => c.category !== 'سلة متروكة' && c.category !== 'بانتظار الدفع')
-    .reduce((acc, c) => acc + c.amount, 0);
-
-  const generateMessage = () => {
-    let name = customerName || 'عالمنا الكريم';
-    let order = orderNumber || '---';
-    let msg = '';
-
-    switch (templateType) {
-      case 'confirm':
-        msg = `مرحباً بك يا ${name} 👋\nتم تأكيد طلبك رقم (${order}) بنجاح، ونعمل حالياً على تجهيزه وشحنه لك. شكراً لثقتك بمتجرنا 💙`;
-        break;
-      case 'abandoned':
-        msg = `أهلاً بك يا ${name} 😊\nلاحظنا عدم إتمام طلبك رقم (${order}). هل تواجه مشكلة في الدفع؟ نحن هنا لمساعدتك.`;
-        break;
-      case 'shipping':
-        msg = `مرحباً ${name} 📦\nتم تسليم طلبك رقم (${order}) لشركة الشحن، وسيصلك قريباً عبر تفاصيل التتبع.`;
-        break;
-      case 'payment':
-        msg = `مرحباً بك يا ${name} 💳\nلتسهيل إتمام طلبك، يسعدنا تزويدك برابط الدفع السريع: ${extraInfo || '[رابط الدفع]'}`;
-        break;
-      default:
-        msg = `مرحباً ${name}، بخصوص طلبك رقم (${order}). ${extraInfo}`;
-    }
-
-    if (includeDiscount) {
-      msg += `\n\n🎁 كود خصم خاص لك: *${discountCode}*`;
-    }
-
+  const handleGenerateMessage = () => {
+    const tpl = templates.find(t => t.id === activeTemplateId);
+    if (!tpl) return;
+    
+    let msg = tpl.text
+      .replace(/\[الاسم\]/g, customerName || 'عالمنا الكريم')
+      .replace(/\[الطلب\]/g, orderNumber || '---')
+      .replace(/\[إضافي\]/g, extraInfo);
+      
+    if (includeDiscount) msg += `\n\n🎁 كود خصم خاص لك: *${discountCode}*`;
     setGeneratedMsg(msg);
   };
 
@@ -217,24 +178,11 @@ export default function WhatsAppProHub() {
     window.open(url, '_blank');
   };
 
-  const exportToCSV = () => {
-    if (contacts.length === 0) return alert('لا توجد بيانات للتصدير.');
-    const headers = "الاسم,الجوال,رقم الطلب,التصنيف,الحالة,إجمالي المشتريات (رس),الملاحظات,التاريخ\n";
-    const rows = contacts.map(c => `"${c.name}","${c.phone}","${c.orderNumber}","${c.category}","${c.status}",${c.amount},"${c.note}","${c.date}"`).join("\n");
-    const blob = new Blob(["\uFEFF" + headers + rows], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "engazia_crm_export.csv";
-    link.click();
-  };
-
-  const filteredContacts = contacts.filter(c => {
-    const matchesSearch = c.name.toLowerCase().includes(searchTerm.toLowerCase()) || c.phone.includes(searchTerm) || (c.orderNumber && c.orderNumber.includes(searchTerm));
-    const matchesCat = filterCategory === 'all' || c.category === filterCategory;
-    return matchesSearch && matchesCat;
-  });
-
+  const totalValidSales = contacts.filter(c => c.category !== 'سلة متروكة' && c.category !== 'بانتظار الدفع').reduce((acc, c) => acc + c.amount, 0);
+  const filteredContacts = contacts.filter(c => 
+    (c.name.toLowerCase().includes(searchTerm.toLowerCase()) || c.phone.includes(searchTerm) || c.orderNumber.includes(searchTerm)) &&
+    (filterCategory === 'all' || c.category === filterCategory)
+  );
   const matchingCustomers = customerName.trim() === '' ? [] : contacts.filter(c => c.name.toLowerCase().includes(customerName.toLowerCase()));
   const broadcastList = contacts.filter(c => c.category === broadcastCat);
 
@@ -242,484 +190,385 @@ export default function WhatsAppProHub() {
     <div className="app-container">
       <style jsx>{`
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
-        .app-container { background: #f8fafc; color: #0f172a; min-height: 100vh; font-family: 'Tajawal', sans-serif; direction: rtl; padding: 25px 15px 50px; }
-        .wrapper { max-width: 1050px; margin: 0 auto; background: #fff; border-radius: 16px; padding: 25px; border: 1px solid #cbd5e1; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
-        .back-link { color: #4f46e5; text-decoration: none; font-weight: 700; font-size: 13px; display: inline-block; margin-bottom: 15px; }
-        .header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
-        .title { font-size: 22px; font-weight: 900; color: #0f172a; }
-        .desc { color: #64748b; font-size: 13px; }
+        .app-container { background: #f1f5f9; color: #0f172a; min-height: 100vh; font-family: 'Tajawal', sans-serif; direction: rtl; padding: 30px 15px; }
+        .wrapper { max-width: 1100px; margin: 0 auto; background: #fff; border-radius: 20px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.04); border: 1px solid #e2e8f0; }
+        
+        .header-brand { text-align: center; margin-bottom: 30px; }
+        .brand-title { font-size: 28px; font-weight: 900; color: #1e293b; letter-spacing: -0.5px; margin-bottom: 5px; }
+        .brand-title span { color: #4f46e5; }
+        .brand-desc { color: #64748b; font-size: 14px; font-weight: 500; }
 
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 20px; }
-        .stat-card { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px; padding: 12px 10px; text-align: center; }
-        .stat-num { font-size: 16px; font-weight: 900; color: #4f46e5; margin-top: 4px; }
-        .stat-title { font-size: 11px; color: #64748b; font-weight: 800; }
+        .nav-tabs { display: flex; gap: 10px; border-bottom: 2px solid #e2e8f0; padding-bottom: 15px; margin-bottom: 25px; overflow-x: auto; justify-content: center; }
+        .tab-btn { background: transparent; border: none; padding: 10px 20px; border-radius: 12px; font-weight: 800; font-size: 14px; color: #64748b; cursor: pointer; transition: all 0.3s; white-space: nowrap; }
+        .tab-btn:hover { background: #f8fafc; color: #334155; }
+        .tab-btn.active { background: #4f46e5; color: #fff; box-shadow: 0 4px 12px rgba(79,70,229,0.3); }
 
-        .nav-tabs { display: flex; gap: 6px; border-bottom: 1px solid #e2e8f0; padding-bottom: 12px; margin-bottom: 20px; overflow-x: auto; }
-        .tab-btn { background: #f1f5f9; border: 1px solid #cbd5e1; padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 12px; color: #475569; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
-        .tab-btn.active { background: #4f46e5; color: #fff; border-color: #4f46e5; box-shadow: 0 2px 6px rgba(79,70,229,0.2); }
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 30px; }
+        .stat-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.02); transition: transform 0.2s; }
+        .stat-card:hover { transform: translateY(-3px); }
+        .stat-num { font-size: 24px; font-weight: 900; color: #1e293b; margin-top: 8px; }
+        .stat-title { font-size: 13px; color: #64748b; font-weight: 700; }
 
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
-        .form-group { margin-bottom: 12px; position: relative; }
-        .form-group label { display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 5px; }
-        .form-control { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; outline: none; font-family: 'Tajawal', sans-serif; background: #f8fafc; color: #0f172a; font-weight: 700; }
-        .form-control:focus { border-color: #4f46e5; background: #fff; box-shadow: 0 0 0 3px rgba(79,70,229,0.1); }
+        .section-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 16px; padding: 25px; margin-bottom: 20px; }
+        .section-title { font-size: 16px; font-weight: 900; color: #1e293b; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
 
-        .suggestions-box { position: absolute; top: 100%; right: 0; left: 0; background: #fff; border: 1px solid #cbd5e1; border-radius: 8px; max-height: 160px; overflow-y: auto; z-index: 10; box-shadow: 0 4px 10px rgba(0,0,0,0.08); margin-top: 4px; }
-        .suggestion-item { padding: 8px 12px; font-size: 13px; font-weight: 700; cursor: pointer; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; }
+        .form-group { margin-bottom: 15px; position: relative; }
+        .form-group label { display: block; font-size: 12px; font-weight: 800; color: #475569; margin-bottom: 6px; }
+        .form-control { width: 100%; padding: 12px 15px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 13px; outline: none; font-family: 'Tajawal', sans-serif; background: #fff; color: #1e293b; font-weight: 700; transition: border-color 0.2s; }
+        .form-control:focus { border-color: #4f46e5; box-shadow: 0 0 0 3px rgba(79,70,229,0.1); }
+
+        .btn-main { background: #4f46e5; color: #fff; border: none; padding: 12px 24px; border-radius: 10px; font-weight: 800; font-size: 14px; cursor: pointer; transition: all 0.2s; width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-main:hover { background: #4338ca; transform: translateY(-1px); }
+        .btn-wa { background: #10b981; color: #fff; border: none; padding: 12px 24px; border-radius: 10px; font-weight: 800; font-size: 14px; cursor: pointer; transition: all 0.2s; flex: 1; }
+        .btn-wa:hover { background: #059669; }
+        
+        .btn-sm { padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; border: none; transition: 0.2s; }
+        .btn-success { background: #dcfce7; color: #15803d; }
+        .btn-success:hover { background: #bbf7d0; }
+        .btn-edit { background: #e0e7ff; color: #4f46e5; }
+        .btn-danger { background: #fee2e2; color: #dc2626; }
+
+        .table-container { overflow-x: auto; background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; }
+        .contacts-table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: right; }
+        .contacts-table th, .contacts-table td { padding: 12px 15px; border-bottom: 1px solid #f1f5f9; }
+        .contacts-table th { background: #f8fafc; color: #475569; font-weight: 800; white-space: nowrap; }
+        .contacts-table tr:hover { background: #fcfcfc; }
+
+        .suggestions-box { position: absolute; top: 100%; right: 0; left: 0; background: #fff; border: 1px solid #cbd5e1; border-radius: 10px; max-height: 180px; overflow-y: auto; z-index: 10; box-shadow: 0 10px 25px rgba(0,0,0,0.1); margin-top: 5px; }
+        .suggestion-item { padding: 10px 15px; font-size: 13px; font-weight: 700; cursor: pointer; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; }
         .suggestion-item:hover { background: #f8fafc; color: #4f46e5; }
 
-        .templates-selector { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 15px; }
-        .template-btn { padding: 8px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; font-weight: 700; font-size: 12px; color: #334155; cursor: pointer; text-align: center; }
-        .template-btn.active { background: #e0e7ff; color: #4f46e5; border-color: #4f46e5; }
+        .templates-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 15px; }
+        .template-card { padding: 10px; border: 2px solid #e2e8f0; border-radius: 12px; cursor: pointer; text-align: center; font-weight: 800; font-size: 12px; color: #64748b; transition: 0.2s; background: #fff; }
+        .template-card.active { border-color: #4f46e5; color: #4f46e5; background: #eef2ff; }
 
-        .btn-main { background: #4f46e5; color: #fff; border: none; padding: 12px 20px; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer; width: 100%; transition: background 0.2s; }
-        .btn-main:hover { background: #4338ca; }
+        .result-box { background: #fff; border: 2px dashed #cbd5e1; padding: 20px; border-radius: 16px; margin-top: 20px; }
+        .msg-preview { background: #f8fafc; padding: 15px; border-radius: 10px; font-size: 14px; line-height: 1.7; white-space: pre-wrap; margin-bottom: 15px; color: #1e293b; font-weight: 500; border: 1px solid #e2e8f0; }
 
-        .result-box { margin-top: 15px; background: #f8fafc; border: 1px solid #cbd5e1; padding: 15px; border-radius: 10px; }
-        .result-content { background: #fff; padding: 12px; border-radius: 6px; border: 1px solid #e2e8f0; white-space: pre-wrap; font-size: 13px; line-height: 1.6; margin-bottom: 12px; }
-        .action-row { display: flex; gap: 8px; }
-        .btn-wa { background: #10b981; color: #fff; border: none; padding: 10px 16px; border-radius: 6px; font-weight: 800; font-size: 13px; cursor: pointer; flex: 1; display: flex; align-items: center; justify-content: center; gap: 5px; }
-        .btn-wa:hover { background: #059669; }
-
-        .contacts-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
-        .contacts-table th, .contacts-table td { padding: 10px; border-bottom: 1px solid #e2e8f0; text-align: right; }
-        .contacts-table th { background: #f1f5f9; color: #334155; font-weight: 800; }
-
-        .btn-sm { padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; border: none; }
-        .btn-danger { background: #fee2e2; color: #dc2626; }
-        .btn-success { background: #dcfce7; color: #15803d; }
-        .btn-edit { background: #e0e7ff; color: #4f46e5; }
-
-        .toolbar { display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap; justify-content: space-between; align-items: center; }
-        .toolbar-group { display: flex; gap: 8px; flex: 1; }
-        .toolbar input, .toolbar select { padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; background: #fff; }
-
-        @media(max-width: 768px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } .form-grid { grid-template-columns: 1fr; } .templates-selector { grid-template-columns: 1fr 1fr; } }
+        .badge { display: inline-block; padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 800; }
+        
+        .radio-group { display: flex; gap: 10px; margin-bottom: 20px; background: #e2e8f0; padding: 4px; border-radius: 12px; width: fit-content; }
+        .radio-btn { padding: 8px 20px; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer; color: #64748b; border: none; background: transparent; transition: 0.3s; }
+        .radio-btn.active { background: #fff; color: #1e293b; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
       `}</style>
 
       <div className="wrapper">
-        <Link href="/hub" className="back-link">← العودة للوحة الرئيسية</Link>
-        
-        <div className="header-flex">
-          <div>
-            <h2 className="title">🚀 منصة إنجازيا لعملاء واتساب (PRO MAX)</h2>
-            <p className="desc">إدارة العملاء، التصنيفات المخصصة، والتعديل الفوري للألوان والأسماء.</p>
-          </div>
+        <div className="header-brand">
+          <h1 className="brand-title">منصة <span>Jasmal</span> CRM</h1>
+          <p className="brand-desc">النظام الأذكى لإدارة عملاء التجارة الإلكترونية وأتمتة المراسلات</p>
         </div>
 
-        {/* إحصائيات حية */}
-        <div className="stats-grid">
-          {categories.map(cat => {
-            const count = contacts.filter(c => c.category === cat.name).length;
-            return (
-              <div key={cat.name} className="stat-card" style={{ borderRight: `4px solid ${cat.color}` }}>
-                <div className="stat-title">{cat.name}</div>
-                <div className="stat-num">{count}</div>
-              </div>
-            );
-          })}
-          <div className="stat-card" style={{ borderRight: '4px solid #4f46e5' }}>
-            <div className="stat-title">إجمالي المبيعات الفعلية</div>
-            <div className="stat-num" style={{ fontSize: '13px' }}>{totalValidSales.toLocaleString()} ر.س</div>
-          </div>
-        </div>
-
-        {/* شريط التنقل */}
         <div className="nav-tabs">
-          <button className={`tab-btn ${activeTab === 'generator' ? 'active' : ''}`} onClick={() => setActiveTab('generator')}>⚡ مولد الرسائل والخصم</button>
-          <button className={`tab-btn ${activeTab === 'crm' ? 'active' : ''}`} onClick={() => setActiveTab('crm')}>👥 إدارة العملاء (CRM)</button>
-          <button className={`tab-btn ${activeTab === 'tags' ? 'active' : ''}`} onClick={() => setActiveTab('tags')}>🏷️ إدارة التصنيفات والألوان</button>
-          <button className={`tab-btn ${activeTab === 'broadcast' ? 'active' : ''}`} onClick={() => setActiveTab('broadcast')}>📢 الحملات الذكية</button>
-          <button className={`tab-btn ${activeTab === 'templates' ? 'active' : ''}`} onClick={() => setActiveTab('templates')}>📋 الردود الجاهزة</button>
-          <button className={`tab-btn ${activeTab === 'links' ? 'active' : ''}`} onClick={() => setActiveTab('links')}>🔗 صانع الروابط</button>
+          <button className={`tab-btn ${activeTab === 'dashboard' ? 'active' : ''}`} onClick={() => setActiveTab('dashboard')}>📊 لوحة القيادة</button>
+          <button className={`tab-btn ${activeTab === 'crm' ? 'active' : ''}`} onClick={() => setActiveTab('crm')}>👥 إدارة العملاء</button>
+          <button className={`tab-btn ${activeTab === 'messaging' ? 'active' : ''}`} onClick={() => setActiveTab('messaging')}>💬 المراسلات والحملات</button>
+          <button className={`tab-btn ${activeTab === 'tags' ? 'active' : ''}`} onClick={() => setActiveTab('tags')}>⚙️ الإعدادات</button>
         </div>
 
-        {/* 1. مولد الرسائل والخصومات */}
-        {activeTab === 'generator' && (
+        {/* 1. Dashboard */}
+        {activeTab === 'dashboard' && (
           <div>
-            <div className="form-group">
-              <label>اختر قالب الحالة التسويقية:</label>
-              <div className="templates-selector">
-                <button className={`template-btn ${templateType === 'confirm' ? 'active' : ''}`} onClick={() => setTemplateType('confirm')}>✅ تأكيد الطلب</button>
-                <button className={`template-btn ${templateType === 'abandoned' ? 'active' : ''}`} onClick={() => setTemplateType('abandoned')}>🛒 السلة المتروكة</button>
-                <button className={`template-btn ${templateType === 'shipping' ? 'active' : ''}`} onClick={() => setTemplateType('shipping')}>📦 تتبع الشحنة</button>
-                <button className={`template-btn ${templateType === 'payment' ? 'active' : ''}`} onClick={() => setTemplateType('payment')}>💳 رابط الدفع</button>
+            <div className="section-title">مؤشرات الأداء المباشرة</div>
+            <div className="dashboard-grid">
+              <div className="stat-card" style={{ borderBottom: '4px solid #4f46e5' }}>
+                <div className="stat-title">إجمالي المبيعات الفعلية</div>
+                <div className="stat-num">{totalValidSales.toLocaleString()} <span style={{fontSize:'14px'}}>ر.س</span></div>
               </div>
-            </div>
-
-            <div className="form-grid">
-              <div className="form-group" ref={suggestionsRef}>
-                <label>اسم العميل (اختر من الـ CRM)</label>
-                <input 
-                  type="text" 
-                  className="form-control" 
-                  placeholder="ابدأ كتابة اسم العميل..." 
-                  value={customerName} 
-                  onChange={e => {
-                    setCustomerName(e.target.value);
-                    setShowSuggestions(true);
-                  }}
-                  onFocus={() => setShowSuggestions(true)}
-                />
-                {showSuggestions && matchingCustomers.length > 0 && (
-                  <div className="suggestions-box">
-                    {matchingCustomers.map(cust => (
-                      <div 
-                        key={cust.id} 
-                        className="suggestion-item"
-                        onClick={() => {
-                          setCustomerName(cust.name);
-                          setCustomerPhone(cust.phone);
-                          setOrderNumber(cust.orderNumber || '');
-                          setShowSuggestions(false);
-                        }}
-                      >
-                        <span>{cust.name} ({cust.orderNumber})</span>
-                        <span style={{ color: '#64748b', fontSize: '11px' }}>{cust.phone}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
+              <div className="stat-card" style={{ borderBottom: '4px solid #10b981' }}>
+                <div className="stat-title">إجمالي العملاء</div>
+                <div className="stat-num">{contacts.length}</div>
               </div>
-
-              <div className="form-group">
-                <label>رقم جوال العميل</label>
-                <input 
-                  type="text" 
-                  className="form-control" 
-                  placeholder="يظهر تلقائياً..." 
-                  value={customerPhone} 
-                  onChange={e => setCustomerPhone(e.target.value)} 
-                />
-              </div>
-
-              <div className="form-group">
-                <label>رقم الطلب أو الفاتورة</label>
-                <input 
-                  type="text" 
-                  className="form-control" 
-                  placeholder="#5421 (يظهر تلقائياً عند اختيار العميل)" 
-                  value={orderNumber} 
-                  onChange={e => setOrderNumber(e.target.value)} 
-                />
-              </div>
-              
-              <div className="form-group">
-                <label>رابط الدفع السريع (اختياري)</label>
-                <input type="text" className="form-control" placeholder="https://..." value={extraInfo} onChange={e => setExtraInfo(e.target.value)} />
-              </div>
-            </div>
-
-            <div style={{ background: '#f8fafc', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', marginBottom: '15px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <input type="checkbox" id="discCheck" checked={includeDiscount} onChange={e => setIncludeDiscount(e.target.checked)} style={{ width: '18px', height: '18px', accentColor: '#4f46e5' }} />
-                <label htmlFor="discCheck" style={{ fontSize: '13px', fontWeight: '800', cursor: 'pointer', margin: 0 }}>إرفاق كود خصم تحفيزي مع الرسالة</label>
-              </div>
-              {includeDiscount && (
-                <input type="text" className="form-control" style={{ width: '140px', padding: '6px' }} value={discountCode} onChange={e => setDiscountCode(e.target.value)} placeholder="كود الخصم" />
-              )}
-            </div>
-
-            <button className="btn-main" onClick={generateMessage}>⚡ توليد وصياغة الرسالة الفورية</button>
-
-            {generatedMsg && (
-              <div className="result-box">
-                <div className="result-content">{generatedMsg}</div>
-                <div className="action-row">
-                  <button className="btn-main" onClick={() => { navigator.clipboard.writeText(generatedMsg); alert('تم النسخ بنجاح!'); }}>📋 نسخ النص</button>
-                  <button className="btn-wa" onClick={() => openWhatsApp(customerPhone, generatedMsg)}>🟢 مراسلة عبر واتساب</button>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* 2. إدارة الـ CRM المتقدمة */}
-        {activeTab === 'crm' && (
-          <div>
-            <form onSubmit={addContact} style={{ background: '#f8fafc', padding: '15px', borderRadius: '10px', marginBottom: '20px', border: '1px solid #cbd5e1' }}>
-              <h3 style={{ fontSize: '13px', fontWeight: '900', marginBottom: '10px' }}>➕ تسجيل عميل جديد مع رقم الطلب والتصنيف</h3>
-              <div className="form-grid">
-                <div className="form-group">
-                  <input type="text" className="form-control" placeholder="اسم العميل" value={newName} onChange={e => setNewName(e.target.value)} required />
-                </div>
-                <div className="form-group">
-                  <input type="text" className="form-control" placeholder="رقم الجوال (05xxxxxxx)" value={newPhone} onChange={e => setNewPhone(e.target.value)} required />
-                </div>
-                <div className="form-group">
-                  <input type="text" className="form-control" placeholder="رقم الطلب أو الفاتورة (مثال: #5421)" value={newOrderNumber} onChange={e => setNewOrderNumber(e.target.value)} />
-                </div>
-                <div className="form-group">
-                  <select className="form-control" value={newCategory} onChange={e => setNewCategory(e.target.value)}>
-                    {categories.map(cat => (
-                      <option key={cat.name} value={cat.name}>{cat.name}</option>
-                    ))}
-                  </select>
-                </div>
-                <div className="form-group" style={{ gridColumn: 'span 2' }}>
-                  <input type="number" className="form-control" placeholder="إجمالي المشتريات (ر.س)" value={newAmount || ''} onChange={e => setNewAmount(Number(e.target.value))} />
-                </div>
-              </div>
-              <button type="submit" className="btn-main" style={{ padding: '10px' }}>حفظ العميل في قاعدة البيانات</button>
-            </form>
-
-            <div className="toolbar">
-              <div className="toolbar-group">
-                <input type="text" placeholder="🔍 بحث بالاسم، الجوال، أو رقم الطلب..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
-                <select value={filterCategory} onChange={e => setFilterCategory(e.target.value)}>
-                  <option value="all">كل التصنيفات</option>
-                  {categories.map(cat => (
-                    <option key={cat.name} value={cat.name}>{cat.name}</option>
-                  ))}
-                </select>
-              </div>
-              <button className="btn-sm btn-success" style={{ padding: '8px 14px' }} onClick={exportToCSV}>📥 تصدير ملف إكسل CSV</button>
-            </div>
-
-            {filteredContacts.length === 0 ? (
-              <p style={{ color: '#64748b', fontSize: '13px', textAlign: 'center', padding: '30px' }}>لا توجد بيانات عملاء مسجلة حالياً.</p>
-            ) : (
-              <div style={{ overflowX: 'auto' }}>
-                <table className="contacts-table">
-                  <thead>
-                    <tr>
-                      <th>الاسم</th>
-                      <th>الجوال</th>
-                      <th>رقم الطلب</th>
-                      <th>التصنيف التجاري</th>
-                      <th>المشتريات</th>
-                      <th>التاريخ</th>
-                      <th>الإجراءات</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredContacts.map(c => (
-                      <tr key={c.id}>
-                        <td>
-                          <input 
-                            type="text" 
-                            className="form-control" 
-                            style={{ padding: '4px 8px', fontSize: '12px', fontWeight: '800', width: '120px' }} 
-                            value={c.name} 
-                            onChange={e => updateCustomerField(c.id, 'name', e.target.value)} 
-                          />
-                        </td>
-                        <td>
-                          <input 
-                            type="text" 
-                            className="form-control" 
-                            style={{ padding: '4px 8px', fontSize: '12px', width: '110px', fontWeight: '800' }} 
-                            value={c.phone} 
-                            onChange={e => updateCustomerField(c.id, 'phone', e.target.value)} 
-                          />
-                        </td>
-                        <td>
-                          <input 
-                            type="text" 
-                            className="form-control" 
-                            style={{ padding: '4px 8px', fontSize: '12px', width: '90px', fontWeight: '800', color: '#0f172a' }} 
-                            value={c.orderNumber || ''} 
-                            placeholder="#..."
-                            onChange={e => updateCustomerField(c.id, 'orderNumber', e.target.value)} 
-                          />
-                        </td>
-                        <td>
-                          <select 
-                            className="form-control" 
-                            style={{ padding: '4px 8px', fontSize: '11px', fontWeight: '800', width: 'auto' }} 
-                            value={c.category} 
-                            onChange={e => updateCustomerField(c.id, 'category', e.target.value)}
-                          >
-                            {categories.map(cat => (
-                              <option key={cat.name} value={cat.name}>{cat.name}</option>
-                            ))}
-                          </select>
-                        </td>
-                        <td>
-                          <input 
-                            type="number" 
-                            className="form-control" 
-                            style={{ padding: '4px 8px', fontSize: '11px', width: '80px', fontWeight: '800', color: '#4f46e5' }} 
-                            value={c.amount} 
-                            onChange={e => updateCustomerField(c.id, 'amount', Number(e.target.value))} 
-                          />
-                        </td>
-                        <td style={{ color: '#64748b', fontSize: '11px' }}>{c.date}</td>
-                        <td>
-                          <div style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
-                            <button className="btn-sm btn-success" onClick={() => openWhatsApp(c.phone, `مرحباً ${c.name}، معك متجر إنجازيا بخصوص طلبك رقم (${c.orderNumber}).`)}>💬 مراسلة</button>
-                            <button className="btn-sm btn-edit" title="الحفظ تلقائي" onClick={() => alert('تم حفظ التعديلات تلقائياً بنجاح! ✅')}>✏️ تعديل</button>
-                            <button className="btn-sm btn-danger" onClick={() => deleteContact(c.id)}>حذف</button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* 3. إدارة التصنيفات والألوان المخصصة (مع إمكانية التعديل المباشر في الأسفل) */}
-        {activeTab === 'tags' && (
-          <div>
-            <h3 style={{ fontSize: '14px', fontWeight: '900', marginBottom: '10px' }}>🏷️ تخصيص وإضافة تصنيفات العملاء</h3>
-            <p style={{ color: '#64748b', fontSize: '12px', marginBottom: '15px' }}>قم بإنشاء تصنيفات جديدة أو تعديل تصنيفاتك الحالية وألوانها بكل سهولة.</p>
-            
-            <form onSubmit={addCategory} style={{ background: '#f8fafc', padding: '15px', borderRadius: '10px', marginBottom: '20px', border: '1px solid #cbd5e1' }}>
-              <div className="form-grid" style={{ alignItems: 'center' }}>
-                <div className="form-group" style={{ margin: 0 }}>
-                  <label>اسم التصنيف الجديد</label>
-                  <input type="text" className="form-control" placeholder="مثال: بانتظار الشحن" value={newCatName} onChange={e => setNewCatName(e.target.value)} required />
-                </div>
-                <div className="form-group" style={{ margin: 0, display: 'flex', gap: '10px' }}>
-                  <div style={{ flex: 1 }}>
-                    <label>لون الخلفية</label>
-                    <input type="color" className="form-control" style={{ height: '38px', padding: '2px' }} value={newCatBg} onChange={e => setNewCatBg(e.target.value)} />
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <label>لون النص</label>
-                    <input type="color" className="form-control" style={{ height: '38px', padding: '2px' }} value={newCatColor} onChange={e => setNewCatColor(e.target.value)} />
-                  </div>
-                </div>
-              </div>
-              <button type="submit" className="btn-main" style={{ marginTop: '12px', padding: '10px' }}>➕ إضافة التصنيف الجديد</button>
-            </form>
-
-            <h4 style={{ fontSize: '13px', fontWeight: '900', marginBottom: '10px' }}>التصنيفات الحالية في المتجر (قابل للتعديل المباشر):</h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {categories.map((cat, idx) => (
-                <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fff', padding: '12px 15px', borderRadius: '8px', border: '1px solid #cbd5e1', flexWrap: 'wrap', gap: '10px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1, minWidth: '220px' }}>
-                    <input 
-                      type="text" 
-                      className="form-control" 
-                      value={cat.name} 
-                      onChange={e => updateCategory(idx, 'name', e.target.value)} 
-                      style={{ fontWeight: '800', width: '160px' }}
-                    />
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                      <span style={{ fontSize: '11px', fontWeight: '700', color: '#64748b' }}>خلفية:</span>
-                      <input 
-                        type="color" 
-                        value={cat.bg} 
-                        onChange={e => updateCategory(idx, 'bg', e.target.value)} 
-                        style={{ width: '32px', height: '32px', border: '1px solid #cbd5e1', borderRadius: '6px', cursor: 'pointer', padding: 0 }}
-                      />
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                      <span style={{ fontSize: '11px', fontWeight: '700', color: '#64748b' }}>نص:</span>
-                      <input 
-                        type="color" 
-                        value={cat.color} 
-                        onChange={e => updateCategory(idx, 'color', e.target.value)} 
-                        style={{ width: '32px', height: '32px', border: '1px solid #cbd5e1', borderRadius: '6px', cursor: 'pointer', padding: 0 }}
-                      />
-                    </div>
-                    <span className="badge" style={{ backgroundColor: cat.bg, color: cat.color, padding: '6px 12px', fontSize: '11px' }}>
-                      معاينة الشارة
-                    </span>
-                    <button className="btn-sm btn-danger" onClick={() => deleteCategory(cat.name)}>حذف</button>
-                  </div>
+              {categories.slice(0, 3).map(cat => (
+                <div key={cat.name} className="stat-card" style={{ borderBottom: `4px solid ${cat.color}` }}>
+                  <div className="stat-title">{cat.name}</div>
+                  <div className="stat-num">{contacts.filter(c => c.category === cat.name).length}</div>
                 </div>
               ))}
             </div>
+
+            <div className="section-title">أحدث العملاء تسجيلاً</div>
+            <div className="table-container">
+              <table className="contacts-table">
+                <thead>
+                  <tr>
+                    <th>الاسم</th>
+                    <th>الطلب</th>
+                    <th>التصنيف</th>
+                    <th>التاريخ</th>
+                    <th>إجراء سريع</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {contacts.slice(0, 5).map(c => (
+                    <tr key={c.id}>
+                      <td style={{fontWeight: 800}}>{c.name}</td>
+                      <td>{c.orderNumber}</td>
+                      <td>
+                        <span className="badge" style={{ background: categories.find(cat => cat.name === c.category)?.bg || '#eee', color: categories.find(cat => cat.name === c.category)?.color || '#000' }}>
+                          {c.category}
+                        </span>
+                      </td>
+                      <td style={{ color: '#64748b' }}>{c.date}</td>
+                      <td>
+                        <button className="btn-sm btn-success" onClick={() => routeToMessaging(c)}>💬 مراسلة</button>
+                      </td>
+                    </tr>
+                  ))}
+                  {contacts.length === 0 && <tr><td colSpan={5} style={{textAlign: 'center', padding: '30px', color: '#64748b'}}>لا يوجد عملاء بعد. انتقل لإدارة العملاء لإضافتهم.</td></tr>}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
 
-        {/* 4. الحملات الذكية مع نظام الطابور (Queue) */}
-        {activeTab === 'broadcast' && (
+        {/* 2. CRM */}
+        {activeTab === 'crm' && (
           <div>
-            <h3 style={{ fontSize: '14px', fontWeight: '900', marginBottom: '10px' }}>📢 الحملات التسويقية وطابور الإرسال الذكي</h3>
-            <div className="form-group">
-              <label>اختر الشريحة المستهدفة:</label>
-              <select className="form-control" value={broadcastCat} onChange={e => { setBroadcastCat(e.target.value); setBroadcastIndex(0); }}>
-                {categories.map(cat => (
-                  <option key={cat.name} value={cat.name}>{cat.name} ({contacts.filter(c => c.category === cat.name).length})</option>
+            <div className="section-box">
+              <div className="section-title">➕ تسجيل عميل جديد</div>
+              <form onSubmit={addContact}>
+                <div className="form-grid">
+                  <div className="form-group"><label>اسم العميل</label><input type="text" className="form-control" value={newName} onChange={e => setNewName(e.target.value)} required /></div>
+                  <div className="form-group"><label>رقم الجوال (05x)</label><input type="text" className="form-control" value={newPhone} onChange={e => setNewPhone(e.target.value)} required /></div>
+                  <div className="form-group"><label>رقم الطلب (#)</label><input type="text" className="form-control" value={newOrderNumber} onChange={e => setNewOrderNumber(e.target.value)} /></div>
+                  <div className="form-group">
+                    <label>التصنيف</label>
+                    <select className="form-control" value={newCategory} onChange={e => setNewCategory(e.target.value)}>
+                      {categories.map(cat => <option key={cat.name} value={cat.name}>{cat.name}</option>)}
+                    </select>
+                  </div>
+                  <div className="form-group"><label>المشتريات (ر.س)</label><input type="number" className="form-control" value={newAmount} onChange={e => setNewAmount(Number(e.target.value))} /></div>
+                </div>
+                <button type="submit" className="btn-main" style={{ width: 'auto' }}>حفظ وإضافة العميل</button>
+              </form>
+            </div>
+
+            <div className="section-box" style={{ padding: '15px 25px' }}>
+              <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap', alignItems: 'flex-end' }}>
+                <div className="form-group" style={{ flex: 1, margin: 0 }}><input type="text" className="form-control" placeholder="🔍 بحث بالاسم، الجوال، أو رقم الطلب..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} /></div>
+                <div className="form-group" style={{ flex: 1, margin: 0 }}>
+                  <select className="form-control" value={filterCategory} onChange={e => setFilterCategory(e.target.value)}>
+                    <option value="all">كل التصنيفات</option>
+                    {categories.map(cat => <option key={cat.name} value={cat.name}>{cat.name}</option>)}
+                  </select>
+                </div>
+                <button className="btn-sm btn-edit" style={{ padding: '12px 20px' }} onClick={exportToCSV}>📥 تصدير CSV</button>
+              </div>
+            </div>
+
+            <div className="table-container">
+              <table className="contacts-table">
+                <thead>
+                  <tr>
+                    <th>الاسم</th>
+                    <th>الجوال</th>
+                    <th>الطلب</th>
+                    <th>التصنيف</th>
+                    <th>المشتريات</th>
+                    <th>الإجراءات</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredContacts.map(c => (
+                    <tr key={c.id}>
+                      <td><input type="text" className="form-control" style={{ padding: '6px', fontSize: '12px', width: '120px' }} value={c.name} onChange={e => updateCustomerField(c.id, 'name', e.target.value)} /></td>
+                      <td><input type="text" className="form-control" style={{ padding: '6px', fontSize: '12px', width: '110px' }} value={c.phone} onChange={e => updateCustomerField(c.id, 'phone', e.target.value)} /></td>
+                      <td><input type="text" className="form-control" style={{ padding: '6px', fontSize: '12px', width: '80px', color: '#4f46e5' }} value={c.orderNumber} onChange={e => updateCustomerField(c.id, 'orderNumber', e.target.value)} /></td>
+                      <td>
+                        <select className="form-control" style={{ padding: '6px', fontSize: '12px' }} value={c.category} onChange={e => updateCustomerField(c.id, 'category', e.target.value)}>
+                          {categories.map(cat => <option key={cat.name} value={cat.name}>{cat.name}</option>)}
+                        </select>
+                      </td>
+                      <td><input type="number" className="form-control" style={{ padding: '6px', fontSize: '12px', width: '80px' }} value={c.amount} onChange={e => updateCustomerField(c.id, 'amount', Number(e.target.value))} /></td>
+                      <td>
+                        <div style={{ display: 'flex', gap: '5px' }}>
+                          <button className="btn-sm btn-success" onClick={() => routeToMessaging(c)}>💬 مراسلة</button>
+                          <button className="btn-sm btn-danger" onClick={() => deleteContact(c.id)}>حذف</button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* 3. Messaging Engine (Unified Single & Broadcast) */}
+        {activeTab === 'messaging' && (
+          <div>
+            <div className="radio-group">
+              <button className={`radio-btn ${messagingMode === 'single' ? 'active' : ''}`} onClick={() => setMessagingMode('single')}>رسالة لعميل محدد</button>
+              <button className={`radio-btn ${messagingMode === 'broadcast' ? 'active' : ''}`} onClick={() => setMessagingMode('broadcast')}>حملة جماعية (طابور)</button>
+            </div>
+
+            <div className="section-box">
+              {messagingMode === 'single' ? (
+                <>
+                  <div className="section-title">1. بيانات العميل المستهدف</div>
+                  <div className="form-grid">
+                    <div className="form-group" ref={suggestionsRef}>
+                      <label>ابحث عن عميل من الـ CRM</label>
+                      <input type="text" className="form-control" placeholder="اكتب اسم العميل لجلبه تلقائياً..." value={customerName} onChange={e => { setCustomerName(e.target.value); setShowSuggestions(true); }} onFocus={() => setShowSuggestions(true)} />
+                      {showSuggestions && matchingCustomers.length > 0 && (
+                        <div className="suggestions-box">
+                          {matchingCustomers.map(cust => (
+                            <div key={cust.id} className="suggestion-item" onClick={() => { setCustomerName(cust.name); setCustomerPhone(cust.phone); setOrderNumber(cust.orderNumber); setShowSuggestions(false); }}>
+                              <span>{cust.name} <small style={{color: '#94a3b8'}}>({cust.orderNumber})</small></span>
+                              <span style={{ color: '#4f46e5' }}>{cust.phone}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    <div className="form-group"><label>رقم الجوال</label><input type="text" className="form-control" value={customerPhone} onChange={e => setCustomerPhone(e.target.value)} /></div>
+                    <div className="form-group"><label>رقم الطلب</label><input type="text" className="form-control" value={orderNumber} onChange={e => setOrderNumber(e.target.value)} /></div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="section-title">1. استهداف شريحة من العملاء</div>
+                  <div className="form-group" style={{ maxWidth: '400px' }}>
+                    <label>اختر التصنيف المستهدف بالحملة:</label>
+                    <select className="form-control" value={broadcastCat} onChange={e => { setBroadcastCat(e.target.value); setBroadcastIndex(0); }}>
+                      {categories.map(cat => <option key={cat.name} value={cat.name}>{cat.name} ({contacts.filter(c => c.category === cat.name).length} عميل)</option>)}
+                    </select>
+                  </div>
+                </>
+              )}
+            </div>
+
+            <div className="section-box">
+              <div className="section-title">2. اختر أو صمم رسالتك</div>
+              <div className="templates-grid">
+                {templates.map(tpl => (
+                  <div key={tpl.id} className={`template-card ${activeTemplateId === tpl.id ? 'active' : ''}`} onClick={() => setActiveTemplateId(tpl.id)}>
+                    {tpl.title}
+                  </div>
                 ))}
-              </select>
-            </div>
-            <div className="form-group">
-              <label>نص الرسالة الجماعية:</label>
-              <textarea className="form-control" rows={3} value={broadcastText} onChange={e => setBroadcastText(e.target.value)}></textarea>
+              </div>
+              
+              <div className="form-grid" style={{ marginTop: '20px' }}>
+                <div className="form-group">
+                  <label>معلومة إضافية متغيرة (تستبدل كلمة [إضافي] في القوالب)</label>
+                  <input type="text" className="form-control" placeholder="رابط الدفع، تفاصيل، الخ..." value={extraInfo} onChange={e => setExtraInfo(e.target.value)} />
+                </div>
+                <div className="form-group">
+                  <label>
+                    <input type="checkbox" checked={includeDiscount} onChange={e => setIncludeDiscount(e.target.checked)} style={{marginLeft: '8px'}}/>
+                    إرفاق كود خصم تحفيزي بنهاية الرسالة
+                  </label>
+                  {includeDiscount && <input type="text" className="form-control" value={discountCode} onChange={e => setDiscountCode(e.target.value)} />}
+                </div>
+              </div>
             </div>
 
-            {broadcastList.length === 0 ? (
-              <p style={{ color: '#64748b', fontSize: '13px', textAlign: 'center', padding: '20px' }}>لا توجد أرقام مسجلة ضمن هذه الشريحة.</p>
+            {messagingMode === 'single' ? (
+              <>
+                <button className="btn-main" onClick={handleGenerateMessage}>⚡ توليد ومعاينة الرسالة</button>
+                {generatedMsg && (
+                  <div className="result-box">
+                    <div className="section-title" style={{ fontSize: '13px', color: '#64748b' }}>شكل الرسالة النهائي:</div>
+                    <div className="msg-preview">{generatedMsg}</div>
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                      <button className="btn-main" style={{ flex: 1, background: '#f1f5f9', color: '#1e293b' }} onClick={() => { navigator.clipboard.writeText(generatedMsg); alert('تم النسخ!'); }}>📋 نسخ فقط</button>
+                      <button className="btn-wa" style={{ flex: 2 }} onClick={() => openWhatsApp(customerPhone, generatedMsg)}>🟢 إرسال عبر واتساب</button>
+                    </div>
+                  </div>
+                )}
+              </>
             ) : (
-              <div style={{ background: '#f8fafc', padding: '20px', borderRadius: '12px', border: '1px solid #cbd5e1', textAlign: 'center' }}>
-                <p style={{ fontSize: '13px', fontWeight: '800', marginBottom: '10px' }}>
-                  العميل الحالي في الطابور: <span style={{ color: '#4f46e5' }}>{broadcastIndex + 1}</span> من {broadcastList.length}
-                </p>
-                <div style={{ background: '#fff', padding: '15px', borderRadius: '8px', border: '1px solid #e2e8f0', marginBottom: '15px', fontWeight: '900', fontSize: '16px' }}>
-                  {broadcastList[broadcastIndex]?.name} ({broadcastList[broadcastIndex]?.phone}) - طلب #{broadcastList[broadcastIndex]?.orderNumber}
-                </div>
-                <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap' }}>
-                  <button className="btn-wa" style={{ flex: 'none', padding: '12px 25px' }} onClick={() => {
-                    const current = broadcastList[broadcastIndex];
-                    openWhatsApp(current.phone, `مرحباً ${current.name}، ${broadcastText}`);
-                  }}>🟢 إرسال للعميل الحالي</button>
-                  <button className="btn-main" style={{ flex: 'none', width: 'auto', padding: '12px 25px' }} onClick={() => {
-                    if (broadcastIndex < broadcastList.length - 1) setBroadcastIndex(broadcastIndex + 1);
-                    else alert('لقد أتممت إرسال الحملة لكافة العملاء في هذه الشريحة!');
-                  }}>التالي ⬅️</button>
-                </div>
+              <div className="result-box" style={{ background: '#f8fafc', border: '1px solid #e2e8f0' }}>
+                {broadcastList.length === 0 ? (
+                  <p style={{ textAlign: 'center', color: '#dc2626', fontWeight: 800 }}>لا يوجد عملاء في هذه الشريحة.</p>
+                ) : (
+                  <div style={{ textAlign: 'center' }}>
+                    <p style={{ fontSize: '14px', fontWeight: 800, marginBottom: '15px' }}>
+                      العميل الحالي: <span style={{ color: '#4f46e5' }}>{broadcastIndex + 1}</span> من {broadcastList.length}
+                    </p>
+                    <div className="msg-preview" style={{ background: '#fff' }}>
+                      يتم إرسال رسالة لـ: <strong>{broadcastList[broadcastIndex]?.name}</strong> <br/>
+                      جوال: {broadcastList[broadcastIndex]?.phone} | طلب: {broadcastList[broadcastIndex]?.orderNumber}
+                    </div>
+                    <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+                      <button className="btn-wa" onClick={() => {
+                        const c = broadcastList[broadcastIndex];
+                        setCustomerName(c.name); setOrderNumber(c.orderNumber); setCustomerPhone(c.phone);
+                        // توليد وإرسال مباشر
+                        const tpl = templates.find(t => t.id === activeTemplateId)?.text || '';
+                        let msg = tpl.replace(/\[الاسم\]/g, c.name).replace(/\[الطلب\]/g, c.orderNumber).replace(/\[إضافي\]/g, extraInfo);
+                        if(includeDiscount) msg += `\n\n🎁 كود خصم خاص لك: *${discountCode}*`;
+                        openWhatsApp(c.phone, msg);
+                      }}>🟢 إرسال للعميل الحالي</button>
+                      <button className="btn-main" style={{ width: 'auto', background: '#334155' }} onClick={() => {
+                        if (broadcastIndex < broadcastList.length - 1) setBroadcastIndex(broadcastIndex + 1);
+                        else alert('انتهت القائمة!');
+                      }}>التالي ⬅️</button>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
         )}
 
-        {/* 5. الردود الجاهزة المخصصة */}
-        {activeTab === 'templates' && (
+        {/* 4. Settings (Tags & Templates) */}
+        {activeTab === 'tags' && (
           <div>
-            <div style={{ background: '#f8fafc', padding: '15px', borderRadius: '10px', marginBottom: '15px', border: '1px solid #cbd5e1' }}>
-              <h3 style={{ fontSize: '13px', fontWeight: '900', marginBottom: '10px' }}>➕ إضافة قالب رد سريع جديد</h3>
-              <input type="text" className="form-control" placeholder="عنوان القالب (مثال: رد الاستفسار عن الشحن)" value={newTitle} onChange={e => setNewTitle(e.target.value)} style={{ marginBottom: '8px' }} />
-              <textarea className="form-control" rows={2} placeholder="نص الرد..." value={newText} onChange={e => setNewText(e.target.value)} style={{ marginBottom: '8px' }}></textarea>
-              <button className="btn-main" onClick={() => {
-                if (!newTitle || !newText) return alert('الرجاء إدخال العنوان والنص.');
-                setCustomTemplates([...customTemplates, { id: Date.now(), title: newTitle, text: newText }]);
-                setNewTitle('');
-                setNewText('');
-              }} style={{ padding: '8px' }}>حفظ القالب</button>
-            </div>
-            {customTemplates.map(t => (
-              <div key={t.id} style={{ background: '#fff', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '12px', marginBottom: '10px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
-                  <strong style={{ fontSize: '13px' }}>{t.title}</strong>
-                  <button className="btn-sm btn-success" onClick={() => { navigator.clipboard.writeText(t.text); alert('تم النسخ!'); }}>📋 نسخ</button>
+            <div className="section-box">
+              <div className="section-title">🏷️ تخصيص تصنيفات وحالات العملاء</div>
+              <form onSubmit={addCategory} className="form-grid" style={{ marginBottom: '20px' }}>
+                <div className="form-group"><label>اسم التصنيف الجديد</label><input type="text" className="form-control" value={newCatName} onChange={e => setNewCatName(e.target.value)} required /></div>
+                <div className="form-group" style={{ display: 'flex', gap: '10px' }}>
+                  <div style={{ flex: 1 }}><label>الخلفية</label><input type="color" className="form-control" style={{ padding: '2px', height: '44px' }} value={newCatBg} onChange={e => setNewCatBg(e.target.value)} /></div>
+                  <div style={{ flex: 1 }}><label>النص</label><input type="color" className="form-control" style={{ padding: '2px', height: '44px' }} value={newCatColor} onChange={e => setNewCatColor(e.target.value)} /></div>
                 </div>
-                <p style={{ color: '#475569', fontSize: '12px' }}>{t.text}</p>
-              </div>
-            ))}
-          </div>
-        )}
+                <div className="form-group" style={{ display: 'flex', alignItems: 'flex-end' }}>
+                  <button type="submit" className="btn-main">➕ إضافة التصنيف</button>
+                </div>
+              </form>
 
-        {/* 6. صانع روابط واتساب */}
-        {activeTab === 'links' && (
-          <div>
-            <h3 style={{ fontSize: '14px', fontWeight: '900', marginBottom: '10px' }}>🔗 صانع روابط واتساب المباشرة (لبايو إكس / تيك توك)</h3>
-            <div className="form-group">
-              <label>رقم جوال المتجر:</label>
-              <input type="text" className="form-control" placeholder="0551234567" value={linkPhone} onChange={e => setLinkPhone(e.target.value)} />
-            </div>
-            <div className="form-group">
-              <label>الرسالة التلقائية التي تظهر للعميل:</label>
-              <textarea className="form-control" rows={2} placeholder="أهلاً، أود الاستفسار عن..." value={linkText} onChange={e => setLinkText(e.target.value)}></textarea>
-            </div>
-            <button className="btn-main" onClick={() => {
-              const clean = formatPhone(linkPhone);
-              setCreatedLink(`https://wa.me/${clean}?text=${encodeURIComponent(linkText)}`);
-            }} style={{ padding: '10px' }}>توليد الرابط المباشر</button>
-            {createdLink && (
-              <div className="result-box">
-                <input type="text" className="form-control" value={createdLink} readOnly style={{ marginBottom: '8px', background: '#fff' }} />
-                <button className="btn-main" onClick={() => { navigator.clipboard.writeText(createdLink); alert('تم نسخ الرابط بنجاح!'); }} style={{ padding: '8px' }}>📋 نسخ الرابط النهائي</button>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {categories.map((cat, idx) => (
+                  <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fff', padding: '12px 15px', borderRadius: '10px', border: '1px solid #e2e8f0', flexWrap: 'wrap', gap: '10px' }}>
+                    <input type="text" className="form-control" value={cat.name} onChange={e => updateCategory(idx, 'name', e.target.value)} style={{ width: '150px', padding: '8px' }} />
+                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                      <input type="color" value={cat.bg} onChange={e => updateCategory(idx, 'bg', e.target.value)} style={{ width: '35px', height: '35px', borderRadius: '8px', cursor: 'pointer', border: 'none' }} />
+                      <input type="color" value={cat.color} onChange={e => updateCategory(idx, 'color', e.target.value)} style={{ width: '35px', height: '35px', borderRadius: '8px', cursor: 'pointer', border: 'none' }} />
+                      <span className="badge" style={{ backgroundColor: cat.bg, color: cat.color }}>معاينة الشارة</span>
+                      <button className="btn-sm btn-danger" onClick={() => deleteCategory(cat.name)}>حذف</button>
+                    </div>
+                  </div>
+                ))}
               </div>
-            )}
+            </div>
+
+            <div className="section-box">
+              <div className="section-title">📝 قوالب الرسائل الجاهزة (تظهر في قسم المراسلات)</div>
+              <div className="form-grid" style={{ marginBottom: '15px' }}>
+                <div className="form-group"><label>عنوان القالب المستعار (للتنظيم)</label><input type="text" className="form-control" value={newTplTitle} onChange={e => setNewTplTitle(e.target.value)} /></div>
+                <div className="form-group"><label>نص الرسالة (استخدم المتغيرات: [الاسم]، [الطلب]، [إضافي])</label><textarea className="form-control" rows={2} value={newTplText} onChange={e => setNewTplText(e.target.value)}></textarea></div>
+                <div className="form-group" style={{ display: 'flex', alignItems: 'flex-end' }}>
+                  <button className="btn-main" onClick={() => {
+                    if (!newTplTitle || !newTplText) return;
+                    saveTemplates([...templates, { id: Date.now(), title: newTplTitle, text: newTplText }]);
+                    setNewTplTitle(''); setNewTplText('');
+                  }}>حفظ القالب</button>
+                </div>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '15px' }}>
+                {templates.map(t => (
+                  <div key={t.id} style={{ background: '#fff', border: '1px solid #cbd5e1', padding: '15px', borderRadius: '12px' }}>
+                    <div style={{ fontWeight: '900', marginBottom: '8px', display: 'flex', justifyContent: 'space-between' }}>
+                      {t.title}
+                      {t.id > 4 && <button className="btn-sm btn-danger" onClick={() => saveTemplates(templates.filter(x => x.id !== t.id))}>حذف</button>}
+                    </div>
+                    <div style={{ fontSize: '12px', color: '#64748b', whiteSpace: 'pre-wrap' }}>{t.text}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         )}
 
