@@ -50,10 +50,10 @@ interface Template {
   text: string;
 }
 
-// قاموس الترجمة الشامل لجميع لغات المنصة
+// قاموس الترجمة الشامل والدقيق لجميع لغات المنصة الـ 8
 const toolTranslations: { [key: string]: any } = {
   ar: {
-    back: 'العودة لوحة التحكم',
+    back: '← العودة لوحة التحكم',
     titleMain: 'نظام إدارة علاقات العملاء',
     titleSub: 'واتساب CRM',
     desc: 'النظام الأذكى لإدارة عملاء التجارة الإلكترونية وأتمتة المراسلات',
@@ -83,10 +83,43 @@ const toolTranslations: { [key: string]: any } = {
     storeLogoBtn: '🖼 اختر صورة الشعار من جهازك',
     backupBox: '💾 النسخ الاحتياطي واستعادة البيانات',
     downloadBackup: '📥 تحميل نسخة احتياطية (JSON)',
-    restoreBackup: '♻️ استعادة البيانات من ملف'
+    restoreBackup: '♻️️ استعادة البيانات من ملف',
+    filterByTime: '📅 فلترة حسب الفترة الزمنية:',
+    filterAllTime: 'كل الوقت',
+    filterToday: 'اليوم',
+    filterThisWeek: 'هذا الأسبوع',
+    filterThisMonth: 'هذا الشهر',
+    perfIndicators: 'مؤشرات الأداء المباشرة',
+    latestCustomers: 'أحدث العملاء تسجيلاً',
+    dealSuccessRate: '📊 نسبة إتمام الصفقات',
+    pendingResponses: '⏳ العملاء بانتظار الرد',
+    avgCustomerValue: '💰 متوسط قيمة العميل (LTV)',
+    categoryDistribution: '🎯 توزيع الحالات والنسب المئوية للتصنيفات',
+    singleMsgMode: 'رسالة لعميل محدد',
+    broadcastMsgMode: 'حملة جماعية (طابور)',
+    targetCustomerData: '1. بيانات العميل المستهدف',
+    searchCrmPlaceholder: 'اكتب اسم العميل لجلبه تلقائياً...',
+    selectTemplateTitle: '2. اختر أو صمم رسالتك',
+    generateMsgBtn: '⚡ توليد ومعاينة الرسالة',
+    copyOnlyBtn: '📋 نسخ فقط',
+    sendWaBtn: '🟢 إرسال عبر واتساب (Wa.me)',
+    storeLogoLabel: 'شعار المتجر (صورة من جهاز الكمبيوتر)',
+    generalSysSettings: '⚡ إعدادات النظام العامة',
+    defaultDiscountLabel: 'كود الخصم الافتراضي',
+    templatesTitle: '📝 قوالب الرسائل الجاهزة',
+    templateTitleLabel: 'عنوان القالب (للتنظيم)',
+    templateTextLabel: 'نص الرسالة (المتغيرات المدعومة: [الاسم]، [الطلب]، [إضافي])',
+    saveTemplateBtn: '💾 حفظ القالب في النظام',
+    customizeStatusTitle: '📌 تخصيص حالات العملاء',
+    customizeRespTitle: '💬 تخصيص حالات الرد',
+    customizeCatTitle: '🏷️ تخصيص تصنيفات وحالات العملاء',
+    upgradePro: '⚡ ترقية / اشتراك PRO',
+    subscriptionKey: '🔑 الاشتراك:',
+    activated: 'مفعل ✓',
+    activateBtn: 'تفعيل'
   },
   en: {
-    back: 'Back to Dashboard',
+    back: '← Back to Dashboard',
     titleMain: 'Customer Relationship Management',
     titleSub: 'WhatsApp CRM',
     desc: 'The smartest system for e-commerce customer management and messaging automation',
@@ -116,10 +149,43 @@ const toolTranslations: { [key: string]: any } = {
     storeLogoBtn: '🖼 Choose Logo from Device',
     backupBox: '💾 Backup & Restore Data',
     downloadBackup: '📥 Download Backup (JSON)',
-    restoreBackup: '♻️ Restore Data from File'
+    restoreBackup: '♻️ Restore Data from File',
+    filterByTime: '📅 Filter by Time Range:',
+    filterAllTime: 'All Time',
+    filterToday: 'Today',
+    filterThisWeek: 'This Week',
+    filterThisMonth: 'This Month',
+    perfIndicators: 'Live Performance Indicators',
+    latestCustomers: 'Latest Registered Customers',
+    dealSuccessRate: '📊 Deal Success Rate',
+    pendingResponses: '⏳ Pending Responses',
+    avgCustomerValue: '💰 Customer Lifetime Value (LTV)',
+    categoryDistribution: '🎯 Category Distribution & Percentages',
+    singleMsgMode: 'Single Customer Message',
+    broadcastMsgMode: 'Broadcast Campaign (Queue)',
+    targetCustomerData: '1. Target Customer Data',
+    searchCrmPlaceholder: 'Type customer name to fetch automatically...',
+    selectTemplateTitle: '2. Select or Design Message',
+    generateMsgBtn: '⚡ Generate & Preview Message',
+    copyOnlyBtn: '📋 Copy Only',
+    sendWaBtn: '🟢 Send via WhatsApp (Wa.me)',
+    storeLogoLabel: 'Store Logo (Image from PC)',
+    generalSysSettings: '⚡ General System Settings',
+    defaultDiscountLabel: 'Default Discount Code',
+    templatesTitle: '📝 Ready Message Templates',
+    templateTitleLabel: 'Template Title',
+    templateTextLabel: 'Message Text (Supported variables: [الاسم], [الطلب], [إضافي])',
+    saveTemplateBtn: '💾 Save Template to System',
+    customizeStatusTitle: '📌 Customize Customer Statuses',
+    customizeRespTitle: '💬 Customize Response States',
+    customizeCatTitle: '🏷️ Customize Customer Categories',
+    upgradePro: '⚡ Upgrade / PRO Subscription',
+    subscriptionKey: '🔑 Subscription:',
+    activated: 'Activated ✓',
+    activateBtn: 'Activate'
   },
   fr: {
-    back: 'Retour au tableau de bord',
+    back: '← Retour au tableau de bord',
     titleMain: 'Gestion de la relation client',
     titleSub: 'WhatsApp CRM',
     desc: 'Le système le plus intelligent pour la gestion des clients e-commerce',
@@ -149,10 +215,43 @@ const toolTranslations: { [key: string]: any } = {
     storeLogoBtn: '🖼 Choisir un logo',
     backupBox: '💾 Sauvegarde',
     downloadBackup: '📥 Télécharger la sauvegarde',
-    restoreBackup: '♻️ Restaurer'
+    restoreBackup: '♻️ Restaurer',
+    filterByTime: '📅 Filtrer par période :',
+    filterAllTime: 'Tout le temps',
+    filterToday: 'Aujourd\'hui',
+    filterThisWeek: 'Cette semaine',
+    filterThisMonth: 'Ce mois-ci',
+    perfIndicators: 'Indicateurs de performance en direct',
+    latestCustomers: 'Derniers clients enregistrés',
+    dealSuccessRate: '📊 Taux de réussite des transactions',
+    pendingResponses: '⏳ Réponses en attente',
+    avgCustomerValue: '💰 Valeur à vie du client (LTV)',
+    categoryDistribution: '🎯 Distribution des catégories',
+    singleMsgMode: 'Message client unique',
+    broadcastMsgMode: 'Campagne de diffusion',
+    targetCustomerData: '1. Données du client cible',
+    searchCrmPlaceholder: 'Tapez le nom du client...',
+    selectTemplateTitle: '2. Sélectionnez ou concevez un message',
+    generateMsgBtn: '⚡ Générer et prévisualiser',
+    copyOnlyBtn: '📋 Copier uniquement',
+    sendWaBtn: '🟢 Envoyer via WhatsApp',
+    storeLogoLabel: 'Logo du magasin',
+    generalSysSettings: '⚡ Paramètres généraux du système',
+    defaultDiscountLabel: 'Code de réduction par défaut',
+    templatesTitle: '📝 Modèles de messages prêts',
+    templateTitleLabel: 'Titre du modèle',
+    templateTextLabel: 'Texte du message',
+    saveTemplateBtn: '💾 Enregistrer le modèle',
+    customizeStatusTitle: '📌 Personnaliser les statuts',
+    customizeRespTitle: '💬 Personnaliser les états de réponse',
+    customizeCatTitle: '🏷️ Personnaliser les catégories',
+    upgradePro: '⚡ Mettre à niveau / PRO',
+    subscriptionKey: '🔑 Abonnement :',
+    activated: 'Activé ✓',
+    activateBtn: 'Activer'
   },
   es: {
-    back: 'Volver al panel',
+    back: '← Volver al panel',
     titleMain: 'Gestión de relaciones con clientes',
     titleSub: 'WhatsApp CRM',
     desc: 'El sistema más inteligente para la gestión de clientes de comercio electrónico',
@@ -173,7 +272,7 @@ const toolTranslations: { [key: string]: any } = {
     amountLabel: 'Compras',
     noteLabel: 'Notas del cliente',
     saveBtn: 'Guardar y agregar cliente',
-    searchPlaceholder: '🔍 Buscar por nombre, teléfono o pedido...',
+    searchPlaceholder: '🔍 Buscar por nombre, teléfono...',
     importBtn: '📤 Importar CSV',
     exportBtn: '📥 Exportar Excel',
     actions: 'Acciones',
@@ -182,10 +281,43 @@ const toolTranslations: { [key: string]: any } = {
     storeLogoBtn: '🖼 Elegir logotipo',
     backupBox: '💾 Copia de seguridad y restauración',
     downloadBackup: '📥 Descargar copia de seguridad',
-    restoreBackup: '♻️ Restaurar datos'
+    restoreBackup: '♻️ Restaurar datos',
+    filterByTime: '📅 Filtrar por período:',
+    filterAllTime: 'Todo el tiempo',
+    filterToday: 'Hoy',
+    filterThisWeek: 'Esta semana',
+    filterThisMonth: 'Este mes',
+    perfIndicators: 'Indicadores de rendimiento en vivo',
+    latestCustomers: 'Últimos clientes registrados',
+    dealSuccessRate: '📊 Tasa de éxito de acuerdos',
+    pendingResponses: '⏳ Respuestas pendientes',
+    avgCustomerValue: '💰 Valor del cliente (LTV)',
+    categoryDistribution: '🎯 Distribución de categorías',
+    singleMsgMode: 'Mensaje de cliente único',
+    broadcastMsgMode: 'Campaña de difusión',
+    targetCustomerData: '1. Datos del cliente objetivo',
+    searchCrmPlaceholder: 'Escribe el nombre del cliente...',
+    selectTemplateTitle: '2. Seleccionar o diseñar mensaje',
+    generateMsgBtn: '⚡ Generar y vista previa',
+    copyOnlyBtn: '📋 Copiar solo',
+    sendWaBtn: '🟢 Enviar por WhatsApp',
+    storeLogoLabel: 'Logotipo de la tienda',
+    generalSysSettings: '⚡ Configuración general del sistema',
+    defaultDiscountLabel: 'Código de descuento predeterminado',
+    templatesTitle: '📝 Plantillas de mensajes',
+    templateTitleLabel: 'Título de la plantilla',
+    templateTextLabel: 'Texto del mensaje',
+    saveTemplateBtn: '💾 Guardar plantilla',
+    customizeStatusTitle: '📌 Personalizar estados',
+    customizeRespTitle: '💬 Personalizar estados de respuesta',
+    customizeCatTitle: '🏷️ Personalizar categorías',
+    upgradePro: '⚡ Actualizar / PRO',
+    subscriptionKey: '🔑 Suscripción:',
+    activated: 'Activado ✓',
+    activateBtn: 'Activar'
   },
   tr: {
-    back: 'Kontrol Paneline Dön',
+    back: '← Kontrol Paneline Dön',
     titleMain: 'Müşteri İlişkileri Yönetimi',
     titleSub: 'WhatsApp CRM',
     desc: 'E-ticaret müşteri yönetimi ve mesajlaşma otomasyonu için en akıllı sistem',
@@ -215,10 +347,43 @@ const toolTranslations: { [key: string]: any } = {
     storeLogoBtn: '🖼 Cihazdan Logo Seç',
     backupBox: '💾 Yedekleme ve Geri Yükleme',
     downloadBackup: '📥 Yedek İndir (JSON)',
-    restoreBackup: '♻️ Dosyadan Geri Yükle'
+    restoreBackup: '♻️ Dosyadan Geri Yükle',
+    filterByTime: '📅 Zaman Aralığına Göre Filtrele:',
+    filterAllTime: 'Tüm Zamanlar',
+    filterToday: 'Bugün',
+    filterThisWeek: 'Bu Hafta',
+    filterThisMonth: 'Bu Ay',
+    perfIndicators: 'Canlı Performans Göstergeleri',
+    latestCustomers: 'Son Kayıt olan Müşteriler',
+    dealSuccessRate: '📊 Anlaşma Başarı Oranı',
+    pendingResponses: '⏳ Bekleyen Yanıtlar',
+    avgCustomerValue: '💰 Müşteri Yaşam Boyu Değeri (LTV)',
+    categoryDistribution: '🎯 Kategori Dağılımı ve Yüzdeleri',
+    singleMsgMode: 'Tekil Müşteri Mesajı',
+    broadcastMsgMode: 'Toplu Kampanya (Kuyruk)',
+    targetCustomerData: '1. Hedef Müşteri Verileri',
+    searchCrmPlaceholder: 'Müşteri adını yazın...',
+    selectTemplateTitle: '2. Mesaj Seç veya Tasarla',
+    generateMsgBtn: '⚡ Mesajı Oluştur ve Önizle',
+    copyOnlyBtn: '📋 Sadece Kopyala',
+    sendWaBtn: '🟢 WhatsApp ile Gönder',
+    storeLogoLabel: 'Mağaza Logosu',
+    generalSysSettings: '⚡ Genel Sistem Ayarları',
+    defaultDiscountLabel: 'Varsayılan İndirim Kodu',
+    templatesTitle: '📝 Hazır Mesaj Şablonları',
+    templateTitleLabel: 'Şablon Başlığı',
+    templateTextLabel: 'Mesaj Metni',
+    saveTemplateBtn: '💾 Şablonu Kaydet',
+    customizeStatusTitle: '📌 Müşteri Durumlarını Özelleştir',
+    customizeRespTitle: '💬 Yanıt Durumlarını Özelleştir',
+    customizeCatTitle: '🏷️ Müşteri Kategorilerini Özelleştir',
+    upgradePro: '⚡ Yükselt / PRO Abone',
+    subscriptionKey: '🔑 Abonelik:',
+    activated: 'Aktif ✓',
+    activateBtn: 'Etkinleştir'
   },
   zh: {
-    back: '返回控制面板',
+    back: '← 返回控制面板',
     titleMain: '客户关系管理系统',
     titleSub: 'WhatsApp CRM',
     desc: '最智能的电商客户管理与消息自动化系统',
@@ -248,10 +413,43 @@ const toolTranslations: { [key: string]: any } = {
     storeLogoBtn: '🖼 从设备选择 Logo',
     backupBox: '💾 备份与恢复数据',
     downloadBackup: '📥 下载备份 (JSON)',
-    restoreBackup: '♻️ 从文件恢复数据'
+    restoreBackup: '♻️ 从文件恢复数据',
+    filterByTime: '📅 按时间范围筛选：',
+    filterAllTime: '所有时间',
+    filterToday: '今天',
+    filterThisWeek: '本周',
+    filterThisMonth: '本月',
+    perfIndicators: '实时业绩指标',
+    latestCustomers: '最新登记客户',
+    dealSuccessRate: '📊 交易成交率',
+    pendingResponses: '⏳ 待回复',
+    avgCustomerValue: '💰 客户生命周期价值 (LTV)',
+    categoryDistribution: '🎯 分类分布与百分比',
+    singleMsgMode: '单客户消息',
+    broadcastMsgMode: '群发营销活动',
+    targetCustomerData: '1. 目标客户数据',
+    searchCrmPlaceholder: '输入客户姓名...',
+    selectTemplateTitle: '2. 选择或设计消息',
+    generateMsgBtn: '⚡ 生成并预览消息',
+    copyOnlyBtn: '📋 仅复制',
+    sendWaBtn: '🟢 通过 WhatsApp 发送',
+    storeLogoLabel: '店铺 Logo',
+    generalSysSettings: '⚡ 系统通用设置',
+    defaultDiscountLabel: '默认优惠码',
+    templatesTitle: '📝 快捷消息模板',
+    templateTitleLabel: '模板标题',
+    templateTextLabel: '消息正文',
+    saveTemplateBtn: '💾 保存模板',
+    customizeStatusTitle: '📌 自定义客户状态',
+    customizeRespTitle: '💬 自定义回复状态',
+    customizeCatTitle: '🏷️ 自定义客户分类',
+    upgradePro: '⚡ 升级 / PRO 订阅',
+    subscriptionKey: '🔑 订阅秘钥：',
+    activated: '已激活 ✓',
+    activateBtn: '激活'
   },
   de: {
-    back: 'Zurück zum Dashboard',
+    back: '← Zurück zum Dashboard',
     titleMain: 'Kundenbeziehungsmanagement',
     titleSub: 'WhatsApp CRM',
     desc: 'Das intelligenteste System für E-Commerce-Kundenmanagement',
@@ -272,7 +470,7 @@ const toolTranslations: { [key: string]: any } = {
     amountLabel: 'Einkäufe',
     noteLabel: 'Kundennotizen',
     saveBtn: 'Speichern & Hinzufügen',
-    searchPlaceholder: '🔍 Suchen nach Name, Telefon, Bestellung...',
+    searchPlaceholder: '🔍 Suchen nach Name, Telefon...',
     importBtn: '📤 CSV importieren',
     exportBtn: '📥 Excel exportieren',
     actions: 'Aktionen',
@@ -281,10 +479,43 @@ const toolTranslations: { [key: string]: any } = {
     storeLogoBtn: '🖼 Logo auswählen',
     backupBox: '💾 Backup & Wiederherstellung',
     downloadBackup: '📥 Backup herunterladen (JSON)',
-    restoreBackup: '♻️ Daten wiederherstellen'
+    restoreBackup: '♻️ Daten wiederherstellen',
+    filterByTime: '📅 Nach Zeitrahmen filtern:',
+    filterAllTime: 'Alle Zeit',
+    filterToday: 'Heute',
+    filterThisWeek: 'Diese Woche',
+    filterThisMonth: 'Diesen Monat',
+    perfIndicators: 'Live-Leistungsindikatoren',
+    latestCustomers: 'Neueste Kunden',
+    dealSuccessRate: '📊 Abschlussquote',
+    pendingResponses: '⏳ Ausstehende Antworten',
+    avgCustomerValue: '💰 Kundenwert (LTV)',
+    categoryDistribution: '🎯 Kategorieduschnitt',
+    singleMsgMode: 'Einzelnachricht',
+    broadcastMsgMode: 'Kampagne (Warteschlange)',
+    targetCustomerData: '1. Zielkundendaten',
+    searchCrmPlaceholder: 'Kundenname eingeben...',
+    selectTemplateTitle: '2. Nachricht auswählen',
+    generateMsgBtn: '⚡ Nachricht generieren',
+    copyOnlyBtn: '📋 Nur kopieren',
+    sendWaBtn: '🟢 Über WhatsApp senden',
+    storeLogoLabel: 'Shop-Logo',
+    generalSysSettings: '⚡ Allgemeine Systemeinstellungen',
+    defaultDiscountLabel: 'Standard-Gutscheincode',
+    templatesTitle: '📝 Vorlagen',
+    templateTitleLabel: 'Titel',
+    templateTextLabel: 'Nachrichtentext',
+    saveTemplateBtn: '💾 Vorlage speichern',
+    customizeStatusTitle: '📌 Status anpassen',
+    customizeRespTitle: '💬 Antwortstatus anpassen',
+    customizeCatTitle: '🏷️ Kategorien anpassen',
+    upgradePro: '⚡ Upgrade / PRO',
+    subscriptionKey: '🔑 Lizenzschlüssel:',
+    activated: 'Aktiviert ✓',
+    activateBtn: 'Aktivieren'
   },
   id: {
-    back: 'Kembali ke Dasbor',
+    back: '← Kembali ke Dasbor',
     titleMain: 'Manajemen Hubungan Pelanggan',
     titleSub: 'WhatsApp CRM',
     desc: 'Sistem cerdas untuk manajemen pelanggan e-commerce dan otomatisasi pesan',
@@ -305,7 +536,7 @@ const toolTranslations: { [key: string]: any } = {
     amountLabel: 'Pembelian',
     noteLabel: 'Catatan Pelanggan',
     saveBtn: 'Simpan & Tambah Pelanggan',
-    searchPlaceholder: '🔍 Cari berdasarkan nama, telepon, atau pesanan...',
+    searchPlaceholder: '🔍 Cari berdasarkan nama, telepon...',
     importBtn: '📤 Impor CSV',
     exportBtn: '📥 Ekspor Excel',
     actions: 'Tindakan',
@@ -314,7 +545,40 @@ const toolTranslations: { [key: string]: any } = {
     storeLogoBtn: '🖼 Pilih Logo dari Perangkat',
     backupBox: '💾 Cadangkan & Pulihkan Data',
     downloadBackup: '📥 Unduh Cadangan (JSON)',
-    restoreBackup: '♻️ Pulihkan dari File'
+    restoreBackup: '♻️ Pulihkan dari File',
+    filterByTime: '📅 Filter Berdasarkan Waktu:',
+    filterAllTime: 'Semua Waktu',
+    filterToday: 'Hari Ini',
+    filterThisWeek: 'Minggu Ini',
+    filterThisMonth: 'Bulan Ini',
+    perfIndicators: 'Indikator Kinerja Langsung',
+    latestCustomers: 'Pelanggan Terbaru',
+    dealSuccessRate: '📊 Tingkat Keberhasilan Kesepakatan',
+    pendingResponses: '⏳ Respon Tertunda',
+    avgCustomerValue: '💰 Nilai Pelanggan (LTV)',
+    categoryDistribution: '🎯 Distribusi Kategori',
+    singleMsgMode: 'Pesan Pelanggan Tunggal',
+    broadcastMsgMode: 'Kampanye Siaran',
+    targetCustomerData: '1. Data Pelanggan Target',
+    searchCrmPlaceholder: 'Ketik nama pelanggan...',
+    selectTemplateTitle: '2. Pilih atau Rancang Pesan',
+    generateMsgBtn: '⚡ Buat & Pratinjau Pesan',
+    copyOnlyBtn: '📋 Salin Saja',
+    sendWaBtn: '🟢 Kirim via WhatsApp',
+    storeLogoLabel: 'Logo Toko',
+    generalSysSettings: '⚡ Pengaturan Sistem Umum',
+    defaultDiscountLabel: 'Kode Diskon Default',
+    templatesTitle: '📝 Templat Pesan',
+    templateTitleLabel: 'Judul Templat',
+    templateTextLabel: 'Teks Pesan',
+    saveTemplateBtn: '💾 Simpan Templat',
+    customizeStatusTitle: '📌 Sesuaikan Status',
+    customizeRespTitle: '💬 Sesuaikan Status Respon',
+    customizeCatTitle: '🏷️ Sesuaikan Kategori',
+    upgradePro: '⚡ Tingkatkan / PRO',
+    subscriptionKey: '🔑 Kunci Lisensi:',
+    activated: 'Diaktifkan ✓',
+    activateBtn: 'Aktifkan'
   }
 };
 
@@ -428,38 +692,14 @@ export default function EngaziaWhatsAppCRM() {
       const responseData = await res.json();
       if (responseData && responseData.record && responseData.record.tools_data && responseData.record.tools_data.whatsapp_crm) {
         const cloudData = responseData.record.tools_data.whatsapp_crm;
-        if (cloudData.contacts) {
-          setContacts(cloudData.contacts);
-          localStorage.setItem('engazia_whatsapp_pro_crm_v16', JSON.stringify(cloudData.contacts));
-        }
-        if (cloudData.categories) {
-          setCategories(cloudData.categories);
-          localStorage.setItem('engazia_whatsapp_categories_v2', JSON.stringify(cloudData.categories));
-        }
-        if (cloudData.statusOptions) {
-          setStatusOptions(cloudData.statusOptions);
-          localStorage.setItem('engazia_whatsapp_statuses_v1', JSON.stringify(cloudData.statusOptions));
-        }
-        if (cloudData.responseStateOptions) {
-          setResponseStateOptions(cloudData.responseStateOptions);
-          localStorage.setItem('engazia_whatsapp_response_states_v1', JSON.stringify(cloudData.responseStateOptions));
-        }
-        if (cloudData.templates) {
-          setTemplates(cloudData.templates);
-          localStorage.setItem('engazia_templates_v2', JSON.stringify(cloudData.templates));
-        }
-        if (cloudData.storeName) {
-          setStoreName(cloudData.storeName);
-          localStorage.setItem('engazia_store_name', cloudData.storeName);
-        }
-        if (cloudData.storeLogo) {
-          setStoreLogo(cloudData.storeLogo);
-          localStorage.setItem('engazia_store_logo', cloudData.storeLogo);
-        }
-        if (cloudData.defaultDiscountCode) {
-          setDefaultDiscountCode(cloudData.defaultDiscountCode);
-          localStorage.setItem('engazia_default_discount', cloudData.defaultDiscountCode);
-        }
+        if (cloudData.contacts) { setContacts(cloudData.contacts); localStorage.setItem('engazia_whatsapp_pro_crm_v16', JSON.stringify(cloudData.contacts)); }
+        if (cloudData.categories) { setCategories(cloudData.categories); localStorage.setItem('engazia_whatsapp_categories_v2', JSON.stringify(cloudData.categories)); }
+        if (cloudData.statusOptions) { setStatusOptions(cloudData.statusOptions); localStorage.setItem('engazia_whatsapp_statuses_v1', JSON.stringify(cloudData.statusOptions)); }
+        if (cloudData.responseStateOptions) { setResponseStateOptions(cloudData.responseStateOptions); localStorage.setItem('engazia_whatsapp_response_states_v1', JSON.stringify(cloudData.responseStateOptions)); }
+        if (cloudData.templates) { setTemplates(cloudData.templates); localStorage.setItem('engazia_templates_v2', JSON.stringify(cloudData.templates)); }
+        if (cloudData.storeName) { setStoreName(cloudData.storeName); localStorage.setItem('engazia_store_name', cloudData.storeName); }
+        if (cloudData.storeLogo) { setStoreLogo(cloudData.storeLogo); localStorage.setItem('engazia_store_logo', cloudData.storeLogo); }
+        if (cloudData.defaultDiscountCode) { setDefaultDiscountCode(cloudData.defaultDiscountCode); localStorage.setItem('engazia_default_discount', cloudData.defaultDiscountCode); }
       }
     } catch (err) {
       console.error('خطأ في سحب بيانات الواتساب سحابياً:', err);
@@ -552,29 +792,19 @@ export default function EngaziaWhatsAppCRM() {
     }
 
     const savedContacts = localStorage.getItem('engazia_whatsapp_pro_crm_v16');
-    if (savedContacts) {
-      try { setContacts(JSON.parse(savedContacts)); } catch (e) { console.error(e); }
-    }
+    if (savedContacts) { try { setContacts(JSON.parse(savedContacts)); } catch (e) { console.error(e); } }
     
     const savedCats = localStorage.getItem('engazia_whatsapp_categories_v2');
-    if (savedCats) {
-      try { setCategories(JSON.parse(savedCats)); } catch (e) { console.error(e); }
-    }
+    if (savedCats) { try { setCategories(JSON.parse(savedCats)); } catch (e) { console.error(e); } }
 
     const savedStatuses = localStorage.getItem('engazia_whatsapp_statuses_v1');
-    if (savedStatuses) {
-      try { setStatusOptions(JSON.parse(savedStatuses)); } catch (e) { console.error(e); }
-    }
+    if (savedStatuses) { try { setStatusOptions(JSON.parse(savedStatuses)); } catch (e) { console.error(e); } }
 
     const savedResponseStates = localStorage.getItem('engazia_whatsapp_response_states_v1');
-    if (savedResponseStates) {
-      try { setResponseStateOptions(JSON.parse(savedResponseStates)); } catch (e) { console.error(e); }
-    }
+    if (savedResponseStates) { try { setResponseStateOptions(JSON.parse(savedResponseStates)); } catch (e) { console.error(e); } }
 
     const savedTpls = localStorage.getItem('engazia_templates_v2');
-    if (savedTpls) {
-      try { setTemplates(JSON.parse(savedTpls)); } catch (e) { console.error(e); }
-    }
+    if (savedTpls) { try { setTemplates(JSON.parse(savedTpls)); } catch (e) { console.error(e); } }
 
     const savedDisc = localStorage.getItem('engazia_default_discount');
     if (savedDisc) setDefaultDiscountCode(savedDisc);
@@ -1100,21 +1330,21 @@ export default function EngaziaWhatsAppCRM() {
 
       <div className="wrapper">
         <div className="header-top">
-          <Link href="/hub" style={{ color: '#4f46e5', fontWeight: 700, fontSize: '13px' }}>{isRtl ? '← العودة لوحة التحكم' : '← Back to Dashboard'}</Link>
+          <Link href="/hub" style={{ color: '#4f46e5', fontWeight: 700, fontSize: '13px' }}>{t.back}</Link>
 
           <div className="license-section">
             <div className="license-box">
-              <span style={{ fontSize: '12px', fontWeight: 800, color: '#475569' }}>🔑 الاشتراك:</span>
+              <span style={{ fontSize: '12px', fontWeight: 800, color: '#475569' }}>{t.subscriptionKey}</span>
               {isActivated ? (
-                <span style={{ fontSize: '12px', fontWeight: 900, color: '#10b981' }}>مفعل ✓</span>
+                <span style={{ fontSize: '12px', fontWeight: 900, color: '#10b981' }}>{t.activated}</span>
               ) : (
                 <>
                   <input type="text" placeholder="مفتاح الترخيص..." value={licenseKeyInput} onChange={(e) => setLicenseKeyInput(e.target.value)} style={{ border: '1px solid #cbd5e1', borderRadius: '6px', padding: '4px 8px', fontSize: '11px', outline: 'none', width: '130px' }} />
-                  <button onClick={handleActivateLicense} style={{ background: '#4f46e5', color: '#fff', border: 'none', padding: '5px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 800, cursor: 'pointer' }}>تفعيل</button>
+                  <button onClick={handleActivateLicense} style={{ background: '#4f46e5', color: '#fff', border: 'none', padding: '5px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 800, cursor: 'pointer' }}>{t.activateBtn}</button>
                 </>
               )}
             </div>
-            <a href={LEMON_CHECKOUT_URL} target="_blank" rel="noopener noreferrer" className="upgrade-btn">⚡ ترقية / اشتراك PRO</a>
+            <a href={LEMON_CHECKOUT_URL} target="_blank" rel="noopener noreferrer" className="upgrade-btn">{t.upgradePro}</a>
           </div>
         </div>
 
@@ -1139,19 +1369,19 @@ export default function EngaziaWhatsAppCRM() {
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f8fafc', border: '1px solid #e2e8f0', padding: '12px 20px', borderRadius: '12px', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
-          <div style={{ fontSize: '13px', fontWeight: 800, color: '#475569' }}>📅 فلترة حسب الفترة الزمنية:</div>
+          <div style={{ fontSize: '13px', fontWeight: 800, color: '#475569' }}>{t.filterByTime}</div>
           <div style={{ display: 'flex', gap: '8px' }}>
-            <button className={`chip-btn ${dateFilter === 'all' ? 'active' : ''}`} onClick={() => setDateFilter('all')}>كل الوقت</button>
-            <button className={`chip-btn ${dateFilter === 'today' ? 'active' : ''}`} onClick={() => setDateFilter('today')}>اليوم</button>
-            <button className={`chip-btn ${dateFilter === 'this_week' ? 'active' : ''}`} onClick={() => setDateFilter('this_week')}>هذا الأسبوع</button>
-            <button className={`chip-btn ${dateFilter === 'this_month' ? 'active' : ''}`} onClick={() => setDateFilter('this_month')}>هذا الشهر</button>
+            <button className={`chip-btn ${dateFilter === 'all' ? 'active' : ''}`} onClick={() => setDateFilter('all')}>{t.filterAllTime}</button>
+            <button className={`chip-btn ${dateFilter === 'today' ? 'active' : ''}`} onClick={() => setDateFilter('today')}>{t.filterToday}</button>
+            <button className={`chip-btn ${dateFilter === 'this_week' ? 'active' : ''}`} onClick={() => setDateFilter('this_week')}>{t.filterThisWeek}</button>
+            <button className={`chip-btn ${dateFilter === 'this_month' ? 'active' : ''}`} onClick={() => setDateFilter('this_month')}>{t.filterThisMonth}</button>
           </div>
         </div>
 
         {/* 1. Dashboard */}
         {activeTab === 'dashboard' && (
           <div>
-            <div className="section-title">مؤشرات الأداء المباشرة</div>
+            <div className="section-title">{t.perfIndicators}</div>
             <div className="dashboard-grid">
               <div className="stat-card" style={{ borderBottom: '4px solid #4f46e5' }}>
                 <div className="stat-title">{t.salesTitle}</div>
@@ -1168,31 +1398,91 @@ export default function EngaziaWhatsAppCRM() {
                 </div>
               ))}
             </div>
+
+            <div className="section-title" style={{ marginTop: '30px' }}>{t.latestCustomers}</div>
+            <div className="table-container">
+              <table className="contacts-table">
+                <thead>
+                  <tr>
+                    <th>{t.nameLabel}</th>
+                    <th>{t.orderNumLabel}</th>
+                    <th>{t.categoryLabel}</th>
+                    <th>{t.statusLabel}</th>
+                    <th>{t.responseStateLabel}</th>
+                    <th>آخر تواصل</th>
+                    <th>{t.actions}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {timeFilteredContacts.slice(0, 5).map(c => {
+                    const respConf = responseStateOptions.find(r => r.name === c.responseState);
+                    return (
+                      <tr key={c.id}>
+                        <td><span style={{ fontWeight: 800, color: '#4f46e5', cursor: 'pointer' }} onClick={() => setSelectedCustomer(c)}>{c.name}</span></td>
+                        <td style={{direction: 'ltr', textAlign: 'left'}}>{c.orderNumber}</td>
+                        <td><span className="badge" style={{ background: categories.find(cat => cat.name === c.category)?.bg || '#eee', color: categories.find(cat => cat.name === c.category)?.color || '#000' }}>{c.category}</span></td>
+                        <td><span className="badge" style={{ background: statusOptions.find(st => st.name === c.status)?.bg || '#eee', color: statusOptions.find(st => st.name === c.status)?.color || '#000' }}>{c.status || 'نشط'}</span></td>
+                        <td><span className="badge" style={{ background: respConf?.bg || '#fef3c7', color: respConf?.color || '#d97706' }}>{c.responseState || 'بانتظار الرد'}</span></td>
+                        <td style={{ color: '#4f46e5', fontSize: '11px', fontWeight: 700, direction: 'ltr', textAlign: 'left' }}>{c.lastContactDate || 'لم يتم'}</td>
+                        <td>
+                          <div style={{ display: 'flex', gap: '4px' }}>
+                            <button className="btn-sm btn-success" onClick={() => routeToMessaging(c)}>💬</button>
+                            <button className="btn-sm btn-edit" onClick={() => updateLastContact(c.id)}>🕒</button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                  {timeFilteredContacts.length === 0 && <tr><td colSpan={7} style={{textAlign: 'center', padding: '30px', color: '#64748b'}}>لا يوجد عملاء بالفترة المحددة.</td></tr>}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
 
         {/* 1.5 Advanced Analytics */}
         {activeTab === 'analytics' && (
           <div>
-            <div className="section-title">📈 التحليلات المتقدمة ونسب الاستجابة</div>
+            <div className="section-title">{t.tabAnalytics}</div>
             <div className="dashboard-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))' }}>
               <div className="stat-card" style={{ textAlign: isRtl ? 'right' : 'left', padding: '25px' }}>
-                <div className="stat-title" style={{ marginBottom: '10px' }}>📊 نسبة إتمام الصفقات</div>
+                <div className="stat-title" style={{ marginBottom: '10px' }}>{t.dealSuccessRate}</div>
                 <div className="stat-num" style={{ color: '#10b981', textAlign: isRtl ? 'right' : 'left' }}>
                   {timeFilteredContacts.length > 0 ? ((timeFilteredContacts.filter(c => c.responseState === 'تم الاتفاق').length / timeFilteredContacts.length) * 100).toFixed(1) : 0}%
                 </div>
               </div>
               <div className="stat-card" style={{ textAlign: isRtl ? 'right' : 'left', padding: '25px' }}>
-                <div className="stat-title" style={{ marginBottom: '10px' }}>⏳ العملاء بانتظار الرد</div>
+                <div className="stat-title" style={{ marginBottom: '10px' }}>{t.pendingResponses}</div>
                 <div className="stat-num" style={{ color: '#d97706', textAlign: isRtl ? 'right' : 'left' }}>
-                  {timeFilteredContacts.filter(c => c.responseState === 'بانتظار الرد' || !c.responseState).length} عميل
+                  {timeFilteredContacts.filter(c => c.responseState === 'بانتظار الرد' || !c.responseState).length}
                 </div>
               </div>
               <div className="stat-card" style={{ textAlign: isRtl ? 'right' : 'left', padding: '25px' }}>
-                <div className="stat-title" style={{ marginBottom: '10px' }}>💰 متوسط قيمة العميل (LTV)</div>
+                <div className="stat-title" style={{ marginBottom: '10px' }}>{t.avgCustomerValue}</div>
                 <div className="stat-num" style={{ color: '#4f46e5', textAlign: isRtl ? 'right' : 'left' }}>
                   {timeFilteredContacts.length > 0 ? (totalValidSales / timeFilteredContacts.length).toFixed(0) : 0} <span style={{fontSize:'12px'}}>{currentCurrency}</span>
                 </div>
+              </div>
+            </div>
+
+            <div className="section-box" style={{ marginTop: '20px' }}>
+              <div className="section-title">{t.categoryDistribution}</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginTop: '15px' }}>
+                {categories.map(cat => {
+                  const count = timeFilteredContacts.filter(c => c.category === cat.name).length;
+                  const pct = timeFilteredContacts.length > 0 ? (count / timeFilteredContacts.length) * 100 : 0;
+                  return (
+                    <div key={cat.name}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: 800, marginBottom: '5px' }}>
+                        <span>{cat.name} ({count})</span>
+                        <span dir="ltr">{pct.toFixed(1)}%</span>
+                      </div>
+                      <div style={{ width: '100%', height: '10px', background: '#e2e8f0', borderRadius: '5px', overflow: 'hidden' }}>
+                        <div style={{ width: `${pct}%`, height: '100%', background: cat.color, borderRadius: '5px' }}></div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -1294,7 +1584,7 @@ export default function EngaziaWhatsAppCRM() {
                       </td>
                       <td><input type="text" className="cell-input input-ltr" value={c.amount} onChange={e => updateCustomerField(c.id, 'amount', e.target.value)} /></td>
                       <td><input type="text" className="cell-input" value={c.note || ''} onChange={e => updateCustomerField(c.id, 'note', e.target.value)} /></td>
-                      <td style={{ direction: 'ltr', color: '#4f46e5', fontSize: '10px' }}>{c.lastContactDate || 'لم يتم'}</td>
+                      <td style={{ direction: 'ltr', textAlign: 'left', color: '#4f46e5', fontSize: '10px' }}>{c.lastContactDate || 'لم يتم'}</td>
                       <td>
                         <div style={{ display: 'flex', gap: '4px' }}>
                           <button className="btn-sm btn-success" onClick={() => routeToMessaging(c)}>💬</button>
@@ -1315,18 +1605,18 @@ export default function EngaziaWhatsAppCRM() {
         {activeTab === 'messaging' && (
           <div>
             <div className="radio-group">
-              <button className={`radio-btn ${messagingMode === 'single' ? 'active' : ''}`} onClick={() => setMessagingMode('single')}>رسالة لعميل محدد</button>
-              <button className={`radio-btn ${messagingMode === 'broadcast' ? 'active' : ''}`} onClick={() => setMessagingMode('broadcast')}>حملة جماعية (طابور)</button>
+              <button className={`radio-btn ${messagingMode === 'single' ? 'active' : ''}`} onClick={() => setMessagingMode('single')}>{t.singleMsgMode}</button>
+              <button className={`radio-btn ${messagingMode === 'broadcast' ? 'active' : ''}`} onClick={() => setMessagingMode('broadcast')}>{t.broadcastMsgMode}</button>
             </div>
 
             <div className="section-box">
               {messagingMode === 'single' ? (
                 <>
-                  <div className="section-title">1. بيانات العميل المستهدف</div>
+                  <div className="section-title">{t.targetCustomerData}</div>
                   <div className="form-grid">
                     <div className="form-group" ref={suggestionsRef}>
-                      <label>ابحث عن عميل من الـ CRM</label>
-                      <input type="text" className="form-control" placeholder="اكتب اسم العميل لجلبه..." value={customerName} onChange={e => { setCustomerName(e.target.value); setShowSuggestions(true); }} />
+                      <label>{t.searchPlaceholder}</label>
+                      <input type="text" className="form-control" placeholder={t.searchCrmPlaceholder} value={customerName} onChange={e => { setCustomerName(e.target.value); setShowSuggestions(true); }} />
                       {showSuggestions && matchingCustomers.length > 0 && (
                         <div className="suggestions-box">
                           {matchingCustomers.map(cust => (
@@ -1338,8 +1628,8 @@ export default function EngaziaWhatsAppCRM() {
                         </div>
                       )}
                     </div>
-                    <div className="form-group"><label>رقم الجوال</label><input type="text" className="form-control input-ltr" value={customerPhone} onChange={e => setCustomerPhone(toEnglishDigits(e.target.value))} /></div>
-                    <div className="form-group"><label>رقم الطلب</label><input type="text" className="form-control input-ltr" value={orderNumber} onChange={e => setOrderNumber(toEnglishDigits(e.target.value))} /></div>
+                    <div className="form-group"><label>{t.phoneLabel}</label><input type="text" className="form-control input-ltr" value={customerPhone} onChange={e => setCustomerPhone(toEnglishDigits(e.target.value))} /></div>
+                    <div className="form-group"><label>{t.orderNumLabel}</label><input type="text" className="form-control input-ltr" value={orderNumber} onChange={e => setOrderNumber(toEnglishDigits(e.target.value))} /></div>
                   </div>
                 </>
               ) : (
@@ -1356,7 +1646,7 @@ export default function EngaziaWhatsAppCRM() {
             </div>
 
             <div className="section-box">
-              <div className="section-title">2. اختر أو صمم رسالتك</div>
+              <div className="section-title">{t.selectTemplateTitle}</div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '12px', marginBottom: '20px' }}>
                 {templates.map(tpl => (
                   <div key={tpl.id} onClick={() => setActiveTemplateId(tpl.id)} style={{ padding: '12px 10px', border: '2px solid #e2e8f0', borderRadius: '12px', cursor: 'pointer', textAlign: 'center', fontWeight: 800, fontSize: '12px', color: activeTemplateId === tpl.id ? '#4f46e5' : '#64748b', background: activeTemplateId === tpl.id ? '#eef2ff' : '#fff' }}>
@@ -1364,11 +1654,11 @@ export default function EngaziaWhatsAppCRM() {
                   </div>
                 ))}
               </div>
-              <button className="btn-main" style={{ width: '100%' }} onClick={handleGenerateMessage}>⚡ توليد ومعاينة الرسالة</button>
+              <button className="btn-main" style={{ width: '100%' }} onClick={handleGenerateMessage}>{t.generateMsgBtn}</button>
               {generatedMsg && (
                 <div style={{ background: '#fff', border: '2px dashed #cbd5e1', padding: '20px', borderRadius: '16px', marginTop: '20px' }}>
                   <div style={{ background: '#f8fafc', padding: '15px', borderRadius: '10px', fontSize: '14px', lineHeight: 1.7, whiteSpace: 'pre-wrap', marginBottom: '15px', color: '#1e293b' }}>{generatedMsg}</div>
-                  <button className="btn-wa" style={{ width: '100%' }} onClick={() => openWhatsAppDirect(customerPhone, generatedMsg)}>🟢 إرسال عبر واتساب (Wa.me)</button>
+                  <button className="btn-wa" style={{ width: '100%' }} onClick={() => openWhatsAppDirect(customerPhone, generatedMsg)}>{t.sendWaBtn}</button>
                 </div>
               )}
             </div>
@@ -1386,7 +1676,7 @@ export default function EngaziaWhatsAppCRM() {
                   <input type="text" className="form-control" value={storeName} onChange={e => handleSaveStoreName(e.target.value)} />
                 </div>
                 <div className="form-group" style={{ margin: 0 }}>
-                  <label>شعار المتجر</label>
+                  <label>{t.storeLogoLabel}</label>
                   <button className="btn-main" style={{ width: '100%', background: '#fff', color: '#4f46e5', border: '1px solid #c7d2fe' }} onClick={() => storeLogoFileRef.current?.click()}>{t.storeLogoBtn}</button>
                   <input type="file" ref={storeLogoFileRef} onChange={handleLogoUpload} accept="image/*" style={{ display: 'none' }} />
                 </div>
@@ -1403,9 +1693,9 @@ export default function EngaziaWhatsAppCRM() {
             </div>
 
             <div className="section-box">
-              <div className="section-title">⚡ إعدادات النظام العامة</div>
+              <div className="section-title">{t.generalSysSettings}</div>
               <div className="form-group" style={{ maxWidth: '400px', margin: 0 }}>
-                <label>كود الخصم الافتراضي</label>
+                <label>{t.defaultDiscountLabel}</label>
                 <input type="text" className="form-control" value={defaultDiscountCode} onChange={e => saveDefaultDiscount(e.target.value)} />
               </div>
             </div>
