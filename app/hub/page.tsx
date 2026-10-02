@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { getGlobalConfig, setGlobalConfig } from '@/utils/globalConfig'; // استدعاء المساعد العام
 
-interface LanguageDictionary {
+interface Translations {
   [key: string]: {
     live: string;
     heroTitle: string;
@@ -22,7 +23,7 @@ interface LanguageDictionary {
   };
 }
 
-const translations: LanguageDictionary = {
+const translations: Translations = {
   ar: {
     live: 'النظام مفعل',
     heroTitle: 'منصة إنجازيا ULTRA MAX',
@@ -70,6 +71,86 @@ const translations: LanguageDictionary = {
     terms: 'Conditions d\'utilisation',
     privacy: 'Politique de confidentialité',
     rights: 'Tous droits réservés © 2026 Plateforme Engazia'
+  },
+  es: {
+    live: 'Sistema Activo',
+    heroTitle: 'Plataforma ENGAZIA ULTRA MAX',
+    heroDesc: 'El ecosistema en la nube definitivo para emprendedores de comercio electrónico, 16 potentes herramientas.',
+    runTool: 'Iniciar herramienta',
+    footerDesc: 'La plataforma en nube líder para comerciantes de comercio electrónico.',
+    platform: 'Plataforma',
+    allTools: 'Todas las herramientas',
+    updates: 'Actualizaciones',
+    pricing: 'Precios',
+    support: 'Soporte',
+    faq: 'Preguntas frecuentes',
+    terms: 'Términos de uso',
+    privacy: 'Política de privacidad',
+    rights: 'Todos los derechos reservados © 2026 Engazia'
+  },
+  tr: {
+    live: 'Sistem Aktif',
+    heroTitle: 'ENGAZIA ULTRA MAX Platformu',
+    heroDesc: 'E-ticaret girişimcileri için nihai bulut ekosistemi, tüm aboneliklerin yerini alan 16 güçlü araç.',
+    runTool: 'Aracı Başlat',
+    footerDesc: 'E-ticaret satıcıları için lider bulut platformu.',
+    platform: 'Platform',
+    allTools: 'Tüm Araçlar',
+    updates: 'Yeni Güncellemeler',
+    pricing: 'Fiyatlandırma',
+    support: 'Destek',
+    faq: 'Sıkça Sorulanlar',
+    terms: 'Kullanım Şartları',
+    privacy: 'Gizlilik Politikası',
+    rights: 'Tüm hakları saklıdır © 2026 Engazia'
+  },
+  zh: {
+    live: '系统已激活',
+    heroTitle: 'ENGAZIA ULTRA MAX 平台',
+    heroDesc: '电商创业者的终极云端生态系统，16款强大工具助您业务腾飞。',
+    runTool: '启动工具',
+    footerDesc: '面向电商商家的首选云平台。智能工具，精准决策。',
+    platform: '平台',
+    allTools: '所有工具',
+    updates: '最新更新',
+    pricing: '价格方案',
+    support: '支持与帮助',
+    faq: '常见问题',
+    terms: '使用条款',
+    privacy: '隐私政策',
+    rights: '版权所有 © 2026 Engazia 平台'
+  },
+  de: {
+    live: 'System Aktiv',
+    heroTitle: 'ENGAZIA ULTRA MAX Plattform',
+    heroDesc: 'Das ultimative Cloud-Ökosystem für E-Commerce-Unternehmer, 16 leistungsstarke Tools.',
+    runTool: 'Tool starten',
+    footerDesc: 'Die führende Cloud-Plattform für E-Commerce-Händler.',
+    platform: 'Plattform',
+    allTools: 'Alle Tools',
+    updates: 'Updates',
+    pricing: 'Preise',
+    support: 'Support',
+    faq: 'FAQ',
+    terms: 'Nutzungsbedingungen',
+    privacy: 'Datenschutz',
+    rights: 'Alle Rechte vorbehalten © 2026 Engazia'
+  },
+  id: {
+    live: 'Sistem Aktif',
+    heroTitle: 'Platform ENGAZIA ULTRA MAX',
+    heroDesc: 'Ekosistem cloud ultimate untuk wirausahawan e-commerce, 16 alat canggih.',
+    runTool: 'Buka Alat',
+    footerDesc: 'Platform cloud terkemuka untuk pedagang e-commerce.',
+    platform: 'Platform',
+    allTools: 'Semua Alat',
+    updates: 'Pembaruan',
+    pricing: 'Harga',
+    support: 'Dukungan',
+    faq: 'FAQ',
+    terms: 'Ketentuan Penggunaan',
+    privacy: 'Kebijakan Privasi',
+    rights: 'Hak cipta dilindungi © 2026 Engazia'
   }
 };
 
@@ -81,28 +162,24 @@ export default function EngaziaHomeHub() {
 
   const LEMON_CHECKOUT_URL = 'https://enjazya.lemonsqueezy.com/checkout/buy/80ff492a-01eb-4455-b1a8-96e12ab72562';
 
+  // جلب الإعدادات المخزنة تلقائياً عند تحميل الصفحة لأول مرة
   useEffect(() => {
-    const savedLang = localStorage.getItem('engazia_global_lang');
-    if (savedLang) setCurrentLang(savedLang);
-
-    const savedCurr = localStorage.getItem('engazia_global_currency');
-    if (savedCurr) setCurrentCurrency(savedCurr);
-
-    const savedKey = localStorage.getItem('merchant_license_key');
-    if (savedKey) {
-      setLicenseKeyInput(savedKey);
-      setIsActivated(true);
-    }
+    const config = getGlobalConfig();
+    setCurrentLang(config.lang);
+    setCurrentCurrency(config.currency);
+    setLicenseKeyInput(config.licenseKey);
+    setIsActivated(config.isActivated);
   }, []);
 
+  // حفظ التغيير فوراً ودون الحاجة لتكراره إلا إذا أراد التاجر
   const handleLanguageChange = (lang: string) => {
     setCurrentLang(lang);
-    localStorage.setItem('engazia_global_lang', lang);
+    setGlobalConfig(lang, currentCurrency);
   };
 
   const handleCurrencyChange = (curr: string) => {
     setCurrentCurrency(curr);
-    localStorage.setItem('engazia_global_currency', curr);
+    setGlobalConfig(currentLang, curr);
   };
 
   const handleActivateLicense = () => {
@@ -117,28 +194,29 @@ export default function EngaziaHomeHub() {
   };
 
   const t = translations[currentLang] || translations.ar;
+  const isRtl = currentLang === 'ar';
 
   const tools = [
-    { id: 'whatsapp', title: currentLang === 'en' ? 'WhatsApp CRM & Sales' : 'إدارة عملاء واتساب والمبيعات', desc: currentLang === 'en' ? 'Manage abandoned carts, payment links, and VIP customers.' : 'إدارة السلال المتروكة، إرسال روابط الدفع، وتصنيف عملاء الـ VIP.', icon: '💬', link: '/hub/whatsapp' },
-    { id: 'profit', title: currentLang === 'en' ? 'Profit & Break-even Calculator' : 'حاسبة أرباح ونقاط التعادل', desc: currentLang === 'en' ? 'Calculate exact net profits after ad and product costs.' : 'احسب صافي أرباح منتجك بدقة بعد خصم التكاليف والإعلانات.', icon: '📊', link: '/hub/profit' },
-    { id: 'invoices', title: currentLang === 'en' ? 'Invoice & Receipt Generator' : 'مولد الفواتير وسندات القبض', desc: currentLang === 'en' ? 'Generate professional sales invoices instantly.' : 'أنشئ فواتير مبيعات نظامية واحترافية وجهزها للإرسال الفوري.', icon: '🧾', link: '/hub/invoices' },
-    { id: 'returns', title: currentLang === 'en' ? 'Returns & Loss Analyzer' : 'حاسبة وتحليل خسائر المرتجعات', desc: currentLang === 'en' ? 'Measure return impact on monthly net profits.' : 'قس تأثير الاسترجاع والاستبدال على صافي أرباحك الشهرية.', icon: '🔄', link: '/hub/returns' },
-    { id: 'expenses', title: currentLang === 'en' ? 'Expenses Manager' : 'مدير المصاريف والنفقات', desc: currentLang === 'en' ? 'Track fixed and variable store expenses.' : 'تتبع مصاريف المتجر الثابتة والمتغيرة لضبط التدفق النقدي.', icon: '💸', link: '/hub/expenses' },
-    { id: 'legal', title: currentLang === 'en' ? 'Store Legal Policies Generator' : 'مولد السياسات القانونية للمتجر', desc: currentLang === 'en' ? 'Create compliant return and privacy policies.' : 'أنشئ صفحات الاستبدال، الاسترجاع، والخصوصية المتوافقة نظامياً.', icon: '⚖', link: '/hub/legal' },
-    { id: 'roas', title: currentLang === 'en' ? 'Ad Spend ROAS Analyzer' : 'محلل عائد الإنفاق الإعلاني', desc: currentLang === 'en' ? 'Measure exact performance of your ad campaigns.' : 'قس بدقة أداء إعلانات سناب وتيك توك وهل هي رابحة أم خاسرة.', icon: '📈', link: '/hub/roas' },
-    { id: 'fees', title: currentLang === 'en' ? 'Payment Gateway Fees Calculator' : 'حاسبة رسوم بوابات الدفع', desc: currentLang === 'en' ? 'Calculate gateway fees impact on profit margins.' : 'احسب نسبة بوابات الدفع (تاب، مدى، تابي) وتأثيرها على الأرباح.', icon: '💳', link: '/hub/fees' },
-    { id: 'copy', title: currentLang === 'en' ? 'Marketing Copy & Ad Generator' : 'مولد النصوص التسويقية والإعلانات', desc: currentLang === 'en' ? 'Create TikTok scripts and converting ad copy.' : 'اصنع سكربتات تيك توك وإعلانات جذابة لزيادة مبيعات منتجاتك.', icon: '✍️', link: '/hub/copy' },
-    { id: 'promos', title: currentLang === 'en' ? 'Discount Promos Manager' : 'ممول وأكواد خصم المتاجر', desc: currentLang === 'en' ? 'Manage and create instant discount codes.' : 'أدر وأنشئ أكواد الخصم السريعة لتحفيز العملاء المترددين.', icon: '🎟️', link: '/hub/promos' },
-    { id: 'shipping', title: currentLang === 'en' ? 'Shipping & Delivery Tracker' : 'مدير تتبع الشحنات والتوصيل', desc: currentLang === 'en' ? 'Track shipments and resolve customer inquiries.' : 'تابع حالات الشحنات وحل مشاكل استفسارات العملاء اليومية.', icon: '📦', link: '/hub/shipping' },
-    { id: 'scraper', title: currentLang === 'en' ? 'Excel Data Cleaner & Formatter' : 'تنسيق وتنظيف بيانات الإكسل', desc: currentLang === 'en' ? 'Clean product lists and pricing formats.' : 'نظف قوائم المنتجات والأسعار العشوائية وحولها لملفات مرتبة.', icon: '⚡', link: '/hub/scraper' },
-    { id: 'links', title: currentLang === 'en' ? 'WhatsApp Direct Link Maker' : 'صانع روابط واتساب المباشرة', desc: currentLang === 'en' ? 'Create custom WhatsApp bio links.' : 'أنشئ روابط مخصصة برسائل جاهزة للبايو في تيك توك وإعلاناتك.', icon: '🔗', link: '/hub/links' },
-    { id: 'reviews', title: currentLang === 'en' ? 'Customer Reviews Collector' : 'أداة طلب وتقييمات العملاء', desc: currentLang === 'en' ? 'Send automated post-delivery review requests.' : 'ارسل رسائل تلقائية للعملاء بعد الاستلام لجمع التقييمات وبناء الثقة.', icon: '⭐', link: '/hub/reviews' },
-    { id: 'support', title: currentLang === 'en' ? 'Quick Support Templates' : 'ردود خدمة العملاء السريعة', desc: currentLang === 'en' ? 'Copy professional ready-made support replies.' : 'انسخ ردود احترافية جاهزة للرد على استفسارات العملاء المكررة.', icon: '🎧', link: '/hub/support' },
-    { id: 'tips', title: currentLang === 'en' ? 'Store Growth Secrets Library' : 'مكتبة أسرار وحيل نمو المتاجر', desc: currentLang === 'en' ? 'Exclusive growth and conversion strategies.' : 'استراتيجيات حصرية لزيادة التحويل ورفع ولاء العملاء.', icon: '💡', link: '/hub/tips' }
+    { id: 'whatsapp', title: currentLang === 'en' ? 'WhatsApp CRM & Sales' : currentLang === 'fr' ? 'CRM WhatsApp & Ventes' : currentLang === 'tr' ? 'WhatsApp CRM ve Satış' : 'إدارة عملاء واتساب والمبيعات', desc: currentLang === 'en' ? 'Manage abandoned carts, payment links, and VIP customers.' : 'إدارة السلال المتروكة، إرسال روابط الدفع، وتصنيف عملاء الـ VIP.', icon: '💬', link: '/hub/whatsapp' },
+    { id: 'profit', title: currentLang === 'en' ? 'Profit & Break-even Calculator' : currentLang === 'fr' ? 'Calculateur de profits' : 'حاسبة أرباح ونقاط التعادل', desc: currentLang === 'en' ? 'Calculate exact net profits after ad and product costs.' : 'احسب صافي أرباح منتجك بدقة بعد خصم التكاليف والإعلانات.', icon: '📊', link: '/hub/profit' },
+    { id: 'invoices', title: currentLang === 'en' ? 'Invoice & Receipt Generator' : currentLang === 'fr' ? 'Générateur de factures' : 'مولد الفواتير وسندات القبض', desc: currentLang === 'en' ? 'Generate professional sales invoices instantly.' : 'أنشئ فواتير مبيعات نظامية واحترافية وجهزها للإرسال الفوري.', icon: '🧾', link: '/hub/invoices' },
+    { id: 'returns', title: currentLang === 'en' ? 'Returns & Loss Analyzer' : currentLang === 'fr' ? 'Analyseur de retours' : 'حاسبة وتحليل خسائر المرتجعات', desc: currentLang === 'en' ? 'Measure return impact on monthly net profits.' : 'قس تأثير الاسترجاع والاستبدال على صافي أرباحك الشهرية.', icon: '🔄', link: '/hub/returns' },
+    { id: 'expenses', title: currentLang === 'en' ? 'Expenses Manager' : currentLang === 'fr' ? 'Gestionnaire de dépenses' : 'مدير المصاريف والنفقات', desc: currentLang === 'en' ? 'Track fixed and variable store expenses.' : 'تتبع مصاريف المتجر الثابتة والمتغيرة لضبط التدفق النقدي.', icon: '💸', link: '/hub/expenses' },
+    { id: 'legal', title: currentLang === 'en' ? 'Store Legal Policies Generator' : currentLang === 'fr' ? 'Générateur de politiques' : 'مولد السياسات القانونية للمتجر', desc: currentLang === 'en' ? 'Create compliant return and privacy policies.' : 'أنشئ صفحات الاستبدال، الاسترجاع، والخصوصية المتوافقة نظامياً.', icon: '⚖', link: '/hub/legal' },
+    { id: 'roas', title: currentLang === 'en' ? 'Ad Spend ROAS Analyzer' : currentLang === 'fr' ? 'Analyseur ROAS' : 'محلل عائد الإنفاق الإعلاني', desc: currentLang === 'en' ? 'Measure exact performance of your ad campaigns.' : 'قس بدقة أداء إعلانات سناب وتيك توك وهل هي رابحة أم خاسرة.', icon: '📈', link: '/hub/roas' },
+    { id: 'fees', title: currentLang === 'en' ? 'Payment Gateway Fees Calculator' : currentLang === 'fr' ? 'Calculateur de frais' : 'حاسبة رسوم بوابات الدفع', desc: currentLang === 'en' ? 'Calculate gateway fees impact on profit margins.' : 'احسب نسبة بوابات الدفع (تاب، مدى، تابي) وتأثيرها على الأرباح.', icon: '💳', link: '/hub/fees' },
+    { id: 'copy', title: currentLang === 'en' ? 'Marketing Copy & Ad Generator' : currentLang === 'fr' ? 'Générateur de texte marketing' : 'مولد النصوص التسويقية والإعلانات', desc: currentLang === 'en' ? 'Create TikTok scripts and converting ad copy.' : 'اصنع سكربتات تيك توك وإعلانات جذابة لزيادة مبيعات منتجاتك.', icon: '✍️', link: '/hub/copy' },
+    { id: 'promos', title: currentLang === 'en' ? 'Discount Promos Manager' : currentLang === 'fr' ? 'Gestionnaire de promos' : 'ممول وأكواد خصم المتاجر', desc: currentLang === 'en' ? 'Manage and create instant discount codes.' : 'أدر وأنشئ أكواد الخصم السريعة لتحفيز العملاء المترددين.', icon: '🎟️', link: '/hub/promos' },
+    { id: 'shipping', title: currentLang === 'en' ? 'Shipping & Delivery Tracker' : currentLang === 'fr' ? 'Suivi des expéditions' : 'مدير تتبع الشحنات والتوصيل', desc: currentLang === 'en' ? 'Track shipments and resolve customer inquiries.' : 'تابع حالات الشحنات وحل مشاكل استفسارات العملاء اليومية.', icon: '📦', link: '/hub/shipping' },
+    { id: 'scraper', title: currentLang === 'en' ? 'Excel Data Cleaner & Formatter' : currentLang === 'fr' ? 'Nettoyeur de données Excel' : 'تنسيق وتنظيف بيانات الإكسل', desc: currentLang === 'en' ? 'Clean product lists and pricing formats.' : 'نظف قوائم المنتجات والأسعار العشوائية وحولها لملفات مرتبة.', icon: '⚡', link: '/hub/scraper' },
+    { id: 'links', title: currentLang === 'en' ? 'WhatsApp Direct Link Maker' : currentLang === 'fr' ? 'Générateur de lien WhatsApp' : 'صانع روابط واتساب المباشرة', desc: currentLang === 'en' ? 'Create custom WhatsApp bio links.' : 'أنشئ روابط مخصصة برسائل جاهزة للبايو في تيك توك وإعلاناتك.', icon: '🔗', link: '/hub/links' },
+    { id: 'reviews', title: currentLang === 'en' ? 'Customer Reviews Collector' : currentLang === 'fr' ? 'Collecteur d\'avis' : 'أداة طلب وتقييمات العملاء', desc: currentLang === 'en' ? 'Send automated post-delivery review requests.' : 'ارسل رسائل تلقائية للعملاء بعد الاستلام لجمع التقييمات وبناء الثقة.', icon: '⭐', link: '/hub/reviews' },
+    { id: 'support', title: currentLang === 'en' ? 'Quick Support Templates' : currentLang === 'fr' ? 'Modèles de support' : 'ردود خدمة العملاء السريعة', desc: currentLang === 'en' ? 'Copy professional ready-made support replies.' : 'انسخ ردود احترافية جاهزة للرد على استفسارات العملاء المكررة.', icon: '🎧', link: '/hub/support' },
+    { id: 'tips', title: currentLang === 'en' ? 'Store Growth Secrets Library' : currentLang === 'fr' ? 'Bibliothèque de croissance' : 'مكتبة أسرار وحيل نمو المتاجر', desc: currentLang === 'en' ? 'Exclusive growth and conversion strategies.' : 'استراتيجيات حصرية لزيادة التحويل ورفع ولاء العملاء.', icon: '💡', link: '/hub/tips' }
   ];
 
   return (
-    <div className="hub-container" style={{ direction: currentLang === 'ar' ? 'rtl' : 'ltr' }}>
+    <div className="hub-container" style={{ direction: isRtl ? 'rtl' : 'ltr' }}>
       <style jsx global>{`
         a, .clean-link { text-decoration: none !important; color: inherit !important; }
       `}</style>
@@ -151,7 +229,7 @@ export default function EngaziaHomeHub() {
         .brand { font-size: 22px; font-weight: 900; color: #0f172a; }
         .brand span { color: #4f46e5; }
         
-        .nav-controls { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .nav-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
         .select-control { padding: 6px 12px; border-radius: 8px; border: 1px solid #cbd5e1; background: #f8fafc; font-family: 'Tajawal', sans-serif; font-weight: 700; font-size: 13px; color: #1e293b; outline: none; cursor: pointer; }
         
         .license-box { display: flex; align-items: center; gap: 8px; background: #f8fafc; padding: 4px 10px; border-radius: 8px; border: 1px solid #cbd5e1; }
@@ -201,6 +279,7 @@ export default function EngaziaHomeHub() {
         @media(max-width: 640px) { .cards-grid { grid-template-columns: 1fr; } .hero h1 { font-size: 28px; } .footer-links { flex-direction: column; gap: 30px; } }
       `}</style>
 
+      {/* شريط التحكم المركزي باللغة والعملة والاشتراك */}
       <div className="navbar">
         <div className="brand">إنجازيا <span>ENGAZIA</span></div>
 
@@ -209,6 +288,11 @@ export default function EngaziaHomeHub() {
             <option value="ar">العربية 🇸🇦</option>
             <option value="en">English 🇬🇧</option>
             <option value="fr">Français 🇫🇷</option>
+            <option value="es">Español 🇪🇸</option>
+            <option value="tr">Türkçe 🇹🇷</option>
+            <option value="zh">中文 🇨🇳</option>
+            <option value="de">Deutsch 🇩🇪</option>
+            <option value="id">Bahasa 🇮🇩</option>
           </select>
 
           <select className="select-control" value={currentCurrency} onChange={(e) => handleCurrencyChange(e.target.value)}>
@@ -216,6 +300,10 @@ export default function EngaziaHomeHub() {
             <option value="AED">AED (د.إ)</option>
             <option value="USD">USD ($)</option>
             <option value="EUR">EUR (€)</option>
+            <option value="GBP">GBP (£)</option>
+            <option value="TRY">TRY (₺)</option>
+            <option value="KWD">KWD (د.ك)</option>
+            <option value="QAR">QAR (ر.ق)</option>
           </select>
 
           <div className="license-box">
@@ -229,7 +317,7 @@ export default function EngaziaHomeHub() {
                   placeholder="مفتاح الترخيص..." 
                   value={licenseKeyInput} 
                   onChange={(e) => setLicenseKeyInput(e.target.value)}
-                  style={{ border: '1px solid #cbd5e1', borderRadius: '4px', padding: '3px 6px', fontSize: '10px', outline: 'none', width: '90px', fontFamily: 'Tajawal, sans-serif' }}
+                  style={{ border: '1px solid #cbd5e1', borderRadius: '4px', padding: '3px 6px', fontSize: '10px', outline: 'none', width: '80px', fontFamily: 'Tajawal, sans-serif' }}
                 />
                 <button 
                   onClick={handleActivateLicense}
@@ -265,7 +353,7 @@ export default function EngaziaHomeHub() {
             </div>
             <div className="card-btn">
               <span>{t.runTool}</span>
-              <span>{currentLang === 'ar' ? '←' : '→'}</span>
+              <span>{isRtl ? '←' : '→'}</span>
             </div>
           </Link>
         ))}
