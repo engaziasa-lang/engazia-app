@@ -5,7 +5,6 @@ import Link from 'next/link';
 
 const supportedLangs = ['ar', 'en', 'fr', 'es', 'tr', 'zh', 'de', 'id'];
 
-// دالة لتحديد اللغة والعملة الافتراضية بشكل آلي متزامن
 const getInitialConfig = () => {
   if (typeof window === 'undefined') {
     return { lang: 'en', currency: 'USD', licenseKey: '', isActivated: false };
@@ -24,7 +23,6 @@ const getInitialConfig = () => {
     localStorage.setItem('engazia_global_lang', storedLang);
   }
 
-  // ربط العملة باللغة آلياً إن لم تكن مخزنة مسبقاً
   if (!storedCurrency) {
     if (storedLang === 'ar') {
       storedCurrency = 'SAR';
@@ -344,7 +342,7 @@ const translations: Translations = {
       { id: 'legal', title: '法律政策生成器', desc: '创建符合规范的退换货与隐私政策。', icon: '⚖', link: '/hub/legal' },
       { id: 'roas', title: '广告投资回报分析器', desc: '精准衡量广告投放效果是否盈利。', icon: '📈', link: '/hub/roas' },
       { id: 'fees', title: '支付网关手续费计算器', desc: '计算支付通道费率对利润的影响。', icon: '💳', link: '/hub/fees' },
-      { id: 'copy', title: '营销文案与广告生成器', desc: '制作高转化率的广告脚本与文案。', icon: '✍️️', link: '/hub/copy' },
+      { id: 'copy', title: '营销文案与广告生成器', desc: '制作高转化率的广告脚本与文案。', icon: '✍️', link: '/hub/copy' },
       { id: 'promos', title: '折扣优惠券管理器', desc: '管理并创建促销折扣代码。', icon: '🎟️', link: '/hub/promos' },
       { id: 'shipping', title: '物流配送追踪器', desc: '实时跟进包裹状态并解决物流问题。', icon: '📦', link: '/hub/shipping' },
       { id: 'scraper', title: 'Excel 数据清洗与整理', desc: '快速清理混乱的产品表格与价格。', icon: '⚡', link: '/hub/scraper' },
@@ -388,7 +386,7 @@ const translations: Translations = {
       { id: 'legal', title: 'Rechtsrichtlinien-Generator', desc: 'Konforme Widerrufsbelehrungen erstellen.', icon: '⚖', link: '/hub/legal' },
       { id: 'roas', title: 'ROAS-Analysator', desc: 'Werbeperformance exakt messen.', icon: '📈', link: '/hub/roas' },
       { id: 'fees', title: 'Zahlungs-Gateway Gebührenrechner', desc: 'Transaktionsgebühren kalkulieren.', icon: '💳', link: '/hub/fees' },
-      { id: 'copy', title: 'Marketing-Text-Generator', desc: 'Verkaufsfördernde Werbetexte erstellen.', icon: '✍️️', link: '/hub/copy' },
+      { id: 'copy', title: 'Marketing-Text-Generator', desc: 'Verkaufsfördernde Werbetexte erstellen.', icon: '✍️', link: '/hub/copy' },
       { id: 'promos', title: 'Gutschein-Manager', desc: 'Rabattcodes unkompliziert verwalten.', icon: '🎟️', link: '/hub/promos' },
       { id: 'shipping', title: 'Versand-Tracker', desc: 'Sendungsstatus überwachen.', icon: '📦', link: '/hub/shipping' },
       { id: 'scraper', title: 'Excel Datenbereinigung', desc: 'Produktlisten und Preise formatieren.', icon: '⚡', link: '/hub/scraper' },
@@ -452,7 +450,6 @@ export default function EngaziaHomeHub() {
 
   const LEMON_CHECKOUT_URL = 'https://enjazya.lemonsqueezy.com/checkout/buy/80ff492a-01eb-4455-b1a8-96e12ab72562';
 
-  // حساب وتحويل أسعار العرض بناءً على العملة الحالية
   const getConvertedPrice = (usdAmount: number) => {
     let rate = 3.75; // SAR
     let symbol = 'ر.س';
@@ -477,7 +474,6 @@ export default function EngaziaHomeHub() {
     setIsActivated(config.isActivated);
   }, []);
 
-  // دالة تغيير اللغة: تقوم بتحديث اللغة والعملة المقترنة بها آلياً في نفس اللحظة
   const handleLanguageChange = (lang: string) => {
     let newCurrency = currentCurrency;
     if (lang === 'ar') newCurrency = 'SAR';
@@ -536,16 +532,16 @@ export default function EngaziaHomeHub() {
         .license-box { display: flex; align-items: center; gap: 8px; background: #f8fafc; padding: 4px 10px; border-radius: 8px; border: 1px solid #cbd5e1; }
         .upgrade-btn { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: #fff !important; padding: 6px 12px; border-radius: 8px; font-weight: 800; font-size: 12px; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; box-shadow: 0 4px 10px rgba(79,70,229,0.2); }
         
-        /* إعلان الترقية الجذاب */
-        .promo-banner { max-width: 1250px; margin: 0 auto 35px; background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: #fff; border-radius: 16px; padding: 20px 30px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; box-shadow: 0 10px 25px rgba(79,70,229,0.25); border: 1px solid rgba(255,255,255,0.2); position: relative; overflow: hidden; }
-        .promo-banner::before { content: ''; position: absolute; top: -50px; right: -50px; width: 150px; height: 150px; background: rgba(255,255,255,0.1); border-radius: 50%; pointer-events: none; }
-        .promo-content { display: flex; flex-direction: column; gap: 6px; }
-        .promo-heading { font-size: 17px; font-weight: 900; display: flex; align-items: center; gap: 8px; }
-        .promo-text { font-size: 13.5px; font-weight: 700; opacity: 0.95; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-        .price-tag-new { background: #10b981; color: #fff; padding: 2px 8px; border-radius: 6px; font-weight: 900; font-size: 14px; }
-        .price-tag-old { text-decoration: line-through; opacity: 0.8; font-size: 12px; font-weight: 800; }
-        .promo-btn { background: #fff; color: #4f46e5; border: none; padding: 10px 22px; border-radius: 10px; font-weight: 900; font-size: 13.5px; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        .promo-btn:hover { background: #f8fafc; transform: translateY(-2px); }
+        /* إعلان الترقية المبرز والأنيق (يختفي فور التفعيل) */
+        .promo-banner { max-width: 1250px; margin: 0 auto 35px; background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: #fff; border-radius: 16px; padding: 22px 32px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; box-shadow: 0 12px 30px rgba(79,70,229,0.3); border: 1px solid rgba(255,255,255,0.25); position: relative; overflow: hidden; }
+        .promo-banner::before { content: ''; position: absolute; top: -60px; right: -60px; width: 180px; height: 180px; background: rgba(255,255,255,0.12); border-radius: 50%; pointer-events: none; }
+        .promo-content { display: flex; flex-direction: column; gap: 8px; z-index: 1; }
+        .promo-heading { font-size: 18px; font-weight: 900; display: flex; align-items: center; gap: 8px; letter-spacing: -0.3px; text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .promo-text { font-size: 14px; font-weight: 700; opacity: 0.98; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .price-tag-new { background: #10b981; color: #fff; padding: 3px 10px; border-radius: 8px; font-weight: 900; font-size: 15px; box-shadow: 0 2px 6px rgba(16, 185, 129, 0.4); }
+        .price-tag-old { text-decoration: line-through; opacity: 0.75; font-size: 12.5px; font-weight: 800; }
+        .promo-btn { background: #fff; color: #4f46e5; border: none; padding: 12px 26px; border-radius: 12px; font-weight: 900; font-size: 14px; cursor: pointer; transition: all 0.25s ease; box-shadow: 0 6px 15px rgba(0,0,0,0.15); z-index: 1; }
+        .promo-btn:hover { background: #f8fafc; transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.2); }
 
         .hero { text-align: center; max-width: 800px; margin: 0 auto 50px; }
         .hero h1 { font-size: 36px; font-weight: 900; color: #0f172a; margin-bottom: 15px; letter-spacing: -0.5px; }
@@ -658,23 +654,25 @@ export default function EngaziaHomeHub() {
         </div>
       </div>
 
-      {/* إعلان الترقية المغري */}
-      <div className="promo-banner">
-        <div className="promo-content">
-          <div className="promo-heading">{t.promoTitle}</div>
-          <div className="promo-text">
-            <span>{t.promoDesc}</span>
-            <span className="price-tag-new">{getConvertedPrice(9.99)}</span>
-            <span>{t.promoPer}</span>
-            <span className="price-tag-old">({t.promoOld} {getConvertedPrice(29)})</span>
+      {/* إعلان الترقية يظهر للمستخدمين غير المشتركين فقط ويختفي تماماً بعد الاشتراك */}
+      {!isActivated && (
+        <div className="promo-banner">
+          <div className="promo-content">
+            <div className="promo-heading">{t.promoTitle}</div>
+            <div className="promo-text">
+              <span>{t.promoDesc}</span>
+              <span className="price-tag-new">{getConvertedPrice(9.99)}</span>
+              <span>{t.promoPer}</span>
+              <span className="price-tag-old">({t.promoOld} {getConvertedPrice(29)})</span>
+            </div>
           </div>
+          <a href={LEMON_CHECKOUT_URL} target="_blank" rel="noopener noreferrer">
+            <button className="promo-btn">
+              {t.upgradeNowBtn}
+            </button>
+          </a>
         </div>
-        <a href={LEMON_CHECKOUT_URL} target="_blank" rel="noopener noreferrer">
-          <button className="promo-btn">
-            {t.upgradeNowBtn}
-          </button>
-        </a>
-      </div>
+      )}
 
       <div className="hero">
         <h1>{t.heroTitle}</h1>
