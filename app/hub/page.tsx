@@ -3,17 +3,47 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 
-const getGlobalConfig = () => {
+const supportedLangs = ['ar', 'en', 'fr', 'es', 'tr', 'zh', 'de', 'id'];
+
+// دالة لتحديد اللغة والعملة الافتراضية بناءً على المتصفح
+const getInitialConfig = () => {
   if (typeof window === 'undefined') {
-    return { lang: 'ar', currency: 'SAR', licenseKey: '', isActivated: false };
+    return { lang: 'en', currency: 'USD', licenseKey: '', isActivated: false };
   }
   
-  const lang = localStorage.getItem('engazia_global_lang') || 'ar';
-  const currency = localStorage.getItem('engazia_global_currency') || 'SAR';
+  let storedLang = localStorage.getItem('engazia_global_lang');
+  let storedCurrency = localStorage.getItem('engazia_global_currency');
+
+  if (!storedLang) {
+    const browserLang = navigator.language ? navigator.language.slice(0, 2).toLowerCase() : 'en';
+    if (supportedLangs.includes(browserLang)) {
+      storedLang = browserLang;
+    } else {
+      storedLang = 'en'; // الافتراضي إنجليزي إذا لم تكن اللغة مدعومة
+    }
+    localStorage.setItem('engazia_global_lang', storedLang);
+  }
+
+  if (!storedCurrency) {
+    // تحديد العملة الافتراضية حسب اللغة المكتشفة
+    if (storedLang === 'ar') {
+      storedCurrency = 'SAR';
+    } else if (storedLang === 'fr' || storedLang === 'de') {
+      storedCurrency = 'EUR';
+    } else if (storedLang === 'tr') {
+      storedCurrency = 'TRY';
+    } else if (storedLang === 'zh') {
+      storedCurrency = 'USD';
+    } else {
+      storedCurrency = 'USD'; // الافتراضي دولار إذا لم تكن مطابقة
+    }
+    localStorage.setItem('engazia_global_currency', storedCurrency);
+  }
+
   const licenseKey = localStorage.getItem('merchant_license_key') || '';
   const isActivated = !!licenseKey;
 
-  return { lang, currency, licenseKey, isActivated };
+  return { lang: storedLang, currency: storedCurrency, licenseKey, isActivated };
 };
 
 const setGlobalConfig = (lang: string, currency: string) => {
@@ -243,7 +273,7 @@ const translations: Translations = {
       { id: 'roas', title: 'Reklam ROAS Analizcisi', desc: 'Reklam kampanyalarınızın performansını ölçün.', icon: '📈', link: '/hub/roas' },
       { id: 'fees', title: 'Ödeme Ağ Geçidi Komisyon Hesaplayıcı', desc: 'Komisyon oranlarını hesaplayın.', icon: '💳', link: '/hub/fees' },
       { id: 'copy', title: 'Pazarlama Metni Oluşturucu', desc: 'Dönüşüm oranını artıracak reklam metinleri yazın.', icon: '✍️', link: '/hub/copy' },
-      { id: 'promos', title: 'İndirim Kuponu Yöneticisi', desc: 'Anında indirim kodları oluşturun.', icon: '🎟️', link: '/hub/promos' },
+      { id: 'promos', title: 'İndirim Kuponu Yöneticisi', desc: 'Anında indirim kodları oluşturun.', icon: '🎟️️', link: '/hub/promos' },
       { id: 'shipping', title: 'Kargo Takip Yöneticisi', desc: 'Kargo durumlarını takip edin.', icon: '📦', link: '/hub/shipping' },
       { id: 'scraper', title: 'Excel Veri Temizleyici', desc: 'Ürün listelerini ve fiyatları düzenleyin.', icon: '⚡', link: '/hub/scraper' },
       { id: 'links', title: 'WhatsApp Direkt Bağlantı Oluşturucu', desc: 'Özel WhatsApp bağlantıları oluşturun.', icon: '🔗', link: '/hub/links' },
@@ -372,15 +402,15 @@ const translations: Translations = {
 };
 
 export default function EngaziaHomeHub() {
-  const [currentLang, setCurrentLang] = useState<string>('ar');
-  const [currentCurrency, setCurrentCurrency] = useState<string>('SAR');
+  const [currentLang, setCurrentLang] = useState<string>('en');
+  const [currentCurrency, setCurrentCurrency] = useState<string>('USD');
   const [licenseKeyInput, setLicenseKeyInput] = useState<string>('');
   const [isActivated, setIsActivated] = useState<boolean>(false);
 
   const LEMON_CHECKOUT_URL = 'https://enjazya.lemonsqueezy.com/checkout/buy/80ff492a-01eb-4455-b1a8-96e12ab72562';
 
   useEffect(() => {
-    const config = getGlobalConfig();
+    const config = getInitialConfig();
     setCurrentLang(config.lang);
     setCurrentCurrency(config.currency);
     setLicenseKeyInput(config.licenseKey);
@@ -408,7 +438,7 @@ export default function EngaziaHomeHub() {
     alert('✨ تم تفعيل النظام والمزامنة السحابية بنجاح عبر كل الأدوات!');
   };
 
-  const t = translations[currentLang] || translations.ar;
+  const t = translations[currentLang] || translations.en;
   const isRtl = currentLang === 'ar';
 
   return (
@@ -438,7 +468,7 @@ export default function EngaziaHomeHub() {
 
         .cards-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; max-width: 1250px; margin: 0 auto 60px; }
         
-        .card { background: #ffffff; border-radius: 12px; padding: 24px; border: 2px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; }
+        .card { background: #ffffff; border-radius: 12px; padding: 24px; border: 2px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; text-align: start; }
         
         .card:hover { transform: translateY(-5px); border-color: #4f46e5; box-shadow: 0 15px 30px -5px rgba(79, 70, 229, 0.15); z-index: 10; }
 
@@ -457,7 +487,7 @@ export default function EngaziaHomeHub() {
         .card-btn { background: #e0e7ff; color: #4f46e5; text-align: center; padding: 14px; border-radius: 8px; font-weight: 800; font-size: 14px; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .card:hover .card-btn { background: #4f46e5; color: #ffffff; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25); }
 
-        .footer { max-width: 1250px; margin: 0 auto; background: #0f172a; border-radius: 16px; padding: 40px; color: #f8fafc; border: 1px solid #1e293b; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        .footer { max-width: 1250px; margin: 0 auto; background: #0f172a; border-radius: 16px; padding: 40px; color: #f8fafc; border: 1px solid #1e293b; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); text-align: start; }
         .footer-content { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 30px; margin-bottom: 30px; border-bottom: 1px solid #334155; padding-bottom: 30px; }
         .footer-brand { max-width: 400px; }
         .footer-brand h3 { font-size: 24px; font-weight: 900; margin-bottom: 15px; color: #ffffff; }
@@ -475,7 +505,7 @@ export default function EngaziaHomeHub() {
         @media(max-width: 640px) { .cards-grid { grid-template-columns: 1fr; } .hero h1 { font-size: 28px; } .footer-links { flex-direction: column; gap: 30px; } }
       `}</style>
 
-      {/* شريط التحكم العلوي المترجم بالكامل */}
+      {/* شريط التحكم العلوي */}
       <div className="navbar">
         <div className="brand">{t.brandName} <span>{t.brandSub}</span></div>
 
