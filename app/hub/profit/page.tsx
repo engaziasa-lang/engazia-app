@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { supabase } from '@/lib/supabaseClient';
 
 interface SavedProduct {
   id: string;
@@ -105,7 +106,7 @@ export default function ProfitCalculator() {
     setResults({ paymentFees, taxAmount, returnsCost, totalCostWithoutAds, maxCPA, breakEvenROAS, netProfit, profitMargin, roi });
   };
 
-  const saveProduct = () => {
+  const saveProduct = async () => {
     if (!productName.trim() || !sellingPrice) {
       alert('الرجاء إدخال اسم المنتج وسعر البيع على الأقل للحفظ.');
       return;
@@ -123,6 +124,31 @@ export default function ProfitCalculator() {
       netProfit: results.netProfit, profitMargin: results.profitMargin, maxCPA: results.maxCPA, breakEvenROAS: results.breakEvenROAS, roi: results.roi
     };
 
+    // 1. الحفظ في Supabase
+    try {
+      const { error } = await supabase.from('products').insert([
+        {
+          name: newProduct.name,
+          selling_price: newProduct.sellingPrice,
+          product_cost: newProduct.productCost,
+          shipping_cost: newProduct.shippingCost,
+          ad_spend: newProduct.adSpend,
+          net_profit: newProduct.netProfit,
+          profit_margin: newProduct.profitMargin,
+          currency: newProduct.currency
+        }
+      ]);
+
+      if (error) {
+        console.error('خطأ في حفظ البيانات في Supabase:', error.message);
+      } else {
+        console.log('تم حفظ المنتج في Supabase بنجاح!');
+      }
+    } catch (err) {
+      console.error('حدث استثناء أثناء الاتصال بقاعدة البيانات:', err);
+    }
+
+    // 2. الحفظ المحلي
     const updatedList = [newProduct, ...savedProducts];
     setSavedProducts(updatedList);
     localStorage.setItem('engazia_profit_products_v10', JSON.stringify(updatedList));
@@ -511,7 +537,7 @@ export default function ProfitCalculator() {
           </div>
 
           <div style={{ background: '#f8fafc', padding: '12px', borderRadius: '10px', border: '1px solid #e2e8f0', marginTop: '5px' }}>
-            <h3 style={{ fontSize: '11px', color: '#1e293b', marginBottom: '10px', fontWeight: 900 }}>⚙️️ الإعدادات المتقدمة (الرسوم)</h3>
+            <h3 style={{ fontSize: '11px', color: '#1e293b', marginBottom: '10px', fontWeight: 900 }}>⚙ الإعدادات المتقدمة (الرسوم)</h3>
             
             <div className="grid-3-cols">
               <div className="input-group" style={{ marginBottom: 0 }}>
