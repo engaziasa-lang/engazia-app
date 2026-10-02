@@ -31,7 +31,6 @@ export default function ProfitCalculator() {
   const [shippingCost, setShippingCost] = useState<number | ''>('');
   const [adSpend, setAdSpend] = useState<number | ''>('');
   
-  // حفظ واسترجاع العملة المفضلة للتاجر
   const [currency, setCurrency] = useState<string>('ر.س');
 
   const [paymentFeePercent, setPaymentFeePercent] = useState<number>(2.5);
@@ -42,7 +41,6 @@ export default function ProfitCalculator() {
 
   const [searchQuery, setSearchQuery] = useState<string>('');
 
-  // حالات نظام مفتاح الاشتراك (License Key)
   const [licenseKeyInput, setLicenseKeyInput] = useState<string>('');
   const [isActivated, setIsActivated] = useState<boolean>(false);
 
@@ -60,52 +58,82 @@ export default function ProfitCalculator() {
 
   const [savedProducts, setSavedProducts] = useState<SavedProduct[]>([]);
 
-  // دوال المزامنة السحابية والمحلية
+  // إعدادات JSONbin
+  const MASTER_KEY = '$2a$10$MjUOD019x6uuVhydjtfL.cBlGqmIXvWR5b/tNrOZU6Ey8P.JOcyu';
+
+  // دالة لجلب البيانات سحابياً بناءً على كود التاجر (يخزن Bin ID في localStorage بعد أول ربط)
   const loadDataFromCloud = async (licenseKey: string) => {
     if (!licenseKey) return;
     try {
-      const res = await fetch(`https://api.jsonbin.io/v3/b/LATEST?meta=false`, {
+      const binId = localStorage.getItem(`bin_id_${licenseKey}`);
+      if (!binId) return; // أول مرة لهذا التاجر على هذا الجهاز
+
+      const res = await fetch(`https://api.jsonbin.io/v3/b/${binId}/latest`, {
         headers: {
-          'X-Master-Key': 'YOUR_JSONBIN_SECRET_KEY',
-          'X-Access-Key': licenseKey
+          'X-Master-Key': MASTER_KEY
         }
       });
-      const data = await res.json();
-      if (data && data.tools_data && data.tools_data.profit_calculator) {
-        setSavedProducts(data.tools_data.profit_calculator);
-        localStorage.setItem('engazia_profit_products_v10', JSON.stringify(data.tools_data.profit_calculator));
+      const responseData = await res.json();
+      if (responseData && responseData.record && responseData.record.tools_data) {
+        const cloudProducts = responseData.record.tools_data.profit_calculator || [];
+        setSavedProducts(cloudProducts);
+        localStorage.setItem('engazia_profit_products_v10', JSON.stringify(cloudProducts));
       }
     } catch (err) {
-      console.error('خطأ في مزامنة البيانات السحابية، تم الاعتماد على التخزين المحلي:', err);
+      console.error('خطأ في سحب البيانات سحابياً:', err);
     }
   };
 
+  // دالة حفظ البيانات سحابياً
   const saveToCloud = async (updatedProducts: SavedProduct[]) => {
     const licenseKey = localStorage.getItem('merchant_license_key');
     if (!licenseKey) return;
 
     try {
-      await fetch(`https://api.jsonbin.io/v3/b/YOUR_BIN_ID`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Master-Key': 'YOUR_JSONBIN_SECRET_KEY'
-        },
-        body: JSON.stringify({
-          merchant_key: licenseKey,
-          tools_data: {
-            profit_calculator: updatedProducts,
-          }
-        })
-      });
-      console.log('تم مزامنة وحفظ البيانات سحابياً بنجاح!');
+      let binId = localStorage.getItem(`bin_id_${licenseKey}`);
+
+      const payload = {
+        merchant_key: licenseKey,
+        tools_data: {
+          profit_calculator: updatedProducts,
+          // الأدوات المستقبلية تضاف هنا بكل سهولة
+        }
+      };
+
+      if (!binId) {
+        // إذا لم يكن للتاجر ملف (Bin) سحابي بعد، نقوم بانشائه تلقائياً
+        const createRes = await fetch('https://api.jsonbin.io/v3/b', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Master-Key': MASTER_KEY,
+            'X-Bin-Name': `Merchant_${licenseKey}`
+          },
+          body: JSON.stringify(payload)
+        });
+        const createData = await createRes.json();
+        if (createData && createData.metadata && createData.metadata.id) {
+          binId = createData.metadata.id;
+          localStorage.setItem(`bin_id_${licenseKey}`, binId!);
+        }
+      } else {
+        // تحديث الملف الموجود مسبقاً
+        await fetch(`https://api.jsonbin.io/v3/b/${binId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Master-Key': MASTER_KEY
+          },
+          body: JSON.stringify(payload)
+        });
+      }
+      console.log('تم مزامنة البيانات سحابياً بنجاح!');
     } catch (err) {
       console.error('فشل الحفظ السحابي:', err);
     }
   };
 
   useEffect(() => {
-    // التحقق من مفتاح الاشتراك عند التحميل
     const savedKey = localStorage.getItem('merchant_license_key');
     if (savedKey) {
       setLicenseKeyInput(savedKey);
@@ -113,7 +141,6 @@ export default function ProfitCalculator() {
       loadDataFromCloud(savedKey);
     }
 
-    // استرجاع العملة المحفوظة مسبقاً
     const savedCurr = localStorage.getItem('engazia_preferred_currency');
     if (savedCurr) setCurrency(savedCurr);
 
@@ -128,13 +155,13 @@ export default function ProfitCalculator() {
       alert('الرجاء إدخال مفتاح الاشتراك الصحيح.');
       return;
     }
-    localStorage.setItem('merchant_license_key', licenseKeyInput.trim());
+    const cleanKey = licenseKeyInput.trim();
+    localStorage.setItem('merchant_license_key', cleanKey);
     setIsActivated(true);
-    loadDataFromCloud(licenseKeyInput.trim());
+    loadDataFromCloud(cleanKey);
     alert('تم تفعيل مفتاح الاشتراك بنجاح وتزامن أدواتك!');
   };
 
-  // دالة تغيير وحفظ العملة في التخزين المحلي
   const handleCurrencyChange = (newCurr: string) => {
     setCurrency(newCurr);
     localStorage.setItem('engazia_preferred_currency', newCurr);
@@ -193,7 +220,7 @@ export default function ProfitCalculator() {
     const updatedList = [newProduct, ...savedProducts];
     setSavedProducts(updatedList);
     localStorage.setItem('engazia_profit_products_v10', JSON.stringify(updatedList));
-    saveToCloud(updatedList); // مزامنة سحابية تلقائية
+    saveToCloud(updatedList);
     setProductName('');
   };
 
@@ -378,7 +405,7 @@ export default function ProfitCalculator() {
           setSavedProducts(updatedList);
           localStorage.setItem('engazia_profit_products_v10', JSON.stringify(updatedList));
           saveToCloud(updatedList);
-          alert(`تم استيراد ${newProducts.length} منتج بنجاح بالاعتماد على الأعمدة المطابقة.`);
+          alert(`تم استيراد ${newProducts.length} منتج بنجاح وتزامنها سحابياً.`);
         }
       } catch (error) {
         console.error(error);
