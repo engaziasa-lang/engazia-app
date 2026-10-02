@@ -472,6 +472,11 @@ export default function EngaziaHomeHub() {
     setCurrentCurrency(config.currency);
     setLicenseKeyInput(config.licenseKey);
     setIsActivated(config.isActivated);
+
+    // ضبط عنوان الصفحة عند التحميل الأول بناءً على اللغة المخزنة
+    if (typeof window !== 'undefined') {
+      document.title = config.lang === 'ar' ? 'منصة إنجازيا' : 'Engazia Platform';
+    }
   }, []);
 
   const handleLanguageChange = (lang: string) => {
@@ -484,6 +489,11 @@ export default function EngaziaHomeHub() {
     setCurrentLang(lang);
     setCurrentCurrency(newCurrency);
     setGlobalConfig(lang, newCurrency);
+
+    // تحديث عنوان الصفحة في المتصفح فوراً بدل علامة #
+    if (typeof window !== 'undefined') {
+      document.title = lang === 'ar' ? 'منصة إنجازيا' : 'Engazia Platform';
+    }
   };
 
   const handleCurrencyChange = (curr: string) => {
@@ -523,7 +533,6 @@ export default function EngaziaHomeHub() {
         
         .hub-container { background-color: #f8fafc; min-height: 100vh; font-family: 'Tajawal', sans-serif; padding: 30px 20px 40px; }
         
-        /* تم تقليص المساحات الفارغة وجعل الـ Navbar متناسقاً ومتلاصقاً بذكاء */
         .navbar { max-width: 1250px; margin: 0 auto 25px; padding: 12px 24px; background: #ffffff; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); border: 1px solid #cbd5e1; flex-wrap: nowrap; gap: 10px; }
         .brand { font-size: 22px; font-weight: 900; color: #0f172a; white-space: nowrap; }
         .brand span { color: #4f46e5; }
@@ -531,14 +540,12 @@ export default function EngaziaHomeHub() {
         .nav-controls { display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; }
         .select-control { padding: 6px 10px; border-radius: 8px; border: 1px solid #cbd5e1; background: #f8fafc; font-family: 'Tajawal', sans-serif; font-weight: 700; font-size: 13px; color: #1e293b; outline: none; cursor: pointer; }
         
-        /* توسيع حقل إدخال مفتاح التفعيل ليصبح أطول وأوضح */
         .license-box { display: flex; align-items: center; gap: 6px; background: #f8fafc; padding: 4px 8px; border-radius: 8px; border: 1px solid #cbd5e1; }
         .license-input { border: 1px solid #cbd5e1; border-radius: 6px; padding: 4px 10px; font-size: 12px; outline: none; width: 170px; font-family: 'Tajawal, sans-serif'; background: #fff; color: #0f172a; }
         .license-input:focus { border-color: #4f46e5; box-shadow: 0 0 0 2px rgba(79,70,229,0.1); }
         
         .upgrade-btn { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: #fff !important; padding: 7px 14px; border-radius: 8px; font-weight: 800; font-size: 12px; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; box-shadow: 0 4px 10px rgba(79,70,229,0.2); white-space: nowrap; }
         
-        /* إعلان الترقية (يختفي فور تفعيل الاشتراك) */
         .promo-banner { max-width: 1250px; margin: 0 auto 35px; background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: #fff; border-radius: 16px; padding: 22px 32px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; box-shadow: 0 12px 30px rgba(79,70,229,0.3); border: 1px solid rgba(255,255,255,0.25); position: relative; overflow: hidden; }
         .promo-banner::before { content: ''; position: absolute; top: -60px; right: -60px; width: 180px; height: 180px; background: rgba(255,255,255,0.12); border-radius: 50%; pointer-events: none; }
         .promo-content { display: flex; flex-direction: column; gap: 8px; z-index: 1; }
