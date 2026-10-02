@@ -5,6 +5,7 @@ import Link from 'next/link';
 
 const supportedLangs = ['ar', 'en', 'fr', 'es', 'tr', 'zh', 'de', 'id'];
 
+// دالة لتحديد اللغة والعملة الافتراضية بشكل آلي متزامن
 const getInitialConfig = () => {
   if (typeof window === 'undefined') {
     return { lang: 'en', currency: 'USD', licenseKey: '', isActivated: false };
@@ -23,6 +24,7 @@ const getInitialConfig = () => {
     localStorage.setItem('engazia_global_lang', storedLang);
   }
 
+  // ربط العملة باللغة آلياً إن لم تكن مخزنة مسبقاً
   if (!storedCurrency) {
     if (storedLang === 'ar') {
       storedCurrency = 'SAR';
@@ -122,7 +124,7 @@ const translations: Translations = {
       { id: 'legal', title: 'مولد السياسات القانونية للمتجر', desc: 'أنشئ صفحات الاستبدال، الاسترجاع، والخصوصية المتوافقة نظامياً.', icon: '⚖', link: '/hub/legal' },
       { id: 'roas', title: 'محلل عائد الإنفاق الإعلاني', desc: 'قس بدقة أداء إعلانات سناب وتيك توك وهل هي رابحة أم خاسرة.', icon: '📈', link: '/hub/roas' },
       { id: 'fees', title: 'حاسبة رسوم بوابات الدفع', desc: 'احسب نسبة بوابات الدفع (تاب، مدى، تابي) وتأثيرها على الأرباح.', icon: '💳', link: '/hub/fees' },
-      { id: 'copy', title: 'مولد النصوص التسويقية والإعلانات', desc: 'اصنع سكربتات تيك توك وإعلانات جذابة لزيادة مبيعات منتجاتك.', icon: '✍️️', link: '/hub/copy' },
+      { id: 'copy', title: 'مولد النصوص التسويقية والإعلانات', desc: 'اصنع سكربتات تيك توك وإعلانات جذابة لزيادة مبيعات منتجاتك.', icon: '✍', link: '/hub/copy' },
       { id: 'promos', title: 'ممول وأكواد خصم المتاجر', desc: 'أدر وأنشئ أكواد الخصم السريعة لتحفيز العملاء المترددين.', icon: '🎟️', link: '/hub/promos' },
       { id: 'shipping', title: 'مدير تتبع الشحنات والتوصيل', desc: 'تابع حالات الشحنات وحل مشاكل استفسارات العملاء اليومية.', icon: '📦', link: '/hub/shipping' },
       { id: 'scraper', title: 'تنسيق وتنظيف بيانات الإكسل', desc: 'نظف قوائم المنتجات والأسعار العشوائية وحولها لملفات مرتبة.', icon: '⚡', link: '/hub/scraper' },
@@ -254,7 +256,7 @@ const translations: Translations = {
       { id: 'legal', title: 'Generador de Políticas', desc: 'Crea páginas de reembolso legales.', icon: '⚖', link: '/hub/legal' },
       { id: 'roas', title: 'Analizador ROAS', desc: 'Mide el rendimiento de tus anuncios.', icon: '📈', link: '/hub/roas' },
       { id: 'fees', title: 'Calculadora de Comisiones', desc: 'Calcula comisiones de pasarelas de pago.', icon: '💳', link: '/hub/fees' },
-      { id: 'copy', title: 'Generador de Copys', desc: 'Crea guiones y anuncios persuasivos.', icon: '✍️️', link: '/hub/copy' },
+      { id: 'copy', title: 'Generador de Copys', desc: 'Crea guiones y anuncios persuasivos.', icon: '✍', link: '/hub/copy' },
       { id: 'promos', title: 'Gestor de Códigos Promocionales', desc: 'Crea cupones de descuento instantáneos.', icon: '🎟️', link: '/hub/promos' },
       { id: 'shipping', title: 'Rastreador de Envíos', desc: 'Sigue el estado de tus envíos.', icon: '📦', link: '/hub/shipping' },
       { id: 'scraper', title: 'Limpiador de Datos Excel', desc: 'Limpia listas de precios y productos.', icon: '⚡', link: '/hub/scraper' },
@@ -342,7 +344,7 @@ const translations: Translations = {
       { id: 'legal', title: '法律政策生成器', desc: '创建符合规范的退换货与隐私政策。', icon: '⚖', link: '/hub/legal' },
       { id: 'roas', title: '广告投资回报分析器', desc: '精准衡量广告投放效果是否盈利。', icon: '📈', link: '/hub/roas' },
       { id: 'fees', title: '支付网关手续费计算器', desc: '计算支付通道费率对利润的影响。', icon: '💳', link: '/hub/fees' },
-      { id: 'copy', title: '营销文案与广告生成器', desc: '制作高转化率的广告脚本与文案。', icon: '✍️', link: '/hub/copy' },
+      { id: 'copy', title: '营销文案与广告生成器', desc: '制作高转化率的广告脚本与文案。', icon: '✍️️', link: '/hub/copy' },
       { id: 'promos', title: '折扣优惠券管理器', desc: '管理并创建促销折扣代码。', icon: '🎟️', link: '/hub/promos' },
       { id: 'shipping', title: '物流配送追踪器', desc: '实时跟进包裹状态并解决物流问题。', icon: '📦', link: '/hub/shipping' },
       { id: 'scraper', title: 'Excel 数据清洗与整理', desc: '快速清理混乱的产品表格与价格。', icon: '⚡', link: '/hub/scraper' },
@@ -386,7 +388,7 @@ const translations: Translations = {
       { id: 'legal', title: 'Rechtsrichtlinien-Generator', desc: 'Konforme Widerrufsbelehrungen erstellen.', icon: '⚖', link: '/hub/legal' },
       { id: 'roas', title: 'ROAS-Analysator', desc: 'Werbeperformance exakt messen.', icon: '📈', link: '/hub/roas' },
       { id: 'fees', title: 'Zahlungs-Gateway Gebührenrechner', desc: 'Transaktionsgebühren kalkulieren.', icon: '💳', link: '/hub/fees' },
-      { id: 'copy', title: 'Marketing-Text-Generator', desc: 'Verkaufsfördernde Werbetexte erstellen.', icon: '✍️', link: '/hub/copy' },
+      { id: 'copy', title: 'Marketing-Text-Generator', desc: 'Verkaufsfördernde Werbetexte erstellen.', icon: '✍️️', link: '/hub/copy' },
       { id: 'promos', title: 'Gutschein-Manager', desc: 'Rabattcodes unkompliziert verwalten.', icon: '🎟️', link: '/hub/promos' },
       { id: 'shipping', title: 'Versand-Tracker', desc: 'Sendungsstatus überwachen.', icon: '📦', link: '/hub/shipping' },
       { id: 'scraper', title: 'Excel Datenbereinigung', desc: 'Produktlisten und Preise formatieren.', icon: '⚡', link: '/hub/scraper' },
@@ -450,7 +452,7 @@ export default function EngaziaHomeHub() {
 
   const LEMON_CHECKOUT_URL = 'https://enjazya.lemonsqueezy.com/checkout/buy/80ff492a-01eb-4455-b1a8-96e12ab72562';
 
-  // تحويل العملات التلقائي
+  // حساب وتحويل أسعار العرض بناءً على العملة الحالية
   const getConvertedPrice = (usdAmount: number) => {
     let rate = 3.75; // SAR
     let symbol = 'ر.س';
@@ -475,9 +477,17 @@ export default function EngaziaHomeHub() {
     setIsActivated(config.isActivated);
   }, []);
 
+  // دالة تغيير اللغة: تقوم بتحديث اللغة والعملة المقترنة بها آلياً في نفس اللحظة
   const handleLanguageChange = (lang: string) => {
+    let newCurrency = currentCurrency;
+    if (lang === 'ar') newCurrency = 'SAR';
+    else if (lang === 'fr' || lang === 'de') newCurrency = 'EUR';
+    else if (lang === 'tr') newCurrency = 'TRY';
+    else if (lang === 'en' || lang === 'es' || lang === 'zh' || lang === 'id') newCurrency = 'USD';
+
     setCurrentLang(lang);
-    setGlobalConfig(lang, currentCurrency);
+    setCurrentCurrency(newCurrency);
+    setGlobalConfig(lang, newCurrency);
   };
 
   const handleCurrencyChange = (curr: string) => {
@@ -526,7 +536,7 @@ export default function EngaziaHomeHub() {
         .license-box { display: flex; align-items: center; gap: 8px; background: #f8fafc; padding: 4px 10px; border-radius: 8px; border: 1px solid #cbd5e1; }
         .upgrade-btn { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: #fff !important; padding: 6px 12px; border-radius: 8px; font-weight: 800; font-size: 12px; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; box-shadow: 0 4px 10px rgba(79,70,229,0.2); }
         
-        /* إعلان الترقية الجذاب والمغري */
+        /* إعلان الترقية الجذاب */
         .promo-banner { max-width: 1250px; margin: 0 auto 35px; background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: #fff; border-radius: 16px; padding: 20px 30px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; box-shadow: 0 10px 25px rgba(79,70,229,0.25); border: 1px solid rgba(255,255,255,0.2); position: relative; overflow: hidden; }
         .promo-banner::before { content: ''; position: absolute; top: -50px; right: -50px; width: 150px; height: 150px; background: rgba(255,255,255,0.1); border-radius: 50%; pointer-events: none; }
         .promo-content { display: flex; flex-direction: column; gap: 6px; }
@@ -648,7 +658,7 @@ export default function EngaziaHomeHub() {
         </div>
       </div>
 
-      {/* إعلان الترقية المغري الذي يترجم بالكامل بحسب اللغة المختارة */}
+      {/* إعلان الترقية المغري */}
       <div className="promo-banner">
         <div className="promo-content">
           <div className="promo-heading">{t.promoTitle}</div>
