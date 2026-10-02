@@ -35,7 +35,7 @@ export default function ProfitCalculator() {
   const [paymentFeePercent, setPaymentFeePercent] = useState<number>(2.5);
   const [paymentFeeFixed, setPaymentFeeFixed] = useState<number>(1);
   const [taxPercent, setTaxPercent] = useState<number>(15);
-  const [isTaxInclusive, setIsTaxInclusive] = useState<boolean>(true);
+  const [isTaxInclusive, setIsTaxInclusive] = useState<boolean>(true); // السعر شامل الضريبة
   const [returnRate, setReturnRate] = useState<number>(10);
 
   // مربع البحث
@@ -57,6 +57,7 @@ export default function ProfitCalculator() {
   // المنتجات المحفوظة
   const [savedProducts, setSavedProducts] = useState<SavedProduct[]>([]);
 
+  // استرجاع المنتجات المحفوظة عند التحميل
   useEffect(() => {
     const saved = localStorage.getItem('engazia_profit_products_v4');
     if (saved) {
@@ -64,6 +65,7 @@ export default function ProfitCalculator() {
     }
   }, []);
 
+  // حساب النتائج تلقائياً عند تغيير أي رقم
   useEffect(() => {
     calculateProfit();
   }, [productCost, sellingPrice, shippingCost, adSpend, paymentFeePercent, paymentFeeFixed, taxPercent, isTaxInclusive, returnRate]);
@@ -150,15 +152,30 @@ export default function ProfitCalculator() {
     }
   };
 
+  // دالة التصدير المحدثة لدعم اللغة العربية في إكسل
   const exportToCSV = () => {
     if (savedProducts.length === 0) return alert('المحفظة فارغة.');
+    
     const headers = ['اسم المنتج', 'سعر البيع', 'التكلفة', 'الشحن', 'التسويق المخصص', 'Max CPA', 'Break-even ROAS', 'الربح الصافي', 'هامش الربح %'];
+    
     const rows = savedProducts.map(p => [
-      p.name, p.sellingPrice, p.productCost, p.shippingCost, p.adSpend, p.maxCPA.toFixed(2), p.breakEvenROAS.toFixed(2), p.netProfit.toFixed(2), p.profitMargin.toFixed(2)
+      `"${p.name.replace(/"/g, '""')}"`,
+      p.sellingPrice,
+      p.productCost,
+      p.shippingCost,
+      p.adSpend,
+      p.maxCPA.toFixed(2),
+      p.breakEvenROAS.toFixed(2),
+      p.netProfit.toFixed(2),
+      p.profitMargin.toFixed(2)
     ]);
     
-    const csvContent = '\uFEFF' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const csvContent = "sep=,\r\n" + [headers.join(','), ...rows.map(e => e.join(','))].join('\r\n');
+    
+    // إضافة BOM لدعم UTF-8 في إكسل
+    const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
+    const blob = new Blob([bom, csvContent], { type: 'text/csv;charset=utf-8;' });
+    
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
@@ -166,7 +183,6 @@ export default function ProfitCalculator() {
     link.click();
   };
 
-  // فلترة المنتجات بناءً على البحث
   const filteredProducts = savedProducts.filter(p => 
     p.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
