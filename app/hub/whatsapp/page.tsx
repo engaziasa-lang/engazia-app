@@ -61,7 +61,7 @@ export default function EngaziaWhatsAppCRM() {
   const [contacts, setContacts] = useState<Customer[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('all');
-  const [dateFilter, setDateFilter] = useState<'all' | 'this_week' | 'this_month'>('all');
+  const [dateFilter, setDateFilter] = useState<'all' | 'today' | 'this_week' | 'this_month'>('all');
   
   // نافذة تفاصيل العميل المنبثقة (Modal) التفاعلية والقابلة للتعديل
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
@@ -260,7 +260,7 @@ export default function EngaziaWhatsAppCRM() {
       statusOptions,
       responseStateOptions,
       templates,
-      version: '2.2'
+      version: '2.3'
     };
     const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -484,7 +484,7 @@ export default function EngaziaWhatsAppCRM() {
   const addResponseStateOption = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newRespName) return showToast('⚠ أدخل اسم حالة الرد.');
-    if (responseStateOptions.some(r => r.name === newRespName)) return showToast('⚠️️ حالة الرد هذه موجودة مسبقاً.');
+    if (responseStateOptions.some(r => r.name === newRespName)) return showToast('⚠️ حالة الرد هذه موجودة مسبقاً.');
     const updated = [...responseStateOptions, { name: newRespName, bg: newRespBg, color: newRespColor }];
     saveResponseStates(updated);
     setNewRespName('');
@@ -533,16 +533,20 @@ export default function EngaziaWhatsAppCRM() {
     }
   };
 
-  // وظيفة فلترة التاريخ للعملاء والمبيعات
+  // وظيفة فلترة التاريخ المحدثة لتشمل (اليوم)
   const filterByDateRange = (cList: Customer[]) => {
     if (dateFilter === 'all') return cList;
     const now = new Date();
+    const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+
     return cList.filter(c => {
       if (!c.date) return false;
       const cDate = new Date(c.date);
       if (isNaN(cDate.getTime())) return false;
 
-      if (dateFilter === 'this_month') {
+      if (dateFilter === 'today') {
+        return c.date === todayStr;
+      } else if (dateFilter === 'this_month') {
         return cDate.getFullYear() === now.getFullYear() && cDate.getMonth() === now.getMonth();
       } else if (dateFilter === 'this_week') {
         const firstDayOfWeek = new Date(now);
@@ -864,8 +868,9 @@ export default function EngaziaWhatsAppCRM() {
           <div style={{ fontSize: '13px', fontWeight: 800, color: '#475569' }}>📅 فلترة حسب الفترة الزمنية:</div>
           <div style={{ display: 'flex', gap: '8px' }}>
             <button className={`chip-btn ${dateFilter === 'all' ? 'active' : ''}`} onClick={() => setDateFilter('all')}>كل الوقت</button>
-            <button className={`chip-btn ${dateFilter === 'this_month' ? 'active' : ''}`} onClick={() => setDateFilter('this_month')}>هذا الشهر</button>
+            <button className={`chip-btn ${dateFilter === 'today' ? 'active' : ''}`} onClick={() => setDateFilter('today')}>اليوم</button>
             <button className={`chip-btn ${dateFilter === 'this_week' ? 'active' : ''}`} onClick={() => setDateFilter('this_week')}>هذا الأسبوع</button>
+            <button className={`chip-btn ${dateFilter === 'this_month' ? 'active' : ''}`} onClick={() => setDateFilter('this_month')}>هذا الشهر</button>
           </div>
         </div>
 
