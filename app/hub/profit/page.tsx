@@ -53,7 +53,7 @@ export default function ProfitCalculator() {
   const [savedProducts, setSavedProducts] = useState<SavedProduct[]>([]);
 
   useEffect(() => {
-    const saved = localStorage.getItem('engazia_profit_products_v6');
+    const saved = localStorage.getItem('engazia_profit_products_v7');
     if (saved) {
       try { setSavedProducts(JSON.parse(saved)); } catch (e) { console.error(e); }
     }
@@ -110,7 +110,7 @@ export default function ProfitCalculator() {
 
     const updatedList = [newProduct, ...savedProducts];
     setSavedProducts(updatedList);
-    localStorage.setItem('engazia_profit_products_v6', JSON.stringify(updatedList));
+    localStorage.setItem('engazia_profit_products_v7', JSON.stringify(updatedList));
     setProductName('');
   };
 
@@ -141,7 +141,7 @@ export default function ProfitCalculator() {
     if (window.confirm('هل أنت متأكد من حذف هذا المنتج؟')) {
       const updatedList = savedProducts.filter(p => p.id !== id);
       setSavedProducts(updatedList);
-      localStorage.setItem('engazia_profit_products_v6', JSON.stringify(updatedList));
+      localStorage.setItem('engazia_profit_products_v7', JSON.stringify(updatedList));
     }
   };
 
@@ -269,7 +269,7 @@ export default function ProfitCalculator() {
         if (newProducts.length > 0) {
           const updatedList = [...newProducts, ...savedProducts];
           setSavedProducts(updatedList);
-          localStorage.setItem('engazia_profit_products_v6', JSON.stringify(updatedList));
+          localStorage.setItem('engazia_profit_products_v7', JSON.stringify(updatedList));
           alert(`تم استيراد ${newProducts.length} منتج بنجاح وإضافتها للمحفظة.`);
         }
       } catch (error) {
@@ -278,7 +278,7 @@ export default function ProfitCalculator() {
       }
     };
     reader.readAsText(file);
-    e.target.value = ''; // Reset file input
+    e.target.value = '';
   };
 
   const filteredProducts = savedProducts.filter(p => 
@@ -550,84 +550,92 @@ export default function ProfitCalculator() {
         </div>
       </div>
 
-      {savedProducts.length > 0 && (
-        <>
-          <div className="saved-section-title">
-            <span>💼 المحفظة ({savedProducts.length})</span>
-            <div className="table-controls">
-              <div className="search-box">
-                <span>🔍</span>
-                <input 
-                  type="text" 
-                  placeholder="ابحث عن منتج..." 
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-              <label className="btn-action" style={{ cursor: 'pointer' }}>
-                📤 استيراد Excel
-                <input type="file" accept=".xls,.html" onChange={importFromExcel} style={{ display: 'none' }} />
-              </label>
-              <button className="btn-action" onClick={exportToCSV}>📥 تصدير Excel</button>
+      {/* شريط الإجراءات العامة (يظهر دائماً بغض النظر عن وجود منتجات أم لا) */}
+      <div className="saved-section-title">
+        <span>💼 المحفظة ({savedProducts.length})</span>
+        <div className="table-controls">
+          {savedProducts.length > 0 && (
+            <div className="search-box">
+              <span>🔍</span>
+              <input 
+                type="text" 
+                placeholder="ابحث عن منتج..." 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
             </div>
-          </div>
-          
-          <div className="table-container">
-            <table className="styled-table">
-              <thead>
-                <tr>
-                  <th style={{ textAlign: 'center', width: '40px' }}>#</th>
-                  <th>المنتج</th>
-                  <th>سعر البيع</th>
-                  <th>التكلفة</th>
-                  <th>الشحن</th>
-                  <th>الإعلان</th>
-                  <th>Max CPA</th>
-                  <th>ROAS</th>
-                  <th>الربح الصافي</th>
-                  <th>الهامش</th>
-                  <th>إجراءات</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredProducts.length > 0 ? (
-                  filteredProducts.map((prod, index) => (
-                    <tr key={prod.id} style={{ borderLeft: `4px solid ${prod.profitMargin >= 20 ? '#10b981' : prod.profitMargin > 0 ? '#f59e0b' : '#ef4444'}` }}>
-                      <td className="index-cell">{index + 1}</td>
-                      <td style={{ fontWeight: 900, color: '#0f172a' }}>{prod.name}</td>
-                      <td dir="ltr" style={{ color: '#64748b' }}>{prod.sellingPrice} ر.س</td>
-                      <td dir="ltr" style={{ color: '#64748b' }}>{prod.productCost} ر.س</td>
-                      <td dir="ltr" style={{ color: '#64748b' }}>{prod.shippingCost} ر.س</td>
-                      <td dir="ltr" style={{ color: '#64748b' }}>{prod.adSpend} ر.س</td>
-                      
-                      <td dir="ltr" style={{ color: '#f59e0b', fontWeight: 800 }}>{prod.maxCPA.toFixed(2)}</td>
-                      <td dir="ltr" style={{ color: '#38bdf8', fontWeight: 800 }}>{prod.breakEvenROAS.toFixed(2)}x</td>
-                      
-                      <td dir="ltr" style={{ fontWeight: 900, color: prod.netProfit > 0 ? '#166534' : '#991b1b' }}>
-                        {prod.netProfit.toFixed(2)} ر.س
-                      </td>
-                      <td>
-                        <span className={`table-badge ${prod.profitMargin >= 20 ? 'bg-green' : prod.profitMargin > 0 ? 'bg-yellow' : 'bg-red'}`}>
-                          {prod.profitMargin.toFixed(1)}%
-                        </span>
-                      </td>
-                      <td>
-                        <div className="pc-actions">
-                          <button className="pc-btn pc-btn-edit" onClick={() => loadProduct(prod)} title="استدعاء للتعديل">✏️</button>
-                          <button className="pc-btn pc-btn-delete" onClick={() => deleteProduct(prod.id)} title="حذف المنتج">✕</button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={11} style={{ textAlign: 'center', padding: '20px', color: '#64748b' }}>لا يوجد منتج يطابق بحثك "{searchQuery}"</td>
+          )}
+          <label className="btn-action" style={{ cursor: 'pointer' }}>
+            📤 استيراد Excel
+            <input type="file" accept=".xls,.html" onChange={importFromExcel} style={{ display: 'none' }} />
+          </label>
+          {savedProducts.length > 0 && (
+            <button className="btn-action" onClick={exportToCSV}>📥 تصدير Excel</button>
+          )}
+        </div>
+      </div>
+
+      {/* جدول المنتجات (يظهر فقط إذا كانت المحفظة تحتوي على منتجات) */}
+      {savedProducts.length > 0 ? (
+        <div className="table-container">
+          <table className="styled-table">
+            <thead>
+              <tr>
+                <th style={{ textAlign: 'center', width: '40px' }}>#</th>
+                <th>المنتج</th>
+                <th>سعر البيع</th>
+                <th>التكلفة</th>
+                <th>الشحن</th>
+                <th>الإعلان</th>
+                <th>Max CPA</th>
+                <th>ROAS</th>
+                <th>الربح الصافي</th>
+                <th>الهامش</th>
+                <th>إجراءات</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredProducts.length > 0 ? (
+                filteredProducts.map((prod, index) => (
+                  <tr key={prod.id} style={{ borderLeft: `4px solid ${prod.profitMargin >= 20 ? '#10b981' : prod.profitMargin > 0 ? '#f59e0b' : '#ef4444'}` }}>
+                    <td className="index-cell">{index + 1}</td>
+                    <td style={{ fontWeight: 900, color: '#0f172a' }}>{prod.name}</td>
+                    <td dir="ltr" style={{ color: '#64748b' }}>{prod.sellingPrice} ر.س</td>
+                    <td dir="ltr" style={{ color: '#64748b' }}>{prod.productCost} ر.س</td>
+                    <td dir="ltr" style={{ color: '#64748b' }}>{prod.shippingCost} ر.س</td>
+                    <td dir="ltr" style={{ color: '#64748b' }}>{prod.adSpend} ر.س</td>
+                    
+                    <td dir="ltr" style={{ color: '#f59e0b', fontWeight: 800 }}>{prod.maxCPA.toFixed(2)}</td>
+                    <td dir="ltr" style={{ color: '#38bdf8', fontWeight: 800 }}>{prod.breakEvenROAS.toFixed(2)}x</td>
+                    
+                    <td dir="ltr" style={{ fontWeight: 900, color: prod.netProfit > 0 ? '#166534' : '#991b1b' }}>
+                      {prod.netProfit.toFixed(2)} ر.س
+                    </td>
+                    <td>
+                      <span className={`table-badge ${prod.profitMargin >= 20 ? 'bg-green' : prod.profitMargin > 0 ? 'bg-yellow' : 'bg-red'}`}>
+                        {prod.profitMargin.toFixed(1)}%
+                      </span>
+                    </td>
+                    <td>
+                      <div className="pc-actions">
+                        <button className="pc-btn pc-btn-edit" onClick={() => loadProduct(prod)} title="استدعاء للتعديل">✏️</button>
+                        <button className="pc-btn pc-btn-delete" onClick={() => deleteProduct(prod.id)} title="حذف المنتج">✕</button>
+                      </div>
+                    </td>
                   </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={11} style={{ textAlign: 'center', padding: '20px', color: '#64748b' }}>لا يوجد منتج يطابق بحثك "{searchQuery}"</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <div style={{ maxWidth: '1000px', margin: '0 auto', background: '#fff', padding: '30px', borderRadius: '16px', border: '1px solid #e2e8f0', textAlign: 'center', color: '#64748b', fontSize: '13px', fontWeight: 700 }}>
+          المحفظة فارغة حالياً. يمكنك حفظ المنتجات يعياً من الأعلى، أو النقر على <b>"استيراد Excel"</b> لرفع ملف منتجاتك السابقة.
+        </div>
       )}
     </div>
   );
