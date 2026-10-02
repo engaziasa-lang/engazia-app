@@ -485,7 +485,7 @@ export default function EngaziaWhatsAppCRM() {
           storeName: newNameStore
         });
 
-        showToast('♻️ تم استعادة النسخة الاحتياطية بنجاح!');
+        showToast('♻️️ تم استعادة النسخة الاحتياطية بنجاح!');
       } catch (err) {
         showToast('❌ ملف النسخ الاحتياطي غير صالح.');
       }
@@ -773,7 +773,7 @@ export default function EngaziaWhatsAppCRM() {
         .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px; border-bottom: 1px solid #f1f5f9; padding-bottom: 15px; }
         .license-section { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
         .license-box { display: flex; align-items: center; gap: 8px; background: #f8fafc; padding: 6px 12px; border-radius: 8px; border: 1px solid #cbd5e1; }
-        .upgrade-btn { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: #fff; text-decoration: none; padding: 7px 14px; border-radius: 8px; font-weight: 800; font-size: 12px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(79,70,229,0.25); transition: transform 0.2s; }
+        .upgrade-btn { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: #fff !important; text-decoration: none; padding: 7px 14px; border-radius: 8px; font-weight: 800; font-size: 12px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(79,70,229,0.25); transition: transform 0.2s; white-space: nowrap; }
         .upgrade-btn:hover { transform: translateY(-2px); }
 
         .header-brand { text-align: center; margin-bottom: 30px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
@@ -1026,15 +1026,11 @@ export default function EngaziaWhatsAppCRM() {
       )}
 
       <div className="wrapper">
-        {/* هيدر يحتوي على العودة ومفتاح الاشتراك وزر الترقية المباشر */}
+        {/* هيدر يحتوي على العودة وصندوق مفتاح الاشتراك وزر الترقية المباشر بجانبه تماماً كما في الصورة */}
         <div className="header-top">
           <Link href="/hub" className="back-link" style={{ color: '#4f46e5', textDecoration: 'none', fontWeight: 700, fontSize: '13px' }}>← العودة للوحة الرئيسية</Link>
 
           <div className="license-section">
-            <a href={LEMON_CHECKOUT_URL} target="_blank" rel="noopener noreferrer" className="upgrade-btn">
-              ⚡ ترقية / اشتراك PRO
-            </a>
-
             <div className="license-box">
               <span style={{ fontSize: '12px', fontWeight: 800, color: '#475569' }}>🔑 الاشتراك:</span>
               {isActivated ? (
@@ -1057,6 +1053,10 @@ export default function EngaziaWhatsAppCRM() {
                 </>
               )}
             </div>
+
+            <a href={LEMON_CHECKOUT_URL} target="_blank" rel="noopener noreferrer" className="upgrade-btn">
+              ⚡ ترقية / اشتراك PRO
+            </a>
           </div>
         </div>
 
