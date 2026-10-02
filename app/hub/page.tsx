@@ -5,7 +5,6 @@ import Link from 'next/link';
 
 const supportedLangs = ['ar', 'en', 'fr', 'es', 'tr', 'zh', 'de', 'id'];
 
-// دالة لتحديد اللغة والعملة الافتراضية بناءً على المتصفح
 const getInitialConfig = () => {
   if (typeof window === 'undefined') {
     return { lang: 'en', currency: 'USD', licenseKey: '', isActivated: false };
@@ -79,6 +78,11 @@ interface Translations {
     terms: string;
     privacy: string;
     rights: string;
+    promoTitle: string;
+    promoDesc: string;
+    promoOld: string;
+    promoPer: string;
+    upgradeNowBtn: string;
     tools: ToolInfo[];
   };
 }
@@ -104,6 +108,11 @@ const translations: Translations = {
     terms: 'شروط الاستخدام',
     privacy: 'سياسة الخصوصية',
     rights: 'جميع الحقوق محفوظة © 2026 منصة إنجازيا لتمكين التجارة الإلكترونية',
+    promoTitle: '🔥 عرض لفترة محدودة - احصل على النسخة الشاملة الآن!',
+    promoDesc: 'اشترك اليوم مقابل',
+    promoOld: 'بدلاً من',
+    promoPer: 'شهرياً',
+    upgradeNowBtn: '🚀 ترقية حسابك الآن بخصم 65%',
     tools: [
       { id: 'whatsapp', title: 'إدارة عملاء واتساب والمبيعات', desc: 'إدارة السلال المتروكة، إرسال روابط الدفع، وتصنيف عملاء الـ VIP.', icon: '💬', link: '/hub/whatsapp' },
       { id: 'profit', title: 'حاسبة أرباح ونقاط التعادل', desc: 'احسب صافي أرباح منتجك بدقة بعد خصم التكاليف والإعلانات.', icon: '📊', link: '/hub/profit' },
@@ -143,6 +152,11 @@ const translations: Translations = {
     terms: 'Terms of Use',
     privacy: 'Privacy Policy',
     rights: 'All rights reserved © 2026 Engazia Platform',
+    promoTitle: '🔥 Limited Time Offer - Get Pro Access Now!',
+    promoDesc: 'Subscribe today for',
+    promoOld: 'instead of',
+    promoPer: 'per month',
+    upgradeNowBtn: '🚀 Upgrade Account with 65% Off',
     tools: [
       { id: 'whatsapp', title: 'WhatsApp CRM & Sales', desc: 'Manage abandoned carts, payment links, and VIP customers.', icon: '💬', link: '/hub/whatsapp' },
       { id: 'profit', title: 'Profit & Break-even Calculator', desc: 'Calculate exact net profits after ad and product costs.', icon: '📊', link: '/hub/profit' },
@@ -161,240 +175,6 @@ const translations: Translations = {
       { id: 'support', title: 'Quick Support Templates', desc: 'Copy professional ready-made support replies.', icon: '🎧', link: '/hub/support' },
       { id: 'tips', title: 'Store Growth Secrets Library', desc: 'Exclusive growth and conversion strategies.', icon: '💡', link: '/hub/tips' }
     ]
-  },
-  fr: {
-    brandName: 'Engazia',
-    live: 'Système Actif',
-    activate: 'Activer',
-    deactivate: 'Réinitialiser',
-    keyPlaceholder: 'Clé de licence...',
-    upgradeBtn: '⚡ Mettre à niveau',
-    heroTitle: 'Plateforme ENGAZIA ULTRA MAX',
-    heroDesc: 'L\'écosystème cloud ultime pour les e-commerçants, 16 outils puissants remplaçant tous les abonnements.',
-    runTool: 'Lancer l\'outil',
-    footerDesc: 'La première plateforme cloud pour dynamiser les marchands e-commerce.',
-    platform: 'Plateforme',
-    allTools: 'Tous les outils',
-    updates: 'Mises à jour',
-    pricing: 'Tarifs',
-    support: 'Support',
-    faq: 'FAQ',
-    terms: 'Conditions',
-    privacy: 'Confidentialité',
-    rights: 'Tous droits réservés © 2026 Engazia',
-    tools: [
-      { id: 'whatsapp', title: 'CRM WhatsApp & Ventes', desc: 'Gérez les paniers abandonnés et clients VIP.', icon: '💬', link: '/hub/whatsapp' },
-      { id: 'profit', title: 'Calculateur de profits', desc: 'Calculez vos bénéfices nets exacts.', icon: '📊', link: '/hub/profit' },
-      { id: 'invoices', title: 'Générateur de factures', desc: 'Générez des factures professionnelles instantanément.', icon: '🧾', link: '/hub/invoices' },
-      { id: 'returns', title: 'Analyseur de retours', desc: 'Mesurez l\'impact des retours sur vos profits.', icon: '🔄', link: '/hub/returns' },
-      { id: 'expenses', title: 'Gestionnaire de dépenses', desc: 'Suivez les dépenses fixes et variables.', icon: '💸', link: '/hub/expenses' },
-      { id: 'legal', title: 'Générateur de politiques', desc: 'Créez des politiques de retour conformes.', icon: '⚖', link: '/hub/legal' },
-      { id: 'roas', title: 'Analyseur ROAS', desc: 'Mesurez la performance de vos pubs.', icon: '📈', link: '/hub/roas' },
-      { id: 'fees', title: 'Calculateur de frais', desc: 'Calculez l\'impact des frais de passerelle.', icon: '💳', link: '/hub/fees' },
-      { id: 'copy', title: 'Générateur de texte marketing', desc: 'Créez des textes publicitaires performants.', icon: '✍️', link: '/hub/copy' },
-      { id: 'promos', title: 'Gestionnaire de promos', desc: 'Créez des codes de réduction instantanés.', icon: '🎟️', link: '/hub/promos' },
-      { id: 'shipping', title: 'Suivi des expéditions', desc: 'Suivez les envois et résolvez les requêtes.', icon: '📦', link: '/hub/shipping' },
-      { id: 'scraper', title: 'Nettoyeur de données Excel', desc: 'Nettoyez vos listes de prix et produits.', icon: '⚡', link: '/hub/scraper' },
-      { id: 'links', title: 'Générateur de lien WhatsApp', desc: 'Créez des liens bio WhatsApp personnalisés.', icon: '🔗', link: '/hub/links' },
-      { id: 'reviews', title: 'Collecteur d\'avis', desc: 'Envoyez des demandes d\'avis automatisées.', icon: '⭐', link: '/hub/reviews' },
-      { id: 'support', title: 'Modèles de support', desc: 'Copiez des réponses de support prêtes à l\'emploi.', icon: '🎧', link: '/hub/support' },
-      { id: 'tips', title: 'Bibliothèque de croissance', desc: 'Stratégies de croissance et conversion.', icon: '💡', link: '/hub/tips' }
-    ]
-  },
-  es: {
-    brandName: 'Engazia',
-    live: 'Sistema Activo',
-    activate: 'Activar',
-    deactivate: 'Restablecer',
-    keyPlaceholder: 'Clave de licencia...',
-    upgradeBtn: '⚡ Actualizar plan',
-    heroTitle: 'Plataforma ENGAZIA ULTRA MAX',
-    heroDesc: 'El ecosistema en la nube definitivo para emprendedores de comercio electrónico, 16 potentes herramientas.',
-    runTool: 'Iniciar herramienta',
-    footerDesc: 'La plataforma en nube líder para comerciantes de comercio electrónico.',
-    platform: 'Plataforma',
-    allTools: 'Todas las herramientas',
-    updates: 'Actualizaciones',
-    pricing: 'Precios',
-    support: 'Soporte',
-    faq: 'FAQ',
-    terms: 'Términos',
-    privacy: 'Privacidad',
-    rights: 'Todos los derechos reservados © 2026 Engazia',
-    tools: [
-      { id: 'whatsapp', title: 'CRM de WhatsApp y Ventas', desc: 'Gestiona carritos abandonados y clientes VIP.', icon: '💬', link: '/hub/whatsapp' },
-      { id: 'profit', title: 'Calculadora de Beneficios', desc: 'Calcula beneficios netos exactos.', icon: '📊', link: '/hub/profit' },
-      { id: 'invoices', title: 'Generador de Facturas', desc: 'Genera facturas de venta profesionales.', icon: '🧾', link: '/hub/invoices' },
-      { id: 'returns', title: 'Analizador de Devoluciones', desc: 'Mide el impacto en tus beneficios mensuales.', icon: '🔄', link: '/hub/returns' },
-      { id: 'expenses', title: 'Gestor de Gastos', desc: 'Controla gastos fijos y variables.', icon: '💸', link: '/hub/expenses' },
-      { id: 'legal', title: 'Generador de Políticas', desc: 'Crea páginas de reembolso legales.', icon: '⚖', link: '/hub/legal' },
-      { id: 'roas', title: 'Analizador ROAS', desc: 'Mide el rendimiento de tus anuncios.', icon: '📈', link: '/hub/roas' },
-      { id: 'fees', title: 'Calculadora de Comisiones', desc: 'Calcula comisiones de pasarelas de pago.', icon: '💳', link: '/hub/fees' },
-      { id: 'copy', title: 'Generador de Copys', desc: 'Crea guiones y anuncios persuasivos.', icon: '✍️', link: '/hub/copy' },
-      { id: 'promos', title: 'Gestor de Códigos Promocionales', desc: 'Crea cupones de descuento instantáneos.', icon: '🎟️', link: '/hub/promos' },
-      { id: 'shipping', title: 'Rastreador de Envíos', desc: 'Sigue el estado de tus envíos.', icon: '📦', link: '/hub/shipping' },
-      { id: 'scraper', title: 'Limpiador de Datos Excel', desc: 'Limpia listas de precios y productos.', icon: '⚡', link: '/hub/scraper' },
-      { id: 'links', title: 'Creador de Enlaces WhatsApp', desc: 'Crea enlaces directos personalizados.', icon: '🔗', link: '/hub/links' },
-      { id: 'reviews', title: 'Recolector de Reseñas', desc: 'Solicita valoraciones automáticamente.', icon: '⭐', link: '/hub/reviews' },
-      { id: 'support', title: 'Plantillas de Soporte', desc: 'Respuestas rápidas para atención al cliente.', icon: '🎧', link: '/hub/support' },
-      { id: 'tips', title: 'Secretos de Crecimiento', desc: 'Estrategias exclusivas para escalar ventas.', icon: '💡', link: '/hub/tips' }
-    ]
-  },
-  tr: {
-    brandName: 'Engazia',
-    live: 'Sistem Aktif',
-    activate: 'Etkinleştir',
-    deactivate: 'Sıfırla',
-    keyPlaceholder: 'Lisans anahtarı...',
-    upgradeBtn: '⚡ Planı Yükselt',
-    heroTitle: 'ENGAZIA ULTRA MAX Platformu',
-    heroDesc: 'E-ticaret girişimcileri için nihai bulut ekosistemi, tüm aboneliklerin yerini alan 16 güçlü araç.',
-    runTool: 'Aracı Başlat',
-    footerDesc: 'E-ticaret satıcıları için lider bulut platformu.',
-    platform: 'Platform',
-    allTools: 'Tüm Araçlar',
-    updates: 'Güncellemeler',
-    pricing: 'Fiyatlandırma',
-    support: 'Destek',
-    faq: 'SSS',
-    terms: 'Şartlar',
-    privacy: 'Gizlilik',
-    rights: 'Tüm hakları saklıdır © 2026 Engazia',
-    tools: [
-      { id: 'whatsapp', title: 'WhatsApp CRM ve Satış', desc: 'Terk edilmiş sepetleri ve VIP müşterileri yönetin.', icon: '💬', link: '/hub/whatsapp' },
-      { id: 'profit', title: 'Kâr ve Başa Baş Hesaplayıcı', desc: 'Net kârınızı tam olarak hesaplayın.', icon: '📊', link: '/hub/profit' },
-      { id: 'invoices', title: 'Fatura Oluşturucu', desc: 'Profesyonel satış faturaları oluşturun.', icon: '🧾', link: '/hub/invoices' },
-      { id: 'returns', title: 'İade ve Kayıp Analizcisi', desc: 'İadelerin kârınıza etkisini ölçün.', icon: '🔄', link: '/hub/returns' },
-      { id: 'expenses', title: 'Gider Yöneticisi', desc: 'Mağaza giderlerini takip edin.', icon: '💸', link: '/hub/expenses' },
-      { id: 'legal', title: 'Yasal Politika Oluşturucu', desc: 'Uyumlu iade ve gizlilik politikaları oluşturun.', icon: '⚖', link: '/hub/legal' },
-      { id: 'roas', title: 'Reklam ROAS Analizcisi', desc: 'Reklam kampanyalarınızın performansını ölçün.', icon: '📈', link: '/hub/roas' },
-      { id: 'fees', title: 'Ödeme Ağ Geçidi Komisyon Hesaplayıcı', desc: 'Komisyon oranlarını hesaplayın.', icon: '💳', link: '/hub/fees' },
-      { id: 'copy', title: 'Pazarlama Metni Oluşturucu', desc: 'Dönüşüm oranını artıracak reklam metinleri yazın.', icon: '✍️', link: '/hub/copy' },
-      { id: 'promos', title: 'İndirim Kuponu Yöneticisi', desc: 'Anında indirim kodları oluşturun.', icon: '🎟️', link: '/hub/promos' },
-      { id: 'shipping', title: 'Kargo Takip Yöneticisi', desc: 'Kargo durumlarını takip edin.', icon: '📦', link: '/hub/shipping' },
-      { id: 'scraper', title: 'Excel Veri Temizleyici', desc: 'Ürün listelerini ve fiyatları düzenleyin.', icon: '⚡', link: '/hub/scraper' },
-      { id: 'links', title: 'WhatsApp Direkt Bağlantı Oluşturucu', desc: 'Özel WhatsApp bağlantıları oluşturun.', icon: '🔗', link: '/hub/links' },
-      { id: 'reviews', title: 'Müşteri Yorum Toplayıcı', desc: 'Teslimat sonrası otomatik değerlendirme isteyin.', icon: '⭐', link: '/hub/reviews' },
-      { id: 'support', title: 'Hızlı Destek Yanıtları', desc: 'Hazır müşteri hizmetleri şablonları.', icon: '🎧', link: '/hub/support' },
-      { id: 'tips', title: 'Mağaza Büyüme Sırları', desc: 'Dönüşümü artıracak özel stratejiler.', icon: '💡', link: '/hub/tips' }
-    ]
-  },
-  zh: {
-    brandName: 'Engazia',
-    live: '系统已激活',
-    activate: '激活',
-    deactivate: '重置',
-    keyPlaceholder: '授权密钥...',
-    upgradeBtn: '⚡ 升级高级版',
-    heroTitle: 'ENGAZIA ULTRA MAX 平台',
-    heroDesc: '电商创业者的终极云端生态系统，16款强大工具助您业务腾飞。',
-    runTool: '启动工具',
-    footerDesc: '面向电商商家的首选云平台。智能工具，精准决策。',
-    platform: '平台',
-    allTools: '所有工具',
-    updates: '最新更新',
-    pricing: '价格方案',
-    support: '支持与帮助',
-    faq: '常见问题',
-    terms: '使用条款',
-    privacy: '隐私政策',
-    rights: '版权所有 © 2026 Engazia 平台',
-    tools: [
-      { id: 'whatsapp', title: 'WhatsApp CRM 与销售', desc: '管理未付款购物车和VIP客户。', icon: '💬', link: '/hub/whatsapp' },
-      { id: 'profit', title: '利润与盈亏平衡计算器', desc: '精准计算扣除广告成本后的净利润。', icon: '📊', link: '/hub/profit' },
-      { id: 'invoices', title: '发票与收据生成器', desc: '立即生成专业的销售发票。', icon: '🧾', link: '/hub/invoices' },
-      { id: 'returns', title: '退货损失分析器', desc: '评估退货对月度净利润的影响。', icon: '🔄', link: '/hub/returns' },
-      { id: 'expenses', title: '店铺支出管理器', desc: '追踪固定与变动运营成本。', icon: '💸', link: '/hub/expenses' },
-      { id: 'legal', title: '法律政策生成器', desc: '创建符合规范的退换货与隐私政策。', icon: '⚖', link: '/hub/legal' },
-      { id: 'roas', title: '广告投资回报分析器', desc: '精准衡量广告投放效果是否盈利。', icon: '📈', link: '/hub/roas' },
-      { id: 'fees', title: '支付网关手续费计算器', desc: '计算支付通道费率对利润的影响。', icon: '💳', link: '/hub/fees' },
-      { id: 'copy', title: '营销文案与广告生成器', desc: '制作高转化率的广告脚本与文案。', icon: '✍️', link: '/hub/copy' },
-      { id: 'promos', title: '折扣优惠券管理器', desc: '管理并创建促销折扣代码。', icon: '🎟️', link: '/hub/promos' },
-      { id: 'shipping', title: '物流配送追踪器', desc: '实时跟进包裹状态并解决物流问题。', icon: '📦', link: '/hub/shipping' },
-      { id: 'scraper', title: 'Excel 数据清洗与整理', desc: '快速清理混乱的产品表格与价格。', icon: '⚡', link: '/hub/scraper' },
-      { id: 'links', title: 'WhatsApp 直链生成器', desc: '为社媒主页创建自定义直达链接。', icon: '🔗', link: '/hub/links' },
-      { id: 'reviews', title: '客户评价收集工具', desc: '自动发送收货后好评邀请。', icon: '⭐', link: '/hub/reviews' },
-      { id: 'support', title: '客服快捷回复模板', desc: '复制专业标准的客服常用回复。', icon: '🎧', link: '/hub/support' },
-      { id: 'tips', title: '店铺爆单增长秘籍', desc: '独家提升转化率与复购率的策略。', icon: '💡', link: '/hub/tips' }
-    ]
-  },
-  de: {
-    brandName: 'Engazia',
-    live: 'System Aktiv',
-    activate: 'Aktivieren',
-    deactivate: 'Zurücksetzen',
-    keyPlaceholder: 'Lizenzschlüssel...',
-    upgradeBtn: '⚡ Plan upgraden',
-    heroTitle: 'ENGAZIA ULTRA MAX Plattform',
-    heroDesc: 'Das ultimative Cloud-Ökosystem für E-Commerce-Unternehmer, 16 leistungsstarke Tools.',
-    runTool: 'Tool starten',
-    footerDesc: 'Die führende Cloud-Plattform für E-Commerce-Händler.',
-    platform: 'Plattform',
-    allTools: 'Alle Tools',
-    updates: 'Updates',
-    pricing: 'Preise',
-    support: 'Support',
-    faq: 'FAQ',
-    terms: 'Nutzungsbedingungen',
-    privacy: 'Datenschutz',
-    rights: 'Alle Rechte vorbehalten © 2026 Engazia',
-    tools: [
-      { id: 'whatsapp', title: 'WhatsApp CRM & Verkauf', desc: 'Warenkörbe und VIP-Kunden verwalten.', icon: '💬', link: '/hub/whatsapp' },
-      { id: 'profit', title: 'Gewinn- & Break-Even-Rechner', desc: 'Nettogewinne präzise berechnen.', icon: '📊', link: '/hub/profit' },
-      { id: 'invoices', title: 'Rechnungsgenerator', desc: 'Professionelle Rechnungen sofort erstellen.', icon: '🧾', link: '/hub/invoices' },
-      { id: 'returns', title: 'Retouren-Analysator', desc: 'Auswirkungen von Retouren messen.', icon: '🔄', link: '/hub/returns' },
-      { id: 'expenses', title: 'Ausgabenmanager', desc: 'Fixe und variable Kosten im Blick behalten.', icon: '💸', link: '/hub/expenses' },
-      { id: 'legal', title: 'Rechtsrichtlinien-Generator', desc: 'Konforme Widerrufsbelehrungen erstellen.', icon: '⚖', link: '/hub/legal' },
-      { id: 'roas', title: 'ROAS-Analysator', desc: 'Werbeperformance exakt messen.', icon: '📈', link: '/hub/roas' },
-      { id: 'fees', title: 'Zahlungs-Gateway Gebührenrechner', desc: 'Transaktionsgebühren kalkulieren.', icon: '💳', link: '/hub/fees' },
-      { id: 'copy', title: 'Marketing-Text-Generator', desc: 'Verkaufsfördernde Werbetexte erstellen.', icon: '✍️', link: '/hub/copy' },
-      { id: 'promos', title: 'Gutschein-Manager', desc: 'Rabattcodes unkompliziert verwalten.', icon: '🎟️', link: '/hub/promos' },
-      { id: 'shipping', title: 'Versand-Tracker', desc: 'Sendungsstatus überwachen.', icon: '📦', link: '/hub/shipping' },
-      { id: 'scraper', title: 'Excel Datenbereinigung', desc: 'Produktlisten und Preise formatieren.', icon: '⚡', link: '/hub/scraper' },
-      { id: 'links', title: 'WhatsApp Direktlink-Ersteller', desc: 'Individuelle Chat-Links generieren.', icon: '🔗', link: '/hub/links' },
-      { id: 'reviews', title: 'Kundenbewertungs-Tool', desc: 'Automatisierte Bewertungsanfragen versenden.', icon: '⭐', link: '/hub/reviews' },
-      { id: 'support', title: 'Support-Antwortvorlagen', desc: 'Professionelle Kundenservice-Vorlagen.', icon: '🎧', link: '/hub/support' },
-      { id: 'tips', title: 'Wachstums-Geheimnisse', desc: 'Exklusive Strategien zur Umsatzsteigerung.', icon: '💡', link: '/hub/tips' }
-    ]
-  },
-  id: {
-    brandName: 'Engazia',
-    live: 'Sistem Aktif',
-    activate: 'Aktifkan',
-    deactivate: 'Atur Ulang',
-    keyPlaceholder: 'Kunci lisensi...',
-    upgradeBtn: '⚡ Upgrade Paket',
-    heroTitle: 'Platform ENGAZIA ULTRA MAX',
-    heroDesc: 'Ekosistem cloud ultimate untuk wirausahawan e-commerce, 16 alat canggih.',
-    runTool: 'Buka Alat',
-    footerDesc: 'Platform cloud terkemuka untuk pedagang e-commerce.',
-    platform: 'Platform',
-    allTools: 'Semua Alat',
-    updates: 'Pembaruan',
-    pricing: 'Harga',
-    support: 'Dukungan',
-    faq: 'FAQ',
-    terms: 'Ketentuan',
-    privacy: 'Privasi',
-    rights: 'Hak cipta dilindungi © 2026 Engazia',
-    tools: [
-      { id: 'whatsapp', title: 'CRM & Penjualan WhatsApp', desc: 'Kelola keranjang terbengkalai dan pelanggan VIP.', icon: '💬', link: '/hub/whatsapp' },
-      { id: 'profit', title: 'Kalkulator Laba & Titik Impas', desc: 'Hitung laba bersih akurat setelah biaya iklan.', icon: '📊', link: '/hub/profit' },
-      { id: 'invoices', title: 'Pembuat Faktur & Kwitansi', desc: 'Buat faktur penjualan profesional secara instan.', icon: '🧾', link: '/hub/invoices' },
-      { id: 'returns', title: 'Analisis Kerugian Retur', desc: 'Ukur dampak pengembalian terhadap laba bulanan.', icon: '🔄', link: '/hub/returns' },
-      { id: 'expenses', title: 'Manajer Pengeluaran', desc: 'Lacak pengeluaran toko tetap dan variabel.', icon: '💸', link: '/hub/expenses' },
-      { id: 'legal', title: 'Pembuat Kebijakan Toko', desc: 'Buat halaman kebijakan privasi dan pengembalian.', icon: '⚖', link: '/hub/legal' },
-      { id: 'roas', title: 'Analisis ROAS Iklan', desc: 'Ukur kinerja kampanye iklan dengan tepat.', icon: '📈', link: '/hub/roas' },
-      { id: 'fees', title: 'Kalkulator Biaya Gateway Pembayaran', desc: 'Hitung dampak biaya pembayaran.', icon: '💳', link: '/hub/fees' },
-      { id: 'copy', title: 'Pembuat Salinan Pemasaran', desc: 'Buat skrip iklan dan salinan yang menghasilkan.', icon: '✍️', link: '/hub/copy' },
-      { id: 'promos', title: 'Manajer Promo Diskon', desc: 'Kelola dan buat kode diskon instan.', icon: '🎟️', link: '/hub/promos' },
-      { id: 'shipping', title: 'Pelacak Pengiriman & Logistik', desc: 'Lacak pengiriman dan atasi pertanyaan.', icon: '📦', link: '/hub/shipping' },
-      { id: 'scraper', title: 'Pembersih Data Excel', desc: 'Bersihkan daftar produk dan harga acak.', icon: '⚡', link: '/hub/scraper' },
-      { id: 'links', title: 'Pembuat Tautan Langsung WhatsApp', desc: 'Buat tautan khusus untuk bio TikTok/Iklan.', icon: '🔗', link: '/hub/links' },
-      { id: 'reviews', title: 'Kolektor Ulasan Pelanggan', desc: 'Kirim pesan otomatis untuk kumpulkan ulasan.', icon: '⭐', link: '/hub/reviews' },
-      { id: 'support', title: 'Balasan Cepat Layanan Pelanggan', desc: 'Salin balasan dukungan profesional siap pakai.', icon: '🎧', link: '/hub/support' },
-      { id: 'tips', title: 'Perpustakaan Rahasia Pertumbuhan', desc: 'Strategi eksklusif untuk tingkatkan konversi.', icon: '💡', link: '/hub/tips' }
-    ]
   }
 };
 
@@ -405,6 +185,23 @@ export default function EngaziaHomeHub() {
   const [isActivated, setIsActivated] = useState<boolean>(false);
 
   const LEMON_CHECKOUT_URL = 'https://enjazya.lemonsqueezy.com/checkout/buy/80ff492a-01eb-4455-b1a8-96e12ab72562';
+
+  // تحويل العملات التلقائي
+  const getConvertedPrice = (usdAmount: number) => {
+    let rate = 3.75; // SAR
+    let symbol = 'ر.س';
+    
+    if (currentCurrency === 'USD') { rate = 1; symbol = '$'; }
+    else if (currentCurrency === 'AED') { rate = 3.67; symbol = 'د.إ'; }
+    else if (currentCurrency === 'EUR') { rate = 0.92; symbol = '€'; }
+    else if (currentCurrency === 'GBP') { rate = 0.79; symbol = '£'; }
+    else if (currentCurrency === 'TRY') { rate = 32.5; symbol = '₺'; }
+    else if (currentCurrency === 'KWD') { rate = 0.31; symbol = 'د.ك'; }
+    else if (currentCurrency === 'QAR') { rate = 3.64; symbol = 'ر.ق'; }
+    
+    const converted = (usdAmount * rate).toFixed(2);
+    return `${converted} ${symbol}`;
+  };
 
   useEffect(() => {
     const config = getInitialConfig();
@@ -455,7 +252,7 @@ export default function EngaziaHomeHub() {
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
         
         .hub-container { background-color: #f8fafc; min-height: 100vh; font-family: 'Tajawal', sans-serif; padding: 30px 20px 40px; }
-        .navbar { max-width: 1250px; margin: 0 auto 35px; padding: 15px 30px; background: #ffffff; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); border: 1px solid #cbd5e1; flex-wrap: wrap; gap: 15px; }
+        .navbar { max-width: 1250px; margin: 0 auto 25px; padding: 15px 30px; background: #ffffff; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); border: 1px solid #cbd5e1; flex-wrap: wrap; gap: 15px; }
         .brand { font-size: 22px; font-weight: 900; color: #0f172a; }
         .brand span { color: #4f46e5; }
         
@@ -465,6 +262,17 @@ export default function EngaziaHomeHub() {
         .license-box { display: flex; align-items: center; gap: 8px; background: #f8fafc; padding: 4px 10px; border-radius: 8px; border: 1px solid #cbd5e1; }
         .upgrade-btn { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: #fff !important; padding: 6px 12px; border-radius: 8px; font-weight: 800; font-size: 12px; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; box-shadow: 0 4px 10px rgba(79,70,229,0.2); }
         
+        /* إعلان الترقية الجذاب والمغري */
+        .promo-banner { max-width: 1250px; margin: 0 auto 35px; background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: #fff; border-radius: 16px; padding: 20px 30px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; box-shadow: 0 10px 25px rgba(79,70,229,0.25); border: 1px solid rgba(255,255,255,0.2); position: relative; overflow: hidden; }
+        .promo-banner::before { content: ''; position: absolute; top: -50px; right: -50px; width: 150px; height: 150px; background: rgba(255,255,255,0.1); border-radius: 50%; pointer-events: none; }
+        .promo-content { display: flex; flex-direction: column; gap: 6px; }
+        .promo-heading { font-size: 17px; font-weight: 900; display: flex; align-items: center; gap: 8px; }
+        .promo-text { font-size: 13.5px; font-weight: 700; opacity: 0.95; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+        .price-tag-new { background: #10b981; color: #fff; padding: 2px 8px; border-radius: 6px; font-weight: 900; font-size: 14px; }
+        .price-tag-old { text-decoration: line-through; opacity: 0.8; font-size: 12px; font-weight: 800; }
+        .promo-btn { background: #fff; color: #4f46e5; border: none; padding: 10px 22px; border-radius: 10px; font-weight: 900; font-size: 13.5px; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .promo-btn:hover { background: #f8fafc; transform: translateY(-2px); }
+
         .hero { text-align: center; max-width: 800px; margin: 0 auto 50px; }
         .hero h1 { font-size: 36px; font-weight: 900; color: #0f172a; margin-bottom: 15px; letter-spacing: -0.5px; }
         .hero h1 span { color: #4f46e5; }
@@ -574,6 +382,24 @@ export default function EngaziaHomeHub() {
             </a>
           )}
         </div>
+      </div>
+
+      {/* إعلان الترقية المغري الظاهر أسفل الشريط العلوي مباشرة */}
+      <div className="promo-banner">
+        <div className="promo-content">
+          <div className="promo-heading">{t.promoTitle}</div>
+          <div className="promo-text">
+            <span>{t.promoDesc}</span>
+            <span className="price-tag-new">{getConvertedPrice(9.99)}</span>
+            <span>{t.promoPer}</span>
+            <span className="price-tag-old">({t.promoOld} {getConvertedPrice(29)})</span>
+          </div>
+        </div>
+        <a href={LEMON_CHECKOUT_URL} target="_blank" rel="noopener noreferrer">
+          <button className="promo-btn">
+            {t.upgradeNowBtn}
+          </button>
+        </a>
       </div>
 
       <div className="hero">
