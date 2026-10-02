@@ -35,7 +35,7 @@ export default function ProfitCalculator() {
   const [paymentFeePercent, setPaymentFeePercent] = useState<number>(2.5);
   const [paymentFeeFixed, setPaymentFeeFixed] = useState<number>(1);
   const [taxPercent, setTaxPercent] = useState<number>(15);
-  const [isTaxInclusive, setIsTaxInclusive] = useState<boolean>(true); // السعر شامل الضريبة
+  const [isTaxInclusive, setIsTaxInclusive] = useState<boolean>(true);
   const [returnRate, setReturnRate] = useState<number>(10);
 
   // مربع البحث
@@ -57,15 +57,13 @@ export default function ProfitCalculator() {
   // المنتجات المحفوظة
   const [savedProducts, setSavedProducts] = useState<SavedProduct[]>([]);
 
-  // استرجاع المنتجات المحفوظة عند التحميل
   useEffect(() => {
-    const saved = localStorage.getItem('engazia_profit_products_v4');
+    const saved = localStorage.getItem('engazia_profit_products_v5');
     if (saved) {
       try { setSavedProducts(JSON.parse(saved)); } catch (e) { console.error(e); }
     }
   }, []);
 
-  // حساب النتائج تلقائياً عند تغيير أي رقم
   useEffect(() => {
     calculateProfit();
   }, [productCost, sellingPrice, shippingCost, adSpend, paymentFeePercent, paymentFeeFixed, taxPercent, isTaxInclusive, returnRate]);
@@ -117,7 +115,7 @@ export default function ProfitCalculator() {
 
     const updatedList = [newProduct, ...savedProducts];
     setSavedProducts(updatedList);
-    localStorage.setItem('engazia_profit_products_v4', JSON.stringify(updatedList));
+    localStorage.setItem('engazia_profit_products_v5', JSON.stringify(updatedList));
     setProductName('');
   };
 
@@ -148,18 +146,18 @@ export default function ProfitCalculator() {
     if (window.confirm('هل أنت متأكد من حذف هذا المنتج؟')) {
       const updatedList = savedProducts.filter(p => p.id !== id);
       setSavedProducts(updatedList);
-      localStorage.setItem('engazia_profit_products_v4', JSON.stringify(updatedList));
+      localStorage.setItem('engazia_profit_products_v5', JSON.stringify(updatedList));
     }
   };
 
-  // دالة التصدير المحدثة لدعم اللغة العربية في إكسل
+  // دالة التصدير المحدثة لدعم اللغة العربية والاتجاه من اليمين لليسار (Excel HTML format)
   const exportToCSV = () => {
     if (savedProducts.length === 0) return alert('المحفظة فارغة.');
     
     const headers = ['اسم المنتج', 'سعر البيع', 'التكلفة', 'الشحن', 'التسويق المخصص', 'Max CPA', 'Break-even ROAS', 'الربح الصافي', 'هامش الربح %'];
     
     const rows = savedProducts.map(p => [
-      `"${p.name.replace(/"/g, '""')}"`,
+      p.name,
       p.sellingPrice,
       p.productCost,
       p.shippingCost,
@@ -169,18 +167,52 @@ export default function ProfitCalculator() {
       p.netProfit.toFixed(2),
       p.profitMargin.toFixed(2)
     ]);
-    
-    const csvContent = "sep=,\r\n" + [headers.join(','), ...rows.map(e => e.join(','))].join('\r\n');
-    
-    // إضافة BOM لدعم UTF-8 في إكسل
-    const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
-    const blob = new Blob([bom, csvContent], { type: 'text/csv;charset=utf-8;' });
-    
-    const url = URL.createObjectURL(blob);
+
+    // بناء جدول HTML وتضمين تعليمات الاتجاه (RTL) وترميز UTF-8
+    let htmlTable = `<html xmlns:x="urn:schemas-microsoft-com:office:excel">
+      <head>
+        <meta http-equiv="content-type" content="text/plain; charset=UTF-8"/>
+        <!-- فرض اتجاه الورقة من اليمين لليسار -->
+        <xml>
+          <x:ExcelWorkbook>
+            <x:ExcelWorksheets>
+              <x:ExcelWorksheet>
+                <x:Name>المحفظة</x:Name>
+                <x:WorksheetOptions>
+                  <x:DisplayRightToLeft/>
+                </x:WorksheetOptions>
+              </x:ExcelWorksheet>
+            </x:ExcelWorksheets>
+          </x:ExcelWorkbook>
+        </xml>
+      </head>
+      <body>
+        <table border="1" dir="rtl">
+          <thead>
+            <tr>
+              ${headers.map(h => `<th style="background-color:#f1f5f9; font-weight:bold;">${h}</th>`).join('')}
+            </tr>
+          </thead>
+          <tbody>
+            ${rows.map(row => 
+              `<tr>${row.map(cell => `<td>${cell}</td>`).join('')}</tr>`
+            ).join('')}
+          </tbody>
+        </table>
+      </body>
+    </html>`;
+
+    // استخدام Data URI مع ترميز Base64 لتجنب أي مشاكل في الترميز
+    const uri = 'data:application/vnd.ms-excel;base64,';
+    const base64 = (s: string) => window.btoa(unescape(encodeURIComponent(s)));
+
     const link = document.createElement('a');
-    link.href = url;
-    link.download = `profit_portfolio_${new Date().toISOString().slice(0, 10)}.csv`;
+    link.href = uri + base64(htmlTable);
+    // تغيير اللاحقة إلى xls لضمان قراءة الجدول والتنسيقات
+    link.download = `profit_portfolio_${new Date().toISOString().slice(0, 10)}.xls`;
+    document.body.appendChild(link);
     link.click();
+    document.body.removeChild(link);
   };
 
   const filteredProducts = savedProducts.filter(p => 
