@@ -81,13 +81,13 @@ export default function ProfitCalculator() {
     // 1. حساب رسوم الدفع (النسبة + الرسوم الثابتة)
     const paymentFees = (sPrice * (paymentFeePercent / 100)) + paymentFeeFixed;
     
-    // 2. حساب الضريبة (تعتمد على هل السعر شامل أم غير شامل)
+    // 2. حساب الضريبة
     const taxValue = taxPercent / 100;
     const taxAmount = isTaxInclusive 
-      ? sPrice - (sPrice / (1 + taxValue)) // استخراج الضريبة من السعر الشامل
-      : sPrice * taxValue; // حساب الضريبة كإضافة على السعر
+      ? sPrice - (sPrice / (1 + taxValue)) 
+      : sPrice * taxValue;
     
-    // 3. حساب تكلفة المرتجعات التقديرية (من تكلفة المنتج والشحن فقط)
+    // 3. حساب تكلفة المرتجعات التقديرية
     const returnsCost = (pCost + sCost) * (returnRate / 100);
 
     // 4. إجمالي التكاليف الأساسية (بدون إعلانات)
@@ -150,7 +150,6 @@ export default function ProfitCalculator() {
     const updatedList = [newProduct, ...savedProducts];
     setSavedProducts(updatedList);
     localStorage.setItem('engazia_profit_products_v2', JSON.stringify(updatedList));
-    
     setProductName('');
   };
 
@@ -209,101 +208,105 @@ export default function ProfitCalculator() {
       <style jsx>{`
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
         
-        .tool-container { background-color: #f1f5f9; min-height: 100vh; font-family: 'Tajawal', sans-serif; direction: rtl; padding: 30px 20px 70px; }
+        .tool-container { background-color: #f1f5f9; min-height: 100vh; font-family: 'Tajawal', sans-serif; direction: rtl; padding: 20px 15px 40px; }
         
-        .header { max-width: 1200px; margin: 0 auto 30px; display: flex; justify-content: space-between; align-items: center; }
-        .back-btn { background: #ffffff; color: #475569; padding: 10px 20px; border-radius: 10px; font-weight: 800; font-size: 14px; border: 1px solid #cbd5e1; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
+        .header { max-width: 1000px; margin: 0 auto 20px; display: flex; justify-content: space-between; align-items: center; }
+        .back-btn { background: #ffffff; color: #475569; padding: 8px 16px; border-radius: 8px; font-weight: 800; font-size: 13px; border: 1px solid #cbd5e1; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
         .back-btn:hover { background: #e2e8f0; color: #0f172a; }
         
-        .tool-title { text-align: center; margin-bottom: 40px; }
-        .tool-title h1 { font-size: 32px; font-weight: 900; color: #0f172a; margin-bottom: 10px; letter-spacing: -0.5px; }
+        .tool-title { text-align: center; margin-bottom: 25px; }
+        .tool-title h1 { font-size: 26px; font-weight: 900; color: #0f172a; margin-bottom: 8px; letter-spacing: -0.5px; }
         .tool-title span { color: #4f46e5; }
-        .tool-title p { color: #64748b; font-size: 15px; font-weight: 500; }
+        .tool-title p { color: #64748b; font-size: 13px; font-weight: 500; margin: 0; }
 
-        .main-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 25px; max-width: 1200px; margin: 0 auto 40px; }
+        .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 1000px; margin: 0 auto 30px; }
         
-        .panel { background: #ffffff; border-radius: 20px; padding: 30px; border: 1px solid #e2e8f0; box-shadow: 0 10px 30px rgba(0,0,0,0.03); }
-        .panel h2 { font-size: 18px; font-weight: 900; color: #1e293b; margin-bottom: 25px; display: flex; align-items: center; gap: 10px; border-bottom: 2px solid #f1f5f9; padding-bottom: 15px; }
+        .panel { background: #ffffff; border-radius: 16px; padding: 20px; border: 1px solid #e2e8f0; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+        .panel h2 { font-size: 15px; font-weight: 900; color: #1e293b; margin-bottom: 18px; margin-top: 0; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; }
 
-        .input-group { margin-bottom: 18px; }
-        .input-group label { display: flex; justify-content: space-between; font-size: 13px; font-weight: 800; color: #475569; margin-bottom: 8px; }
+        .input-group { margin-bottom: 14px; }
+        .input-group label { display: flex; justify-content: space-between; font-size: 12px; font-weight: 800; color: #475569; margin-bottom: 6px; }
         .input-wrapper { position: relative; }
-        .input-wrapper input { width: 100%; padding: 12px 15px 12px 45px; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 15px; font-family: 'Tajawal', sans-serif; transition: border-color 0.2s; background: #fff; font-weight: 800; color: #1e293b; outline: none; box-sizing: border-box; }
-        .input-wrapper input:focus { border-color: #4f46e5; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15); }
-        .input-wrapper .currency { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-weight: 800; font-size: 13px; direction: ltr; }
+        .input-wrapper input { width: 100%; padding: 10px 12px 10px 35px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 14px; font-family: 'Tajawal', sans-serif; transition: border-color 0.2s; background: #fff; font-weight: 700; color: #1e293b; outline: none; box-sizing: border-box; }
+        .input-wrapper input:focus { border-color: #4f46e5; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
+        .input-wrapper .currency { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-weight: 800; font-size: 11px; direction: ltr; }
 
-        .grid-2-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .grid-3-cols { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
+        .grid-2-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .grid-3-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 12px; }
 
         /* Results Panel Styling */
         .results-panel { background: #1e293b; border: none; color: #ffffff; position: relative; overflow: hidden; }
         .results-panel h2 { color: #ffffff; border-color: #334155; }
         
-        .result-box { background: #334155; padding: 20px; border-radius: 16px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #475569; transition: 0.3s; }
+        .result-box { background: #334155; padding: 12px 15px; border-radius: 12px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #475569; transition: 0.3s; }
         .result-box.highlight { background: #4f46e5; border-color: #6366f1; }
         .result-box.warning { background: #7f1d1d; border-color: #991b1b; }
         .result-box.success { background: #14532d; border-color: #166534; }
         
-        .result-label { font-size: 14px; font-weight: 800; color: #cbd5e1; display: flex; flex-direction: column; }
-        .result-label small { font-size: 11px; color: #94a3b8; font-weight: 500; margin-top: 4px; }
+        .result-label { font-size: 13px; font-weight: 800; color: #cbd5e1; display: flex; flex-direction: column; }
+        .result-label small { font-size: 10px; color: #94a3b8; font-weight: 500; margin-top: 2px; }
         .highlight .result-label, .warning .result-label, .success .result-label { color: #ffffff; opacity: 0.9; }
         .highlight .result-label small { color: #e0e7ff; }
         
-        .result-value { font-size: 24px; font-weight: 900; color: #ffffff; display: flex; align-items: baseline; gap: 4px; direction: ltr; }
-        .result-value span { font-size: 13px; font-weight: 700; opacity: 0.8; }
+        .result-value { font-size: 18px; font-weight: 900; color: #ffffff; display: flex; align-items: baseline; gap: 4px; direction: ltr; }
+        .result-value span { font-size: 11px; font-weight: 700; opacity: 0.8; }
 
-        .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .detail-item { background: #0f172a; padding: 12px; border-radius: 10px; border: 1px solid #334155; display: flex; flex-direction: column; gap: 5px; }
-        .detail-label { font-size: 11px; color: #94a3b8; font-weight: 700; }
-        .detail-val { font-size: 15px; font-weight: 900; color: #f8fafc; direction: ltr; text-align: right; }
+        .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px; }
+        .detail-item { background: #0f172a; padding: 10px; border-radius: 8px; border: 1px solid #334155; display: flex; flex-direction: column; gap: 4px; }
+        .detail-label { font-size: 10px; color: #94a3b8; font-weight: 700; }
+        .detail-val { font-size: 13px; font-weight: 900; color: #f8fafc; direction: ltr; text-align: right; }
 
-        .btn-save { background: #10b981; color: #fff; border: none; padding: 14px; width: 100%; border-radius: 12px; font-size: 15px; font-weight: 900; cursor: pointer; transition: 0.2s; margin-top: 10px; font-family: 'Tajawal', sans-serif; }
-        .btn-save:hover { background: #059669; transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.2); }
+        .btn-save { background: #10b981; color: #fff; border: none; padding: 12px; width: 100%; border-radius: 10px; font-size: 14px; font-weight: 900; cursor: pointer; transition: 0.2s; margin-top: 8px; font-family: 'Tajawal', sans-serif; }
+        .btn-save:hover { background: #059669; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2); }
 
         /* Saved Products Grid */
-        .saved-section-title { font-size: 20px; font-weight: 900; color: #1e293b; margin-bottom: 20px; max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
-        .btn-export { background: #fff; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 800; color: #475569; cursor: pointer; transition: 0.2s; }
+        .saved-section-title { font-size: 16px; font-weight: 900; color: #1e293b; margin-bottom: 15px; max-width: 1000px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
+        .btn-export { background: #fff; border: 1px solid #cbd5e1; padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 800; color: #475569; cursor: pointer; transition: 0.2s; }
         .btn-export:hover { background: #f8fafc; border-color: #94a3b8; color: #0f172a; }
         
-        .saved-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; max-width: 1200px; margin: 0 auto; }
+        .saved-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; max-width: 1000px; margin: 0 auto; }
         
-        .product-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px; position: relative; transition: 0.2s; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
-        .product-card:hover { border-color: #cbd5e1; transform: translateY(-3px); box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
-        .product-card.status-good { border-top: 4px solid #10b981; }
-        .product-card.status-warn { border-top: 4px solid #f59e0b; }
-        .product-card.status-bad { border-top: 4px solid #ef4444; }
+        .product-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px; position: relative; transition: 0.2s; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+        .product-card:hover { border-color: #cbd5e1; transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.04); }
+        .product-card.status-good { border-top: 3px solid #10b981; }
+        .product-card.status-warn { border-top: 3px solid #f59e0b; }
+        .product-card.status-bad { border-top: 3px solid #ef4444; }
 
-        .pc-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; }
-        .pc-title { font-size: 16px; font-weight: 900; color: #0f172a; margin: 0; }
-        .pc-price { font-size: 13px; color: #64748b; font-weight: 700; }
+        .pc-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+        .pc-title { font-size: 14px; font-weight: 900; color: #0f172a; margin: 0; }
+        .pc-price { font-size: 11px; color: #64748b; font-weight: 700; margin-top: 2px; display: block; }
         
-        .pc-actions { display: flex; gap: 8px; }
-        .pc-btn { width: 32px; height: 32px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; border: none; font-size: 14px; }
+        .pc-actions { display: flex; gap: 6px; }
+        .pc-btn { width: 26px; height: 26px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; border: none; font-size: 12px; }
         .pc-btn-edit { background: #e0e7ff; color: #4f46e5; }
         .pc-btn-edit:hover { background: #c7d2fe; }
         .pc-btn-delete { background: #fee2e2; color: #ef4444; }
         .pc-btn-delete:hover { background: #ef4444; color: #fff; }
 
-        .pc-stats { display: flex; flex-direction: column; gap: 10px; background: #f8fafc; padding: 15px; border-radius: 12px; }
-        .pc-stat-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 800; }
+        .pc-stats { display: flex; flex-direction: column; gap: 8px; background: #f8fafc; padding: 12px; border-radius: 8px; }
+        .pc-stat-row { display: flex; justify-content: space-between; align-items: center; font-size: 11px; font-weight: 800; }
         
-        .badge { padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 900; }
+        .badge { padding: 3px 6px; border-radius: 4px; font-size: 10px; font-weight: 900; }
         .bg-green { background: #dcfce7; color: #166534; }
         .bg-yellow { background: #fef3c7; color: #92400e; }
         .bg-red { background: #fee2e2; color: #991b1b; }
 
-        @media(max-width: 900px) { .main-grid { grid-template-columns: 1fr; } }
+        /* الشاشات المتوسطة والصغيرة */
+        @media(max-width: 800px) { 
+          .main-grid { grid-template-columns: 1fr; gap: 15px; } 
+          .tool-container { padding: 15px 10px 30px; }
+        }
       `}</style>
 
       <div className="header">
         <Link href="/hub" className="back-btn">
-          <span>→</span> العودة للرئيسية
+          <span>→</span> العودة
         </Link>
       </div>
 
       <div className="tool-title">
         <h1>حاسبة <span>أرباح ونقاط التعادل</span></h1>
-        <p>احسب صافي أرباحك الحقيقية، واعرف الحد الأقصى لتكلفة الإعلان قبل أن تبدأ بالخسارة.</p>
+        <p>احسب صافي أرباحك الحقيقية والحد الأقصى لتكلفة الإعلان</p>
       </div>
 
       <div className="main-grid">
@@ -312,15 +315,15 @@ export default function ProfitCalculator() {
           <h2>🛒 بيانات المنتج والتكاليف</h2>
           
           <div className="input-group">
-            <label>اسم المنتج (اختياري لحفظ الحسبة)</label>
+            <label>اسم المنتج (اختياري)</label>
             <div className="input-wrapper">
-              <input type="text" value={productName} onChange={(e) => setProductName(e.target.value)} placeholder="مثال: سماعة البلوتوث الرياضية" />
+              <input type="text" value={productName} onChange={(e) => setProductName(e.target.value)} placeholder="مثال: سماعة البلوتوث" />
             </div>
           </div>
 
           <div className="grid-2-cols">
             <div className="input-group">
-              <label>سعر بيع المنتج للعميل</label>
+              <label>سعر البيع للعميل</label>
               <div className="input-wrapper">
                 <input type="number" min="0" value={sellingPrice} onChange={(e) => setSellingPrice(Number(e.target.value))} placeholder="199" />
                 <span className="currency">ر.س</span>
@@ -344,7 +347,7 @@ export default function ProfitCalculator() {
               </div>
             </div>
             <div className="input-group">
-              <label>تكلفة التسويق (للمبيعة الواحدة)</label>
+              <label>تكلفة التسويق (مبيعة)</label>
               <div className="input-wrapper">
                 <input type="number" min="0" value={adSpend} onChange={(e) => setAdSpend(Number(e.target.value))} placeholder="40" />
                 <span className="currency">ر.س</span>
@@ -352,26 +355,26 @@ export default function ProfitCalculator() {
             </div>
           </div>
 
-          <div style={{ background: '#f8fafc', padding: '15px', borderRadius: '12px', border: '1px solid #e2e8f0', marginTop: '10px' }}>
-            <h3 style={{ fontSize: '13px', color: '#1e293b', marginBottom: '15px', fontWeight: 900 }}>⚙️ الإعدادات المتقدمة (الرسوم والضرائب)</h3>
+          <div style={{ background: '#f8fafc', padding: '12px', borderRadius: '10px', border: '1px solid #e2e8f0', marginTop: '5px' }}>
+            <h3 style={{ fontSize: '11px', color: '#1e293b', marginBottom: '10px', fontWeight: 900 }}>⚙️ الإعدادات المتقدمة (الرسوم)</h3>
             
             <div className="grid-3-cols">
               <div className="input-group" style={{ marginBottom: 0 }}>
-                <label>رسوم الدفع (%)</label>
+                <label>دفع (%)</label>
                 <div className="input-wrapper">
                   <input type="number" step="0.1" value={paymentFeePercent} onChange={(e) => setPaymentFeePercent(Number(e.target.value))} />
                   <span className="currency">%</span>
                 </div>
               </div>
               <div className="input-group" style={{ marginBottom: 0 }}>
-                <label>رسوم (مبلغ ثابت)</label>
+                <label>رسوم (ثابت)</label>
                 <div className="input-wrapper">
                   <input type="number" step="0.1" value={paymentFeeFixed} onChange={(e) => setPaymentFeeFixed(Number(e.target.value))} />
                   <span className="currency">ر.س</span>
                 </div>
               </div>
               <div className="input-group" style={{ marginBottom: 0 }}>
-                <label>نسبة المرتجعات</label>
+                <label>المرتجعات</label>
                 <div className="input-wrapper">
                   <input type="number" value={returnRate} onChange={(e) => setReturnRate(Number(e.target.value))} />
                   <span className="currency">%</span>
@@ -379,7 +382,7 @@ export default function ProfitCalculator() {
               </div>
             </div>
             
-            <div style={{ marginTop: '15px', paddingTop: '15px', borderTop: '1px solid #e2e8f0', display: 'flex', gap: '15px', alignItems: 'center' }}>
+            <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid #e2e8f0', display: 'flex', gap: '10px', alignItems: 'center' }}>
               <div className="input-group" style={{ marginBottom: 0, flex: 1 }}>
                 <label>الضريبة (VAT)</label>
                 <div className="input-wrapper">
@@ -387,9 +390,9 @@ export default function ProfitCalculator() {
                   <span className="currency">%</span>
                 </div>
               </div>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 800, color: '#475569', flex: 2, marginTop: '20px' }}>
-                <input type="checkbox" checked={isTaxInclusive} onChange={(e) => setIsTaxInclusive(e.target.checked)} style={{ width: '18px', height: '18px', accentColor: '#4f46e5' }} />
-                سعر البيع "شامل" الضريبة (تخصم منه)
+              <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontSize: '11px', fontWeight: 800, color: '#475569', flex: 2, marginTop: '15px' }}>
+                <input type="checkbox" checked={isTaxInclusive} onChange={(e) => setIsTaxInclusive(e.target.checked)} style={{ width: '14px', height: '14px', accentColor: '#4f46e5' }} />
+                السعر "شامل" الضريبة
               </label>
             </div>
           </div>
@@ -418,18 +421,18 @@ export default function ProfitCalculator() {
             </div>
           </div>
 
-          <div className="grid-2-cols" style={{ gap: '10px' }}>
-            <div className="result-box" style={{ background: '#0f172a', borderColor: '#334155', padding: '15px' }}>
+          <div className="grid-2-cols" style={{ gap: '8px' }}>
+            <div className="result-box" style={{ background: '#0f172a', borderColor: '#334155', padding: '12px' }}>
               <span className="result-label" style={{ color: '#fcd34d' }}>
-                أقصى تكلفة استحواذ (Max CPA)
-                <small>الحد الأقصى للإعلان قبل الخسارة</small>
+                أقصى تكلفة استحواذ
+                <small>Max CPA المسموح</small>
               </span>
               <span className="result-value" style={{ color: '#fcd34d' }}>
                 {results.maxCPA.toFixed(2)} <span>ر.س</span>
               </span>
             </div>
 
-            <div className="result-box" style={{ background: '#0f172a', borderColor: '#334155', padding: '15px' }}>
+            <div className="result-box" style={{ background: '#0f172a', borderColor: '#334155', padding: '12px' }}>
               <span className="result-label" style={{ color: '#38bdf8' }}>
                 العائد الإعلاني المطلوب
                 <small>Break-even ROAS</small>
@@ -447,7 +450,7 @@ export default function ProfitCalculator() {
             </span>
           </div>
 
-          <div className="result-box highlight" style={{ marginBottom: '20px' }}>
+          <div className="result-box highlight" style={{ marginBottom: '15px' }}>
             <span className="result-label">هامش الربح الصافي</span>
             <span className="result-value">
               {results.profitMargin.toFixed(1)} <span>%</span>
@@ -455,7 +458,7 @@ export default function ProfitCalculator() {
           </div>
 
           <button className="btn-save" onClick={saveProduct}>
-            💾 حفظ المنتج في المحفظة للمقارنة
+            💾 حفظ في المحفظة
           </button>
         </div>
       </div>
@@ -464,8 +467,8 @@ export default function ProfitCalculator() {
       {savedProducts.length > 0 && (
         <>
           <div className="saved-section-title">
-            <span>💼 محفظة المنتجات والمقارنة ({savedProducts.length})</span>
-            <button className="btn-export" onClick={exportToCSV}>📥 تصدير الإحصائيات (Excel)</button>
+            <span>💼 المحفظة ({savedProducts.length})</span>
+            <button className="btn-export" onClick={exportToCSV}>📥 تصدير Excel</button>
           </div>
           <div className="saved-grid">
             {savedProducts.map((prod) => (
@@ -492,10 +495,10 @@ export default function ProfitCalculator() {
                   <div className="pc-stat-row">
                     <span style={{ color: '#475569' }}>Max CPA / ROAS:</span>
                     <span style={{ color: '#0f172a', direction: 'ltr' }}>
-                      <span style={{ color: '#f59e0b' }}>{prod.maxCPA.toFixed(0)} ر.س</span> / <span style={{ color: '#38bdf8' }}>{prod.breakEvenROAS.toFixed(1)}x</span>
+                      <span style={{ color: '#f59e0b' }}>{prod.maxCPA.toFixed(0)}</span> / <span style={{ color: '#38bdf8' }}>{prod.breakEvenROAS.toFixed(1)}x</span>
                     </span>
                   </div>
-                  <div className="pc-stat-row" style={{ marginTop: '5px', paddingTop: '10px', borderTop: '1px dashed #cbd5e1' }}>
+                  <div className="pc-stat-row" style={{ marginTop: '4px', paddingTop: '8px', borderTop: '1px dashed #cbd5e1' }}>
                     <span style={{ color: '#475569' }}>الهامش الربحي:</span>
                     <span className={`badge ${prod.profitMargin >= 20 ? 'bg-green' : prod.profitMargin > 0 ? 'bg-yellow' : 'bg-red'}`} style={{ direction: 'ltr' }}>
                       {prod.profitMargin.toFixed(1)}%
