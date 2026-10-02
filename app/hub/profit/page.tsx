@@ -15,6 +15,7 @@ interface SavedProduct {
   taxPercent: number;
   isTaxInclusive: boolean;
   returnRate: number;
+  currency: string;
   
   netProfit: number;
   profitMargin: number;
@@ -30,6 +31,9 @@ export default function ProfitCalculator() {
   const [shippingCost, setShippingCost] = useState<number | ''>('');
   const [adSpend, setAdSpend] = useState<number | ''>('');
   
+  // اختيار العملة
+  const [currency, setCurrency] = useState<string>('ر.س');
+
   const [paymentFeePercent, setPaymentFeePercent] = useState<number>(2.5);
   const [paymentFeeFixed, setPaymentFeeFixed] = useState<number>(1);
   const [taxPercent, setTaxPercent] = useState<number>(15);
@@ -53,7 +57,7 @@ export default function ProfitCalculator() {
   const [savedProducts, setSavedProducts] = useState<SavedProduct[]>([]);
 
   useEffect(() => {
-    const saved = localStorage.getItem('engazia_profit_products_v7');
+    const saved = localStorage.getItem('engazia_profit_products_v8');
     if (saved) {
       try { setSavedProducts(JSON.parse(saved)); } catch (e) { console.error(e); }
     }
@@ -105,12 +109,13 @@ export default function ProfitCalculator() {
       shippingCost: Number(shippingCost) || 0,
       adSpend: Number(adSpend) || 0,
       paymentFeePercent, paymentFeeFixed, taxPercent, isTaxInclusive, returnRate,
+      currency,
       netProfit: results.netProfit, profitMargin: results.profitMargin, maxCPA: results.maxCPA, breakEvenROAS: results.breakEvenROAS, roi: results.roi
     };
 
     const updatedList = [newProduct, ...savedProducts];
     setSavedProducts(updatedList);
-    localStorage.setItem('engazia_profit_products_v7', JSON.stringify(updatedList));
+    localStorage.setItem('engazia_profit_products_v8', JSON.stringify(updatedList));
     setProductName('');
   };
 
@@ -134,6 +139,7 @@ export default function ProfitCalculator() {
     setTaxPercent(prod.taxPercent);
     setIsTaxInclusive(prod.isTaxInclusive);
     setReturnRate(prod.returnRate);
+    if (prod.currency) setCurrency(prod.currency);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -141,17 +147,18 @@ export default function ProfitCalculator() {
     if (window.confirm('هل أنت متأكد من حذف هذا المنتج؟')) {
       const updatedList = savedProducts.filter(p => p.id !== id);
       setSavedProducts(updatedList);
-      localStorage.setItem('engazia_profit_products_v7', JSON.stringify(updatedList));
+      localStorage.setItem('engazia_profit_products_v8', JSON.stringify(updatedList));
     }
   };
 
   const exportToCSV = () => {
     if (savedProducts.length === 0) return alert('المحفظة فارغة.');
     
-    const headers = ['اسم المنتج', 'سعر البيع', 'التكلفة', 'الشحن', 'التسويق المخصص', 'Max CPA', 'Break-even ROAS', 'الربح الصافي', 'هامش الربح %'];
+    const headers = ['اسم المنتج', 'العملة', 'سعر البيع', 'التكلفة', 'الشحن', 'التسويق المخصص', 'Max CPA', 'Break-even ROAS', 'الربح الصافي', 'هامش الربح %'];
     
     const rows = savedProducts.map(p => [
       p.name,
+      p.currency || 'ر.س',
       p.sellingPrice,
       p.productCost,
       p.shippingCost,
@@ -205,6 +212,7 @@ export default function ProfitCalculator() {
     document.body.removeChild(link);
   };
 
+  // الاستيراد الذكي برؤوس الأعمدة (Headers)
   const importFromExcel = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -215,10 +223,30 @@ export default function ProfitCalculator() {
         const text = event.target?.result as string;
         const parser = new DOMParser();
         const doc = parser.parseFromString(text, 'text/html');
+        
+        const headerRow = doc.querySelector('thead tr') || doc.querySelector('tr');
         const rows = doc.querySelectorAll('tbody tr');
         
-        if (rows.length === 0) {
-          alert('لم يتم العثور على بيانات. تأكد من أن الملف هو الذي تم تصديره من الأداة.');
+        if (!headerRow || rows.length === 0) {
+          alert('لم يتم العثور على رؤوس أو بيانات صحيحة في الملف.');
+          return;
+        }
+
+        // قراءة الفهارس بناءً على أسماء الأعمدة (Headers) لتجنب أخطاء الترتيب
+        const headers: string[] = [];
+        headerRow.querySelectorAll('th, td').forEach(th => {
+          headers.push(th.textContent?.trim() || '');
+        });
+
+        const nameIdx = headers.findIndex(h => h.includes('اسم المنتج') || h.includes('المنتج'));
+        const currIdx = headers.findIndex(h => h.includes('العملة'));
+        const priceIdx = headers.findIndex(h => h.includes('سعر البيع'));
+        const costIdx = headers.findIndex(h => h.includes('التكلفة'));
+        const shipIdx = headers.findIndex(h => h.includes('الشحن'));
+        const adIdx = headers.findIndex(h => h.includes('التسويق') || h.includes('الإعلان'));
+
+        if (nameIdx === -1 || priceIdx === -1) {
+          alert('تعذر قراءة الأعمدة الأساسية (اسم المنتج أو سعر البيع) من الملف.');
           return;
         }
 
@@ -226,12 +254,13 @@ export default function ProfitCalculator() {
 
         rows.forEach((row) => {
           const cells = row.querySelectorAll('td');
-          if (cells.length >= 5) {
-            const name = cells[0].innerText.replace(/"/g, '').trim();
-            const sPrice = parseFloat(cells[1].innerText) || 0;
-            const pCost = parseFloat(cells[2].innerText) || 0;
-            const sCost = parseFloat(cells[3].innerText) || 0;
-            const aSpend = parseFloat(cells[4].innerText) || 0;
+          if (cells.length > Math.max(nameIdx, priceIdx)) {
+            const name = cells[nameIdx]?.textContent?.replace(/"/g, '').trim() || 'منتج مستورد';
+            const curr = currIdx !== -1 ? cells[currIdx]?.textContent?.trim() || 'ر.س' : currency;
+            const sPrice = parseFloat(cells[priceIdx]?.textContent || '0') || 0;
+            const pCost = costIdx !== -1 ? parseFloat(cells[costIdx]?.textContent || '0') || 0 : 0;
+            const sCost = shipIdx !== -1 ? parseFloat(cells[shipIdx]?.textContent || '0') || 0 : 0;
+            const aSpend = adIdx !== -1 ? parseFloat(cells[adIdx]?.textContent || '0') || 0 : 0;
 
             const pFees = (sPrice * (paymentFeePercent / 100)) + paymentFeeFixed;
             const tValue = taxPercent / 100;
@@ -257,6 +286,7 @@ export default function ProfitCalculator() {
               taxPercent,
               isTaxInclusive,
               returnRate,
+              currency: curr,
               netProfit: nProfit,
               profitMargin: pMargin,
               maxCPA: maxC,
@@ -269,12 +299,12 @@ export default function ProfitCalculator() {
         if (newProducts.length > 0) {
           const updatedList = [...newProducts, ...savedProducts];
           setSavedProducts(updatedList);
-          localStorage.setItem('engazia_profit_products_v7', JSON.stringify(updatedList));
-          alert(`تم استيراد ${newProducts.length} منتج بنجاح وإضافتها للمحفظة.`);
+          localStorage.setItem('engazia_profit_products_v8', JSON.stringify(updatedList));
+          alert(`تم استيراد ${newProducts.length} منتج بنجاح بالاعتماد على الأعمدة المطابقة.`);
         }
       } catch (error) {
         console.error(error);
-        alert('حدث خطأ أثناء قراءة الملف. تأكد من صحة الصيغة.');
+        alert('حدث خطأ أثناء تحليل ملف الإكسل.');
       }
     };
     reader.readAsText(file);
@@ -300,6 +330,9 @@ export default function ProfitCalculator() {
         .back-btn { background: #ffffff; color: #475569; padding: 8px 16px; border-radius: 8px; font-weight: 800; font-size: 13px; border: 1px solid #cbd5e1; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
         .back-btn:hover { background: #e2e8f0; color: #0f172a; }
         
+        .currency-selector { display: flex; align-items: center; gap: 8px; background: #fff; padding: 6px 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-weight: 800; font-size: 12px; color: #475569; }
+        .currency-selector select { border: none; outline: none; background: transparent; font-family: 'Tajawal', sans-serif; font-weight: 900; color: #4f46e5; cursor: pointer; }
+
         .tool-title { text-align: center; margin-bottom: 25px; }
         .tool-title h1 { font-size: 26px; font-weight: 900; color: #0f172a; margin-bottom: 8px; letter-spacing: -0.5px; }
         .tool-title span { color: #4f46e5; }
@@ -390,6 +423,16 @@ export default function ProfitCalculator() {
         <Link href="/hub" className="back-btn">
           <span>→</span> العودة
         </Link>
+        <div className="currency-selector">
+          <span>العملة:</span>
+          <select value={currency} onChange={(e) => setCurrency(e.target.value)}>
+            <option value="ر.س">ريال سعودي (ر.س)</option>
+            <option value="د.إ">درهم إماراتي (د.إ)</option>
+            <option value="$">دولار أمريكي ($)</option>
+            <option value="ر.ع">ريال عماني (ر.ع)</option>
+            <option value="د.ك">دينار كويتي (د.ك)</option>
+          </select>
+        </div>
       </div>
 
       <div className="tool-title">
@@ -413,14 +456,14 @@ export default function ProfitCalculator() {
               <label>سعر البيع للعميل</label>
               <div className="input-wrapper">
                 <input type="number" min="0" value={sellingPrice} onChange={(e) => setSellingPrice(Number(e.target.value))} placeholder="199" />
-                <span className="currency">ر.س</span>
+                <span className="currency">{currency}</span>
               </div>
             </div>
             <div className="input-group">
               <label>تكلفة المنتج عليك</label>
               <div className="input-wrapper">
                 <input type="number" min="0" value={productCost} onChange={(e) => setProductCost(Number(e.target.value))} placeholder="50" />
-                <span className="currency">ر.س</span>
+                <span className="currency">{currency}</span>
               </div>
             </div>
           </div>
@@ -430,14 +473,14 @@ export default function ProfitCalculator() {
               <label>تكلفة الشحن والتغليف</label>
               <div className="input-wrapper">
                 <input type="number" min="0" value={shippingCost} onChange={(e) => setShippingCost(Number(e.target.value))} placeholder="25" />
-                <span className="currency">ر.س</span>
+                <span className="currency">{currency}</span>
               </div>
             </div>
             <div className="input-group">
               <label>تكلفة التسويق (مبيعة)</label>
               <div className="input-wrapper">
                 <input type="number" min="0" value={adSpend} onChange={(e) => setAdSpend(Number(e.target.value))} placeholder="40" />
-                <span className="currency">ر.س</span>
+                <span className="currency">{currency}</span>
               </div>
             </div>
           </div>
@@ -457,7 +500,7 @@ export default function ProfitCalculator() {
                 <label>رسوم (ثابت)</label>
                 <div className="input-wrapper">
                   <input type="number" step="0.1" value={paymentFeeFixed} onChange={(e) => setPaymentFeeFixed(Number(e.target.value))} />
-                  <span className="currency">ر.س</span>
+                  <span className="currency">{currency}</span>
                 </div>
               </div>
               <div className="input-group" style={{ marginBottom: 0 }}>
@@ -491,15 +534,15 @@ export default function ProfitCalculator() {
           <div className="details-grid">
             <div className="detail-item">
               <span className="detail-label">بوابة الدفع</span>
-              <span className="detail-val">{results.paymentFees.toFixed(2)} ر.س</span>
+              <span className="detail-val">{results.paymentFees.toFixed(2)} {currency}</span>
             </div>
             <div className="detail-item">
               <span className="detail-label">الضريبة المقتطعة</span>
-              <span className="detail-val">{results.taxAmount.toFixed(2)} ر.س</span>
+              <span className="detail-val">{results.taxAmount.toFixed(2)} {currency}</span>
             </div>
             <div className="detail-item">
               <span className="detail-label">مخاطر المرتجعات</span>
-              <span className="detail-val text-red-400" style={{ color: '#fca5a5' }}>-{results.returnsCost.toFixed(2)} ر.س</span>
+              <span className="detail-val text-red-400" style={{ color: '#fca5a5' }}>-{results.returnsCost.toFixed(2)} {currency}</span>
             </div>
             <div className="detail-item">
               <span className="detail-label">عائد الاستثمار ROI</span>
@@ -514,7 +557,7 @@ export default function ProfitCalculator() {
                 <small>Max CPA المسموح</small>
               </span>
               <span className="result-value" style={{ color: '#fcd34d' }}>
-                {results.maxCPA.toFixed(2)} <span>ر.س</span>
+                {results.maxCPA.toFixed(2)} <span>{currency}</span>
               </span>
             </div>
 
@@ -532,7 +575,7 @@ export default function ProfitCalculator() {
           <div className={`result-box ${results.netProfit > 0 ? 'success' : results.netProfit < 0 ? 'warning' : ''}`}>
             <span className="result-label">الربح الصافي الفعلي</span>
             <span className="result-value">
-              {results.netProfit.toFixed(2)} <span>ر.س</span>
+              {results.netProfit.toFixed(2)} <span>{currency}</span>
             </span>
           </div>
 
@@ -550,7 +593,6 @@ export default function ProfitCalculator() {
         </div>
       </div>
 
-      {/* شريط الإجراءات العامة (يظهر دائماً بغض النظر عن وجود منتجات أم لا) */}
       <div className="saved-section-title">
         <span>💼 المحفظة ({savedProducts.length})</span>
         <div className="table-controls">
@@ -575,7 +617,6 @@ export default function ProfitCalculator() {
         </div>
       </div>
 
-      {/* جدول المنتجات (يظهر فقط إذا كانت المحفظة تحتوي على منتجات) */}
       {savedProducts.length > 0 ? (
         <div className="table-container">
           <table className="styled-table">
@@ -600,16 +641,16 @@ export default function ProfitCalculator() {
                   <tr key={prod.id} style={{ borderLeft: `4px solid ${prod.profitMargin >= 20 ? '#10b981' : prod.profitMargin > 0 ? '#f59e0b' : '#ef4444'}` }}>
                     <td className="index-cell">{index + 1}</td>
                     <td style={{ fontWeight: 900, color: '#0f172a' }}>{prod.name}</td>
-                    <td dir="ltr" style={{ color: '#64748b' }}>{prod.sellingPrice} ر.س</td>
-                    <td dir="ltr" style={{ color: '#64748b' }}>{prod.productCost} ر.س</td>
-                    <td dir="ltr" style={{ color: '#64748b' }}>{prod.shippingCost} ر.س</td>
-                    <td dir="ltr" style={{ color: '#64748b' }}>{prod.adSpend} ر.س</td>
+                    <td dir="ltr" style={{ color: '#64748b' }}>{prod.sellingPrice} {prod.currency || 'ر.س'}</td>
+                    <td dir="ltr" style={{ color: '#64748b' }}>{prod.productCost} {prod.currency || 'ر.س'}</td>
+                    <td dir="ltr" style={{ color: '#64748b' }}>{prod.shippingCost} {prod.currency || 'ر.س'}</td>
+                    <td dir="ltr" style={{ color: '#64748b' }}>{prod.adSpend} {prod.currency || 'ر.س'}</td>
                     
                     <td dir="ltr" style={{ color: '#f59e0b', fontWeight: 800 }}>{prod.maxCPA.toFixed(2)}</td>
                     <td dir="ltr" style={{ color: '#38bdf8', fontWeight: 800 }}>{prod.breakEvenROAS.toFixed(2)}x</td>
                     
                     <td dir="ltr" style={{ fontWeight: 900, color: prod.netProfit > 0 ? '#166534' : '#991b1b' }}>
-                      {prod.netProfit.toFixed(2)} ر.س
+                      {prod.netProfit.toFixed(2)} {prod.currency || 'ر.س'}
                     </td>
                     <td>
                       <span className={`table-badge ${prod.profitMargin >= 20 ? 'bg-green' : prod.profitMargin > 0 ? 'bg-yellow' : 'bg-red'}`}>
@@ -634,7 +675,7 @@ export default function ProfitCalculator() {
         </div>
       ) : (
         <div style={{ maxWidth: '1000px', margin: '0 auto', background: '#fff', padding: '30px', borderRadius: '16px', border: '1px solid #e2e8f0', textAlign: 'center', color: '#64748b', fontSize: '13px', fontWeight: 700 }}>
-          المحفظة فارغة حالياً. يمكنك حفظ المنتجات يعياً من الأعلى، أو النقر على <b>"استيراد Excel"</b> لرفع ملف منتجاتك السابقة.
+          المحفظة فارغة حالياً. يمكنك حفظ المنتجات يدوياً من الأعلى، أو النقر على <b>"استيراد Excel"</b> لرفع ملف منتجاتك السابقة.
         </div>
       )}
     </div>
