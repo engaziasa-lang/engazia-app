@@ -56,7 +56,7 @@ export default function ProfitCalculator() {
 
   // استرجاع المنتجات المحفوظة عند التحميل
   useEffect(() => {
-    const saved = localStorage.getItem('engazia_profit_products_v2');
+    const saved = localStorage.getItem('engazia_profit_products_v3');
     if (saved) {
       try { setSavedProducts(JSON.parse(saved)); } catch (e) { console.error(e); }
     }
@@ -149,7 +149,7 @@ export default function ProfitCalculator() {
 
     const updatedList = [newProduct, ...savedProducts];
     setSavedProducts(updatedList);
-    localStorage.setItem('engazia_profit_products_v2', JSON.stringify(updatedList));
+    localStorage.setItem('engazia_profit_products_v3', JSON.stringify(updatedList));
     setProductName('');
   };
 
@@ -171,7 +171,7 @@ export default function ProfitCalculator() {
     if (window.confirm('هل أنت متأكد من حذف هذا المنتج من المحفظة؟')) {
       const updatedList = savedProducts.filter(p => p.id !== id);
       setSavedProducts(updatedList);
-      localStorage.setItem('engazia_profit_products_v2', JSON.stringify(updatedList));
+      localStorage.setItem('engazia_profit_products_v3', JSON.stringify(updatedList));
     }
   };
 
@@ -259,37 +259,29 @@ export default function ProfitCalculator() {
         .btn-save { background: #10b981; color: #fff; border: none; padding: 12px; width: 100%; border-radius: 10px; font-size: 14px; font-weight: 900; cursor: pointer; transition: 0.2s; margin-top: 8px; font-family: 'Tajawal', sans-serif; }
         .btn-save:hover { background: #059669; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2); }
 
-        /* Saved Products Grid */
+        /* Saved Products Table Styles */
         .saved-section-title { font-size: 16px; font-weight: 900; color: #1e293b; margin-bottom: 15px; max-width: 1000px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
         .btn-export { background: #fff; border: 1px solid #cbd5e1; padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 800; color: #475569; cursor: pointer; transition: 0.2s; }
         .btn-export:hover { background: #f8fafc; border-color: #94a3b8; color: #0f172a; }
         
-        .saved-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; max-width: 1000px; margin: 0 auto; }
+        .table-container { max-width: 1000px; margin: 0 auto; overflow-x: auto; background: #fff; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+        .styled-table { width: 100%; border-collapse: collapse; text-align: right; font-size: 12px; white-space: nowrap; min-width: 850px; }
+        .styled-table th, .styled-table td { padding: 14px 15px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+        .styled-table th { background-color: #f8fafc; font-weight: 900; color: #475569; font-size: 12px; }
+        .styled-table tbody tr { transition: 0.2s; }
+        .styled-table tbody tr:hover { background-color: #f8fafc; }
         
-        .product-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px; position: relative; transition: 0.2s; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
-        .product-card:hover { border-color: #cbd5e1; transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.04); }
-        .product-card.status-good { border-top: 3px solid #10b981; }
-        .product-card.status-warn { border-top: 3px solid #f59e0b; }
-        .product-card.status-bad { border-top: 3px solid #ef4444; }
+        .table-badge { padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 900; direction: ltr; display: inline-block; }
+        .bg-green { background: #dcfce7; color: #166534; }
+        .bg-yellow { background: #fef3c7; color: #92400e; }
+        .bg-red { background: #fee2e2; color: #991b1b; }
 
-        .pc-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
-        .pc-title { font-size: 14px; font-weight: 900; color: #0f172a; margin: 0; }
-        .pc-price { font-size: 11px; color: #64748b; font-weight: 700; margin-top: 2px; display: block; }
-        
         .pc-actions { display: flex; gap: 6px; }
-        .pc-btn { width: 26px; height: 26px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; border: none; font-size: 12px; }
+        .pc-btn { width: 28px; height: 28px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; border: none; font-size: 12px; }
         .pc-btn-edit { background: #e0e7ff; color: #4f46e5; }
         .pc-btn-edit:hover { background: #c7d2fe; }
         .pc-btn-delete { background: #fee2e2; color: #ef4444; }
         .pc-btn-delete:hover { background: #ef4444; color: #fff; }
-
-        .pc-stats { display: flex; flex-direction: column; gap: 8px; background: #f8fafc; padding: 12px; border-radius: 8px; }
-        .pc-stat-row { display: flex; justify-content: space-between; align-items: center; font-size: 11px; font-weight: 800; }
-        
-        .badge { padding: 3px 6px; border-radius: 4px; font-size: 10px; font-weight: 900; }
-        .bg-green { background: #dcfce7; color: #166534; }
-        .bg-yellow { background: #fef3c7; color: #92400e; }
-        .bg-red { background: #fee2e2; color: #991b1b; }
 
         /* الشاشات المتوسطة والصغيرة */
         @media(max-width: 800px) { 
@@ -463,50 +455,60 @@ export default function ProfitCalculator() {
         </div>
       </div>
 
-      {/* القسم الثالث: محفظة المنتجات المحفوظة */}
+      {/* القسم الثالث: محفظة المنتجات المحفوظة (الجدول الجديد) */}
       {savedProducts.length > 0 && (
         <>
           <div className="saved-section-title">
-            <span>💼 المحفظة ({savedProducts.length})</span>
+            <span>💼 المحفظة والمقارنة المالية ({savedProducts.length})</span>
             <button className="btn-export" onClick={exportToCSV}>📥 تصدير Excel</button>
           </div>
-          <div className="saved-grid">
-            {savedProducts.map((prod) => (
-              <div 
-                key={prod.id} 
-                className={`product-card ${prod.profitMargin >= 20 ? 'status-good' : prod.profitMargin > 0 ? 'status-warn' : 'status-bad'}`}
-              >
-                <div className="pc-header">
-                  <div>
-                    <h3 className="pc-title">{prod.name}</h3>
-                    <span className="pc-price">سعر البيع: {prod.sellingPrice} ر.س</span>
-                  </div>
-                  <div className="pc-actions">
-                    <button className="pc-btn pc-btn-edit" onClick={() => loadProduct(prod)} title="استدعاء للتعديل">✏️</button>
-                    <button className="pc-btn pc-btn-delete" onClick={() => deleteProduct(prod.id)} title="حذف المنتج">✕</button>
-                  </div>
-                </div>
-                
-                <div className="pc-stats">
-                  <div className="pc-stat-row">
-                    <span style={{ color: '#475569' }}>صافي الربح:</span>
-                    <span style={{ color: '#0f172a', direction: 'ltr' }}>{prod.netProfit.toFixed(2)} ر.س</span>
-                  </div>
-                  <div className="pc-stat-row">
-                    <span style={{ color: '#475569' }}>Max CPA / ROAS:</span>
-                    <span style={{ color: '#0f172a', direction: 'ltr' }}>
-                      <span style={{ color: '#f59e0b' }}>{prod.maxCPA.toFixed(0)}</span> / <span style={{ color: '#38bdf8' }}>{prod.breakEvenROAS.toFixed(1)}x</span>
-                    </span>
-                  </div>
-                  <div className="pc-stat-row" style={{ marginTop: '4px', paddingTop: '8px', borderTop: '1px dashed #cbd5e1' }}>
-                    <span style={{ color: '#475569' }}>الهامش الربحي:</span>
-                    <span className={`badge ${prod.profitMargin >= 20 ? 'bg-green' : prod.profitMargin > 0 ? 'bg-yellow' : 'bg-red'}`} style={{ direction: 'ltr' }}>
-                      {prod.profitMargin.toFixed(1)}%
-                    </span>
-                  </div>
-                </div>
-              </div>
-            ))}
+          
+          <div className="table-container">
+            <table className="styled-table">
+              <thead>
+                <tr>
+                  <th>المنتج</th>
+                  <th>سعر البيع</th>
+                  <th>التكلفة</th>
+                  <th>الشحن</th>
+                  <th>الإعلان</th>
+                  <th>Max CPA</th>
+                  <th>ROAS</th>
+                  <th>الربح الصافي</th>
+                  <th>الهامش</th>
+                  <th>إجراءات</th>
+                </tr>
+              </thead>
+              <tbody>
+                {savedProducts.map((prod) => (
+                  <tr key={prod.id} style={{ borderLeft: `4px solid ${prod.profitMargin >= 20 ? '#10b981' : prod.profitMargin > 0 ? '#f59e0b' : '#ef4444'}` }}>
+                    <td style={{ fontWeight: 900, color: '#0f172a' }}>{prod.name}</td>
+                    <td dir="ltr" style={{ color: '#64748b' }}>{prod.sellingPrice} ر.س</td>
+                    <td dir="ltr" style={{ color: '#64748b' }}>{prod.productCost} ر.س</td>
+                    <td dir="ltr" style={{ color: '#64748b' }}>{prod.shippingCost} ر.س</td>
+                    <td dir="ltr" style={{ color: '#64748b' }}>{prod.adSpend} ر.س</td>
+                    
+                    <td dir="ltr" style={{ color: '#f59e0b', fontWeight: 800 }}>{prod.maxCPA.toFixed(2)}</td>
+                    <td dir="ltr" style={{ color: '#38bdf8', fontWeight: 800 }}>{prod.breakEvenROAS.toFixed(2)}x</td>
+                    
+                    <td dir="ltr" style={{ fontWeight: 900, color: prod.netProfit > 0 ? '#166534' : '#991b1b' }}>
+                      {prod.netProfit.toFixed(2)} ر.س
+                    </td>
+                    <td>
+                      <span className={`table-badge ${prod.profitMargin >= 20 ? 'bg-green' : prod.profitMargin > 0 ? 'bg-yellow' : 'bg-red'}`}>
+                        {prod.profitMargin.toFixed(1)}%
+                      </span>
+                    </td>
+                    <td>
+                      <div className="pc-actions">
+                        <button className="pc-btn pc-btn-edit" onClick={() => loadProduct(prod)} title="استدعاء للتعديل">✏️</button>
+                        <button className="pc-btn pc-btn-delete" onClick={() => deleteProduct(prod.id)} title="حذف المنتج">✕</button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </>
       )}
