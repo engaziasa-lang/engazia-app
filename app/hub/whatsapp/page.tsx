@@ -50,10 +50,10 @@ interface Template {
   text: string;
 }
 
-// قاموس الترجمة الفوري لأداة CRM الواتساب
+// قاموس الترجمة الشامل لجميع لغات المنصة
 const toolTranslations: { [key: string]: any } = {
   ar: {
-    back: 'العودة للوحة التحكم',
+    back: 'العودة لوحة التحكم',
     titleMain: 'نظام إدارة علاقات العملاء',
     titleSub: 'واتساب CRM',
     desc: 'النظام الأذكى لإدارة عملاء التجارة الإلكترونية وأتمتة المراسلات',
@@ -423,9 +423,7 @@ export default function EngaziaWhatsAppCRM() {
       if (!binId) return;
 
       const res = await fetch(`https://api.jsonbin.io/v3/b/${binId}/latest`, {
-        headers: {
-          'X-Master-Key': MASTER_KEY
-        }
+        headers: { 'X-Master-Key': MASTER_KEY }
       });
       const responseData = await res.json();
       if (responseData && responseData.record && responseData.record.tools_data && responseData.record.tools_data.whatsapp_crm) {
@@ -492,7 +490,6 @@ export default function EngaziaWhatsAppCRM() {
 
     try {
       let binId = localStorage.getItem(`bin_id_${licenseKey}`);
-
       const payload = {
         merchant_key: licenseKey,
         tools_data: {
@@ -601,15 +598,12 @@ export default function EngaziaWhatsAppCRM() {
   const isRtl = currentLang === 'ar';
 
   const handleActivateLicense = () => {
-    if (!licenseKeyInput.trim()) {
-      alert('الرجاء إدخال مفتاح الاشتراك الصحيح.');
-      return;
-    }
+    if (!licenseKeyInput.trim()) return;
     const cleanKey = licenseKeyInput.trim();
     localStorage.setItem('merchant_license_key', cleanKey);
     setIsActivated(true);
     loadDataFromCloud(cleanKey);
-    alert('تم تفعيل مفتاح الاشتراك بنجاح وتزامن أدواتك!');
+    showToast('تم تفعيل مفتاح الاشتراك بنجاح وتزامن أدواتك!');
   };
 
   const saveContacts = (updated: Customer[]) => {
@@ -653,13 +647,11 @@ export default function EngaziaWhatsAppCRM() {
     setStoreName(name);
     localStorage.setItem('engazia_store_name', name);
     saveToCloud({ storeName: name });
-    showToast('✨ تم تحديث اسم المتجر بنجاح');
   };
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     const reader = new FileReader();
     reader.onload = (event) => {
       const result = event.target?.result as string;
@@ -675,15 +667,7 @@ export default function EngaziaWhatsAppCRM() {
 
   const exportBackupJSON = () => {
     const backupData = {
-      storeName,
-      storeLogo,
-      defaultDiscountCode,
-      contacts,
-      categories,
-      statusOptions,
-      responseStateOptions,
-      templates,
-      version: '2.3'
+      storeName, storeLogo, defaultDiscountCode, contacts, categories, statusOptions, responseStateOptions, templates, version: '2.3'
     };
     const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -708,45 +692,14 @@ export default function EngaziaWhatsAppCRM() {
         let newTpls = templates;
         let newNameStore = storeName;
 
-        if (data && data.contacts) {
-          newContacts = data.contacts;
-          setContacts(newContacts);
-          localStorage.setItem('engazia_whatsapp_pro_crm_v16', JSON.stringify(newContacts));
-        }
-        if (data && data.categories) {
-          newCats = data.categories;
-          setCategories(newCats);
-          localStorage.setItem('engazia_whatsapp_categories_v2', JSON.stringify(newCats));
-        }
-        if (data && data.statusOptions) {
-          newStats = data.statusOptions;
-          setStatusOptions(newStats);
-          localStorage.setItem('engazia_whatsapp_statuses_v1', JSON.stringify(newStats));
-        }
-        if (data && data.responseStateOptions) {
-          newResps = data.responseStateOptions;
-          setResponseStateOptions(newResps);
-          localStorage.setItem('engazia_whatsapp_response_states_v1', JSON.stringify(newResps));
-        }
-        if (data && data.templates) {
-          newTpls = data.templates;
-          setTemplates(newTpls);
-          localStorage.setItem('engazia_templates_v2', JSON.stringify(newTpls));
-        }
-        if (data && data.storeName) {
-          newNameStore = data.storeName;
-          handleSaveStoreName(newNameStore);
-        }
+        if (data && data.contacts) { newContacts = data.contacts; setContacts(newContacts); localStorage.setItem('engazia_whatsapp_pro_crm_v16', JSON.stringify(newContacts)); }
+        if (data && data.categories) { newCats = data.categories; setCategories(newCats); localStorage.setItem('engazia_whatsapp_categories_v2', JSON.stringify(newCats)); }
+        if (data && data.statusOptions) { newStats = data.statusOptions; setStatusOptions(newStats); localStorage.setItem('engazia_whatsapp_statuses_v1', JSON.stringify(newStats)); }
+        if (data && data.responseStateOptions) { newResps = data.responseStateOptions; setResponseStateOptions(newResps); localStorage.setItem('engazia_whatsapp_response_states_v1', JSON.stringify(newResps)); }
+        if (data && data.templates) { newTpls = data.templates; setTemplates(newTpls); localStorage.setItem('engazia_templates_v2', JSON.stringify(newTpls)); }
+        if (data && data.storeName) { newNameStore = data.storeName; handleSaveStoreName(newNameStore); }
 
-        saveToCloud({
-          contacts: newContacts,
-          categories: newCats,
-          statusOptions: newStats,
-          responseStateOptions: newResps,
-          templates: newTpls,
-          storeName: newNameStore
-        });
-
+        saveToCloud({ contacts: newContacts, categories: newCats, statusOptions: newStats, responseStateOptions: newResps, templates: newTpls, storeName: newNameStore });
         showToast('♻ تم استعادة النسخة الاحتياطية بنجاح!');
       } catch (err) {
         showToast('❌ ملف النسخ الاحتياطي غير صالح.');
@@ -786,12 +739,7 @@ export default function EngaziaWhatsAppCRM() {
           note: customNote || 'فتح رابط المحادثة'
         };
         const existingTimeline = c.timeline || [];
-        const newTimeLine = [newLog, ...existingTimeline];
-        return { 
-          ...c, 
-          lastContactDate: dateStr, 
-          timeline: newTimeLine 
-        };
+        return { ...c, lastContactDate: dateStr, timeline: [newLog, ...existingTimeline] };
       }
       return c;
     });
@@ -836,9 +784,7 @@ export default function EngaziaWhatsAppCRM() {
     if (!newName || !newPhone) return showToast('⚠️ أدخل الاسم ورقم الجوال.');
     
     const cleanPhoneCheck = toEnglishDigits(newPhone).replace(/\D/g, '');
-    if (cleanPhoneCheck.length < 10) {
-      return showToast('❌ رقم الجوال يجب أن يكون 10 أرقام على الأقل!');
-    }
+    if (cleanPhoneCheck.length < 10) return showToast('❌ رقم الجوال يجب أن يكون 10 أرقام على الأقل!');
 
     const now = new Date();
     const enDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
@@ -863,21 +809,9 @@ export default function EngaziaWhatsAppCRM() {
   };
 
   const updateCustomerField = (id: string, field: string, value: string) => {
-    if (field === 'phone') {
-      const cleanVal = toEnglishDigits(value).replace(/\D/g, '');
-      if (cleanVal.length > 0 && cleanVal.length < 10) {
-        showToast('⚠️ تنبيه: رقم الجوال أقل من 10 أرقام');
-      }
-    }
     const cleanVal = (field === 'phone' || field === 'orderNumber' || field === 'amount') ? toEnglishDigits(value) : value;
-    const updated = contacts.map(c => {
-      if (c.id === id) {
-        return { ...c, [field]: cleanVal };
-      }
-      return c;
-    });
+    const updated = contacts.map(c => c.id === id ? { ...c, [field]: cleanVal } : c);
     saveContacts(updated);
-    
     if (selectedCustomer && selectedCustomer.id === id) {
       setSelectedCustomer({ ...selectedCustomer, [field]: cleanVal });
     }
@@ -893,60 +827,46 @@ export default function EngaziaWhatsAppCRM() {
 
   const addCategory = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newCatName) return showToast('⚠️ أدخل اسم التصنيف.');
-    if (categories.some(c => c.name === newCatName)) return showToast('⚠️ هذا التصنيف موجود مسبقاً.');
-    const updated = [...categories, { name: newCatName, bg: newCatBg, color: newCatColor, isSale: newCatIsSale }];
-    saveCategories(updated);
+    if (!newCatName) return;
+    saveCategories([...categories, { name: newCatName, bg: newCatBg, color: newCatColor, isSale: newCatIsSale }]);
     setNewCatName('');
-    setNewCatIsSale(true);
-    showToast('🏷️️ تم إضافة التصنيف بنجاح');
+    showToast('🏷 تم إضافة التصنيف بنجاح');
   };
 
   const deleteCategory = (catName: string) => {
     if (categories.length <= 1) return showToast('⚠️ يجب أن يبقى تصنيف واحد على الأقل.');
     if (window.confirm(`حذف التصنيف "${catName}"؟`)) {
-      const updated = categories.filter(c => c.name !== catName);
-      saveCategories(updated);
+      saveCategories(categories.filter(c => c.name !== catName));
       showToast('🗑 تم حذف التصنيف');
     }
   };
 
   const addStatusOption = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newStatusName) return showToast('⚠️️ أدخل اسم الحالة.');
-    if (statusOptions.some(s => s.name === newStatusName)) return showToast('⚠️ هذه الحالة موجودة مسبقاً.');
-    const updated = [...statusOptions, { name: newStatusName, bg: newStatusBg, color: newStatusColor }];
-    saveStatuses(updated);
+    if (!newStatusName) return;
+    saveStatuses([...statusOptions, { name: newStatusName, bg: newStatusBg, color: newStatusColor }]);
     setNewStatusName('');
     showToast('✨ تم إضافة الحالة بنجاح');
   };
 
   const deleteStatusOption = (stName: string) => {
     if (statusOptions.length <= 1) return showToast('⚠️ يجب أن تبقى حالة واحدة على الأقل.');
-    if (window.confirm(`حذف الحالة "${stName}"؟`)) {
-      const updated = statusOptions.filter(s => s.name !== stName);
-      saveStatuses(updated);
-      showToast('🗑️ تم حذف الحالة');
-    }
+    saveStatuses(statusOptions.filter(s => s.name !== stName));
+    showToast('🗑️ تم حذف الحالة');
   };
 
   const addResponseStateOption = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newRespName) return showToast('⚠️ أدخل اسم حالة الرد.');
-    if (responseStateOptions.some(r => r.name === newRespName)) return showToast('⚠️ حالة الرد هذه موجودة مسبقاً.');
-    const updated = [...responseStateOptions, { name: newRespName, bg: newRespBg, color: newRespColor }];
-    saveResponseStates(updated);
+    if (!newRespName) return;
+    saveResponseStates([...responseStateOptions, { name: newRespName, bg: newRespBg, color: newRespColor }]);
     setNewRespName('');
     showToast('✨ تم إضافة حالة الرد بنجاح');
   };
 
   const deleteResponseStateOption = (respName: string) => {
     if (responseStateOptions.length <= 1) return showToast('⚠️ يجب أن تبقى حالة رد واحدة على الأقل.');
-    if (window.confirm(`حذف حالة الرد "${respName}"؟`)) {
-      const updated = responseStateOptions.filter(r => r.name !== respName);
-      saveResponseStates(updated);
-      showToast('🗑️ تم حذف حالة الرد');
-    }
+    saveResponseStates(responseStateOptions.filter(r => r.name !== respName));
+    showToast('🗑️ تم حذف حالة الرد');
   };
 
   const routeToMessaging = (c: Customer) => {
@@ -962,12 +882,10 @@ export default function EngaziaWhatsAppCRM() {
   const handleGenerateMessage = () => {
     const tpl = templates.find(t => t.id === activeTemplateId);
     if (!tpl) return;
-    
     let msg = tpl.text
       .replace(/\[الاسم\]/g, customerName || 'عالمنا الكريم')
       .replace(/\[الطلب\]/g, orderNumber || '---')
       .replace(/\[إضافي\]/g, extraInfo);
-      
     if (includeDiscount) msg += `\n\n🎁 كود خصم خاص لك: *${defaultDiscountCode}*`;
     setGeneratedMsg(msg);
   };
@@ -977,26 +895,20 @@ export default function EngaziaWhatsAppCRM() {
     const encodedText = encodeURIComponent(text);
     const url = clean ? `https://wa.me/${clean}?text=${encodedText}` : `https://wa.me/?text=${encodedText}`;
     window.open(url, '_blank');
-    if (customerId) {
-      updateLastContact(customerId, 'مراسلة عبر Wa.me');
-    }
+    if (customerId) updateLastContact(customerId, 'مراسلة عبر Wa.me');
   };
 
   const filterByDateRange = (cList: Customer[]) => {
     if (dateFilter === 'all') return cList;
     const now = new Date();
     const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-
     return cList.filter(c => {
       if (!c.date) return false;
       const cDate = new Date(c.date);
       if (isNaN(cDate.getTime())) return false;
-
-      if (dateFilter === 'today') {
-        return c.date === todayStr;
-      } else if (dateFilter === 'this_month') {
-        return cDate.getFullYear() === now.getFullYear() && cDate.getMonth() === now.getMonth();
-      } else if (dateFilter === 'this_week') {
+      if (dateFilter === 'today') return c.date === todayStr;
+      if (dateFilter === 'this_month') return cDate.getFullYear() === now.getFullYear() && cDate.getMonth() === now.getMonth();
+      if (dateFilter === 'this_week') {
         const firstDayOfWeek = new Date(now);
         firstDayOfWeek.setDate(now.getDate() - now.getDay());
         firstDayOfWeek.setHours(0, 0, 0, 0);
@@ -1007,7 +919,6 @@ export default function EngaziaWhatsAppCRM() {
   };
 
   const timeFilteredContacts = filterByDateRange(contacts);
-
   const saleCategoriesNames = categories.filter(cat => cat.isSale).map(cat => cat.name);
   const totalValidSales = timeFilteredContacts
     .filter(c => saleCategoriesNames.includes(c.category))
@@ -1023,134 +934,88 @@ export default function EngaziaWhatsAppCRM() {
   const broadcastList = contacts.filter(c => c.category === broadcastCat);
 
   return (
-    <div className="app-container" style={{ direction: isRtl ? 'rtl' : 'ltr' }}>
+    <div className="app-container" style={{ direction: isRtl ? 'rtl' : 'ltr', textAlign: isRtl ? 'right' : 'left' }}>
+      <style jsx global>{`
+        a { text-decoration: none !important; color: inherit !important; }
+      `}</style>
       <style jsx>{`
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
         .app-container { background: #f1f5f9; color: #0f172a; min-height: 100vh; font-family: 'Tajawal', sans-serif; padding: 30px 15px; position: relative; }
         .wrapper { max-width: 1200px; margin: 0 auto; background: #fff; border-radius: 20px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.04); border: 1px solid #e2e8f0; }
-        
-        .toast-banner { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #1e293b; color: #fff; padding: 12px 24px; border-radius: 12px; font-size: 14px; font-weight: 800; z-index: 9999; box-shadow: 0 10px 25px rgba(0,0,0,0.15); animation: fadeInOut 0.3s ease; }
-        @keyframes fadeInOut { from { opacity: 0; transform: translate(-50%, -10px); } to { opacity: 1; transform: translate(-50%, 0); } }
-
+        .toast-banner { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #1e293b; color: #fff; padding: 12px 24px; border-radius: 12px; font-size: 14px; font-weight: 800; z-index: 9999; box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
         .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px; border-bottom: 1px solid #f1f5f9; padding-bottom: 15px; }
         .license-section { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
         .license-box { display: flex; align-items: center; gap: 8px; background: #f8fafc; padding: 6px 12px; border-radius: 8px; border: 1px solid #cbd5e1; }
-        .upgrade-btn { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: #fff !important; text-decoration: none; padding: 7px 14px; border-radius: 8px; font-weight: 800; font-size: 12px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(79,70,229,0.25); transition: transform 0.2s; white-space: nowrap; }
-        .upgrade-btn:hover { transform: translateY(-2px); }
-
+        .upgrade-btn { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: #fff !important; text-decoration: none; padding: 7px 14px; border-radius: 8px; font-weight: 800; font-size: 12px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(79,70,229,0.25); white-space: nowrap; }
         .header-brand { text-align: center; margin-bottom: 30px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
         .store-logo-badge { width: 68px; height: 68px; border-radius: 18px; background: #eef2ff; color: #4f46e5; display: flex; align-items: center; justify-content: center; font-size: 30px; font-weight: 900; box-shadow: 0 4px 15px rgba(79,70,229,0.15); border: 2px solid #c7d2fe; overflow: hidden; }
         .store-logo-badge img { width: 100%; height: 100%; object-fit: cover; }
         .brand-title { font-size: 28px; font-weight: 900; color: #1e293b; letter-spacing: -0.5px; margin: 0; }
         .brand-title span { color: #4f46e5; }
         .brand-desc { color: #64748b; font-size: 14px; font-weight: 500; margin: 0; }
-
         .nav-tabs { display: flex; gap: 10px; border-bottom: 2px solid #e2e8f0; padding-bottom: 15px; margin-bottom: 25px; overflow-x: auto; justify-content: center; }
-        .tab-btn { background: transparent; border: none; padding: 10px 20px; border-radius: 12px; font-weight: 800; font-size: 14px; color: #64748b; cursor: pointer; transition: all 0.3s; white-space: nowrap; }
-        .tab-btn:hover { background: #f8fafc; color: #334155; }
+        .tab-btn { background: transparent; border: none; padding: 10px 20px; border-radius: 12px; font-weight: 800; font-size: 14px; color: #64748b; cursor: pointer; white-space: nowrap; }
         .tab-btn.active { background: #4f46e5; color: #fff; box-shadow: 0 4px 12px rgba(79,70,229,0.3); }
-
         .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 30px; }
-        .stat-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.02); transition: transform 0.2s; }
-        .stat-card:hover { transform: translateY(-3px); }
-        .stat-num { font-size: 24px; font-weight: 900; color: #1e293b; margin-top: 8px; direction: ltr; unicode-bidi: embed; }
+        .stat-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px; text-align: center; }
+        .stat-num { font-size: 24px; font-weight: 900; color: #1e293b; margin-top: 8px; direction: ltr; }
         .stat-title { font-size: 13px; color: #64748b; font-weight: 700; }
-
-        .section-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 16px; padding: 25px; margin-bottom: 20px; }
+        .section-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 16px; padding: 25px; margin-bottom: 20px; text-align: ${isRtl ? 'right' : 'left'}; }
         .section-title { font-size: 16px; font-weight: 900; color: #1e293b; margin-bottom: 5px; display: flex; align-items: center; gap: 8px; }
         .section-desc { font-size: 13px; color: #64748b; margin-bottom: 20px; font-weight: 500; }
-
         .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
-        .form-group { margin-bottom: 15px; position: relative; }
-        .form-group label { display: block; font-size: 12px; font-weight: 800; color: #475569; margin-bottom: 8px; text-align: start; }
-        .form-control { width: 100%; padding: 12px 15px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 13px; outline: none; font-family: 'Tajawal', sans-serif; background: #fff; color: #1e293b; font-weight: 700; transition: border-color 0.2s; box-sizing: border-box; }
-        .form-control:focus { border-color: #4f46e5; box-shadow: 0 0 0 3px rgba(79,70,229,0.1); }
-        .input-ltr { direction: ltr; text-align: start; }
-
-        .btn-main { background: #4f46e5; color: #fff; border: none; padding: 12px 24px; border-radius: 10px; font-weight: 800; font-size: 14px; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
-        .btn-main:hover { background: #4338ca; transform: translateY(-1px); }
-        .btn-wa { background: #10b981; color: #fff; border: none; padding: 12px 24px; border-radius: 10px; font-weight: 800; font-size: 14px; cursor: pointer; transition: all 0.2s; flex: 1; display: inline-flex; justify-content: center; align-items: center; }
-        .btn-wa:hover { background: #059669; }
-        
-        .btn-sm { padding: 5px 8px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; border: none; transition: 0.2s; white-space: nowrap; }
+        .form-group { margin-bottom: 15px; position: relative; text-align: ${isRtl ? 'right' : 'left'}; }
+        .form-group label { display: block; font-size: 12px; font-weight: 800; color: #475569; margin-bottom: 8px; }
+        .form-control { width: 100%; padding: 12px 15px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 13px; outline: none; font-family: 'Tajawal', sans-serif; background: #fff; color: #1e293b; font-weight: 700; box-sizing: border-box; text-align: ${isRtl ? 'right' : 'left'}; }
+        .input-ltr { direction: ltr; text-align: left; }
+        .btn-main { background: #4f46e5; color: #fff; border: none; padding: 12px 24px; border-radius: 10px; font-weight: 800; font-size: 14px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-wa { background: #10b981; color: #fff; border: none; padding: 12px 24px; border-radius: 10px; font-weight: 800; font-size: 14px; cursor: pointer; flex: 1; display: inline-flex; justify-content: center; align-items: center; }
+        .btn-sm { padding: 5px 8px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; border: none; white-space: nowrap; }
         .btn-success { background: #dcfce7; color: #15803d; }
-        .btn-success:hover { background: #bbf7d0; }
         .btn-edit { background: #e0e7ff; color: #4f46e5; }
         .btn-danger { background: #fee2e2; color: #dc2626; }
-
         .table-container { width: 100%; background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; overflow-x: auto; }
-        .contacts-table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: start; min-width: 850px; }
+        .contacts-table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: ${isRtl ? 'right' : 'left'}; min-width: 850px; }
         .contacts-table th, .contacts-table td { padding: 10px 8px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
         .contacts-table th { background: #f8fafc; color: #475569; font-weight: 800; font-size: 11.5px; }
-        .contacts-table tr:hover { background: #fcfcfc; }
-        
-        .mobile-cards-view { display: none; flex-direction: column; gap: 12px; }
-        .customer-card-item { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); text-align: start; }
-        .customer-card-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px; }
-        .customer-card-body { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 12px; color: #475569; text-align: start; }
-        .customer-card-footer { display: flex; gap: 8px; border-top: 1px solid #f1f5f9; padding-top: 10px; margin-top: 4px; }
-
-        @media (max-width: 768px) {
-          .table-container { display: none; }
-          .mobile-cards-view { display: flex; }
-        }
-
-        .cell-input { padding: 5px 8px; font-size: 11.5px; border: 1px solid #cbd5e1; border-radius: 6px; background: #fff; font-family: 'Tajawal', sans-serif; font-weight: 700; color: #1e293b; width: 100%; outline: none; box-sizing: border-box; transition: 0.2s; }
-        .cell-input:focus { border-color: #4f46e5; box-shadow: 0 0 0 2px rgba(79,70,229,0.1); }
-
-        .suggestions-box { position: absolute; top: 100%; right: 0; left: 0; background: #fff; border: 1px solid #cbd5e1; border-radius: 10px; max-height: 180px; overflow-y: auto; z-index: 10; box-shadow: 0 10px 25px rgba(0,0,0,0.1); margin-top: 5px; text-align: start; }
-        .suggestion-item { padding: 10px 15px; font-size: 13px; font-weight: 700; cursor: pointer; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; }
-        .suggestion-item:hover { background: #f8fafc; color: #4f46e5; }
-
+        .cell-input { padding: 5px 8px; font-size: 11.5px; border: 1px solid #cbd5e1; border-radius: 6px; background: #fff; font-family: 'Tajawal', sans-serif; font-weight: 700; color: #1e293b; width: 100%; outline: none; box-sizing: border-box; text-align: ${isRtl ? 'right' : 'left'}; }
         .badge { display: inline-block; padding: 4px 8px; border-radius: 20px; font-size: 10.5px; font-weight: 800; text-align: center; }
-        
         .radio-group { display: flex; gap: 10px; margin-bottom: 20px; background: #e2e8f0; padding: 4px; border-radius: 12px; width: fit-content; }
-        .radio-btn { padding: 8px 20px; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer; color: #64748b; border: none; background: transparent; transition: 0.3s; }
+        .radio-btn { padding: 8px 20px; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer; color: #64748b; border: none; background: transparent; }
         .radio-btn.active { background: #fff; color: #1e293b; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-
         .filter-chips { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 15px; flex-wrap: wrap; }
-        .chip-btn { padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 800; cursor: pointer; border: 1px solid #cbd5e1; background: #fff; color: #475569; transition: all 0.2s; white-space: nowrap; }
-        .chip-btn:hover { border-color: #4f46e5; color: #4f46e5; }
-        .chip-btn.active { background: #4f46e5; color: #fff; border-color: #4f46e5; box-shadow: 0 2px 8px rgba(79,70,229,0.2); }
-
-        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 9999; animation: fadeIn 0.2s ease; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        .modal-content { background: #fff; border-radius: 20px; padding: 30px; width: 100%; max-width: 650px; box-shadow: 0 20px 40px rgba(0,0,0,0.15); border: 1px solid #e2e8f0; position: relative; max-height: 90vh; overflow-y: auto; text-align: start; }
+        .chip-btn { padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 800; cursor: pointer; border: 1px solid #cbd5e1; background: #fff; color: #475569; white-space: nowrap; }
+        .chip-btn.active { background: #4f46e5; color: #fff; border-color: #4f46e5; }
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 9999; }
+        .modal-content { background: #fff; border-radius: 20px; padding: 30px; width: 100%; max-width: 650px; box-shadow: 0 20px 40px rgba(0,0,0,0.15); border: 1px solid #e2e8f0; position: relative; max-height: 90vh; overflow-y: auto; text-align: ${isRtl ? 'right' : 'left'}; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #f1f5f9; padding-bottom: 15px; }
         .modal-title { font-size: 18px; font-weight: 900; color: #1e293b; margin: 0; display: flex; align-items: center; gap: 8px; }
-        .close-modal-btn { background: #f1f5f9; border: none; width: 32px; height: 32px; border-radius: 50%; font-weight: 900; cursor: pointer; color: #64748b; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
-        .close-modal-btn:hover { background: #fee2e2; color: #dc2626; }
+        .close-modal-btn { background: #f1f5f9; border: none; width: 32px; height: 32px; border-radius: 50%; font-weight: 900; cursor: pointer; color: #64748b; display: flex; align-items: center; justify-content: center; }
         .modal-body-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
         .modal-item { background: #f8fafc; padding: 12px 15px; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 6px; }
         .modal-item-label { font-size: 11.5px; font-weight: 800; color: #64748b; }
-        .modal-edit-input { width: 100%; background: #fff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 8px 12px; font-size: 13.5px; font-weight: 800; font-family: 'Tajawal', sans-serif; color: #1e293b; outline: none; box-sizing: border-box; transition: 0.2s; }
-        .modal-edit-input:focus { border-color: #4f46e5; box-shadow: 0 0 0 2px rgba(79,70,229,0.1); }
-
+        .modal-edit-input { width: 100%; background: #fff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 8px 12px; font-size: 13.5px; font-weight: 800; font-family: 'Tajawal', sans-serif; color: #1e293b; outline: none; box-sizing: border-box; text-align: ${isRtl ? 'right' : 'left'}; }
         .timeline-box { margin-top: 15px; border-top: 2px dashed #e2e8f0; padding-top: 15px; }
         .timeline-title { font-size: 14px; font-weight: 900; color: #1e293b; margin-bottom: 10px; }
         .timeline-list { max-height: 150px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
         .timeline-item { background: #f8fafc; border: 1px solid #e2e8f0; padding: 8px 12px; border-radius: 8px; font-size: 12px; display: flex; justify-content: space-between; align-items: center; }
-
-        .settings-creation-box { display: flex; gap: 15px; align-items: flex-end; background: #fff; padding: 20px; border-radius: 12px; border: 2px dashed #cbd5e1; margin-bottom: 25px; flex-wrap: wrap; text-align: start; }
+        .settings-creation-box { display: flex; gap: 15px; align-items: flex-end; background: #fff; padding: 20px; border-radius: 12px; border: 2px dashed #cbd5e1; margin-bottom: 25px; flex-wrap: wrap; }
         .color-picker { padding: 2px; height: 44px; cursor: pointer; }
         .tags-list-container { display: flex; flex-direction: column; gap: 10px; }
-        .tag-row { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 12px 20px; border-radius: 12px; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 15px; transition: 0.2s; }
-        .tag-row:hover { border-color: #cbd5e1; box-shadow: 0 4px 12px rgba(0,0,0,0.02); }
-        .tag-input-clean { border: 1px solid transparent; background: transparent; font-weight: 800; font-size: 14px; max-width: 200px; padding: 8px 12px; border-radius: 8px; transition: 0.2s; text-align: start; }
-        .tag-input-clean:hover { background: #f8fafc; border-color: #e2e8f0; }
-        .tag-input-clean:focus { background: #fff; border-color: #4f46e5; outline: none; }
+        .tag-row { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 12px 20px; border-radius: 12px; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 15px; }
+        .tag-input-clean { border: 1px solid transparent; background: transparent; font-weight: 800; font-size: 14px; max-width: 200px; padding: 8px 12px; border-radius: 8px; text-align: ${isRtl ? 'right' : 'left'}; }
         .tag-controls { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
         .color-group { display: flex; align-items: center; gap: 8px; }
         .color-label { font-size: 12px; color: #64748b; font-weight: 700; }
         .color-picker-sm { width: 34px; height: 34px; border-radius: 8px; cursor: pointer; border: 1px solid #e2e8f0; padding: 0; }
-        
-        .template-creation-box { background: #fff; padding: 20px; border-radius: 12px; border: 2px dashed #cbd5e1; margin-bottom: 25px; text-align: start; }
-        .template-card-view { background: #fff; border: 1px solid #e2e8f0; padding: 20px; border-radius: 16px; display: flex; flex-direction: column; gap: 12px; transition: transform 0.2s, box-shadow 0.2s; text-align: start; }
-        .template-card-view:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(0,0,0,0.04); border-color: #cbd5e1; }
+        .template-creation-box { background: #fff; padding: 20px; border-radius: 12px; border: 2px dashed #cbd5e1; margin-bottom: 25px; }
+        .template-card-view { background: #fff; border: 1px solid #e2e8f0; padding: 20px; border-radius: 16px; display: flex; flex-direction: column; gap: 12px; }
         .template-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px; }
         .template-title { font-weight: 900; color: #1e293b; font-size: 14px; }
         .template-body { font-size: 13px; color: #475569; white-space: pre-wrap; line-height: 1.7; }
         .btn-icon { padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 800; cursor: pointer; border: none; display: flex; align-items: center; gap: 5px; }
+        .suggestions-box { position: absolute; top: 100%; right: 0; left: 0; background: #fff; border: 1px solid #cbd5e1; border-radius: 10px; max-height: 180px; overflow-y: auto; z-index: 10; box-shadow: 0 10px 25px rgba(0,0,0,0.1); margin-top: 5px; text-align: ${isRtl ? 'right' : 'left'}; }
+        .suggestion-item { padding: 10px 15px; font-size: 13px; font-weight: 700; cursor: pointer; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; }
       `}</style>
 
       {toastMessage && <div className="toast-banner">{toastMessage}</div>}
@@ -1166,87 +1031,41 @@ export default function EngaziaWhatsAppCRM() {
             <div className="modal-body-grid">
               <div className="modal-item" style={{ gridColumn: '1 / -1' }}>
                 <span className="modal-item-label">{t.nameLabel}</span>
-                <input 
-                  type="text" 
-                  className="modal-edit-input" 
-                  value={selectedCustomer.name} 
-                  onChange={e => updateCustomerField(selectedCustomer.id, 'name', e.target.value)} 
-                />
+                <input type="text" className="modal-edit-input" value={selectedCustomer.name} onChange={e => updateCustomerField(selectedCustomer.id, 'name', e.target.value)} />
               </div>
-
               <div className="modal-item">
                 <span className="modal-item-label">{t.phoneLabel}</span>
-                <input 
-                  type="text" 
-                  className="modal-edit-input input-ltr" 
-                  style={{ borderColor: isPhoneValid(selectedCustomer.phone) ? '#cbd5e1' : '#dc2626' }}
-                  value={selectedCustomer.phone} 
-                  onChange={e => updateCustomerField(selectedCustomer.id, 'phone', e.target.value)} 
-                />
+                <input type="text" className="modal-edit-input input-ltr" style={{ borderColor: isPhoneValid(selectedCustomer.phone) ? '#cbd5e1' : '#dc2626' }} value={selectedCustomer.phone} onChange={e => updateCustomerField(selectedCustomer.id, 'phone', e.target.value)} />
               </div>
-
               <div className="modal-item">
                 <span className="modal-item-label">{t.orderNumLabel}</span>
-                <input 
-                  type="text" 
-                  className="modal-edit-input input-ltr" 
-                  value={selectedCustomer.orderNumber} 
-                  onChange={e => updateCustomerField(selectedCustomer.id, 'orderNumber', e.target.value)} 
-                />
+                <input type="text" className="modal-edit-input input-ltr" value={selectedCustomer.orderNumber} onChange={e => updateCustomerField(selectedCustomer.id, 'orderNumber', e.target.value)} />
               </div>
-
               <div className="modal-item">
                 <span className="modal-item-label">{t.categoryLabel}</span>
-                <select 
-                  className="modal-edit-input" 
-                  value={selectedCustomer.category} 
-                  onChange={e => updateCustomerField(selectedCustomer.id, 'category', e.target.value)}
-                >
+                <select className="modal-edit-input" value={selectedCustomer.category} onChange={e => updateCustomerField(selectedCustomer.id, 'category', e.target.value)}>
                   {categories.map(cat => <option key={cat.name} value={cat.name}>{cat.name}</option>)}
                 </select>
               </div>
-
               <div className="modal-item">
                 <span className="modal-item-label">{t.statusLabel}</span>
-                <select 
-                  className="modal-edit-input" 
-                  value={selectedCustomer.status || 'نشط'} 
-                  onChange={e => updateCustomerField(selectedCustomer.id, 'status', e.target.value)}
-                >
+                <select className="modal-edit-input" value={selectedCustomer.status || 'نشط'} onChange={e => updateCustomerField(selectedCustomer.id, 'status', e.target.value)}>
                   {statusOptions.map(st => <option key={st.name} value={st.name}>{st.name}</option>)}
                 </select>
               </div>
-
               <div className="modal-item">
                 <span className="modal-item-label">{t.responseStateLabel}</span>
-                <select 
-                  className="modal-edit-input" 
-                  value={selectedCustomer.responseState || 'بانتظار الرد'} 
-                  onChange={e => updateCustomerField(selectedCustomer.id, 'responseState', e.target.value)}
-                >
+                <select className="modal-edit-input" value={selectedCustomer.responseState || 'بانتظار الرد'} onChange={e => updateCustomerField(selectedCustomer.id, 'responseState', e.target.value)}>
                   {responseStateOptions.map(resp => <option key={resp.name} value={resp.name}>{resp.name}</option>)}
                 </select>
               </div>
-
               <div className="modal-item">
                 <span className="modal-item-label">{t.amountLabel} ({currentCurrency})</span>
-                <input 
-                  type="text" 
-                  className="modal-edit-input input-ltr" 
-                  value={selectedCustomer.amount} 
-                  onChange={e => updateCustomerField(selectedCustomer.id, 'amount', e.target.value)} 
-                />
+                <input type="text" className="modal-edit-input input-ltr" value={selectedCustomer.amount} onChange={e => updateCustomerField(selectedCustomer.id, 'amount', e.target.value)} />
               </div>
-
               <div className="modal-item" style={{ gridColumn: '1 / -1' }}>
                 <span className="modal-item-label">{t.noteLabel}</span>
-                <input 
-                  type="text" 
-                  className="modal-edit-input" 
-                  value={selectedCustomer.note || ''} 
-                  onChange={e => updateCustomerField(selectedCustomer.id, 'note', e.target.value)} 
-                  placeholder="أدخل ملاحظات العميل..."
-                />
+                <input type="text" className="modal-edit-input" value={selectedCustomer.note || ''} onChange={e => updateCustomerField(selectedCustomer.id, 'note', e.target.value)} placeholder="أدخل ملاحظات العميل..." />
               </div>
             </div>
 
@@ -1256,9 +1075,7 @@ export default function EngaziaWhatsAppCRM() {
                 {selectedCustomer.timeline && selectedCustomer.timeline.length > 0 ? (
                   selectedCustomer.timeline.map((log) => (
                     <div key={log.id} className="timeline-item">
-                      <div>
-                        <strong>{log.action}:</strong> {log.note}
-                      </div>
+                      <div><strong>{log.action}:</strong> {log.note}</div>
                       <span style={{ fontSize: '10.5px', color: '#64748b', direction: 'ltr' }}>{log.date}</span>
                     </div>
                   ))
@@ -1267,13 +1084,7 @@ export default function EngaziaWhatsAppCRM() {
                 )}
               </div>
               <div style={{ display: 'flex', gap: '10px' }}>
-                <input 
-                  type="text" 
-                  className="modal-edit-input" 
-                  placeholder="أضف ملاحظة جديدة للأرشيف..." 
-                  value={newTimelineNote} 
-                  onChange={e => setNewTimelineNote(e.target.value)} 
-                />
+                <input type="text" className="modal-edit-input" placeholder="أضف ملاحظة جديدة للأرشيف..." value={newTimelineNote} onChange={e => setNewTimelineNote(e.target.value)} />
                 <button className="btn-main" style={{ padding: '8px 16px', whiteSpace: 'nowrap' }} onClick={() => addTimelineLogToCustomer(selectedCustomer.id)}>إضافة للأرشيف</button>
               </div>
             </div>
@@ -1289,7 +1100,7 @@ export default function EngaziaWhatsAppCRM() {
 
       <div className="wrapper">
         <div className="header-top">
-          <Link href="/hub" className="back-link" style={{ color: '#4f46e5', textDecoration: 'none', fontWeight: 700, fontSize: '13px' }}>{isRtl ? '← العودة للوحة الرئيسية' : '← Back to Dashboard'}</Link>
+          <Link href="/hub" style={{ color: '#4f46e5', fontWeight: 700, fontSize: '13px' }}>{isRtl ? '← العودة لوحة التحكم' : '← Back to Dashboard'}</Link>
 
           <div className="license-section">
             <div className="license-box">
@@ -1298,26 +1109,12 @@ export default function EngaziaWhatsAppCRM() {
                 <span style={{ fontSize: '12px', fontWeight: 900, color: '#10b981' }}>مفعل ✓</span>
               ) : (
                 <>
-                  <input 
-                    type="text" 
-                    placeholder="أدخل مفتاح الترخيص..." 
-                    value={licenseKeyInput} 
-                    onChange={(e) => setLicenseKeyInput(e.target.value)}
-                    style={{ border: '1px solid #cbd5e1', borderRadius: '6px', padding: '4px 8px', fontSize: '11px', outline: 'none', width: '130px', fontFamily: 'Tajawal, sans-serif' }}
-                  />
-                  <button 
-                    onClick={handleActivateLicense}
-                    style={{ background: '#4f46e5', color: '#fff', border: 'none', padding: '5px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 800, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif' }}
-                  >
-                    تفعيل
-                  </button>
+                  <input type="text" placeholder="مفتاح الترخيص..." value={licenseKeyInput} onChange={(e) => setLicenseKeyInput(e.target.value)} style={{ border: '1px solid #cbd5e1', borderRadius: '6px', padding: '4px 8px', fontSize: '11px', outline: 'none', width: '130px' }} />
+                  <button onClick={handleActivateLicense} style={{ background: '#4f46e5', color: '#fff', border: 'none', padding: '5px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 800, cursor: 'pointer' }}>تفعيل</button>
                 </>
               )}
             </div>
-
-            <a href={LEMON_CHECKOUT_URL} target="_blank" rel="noopener noreferrer" className="upgrade-btn">
-              ⚡ ترقية / اشتراك PRO
-            </a>
+            <a href={LEMON_CHECKOUT_URL} target="_blank" rel="noopener noreferrer" className="upgrade-btn">⚡ ترقية / اشتراك PRO</a>
           </div>
         </div>
 
@@ -1371,65 +1168,6 @@ export default function EngaziaWhatsAppCRM() {
                 </div>
               ))}
             </div>
-
-            <div className="section-title">أحدث العملاء تسجيلاً</div>
-            <div className="table-container">
-              <table className="contacts-table">
-                <thead>
-                  <tr>
-                    <th style={{ width: '15%' }}>{t.nameLabel}</th>
-                    <th style={{ width: '10%' }}>{t.orderNumLabel}</th>
-                    <th style={{ width: '15%' }}>{t.categoryLabel}</th>
-                    <th style={{ width: '12%' }}>{t.statusLabel}</th>
-                    <th style={{ width: '15%' }}>{t.responseStateLabel}</th>
-                    <th style={{ width: '15%' }}>آخر تواصل</th>
-                    <th style={{ width: '15%' }}>{t.actions}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {timeFilteredContacts.slice(0, 5).map(c => {
-                    const respConf = responseStateOptions.find(r => r.name === c.responseState);
-                    return (
-                      <tr key={c.id}>
-                        <td>
-                          <span 
-                            style={{ fontWeight: 800, color: '#4f46e5', cursor: 'pointer', textDecoration: 'underline', textDecorationStyle: 'dotted' }} 
-                            onClick={() => setSelectedCustomer(c)}
-                            title="اضغط لتعديل ملف العميل وأرشيفه"
-                          >
-                            {c.name}
-                          </span>
-                        </td>
-                        <td style={{direction: 'ltr', textAlign: 'start'}}>{c.orderNumber}</td>
-                        <td>
-                          <span className="badge" style={{ background: categories.find(cat => cat.name === c.category)?.bg || '#eee', color: categories.find(cat => cat.name === c.category)?.color || '#000' }}>
-                            {c.category}
-                          </span>
-                        </td>
-                        <td>
-                          <span className="badge" style={{ background: statusOptions.find(st => st.name === c.status)?.bg || '#eee', color: statusOptions.find(st => st.name === c.status)?.color || '#000' }}>
-                            {c.status || 'نشط'}
-                          </span>
-                        </td>
-                        <td>
-                          <span className="badge" style={{ background: respConf?.bg || '#fef3c7', color: respConf?.color || '#d97706' }}>
-                            {c.responseState || 'بانتظار الرد'}
-                          </span>
-                        </td>
-                        <td style={{ color: '#4f46e5', fontSize: '11px', fontWeight: 700, direction: 'ltr', textAlign: 'start' }}>{c.lastContactDate || 'لم يتم'}</td>
-                        <td>
-                          <div style={{ display: 'flex', gap: '4px' }}>
-                            <button className="btn-sm btn-success" onClick={() => routeToMessaging(c)}>💬 مراسلة</button>
-                            <button className="btn-sm btn-edit" title="تسجيل تم التواصل الآن" onClick={() => updateLastContact(c.id)}>🕒</button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                  {timeFilteredContacts.length === 0 && <tr><td colSpan={7} style={{textAlign: 'center', padding: '30px', color: '#64748b'}}>لا يوجد عملاء بالفترة الزمنية المحددة.</td></tr>}
-                </tbody>
-              </table>
-            </div>
           </div>
         )}
 
@@ -1437,52 +1175,24 @@ export default function EngaziaWhatsAppCRM() {
         {activeTab === 'analytics' && (
           <div>
             <div className="section-title">📈 التحليلات المتقدمة ونسب الاستجابة</div>
-            <p className="section-desc">تحليلات دقيقة لأداء متجرك بناءً على الفترة الزمنية المختارة.</p>
-            
             <div className="dashboard-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))' }}>
-              <div className="stat-card" style={{ textAlign: 'start', padding: '25px' }}>
+              <div className="stat-card" style={{ textAlign: isRtl ? 'right' : 'left', padding: '25px' }}>
                 <div className="stat-title" style={{ marginBottom: '10px' }}>📊 نسبة إتمام الصفقات</div>
-                <div className="stat-num" style={{ color: '#10b981', textAlign: 'start' }}>
+                <div className="stat-num" style={{ color: '#10b981', textAlign: isRtl ? 'right' : 'left' }}>
                   {timeFilteredContacts.length > 0 ? ((timeFilteredContacts.filter(c => c.responseState === 'تم الاتفاق').length / timeFilteredContacts.length) * 100).toFixed(1) : 0}%
                 </div>
-                <p style={{ fontSize: '12px', color: '#64748b', marginTop: '5px' }}>من إجمالي العملاء تم الاتفاق معهم.</p>
               </div>
-
-              <div className="stat-card" style={{ textAlign: 'start', padding: '25px' }}>
+              <div className="stat-card" style={{ textAlign: isRtl ? 'right' : 'left', padding: '25px' }}>
                 <div className="stat-title" style={{ marginBottom: '10px' }}>⏳ العملاء بانتظار الرد</div>
-                <div className="stat-num" style={{ color: '#d97706', textAlign: 'start' }}>
+                <div className="stat-num" style={{ color: '#d97706', textAlign: isRtl ? 'right' : 'left' }}>
                   {timeFilteredContacts.filter(c => c.responseState === 'بانتظار الرد' || !c.responseState).length} عميل
                 </div>
-                <p style={{ fontSize: '12px', color: '#64748b', marginTop: '5px' }}>يحتاجون للمتابعة والتواصل الفوري.</p>
               </div>
-
-              <div className="stat-card" style={{ textAlign: 'start', padding: '25px' }}>
+              <div className="stat-card" style={{ textAlign: isRtl ? 'right' : 'left', padding: '25px' }}>
                 <div className="stat-title" style={{ marginBottom: '10px' }}>💰 متوسط قيمة العميل (LTV)</div>
-                <div className="stat-num" style={{ color: '#4f46e5', textAlign: 'start' }}>
+                <div className="stat-num" style={{ color: '#4f46e5', textAlign: isRtl ? 'right' : 'left' }}>
                   {timeFilteredContacts.length > 0 ? (totalValidSales / timeFilteredContacts.length).toFixed(0) : 0} <span style={{fontSize:'12px'}}>{currentCurrency}</span>
                 </div>
-                <p style={{ fontSize: '12px', color: '#64748b', marginTop: '5px' }}>متوسط المشتريات لكل عميل مسجل.</p>
-              </div>
-            </div>
-
-            <div className="section-box" style={{ marginTop: '20px' }}>
-              <div className="section-title">🎯 توزيع الحالات والنسب المئوية للتصنيفات</div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginTop: '15px' }}>
-                {categories.map(cat => {
-                  const count = timeFilteredContacts.filter(c => c.category === cat.name).length;
-                  const pct = timeFilteredContacts.length > 0 ? (count / timeFilteredContacts.length) * 100 : 0;
-                  return (
-                    <div key={cat.name}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: 800, marginBottom: '5px' }}>
-                        <span>{cat.name} ({count} عميل)</span>
-                        <span dir="ltr">{pct.toFixed(1)}%</span>
-                      </div>
-                      <div style={{ width: '100%', height: '10px', background: '#e2e8f0', borderRadius: '5px', overflow: 'hidden' }}>
-                        <div style={{ width: `${pct}%`, height: '100%', background: cat.color, borderRadius: '5px', transition: 'width 0.5s ease' }}></div>
-                      </div>
-                    </div>
-                  );
-                })}
               </div>
             </div>
           </div>
@@ -1517,20 +1227,17 @@ export default function EngaziaWhatsAppCRM() {
                     </select>
                   </div>
                   <div className="form-group"><label>{t.amountLabel} ({currentCurrency})</label><input type="text" className="form-control input-ltr" value={newAmount} onChange={e => setNewAmount(toEnglishDigits(e.target.value))} placeholder="0" /></div>
-                  <div className="form-group" style={{ gridColumn: '1 / -1' }}><label>{t.noteLabel}</label><input type="text" className="form-control" value={newNote} onChange={e => setNewNote(e.target.value)} placeholder="مثال: يفضل التواصل عصراً، طلب تعديل..." /></div>
+                  <div className="form-group" style={{ gridColumn: '1 / -1' }}><label>{t.noteLabel}</label><input type="text" className="form-control" value={newNote} onChange={e => setNewNote(e.target.value)} placeholder="ملاحظة..." /></div>
                 </div>
                 <button type="submit" className="btn-main" style={{ width: 'auto' }}>{t.saveBtn}</button>
               </form>
             </div>
 
-            <div className="section-box" style={{ padding: '20px 25px' }}>
+            <div className="section-box">
               <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: '20px' }}>
-                <div style={{ display: 'flex', gap: '15px', flex: 1, minWidth: '280px', flexWrap: 'wrap' }}>
-                  <div className="form-group" style={{ flex: 2, margin: 0, minWidth: '220px' }}>
-                    <input type="text" className="form-control" placeholder={t.searchPlaceholder} value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
-                  </div>
+                <div className="form-group" style={{ flex: 2, margin: 0, minWidth: '220px' }}>
+                  <input type="text" className="form-control" placeholder={t.searchPlaceholder} value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
                 </div>
-
                 <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                   <button className="btn-sm btn-success" style={{ padding: '10px 18px', fontWeight: 800 }} onClick={() => fileInputRef.current?.click()}>{t.importBtn}</button>
                   <input type="file" ref={fileInputRef} onChange={importBackupJSON} accept=".csv" style={{ display: 'none' }} />
@@ -1552,41 +1259,24 @@ export default function EngaziaWhatsAppCRM() {
               <table className="contacts-table">
                 <thead>
                   <tr>
-                    <th style={{ width: '12%' }}>{t.nameLabel}</th>
-                    <th style={{ width: '11%' }}>{t.phoneLabel}</th>
-                    <th style={{ width: '8%' }}>{t.orderNumLabel}</th>
-                    <th style={{ width: '11%' }}>{t.categoryLabel}</th>
-                    <th style={{ width: '10%' }}>{t.statusLabel}</th>
-                    <th style={{ width: '12%' }}>{t.responseStateLabel}</th>
-                    <th style={{ width: '7%' }}>{t.amountLabel}</th>
-                    <th style={{ width: '12%' }}>{t.noteLabel}</th>
-                    <th style={{ width: '9%' }}>آخر تواصل</th>
-                    <th style={{ width: '10%' }}>{t.actions}</th>
+                    <th>{t.nameLabel}</th>
+                    <th>{t.phoneLabel}</th>
+                    <th>{t.orderNumLabel}</th>
+                    <th>{t.categoryLabel}</th>
+                    <th>{t.statusLabel}</th>
+                    <th>{t.responseStateLabel}</th>
+                    <th>{t.amountLabel}</th>
+                    <th>{t.noteLabel}</th>
+                    <th>آخر تواصل</th>
+                    <th>{t.actions}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredContacts.map(c => (
                     <tr key={c.id}>
-                      <td>
-                        <span 
-                          style={{ fontWeight: 800, color: '#4f46e5', cursor: 'pointer', textDecoration: 'underline', textDecorationStyle: 'dotted' }} 
-                          onClick={() => setSelectedCustomer(c)}
-                          title="اضغط لتعديل ملف العميل وأرشيفه"
-                        >
-                          {c.name}
-                        </span>
-                      </td>
-                      <td>
-                        <input 
-                          type="text" 
-                          className="cell-input input-ltr" 
-                          style={{ borderColor: isPhoneValid(c.phone) ? '#cbd5e1' : '#dc2626' }} 
-                          value={c.phone} 
-                          onChange={e => updateCustomerField(c.id, 'phone', e.target.value)} 
-                          title={isPhoneValid(c.phone) ? 'رقم صحيح' : 'رقم جوال أقل من 10 أرقام'}
-                        />
-                      </td>
-                      <td><input type="text" className="cell-input input-ltr" style={{ color: '#4f46e5' }} value={c.orderNumber} onChange={e => updateCustomerField(c.id, 'orderNumber', e.target.value)} /></td>
+                      <td><span style={{ fontWeight: 800, color: '#4f46e5', cursor: 'pointer' }} onClick={() => setSelectedCustomer(c)}>{c.name}</span></td>
+                      <td><input type="text" className="cell-input input-ltr" value={c.phone} onChange={e => updateCustomerField(c.id, 'phone', e.target.value)} /></td>
+                      <td><input type="text" className="cell-input input-ltr" value={c.orderNumber} onChange={e => updateCustomerField(c.id, 'orderNumber', e.target.value)} /></td>
                       <td>
                         <select className="cell-input" value={c.category} onChange={e => updateCustomerField(c.id, 'category', e.target.value)}>
                           {categories.map(cat => <option key={cat.name} value={cat.name}>{cat.name}</option>)}
@@ -1603,12 +1293,12 @@ export default function EngaziaWhatsAppCRM() {
                         </select>
                       </td>
                       <td><input type="text" className="cell-input input-ltr" value={c.amount} onChange={e => updateCustomerField(c.id, 'amount', e.target.value)} /></td>
-                      <td><input type="text" className="cell-input" value={c.note || ''} onChange={e => updateCustomerField(c.id, 'note', e.target.value)} placeholder="ملاحظة..." /></td>
-                      <td style={{ direction: 'ltr', textAlign: 'start', color: '#4f46e5', fontSize: '10px', fontWeight: 700 }}>{c.lastContactDate || 'لم يتم'}</td>
+                      <td><input type="text" className="cell-input" value={c.note || ''} onChange={e => updateCustomerField(c.id, 'note', e.target.value)} /></td>
+                      <td style={{ direction: 'ltr', color: '#4f46e5', fontSize: '10px' }}>{c.lastContactDate || 'لم يتم'}</td>
                       <td>
-                        <div style={{ display: 'flex', gap: '2px', alignItems: 'center' }}>
+                        <div style={{ display: 'flex', gap: '4px' }}>
                           <button className="btn-sm btn-success" onClick={() => routeToMessaging(c)}>💬</button>
-                          <button className="btn-sm btn-edit" title="تم التواصل" onClick={() => updateLastContact(c.id)}>🕒</button>
+                          <button className="btn-sm btn-edit" onClick={() => updateLastContact(c.id)}>🕒</button>
                           <button className="btn-sm btn-danger" onClick={() => deleteContact(c.id)}>حذف</button>
                         </div>
                       </td>
@@ -1617,41 +1307,6 @@ export default function EngaziaWhatsAppCRM() {
                   {filteredContacts.length === 0 && <tr><td colSpan={10} style={{textAlign: 'center', padding: '30px', color: '#64748b'}}>لا يوجد عملاء يطابقون بحثك.</td></tr>}
                 </tbody>
               </table>
-            </div>
-
-            <div className="mobile-cards-view">
-              {filteredContacts.map(c => {
-                const respConf = responseStateOptions.find(r => r.name === c.responseState);
-                return (
-                  <div key={c.id} className="customer-card-item">
-                    <div className="customer-card-header">
-                      <span 
-                        style={{ fontWeight: 900, color: '#4f46e5', fontSize: '15px', cursor: 'pointer' }}
-                        onClick={() => setSelectedCustomer(c)}
-                      >
-                        {c.name}
-                      </span>
-                      <span className="badge" style={{ background: categories.find(cat => cat.name === c.category)?.bg || '#eee', color: categories.find(cat => cat.name === c.category)?.color || '#000' }}>
-                        {c.category}
-                      </span>
-                    </div>
-
-                    <div className="customer-card-body">
-                      <div><strong>الجوال:</strong> <span dir="ltr">{c.phone}</span></div>
-                      <div><strong>الطلب:</strong> <span dir="ltr">{c.orderNumber}</span></div>
-                      <div><strong>المشتريات:</strong> <span dir="ltr">{c.amount} {currentCurrency}</span></div>
-                      <div><strong>حالة الرد:</strong> <span className="badge" style={{ background: respConf?.bg || '#fef3c7', color: respConf?.color || '#d97706' }}>{c.responseState || 'بانتظار الرد'}</span></div>
-                    </div>
-
-                    <div className="customer-card-footer">
-                      <button className="btn-sm btn-success" style={{ flex: 1, padding: '8px' }} onClick={() => routeToMessaging(c)}>💬 مراسلة واتساب</button>
-                      <button className="btn-sm btn-edit" style={{ padding: '8px 12px' }} onClick={() => setSelectedCustomer(c)}>✏ تعديل</button>
-                      <button className="btn-sm btn-danger" style={{ padding: '8px 12px' }} onClick={() => deleteContact(c.id)}>🗑️</button>
-                    </div>
-                  </div>
-                );
-              })}
-              {filteredContacts.length === 0 && <div style={{ textAlign: 'center', padding: '30px', color: '#64748b', background: '#fff', borderRadius: '12px' }}>لا يوجد عملاء يطابقون بحثك.</div>}
             </div>
           </div>
         )}
@@ -1671,12 +1326,12 @@ export default function EngaziaWhatsAppCRM() {
                   <div className="form-grid">
                     <div className="form-group" ref={suggestionsRef}>
                       <label>ابحث عن عميل من الـ CRM</label>
-                      <input type="text" className="form-control" placeholder="اكتب اسم العميل لجلبه تلقائياً..." value={customerName} onChange={e => { setCustomerName(e.target.value); setShowSuggestions(true); }} onFocus={() => setShowSuggestions(true)} />
+                      <input type="text" className="form-control" placeholder="اكتب اسم العميل لجلبه..." value={customerName} onChange={e => { setCustomerName(e.target.value); setShowSuggestions(true); }} />
                       {showSuggestions && matchingCustomers.length > 0 && (
                         <div className="suggestions-box">
                           {matchingCustomers.map(cust => (
                             <div key={cust.id} className="suggestion-item" onClick={() => { setCustomerName(cust.name); setCustomerPhone(cust.phone); setOrderNumber(cust.orderNumber); setShowSuggestions(false); }}>
-                              <span>{cust.name} <small style={{color: '#94a3b8'}}>({cust.orderNumber})</small></span>
+                              <span>{cust.name}</span>
                               <span style={{ color: '#4f46e5', direction: 'ltr' }}>{cust.phone}</span>
                             </div>
                           ))}
@@ -1704,75 +1359,19 @@ export default function EngaziaWhatsAppCRM() {
               <div className="section-title">2. اختر أو صمم رسالتك</div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '12px', marginBottom: '20px' }}>
                 {templates.map(tpl => (
-                  <div key={tpl.id} onClick={() => setActiveTemplateId(tpl.id)} style={{ padding: '12px 10px', border: '2px solid #e2e8f0', borderRadius: '12px', cursor: 'pointer', textAlign: 'center', fontWeight: 800, fontSize: '12px', color: activeTemplateId === tpl.id ? '#4f46e5' : '#64748b', background: activeTemplateId === tpl.id ? '#eef2ff' : '#fff', borderColor: activeTemplateId === tpl.id ? '#4f46e5' : '#e2e8f0', transition: '0.2s' }}>
+                  <div key={tpl.id} onClick={() => setActiveTemplateId(tpl.id)} style={{ padding: '12px 10px', border: '2px solid #e2e8f0', borderRadius: '12px', cursor: 'pointer', textAlign: 'center', fontWeight: 800, fontSize: '12px', color: activeTemplateId === tpl.id ? '#4f46e5' : '#64748b', background: activeTemplateId === tpl.id ? '#eef2ff' : '#fff' }}>
                     {tpl.title}
                   </div>
                 ))}
               </div>
-              
-              <div className="form-grid" style={{ marginTop: '20px' }}>
-                <div className="form-group">
-                  <label>معلومة إضافية متغيرة (تستبدل كلمة [إضافي] في القوالب)</label>
-                  <input type="text" className="form-control" placeholder="رابط الدفع، تفاصيل، الخ..." value={extraInfo} onChange={e => setExtraInfo(e.target.value)} />
+              <button className="btn-main" style={{ width: '100%' }} onClick={handleGenerateMessage}>⚡ توليد ومعاينة الرسالة</button>
+              {generatedMsg && (
+                <div style={{ background: '#fff', border: '2px dashed #cbd5e1', padding: '20px', borderRadius: '16px', marginTop: '20px' }}>
+                  <div style={{ background: '#f8fafc', padding: '15px', borderRadius: '10px', fontSize: '14px', lineHeight: 1.7, whiteSpace: 'pre-wrap', marginBottom: '15px', color: '#1e293b' }}>{generatedMsg}</div>
+                  <button className="btn-wa" style={{ width: '100%' }} onClick={() => openWhatsAppDirect(customerPhone, generatedMsg)}>🟢 إرسال عبر واتساب (Wa.me)</button>
                 </div>
-                <div className="form-group" style={{ display: 'flex', alignItems: 'center' }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', margin: 0 }}>
-                    <input type="checkbox" checked={includeDiscount} onChange={e => setIncludeDiscount(e.target.checked)} style={{ width: '18px', height: '18px', accentColor: '#4f46e5' }}/>
-                    إرفاق كود الخصم الافتراضي (*{defaultDiscountCode}*) بنهاية الرسالة
-                  </label>
-                </div>
-              </div>
+              )}
             </div>
-
-            {messagingMode === 'single' ? (
-              <>
-                <button className="btn-main" style={{ width: '100%' }} onClick={handleGenerateMessage}>⚡ توليد ومعاينة الرسالة</button>
-                {generatedMsg && (
-                  <div style={{ background: '#fff', border: '2px dashed #cbd5e1', padding: '20px', borderRadius: '16px', marginTop: '20px' }}>
-                    <div className="section-title" style={{ fontSize: '13px', color: '#64748b' }}>شكل الرسالة النهائي:</div>
-                    <div style={{ background: '#f8fafc', padding: '15px', borderRadius: '10px', fontSize: '14px', lineHeight: 1.7, whiteSpace: 'pre-wrap', marginBottom: '15px', color: '#1e293b', fontWeight: 500, border: '1px solid #e2e8f0', textAlign: 'start' }}>{generatedMsg}</div>
-                    <div style={{ display: 'flex', gap: '12px' }}>
-                      <button className="btn-main" style={{ flex: 1, background: '#f1f5f9', color: '#1e293b' }} onClick={() => { navigator.clipboard.writeText(generatedMsg); showToast('📋 تم نسخ النص بنجاح!'); }}>📋 نسخ فقط</button>
-                      <button className="btn-wa" style={{ flex: 2 }} onClick={() => {
-                        const target = contacts.find(c => c.phone === formatPhone(customerPhone));
-                        openWhatsAppDirect(customerPhone, generatedMsg, target?.id);
-                      }}>🟢 إرسال عبر واتساب (Wa.me)</button>
-                    </div>
-                  </div>
-                )}
-              </>
-            ) : (
-              <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', padding: '20px', borderRadius: '16px', marginTop: '20px' }}>
-                {broadcastList.length === 0 ? (
-                  <p style={{ textAlign: 'center', color: '#dc2626', fontWeight: 800 }}>لا يوجد عملاء في هذه الشريحة.</p>
-                ) : (
-                  <div style={{ textAlign: 'center' }}>
-                    <p style={{ fontSize: '14px', fontWeight: 800, marginBottom: '15px' }}>
-                      العميل الحالي: <span style={{ color: '#4f46e5', direction: 'ltr', display: 'inline-block' }}>{broadcastIndex + 1}</span> من <span style={{ direction: 'ltr', display: 'inline-block' }}>{broadcastList.length}</span>
-                    </p>
-                    <div style={{ background: '#fff', padding: '15px', borderRadius: '10px', fontSize: '14px', lineHeight: 1.7, marginBottom: '15px', color: '#1e293b', fontWeight: 500, border: '1px solid #e2e8f0', textAlign: 'start' }}>
-                      يتم إرسال رسالة لـ: <strong>{broadcastList[broadcastIndex]?.name}</strong> <br/>
-                      جوال: <span dir="ltr">{broadcastList[broadcastIndex]?.phone}</span> | طلب: <span dir="ltr">{broadcastList[broadcastIndex]?.orderNumber}</span>
-                    </div>
-                    <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
-                      <button className="btn-wa" style={{ width: 'auto' }} onClick={() => {
-                        const c = broadcastList[broadcastIndex];
-                        setCustomerName(c.name); setOrderNumber(c.orderNumber); setCustomerPhone(c.phone);
-                        const tpl = templates.find(t => t.id === activeTemplateId)?.text || '';
-                        let msg = tpl.replace(/\[الاسم\]/g, c.name).replace(/\[الطلب\]/g, c.orderNumber).replace(/\[إضافي\]/g, extraInfo);
-                        if(includeDiscount) msg += `\n\n🎁 كود خصم خاص لك: *${defaultDiscountCode}*`;
-                        openWhatsAppDirect(c.phone, msg, c.id);
-                        if (broadcastIndex < broadcastList.length - 1) setBroadcastIndex(broadcastIndex + 1);
-                      }}>🟢 إرسال عبر Wa.me والانتقال للتالي</button>
-                      <button className="btn-main" style={{ width: 'auto', background: '#334155' }} onClick={() => {
-                        if (broadcastIndex < broadcastList.length - 1) setBroadcastIndex(broadcastIndex + 1);
-                        else showToast('⚠️ لقد وصلت لنهاية القائمة!');
-                      }}>تخطي ⬅</button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
           </div>
         )}
 
@@ -1781,18 +1380,14 @@ export default function EngaziaWhatsAppCRM() {
           <div>
             <div className="section-box" style={{ background: '#eef2ff', borderColor: '#c7d2fe' }}>
               <div className="section-title">{t.settingsIdentity}</div>
-              <p className="section-desc">خصص اسم متجرك وقم برفع شعار المتجر من جهاز الكمبيوتر ليظهر باحترافية في أعلى المنصة.</p>
-              
               <div className="form-grid" style={{ alignItems: 'flex-end' }}>
                 <div className="form-group" style={{ margin: 0 }}>
                   <label>{t.storeNameLabel}</label>
                   <input type="text" className="form-control" value={storeName} onChange={e => handleSaveStoreName(e.target.value)} />
                 </div>
                 <div className="form-group" style={{ margin: 0 }}>
-                  <label>شعار المتجر (صورة من جهاز الكمبيوتر)</label>
-                  <button className="btn-main" style={{ width: '100%', background: '#fff', color: '#4f46e5', border: '1px solid #c7d2fe' }} onClick={() => storeLogoFileRef.current?.click()}>
-                    {t.storeLogoBtn}
-                  </button>
+                  <label>شعار المتجر</label>
+                  <button className="btn-main" style={{ width: '100%', background: '#fff', color: '#4f46e5', border: '1px solid #c7d2fe' }} onClick={() => storeLogoFileRef.current?.click()}>{t.storeLogoBtn}</button>
                   <input type="file" ref={storeLogoFileRef} onChange={handleLogoUpload} accept="image/*" style={{ display: 'none' }} />
                 </div>
               </div>
@@ -1800,8 +1395,6 @@ export default function EngaziaWhatsAppCRM() {
 
             <div className="section-box" style={{ background: '#f0fdf4', borderColor: '#bbf7d0' }}>
               <div className="section-title" style={{ color: '#166534' }}>{t.backupBox}</div>
-              <p className="section-desc">قم بتنزيل نسخة احتياطية لبيانات متجرك بملف JSON أو استعادتها بأي وقت لحماية بياناتك من الضياع.</p>
-              
               <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
                 <button className="btn-main" style={{ background: '#10b981' }} onClick={exportBackupJSON}>{t.downloadBackup}</button>
                 <button className="btn-main" style={{ background: '#fff', color: '#166534', border: '1px solid #bbf7d0' }} onClick={() => restoreFileRef.current?.click()}>{t.restoreBackup}</button>
@@ -1811,236 +1404,11 @@ export default function EngaziaWhatsAppCRM() {
 
             <div className="section-box">
               <div className="section-title">⚡ إعدادات النظام العامة</div>
-              <p className="section-desc">تحكم بكود الخصم الافتراضي الذي يتم إرفاقه تلقائياً مع الرسائل التسويقية.</p>
-              
               <div className="form-group" style={{ maxWidth: '400px', margin: 0 }}>
                 <label>كود الخصم الافتراضي</label>
                 <input type="text" className="form-control" value={defaultDiscountCode} onChange={e => saveDefaultDiscount(e.target.value)} />
               </div>
             </div>
-
-            <div className="section-box">
-              <div className="section-title">📝 قوالب الرسائل الجاهزة</div>
-              <p className="section-desc">أنشئ نصوصاً جاهزة لاستخدامها بنقرة واحدة في قسم المراسلات.</p>
-
-              <div className="template-creation-box">
-                <div className="form-group">
-                  <label>عنوان القالب (للتنظيم)</label>
-                  <input type="text" className="form-control" placeholder="مثال: رسالة ترحيبية..." value={newTplTitle} onChange={e => setNewTplTitle(e.target.value)} />
-                </div>
-                <div className="form-group">
-                  <label>نص الرسالة (المتغيرات المدعومة: [الاسم]، [الطلب]، [إضافي])</label>
-                  <textarea className="form-control" rows={3} placeholder="أهلاً بك يا [الاسم]..." value={newTplText} onChange={e => setNewTplText(e.target.value)}></textarea>
-                </div>
-                <button className="btn-main" style={{ width: '100%' }} onClick={() => {
-                  if (!newTplTitle || !newTplText) return showToast("⚠️ الرجاء تعبئة العنوان والنص");
-                  saveTemplates([...templates, { id: Date.now(), title: newTplTitle, text: newTplText }]);
-                  setNewTplTitle(''); setNewTplText('');
-                  showToast('💾 تم حفظ القالب بنجاح');
-                }}>💾 حفظ القالب في النظام</button>
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '15px' }}>
-                {templates.map(t => (
-                  <div key={t.id} className="template-card-view">
-                    <div className="template-header">
-                      <span className="template-title">{t.title}</span>
-                      {t.id > 4 && <button className="btn-icon btn-danger" style={{ padding: '4px 8px' }} onClick={() => { saveTemplates(templates.filter(x => x.id !== t.id)); showToast('🗑 تم حذف القالب'); }}>🗑️</button>}
-                    </div>
-                    <div className="template-body">{t.text}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="section-box">
-              <div className="section-title">📌 تخصيص حالات العملاء</div>
-              <p className="section-desc">أنشئ وعدل حالات العملاء (مثل نشط، مميز، محظور...) وتحكم بألوانها.</p>
-              
-              <form onSubmit={addStatusOption} className="settings-creation-box">
-                <div className="form-group" style={{ flex: 2, margin: 0, minWidth: '200px' }}>
-                  <label>اسم الحالة الجديدة</label>
-                  <input type="text" className="form-control" placeholder="مثال: بانتظار الشحن..." value={newStatusName} onChange={e => setNewStatusName(e.target.value)} required />
-                </div>
-                <div className="form-group" style={{ flex: 1, margin: 0, minWidth: '100px' }}>
-                  <label>الخلفية</label>
-                  <input type="color" className="form-control color-picker" value={newStatusBg} onChange={e => setNewStatusBg(e.target.value)} />
-                </div>
-                <div className="form-group" style={{ flex: 1, margin: 0, minWidth: '100px' }}>
-                  <label>النص</label>
-                  <input type="color" className="form-control color-picker" value={newStatusColor} onChange={e => setNewStatusColor(e.target.value)} />
-                </div>
-                <button type="submit" className="btn-main" style={{ height: '44px', padding: '0 25px', whiteSpace: 'nowrap' }}>➕ إضافة حالة</button>
-              </form>
-
-              <div className="tags-list-container">
-                {statusOptions.map((st, idx) => (
-                  <div key={idx} className="tag-row">
-                    <input 
-                      type="text" 
-                      className="tag-input-clean" 
-                      value={st.name} 
-                      onChange={e => {
-                          const updated = [...statusOptions];
-                          updated[idx].name = e.target.value;
-                          saveStatuses(updated);
-                      }} 
-                    />
-                    <div className="tag-controls">
-                      <div className="color-group">
-                        <span className="color-label">الخلفية:</span>
-                        <input type="color" className="color-picker-sm" value={st.bg} onChange={e => {
-                            const updated = [...statusOptions];
-                            updated[idx].bg = e.target.value;
-                            saveStatuses(updated);
-                        }} />
-                      </div>
-                      <div className="color-group">
-                        <span className="color-label">النص:</span>
-                        <input type="color" className="color-picker-sm" value={st.color} onChange={e => {
-                            const updated = [...statusOptions];
-                            updated[idx].color = e.target.value;
-                            saveStatuses(updated);
-                        }} />
-                      </div>
-                      <span className="badge" style={{ backgroundColor: st.bg, color: st.color }}>معاينة الحالة</span>
-                      <button className="btn-icon btn-danger" onClick={() => deleteStatusOption(st.name)}>🗑️ حذف</button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="section-box">
-              <div className="section-title">💬 تخصيص حالات الرد</div>
-              <p className="section-desc">أنشئ وعدل حالات الرد المتاحة للعملاء (مثل بانتظار الرد، تم الاتفاق...) وتحكم بألوانها.</p>
-              
-              <form onSubmit={addResponseStateOption} className="settings-creation-box">
-                <div className="form-group" style={{ flex: 2, margin: 0, minWidth: '200px' }}>
-                  <label>اسم حالة الرد الجديدة</label>
-                  <input type="text" className="form-control" placeholder="مثال: متابعة لاحقة..." value={newRespName} onChange={e => setNewRespName(e.target.value)} required />
-                </div>
-                <div className="form-group" style={{ flex: 1, margin: 0, minWidth: '100px' }}>
-                  <label>الخلفية</label>
-                  <input type="color" className="form-control color-picker" value={newRespBg} onChange={e => setNewRespBg(e.target.value)} />
-                </div>
-                <div className="form-group" style={{ flex: 1, margin: 0, minWidth: '100px' }}>
-                  <label>النص</label>
-                  <input type="color" className="form-control color-picker" value={newRespColor} onChange={e => setNewRespColor(e.target.value)} />
-                </div>
-                <button type="submit" className="btn-main" style={{ height: '44px', padding: '0 25px', whiteSpace: 'nowrap' }}>➕ إضافة حالة رد</button>
-              </form>
-
-              <div className="tags-list-container">
-                {responseStateOptions.map((resp, idx) => (
-                  <div key={idx} className="tag-row">
-                    <input 
-                      type="text" 
-                      className="tag-input-clean" 
-                      value={resp.name} 
-                      onChange={e => {
-                          const updated = [...responseStateOptions];
-                          updated[idx].name = e.target.value;
-                          saveResponseStates(updated);
-                      }} 
-                    />
-                    <div className="tag-controls">
-                      <div className="color-group">
-                        <span className="color-label">الخلفية:</span>
-                        <input type="color" className="color-picker-sm" value={resp.bg} onChange={e => {
-                            const updated = [...responseStateOptions];
-                            updated[idx].bg = e.target.value;
-                            saveResponseStates(updated);
-                        }} />
-                      </div>
-                      <div className="color-group">
-                        <span className="color-label">النص:</span>
-                        <input type="color" className="color-picker-sm" value={resp.color} onChange={e => {
-                            const updated = [...responseStateOptions];
-                            updated[idx].color = e.target.value;
-                            saveResponseStates(updated);
-                        }} />
-                      </div>
-                      <span className="badge" style={{ backgroundColor: resp.bg, color: resp.color }}>معاينة الشارة</span>
-                      <button className="btn-icon btn-danger" onClick={() => deleteResponseStateOption(resp.name)}>🗑️ حذف</button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="section-box">
-              <div className="section-title">🏷️ تخصيص تصنيفات وحالات العملاء</div>
-              <p className="section-desc">حدد التصنيفات التي ترغب بأن تُحسب مبيعاتها ضمن إجمالي لوحة القيادة.</p>
-              
-              <form onSubmit={addCategory} className="settings-creation-box">
-                <div className="form-group" style={{ flex: 2, margin: 0, minWidth: '200px' }}>
-                  <label>اسم التصنيف الجديد</label>
-                  <input type="text" className="form-control" placeholder="مثال: قيد التجهيز..." value={newCatName} onChange={e => setNewCatName(e.target.value)} required />
-                </div>
-                <div className="form-group" style={{ flex: 1, margin: 0, minWidth: '100px' }}>
-                  <label>الخلفية</label>
-                  <input type="color" className="form-control color-picker" value={newCatBg} onChange={e => setNewCatBg(e.target.value)} />
-                </div>
-                <div className="form-group" style={{ flex: 1, margin: 0, minWidth: '100px' }}>
-                  <label>النص</label>
-                  <input type="color" className="form-control color-picker" value={newCatColor} onChange={e => setNewCatColor(e.target.value)} />
-                </div>
-                <div className="form-group" style={{ flex: 1, margin: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center', minWidth: '130px' }}>
-                  <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
-                    <input type="checkbox" checked={newCatIsSale} onChange={e => setNewCatIsSale(e.target.checked)} style={{ width: '16px', height: '16px', accentColor: '#4f46e5' }} />
-                    يُحسب كمبيعات؟
-                  </label>
-                </div>
-                <button type="submit" className="btn-main" style={{ height: '44px', padding: '0 25px', whiteSpace: 'nowrap' }}>➕ إضافة</button>
-              </form>
-
-              <div className="tags-list-container">
-                {categories.map((cat, idx) => (
-                  <div key={idx} className="tag-row">
-                    <input 
-                      type="text" 
-                      className="tag-input-clean" 
-                      value={cat.name} 
-                      onChange={e => {
-                          const updatedCats = [...categories];
-                          updatedCats[idx].name = e.target.value;
-                          saveCategories(updatedCats);
-                      }} 
-                    />
-                    <div className="tag-controls">
-                      <div className="color-group">
-                        <span className="color-label">الخلفية:</span>
-                        <input type="color" className="color-picker-sm" value={cat.bg} onChange={e => {
-                            const updatedCats = [...categories];
-                            updatedCats[idx].bg = e.target.value;
-                            saveCategories(updatedCats);
-                        }} />
-                      </div>
-                      <div className="color-group">
-                        <span className="color-label">النص:</span>
-                        <input type="color" className="color-picker-sm" value={cat.color} onChange={e => {
-                            const updatedCats = [...categories];
-                            updatedCats[idx].color = e.target.value;
-                            saveCategories(updatedCats);
-                        }} />
-                      </div>
-                      <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 700, cursor: 'pointer', color: '#475569' }}>
-                        <input type="checkbox" checked={cat.isSale} onChange={e => {
-                            const updatedCats = [...categories];
-                            updatedCats[idx].isSale = e.target.checked;
-                            saveCategories(updatedCats);
-                        }} style={{ width: '16px', height: '16px', accentColor: '#4f46e5' }} />
-                        مبيعات
-                      </label>
-                      <span className="badge" style={{ backgroundColor: cat.bg, color: cat.color }}>معاينة الشارة</span>
-                      <button className="btn-icon btn-danger" onClick={() => deleteCategory(cat.name)}>🗑 حذف</button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
           </div>
         )}
       </div>
