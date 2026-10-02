@@ -19,7 +19,7 @@ const getInitialConfig = () => {
     if (supportedLangs.includes(browserLang)) {
       storedLang = browserLang;
     } else {
-      storedLang = 'en'; // الافتراضي إنجليزي إذا لم تكن اللغة مدعومة
+      storedLang = 'en';
     }
     localStorage.setItem('engazia_global_lang', storedLang);
   }
@@ -63,6 +63,7 @@ interface Translations {
     brandName: string;
     live: string;
     activate: string;
+    deactivate: string;
     keyPlaceholder: string;
     upgradeBtn: string;
     heroTitle: string;
@@ -87,6 +88,7 @@ const translations: Translations = {
     brandName: 'إنجازيا',
     live: 'النظام مفعل',
     activate: 'تفعيل',
+    deactivate: 'إلغاء',
     keyPlaceholder: 'مفتاح الترخيص...',
     upgradeBtn: '⚡ ترقية اشتراك',
     heroTitle: 'منصة إنجازيا ULTRA MAX',
@@ -125,6 +127,7 @@ const translations: Translations = {
     brandName: 'Engazia',
     live: 'System Active',
     activate: 'Activate',
+    deactivate: 'Reset',
     keyPlaceholder: 'License key...',
     upgradeBtn: '⚡ Upgrade Plan',
     heroTitle: 'ENGAZIA ULTRA MAX Platform',
@@ -149,7 +152,7 @@ const translations: Translations = {
       { id: 'legal', title: 'Store Legal Policies Generator', desc: 'Create compliant return and privacy policies.', icon: '⚖', link: '/hub/legal' },
       { id: 'roas', title: 'Ad Spend ROAS Analyzer', desc: 'Measure exact performance of your ad campaigns.', icon: '📈', link: '/hub/roas' },
       { id: 'fees', title: 'Payment Gateway Fees Calculator', desc: 'Calculate gateway fees impact on profit margins.', icon: '💳', link: '/hub/fees' },
-      { id: 'copy', title: 'Marketing Copy & Ad Generator', desc: 'Create TikTok scripts and converting ad copy.', icon: '✍️️', link: '/hub/copy' },
+      { id: 'copy', title: 'Marketing Copy & Ad Generator', desc: 'Create TikTok scripts and converting ad copy.', icon: '✍', link: '/hub/copy' },
       { id: 'promos', title: 'Discount Promos Manager', desc: 'Manage and create instant discount codes.', icon: '🎟️', link: '/hub/promos' },
       { id: 'shipping', title: 'Shipping & Delivery Tracker', desc: 'Track shipments and resolve customer inquiries.', icon: '📦', link: '/hub/shipping' },
       { id: 'scraper', title: 'Excel Data Cleaner & Formatter', desc: 'Clean product lists and pricing formats.', icon: '⚡', link: '/hub/scraper' },
@@ -163,6 +166,7 @@ const translations: Translations = {
     brandName: 'Engazia',
     live: 'Système Actif',
     activate: 'Activer',
+    deactivate: 'Réinitialiser',
     keyPlaceholder: 'Clé de licence...',
     upgradeBtn: '⚡ Mettre à niveau',
     heroTitle: 'Plateforme ENGAZIA ULTRA MAX',
@@ -201,6 +205,7 @@ const translations: Translations = {
     brandName: 'Engazia',
     live: 'Sistema Activo',
     activate: 'Activar',
+    deactivate: 'Restablecer',
     keyPlaceholder: 'Clave de licencia...',
     upgradeBtn: '⚡ Actualizar plan',
     heroTitle: 'Plataforma ENGAZIA ULTRA MAX',
@@ -239,6 +244,7 @@ const translations: Translations = {
     brandName: 'Engazia',
     live: 'Sistem Aktif',
     activate: 'Etkinleştir',
+    deactivate: 'Sıfırla',
     keyPlaceholder: 'Lisans anahtarı...',
     upgradeBtn: '⚡ Planı Yükselt',
     heroTitle: 'ENGAZIA ULTRA MAX Platformu',
@@ -277,6 +283,7 @@ const translations: Translations = {
     brandName: 'Engazia',
     live: '系统已激活',
     activate: '激活',
+    deactivate: '重置',
     keyPlaceholder: '授权密钥...',
     upgradeBtn: '⚡ 升级高级版',
     heroTitle: 'ENGAZIA ULTRA MAX 平台',
@@ -315,6 +322,7 @@ const translations: Translations = {
     brandName: 'Engazia',
     live: 'System Aktiv',
     activate: 'Aktivieren',
+    deactivate: 'Zurücksetzen',
     keyPlaceholder: 'Lizenzschlüssel...',
     upgradeBtn: '⚡ Plan upgraden',
     heroTitle: 'ENGAZIA ULTRA MAX Plattform',
@@ -353,6 +361,7 @@ const translations: Translations = {
     brandName: 'Engazia',
     live: 'Sistem Aktif',
     activate: 'Aktifkan',
+    deactivate: 'Atur Ulang',
     keyPlaceholder: 'Kunci lisensi...',
     upgradeBtn: '⚡ Upgrade Paket',
     heroTitle: 'Platform ENGAZIA ULTRA MAX',
@@ -424,6 +433,13 @@ export default function EngaziaHomeHub() {
     localStorage.setItem('merchant_license_key', cleanKey);
     setIsActivated(true);
     alert('✨ تم تفعيل النظام والمزامنة السحابية بنجاح عبر كل الأدوات!');
+  };
+
+  const handleDeactivateLicense = () => {
+    localStorage.removeItem('merchant_license_key');
+    setLicenseKeyInput('');
+    setIsActivated(false);
+    alert('⚠️ تم إلغاء تفعيل الاشتراك.');
   };
 
   const t = translations[currentLang] || translations.en;
@@ -523,7 +539,16 @@ export default function EngaziaHomeHub() {
           <div className="license-box">
             <span style={{ fontSize: '11px', fontWeight: 800, color: '#475569' }}>🔑 PRO:</span>
             {isActivated ? (
-              <span style={{ fontSize: '11px', fontWeight: 900, color: '#10b981' }}>{t.live} ✓</span>
+              <>
+                <span style={{ fontSize: '11px', fontWeight: 900, color: '#10b981' }}>{t.live} ✓</span>
+                <button 
+                  onClick={handleDeactivateLicense}
+                  style={{ background: '#fee2e2', color: '#dc2626', border: 'none', padding: '3px 6px', borderRadius: '4px', fontSize: '9px', fontWeight: 800, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif' }}
+                  title="إلغاء التفعيل للاختبار"
+                >
+                  {t.deactivate}
+                </button>
+              </>
             ) : (
               <>
                 <input 
@@ -543,9 +568,11 @@ export default function EngaziaHomeHub() {
             )}
           </div>
 
-          <a href={LEMON_CHECKOUT_URL} target="_blank" rel="noopener noreferrer" className="upgrade-btn">
-            {t.upgradeBtn}
-          </a>
+          {!isActivated && (
+            <a href={LEMON_CHECKOUT_URL} target="_blank" rel="noopener noreferrer" className="upgrade-btn">
+              {t.upgradeBtn}
+            </a>
+          )}
         </div>
       </div>
 
