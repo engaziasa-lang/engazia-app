@@ -26,31 +26,36 @@ interface Customer {
 }
 
 interface TagConfig {
-  name: string;
+  nameKey: string; // مفتاح الترجمة الديناميكي حسب اللغة
+  fallbackName: string;
   bg: string;
   color: string;
   isSale: boolean;
 }
 
 interface StatusConfig {
-  name: string;
+  nameKey: string;
+  fallbackName: string;
   bg: string;
   color: string;
 }
 
 interface ResponseStateConfig {
-  name: string;
+  nameKey: string;
+  fallbackName: string;
   bg: string;
   color: string;
 }
 
 interface Template {
   id: number;
-  title: string;
-  text: string;
+  titleKey: string;
+  fallbackTitle: string;
+  textKey: string;
+  fallbackText: string;
 }
 
-// قاموس الترجمة الشامل والدقيق لجميع لغات المنصة الـ 8
+// قاموس الترجمة الشامل لجميع لغات المنصة الـ 8 (تشمل الواجهات، التصنيفات، الحالات، وقوالب الرسائل)
 const toolTranslations: { [key: string]: any } = {
   ar: {
     back: '← العودة لوحة التحكم',
@@ -83,7 +88,7 @@ const toolTranslations: { [key: string]: any } = {
     storeLogoBtn: '🖼 اختر صورة الشعار من جهازك',
     backupBox: '💾 النسخ الاحتياطي واستعادة البيانات',
     downloadBackup: '📥 تحميل نسخة احتياطية (JSON)',
-    restoreBackup: '♻️️ استعادة البيانات من ملف',
+    restoreBackup: '♻️ استعادة البيانات من ملف',
     filterByTime: '📅 فلترة حسب الفترة الزمنية:',
     filterAllTime: 'كل الوقت',
     filterToday: 'اليوم',
@@ -101,22 +106,45 @@ const toolTranslations: { [key: string]: any } = {
     searchCrmPlaceholder: 'اكتب اسم العميل لجلبه تلقائياً...',
     selectTemplateTitle: '2. اختر أو صمم رسالتك',
     generateMsgBtn: '⚡ توليد ومعاينة الرسالة',
-    copyOnlyBtn: '📋 نسخ فقط',
     sendWaBtn: '🟢 إرسال عبر واتساب (Wa.me)',
-    storeLogoLabel: 'شعار المتجر (صورة من جهاز الكمبيوتر)',
+    storeLogoLabel: 'شعار المتجر',
     generalSysSettings: '⚡ إعدادات النظام العامة',
     defaultDiscountLabel: 'كود الخصم الافتراضي',
-    templatesTitle: '📝 قوالب الرسائل الجاهزة',
-    templateTitleLabel: 'عنوان القالب (للتنظيم)',
-    templateTextLabel: 'نص الرسالة (المتغيرات المدعومة: [الاسم]، [الطلب]، [إضافي])',
-    saveTemplateBtn: '💾 حفظ القالب في النظام',
     customizeStatusTitle: '📌 تخصيص حالات العملاء',
     customizeRespTitle: '💬 تخصيص حالات الرد',
     customizeCatTitle: '🏷️ تخصيص تصنيفات وحالات العملاء',
     upgradePro: '⚡ ترقية / اشتراك PRO',
     subscriptionKey: '🔑 الاشتراك:',
     activated: 'مفعل ✓',
-    activateBtn: 'تفعيل'
+    activateBtn: 'تفعيل',
+    // الترجمات الافتراضية الموحدة حسب لغة المنصة
+    cats: {
+      newCustomer: 'عميل جديد',
+      abandonedCart: 'سلة متروكة',
+      pendingPayment: 'بانتظار الدفع',
+      shipped: 'تم الشحن والتوصيل'
+    },
+    statuses: {
+      active: 'نشط',
+      vip: 'مميز VIP',
+      paused: 'متوقف',
+      banned: 'محظور'
+    },
+    responseStates: {
+      pending: 'بانتظار الرد',
+      agreed: 'تم الاتفاق',
+      closed: 'أغلق الطلب'
+    },
+    tpls: {
+      t1Title: '✅ تأكيد الطلب',
+      t1Text: 'مرحباً بك يا [الاسم] 👋\nتم تأكيد طلبك رقم ([الطلب]) بنجاح، ونعمل حالياً على تجهيزه وشحنه لك. شكراً لثقتك بمتجرنا 💙',
+      t2Title: '🛒 سلة متروكة',
+      t2Text: 'أهلاً بك يا [الاسم] 😊\nلاحظنا عدم إتمام طلبك رقم ([الطلب]). هل تواجه مشكلة في الدفع؟ نحن هنا لمساعدتك.',
+      t3Title: '📦 تتبع الشحنة',
+      t3Text: 'مرحباً [الاسم] 📦\nتم تسليم طلبك رقم ([الطلب]) لشركة الشحن، وسيصلك قريباً.',
+      t4Title: '💳 رابط الدفع',
+      t4Text: 'مرحباً بك يا [الاسم] 💳\nلتسهيل إتمام طلبك، يسعدنا تزويدك برابط الدفع السريع: [إضافي]'
+    }
   },
   en: {
     back: '← Back to Dashboard',
@@ -167,22 +195,44 @@ const toolTranslations: { [key: string]: any } = {
     searchCrmPlaceholder: 'Type customer name to fetch automatically...',
     selectTemplateTitle: '2. Select or Design Message',
     generateMsgBtn: '⚡ Generate & Preview Message',
-    copyOnlyBtn: '📋 Copy Only',
     sendWaBtn: '🟢 Send via WhatsApp (Wa.me)',
-    storeLogoLabel: 'Store Logo (Image from PC)',
+    storeLogoLabel: 'Store Logo',
     generalSysSettings: '⚡ General System Settings',
     defaultDiscountLabel: 'Default Discount Code',
-    templatesTitle: '📝 Ready Message Templates',
-    templateTitleLabel: 'Template Title',
-    templateTextLabel: 'Message Text (Supported variables: [الاسم], [الطلب], [إضافي])',
-    saveTemplateBtn: '💾 Save Template to System',
     customizeStatusTitle: '📌 Customize Customer Statuses',
     customizeRespTitle: '💬 Customize Response States',
     customizeCatTitle: '🏷️ Customize Customer Categories',
     upgradePro: '⚡ Upgrade / PRO Subscription',
     subscriptionKey: '🔑 Subscription:',
     activated: 'Activated ✓',
-    activateBtn: 'Activate'
+    activateBtn: 'Activate',
+    cats: {
+      newCustomer: 'New Customer',
+      abandonedCart: 'Abandoned Cart',
+      pendingPayment: 'Pending Payment',
+      shipped: 'Shipped & Delivered'
+    },
+    statuses: {
+      active: 'Active',
+      vip: 'VIP',
+      paused: 'Paused',
+      banned: 'Banned'
+    },
+    responseStates: {
+      pending: 'Pending Response',
+      agreed: 'Deal Agreed',
+      closed: 'Order Closed'
+    },
+    tpls: {
+      t1Title: '✅ Order Confirmation',
+      t1Text: 'Hello [الاسم] 👋\nYour order #[الطلب] has been successfully confirmed and is being processed. Thank you!',
+      t2Title: '🛒 Abandoned Cart',
+      t2Text: 'Hi [الاسم] 😊\nWe noticed you left items in cart #[الطلب]. Need any help with checkout?',
+      t3Title: '📦 Shipping Tracker',
+      t3Text: 'Hello [الاسم] 📦\nYour order #[الطلب] has been shipped and will arrive soon.',
+      t4Title: '💳 Payment Link',
+      t4Text: 'Hello [الاسم] 💳\nHere is your quick payment link to complete order #[الطلب]: [إضافي]'
+    }
   },
   fr: {
     back: '← Retour au tableau de bord',
@@ -233,22 +283,44 @@ const toolTranslations: { [key: string]: any } = {
     searchCrmPlaceholder: 'Tapez le nom du client...',
     selectTemplateTitle: '2. Sélectionnez ou concevez un message',
     generateMsgBtn: '⚡ Générer et prévisualiser',
-    copyOnlyBtn: '📋 Copier uniquement',
     sendWaBtn: '🟢 Envoyer via WhatsApp',
     storeLogoLabel: 'Logo du magasin',
     generalSysSettings: '⚡ Paramètres généraux du système',
     defaultDiscountLabel: 'Code de réduction par défaut',
-    templatesTitle: '📝 Modèles de messages prêts',
-    templateTitleLabel: 'Titre du modèle',
-    templateTextLabel: 'Texte du message',
-    saveTemplateBtn: '💾 Enregistrer le modèle',
     customizeStatusTitle: '📌 Personnaliser les statuts',
     customizeRespTitle: '💬 Personnaliser les états de réponse',
     customizeCatTitle: '🏷️ Personnaliser les catégories',
     upgradePro: '⚡ Mettre à niveau / PRO',
     subscriptionKey: '🔑 Abonnement :',
     activated: 'Activé ✓',
-    activateBtn: 'Activer'
+    activateBtn: 'Activer',
+    cats: {
+      newCustomer: 'Nouveau client',
+      abandonedCart: 'Panier abandonné',
+      pendingPayment: 'Paiement en attente',
+      shipped: 'Expédié & Livré'
+    },
+    statuses: {
+      active: 'Actif',
+      vip: 'VIP',
+      paused: 'En pause',
+      banned: 'Banni'
+    },
+    responseStates: {
+      pending: 'En attente de réponse',
+      agreed: 'Accord conclu',
+      closed: 'Commande fermée'
+    },
+    tpls: {
+      t1Title: '✅ Confirmation de commande',
+      t1Text: 'Bonjour [الاسم] 👋\nVotre commande #[الطلب] a été confirmée avec succès.',
+      t2Title: '🛒 Panier abandonné',
+      t2Text: 'Bonjour [الاسم] 😊\nVous avez laissé des articles dans votre panier #[الطلب].',
+      t3Title: '📦 Suivi d\'expédition',
+      t3Text: 'Bonjour [الاسم] 📦\nVotre commande #[الطلب] a été expédiée.',
+      t4Title: '💳 Lien de paiement',
+      t4Text: 'Bonjour [الاسم] 💳\nVoici votre lien de paiement : [إضافي]'
+    }
   },
   es: {
     back: '← Volver al panel',
@@ -299,22 +371,44 @@ const toolTranslations: { [key: string]: any } = {
     searchCrmPlaceholder: 'Escribe el nombre del cliente...',
     selectTemplateTitle: '2. Seleccionar o diseñar mensaje',
     generateMsgBtn: '⚡ Generar y vista previa',
-    copyOnlyBtn: '📋 Copiar solo',
     sendWaBtn: '🟢 Enviar por WhatsApp',
     storeLogoLabel: 'Logotipo de la tienda',
     generalSysSettings: '⚡ Configuración general del sistema',
     defaultDiscountLabel: 'Código de descuento predeterminado',
-    templatesTitle: '📝 Plantillas de mensajes',
-    templateTitleLabel: 'Título de la plantilla',
-    templateTextLabel: 'Texto del mensaje',
-    saveTemplateBtn: '💾 Guardar plantilla',
     customizeStatusTitle: '📌 Personalizar estados',
     customizeRespTitle: '💬 Personalizar estados de respuesta',
-    customizeCatTitle: '🏷️ Personalizar categorías',
+    customizeCatTitle: '🏷️️ Personalizar categorías',
     upgradePro: '⚡ Actualizar / PRO',
     subscriptionKey: '🔑 Suscripción:',
     activated: 'Activado ✓',
-    activateBtn: 'Activar'
+    activateBtn: 'Activar',
+    cats: {
+      newCustomer: 'Nuevo cliente',
+      abandonedCart: 'Carrito abandonado',
+      pendingPayment: 'Pago pendiente',
+      shipped: 'Enviado y entregado'
+    },
+    statuses: {
+      active: 'Activo',
+      vip: 'VIP',
+      paused: 'Pausado',
+      banned: 'Bloqueado'
+    },
+    responseStates: {
+      pending: 'Esperando respuesta',
+      agreed: 'Acuerdo cerrado',
+      closed: 'Pedido cerrado'
+    },
+    tpls: {
+      t1Title: '✅ Confirmación de pedido',
+      t1Text: 'Hola [الاسم] 👋\nTu pedido #[الطلب] ha sido confirmado con éxito.',
+      t2Title: '🛒 Carrito abandonado',
+      t2Text: 'Hola [الاسم] 😊\nNotamos que dejaste artículos en tu carrito #[الطلب].',
+      t3Title: '📦 Seguimiento de envío',
+      t3Text: 'Hola [الاسم] 📦\nTu pedido #[الطلب] ha sido enviado.',
+      t4Title: '💳 Enlace de pago',
+      t4Text: 'Hola [الاسم] 💳\nAquí tienes tu enlace de pago: [إضافي]'
+    }
   },
   tr: {
     back: '← Kontrol Paneline Dön',
@@ -365,22 +459,44 @@ const toolTranslations: { [key: string]: any } = {
     searchCrmPlaceholder: 'Müşteri adını yazın...',
     selectTemplateTitle: '2. Mesaj Seç veya Tasarla',
     generateMsgBtn: '⚡ Mesajı Oluştur ve Önizle',
-    copyOnlyBtn: '📋 Sadece Kopyala',
     sendWaBtn: '🟢 WhatsApp ile Gönder',
     storeLogoLabel: 'Mağaza Logosu',
     generalSysSettings: '⚡ Genel Sistem Ayarları',
     defaultDiscountLabel: 'Varsayılan İndirim Kodu',
-    templatesTitle: '📝 Hazır Mesaj Şablonları',
-    templateTitleLabel: 'Şablon Başlığı',
-    templateTextLabel: 'Mesaj Metni',
-    saveTemplateBtn: '💾 Şablonu Kaydet',
     customizeStatusTitle: '📌 Müşteri Durumlarını Özelleştir',
     customizeRespTitle: '💬 Yanıt Durumlarını Özelleştir',
-    customizeCatTitle: '🏷️ Müşteri Kategorilerini Özelleştir',
+    customizeCatTitle: '🏷️️ Müşteri Kategorilerini Özelleştir',
     upgradePro: '⚡ Yükselt / PRO Abone',
     subscriptionKey: '🔑 Abonelik:',
     activated: 'Aktif ✓',
-    activateBtn: 'Etkinleştir'
+    activateBtn: 'Etkinleştir',
+    cats: {
+      newCustomer: 'Yeni Müşteri',
+      abandonedCart: 'Terk Edilmiş Sepet',
+      pendingPayment: 'Ödeme Bekleniyor',
+      shipped: 'Kargolandı ve Teslim Edildi'
+    },
+    statuses: {
+      active: 'Aktif',
+      vip: 'VIP',
+      paused: 'Duraklatıldı',
+      banned: 'Yasaklı'
+    },
+    responseStates: {
+      pending: 'Yanıt Bekleniyor',
+      agreed: 'Anlaşıldı',
+      closed: 'Sipariş Kapatıldı'
+    },
+    tpls: {
+      t1Title: '✅ Sipariş Onayı',
+      t1Text: 'Merhaba [الاسم] 👋\n#[الطلب] numaralı siparişiniz başarıyla onaylandı.',
+      t2Title: '🛒 Terk Edilmiş Sepet',
+      t2Text: 'Merhaba [الاسم] 😊\n#[الطلب] sepetinizde ürün bıraktığınızı fark ettik.',
+      t3Title: '📦 Kargo Takibi',
+      t3Text: 'Merhaba [الاسم] 📦\n#[الطلب] numaralı siparişiniz kargoya verildi.',
+      t4Title: '💳 Ödeme Bağlantısı',
+      t4Text: 'Merhaba [الاسم] 💳\nÖdeme bağlantınız: [إضافي]'
+    }
   },
   zh: {
     back: '← 返回控制面板',
@@ -431,22 +547,44 @@ const toolTranslations: { [key: string]: any } = {
     searchCrmPlaceholder: '输入客户姓名...',
     selectTemplateTitle: '2. 选择或设计消息',
     generateMsgBtn: '⚡ 生成并预览消息',
-    copyOnlyBtn: '📋 仅复制',
     sendWaBtn: '🟢 通过 WhatsApp 发送',
     storeLogoLabel: '店铺 Logo',
     generalSysSettings: '⚡ 系统通用设置',
     defaultDiscountLabel: '默认优惠码',
-    templatesTitle: '📝 快捷消息模板',
-    templateTitleLabel: '模板标题',
-    templateTextLabel: '消息正文',
-    saveTemplateBtn: '💾 保存模板',
     customizeStatusTitle: '📌 自定义客户状态',
     customizeRespTitle: '💬 自定义回复状态',
     customizeCatTitle: '🏷️ 自定义客户分类',
     upgradePro: '⚡ 升级 / PRO 订阅',
     subscriptionKey: '🔑 订阅秘钥：',
     activated: '已激活 ✓',
-    activateBtn: '激活'
+    activateBtn: '激活',
+    cats: {
+      newCustomer: '新客户',
+      abandonedCart: '购物车未付款',
+      pendingPayment: '等待付款',
+      shipped: '已发货并送达'
+    },
+    statuses: {
+      active: '活跃',
+      vip: 'VIP客户',
+      paused: '暂停',
+      banned: '已拉黑'
+    },
+    responseStates: {
+      pending: '等待回复',
+      agreed: '达成一致',
+      closed: '订单关闭'
+    },
+    tpls: {
+      t1Title: '✅ 订单确认',
+      t1Text: '您好 [الاسم] 👋\n您的订单 #[الطلب] 已成功确认。',
+      t2Title: '🛒 购物车未付款',
+      t2Text: '您好 [الاسم] 😊\n我们注意到您在购物车 #[الطلب] 留下了商品。',
+      t3Title: '📦 物流追踪',
+      t3Text: '您好 [الاسم] 📦\n您的订单 #[الطلب] 已发货。',
+      t4Title: '💳 支付链接',
+      t4Text: '您好 [الاسم] 💳\n这是您的快捷支付链接：[إضافي]'
+    }
   },
   de: {
     back: '← Zurück zum Dashboard',
@@ -497,22 +635,44 @@ const toolTranslations: { [key: string]: any } = {
     searchCrmPlaceholder: 'Kundenname eingeben...',
     selectTemplateTitle: '2. Nachricht auswählen',
     generateMsgBtn: '⚡ Nachricht generieren',
-    copyOnlyBtn: '📋 Nur kopieren',
     sendWaBtn: '🟢 Über WhatsApp senden',
     storeLogoLabel: 'Shop-Logo',
     generalSysSettings: '⚡ Allgemeine Systemeinstellungen',
     defaultDiscountLabel: 'Standard-Gutscheincode',
-    templatesTitle: '📝 Vorlagen',
-    templateTitleLabel: 'Titel',
-    templateTextLabel: 'Nachrichtentext',
-    saveTemplateBtn: '💾 Vorlage speichern',
     customizeStatusTitle: '📌 Status anpassen',
     customizeRespTitle: '💬 Antwortstatus anpassen',
     customizeCatTitle: '🏷️ Kategorien anpassen',
     upgradePro: '⚡ Upgrade / PRO',
     subscriptionKey: '🔑 Lizenzschlüssel:',
     activated: 'Aktiviert ✓',
-    activateBtn: 'Aktivieren'
+    activateBtn: 'Aktivieren',
+    cats: {
+      newCustomer: 'Neukunde',
+      abandonedCart: 'Abgebrochener Warenkorb',
+      pendingPayment: 'Zahlung ausstehend',
+      shipped: 'Versendet & Geliefert'
+    },
+    statuses: {
+      active: 'Aktiv',
+      vip: 'VIP',
+      paused: 'Pausiert',
+      banned: 'Gesperrt'
+    },
+    responseStates: {
+      pending: 'Antwort ausstehend',
+      agreed: 'Deal vereinbart',
+      closed: 'Bestellung geschlossen'
+    },
+    tpls: {
+      t1Title: '✅ Bestellbestätigung',
+      t1Text: 'Hallo [الاسم] 👋\nIhre Bestellung #[الطلب] wurde erfolgreich bestätigt.',
+      t2Title: '🛒 Abgebrochener Warenkorb',
+      t2Text: 'Hallo [الاسم] 😊\nWir haben bemerkt, dass Sie Artikel in Ihrem Warenkorb #[الطلب] gelassen haben.',
+      t3Title: '📦 Sendungsverfolgung',
+      t3Text: 'Hallo [الاسم] 📦\nIhre Bestellung #[الطلب] wurde versendet.',
+      t4Title: '💳 Zahlungslink',
+      t4Text: 'Hallo [الاسم] 💳\nHier ist Ihr Zahlungslink: [إضافي]'
+    }
   },
   id: {
     back: '← Kembali ke Dasbor',
@@ -540,45 +700,67 @@ const toolTranslations: { [key: string]: any } = {
     importBtn: '📤 Impor CSV',
     exportBtn: '📥 Ekspor Excel',
     actions: 'Tindakan',
-    settingsIdentity: '🛍 Pengaturan Identitas Toko',
+    settingsIdentity: 'Pengaturan Identitas Toko',
     storeNameLabel: 'Nama Toko',
-    storeLogoBtn: '🖼 Pilih Logo dari Perangkat',
-    backupBox: '💾 Cadangkan & Pulihkan Data',
-    downloadBackup: '📥 Unduh Cadangan (JSON)',
-    restoreBackup: '♻️ Pulihkan dari File',
-    filterByTime: '📅 Filter Berdasarkan Waktu:',
+    storeLogoBtn: 'Pilih Logo dari Perangkat',
+    backupBox: 'Cadangkan & Pulihkan Data',
+    downloadBackup: 'Unduh Cadangan (JSON)',
+    restoreBackup: 'Pulihkan dari File',
+    filterByTime: 'Filter Berdasarkan Waktu:',
     filterAllTime: 'Semua Waktu',
     filterToday: 'Hari Ini',
     filterThisWeek: 'Minggu Ini',
     filterThisMonth: 'Bulan Ini',
     perfIndicators: 'Indikator Kinerja Langsung',
     latestCustomers: 'Pelanggan Terbaru',
-    dealSuccessRate: '📊 Tingkat Keberhasilan Kesepakatan',
-    pendingResponses: '⏳ Respon Tertunda',
-    avgCustomerValue: '💰 Nilai Pelanggan (LTV)',
-    categoryDistribution: '🎯 Distribusi Kategori',
+    dealSuccessRate: 'Tingkat Keberhasilan Kesepakatan',
+    pendingResponses: 'Respon Tertunda',
+    avgCustomerValue: 'Nilai Pelanggan (LTV)',
+    categoryDistribution: 'Distribusi Kategori',
     singleMsgMode: 'Pesan Pelanggan Tunggal',
-    broadcastMsgMode: 'Kampanye Siaran',
-    targetCustomerData: '1. Data Pelanggan Target',
+    broadcastMsgMode: 'Kampagne Siaran',
+    targetCustomerData: 'Data Pelanggan Target',
     searchCrmPlaceholder: 'Ketik nama pelanggan...',
-    selectTemplateTitle: '2. Pilih atau Rancang Pesan',
-    generateMsgBtn: '⚡ Buat & Pratinjau Pesan',
-    copyOnlyBtn: '📋 Salin Saja',
-    sendWaBtn: '🟢 Kirim via WhatsApp',
+    selectTemplateTitle: 'Pilih atau Rancang Pesan',
+    generateMsgBtn: 'Buat & Pratinjau Pesan',
+    sendWaBtn: 'Kirim via WhatsApp',
     storeLogoLabel: 'Logo Toko',
-    generalSysSettings: '⚡ Pengaturan Sistem Umum',
+    generalSysSettings: 'Pengaturan Sistem Umum',
     defaultDiscountLabel: 'Kode Diskon Default',
-    templatesTitle: '📝 Templat Pesan',
-    templateTitleLabel: 'Judul Templat',
-    templateTextLabel: 'Teks Pesan',
-    saveTemplateBtn: '💾 Simpan Templat',
-    customizeStatusTitle: '📌 Sesuaikan Status',
-    customizeRespTitle: '💬 Sesuaikan Status Respon',
-    customizeCatTitle: '🏷️ Sesuaikan Kategori',
-    upgradePro: '⚡ Tingkatkan / PRO',
-    subscriptionKey: '🔑 Kunci Lisensi:',
+    customizeStatusTitle: 'Sesuaikan Status',
+    customizeRespTitle: 'Sesuaikan Status Respon',
+    customizeCatTitle: 'Sesuaikan Kategori',
+    upgradePro: 'Tingkatkan / PRO',
+    subscriptionKey: 'Kunci Lisensi:',
     activated: 'Diaktifkan ✓',
-    activateBtn: 'Aktifkan'
+    activateBtn: 'Aktifkan',
+    cats: {
+      newCustomer: 'Pelanggan Baru',
+      abandonedCart: 'Keranjang Terbengkalai',
+      pendingPayment: 'Menunggu Pembayaran',
+      shipped: 'Dikirim & Diterima'
+    },
+    statuses: {
+      active: 'Aktif',
+      vip: 'VIP',
+      paused: 'Ditunda',
+      banned: 'Diblokir'
+    },
+    responseStates: {
+      pending: 'Menunggu Respon',
+      agreed: 'Sepakat',
+      closed: 'Pesanan Ditutup'
+    },
+    tpls: {
+      t1Title: '✅ Konfirmasi Pesanan',
+      t1Text: 'Halo [الاسم] 👋\nPesanan Anda #[الطلب] telah berhasil dikonfirmasi.',
+      t2Title: '🛒 Keranjang Terbengkalai',
+      t2Text: 'Halo [الاسم] 😊\nKami melihat ada produk di keranjang #[الطلب] Anda.',
+      t3Title: '📦 Pelacakan Pengiriman',
+      t3Text: 'Halo [الاسم] 📦\nPesanan #[الطلب] Anda telah dikirim.',
+      t4Title: '💳 Tautan Pembayaran',
+      t4Text: 'Halo [الاسم] 💳\nBerikut tautan pembayaran Anda: [إضافي]'
+    }
   }
 };
 
@@ -602,27 +784,18 @@ export default function EngaziaWhatsAppCRM() {
   const [newName, setNewName] = useState('');
   const [newPhone, setNewPhone] = useState('');
   const [newOrderNumber, setNewOrderNumber] = useState('');
-  const [newCategory, setNewCategory] = useState('عميل جديد');
-  const [newStatus, setNewStatus] = useState('نشط');
-  const [newResponseState, setNewResponseState] = useState('بانتظار الرد');
+  const [newCategory, setNewCategory] = useState('');
+  const [newStatus, setNewStatus] = useState('');
+  const [newResponseState, setNewResponseState] = useState('');
   const [newAmount, setNewAmount] = useState('');
   const [newNote, setNewNote] = useState('');
 
-  const [statusOptions, setStatusOptions] = useState<StatusConfig[]>([
-    { name: 'نشط', bg: '#dcfce7', color: '#15803d' },
-    { name: 'مميز VIP', bg: '#fef3c7', color: '#d97706' },
-    { name: 'متوقف', bg: '#fee2e2', color: '#dc2626' },
-    { name: 'محظور', bg: '#f1f5f9', color: '#475569' }
-  ]);
+  const [statusOptions, setStatusOptions] = useState<StatusConfig[]>([]);
   const [newStatusName, setNewStatusName] = useState('');
   const [newStatusBg, setNewStatusBg] = useState('#e0e7ff');
   const [newStatusColor, setNewStatusColor] = useState('#4f46e5');
 
-  const [responseStateOptions, setResponseStateOptions] = useState<ResponseStateConfig[]>([
-    { name: 'بانتظار الرد', bg: '#fef3c7', color: '#d97706' },
-    { name: 'تم الاتفاق', bg: '#dcfce7', color: '#15803d' },
-    { name: 'أغلق الطلب', bg: '#fee2e2', color: '#dc2626' }
-  ]);
+  const [responseStateOptions, setResponseStateOptions] = useState<ResponseStateConfig[]>([]);
   const [newRespName, setNewRespName] = useState('');
   const [newRespBg, setNewRespBg] = useState('#e0e7ff');
   const [newRespColor, setNewRespColor] = useState('#4f46e5');
@@ -637,25 +810,12 @@ export default function EngaziaWhatsAppCRM() {
   const [includeDiscount, setIncludeDiscount] = useState(false);
   const [generatedMsg, setGeneratedMsg] = useState('');
   
-  const [broadcastCat, setBroadcastCat] = useState('سلة متروكة');
-  const [broadcastIndex, setBroadcastIndex] = useState(0);
+  const [broadcastCat, setBroadcastCat] = useState('');
 
   const [activeTemplateId, setActiveTemplateId] = useState<number>(1);
-  const [templates, setTemplates] = useState<Template[]>([
-    { id: 1, title: '✅ تأكيد الطلب', text: 'مرحباً بك يا [الاسم] 👋\nتم تأكيد طلبك رقم ([الطلب]) بنجاح، ونعمل حالياً على تجهيزه وشحنه لك. شكراً لثقتك بمتجرنا 💙' },
-    { id: 2, title: '🛒 سلة متروكة', text: 'أهلاً بك يا [الاسم] 😊\nلاحظنا عدم إتمام طلبك رقم ([الطلب]). هل تواجه مشكلة في الدفع؟ نحن هنا لمساعدتك.' },
-    { id: 3, title: '📦 تتبع الشحنة', text: 'مرحباً [الاسم] 📦\nتم تسليم طلبك رقم ([الطلب]) لشركة الشحن، وسيصلك قريباً.' },
-    { id: 4, title: '💳 رابط الدفع', text: 'مرحباً بك يا [الاسم] 💳\nلتسهيل إتمام طلبك، يسعدنا تزويدك برابط الدفع السريع: [إضافي]' }
-  ]);
-  const [newTplTitle, setNewTplTitle] = useState('');
-  const [newTplText, setNewTplText] = useState('');
+  const [templates, setTemplates] = useState<Template[]>([]);
 
-  const [categories, setCategories] = useState<TagConfig[]>([
-    { name: 'عميل جديد', bg: '#dbeafe', color: '#1d4ed8', isSale: true },
-    { name: 'سلة متروكة', bg: '#fee2e2', color: '#dc2626', isSale: false },
-    { name: 'بانتظار الدفع', bg: '#fef3c7', color: '#d97706', isSale: false },
-    { name: 'تم الشحن والتوصيل', bg: '#dcfce7', color: '#15803d', isSale: true }
-  ]);
+  const [categories, setCategories] = useState<TagConfig[]>([]);
   const [newCatName, setNewCatName] = useState('');
   const [newCatBg, setNewCatBg] = useState('#e0e7ff');
   const [newCatColor, setNewCatColor] = useState('#4f46e5');
@@ -664,7 +824,6 @@ export default function EngaziaWhatsAppCRM() {
   const [licenseKeyInput, setLicenseKeyInput] = useState<string>('');
   const [isActivated, setIsActivated] = useState<boolean>(false);
   const MASTER_KEY = '$2a$10$MjUOD019x6uuVhydjtfL.cBlGqmIXvWR5b/tNrOZU6Ey8P.JOcyu';
-
   const LEMON_CHECKOUT_URL = 'https://enjazya.lemonsqueezy.com/checkout/buy/80ff492a-01eb-4455-b1a8-96e12ab72562';
 
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -677,8 +836,47 @@ export default function EngaziaWhatsAppCRM() {
   const storeLogoFileRef = useRef<HTMLInputElement>(null);
   const restoreFileRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
-
   const [showSuggestions, setShowSuggestions] = useState(false);
+
+  const t = toolTranslations[currentLang] || toolTranslations.ar;
+  const isRtl = currentLang === 'ar';
+
+  // تحميل القوالب والتصنيفات والحالات الافتراضية المترجمة حسب لغة المنصة عند التغيير
+  useEffect(() => {
+    if (t && t.cats) {
+      if (categories.length === 0) {
+        setCategories([
+          { nameKey: 'newCustomer', fallbackName: t.cats.newCustomer, bg: '#dbeafe', color: '#1d4ed8', isSale: true },
+          { nameKey: 'abandonedCart', fallbackName: t.cats.abandonedCart, bg: '#fee2e2', color: '#dc2626', isSale: false },
+          { nameKey: 'pendingPayment', fallbackName: t.cats.pendingPayment, bg: '#fef3c7', color: '#d97706', isSale: false },
+          { nameKey: 'shipped', fallbackName: t.cats.shipped, bg: '#dcfce7', color: '#15803d', isSale: true }
+        ]);
+      }
+      if (statusOptions.length === 0) {
+        setStatusOptions([
+          { nameKey: 'active', fallbackName: t.statuses.active, bg: '#dcfce7', color: '#15803d' },
+          { nameKey: 'vip', fallbackName: t.statuses.vip, bg: '#fef3c7', color: '#d97706' },
+          { nameKey: 'paused', fallbackName: t.statuses.paused, bg: '#fee2e2', color: '#dc2626' },
+          { nameKey: 'banned', fallbackName: t.statuses.banned, bg: '#f1f5f9', color: '#475569' }
+        ]);
+      }
+      if (responseStateOptions.length === 0) {
+        setResponseStateOptions([
+          { nameKey: 'pending', fallbackName: t.responseStates.pending, bg: '#fef3c7', color: '#d97706' },
+          { nameKey: 'agreed', fallbackName: t.responseStates.agreed, bg: '#dcfce7', color: '#15803d' },
+          { nameKey: 'closed', fallbackName: t.responseStates.closed, bg: '#fee2e2', color: '#dc2626' }
+        ]);
+      }
+      if (templates.length === 0) {
+        setTemplates([
+          { id: 1, titleKey: 't1Title', fallbackTitle: t.tpls.t1Title, textKey: 't1Text', fallbackText: t.tpls.t1Text },
+          { id: 2, titleKey: 't2Title', fallbackTitle: t.tpls.t2Title, textKey: 't2Text', fallbackText: t.tpls.t2Text },
+          { id: 3, titleKey: 't3Title', fallbackTitle: t.tpls.t3Title, textKey: 't3Text', fallbackText: t.tpls.t3Text },
+          { id: 4, titleKey: 't4Title', fallbackTitle: t.tpls.t4Title, textKey: 't4Text', fallbackText: t.tpls.t4Text }
+        ]);
+      }
+    }
+  }, [currentLang]);
 
   const loadDataFromCloud = async (licenseKey: string) => {
     if (!licenseKey) return;
@@ -824,9 +1022,6 @@ export default function EngaziaWhatsAppCRM() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const t = toolTranslations[currentLang] || toolTranslations.ar;
-  const isRtl = currentLang === 'ar';
-
   const handleActivateLicense = () => {
     if (!licenseKeyInput.trim()) return;
     const cleanKey = licenseKeyInput.trim();
@@ -860,19 +1055,6 @@ export default function EngaziaWhatsAppCRM() {
     saveToCloud({ responseStateOptions: updated });
   };
 
-  const saveTemplates = (updated: Template[]) => {
-    setTemplates(updated);
-    localStorage.setItem('engazia_templates_v2', JSON.stringify(updated));
-    saveToCloud({ templates: updated });
-  };
-
-  const saveDefaultDiscount = (code: string) => {
-    setDefaultDiscountCode(code);
-    localStorage.setItem('engazia_default_discount', code);
-    saveToCloud({ defaultDiscountCode: code });
-    showToast('تم تحديث كود الخصم الافتراضي بنجاح');
-  };
-
   const handleSaveStoreName = (name: string) => {
     setStoreName(name);
     localStorage.setItem('engazia_store_name', name);
@@ -897,7 +1079,7 @@ export default function EngaziaWhatsAppCRM() {
 
   const exportBackupJSON = () => {
     const backupData = {
-      storeName, storeLogo, defaultDiscountCode, contacts, categories, statusOptions, responseStateOptions, templates, version: '2.3'
+      storeName, storeLogo, defaultDiscountCode, contacts, categories, statusOptions, responseStateOptions, templates, version: '2.5'
     };
     const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -915,21 +1097,12 @@ export default function EngaziaWhatsAppCRM() {
     reader.onload = (event) => {
       try {
         const data = JSON.parse(event.target?.result as string);
-        let newContacts = contacts;
-        let newCats = categories;
-        let newStats = statusOptions;
-        let newResps = responseStateOptions;
-        let newTpls = templates;
-        let newNameStore = storeName;
-
-        if (data && data.contacts) { newContacts = data.contacts; setContacts(newContacts); localStorage.setItem('engazia_whatsapp_pro_crm_v16', JSON.stringify(newContacts)); }
-        if (data && data.categories) { newCats = data.categories; setCategories(newCats); localStorage.setItem('engazia_whatsapp_categories_v2', JSON.stringify(newCats)); }
-        if (data && data.statusOptions) { newStats = data.statusOptions; setStatusOptions(newStats); localStorage.setItem('engazia_whatsapp_statuses_v1', JSON.stringify(newStats)); }
-        if (data && data.responseStateOptions) { newResps = data.responseStateOptions; setResponseStateOptions(newResps); localStorage.setItem('engazia_whatsapp_response_states_v1', JSON.stringify(newResps)); }
-        if (data && data.templates) { newTpls = data.templates; setTemplates(newTpls); localStorage.setItem('engazia_templates_v2', JSON.stringify(newTpls)); }
-        if (data && data.storeName) { newNameStore = data.storeName; handleSaveStoreName(newNameStore); }
-
-        saveToCloud({ contacts: newContacts, categories: newCats, statusOptions: newStats, responseStateOptions: newResps, templates: newTpls, storeName: newNameStore });
+        if (data && data.contacts) { setContacts(data.contacts); localStorage.setItem('engazia_whatsapp_pro_crm_v16', JSON.stringify(data.contacts)); }
+        if (data && data.categories) { setCategories(data.categories); localStorage.setItem('engazia_whatsapp_categories_v2', JSON.stringify(data.categories)); }
+        if (data && data.statusOptions) { setStatusOptions(data.statusOptions); localStorage.setItem('engazia_whatsapp_statuses_v1', JSON.stringify(data.statusOptions)); }
+        if (data && data.responseStateOptions) { setResponseStateOptions(data.responseStateOptions); localStorage.setItem('engazia_whatsapp_response_states_v1', JSON.stringify(data.responseStateOptions)); }
+        if (data && data.templates) { setTemplates(data.templates); localStorage.setItem('engazia_templates_v2', JSON.stringify(data.templates)); }
+        if (data && data.storeName) { handleSaveStoreName(data.storeName); }
         showToast('♻ تم استعادة النسخة الاحتياطية بنجاح!');
       } catch (err) {
         showToast('❌ ملف النسخ الاحتياطي غير صالح.');
@@ -954,6 +1127,27 @@ export default function EngaziaWhatsAppCRM() {
   const isPhoneValid = (phone: string) => {
     const clean = toEnglishDigits(phone).replace(/\D/g, '');
     return clean.length >= 10;
+  };
+
+  const getCatDisplay = (catNameKey: string, fallback: string) => {
+    if (t.cats && t.cats[catNameKey]) return t.cats[catNameKey];
+    return fallback;
+  };
+
+  const getStatusDisplay = (stKey: string, fallback: string) => {
+    if (t.statuses && t.statuses[stKey]) return t.statuses[stKey];
+    return fallback;
+  };
+
+  const getRespDisplay = (respKey: string, fallback: string) => {
+    if (t.responseStates && t.responseStates[respKey]) return t.responseStates[respKey];
+    return fallback;
+  };
+
+  const getTplDisplay = (tpl: Template) => {
+    const title = (t.tpls && t.tpls[tpl.titleKey]) ? t.tpls[tpl.titleKey] : tpl.fallbackTitle;
+    const text = (t.tpls && t.tpls[tpl.textKey]) ? t.tpls[tpl.textKey] : tpl.fallbackText;
+    return { title, text };
   };
 
   const updateLastContact = (id: string, customNote?: string) => {
@@ -1024,9 +1218,9 @@ export default function EngaziaWhatsAppCRM() {
       name: newName,
       phone: toEnglishDigits(formatPhone(newPhone)),
       orderNumber: toEnglishDigits(newOrderNumber || '#---'),
-      category: newCategory,
-      status: newStatus,
-      responseState: newResponseState,
+      category: newCategory || categories[0]?.fallbackName || '',
+      status: newStatus || statusOptions[0]?.fallbackName || '',
+      responseState: newResponseState || responseStateOptions[0]?.fallbackName || '',
       amount: toEnglishDigits(newAmount || '0'),
       note: newNote,
       date: enDate,
@@ -1058,44 +1252,39 @@ export default function EngaziaWhatsAppCRM() {
   const addCategory = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newCatName) return;
-    saveCategories([...categories, { name: newCatName, bg: newCatBg, color: newCatColor, isSale: newCatIsSale }]);
+    saveCategories([...categories, { nameKey: 'custom_' + Date.now(), fallbackName: newCatName, bg: newCatBg, color: newCatColor, isSale: newCatIsSale }]);
     setNewCatName('');
     showToast('🏷 تم إضافة التصنيف بنجاح');
   };
 
-  const deleteCategory = (catName: string) => {
-    if (categories.length <= 1) return showToast('⚠️ يجب أن يبقى تصنيف واحد على الأقل.');
-    if (window.confirm(`حذف التصنيف "${catName}"؟`)) {
-      saveCategories(categories.filter(c => c.name !== catName));
-      showToast('🗑 تم حذف التصنيف');
-    }
+  const deleteCategory = (fallbackName: string) => {
+    saveCategories(categories.filter(c => c.fallbackName !== fallbackName));
+    showToast('🗑 تم حذف التصنيف');
   };
 
   const addStatusOption = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newStatusName) return;
-    saveStatuses([...statusOptions, { name: newStatusName, bg: newStatusBg, color: newStatusColor }]);
+    saveStatuses([...statusOptions, { nameKey: 'custom_st_' + Date.now(), fallbackName: newStatusName, bg: newStatusBg, color: newStatusColor }]);
     setNewStatusName('');
     showToast('✨ تم إضافة الحالة بنجاح');
   };
 
-  const deleteStatusOption = (stName: string) => {
-    if (statusOptions.length <= 1) return showToast('⚠️ يجب أن تبقى حالة واحدة على الأقل.');
-    saveStatuses(statusOptions.filter(s => s.name !== stName));
+  const deleteStatusOption = (fallbackName: string) => {
+    saveStatuses(statusOptions.filter(s => s.fallbackName !== fallbackName));
     showToast('🗑️ تم حذف الحالة');
   };
 
   const addResponseStateOption = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newRespName) return;
-    saveResponseStates([...responseStateOptions, { name: newRespName, bg: newRespBg, color: newRespColor }]);
+    saveResponseStates([...responseStateOptions, { nameKey: 'custom_resp_' + Date.now(), fallbackName: newRespName, bg: newRespBg, color: newRespColor }]);
     setNewRespName('');
     showToast('✨ تم إضافة حالة الرد بنجاح');
   };
 
-  const deleteResponseStateOption = (respName: string) => {
-    if (responseStateOptions.length <= 1) return showToast('⚠️ يجب أن تبقى حالة رد واحدة على الأقل.');
-    saveResponseStates(responseStateOptions.filter(r => r.name !== respName));
+  const deleteResponseStateOption = (fallbackName: string) => {
+    saveResponseStates(responseStateOptions.filter(r => r.fallbackName !== fallbackName));
     showToast('🗑️ تم حذف حالة الرد');
   };
 
@@ -1112,11 +1301,12 @@ export default function EngaziaWhatsAppCRM() {
   const handleGenerateMessage = () => {
     const tpl = templates.find(t => t.id === activeTemplateId);
     if (!tpl) return;
-    let msg = tpl.text
-      .replace(/\[الاسم\]/g, customerName || 'عالمنا الكريم')
+    const resolvedTpl = getTplDisplay(tpl);
+    let msg = resolvedTpl.text
+      .replace(/\[الاسم\]/g, customerName || 'Customer')
       .replace(/\[الطلب\]/g, orderNumber || '---')
       .replace(/\[إضافي\]/g, extraInfo);
-    if (includeDiscount) msg += `\n\n🎁 كود خصم خاص لك: *${defaultDiscountCode}*`;
+    if (includeDiscount) msg += `\n\n🎁 Discount Code: *${defaultDiscountCode}*`;
     setGeneratedMsg(msg);
   };
 
@@ -1149,7 +1339,7 @@ export default function EngaziaWhatsAppCRM() {
   };
 
   const timeFilteredContacts = filterByDateRange(contacts);
-  const saleCategoriesNames = categories.filter(cat => cat.isSale).map(cat => cat.name);
+  const saleCategoriesNames = categories.filter(cat => cat.isSale).map(cat => getCatDisplay(cat.nameKey, cat.fallbackName));
   const totalValidSales = timeFilteredContacts
     .filter(c => saleCategoriesNames.includes(c.category))
     .reduce((acc, c) => acc + (Number(c.amount) || 0), 0);
@@ -1161,7 +1351,6 @@ export default function EngaziaWhatsAppCRM() {
   });
 
   const matchingCustomers = customerName.trim() === '' ? [] : contacts.filter(c => c.name.toLowerCase().includes(customerName.toLowerCase()));
-  const broadcastList = contacts.filter(c => c.category === broadcastCat);
 
   return (
     <div className="app-container" style={{ direction: isRtl ? 'rtl' : 'ltr', textAlign: isRtl ? 'right' : 'left' }}>
@@ -1192,7 +1381,6 @@ export default function EngaziaWhatsAppCRM() {
         .stat-title { font-size: 13px; color: #64748b; font-weight: 700; }
         .section-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 16px; padding: 25px; margin-bottom: 20px; text-align: ${isRtl ? 'right' : 'left'}; }
         .section-title { font-size: 16px; font-weight: 900; color: #1e293b; margin-bottom: 5px; display: flex; align-items: center; gap: 8px; }
-        .section-desc { font-size: 13px; color: #64748b; margin-bottom: 20px; font-weight: 500; }
         .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
         .form-group { margin-bottom: 15px; position: relative; text-align: ${isRtl ? 'right' : 'left'}; }
         .form-group label { display: block; font-size: 12px; font-weight: 800; color: #475569; margin-bottom: 8px; }
@@ -1230,20 +1418,7 @@ export default function EngaziaWhatsAppCRM() {
         .timeline-list { max-height: 150px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
         .timeline-item { background: #f8fafc; border: 1px solid #e2e8f0; padding: 8px 12px; border-radius: 8px; font-size: 12px; display: flex; justify-content: space-between; align-items: center; }
         .settings-creation-box { display: flex; gap: 15px; align-items: flex-end; background: #fff; padding: 20px; border-radius: 12px; border: 2px dashed #cbd5e1; margin-bottom: 25px; flex-wrap: wrap; }
-        .color-picker { padding: 2px; height: 44px; cursor: pointer; }
-        .tags-list-container { display: flex; flex-direction: column; gap: 10px; }
-        .tag-row { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 12px 20px; border-radius: 12px; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 15px; }
-        .tag-input-clean { border: 1px solid transparent; background: transparent; font-weight: 800; font-size: 14px; max-width: 200px; padding: 8px 12px; border-radius: 8px; text-align: ${isRtl ? 'right' : 'left'}; }
-        .tag-controls { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
-        .color-group { display: flex; align-items: center; gap: 8px; }
-        .color-label { font-size: 12px; color: #64748b; font-weight: 700; }
         .color-picker-sm { width: 34px; height: 34px; border-radius: 8px; cursor: pointer; border: 1px solid #e2e8f0; padding: 0; }
-        .template-creation-box { background: #fff; padding: 20px; border-radius: 12px; border: 2px dashed #cbd5e1; margin-bottom: 25px; }
-        .template-card-view { background: #fff; border: 1px solid #e2e8f0; padding: 20px; border-radius: 16px; display: flex; flex-direction: column; gap: 12px; }
-        .template-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px; }
-        .template-title { font-weight: 900; color: #1e293b; font-size: 14px; }
-        .template-body { font-size: 13px; color: #475569; white-space: pre-wrap; line-height: 1.7; }
-        .btn-icon { padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 800; cursor: pointer; border: none; display: flex; align-items: center; gap: 5px; }
         .suggestions-box { position: absolute; top: 100%; right: 0; left: 0; background: #fff; border: 1px solid #cbd5e1; border-radius: 10px; max-height: 180px; overflow-y: auto; z-index: 10; box-shadow: 0 10px 25px rgba(0,0,0,0.1); margin-top: 5px; text-align: ${isRtl ? 'right' : 'left'}; }
         .suggestion-item { padding: 10px 15px; font-size: 13px; font-weight: 700; cursor: pointer; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; }
       `}</style>
@@ -1274,19 +1449,28 @@ export default function EngaziaWhatsAppCRM() {
               <div className="modal-item">
                 <span className="modal-item-label">{t.categoryLabel}</span>
                 <select className="modal-edit-input" value={selectedCustomer.category} onChange={e => updateCustomerField(selectedCustomer.id, 'category', e.target.value)}>
-                  {categories.map(cat => <option key={cat.name} value={cat.name}>{cat.name}</option>)}
+                  {categories.map(cat => {
+                    const catName = getCatDisplay(cat.nameKey, cat.fallbackName);
+                    return <option key={cat.nameKey || cat.fallbackName} value={catName}>{catName}</option>;
+                  })}
                 </select>
               </div>
               <div className="modal-item">
                 <span className="modal-item-label">{t.statusLabel}</span>
-                <select className="modal-edit-input" value={selectedCustomer.status || 'نشط'} onChange={e => updateCustomerField(selectedCustomer.id, 'status', e.target.value)}>
-                  {statusOptions.map(st => <option key={st.name} value={st.name}>{st.name}</option>)}
+                <select className="modal-edit-input" value={selectedCustomer.status} onChange={e => updateCustomerField(selectedCustomer.id, 'status', e.target.value)}>
+                  {statusOptions.map(st => {
+                    const stName = getStatusDisplay(st.nameKey, st.fallbackName);
+                    return <option key={st.nameKey || st.fallbackName} value={stName}>{stName}</option>;
+                  })}
                 </select>
               </div>
               <div className="modal-item">
                 <span className="modal-item-label">{t.responseStateLabel}</span>
-                <select className="modal-edit-input" value={selectedCustomer.responseState || 'بانتظار الرد'} onChange={e => updateCustomerField(selectedCustomer.id, 'responseState', e.target.value)}>
-                  {responseStateOptions.map(resp => <option key={resp.name} value={resp.name}>{resp.name}</option>)}
+                <select className="modal-edit-input" value={selectedCustomer.responseState} onChange={e => updateCustomerField(selectedCustomer.id, 'responseState', e.target.value)}>
+                  {responseStateOptions.map(resp => {
+                    const respName = getRespDisplay(resp.nameKey, resp.fallbackName);
+                    return <option key={resp.nameKey || resp.fallbackName} value={respName}>{respName}</option>;
+                  })}
                 </select>
               </div>
               <div className="modal-item">
@@ -1391,12 +1575,15 @@ export default function EngaziaWhatsAppCRM() {
                 <div className="stat-title">{t.totalCustomers}</div>
                 <div className="stat-num">{timeFilteredContacts.length}</div>
               </div>
-              {categories.map(cat => (
-                <div key={cat.name} className="stat-card" style={{ borderBottom: `4px solid ${cat.color}` }}>
-                  <div className="stat-title">{cat.name}</div>
-                  <div className="stat-num">{timeFilteredContacts.filter(c => c.category === cat.name).length}</div>
-                </div>
-              ))}
+              {categories.map(cat => {
+                const catName = getCatDisplay(cat.nameKey, cat.fallbackName);
+                return (
+                  <div key={cat.nameKey || cat.fallbackName} className="stat-card" style={{ borderBottom: `4px solid ${cat.color}` }}>
+                    <div className="stat-title">{catName}</div>
+                    <div className="stat-num">{timeFilteredContacts.filter(c => c.category === catName).length}</div>
+                  </div>
+                );
+              })}
             </div>
 
             <div className="section-title" style={{ marginTop: '30px' }}>{t.latestCustomers}</div>
@@ -1415,14 +1602,16 @@ export default function EngaziaWhatsAppCRM() {
                 </thead>
                 <tbody>
                   {timeFilteredContacts.slice(0, 5).map(c => {
-                    const respConf = responseStateOptions.find(r => r.name === c.responseState);
+                    const matchedResp = responseStateOptions.find(r => getRespDisplay(r.nameKey, r.fallbackName) === c.responseState);
+                    const matchedCat = categories.find(cat => getCatDisplay(cat.nameKey, cat.fallbackName) === c.category);
+                    const matchedSt = statusOptions.find(st => getStatusDisplay(st.nameKey, st.fallbackName) === c.status);
                     return (
                       <tr key={c.id}>
                         <td><span style={{ fontWeight: 800, color: '#4f46e5', cursor: 'pointer' }} onClick={() => setSelectedCustomer(c)}>{c.name}</span></td>
                         <td style={{direction: 'ltr', textAlign: 'left'}}>{c.orderNumber}</td>
-                        <td><span className="badge" style={{ background: categories.find(cat => cat.name === c.category)?.bg || '#eee', color: categories.find(cat => cat.name === c.category)?.color || '#000' }}>{c.category}</span></td>
-                        <td><span className="badge" style={{ background: statusOptions.find(st => st.name === c.status)?.bg || '#eee', color: statusOptions.find(st => st.name === c.status)?.color || '#000' }}>{c.status || 'نشط'}</span></td>
-                        <td><span className="badge" style={{ background: respConf?.bg || '#fef3c7', color: respConf?.color || '#d97706' }}>{c.responseState || 'بانتظار الرد'}</span></td>
+                        <td><span className="badge" style={{ background: matchedCat?.bg || '#eee', color: matchedCat?.color || '#000' }}>{c.category}</span></td>
+                        <td><span className="badge" style={{ background: matchedSt?.bg || '#eee', color: matchedSt?.color || '#000' }}>{c.status}</span></td>
+                        <td><span className="badge" style={{ background: matchedResp?.bg || '#fef3c7', color: matchedResp?.color || '#d97706' }}>{c.responseState}</span></td>
                         <td style={{ color: '#4f46e5', fontSize: '11px', fontWeight: 700, direction: 'ltr', textAlign: 'left' }}>{c.lastContactDate || 'لم يتم'}</td>
                         <td>
                           <div style={{ display: 'flex', gap: '4px' }}>
@@ -1448,13 +1637,13 @@ export default function EngaziaWhatsAppCRM() {
               <div className="stat-card" style={{ textAlign: isRtl ? 'right' : 'left', padding: '25px' }}>
                 <div className="stat-title" style={{ marginBottom: '10px' }}>{t.dealSuccessRate}</div>
                 <div className="stat-num" style={{ color: '#10b981', textAlign: isRtl ? 'right' : 'left' }}>
-                  {timeFilteredContacts.length > 0 ? ((timeFilteredContacts.filter(c => c.responseState === 'تم الاتفاق').length / timeFilteredContacts.length) * 100).toFixed(1) : 0}%
+                  {timeFilteredContacts.length > 0 ? ((timeFilteredContacts.filter(c => c.responseState === getRespDisplay('agreed', 'تم الاتفاق')).length / timeFilteredContacts.length) * 100).toFixed(1) : 0}%
                 </div>
               </div>
               <div className="stat-card" style={{ textAlign: isRtl ? 'right' : 'left', padding: '25px' }}>
                 <div className="stat-title" style={{ marginBottom: '10px' }}>{t.pendingResponses}</div>
                 <div className="stat-num" style={{ color: '#d97706', textAlign: isRtl ? 'right' : 'left' }}>
-                  {timeFilteredContacts.filter(c => c.responseState === 'بانتظار الرد' || !c.responseState).length}
+                  {timeFilteredContacts.filter(c => c.responseState === getRespDisplay('pending', 'بانتظار الرد') || !c.responseState).length}
                 </div>
               </div>
               <div className="stat-card" style={{ textAlign: isRtl ? 'right' : 'left', padding: '25px' }}>
@@ -1469,12 +1658,13 @@ export default function EngaziaWhatsAppCRM() {
               <div className="section-title">{t.categoryDistribution}</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginTop: '15px' }}>
                 {categories.map(cat => {
-                  const count = timeFilteredContacts.filter(c => c.category === cat.name).length;
+                  const catName = getCatDisplay(cat.nameKey, cat.fallbackName);
+                  const count = timeFilteredContacts.filter(c => c.category === catName).length;
                   const pct = timeFilteredContacts.length > 0 ? (count / timeFilteredContacts.length) * 100 : 0;
                   return (
-                    <div key={cat.name}>
+                    <div key={cat.nameKey || cat.fallbackName}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: 800, marginBottom: '5px' }}>
-                        <span>{cat.name} ({count})</span>
+                        <span>{catName} ({count})</span>
                         <span dir="ltr">{pct.toFixed(1)}%</span>
                       </div>
                       <div style={{ width: '100%', height: '10px', background: '#e2e8f0', borderRadius: '5px', overflow: 'hidden' }}>
@@ -1501,23 +1691,32 @@ export default function EngaziaWhatsAppCRM() {
                   <div className="form-group">
                     <label>{t.categoryLabel}</label>
                     <select className="form-control" value={newCategory} onChange={e => setNewCategory(e.target.value)}>
-                      {categories.map(cat => <option key={cat.name} value={cat.name}>{cat.name}</option>)}
+                      {categories.map(cat => {
+                        const catName = getCatDisplay(cat.nameKey, cat.fallbackName);
+                        return <option key={cat.nameKey || cat.fallbackName} value={catName}>{catName}</option>;
+                      })}
                     </select>
                   </div>
                   <div className="form-group">
                     <label>{t.statusLabel}</label>
                     <select className="form-control" value={newStatus} onChange={e => setNewStatus(e.target.value)}>
-                      {statusOptions.map(st => <option key={st.name} value={st.name}>{st.name}</option>)}
+                      {statusOptions.map(st => {
+                        const stName = getStatusDisplay(st.nameKey, st.fallbackName);
+                        return <option key={st.nameKey || st.fallbackName} value={stName}>{stName}</option>;
+                      })}
                     </select>
                   </div>
                   <div className="form-group">
                     <label>{t.responseStateLabel}</label>
                     <select className="form-control" value={newResponseState} onChange={e => setNewResponseState(e.target.value)}>
-                      {responseStateOptions.map(resp => <option key={resp.name} value={resp.name}>{resp.name}</option>)}
+                      {responseStateOptions.map(resp => {
+                        const respName = getRespDisplay(resp.nameKey, resp.fallbackName);
+                        return <option key={resp.nameKey || resp.fallbackName} value={respName}>{respName}</option>;
+                      })}
                     </select>
                   </div>
                   <div className="form-group"><label>{t.amountLabel} ({currentCurrency})</label><input type="text" className="form-control input-ltr" value={newAmount} onChange={e => setNewAmount(toEnglishDigits(e.target.value))} placeholder="0" /></div>
-                  <div className="form-group" style={{ gridColumn: '1 / -1' }}><label>{t.noteLabel}</label><input type="text" className="form-control" value={newNote} onChange={e => setNewNote(e.target.value)} placeholder="ملاحظة..." /></div>
+                  <div className="form-group" style={{ gridColumn: '1 / -1' }}><label>{t.noteLabel}</label><input type="text" className="form-control" value={newNote} onChange={e => setNewNote(e.target.value)} placeholder="..." /></div>
                 </div>
                 <button type="submit" className="btn-main" style={{ width: 'auto' }}>{t.saveBtn}</button>
               </form>
@@ -1536,12 +1735,15 @@ export default function EngaziaWhatsAppCRM() {
               </div>
 
               <div className="filter-chips">
-                <button className={`chip-btn ${filterCategory === 'all' ? 'active' : ''}`} onClick={() => setFilterCategory('all')}>جميع التصنيفات ({timeFilteredContacts.length})</button>
-                {categories.map(cat => (
-                  <button key={cat.name} className={`chip-btn ${filterCategory === cat.name ? 'active' : ''}`} onClick={() => setFilterCategory(cat.name)}>
-                    {cat.name} ({timeFilteredContacts.filter(c => c.category === cat.name).length})
-                  </button>
-                ))}
+                <button className={`chip-btn ${filterCategory === 'all' ? 'active' : ''}`} onClick={() => setFilterCategory('all')}>All ({timeFilteredContacts.length})</button>
+                {categories.map(cat => {
+                  const catName = getCatDisplay(cat.nameKey, cat.fallbackName);
+                  return (
+                    <button key={cat.nameKey || cat.fallbackName} className={`chip-btn ${filterCategory === catName ? 'active' : ''}`} onClick={() => setFilterCategory(catName)}>
+                      {catName} ({timeFilteredContacts.filter(c => c.category === catName).length})
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
@@ -1569,17 +1771,26 @@ export default function EngaziaWhatsAppCRM() {
                       <td><input type="text" className="cell-input input-ltr" value={c.orderNumber} onChange={e => updateCustomerField(c.id, 'orderNumber', e.target.value)} /></td>
                       <td>
                         <select className="cell-input" value={c.category} onChange={e => updateCustomerField(c.id, 'category', e.target.value)}>
-                          {categories.map(cat => <option key={cat.name} value={cat.name}>{cat.name}</option>)}
+                          {categories.map(cat => {
+                            const catName = getCatDisplay(cat.nameKey, cat.fallbackName);
+                            return <option key={cat.nameKey || cat.fallbackName} value={catName}>{catName}</option>;
+                          })}
                         </select>
                       </td>
                       <td>
-                        <select className="cell-input" value={c.status || 'نشط'} onChange={e => updateCustomerField(c.id, 'status', e.target.value)}>
-                          {statusOptions.map(st => <option key={st.name} value={st.name}>{st.name}</option>)}
+                        <select className="cell-input" value={c.status} onChange={e => updateCustomerField(c.id, 'status', e.target.value)}>
+                          {statusOptions.map(st => {
+                            const stName = getStatusDisplay(st.nameKey, st.fallbackName);
+                            return <option key={st.nameKey || st.fallbackName} value={stName}>{stName}</option>;
+                          })}
                         </select>
                       </td>
                       <td>
-                        <select className="cell-input" value={c.responseState || 'بانتظار الرد'} onChange={e => updateCustomerField(c.id, 'responseState', e.target.value)}>
-                          {responseStateOptions.map(resp => <option key={resp.name} value={resp.name}>{resp.name}</option>)}
+                        <select className="cell-input" value={c.responseState} onChange={e => updateCustomerField(c.id, 'responseState', e.target.value)}>
+                          {responseStateOptions.map(resp => {
+                            const respName = getRespDisplay(resp.nameKey, resp.fallbackName);
+                            return <option key={resp.nameKey || resp.fallbackName} value={respName}>{respName}</option>;
+                          })}
                         </select>
                       </td>
                       <td><input type="text" className="cell-input input-ltr" value={c.amount} onChange={e => updateCustomerField(c.id, 'amount', e.target.value)} /></td>
@@ -1634,11 +1845,14 @@ export default function EngaziaWhatsAppCRM() {
                 </>
               ) : (
                 <>
-                  <div className="section-title">1. استهداف شريحة من العملاء</div>
+                  <div className="section-title">1. Broadcast Target Segment</div>
                   <div className="form-group" style={{ maxWidth: '400px' }}>
-                    <label>اختر التصنيف المستهدف بالحملة:</label>
-                    <select className="form-control" value={broadcastCat} onChange={e => { setBroadcastCat(e.target.value); setBroadcastIndex(0); }}>
-                      {categories.map(cat => <option key={cat.name} value={cat.name}>{cat.name} ({contacts.filter(c => c.category === cat.name).length} عميل)</option>)}
+                    <label>Select Target Category:</label>
+                    <select className="form-control" value={broadcastCat} onChange={e => setBroadcastCat(e.target.value)}>
+                      {categories.map(cat => {
+                        const catName = getCatDisplay(cat.nameKey, cat.fallbackName);
+                        return <option key={cat.nameKey || cat.fallbackName} value={catName}>{catName} ({contacts.filter(c => c.category === catName).length})</option>;
+                      })}
                     </select>
                   </div>
                 </>
@@ -1648,11 +1862,14 @@ export default function EngaziaWhatsAppCRM() {
             <div className="section-box">
               <div className="section-title">{t.selectTemplateTitle}</div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '12px', marginBottom: '20px' }}>
-                {templates.map(tpl => (
-                  <div key={tpl.id} onClick={() => setActiveTemplateId(tpl.id)} style={{ padding: '12px 10px', border: '2px solid #e2e8f0', borderRadius: '12px', cursor: 'pointer', textAlign: 'center', fontWeight: 800, fontSize: '12px', color: activeTemplateId === tpl.id ? '#4f46e5' : '#64748b', background: activeTemplateId === tpl.id ? '#eef2ff' : '#fff' }}>
-                    {tpl.title}
-                  </div>
-                ))}
+                {templates.map(tpl => {
+                  const resolved = getTplDisplay(tpl);
+                  return (
+                    <div key={tpl.id} onClick={() => setActiveTemplateId(tpl.id)} style={{ padding: '12px 10px', border: '2px solid #e2e8f0', borderRadius: '12px', cursor: 'pointer', textAlign: 'center', fontWeight: 800, fontSize: '12px', color: activeTemplateId === tpl.id ? '#4f46e5' : '#64748b', background: activeTemplateId === tpl.id ? '#eef2ff' : '#fff' }}>
+                      {resolved.title}
+                    </div>
+                  );
+                })}
               </div>
               <button className="btn-main" style={{ width: '100%' }} onClick={handleGenerateMessage}>{t.generateMsgBtn}</button>
               {generatedMsg && (
@@ -1683,20 +1900,93 @@ export default function EngaziaWhatsAppCRM() {
               </div>
             </div>
 
+            {/* تخصيص تصنيفات العملاء */}
+            <div className="section-box">
+              <div className="section-title">{t.customizeCatTitle}</div>
+              <form onSubmit={addCategory} className="settings-creation-box">
+                <div className="form-group" style={{ flex: 2, margin: 0 }}>
+                  <label>New Category Name</label>
+                  <input type="text" className="form-control" placeholder="Type category..." value={newCatName} onChange={e => setNewCatName(e.target.value)} />
+                </div>
+                <div className="form-group" style={{ margin: 0 }}>
+                  <label>Color</label>
+                  <input type="color" className="form-control color-picker-sm" value={newCatBg} onChange={e => setNewCatBg(e.target.value)} />
+                </div>
+                <button type="submit" className="btn-main" style={{ padding: '12px 20px' }}>➕ Add Category</button>
+              </form>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {categories.map(cat => {
+                  const catName = getCatDisplay(cat.nameKey, cat.fallbackName);
+                  return (
+                    <div key={cat.nameKey || cat.fallbackName} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fff', padding: '12px 20px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                      <span className="badge" style={{ background: cat.bg, color: cat.color, fontSize: '13px', padding: '6px 14px' }}>{catName}</span>
+                      <button className="btn-sm btn-danger" onClick={() => deleteCategory(cat.fallbackName)}>Delete</button>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* تخصيص حالات العميل */}
+            <div className="section-box">
+              <div className="section-title">{t.customizeStatusTitle}</div>
+              <form onSubmit={addStatusOption} className="settings-creation-box">
+                <div className="form-group" style={{ flex: 2, margin: 0 }}>
+                  <label>New Customer Status</label>
+                  <input type="text" className="form-control" placeholder="Type status..." value={newStatusName} onChange={e => setNewStatusName(e.target.value)} />
+                </div>
+                <div className="form-group" style={{ margin: 0 }}>
+                  <label>Color</label>
+                  <input type="color" className="form-control color-picker-sm" value={newStatusBg} onChange={e => setNewStatusBg(e.target.value)} />
+                </div>
+                <button type="submit" className="btn-main" style={{ padding: '12px 20px' }}>➕ Add Status</button>
+              </form>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {statusOptions.map(st => {
+                  const stName = getStatusDisplay(st.nameKey, st.fallbackName);
+                  return (
+                    <div key={st.nameKey || st.fallbackName} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fff', padding: '12px 20px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                      <span className="badge" style={{ background: st.bg, color: st.color, fontSize: '13px', padding: '6px 14px' }}>{stName}</span>
+                      <button className="btn-sm btn-danger" onClick={() => deleteStatusOption(st.fallbackName)}>Delete</button>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* تخصيص حالات الرد */}
+            <div className="section-box">
+              <div className="section-title">{t.customizeRespTitle}</div>
+              <form onSubmit={addResponseStateOption} className="settings-creation-box">
+                <div className="form-group" style={{ flex: 2, margin: 0 }}>
+                  <label>New Response State</label>
+                  <input type="text" className="form-control" placeholder="Type response state..." value={newRespName} onChange={e => setNewRespName(e.target.value)} />
+                </div>
+                <div className="form-group" style={{ margin: 0 }}>
+                  <label>Color</label>
+                  <input type="color" className="form-control color-picker-sm" value={newRespBg} onChange={e => setNewRespBg(e.target.value)} />
+                </div>
+                <button type="submit" className="btn-main" style={{ padding: '12px 20px' }}>➕ Add Response State</button>
+              </form>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {responseStateOptions.map(resp => {
+                  const respName = getRespDisplay(resp.nameKey, resp.fallbackName);
+                  return (
+                    <div key={resp.nameKey || resp.fallbackName} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fff', padding: '12px 20px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                      <span className="badge" style={{ background: resp.bg, color: resp.color, fontSize: '13px', padding: '6px 14px' }}>{respName}</span>
+                      <button className="btn-sm btn-danger" onClick={() => deleteResponseStateOption(resp.fallbackName)}>Delete</button>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
             <div className="section-box" style={{ background: '#f0fdf4', borderColor: '#bbf7d0' }}>
               <div className="section-title" style={{ color: '#166534' }}>{t.backupBox}</div>
               <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
                 <button className="btn-main" style={{ background: '#10b981' }} onClick={exportBackupJSON}>{t.downloadBackup}</button>
                 <button className="btn-main" style={{ background: '#fff', color: '#166534', border: '1px solid #bbf7d0' }} onClick={() => restoreFileRef.current?.click()}>{t.restoreBackup}</button>
                 <input type="file" ref={restoreFileRef} onChange={importBackupJSON} accept=".json" style={{ display: 'none' }} />
-              </div>
-            </div>
-
-            <div className="section-box">
-              <div className="section-title">{t.generalSysSettings}</div>
-              <div className="form-group" style={{ maxWidth: '400px', margin: 0 }}>
-                <label>{t.defaultDiscountLabel}</label>
-                <input type="text" className="form-control" value={defaultDiscountCode} onChange={e => saveDefaultDiscount(e.target.value)} />
               </div>
             </div>
           </div>
