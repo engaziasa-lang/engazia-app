@@ -2,733 +2,707 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { supabase } from '@/lib/supabaseClient';
 
 interface SavedProduct {
-  id: string;
-  name: string;
-  sellingPrice: number;
-  productCost: number;
-  shippingCost: number;
-  adSpend: number;
-  paymentFeePercent: number;
-  paymentFeeFixed: number;
-  taxPercent: number;
-  isTaxInclusive: boolean;
-  returnRate: number;
-  currency: string;
-  
-  netProfit: number;
-  profitMargin: number;
-  maxCPA: number;
-  breakEvenROAS: number;
-  roi: number;
+  id: string;
+  name: string;
+  sellingPrice: number;
+  productCost: number;
+  shippingCost: number;
+  adSpend: number;
+  paymentFeePercent: number;
+  paymentFeeFixed: number;
+  taxPercent: number;
+  isTaxInclusive: boolean;
+  returnRate: number;
+  currency: string;
+  
+  netProfit: number;
+  profitMargin: number;
+  maxCPA: number;
+  breakEvenROAS: number;
+  roi: number;
 }
 
 export default function ProfitCalculator() {
-  const [productName, setProductName] = useState<string>('');
-  const [productCost, setProductCost] = useState<number | ''>('');
-  const [sellingPrice, setSellingPrice] = useState<number | ''>('');
-  const [shippingCost, setShippingCost] = useState<number | ''>('');
-  const [adSpend, setAdSpend] = useState<number | ''>('');
-  
-  // حفظ واسترجاع العملة المفضلة للتاجر
-  const [currency, setCurrency] = useState<string>('ر.س');
+  const [productName, setProductName] = useState<string>('');
+  const [productCost, setProductCost] = useState<number | ''>('');
+  const [sellingPrice, setSellingPrice] = useState<number | ''>('');
+  const [shippingCost, setShippingCost] = useState<number | ''>('');
+  const [adSpend, setAdSpend] = useState<number | ''>('');
+  
+  // حفظ واسترجاع العملة المفضلة للتاجر
+  const [currency, setCurrency] = useState<string>('ر.س');
 
-  const [paymentFeePercent, setPaymentFeePercent] = useState<number>(2.5);
-  const [paymentFeeFixed, setPaymentFeeFixed] = useState<number>(1);
-  const [taxPercent, setTaxPercent] = useState<number>(15);
-  const [isTaxInclusive, setIsTaxInclusive] = useState<boolean>(true);
-  const [returnRate, setReturnRate] = useState<number>(10);
+  const [paymentFeePercent, setPaymentFeePercent] = useState<number>(2.5);
+  const [paymentFeeFixed, setPaymentFeeFixed] = useState<number>(1);
+  const [taxPercent, setTaxPercent] = useState<number>(15);
+  const [isTaxInclusive, setIsTaxInclusive] = useState<boolean>(true);
+  const [returnRate, setReturnRate] = useState<number>(10);
 
-  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [searchQuery, setSearchQuery] = useState<string>('');
 
-  const [results, setResults] = useState({
-    paymentFees: 0,
-    taxAmount: 0,
-    returnsCost: 0,
-    totalCostWithoutAds: 0,
-    maxCPA: 0, 
-    breakEvenROAS: 0, 
-    netProfit: 0,
-    profitMargin: 0,
-    roi: 0,
-  });
+  const [results, setResults] = useState({
+    paymentFees: 0,
+    taxAmount: 0,
+    returnsCost: 0,
+    totalCostWithoutAds: 0,
+    maxCPA: 0, 
+    breakEvenROAS: 0, 
+    netProfit: 0,
+    profitMargin: 0,
+    roi: 0,
+  });
 
-  const [savedProducts, setSavedProducts] = useState<SavedProduct[]>([]);
+  const [savedProducts, setSavedProducts] = useState<SavedProduct[]>([]);
 
-  useEffect(() => {
-    // استرجاع العملة المحفوظة مسبقاً
-    const savedCurr = localStorage.getItem('engazia_preferred_currency');
-    if (savedCurr) setCurrency(savedCurr);
+  useEffect(() => {
+    // استرجاع العملة المحفوظة مسبقاً
+    const savedCurr = localStorage.getItem('engazia_preferred_currency');
+    if (savedCurr) setCurrency(savedCurr);
 
-    const saved = localStorage.getItem('engazia_profit_products_v10');
-    if (saved) {
-      try { setSavedProducts(JSON.parse(saved)); } catch (e) { console.error(e); }
-    }
-  }, []);
+    const saved = localStorage.getItem('engazia_profit_products_v10');
+    if (saved) {
+      try { setSavedProducts(JSON.parse(saved)); } catch (e) { console.error(e); }
+    }
+  }, []);
 
-  // دالة تغيير وحفظ العملة في التخزين المحلي
-  const handleCurrencyChange = (newCurr: string) => {
-    setCurrency(newCurr);
-    localStorage.setItem('engazia_preferred_currency', newCurr);
-  };
+  // دالة تغيير وحفظ العملة في التخزين المحلي
+  const handleCurrencyChange = (newCurr: string) => {
+    setCurrency(newCurr);
+    localStorage.setItem('engazia_preferred_currency', newCurr);
+  };
 
-  useEffect(() => {
-    calculateProfit();
-  }, [productCost, sellingPrice, shippingCost, adSpend, paymentFeePercent, paymentFeeFixed, taxPercent, isTaxInclusive, returnRate]);
+  useEffect(() => {
+    calculateProfit();
+  }, [productCost, sellingPrice, shippingCost, adSpend, paymentFeePercent, paymentFeeFixed, taxPercent, isTaxInclusive, returnRate]);
 
-  const calculateProfit = () => {
-    const sPrice = Number(sellingPrice) || 0;
-    const pCost = Number(productCost) || 0;
-    const sCost = Number(shippingCost) || 0;
-    const aSpend = Number(adSpend) || 0;
+  const calculateProfit = () => {
+    const sPrice = Number(sellingPrice) || 0;
+    const pCost = Number(productCost) || 0;
+    const sCost = Number(shippingCost) || 0;
+    const aSpend = Number(adSpend) || 0;
 
-    if (sPrice <= 0) {
-      setResults({ paymentFees: 0, taxAmount: 0, returnsCost: 0, totalCostWithoutAds: 0, maxCPA: 0, breakEvenROAS: 0, netProfit: 0, profitMargin: 0, roi: 0 });
-      return;
-    }
+    if (sPrice <= 0) {
+      setResults({ paymentFees: 0, taxAmount: 0, returnsCost: 0, totalCostWithoutAds: 0, maxCPA: 0, breakEvenROAS: 0, netProfit: 0, profitMargin: 0, roi: 0 });
+      return;
+    }
 
-    const paymentFees = (sPrice * (paymentFeePercent / 100)) + paymentFeeFixed;
-    const taxValue = taxPercent / 100;
-    const taxAmount = isTaxInclusive 
-      ? sPrice - (sPrice / (1 + taxValue)) 
-      : sPrice * taxValue;
-    const returnsCost = (pCost + sCost) * (returnRate / 100);
-    const totalCostWithoutAds = pCost + sCost + paymentFees + taxAmount + returnsCost;
-    const maxCPA = sPrice - totalCostWithoutAds;
-    const breakEvenROAS = maxCPA > 0 ? (sPrice / maxCPA) : 0;
-    const netProfit = maxCPA - aSpend;
-    const profitMargin = (netProfit / sPrice) * 100;
-    const totalInvestment = pCost + sCost + aSpend;
-    const roi = totalInvestment > 0 ? (netProfit / totalInvestment) * 100 : 0;
+    const paymentFees = (sPrice * (paymentFeePercent / 100)) + paymentFeeFixed;
+    const taxValue = taxPercent / 100;
+    const taxAmount = isTaxInclusive 
+      ? sPrice - (sPrice / (1 + taxValue)) 
+      : sPrice * taxValue;
+    const returnsCost = (pCost + sCost) * (returnRate / 100);
+    const totalCostWithoutAds = pCost + sCost + paymentFees + taxAmount + returnsCost;
+    const maxCPA = sPrice - totalCostWithoutAds;
+    const breakEvenROAS = maxCPA > 0 ? (sPrice / maxCPA) : 0;
+    const netProfit = maxCPA - aSpend;
+    const profitMargin = (netProfit / sPrice) * 100;
+    const totalInvestment = pCost + sCost + aSpend;
+    const roi = totalInvestment > 0 ? (netProfit / totalInvestment) * 100 : 0;
 
-    setResults({ paymentFees, taxAmount, returnsCost, totalCostWithoutAds, maxCPA, breakEvenROAS, netProfit, profitMargin, roi });
-  };
+    setResults({ paymentFees, taxAmount, returnsCost, totalCostWithoutAds, maxCPA, breakEvenROAS, netProfit, profitMargin, roi });
+  };
 
-  const saveProduct = async () => {
-    if (!productName.trim() || !sellingPrice) {
-      alert('الرجاء إدخال اسم المنتج وسعر البيع على الأقل للحفظ.');
-      return;
-    }
+  const saveProduct = () => {
+    if (!productName.trim() || !sellingPrice) {
+      alert('الرجاء إدخال اسم المنتج وسعر البيع على الأقل للحفظ.');
+      return;
+    }
 
-    const newProduct: SavedProduct = {
-      id: Date.now().toString(),
-      name: productName,
-      sellingPrice: Number(sellingPrice),
-      productCost: Number(productCost) || 0,
-      shippingCost: Number(shippingCost) || 0,
-      adSpend: Number(adSpend) || 0,
-      paymentFeePercent, paymentFeeFixed, taxPercent, isTaxInclusive, returnRate,
-      currency,
-      netProfit: results.netProfit, profitMargin: results.profitMargin, maxCPA: results.maxCPA, breakEvenROAS: results.breakEvenROAS, roi: results.roi
-    };
+    const newProduct: SavedProduct = {
+      id: Date.now().toString(),
+      name: productName,
+      sellingPrice: Number(sellingPrice),
+      productCost: Number(productCost) || 0,
+      shippingCost: Number(shippingCost) || 0,
+      adSpend: Number(adSpend) || 0,
+      paymentFeePercent, paymentFeeFixed, taxPercent, isTaxInclusive, returnRate,
+      currency,
+      netProfit: results.netProfit, profitMargin: results.profitMargin, maxCPA: results.maxCPA, breakEvenROAS: results.breakEvenROAS, roi: results.roi
+    };
 
-    // 1. الحفظ في Supabase
-    try {
-      const { error } = await supabase.from('products').insert([
-        {
-          name: newProduct.name,
-          selling_price: newProduct.sellingPrice,
-          product_cost: newProduct.productCost,
-          shipping_cost: newProduct.shippingCost,
-          ad_spend: newProduct.adSpend,
-          net_profit: newProduct.netProfit,
-          profit_margin: newProduct.profitMargin,
-          currency: newProduct.currency
-        }
-      ]);
+    const updatedList = [newProduct, ...savedProducts];
+    setSavedProducts(updatedList);
+    localStorage.setItem('engazia_profit_products_v10', JSON.stringify(updatedList));
+    setProductName('');
+  };
 
-      if (error) {
-        console.error('خطأ في حفظ البيانات في Supabase:', error.message);
-      } else {
-        console.log('تم حفظ المنتج في Supabase بنجاح!');
-      }
-    } catch (err) {
-      console.error('حدث استثناء أثناء الاتصال بقاعدة البيانات:', err);
-    }
+  const clearInputs = () => {
+    setProductName('');
+    setSellingPrice('');
+    setProductCost('');
+    setShippingCost('');
+    setAdSpend('');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
-    // 2. الحفظ المحلي
-    const updatedList = [newProduct, ...savedProducts];
-    setSavedProducts(updatedList);
-    localStorage.setItem('engazia_profit_products_v10', JSON.stringify(updatedList));
-    setProductName('');
-  };
+  const loadProduct = (prod: SavedProduct) => {
+    setProductName(prod.name);
+    setSellingPrice(prod.sellingPrice);
+    setProductCost(prod.productCost);
+    setShippingCost(prod.shippingCost);
+    setAdSpend(prod.adSpend);
+    setPaymentFeePercent(prod.paymentFeePercent);
+    setPaymentFeeFixed(prod.paymentFeeFixed);
+    setTaxPercent(prod.taxPercent);
+    setIsTaxInclusive(prod.isTaxInclusive);
+    setReturnRate(prod.returnRate);
+    if (prod.currency) handleCurrencyChange(prod.currency);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
-  const clearInputs = () => {
-    setProductName('');
-    setSellingPrice('');
-    setProductCost('');
-    setShippingCost('');
-    setAdSpend('');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  const deleteProduct = (id: string) => {
+    if (window.confirm('هل أنت متأكد من حذف هذا المنتج؟')) {
+      const updatedList = savedProducts.filter(p => p.id !== id);
+      setSavedProducts(updatedList);
+      localStorage.setItem('engazia_profit_products_v10', JSON.stringify(updatedList));
+    }
+  };
 
-  const loadProduct = (prod: SavedProduct) => {
-    setProductName(prod.name);
-    setSellingPrice(prod.sellingPrice);
-    setProductCost(prod.productCost);
-    setShippingCost(prod.shippingCost);
-    setAdSpend(prod.adSpend);
-    setPaymentFeePercent(prod.paymentFeePercent);
-    setPaymentFeeFixed(prod.paymentFeeFixed);
-    setTaxPercent(prod.taxPercent);
-    setIsTaxInclusive(prod.isTaxInclusive);
-    setReturnRate(prod.returnRate);
-    if (prod.currency) handleCurrencyChange(prod.currency);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  const exportToCSV = () => {
+    if (savedProducts.length === 0) return alert('المحفظة فارغة.');
+    
+    const headers = ['اسم المنتج', 'العملة', 'سعر البيع', 'التكلفة', 'الشحن', 'التسويق المخصص', 'Max CPA', 'Break-even ROAS', 'الربح الصافي', 'هامش الربح %'];
+    
+    const rows = savedProducts.map(p => [
+      p.name,
+      p.currency || 'ر.س',
+      p.sellingPrice,
+      p.productCost,
+      p.shippingCost,
+      p.adSpend,
+      p.maxCPA.toFixed(2),
+      p.breakEvenROAS.toFixed(2),
+      p.netProfit.toFixed(2),
+      p.profitMargin.toFixed(2)
+    ]);
 
-  const deleteProduct = (id: string) => {
-    if (window.confirm('هل أنت متأكد من حذف هذا المنتج؟')) {
-      const updatedList = savedProducts.filter(p => p.id !== id);
-      setSavedProducts(updatedList);
-      localStorage.setItem('engazia_profit_products_v10', JSON.stringify(updatedList));
-    }
-  };
+    let htmlTable = `<html xmlns:x="urn:schemas-microsoft-com:office:excel">
+      <head>
+        <meta http-equiv="content-type" content="text/plain; charset=UTF-8"/>
+        <xml>
+          <x:ExcelWorkbook>
+            <x:ExcelWorksheets>
+              <x:ExcelWorksheet>
+                <x:Name>المحفظة</x:Name>
+                <x:WorksheetOptions>
+                  <x:DisplayRightToLeft/>
+                </x:WorksheetOptions>
+              </x:ExcelWorksheet>
+            </x:ExcelWorksheets>
+          </x:ExcelWorkbook>
+        </xml>
+      </head>
+      <body>
+        <table border="1" dir="rtl">
+          <thead>
+            <tr>
+              ${headers.map(h => `<th style="background-color:#f1f5f9; font-weight:bold;">${h}</th>`).join('')}
+            </tr>
+          </thead>
+          <tbody>
+            ${rows.map(row => 
+              `<tr>${row.map(cell => `<td>${cell}</td>`).join('')}</tr>`
+            ).join('')}
+          </tbody>
+        </table>
+      </body>
+    </html>`;
 
-  const exportToCSV = () => {
-    if (savedProducts.length === 0) return alert('المحفظة فارغة.');
-    
-    const headers = ['اسم المنتج', 'العملة', 'سعر البيع', 'التكلفة', 'الشحن', 'التسويق المخصص', 'Max CPA', 'Break-even ROAS', 'الربح الصافي', 'هامش الربح %'];
-    
-    const rows = savedProducts.map(p => [
-      p.name,
-      p.currency || 'ر.س',
-      p.sellingPrice,
-      p.productCost,
-      p.shippingCost,
-      p.adSpend,
-      p.maxCPA.toFixed(2),
-      p.breakEvenROAS.toFixed(2),
-      p.netProfit.toFixed(2),
-      p.profitMargin.toFixed(2)
-    ]);
+    const uri = 'data:application/vnd.ms-excel;base64,';
+    const base64 = (s: string) => window.btoa(unescape(encodeURIComponent(s)));
 
-    let htmlTable = `<html xmlns:x="urn:schemas-microsoft-com:office:excel">
-      <head>
-        <meta http-equiv="content-type" content="text/plain; charset=UTF-8"/>
-        <xml>
-          <x:ExcelWorkbook>
-            <x:ExcelWorksheets>
-              <x:ExcelWorksheet>
-                <x:Name>المحفظة</x:Name>
-                <x:WorksheetOptions>
-                  <x:DisplayRightToLeft/>
-                </x:WorksheetOptions>
-              </x:ExcelWorksheet>
-            </x:ExcelWorksheets>
-          </x:ExcelWorkbook>
-        </xml>
-      </head>
-      <body>
-        <table border="1" dir="rtl">
-          <thead>
-            <tr>
-              ${headers.map(h => `<th style="background-color:#f1f5f9; font-weight:bold;">${h}</th>`).join('')}
-            </tr>
-          </thead>
-          <tbody>
-            ${rows.map(row => 
-              `<tr>${row.map(cell => `<td>${cell}</td>`).join('')}</tr>`
-            ).join('')}
-          </tbody>
-        </table>
-      </body>
-    </html>`;
+    const link = document.createElement('a');
+    link.href = uri + base64(htmlTable);
+    link.download = `profit_portfolio_${new Date().toISOString().slice(0, 10)}.xls`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
-    const uri = 'data:application/vnd.ms-excel;base64,';
-    const base64 = (s: string) => window.btoa(unescape(encodeURIComponent(s)));
+  const importFromExcel = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-    const link = document.createElement('a');
-    link.href = uri + base64(htmlTable);
-    link.download = `profit_portfolio_${new Date().toISOString().slice(0, 10)}.xls`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const text = event.target?.result as string;
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(text, 'text/html');
+        
+        const headerRow = doc.querySelector('thead tr') || doc.querySelector('tr');
+        const rows = doc.querySelectorAll('tbody tr');
+        
+        if (!headerRow || rows.length === 0) {
+          alert('لم يتم العثور على رؤوس أو بيانات صحيحة في الملف.');
+          return;
+        }
 
-  const importFromExcel = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+        const headers: string[] = [];
+        headerRow.querySelectorAll('th, td').forEach(th => {
+          headers.push(th.textContent?.trim() || '');
+        });
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      try {
-        const text = event.target?.result as string;
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(text, 'text/html');
-        
-        const headerRow = doc.querySelector('thead tr') || doc.querySelector('tr');
-        const rows = doc.querySelectorAll('tbody tr');
-        
-        if (!headerRow || rows.length === 0) {
-          alert('لم يتم العثور على رؤوس أو بيانات صحيحة في الملف.');
-          return;
-        }
+        const nameIdx = headers.findIndex(h => h.includes('اسم المنتج') || h.includes('المنتج'));
+        const currIdx = headers.findIndex(h => h.includes('العملة'));
+        const priceIdx = headers.findIndex(h => h.includes('سعر البيع'));
+        const costIdx = headers.findIndex(h => h.includes('التكلفة'));
+        const shipIdx = headers.findIndex(h => h.includes('الشحن'));
+        const adIdx = headers.findIndex(h => h.includes('التسويق') || h.includes('الإعلان'));
 
-        const headers: string[] = [];
-        headerRow.querySelectorAll('th, td').forEach(th => {
-          headers.push(th.textContent?.trim() || '');
-        });
+        if (nameIdx === -1 || priceIdx === -1) {
+          alert('تعذر قراءة الأعمدة الأساسية (اسم المنتج أو سعر البيع) من الملف.');
+          return;
+        }
 
-        const nameIdx = headers.findIndex(h => h.includes('اسم المنتج') || h.includes('المنتج'));
-        const currIdx = headers.findIndex(h => h.includes('العملة'));
-        const priceIdx = headers.findIndex(h => h.includes('سعر البيع'));
-        const costIdx = headers.findIndex(h => h.includes('التكلفة'));
-        const shipIdx = headers.findIndex(h => h.includes('الشحن'));
-        const adIdx = headers.findIndex(h => h.includes('التسويق') || h.includes('الإعلان'));
+        const newProducts: SavedProduct[] = [];
 
-        if (nameIdx === -1 || priceIdx === -1) {
-          alert('تعذر قراءة الأعمدة الأساسية (اسم المنتج أو سعر البيع) من الملف.');
-          return;
-        }
+        rows.forEach((row) => {
+          const cells = row.querySelectorAll('td');
+          if (cells.length > Math.max(nameIdx, priceIdx)) {
+            const name = cells[nameIdx]?.textContent?.replace(/"/g, '').trim() || 'منتج مستورد';
+            const curr = currIdx !== -1 ? cells[currIdx]?.textContent?.trim() || 'ر.س' : currency;
+            const sPrice = parseFloat(cells[priceIdx]?.textContent || '0') || 0;
+            const pCost = costIdx !== -1 ? parseFloat(cells[costIdx]?.textContent || '0') || 0 : 0;
+            const sCost = shipIdx !== -1 ? parseFloat(cells[shipIdx]?.textContent || '0') || 0 : 0;
+            const aSpend = adIdx !== -1 ? parseFloat(cells[adIdx]?.textContent || '0') || 0 : 0;
 
-        const newProducts: SavedProduct[] = [];
+            const pFees = (sPrice * (paymentFeePercent / 100)) + paymentFeeFixed;
+            const tValue = taxPercent / 100;
+            const tAmount = isTaxInclusive ? sPrice - (sPrice / (1 + tValue)) : sPrice * tValue;
+            const rCost = (pCost + sCost) * (returnRate / 100);
+            const totalCostWithoutAds = pCost + sCost + pFees + tAmount + rCost;
+            const maxC = sPrice - totalCostWithoutAds;
+            const beROAS = maxC > 0 ? (sPrice / maxC) : 0;
+            const nProfit = maxC - aSpend;
+            const pMargin = sPrice > 0 ? (nProfit / sPrice) * 100 : 0;
+            const totalInv = pCost + sCost + aSpend;
+            const roiVal = totalInv > 0 ? (nProfit / totalInv) * 100 : 0;
 
-        rows.forEach((row) => {
-          const cells = row.querySelectorAll('td');
-          if (cells.length > Math.max(nameIdx, priceIdx)) {
-            const name = cells[nameIdx]?.textContent?.replace(/"/g, '').trim() || 'منتج مستورد';
-            const curr = currIdx !== -1 ? cells[currIdx]?.textContent?.trim() || 'ر.س' : currency;
-            const sPrice = parseFloat(cells[priceIdx]?.textContent || '0') || 0;
-            const pCost = costIdx !== -1 ? parseFloat(cells[costIdx]?.textContent || '0') || 0 : 0;
-            const sCost = shipIdx !== -1 ? parseFloat(cells[shipIdx]?.textContent || '0') || 0 : 0;
-            const aSpend = adIdx !== -1 ? parseFloat(cells[adIdx]?.textContent || '0') || 0 : 0;
+            newProducts.push({
+              id: Date.now().toString() + Math.random().toString(36).substring(7),
+              name,
+              sellingPrice: sPrice,
+              productCost: pCost,
+              shippingCost: sCost,
+              adSpend: aSpend,
+              paymentFeePercent,
+              paymentFeeFixed,
+              taxPercent,
+              isTaxInclusive,
+              returnRate,
+              currency: curr,
+              netProfit: nProfit,
+              profitMargin: pMargin,
+              maxCPA: maxC,
+              breakEvenROAS: beROAS,
+              roi: roiVal
+            });
+          }
+        });
 
-            const pFees = (sPrice * (paymentFeePercent / 100)) + paymentFeeFixed;
-            const tValue = taxPercent / 100;
-            const tAmount = isTaxInclusive ? sPrice - (sPrice / (1 + tValue)) : sPrice * tValue;
-            const rCost = (pCost + sCost) * (returnRate / 100);
-            const totalCostWithoutAds = pCost + sCost + pFees + tAmount + rCost;
-            const maxC = sPrice - totalCostWithoutAds;
-            const beROAS = maxC > 0 ? (sPrice / maxC) : 0;
-            const nProfit = maxC - aSpend;
-            const pMargin = sPrice > 0 ? (nProfit / sPrice) * 100 : 0;
-            const totalInv = pCost + sCost + aSpend;
-            const roiVal = totalInv > 0 ? (nProfit / totalInv) * 100 : 0;
+        if (newProducts.length > 0) {
+          const updatedList = [...newProducts, ...savedProducts];
+          setSavedProducts(updatedList);
+          localStorage.setItem('engazia_profit_products_v10', JSON.stringify(updatedList));
+          alert(`تم استيراد ${newProducts.length} منتج بنجاح بالاعتماد على الأعمدة المطابقة.`);
+        }
+      } catch (error) {
+        console.error(error);
+        alert('حدث خطأ أثناء تحليل ملف الإكسل.');
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  };
 
-            newProducts.push({
-              id: Date.now().toString() + Math.random().toString(36).substring(7),
-              name,
-              sellingPrice: sPrice,
-              productCost: pCost,
-              shippingCost: sCost,
-              adSpend: aSpend,
-              paymentFeePercent,
-              paymentFeeFixed,
-              taxPercent,
-              isTaxInclusive,
-              returnRate,
-              currency: curr,
-              netProfit: nProfit,
-              profitMargin: pMargin,
-              maxCPA: maxC,
-              breakEvenROAS: beROAS,
-              roi: roiVal
-            });
-          }
-        });
+  const filteredProducts = savedProducts.filter(p => 
+    p.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
-        if (newProducts.length > 0) {
-          const updatedList = [...newProducts, ...savedProducts];
-          setSavedProducts(updatedList);
-          localStorage.setItem('engazia_profit_products_v10', JSON.stringify(updatedList));
-          alert(`تم استيراد ${newProducts.length} منتج بنجاح بالاعتماد على الأعمدة المطابقة.`);
-        }
-      } catch (error) {
-        console.error(error);
-        alert('حدث خطأ أثناء تحليل ملف الإكسل.');
-      }
-    };
-    reader.readAsText(file);
-    e.target.value = '';
-  };
+  return (
+    <div className="tool-container">
+      <style jsx global>{`
+        a { text-decoration: none !important; color: inherit !important; }
+      `}</style>
+      
+      <style jsx>{`
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
+        
+        .tool-container { background-color: #f1f5f9; min-height: 100vh; font-family: 'Tajawal', sans-serif; direction: rtl; padding: 20px 15px 40px; }
+        
+        .header { max-width: 1000px; margin: 0 auto 20px; display: flex; justify-content: space-between; align-items: center; }
+        .back-btn { background: #ffffff; color: #475569; padding: 8px 16px; border-radius: 8px; font-weight: 800; font-size: 13px; border: 1px solid #cbd5e1; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
+        .back-btn:hover { background: #e2e8f0; color: #0f172a; }
+        
+        .currency-selector { display: flex; align-items: center; gap: 8px; background: #fff; padding: 6px 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-weight: 800; font-size: 12px; color: #475569; }
+        .currency-selector select { border: none; outline: none; background: transparent; font-family: 'Tajawal', sans-serif; font-weight: 900; color: #4f46e5; cursor: pointer; }
 
-  const filteredProducts = savedProducts.filter(p => 
-    p.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+        .tool-title { text-align: center; margin-bottom: 25px; }
+        .tool-title h1 { font-size: 26px; font-weight: 900; color: #0f172a; margin-bottom: 8px; letter-spacing: -0.5px; }
+        .tool-title span { color: #4f46e5; }
+        .tool-title p { color: #64748b; font-size: 13px; font-weight: 500; margin: 0; }
 
-  return (
-    <div className="tool-container">
-      <style jsx global>{`
-        a { text-decoration: none !important; color: inherit !important; }
-      `}</style>
-      
-      <style jsx>{`
-        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
-        
-        .tool-container { background-color: #f1f5f9; min-height: 100vh; font-family: 'Tajawal', sans-serif; direction: rtl; padding: 20px 15px 40px; }
-        
-        .header { max-width: 1000px; margin: 0 auto 20px; display: flex; justify-content: space-between; align-items: center; }
-        .back-btn { background: #ffffff; color: #475569; padding: 8px 16px; border-radius: 8px; font-weight: 800; font-size: 13px; border: 1px solid #cbd5e1; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
-        .back-btn:hover { background: #e2e8f0; color: #0f172a; }
-        
-        .currency-selector { display: flex; align-items: center; gap: 8px; background: #fff; padding: 6px 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-weight: 800; font-size: 12px; color: #475569; }
-        .currency-selector select { border: none; outline: none; background: transparent; font-family: 'Tajawal', sans-serif; font-weight: 900; color: #4f46e5; cursor: pointer; }
+        .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 1000px; margin: 0 auto 30px; }
+        
+        .panel { background: #ffffff; border-radius: 16px; padding: 20px; border: 1px solid #e2e8f0; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+        .panel h2 { font-size: 15px; font-weight: 900; color: #1e293b; margin-bottom: 18px; margin-top: 0; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; }
 
-        .tool-title { text-align: center; margin-bottom: 25px; }
-        .tool-title h1 { font-size: 26px; font-weight: 900; color: #0f172a; margin-bottom: 8px; letter-spacing: -0.5px; }
-        .tool-title span { color: #4f46e5; }
-        .tool-title p { color: #64748b; font-size: 13px; font-weight: 500; margin: 0; }
+        .input-group { margin-bottom: 14px; }
+        .input-group label { display: flex; justify-content: space-between; font-size: 12px; font-weight: 800; color: #475569; margin-bottom: 6px; }
+        .input-wrapper { position: relative; }
+        .input-wrapper input { width: 100%; padding: 10px 12px 10px 35px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 14px; font-family: 'Tajawal', sans-serif; transition: border-color 0.2s; background: #fff; font-weight: 700; color: #1e293b; outline: none; box-sizing: border-box; }
+        .input-wrapper input:focus { border-color: #4f46e5; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
+        .input-wrapper .currency { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-weight: 800; font-size: 11px; direction: ltr; }
 
-        .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 1000px; margin: 0 auto 30px; }
-        
-        .panel { background: #ffffff; border-radius: 16px; padding: 20px; border: 1px solid #e2e8f0; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
-        .panel h2 { font-size: 15px; font-weight: 900; color: #1e293b; margin-bottom: 18px; margin-top: 0; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; }
+        .grid-2-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .grid-3-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 12px; }
 
-        .input-group { margin-bottom: 14px; }
-        .input-group label { display: flex; justify-content: space-between; font-size: 12px; font-weight: 800; color: #475569; margin-bottom: 6px; }
-        .input-wrapper { position: relative; }
-        .input-wrapper input { width: 100%; padding: 10px 12px 10px 35px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 14px; font-family: 'Tajawal', sans-serif; transition: border-color 0.2s; background: #fff; font-weight: 700; color: #1e293b; outline: none; box-sizing: border-box; }
-        .input-wrapper input:focus { border-color: #4f46e5; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
-        .input-wrapper .currency { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-weight: 800; font-size: 11px; direction: ltr; }
+        .results-panel { background: #1e293b; border: none; color: #ffffff; position: relative; overflow: hidden; }
+        .results-panel h2 { color: #ffffff; border-color: #334155; }
+        
+        .result-box { background: #334155; padding: 12px 15px; border-radius: 12px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #475569; transition: 0.3s; }
+        .result-box.highlight { background: #4f46e5; border-color: #6366f1; }
+        .result-box.warning { background: #7f1d1d; border-color: #991b1b; }
+        .result-box.success { background: #14532d; border-color: #166534; }
+        
+        .result-label { font-size: 13px; font-weight: 800; color: #cbd5e1; display: flex; flex-direction: column; }
+        .result-label small { font-size: 10px; color: #94a3b8; font-weight: 500; margin-top: 2px; }
+        .highlight .result-label, .warning .result-label, .success .result-label { color: #ffffff; opacity: 0.9; }
+        
+        .result-value { font-size: 18px; font-weight: 900; color: #ffffff; display: flex; align-items: baseline; gap: 4px; direction: ltr; }
+        .result-value span { font-size: 11px; font-weight: 700; opacity: 0.8; }
 
-        .grid-2-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .grid-3-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 12px; }
+        .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px; }
+        .detail-item { background: #0f172a; padding: 10px; border-radius: 8px; border: 1px solid #334155; display: flex; flex-direction: column; gap: 4px; }
+        .detail-label { font-size: 10px; color: #94a3b8; font-weight: 700; }
+        .detail-val { font-size: 13px; font-weight: 900; color: #f8fafc; direction: ltr; text-align: right; }
 
-        .results-panel { background: #1e293b; border: none; color: #ffffff; position: relative; overflow: hidden; }
-        .results-panel h2 { color: #ffffff; border-color: #334155; }
-        
-        .result-box { background: #334155; padding: 12px 15px; border-radius: 12px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #475569; transition: 0.3s; }
-        .result-box.highlight { background: #4f46e5; border-color: #6366f1; }
-        .result-box.warning { background: #7f1d1d; border-color: #991b1b; }
-        .result-box.success { background: #14532d; border-color: #166534; }
-        
-        .result-label { font-size: 13px; font-weight: 800; color: #cbd5e1; display: flex; flex-direction: column; }
-        .result-label small { font-size: 10px; color: #94a3b8; font-weight: 500; margin-top: 2px; }
-        .highlight .result-label, .warning .result-label, .success .result-label { color: #ffffff; opacity: 0.9; }
-        
-        .result-value { font-size: 18px; font-weight: 900; color: #ffffff; display: flex; align-items: baseline; gap: 4px; direction: ltr; }
-        .result-value span { font-size: 11px; font-weight: 700; opacity: 0.8; }
+        .action-buttons { display: flex; gap: 10px; margin-top: 15px; }
+        .btn-save { background: #10b981; color: #fff; border: none; padding: 12px; border-radius: 10px; font-size: 14px; font-weight: 900; cursor: pointer; transition: 0.2s; font-family: 'Tajawal', sans-serif; flex: 2; }
+        .btn-save:hover { background: #059669; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2); }
+        .btn-clear { background: transparent; color: #94a3b8; border: 1px solid #334155; padding: 12px; border-radius: 10px; font-size: 13px; font-weight: 800; cursor: pointer; transition: 0.2s; font-family: 'Tajawal', sans-serif; flex: 1; }
+        .btn-clear:hover { background: #334155; color: #fff; }
 
-        .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px; }
-        .detail-item { background: #0f172a; padding: 10px; border-radius: 8px; border: 1px solid #334155; display: flex; flex-direction: column; gap: 4px; }
-        .detail-label { font-size: 10px; color: #94a3b8; font-weight: 700; }
-        .detail-val { font-size: 13px; font-weight: 900; color: #f8fafc; direction: ltr; text-align: right; }
+        .saved-section-title { font-size: 16px; font-weight: 900; color: #1e293b; margin-bottom: 15px; max-width: 1000px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+        
+        .table-controls { display: flex; gap: 10px; align-items: center; flex: 1; justify-content: flex-end; flex-wrap: wrap; }
+        .search-box { position: relative; max-width: 200px; width: 100%; }
+        .search-box input { width: 100%; padding: 8px 12px 8px 30px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 12px; font-family: 'Tajawal', sans-serif; outline: none; box-sizing: border-box; }
+        .search-box span { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 12px; color: #94a3b8; }
+        
+        .btn-action { display: inline-flex; align-items: center; justify-content: center; background: #fff; border: 1px solid #cbd5e1; padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: 800; color: #475569; cursor: pointer; transition: 0.2s; white-space: nowrap; font-family: 'Tajawal', sans-serif; }
+        .btn-action:hover { background: #f8fafc; border-color: #94a3b8; color: #0f172a; }
+        
+        .table-container { max-width: 1000px; margin: 0 auto; overflow-x: auto; background: #fff; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+        .styled-table { width: 100%; border-collapse: collapse; text-align: right; font-size: 12px; white-space: nowrap; min-width: 850px; }
+        .styled-table th, .styled-table td { padding: 14px 15px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+        .styled-table th { background-color: #f8fafc; font-weight: 900; color: #475569; font-size: 12px; }
+        .styled-table tbody tr { transition: 0.2s; }
+        .styled-table tbody tr:hover { background-color: #f8fafc; }
+        
+        .table-badge { padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 900; direction: ltr; display: inline-block; }
+        .bg-green { background: #dcfce7; color: #166534; }
+        .bg-yellow { background: #fef3c7; color: #92400e; }
+        .bg-red { background: #fee2e2; color: #991b1b; }
 
-        .action-buttons { display: flex; gap: 10px; margin-top: 15px; }
-        .btn-save { background: #10b981; color: #fff; border: none; padding: 12px; border-radius: 10px; font-size: 14px; font-weight: 900; cursor: pointer; transition: 0.2s; font-family: 'Tajawal', sans-serif; flex: 2; }
-        .btn-save:hover { background: #059669; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2); }
-        .btn-clear { background: transparent; color: #94a3b8; border: 1px solid #334155; padding: 12px; border-radius: 10px; font-size: 13px; font-weight: 800; cursor: pointer; transition: 0.2s; font-family: 'Tajawal', sans-serif; flex: 1; }
-        .btn-clear:hover { background: #334155; color: #fff; }
+        .pc-actions { display: flex; gap: 6px; }
+        .pc-btn { width: 28px; height: 28px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; border: none; font-size: 12px; }
+        .pc-btn-edit { background: #e0e7ff; color: #4f46e5; }
+        .pc-btn-edit:hover { background: #c7d2fe; }
+        .pc-btn-delete { background: #fee2e2; color: #ef4444; }
+        .pc-btn-delete:hover { background: #ef4444; color: #fff; }
+        
+        .index-cell { color: #94a3b8; font-weight: 900; font-size: 11px; text-align: center; }
 
-        .saved-section-title { font-size: 16px; font-weight: 900; color: #1e293b; margin-bottom: 15px; max-width: 1000px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
-        
-        .table-controls { display: flex; gap: 10px; align-items: center; flex: 1; justify-content: flex-end; flex-wrap: wrap; }
-        .search-box { position: relative; max-width: 200px; width: 100%; }
-        .search-box input { width: 100%; padding: 8px 12px 8px 30px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 12px; font-family: 'Tajawal', sans-serif; outline: none; box-sizing: border-box; }
-        .search-box span { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 12px; color: #94a3b8; }
-        
-        .btn-action { display: inline-flex; align-items: center; justify-content: center; background: #fff; border: 1px solid #cbd5e1; padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: 800; color: #475569; cursor: pointer; transition: 0.2s; white-space: nowrap; font-family: 'Tajawal', sans-serif; }
-        .btn-action:hover { background: #f8fafc; border-color: #94a3b8; color: #0f172a; }
-        
-        .table-container { max-width: 1000px; margin: 0 auto; overflow-x: auto; background: #fff; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
-        .styled-table { width: 100%; border-collapse: collapse; text-align: right; font-size: 12px; white-space: nowrap; min-width: 850px; }
-        .styled-table th, .styled-table td { padding: 14px 15px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
-        .styled-table th { background-color: #f8fafc; font-weight: 900; color: #475569; font-size: 12px; }
-        .styled-table tbody tr { transition: 0.2s; }
-        .styled-table tbody tr:hover { background-color: #f8fafc; }
-        
-        .table-badge { padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 900; direction: ltr; display: inline-block; }
-        .bg-green { background: #dcfce7; color: #166534; }
-        .bg-yellow { background: #fef3c7; color: #92400e; }
-        .bg-red { background: #fee2e2; color: #991b1b; }
+        @media(max-width: 800px) { 
+          .main-grid { grid-template-columns: 1fr; gap: 15px; } 
+          .tool-container { padding: 15px 10px 30px; }
+          .saved-section-title { flex-direction: column; align-items: stretch; }
+          .table-controls { justify-content: space-between; }
+          .search-box { max-width: none; }
+        }
+      `}</style>
 
-        .pc-actions { display: flex; gap: 6px; }
-        .pc-btn { width: 28px; height: 28px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; border: none; font-size: 12px; }
-        .pc-btn-edit { background: #e0e7ff; color: #4f46e5; }
-        .pc-btn-edit:hover { background: #c7d2fe; }
-        .pc-btn-delete { background: #fee2e2; color: #ef4444; }
-        .pc-btn-delete:hover { background: #ef4444; color: #fff; }
-        
-        .index-cell { color: #94a3b8; font-weight: 900; font-size: 11px; text-align: center; }
+      <div className="header">
+        <Link href="/hub" className="back-btn">
+          <span>→</span> العودة
+        </Link>
+        <div className="currency-selector">
+          <span>العملة:</span>
+          <select value={currency} onChange={(e) => handleCurrencyChange(e.target.value)}>
+            <option value="ر.س">ريال سعودي (ر.س)</option>
+            <option value="$">دولار أمريكي ($)</option>
+            <option value="د.إ">درهم إماراتي (د.إ)</option>
+            <option value="د.ك">دينار كويتي (د.ك)</option>
+            <option value="ر.ع">ريال عماني (ر.ع)</option>
+            <option value="د.ب">دينار بحريني (د.ب)</option>
+            <option value="ر.ق">ريال قطري (ر.ق)</option>
+            <option value="د.أ">دينار أردني (د.أ)</option>
+            <option value="ج.م">جنيه مصري (ج.م)</option>
+            <option value="د.ت">دينار تونسي (د.ت)</option>
+            <option value="د.ج">دينار جزائري (د.ج)</option>
+            <option value="د.م">درهم مغربي (د.م)</option>
+            <option value="ل.س">ليرة سورية (ل.س)</option>
+            <option value="ل.ل">ليرة لبنانية (ل.ل)</option>
+            <option value="ج.س">جنيه سوداني (ج.س)</option>
+            <option value="د.ع">دينار عراقي (د.ع)</option>
+            <option value="ر.ي">ريال يمني (ر.ي)</option>
+            <option value="ل.د">دينار ليبي (ل.د)</option>
+            <option value="أوقية">أوقية موريتانية (أوقية)</option>
+            <option value="شلن">شلن صومالي (شلن)</option>
+            <option value="فرنك">فرنك جيبوتي (فرنك)</option>
+            <option value="ج.ق">جنيه جزر القمر (ج.ق)</option>
+          </select>
+        </div>
+      </div>
 
-        @media(max-width: 800px) { 
-          .main-grid { grid-template-columns: 1fr; gap: 15px; } 
-          .tool-container { padding: 15px 10px 30px; }
-          .saved-section-title { flex-direction: column; align-items: stretch; }
-          .table-controls { justify-content: space-between; }
-          .search-box { max-width: none; }
-        }
-      `}</style>
+      <div className="tool-title">
+        <h1>حاسبة <span>أرباح ونقاط التعادل</span></h1>
+        <p>احسب صافي أرباحك الحقيقية والحد الأقصى لتكلفة الإعلان</p>
+      </div>
 
-      <div className="header">
-        <Link href="/hub" className="back-btn">
-          <span>→</span> العودة
-        </Link>
-        <div className="currency-selector">
-          <span>العملة:</span>
-          <select value={currency} onChange={(e) => handleCurrencyChange(e.target.value)}>
-            <option value="ر.س">ريال سعودي (ر.س)</option>
-            <option value="$">دولار أمريكي ($)</option>
-            <option value="د.إ">درهم إماراتي (د.إ)</option>
-            <option value="د.ك">دينار كويتي (د.ك)</option>
-            <option value="ر.ع">ريال عماني (ر.ع)</option>
-            <option value="د.ب">دينار بحريني (د.ب)</option>
-            <option value="ر.ق">ريال قطري (ر.ق)</option>
-            <option value="د.أ">دينار أردني (د.أ)</option>
-            <option value="ج.م">جنيه مصري (ج.م)</option>
-            <option value="د.ت">دينار تونسي (د.ت)</option>
-            <option value="د.ج">دينار جزائري (د.ج)</option>
-            <option value="د.م">درهم مغربي (د.م)</option>
-            <option value="ل.س">ليرة سورية (ل.س)</option>
-            <option value="ل.ل">ليرة لبنانية (ل.ل)</option>
-            <option value="ج.س">جنيه سوداني (ج.س)</option>
-            <option value="د.ع">دينار عراقي (د.ع)</option>
-            <option value="ر.ي">ريال يمني (ر.ي)</option>
-            <option value="ل.د">دينار ليبي (ل.د)</option>
-            <option value="أوقية">أوقية موريتانية (أوقية)</option>
-            <option value="شلن">شلن صومالي (شلن)</option>
-            <option value="فرنك">فرنك جيبوتي (فرنك)</option>
-            <option value="ج.ق">جنيه جزر القمر (ج.ق)</option>
-          </select>
-        </div>
-      </div>
+      <div className="main-grid">
+        <div className="panel">
+          <h2>🛒 بيانات المنتج والتكاليف</h2>
+          
+          <div className="input-group">
+            <label>اسم المنتج</label>
+            <div className="input-wrapper">
+              <input type="text" value={productName} onChange={(e) => setProductName(e.target.value)} placeholder="مثال: سماعة البلوتوث" />
+            </div>
+          </div>
 
-      <div className="tool-title">
-        <h1>حاسبة <span>أرباح ونقاط التعادل</span></h1>
-        <p>احسب صافي أرباحك الحقيقية والحد الأقصى لتكلفة الإعلان</p>
-      </div>
+          <div className="grid-2-cols">
+            <div className="input-group">
+              <label>سعر البيع للعميل</label>
+              <div className="input-wrapper">
+                <input type="number" min="0" value={sellingPrice} onChange={(e) => setSellingPrice(Number(e.target.value))} placeholder="199" />
+                <span className="currency">{currency}</span>
+              </div>
+            </div>
+            <div className="input-group">
+              <label>تكلفة المنتج عليك</label>
+              <div className="input-wrapper">
+                <input type="number" min="0" value={productCost} onChange={(e) => setProductCost(Number(e.target.value))} placeholder="50" />
+                <span className="currency">{currency}</span>
+              </div>
+            </div>
+          </div>
 
-      <div className="main-grid">
-        <div className="panel">
-          <h2>🛒 بيانات المنتج والتكاليف</h2>
-          
-          <div className="input-group">
-            <label>اسم المنتج</label>
-            <div className="input-wrapper">
-              <input type="text" value={productName} onChange={(e) => setProductName(e.target.value)} placeholder="مثال: سماعة البلوتوث" />
-            </div>
-          </div>
+          <div className="grid-2-cols">
+            <div className="input-group">
+              <label>تكلفة الشحن والتغليف</label>
+              <div className="input-wrapper">
+                <input type="number" min="0" value={shippingCost} onChange={(e) => setShippingCost(Number(e.target.value))} placeholder="25" />
+                <span className="currency">{currency}</span>
+              </div>
+            </div>
+            <div className="input-group">
+              <label>تكلفة التسويق (مبيعة)</label>
+              <div className="input-wrapper">
+                <input type="number" min="0" value={adSpend} onChange={(e) => setAdSpend(Number(e.target.value))} placeholder="40" />
+                <span className="currency">{currency}</span>
+              </div>
+            </div>
+          </div>
 
-          <div className="grid-2-cols">
-            <div className="input-group">
-              <label>سعر البيع للعميل</label>
-              <div className="input-wrapper">
-                <input type="number" min="0" value={sellingPrice} onChange={(e) => setSellingPrice(Number(e.target.value))} placeholder="199" />
-                <span className="currency">{currency}</span>
-              </div>
-            </div>
-            <div className="input-group">
-              <label>تكلفة المنتج عليك</label>
-              <div className="input-wrapper">
-                <input type="number" min="0" value={productCost} onChange={(e) => setProductCost(Number(e.target.value))} placeholder="50" />
-                <span className="currency">{currency}</span>
-              </div>
-            </div>
-          </div>
+          <div style={{ background: '#f8fafc', padding: '12px', borderRadius: '10px', border: '1px solid #e2e8f0', marginTop: '5px' }}>
+            <h3 style={{ fontSize: '11px', color: '#1e293b', marginBottom: '10px', fontWeight: 900 }}>⚙️️ الإعدادات المتقدمة (الرسوم)</h3>
+            
+            <div className="grid-3-cols">
+              <div className="input-group" style={{ marginBottom: 0 }}>
+                <label>دفع (%)</label>
+                <div className="input-wrapper">
+                  <input type="number" step="0.1" value={paymentFeePercent} onChange={(e) => setPaymentFeePercent(Number(e.target.value))} />
+                  <span className="currency">%</span>
+                </div>
+              </div>
+              <div className="input-group" style={{ marginBottom: 0 }}>
+                <label>رسوم (ثابت)</label>
+                <div className="input-wrapper">
+                  <input type="number" step="0.1" value={paymentFeeFixed} onChange={(e) => setPaymentFeeFixed(Number(e.target.value))} />
+                  <span className="currency">{currency}</span>
+                </div>
+              </div>
+              <div className="input-group" style={{ marginBottom: 0 }}>
+                <label>المرتجعات</label>
+                <div className="input-wrapper">
+                  <input type="number" value={returnRate} onChange={(e) => setReturnRate(Number(e.target.value))} />
+                  <span className="currency">%</span>
+                </div>
+              </div>
+            </div>
+            
+            <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid #e2e8f0', display: 'flex', gap: '10px', alignItems: 'center' }}>
+              <div className="input-group" style={{ marginBottom: 0, flex: 1 }}>
+                <label>الضريبة (VAT)</label>
+                <div className="input-wrapper">
+                  <input type="number" value={taxPercent} onChange={(e) => setTaxPercent(Number(e.target.value))} />
+                  <span className="currency">%</span>
+                </div>
+              </div>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontSize: '11px', fontWeight: 800, color: '#475569', flex: 2, marginTop: '15px' }}>
+                <input type="checkbox" checked={isTaxInclusive} onChange={(e) => setIsTaxInclusive(e.target.checked)} style={{ width: '14px', height: '14px', accentColor: '#4f46e5' }} />
+                السعر "شامل" الضريبة
+              </label>
+            </div>
+          </div>
+        </div>
 
-          <div className="grid-2-cols">
-            <div className="input-group">
-              <label>تكلفة الشحن والتغليف</label>
-              <div className="input-wrapper">
-                <input type="number" min="0" value={shippingCost} onChange={(e) => setShippingCost(Number(e.target.value))} placeholder="25" />
-                <span className="currency">{currency}</span>
-              </div>
-            </div>
-            <div className="input-group">
-              <label>تكلفة التسويق (مبيعة)</label>
-              <div className="input-wrapper">
-                <input type="number" min="0" value={adSpend} onChange={(e) => setAdSpend(Number(e.target.value))} placeholder="40" />
-                <span className="currency">{currency}</span>
-              </div>
-            </div>
-          </div>
+        <div className="panel results-panel">
+          <h2>🎯 التحليل المالي والنتائج</h2>
 
-          <div style={{ background: '#f8fafc', padding: '12px', borderRadius: '10px', border: '1px solid #e2e8f0', marginTop: '5px' }}>
-            <h3 style={{ fontSize: '11px', color: '#1e293b', marginBottom: '10px', fontWeight: 900 }}>⚙ الإعدادات المتقدمة (الرسوم)</h3>
-            
-            <div className="grid-3-cols">
-              <div className="input-group" style={{ marginBottom: 0 }}>
-                <label>دفع (%)</label>
-                <div className="input-wrapper">
-                  <input type="number" step="0.1" value={paymentFeePercent} onChange={(e) => setPaymentFeePercent(Number(e.target.value))} />
-                  <span className="currency">%</span>
-                </div>
-              </div>
-              <div className="input-group" style={{ marginBottom: 0 }}>
-                <label>رسوم (ثابت)</label>
-                <div className="input-wrapper">
-                  <input type="number" step="0.1" value={paymentFeeFixed} onChange={(e) => setPaymentFeeFixed(Number(e.target.value))} />
-                  <span className="currency">{currency}</span>
-                </div>
-              </div>
-              <div className="input-group" style={{ marginBottom: 0 }}>
-                <label>المرتجعات</label>
-                <div className="input-wrapper">
-                  <input type="number" value={returnRate} onChange={(e) => setReturnRate(Number(e.target.value))} />
-                  <span className="currency">%</span>
-                </div>
-              </div>
-            </div>
-            
-            <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid #e2e8f0', display: 'flex', gap: '10px', alignItems: 'center' }}>
-              <div className="input-group" style={{ marginBottom: 0, flex: 1 }}>
-                <label>الضريبة (VAT)</label>
-                <div className="input-wrapper">
-                  <input type="number" value={taxPercent} onChange={(e) => setTaxPercent(Number(e.target.value))} />
-                  <span className="currency">%</span>
-                </div>
-              </div>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontSize: '11px', fontWeight: 800, color: '#475569', flex: 2, marginTop: '15px' }}>
-                <input type="checkbox" checked={isTaxInclusive} onChange={(e) => setIsTaxInclusive(e.target.checked)} style={{ width: '14px', height: '14px', accentColor: '#4f46e5' }} />
-                السعر "شامل" الضريبة
-              </label>
-            </div>
-          </div>
-        </div>
+          <div className="details-grid">
+            <div className="detail-item">
+              <span className="detail-label">بوابة الدفع</span>
+              <span className="detail-val">{results.paymentFees.toFixed(2)} {currency}</span>
+            </div>
+            <div className="detail-item">
+              <span className="detail-label">الضريبة المقتطعة</span>
+              <span className="detail-val">{results.taxAmount.toFixed(2)} {currency}</span>
+            </div>
+            <div className="detail-item">
+              <span className="detail-label">مخاطر المرتجعات</span>
+              <span className="detail-val text-red-400" style={{ color: '#fca5a5' }}>-{results.returnsCost.toFixed(2)} {currency}</span>
+            </div>
+            <div className="detail-item">
+              <span className="detail-label">عائد الاستثمار ROI</span>
+              <span className="detail-val" style={{ color: '#86efac' }}>%{results.roi.toFixed(0)}</span>
+            </div>
+          </div>
 
-        <div className="panel results-panel">
-          <h2>🎯 التحليل المالي والنتائج</h2>
+          <div className="grid-2-cols" style={{ gap: '8px' }}>
+            <div className="result-box" style={{ background: '#0f172a', borderColor: '#334155', padding: '12px' }}>
+              <span className="result-label" style={{ color: '#fcd34d' }}>
+                أقصى تكلفة استحواذ
+                <small>Max CPA المسموح</small>
+              </span>
+              <span className="result-value" style={{ color: '#fcd34d' }}>
+                {results.maxCPA.toFixed(2)} <span>{currency}</span>
+              </span>
+            </div>
 
-          <div className="details-grid">
-            <div className="detail-item">
-              <span className="detail-label">بوابة الدفع</span>
-              <span className="detail-val">{results.paymentFees.toFixed(2)} {currency}</span>
-            </div>
-            <div className="detail-item">
-              <span className="detail-label">الضريبة المقتطعة</span>
-              <span className="detail-val">{results.taxAmount.toFixed(2)} {currency}</span>
-            </div>
-            <div className="detail-item">
-              <span className="detail-label">مخاطر المرتجعات</span>
-              <span className="detail-val text-red-400" style={{ color: '#fca5a5' }}>-{results.returnsCost.toFixed(2)} {currency}</span>
-            </div>
-            <div className="detail-item">
-              <span className="detail-label">عائد الاستثمار ROI</span>
-              <span className="detail-val" style={{ color: '#86efac' }}>%{results.roi.toFixed(0)}</span>
-            </div>
-          </div>
+            <div className="result-box" style={{ background: '#0f172a', borderColor: '#334155', padding: '12px' }}>
+              <span className="result-label" style={{ color: '#38bdf8' }}>
+                العائد الإعلاني المطلوب
+                <small>Break-even ROAS</small>
+              </span>
+              <span className="result-value" style={{ color: '#38bdf8' }}>
+                {results.breakEvenROAS.toFixed(2)}x
+              </span>
+            </div>
+          </div>
 
-          <div className="grid-2-cols" style={{ gap: '8px' }}>
-            <div className="result-box" style={{ background: '#0f172a', borderColor: '#334155', padding: '12px' }}>
-              <span className="result-label" style={{ color: '#fcd34d' }}>
-                أقصى تكلفة استحواذ
-                <small>Max CPA المسموح</small>
-              </span>
-              <span className="result-value" style={{ color: '#fcd34d' }}>
-                {results.maxCPA.toFixed(2)} <span>{currency}</span>
-              </span>
-            </div>
+          <div className={`result-box ${results.netProfit > 0 ? 'success' : results.netProfit < 0 ? 'warning' : ''}`}>
+            <span className="result-label">الربح الصافي الفعلي</span>
+            <span className="result-value">
+              {results.netProfit.toFixed(2)} <span>{currency}</span>
+            </span>
+          </div>
 
-            <div className="result-box" style={{ background: '#0f172a', borderColor: '#334155', padding: '12px' }}>
-              <span className="result-label" style={{ color: '#38bdf8' }}>
-                العائد الإعلاني المطلوب
-                <small>Break-even ROAS</small>
-              </span>
-              <span className="result-value" style={{ color: '#38bdf8' }}>
-                {results.breakEvenROAS.toFixed(2)}x
-              </span>
-            </div>
-          </div>
+          <div className="result-box highlight" style={{ marginBottom: '5px' }}>
+            <span className="result-label">هامش الربح الصافي</span>
+            <span className="result-value">
+              {results.profitMargin.toFixed(1)} <span>%</span>
+            </span>
+          </div>
 
-          <div className={`result-box ${results.netProfit > 0 ? 'success' : results.netProfit < 0 ? 'warning' : ''}`}>
-            <span className="result-label">الربح الصافي الفعلي</span>
-            <span className="result-value">
-              {results.netProfit.toFixed(2)} <span>{currency}</span>
-            </span>
-          </div>
+          <div className="action-buttons">
+            <button className="btn-save" onClick={saveProduct}>💾 حفظ في المحفظة</button>
+            <button className="btn-clear" onClick={clearInputs}>🗑 مسح الحقول</button>
+          </div>
+        </div>
+      </div>
 
-          <div className="result-box highlight" style={{ marginBottom: '5px' }}>
-            <span className="result-label">هامش الربح الصافي</span>
-            <span className="result-value">
-              {results.profitMargin.toFixed(1)} <span>%</span>
-            </span>
-          </div>
+      <div className="saved-section-title">
+        <span>💼 المحفظة ({savedProducts.length})</span>
+        <div className="table-controls">
+          {savedProducts.length > 0 && (
+            <div className="search-box">
+              <span>🔍</span>
+              <input 
+                type="text" 
+                placeholder="ابحث عن منتج..." 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+          )}
+          <label className="btn-action" style={{ cursor: 'pointer' }}>
+            📤 استيراد Excel
+            <input type="file" accept=".xls,.html" onChange={importFromExcel} style={{ display: 'none' }} />
+          </label>
+          {savedProducts.length > 0 && (
+            <button className="btn-action" onClick={exportToCSV}>📥 تصدير Excel</button>
+          )}
+        </div>
+      </div>
 
-          <div className="action-buttons">
-            <button className="btn-save" onClick={saveProduct}>💾 حفظ في المحفظة</button>
-            <button className="btn-clear" onClick={clearInputs}>🗑 مسح الحقول</button>
-          </div>
-        </div>
-      </div>
-
-      <div className="saved-section-title">
-        <span>💼 المحفظة ({savedProducts.length})</span>
-        <div className="table-controls">
-          {savedProducts.length > 0 && (
-            <div className="search-box">
-              <span>🔍</span>
-              <input 
-                type="text" 
-                placeholder="ابحث عن منتج..." 
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-          )}
-          <label className="btn-action" style={{ cursor: 'pointer' }}>
-            📤 استيراد Excel
-            <input type="file" accept=".xls,.html" onChange={importFromExcel} style={{ display: 'none' }} />
-          </label>
-          {savedProducts.length > 0 && (
-            <button className="btn-action" onClick={exportToCSV}>📥 تصدير Excel</button>
-          )}
-        </div>
-      </div>
-
-      {savedProducts.length > 0 ? (
-        <div className="table-container">
-          <table className="styled-table">
-            <thead>
-              <tr>
-                <th style={{ textAlign: 'center', width: '40px' }}>#</th>
-                <th>المنتج</th>
-                <th>سعر البيع</th>
-                <th>التكلفة</th>
-                <th>الشحن</th>
-                <th>الإعلان</th>
-                <th>Max CPA</th>
-                <th>ROAS</th>
-                <th>الربح الصافي</th>
-                <th>الهامش</th>
-                <th>إجراءات</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredProducts.length > 0 ? (
-                filteredProducts.map((prod, index) => (
-                  <tr key={prod.id} style={{ borderLeft: `4px solid ${prod.profitMargin >= 20 ? '#10b981' : prod.profitMargin > 0 ? '#f59e0b' : '#ef4444'}` }}>
-                    <td className="index-cell">{index + 1}</td>
-                    <td style={{ fontWeight: 900, color: '#0f172a' }}>{prod.name}</td>
-                    <td dir="ltr" style={{ color: '#64748b' }}>{prod.sellingPrice} {prod.currency || 'ر.س'}</td>
-                    <td dir="ltr" style={{ color: '#64748b' }}>{prod.productCost} {prod.currency || 'ر.س'}</td>
-                    <td dir="ltr" style={{ color: '#64748b' }}>{prod.shippingCost} {prod.currency || 'ر.س'}</td>
-                    <td dir="ltr" style={{ color: '#64748b' }}>{prod.adSpend} {prod.currency || 'ر.س'}</td>
-                    
-                    <td dir="ltr" style={{ color: '#f59e0b', fontWeight: 800 }}>{prod.maxCPA.toFixed(2)}</td>
-                    <td dir="ltr" style={{ color: '#38bdf8', fontWeight: 800 }}>{prod.breakEvenROAS.toFixed(2)}x</td>
-                    
-                    <td dir="ltr" style={{ fontWeight: 900, color: prod.netProfit > 0 ? '#166534' : '#991b1b' }}>
-                      {prod.netProfit.toFixed(2)} {prod.currency || 'ر.س'}
-                    </td>
-                    <td>
-                      <span className={`table-badge ${prod.profitMargin >= 20 ? 'bg-green' : prod.profitMargin > 0 ? 'bg-yellow' : 'bg-red'}`}>
-                        {prod.profitMargin.toFixed(1)}%
-                      </span>
-                    </td>
-                    <td>
-                      <div className="pc-actions">
-                        <button className="pc-btn pc-btn-edit" onClick={() => loadProduct(prod)} title="استدعاء للتعديل">✏️</button>
-                        <button className="pc-btn pc-btn-delete" onClick={() => deleteProduct(prod.id)} title="حذف المنتج">✕</button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={11} style={{ textAlign: 'center', padding: '20px', color: '#64748b' }}>لا يوجد منتج يطابق بحثك "{searchQuery}"</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      ) : (
-        <div style={{ maxWidth: '1000px', margin: '0 auto', background: '#fff', padding: '30px', borderRadius: '16px', border: '1px solid #e2e8f0', textAlign: 'center', color: '#64748b', fontSize: '13px', fontWeight: 700 }}>
-          المحفظة فارغة حالياً. يمكنك حفظ المنتجات يدوياً من الأعلى، أو النقر على <b>"استيراد Excel"</b> لرفع ملف منتجاتك السابقة.
-        </div>
-      )}
-    </div>
-  );
+      {savedProducts.length > 0 ? (
+        <div className="table-container">
+          <table className="styled-table">
+            <thead>
+              <tr>
+                <th style={{ textAlign: 'center', width: '40px' }}>#</th>
+                <th>المنتج</th>
+                <th>سعر البيع</th>
+                <th>التكلفة</th>
+                <th>الشحن</th>
+                <th>الإعلان</th>
+                <th>Max CPA</th>
+                <th>ROAS</th>
+                <th>الربح الصافي</th>
+                <th>الهامش</th>
+                <th>إجراءات</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredProducts.length > 0 ? (
+                filteredProducts.map((prod, index) => (
+                  <tr key={prod.id} style={{ borderLeft: `4px solid ${prod.profitMargin >= 20 ? '#10b981' : prod.profitMargin > 0 ? '#f59e0b' : '#ef4444'}` }}>
+                    <td className="index-cell">{index + 1}</td>
+                    <td style={{ fontWeight: 900, color: '#0f172a' }}>{prod.name}</td>
+                    <td dir="ltr" style={{ color: '#64748b' }}>{prod.sellingPrice} {prod.currency || 'ر.س'}</td>
+                    <td dir="ltr" style={{ color: '#64748b' }}>{prod.productCost} {prod.currency || 'ر.س'}</td>
+                    <td dir="ltr" style={{ color: '#64748b' }}>{prod.shippingCost} {prod.currency || 'ر.س'}</td>
+                    <td dir="ltr" style={{ color: '#64748b' }}>{prod.adSpend} {prod.currency || 'ر.س'}</td>
+                    
+                    <td dir="ltr" style={{ color: '#f59e0b', fontWeight: 800 }}>{prod.maxCPA.toFixed(2)}</td>
+                    <td dir="ltr" style={{ color: '#38bdf8', fontWeight: 800 }}>{prod.breakEvenROAS.toFixed(2)}x</td>
+                    
+                    <td dir="ltr" style={{ fontWeight: 900, color: prod.netProfit > 0 ? '#166534' : '#991b1b' }}>
+                      {prod.netProfit.toFixed(2)} {prod.currency || 'ر.س'}
+                    </td>
+                    <td>
+                      <span className={`table-badge ${prod.profitMargin >= 20 ? 'bg-green' : prod.profitMargin > 0 ? 'bg-yellow' : 'bg-red'}`}>
+                        {prod.profitMargin.toFixed(1)}%
+                      </span>
+                    </td>
+                    <td>
+                      <div className="pc-actions">
+                        <button className="pc-btn pc-btn-edit" onClick={() => loadProduct(prod)} title="استدعاء للتعديل">✏️</button>
+                        <button className="pc-btn pc-btn-delete" onClick={() => deleteProduct(prod.id)} title="حذف المنتج">✕</button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={11} style={{ textAlign: 'center', padding: '20px', color: '#64748b' }}>لا يوجد منتج يطابق بحثك "{searchQuery}"</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <div style={{ maxWidth: '1000px', margin: '0 auto', background: '#fff', padding: '30px', borderRadius: '16px', border: '1px solid #e2e8f0', textAlign: 'center', color: '#64748b', fontSize: '13px', fontWeight: 700 }}>
+          المحفظة فارغة حالياً. يمكنك حفظ المنتجات يدوياً من الأعلى، أو النقر على <b>"استيراد Excel"</b> لرفع ملف منتجاتك السابقة.
+        </div>
+      )}
+    </div>
+  );
 }
