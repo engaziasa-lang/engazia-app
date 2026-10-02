@@ -137,6 +137,11 @@ export default function EngaziaWhatsAppCRM() {
   const [newCatColor, setNewCatColor] = useState('#4f46e5');
   const [newCatIsSale, setNewCatIsSale] = useState(true);
 
+  // حالات نظام مفتاح الاشتراك (License Key) السحابي
+  const [licenseKeyInput, setLicenseKeyInput] = useState<string>('');
+  const [isActivated, setIsActivated] = useState<boolean>(false);
+  const MASTER_KEY = '$2a$10$MjUOD019x6uuVhydjtfL.cBlGqmIXvWR5b/tNrOZU6Ey8P.JOcyu';
+
   // إشعار Toast عصري
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const showToast = (msg: string) => {
@@ -153,7 +158,140 @@ export default function EngaziaWhatsAppCRM() {
   // Autocomplete
   const [showSuggestions, setShowSuggestions] = useState(false);
 
+  // دالة لجلب البيانات سحابياً بناءً على مفتاح الترخيص
+  const loadDataFromCloud = async (licenseKey: string) => {
+    if (!licenseKey) return;
+    try {
+      const binId = localStorage.getItem(`bin_id_${licenseKey}`);
+      if (!binId) return;
+
+      const res = await fetch(`https://api.jsonbin.io/v3/b/${binId}/latest`, {
+        headers: {
+          'X-Master-Key': MASTER_KEY
+        }
+      });
+      const responseData = await res.json();
+      if (responseData && responseData.record && responseData.record.tools_data && responseData.record.tools_data.whatsapp_crm) {
+        const cloudData = responseData.record.tools_data.whatsapp_crm;
+        if (cloudData.contacts) {
+          setContacts(cloudData.contacts);
+          localStorage.setItem('engazia_whatsapp_pro_crm_v16', JSON.stringify(cloudData.contacts));
+        }
+        if (cloudData.categories) {
+          setCategories(cloudData.categories);
+          localStorage.setItem('engazia_whatsapp_categories_v2', JSON.stringify(cloudData.categories));
+        }
+        if (cloudData.statusOptions) {
+          setStatusOptions(cloudData.statusOptions);
+          localStorage.setItem('engazia_whatsapp_statuses_v1', JSON.stringify(cloudData.statusOptions));
+        }
+        if (cloudData.responseStateOptions) {
+          setResponseStateOptions(cloudData.responseStateOptions);
+          localStorage.setItem('engazia_whatsapp_response_states_v1', JSON.stringify(cloudData.responseStateOptions));
+        }
+        if (cloudData.templates) {
+          setTemplates(cloudData.templates);
+          localStorage.setItem('engazia_templates_v2', JSON.stringify(cloudData.templates));
+        }
+        if (cloudData.storeName) {
+          setStoreName(cloudData.storeName);
+          localStorage.setItem('engazia_store_name', cloudData.storeName);
+        }
+        if (cloudData.storeLogo) {
+          setStoreLogo(cloudData.storeLogo);
+          localStorage.setItem('engazia_store_logo', cloudData.storeLogo);
+        }
+        if (cloudData.defaultDiscountCode) {
+          setDefaultDiscountCode(cloudData.defaultDiscountCode);
+          localStorage.setItem('engazia_default_discount', cloudData.defaultDiscountCode);
+        }
+      }
+    } catch (err) {
+      console.error('خطأ في سحب بيانات الواتساب سحابياً:', err);
+    }
+  };
+
+  // دالة حفظ البيانات سحابياً ومحلياً
+  const saveToCloud = async (newData?: {
+    contacts?: Customer[];
+    categories?: TagConfig[];
+    statusOptions?: StatusConfig[];
+    responseStateOptions?: ResponseStateConfig[];
+    templates?: Template[];
+    storeName?: string;
+    storeLogo?: string;
+    defaultDiscountCode?: string;
+  }) => {
+    const currentContacts = newData?.contacts !== undefined ? newData.contacts : contacts;
+    const currentCategories = newData?.categories !== undefined ? newData.categories : categories;
+    const currentStatuses = newData?.statusOptions !== undefined ? newData.statusOptions : statusOptions;
+    const currentRespStates = newData?.responseStateOptions !== undefined ? newData.responseStateOptions : responseStateOptions;
+    const currentTemplates = newData?.templates !== undefined ? newData.templates : templates;
+    const currentStoreName = newData?.storeName !== undefined ? newData.storeName : storeName;
+    const currentStoreLogo = newData?.storeLogo !== undefined ? newData.storeLogo : storeLogo;
+    const currentDisc = newData?.defaultDiscountCode !== undefined ? newData.defaultDiscountCode : defaultDiscountCode;
+
+    const licenseKey = localStorage.getItem('merchant_license_key');
+    if (!licenseKey) return;
+
+    try {
+      let binId = localStorage.getItem(`bin_id_${licenseKey}`);
+
+      const payload = {
+        merchant_key: licenseKey,
+        tools_data: {
+          whatsapp_crm: {
+            contacts: currentContacts,
+            categories: currentCategories,
+            statusOptions: currentStatuses,
+            responseStateOptions: currentRespStates,
+            templates: currentTemplates,
+            storeName: currentStoreName,
+            storeLogo: currentStoreLogo,
+            defaultDiscountCode: currentDisc
+          }
+        }
+      };
+
+      if (!binId) {
+        const createRes = await fetch('https://api.jsonbin.io/v3/b', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Master-Key': MASTER_KEY,
+            'X-Bin-Name': `Merchant_${licenseKey}`
+          },
+          body: JSON.stringify(payload)
+        });
+        const createData = await createRes.json();
+        if (createData && createData.metadata && createData.metadata.id) {
+          binId = createData.metadata.id;
+          localStorage.setItem(`bin_id_${licenseKey}`, binId!);
+        }
+      } else {
+        await fetch(`https://api.jsonbin.io/v3/b/${binId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Master-Key': MASTER_KEY
+          },
+          body: JSON.stringify(payload)
+        });
+      }
+      console.log('تم مزامنة بيانات الواتساب سحابياً بنجاح!');
+    } catch (err) {
+      console.error('فشل الحفظ السحابي:', err);
+    }
+  };
+
   useEffect(() => {
+    const savedKey = localStorage.getItem('merchant_license_key');
+    if (savedKey) {
+      setLicenseKeyInput(savedKey);
+      setIsActivated(true);
+      loadDataFromCloud(savedKey);
+    }
+
     const savedContacts = localStorage.getItem('engazia_whatsapp_pro_crm_v16');
     if (savedContacts) {
       try { setContacts(JSON.parse(savedContacts)); } catch (e) { console.error(e); }
@@ -197,40 +335,59 @@ export default function EngaziaWhatsAppCRM() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const handleActivateLicense = () => {
+    if (!licenseKeyInput.trim()) {
+      alert('الرجاء إدخال مفتاح الاشتراك الصحيح.');
+      return;
+    }
+    const cleanKey = licenseKeyInput.trim();
+    localStorage.setItem('merchant_license_key', cleanKey);
+    setIsActivated(true);
+    loadDataFromCloud(cleanKey);
+    alert('تم تفعيل مفتاح الاشتراك بنجاح وتزامن أدواتك!');
+  };
+
   const saveContacts = (updated: Customer[]) => {
     setContacts(updated);
     localStorage.setItem('engazia_whatsapp_pro_crm_v16', JSON.stringify(updated));
+    saveToCloud({ contacts: updated });
   };
 
   const saveCategories = (updated: TagConfig[]) => {
     setCategories(updated);
     localStorage.setItem('engazia_whatsapp_categories_v2', JSON.stringify(updated));
+    saveToCloud({ categories: updated });
   };
 
   const saveStatuses = (updated: StatusConfig[]) => {
     setStatusOptions(updated);
     localStorage.setItem('engazia_whatsapp_statuses_v1', JSON.stringify(updated));
+    saveToCloud({ statusOptions: updated });
   };
 
   const saveResponseStates = (updated: ResponseStateConfig[]) => {
     setResponseStateOptions(updated);
     localStorage.setItem('engazia_whatsapp_response_states_v1', JSON.stringify(updated));
+    saveToCloud({ responseStateOptions: updated });
   };
 
   const saveTemplates = (updated: Template[]) => {
     setTemplates(updated);
     localStorage.setItem('engazia_templates_v2', JSON.stringify(updated));
+    saveToCloud({ templates: updated });
   };
 
   const saveDefaultDiscount = (code: string) => {
     setDefaultDiscountCode(code);
     localStorage.setItem('engazia_default_discount', code);
+    saveToCloud({ defaultDiscountCode: code });
     showToast('تم تحديث كود الخصم الافتراضي بنجاح');
   };
 
   const handleSaveStoreName = (name: string) => {
     setStoreName(name);
     localStorage.setItem('engazia_store_name', name);
+    saveToCloud({ storeName: name });
     showToast('✨ تم تحديث اسم المتجر بنجاح');
   };
 
@@ -244,6 +401,7 @@ export default function EngaziaWhatsAppCRM() {
       if (result) {
         setStoreLogo(result);
         localStorage.setItem('engazia_store_logo', result);
+        saveToCloud({ storeLogo: result });
         showToast('🖼 تم رفع شعار المتجر بنجاح!');
       }
     };
@@ -278,27 +436,52 @@ export default function EngaziaWhatsAppCRM() {
     reader.onload = (event) => {
       try {
         const data = JSON.parse(event.target?.result as string);
+        let newContacts = contacts;
+        let newCats = categories;
+        let newStats = statusOptions;
+        let newResps = responseStateOptions;
+        let newTpls = templates;
+        let newNameStore = storeName;
+
         if (data && data.contacts) {
-          setContacts(data.contacts);
-          localStorage.setItem('engazia_whatsapp_pro_crm_v16', JSON.stringify(data.contacts));
+          newContacts = data.contacts;
+          setContacts(newContacts);
+          localStorage.setItem('engazia_whatsapp_pro_crm_v16', JSON.stringify(newContacts));
         }
         if (data && data.categories) {
-          setCategories(data.categories);
-          localStorage.setItem('engazia_whatsapp_categories_v2', JSON.stringify(data.categories));
+          newCats = data.categories;
+          setCategories(newCats);
+          localStorage.setItem('engazia_whatsapp_categories_v2', JSON.stringify(newCats));
         }
         if (data && data.statusOptions) {
-          setStatusOptions(data.statusOptions);
-          localStorage.setItem('engazia_whatsapp_statuses_v1', JSON.stringify(data.statusOptions));
+          newStats = data.statusOptions;
+          setStatusOptions(newStats);
+          localStorage.setItem('engazia_whatsapp_statuses_v1', JSON.stringify(newStats));
         }
         if (data && data.responseStateOptions) {
-          setResponseStateOptions(data.responseStateOptions);
-          localStorage.setItem('engazia_whatsapp_response_states_v1', JSON.stringify(data.responseStateOptions));
+          newResps = data.responseStateOptions;
+          setResponseStateOptions(newResps);
+          localStorage.setItem('engazia_whatsapp_response_states_v1', JSON.stringify(newResps));
         }
         if (data && data.templates) {
-          setTemplates(data.templates);
-          localStorage.setItem('engazia_templates_v2', JSON.stringify(data.templates));
+          newTpls = data.templates;
+          setTemplates(newTpls);
+          localStorage.setItem('engazia_templates_v2', JSON.stringify(newTpls));
         }
-        if (data && data.storeName) handleSaveStoreName(data.storeName);
+        if (data && data.storeName) {
+          newNameStore = data.storeName;
+          handleSaveStoreName(newNameStore);
+        }
+
+        saveToCloud({
+          contacts: newContacts,
+          categories: newCats,
+          statusOptions: newStats,
+          responseStateOptions: newResps,
+          templates: newTpls,
+          storeName: newNameStore
+        });
+
         showToast('♻️ تم استعادة النسخة الاحتياطية بنجاح!');
       } catch (err) {
         showToast('❌ ملف النسخ الاحتياطي غير صالح.');
@@ -338,10 +521,11 @@ export default function EngaziaWhatsAppCRM() {
           note: customNote || 'فتح رابط المحادثة'
         };
         const existingTimeline = c.timeline || [];
+        const newTimeLine = [newLog, ...existingTimeline];
         return { 
           ...c, 
           lastContactDate: dateStr, 
-          timeline: [newLog, ...existingTimeline] 
+          timeline: newTimeLine 
         };
       }
       return c;
@@ -458,7 +642,7 @@ export default function EngaziaWhatsAppCRM() {
     if (window.confirm(`حذف التصنيف "${catName}"؟`)) {
       const updated = categories.filter(c => c.name !== catName);
       saveCategories(updated);
-      showToast('🗑️ تم حذف التصنيف');
+      showToast('🗑️️ تم حذف التصنيف');
     }
   };
 
@@ -483,7 +667,7 @@ export default function EngaziaWhatsAppCRM() {
 
   const addResponseStateOption = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newRespName) return showToast('⚠ أدخل اسم حالة الرد.');
+    if (!newRespName) return showToast('⚠️ أدخل اسم حالة الرد.');
     if (responseStateOptions.some(r => r.name === newRespName)) return showToast('⚠️ حالة الرد هذه موجودة مسبقاً.');
     const updated = [...responseStateOptions, { name: newRespName, bg: newRespBg, color: newRespColor }];
     saveResponseStates(updated);
@@ -533,7 +717,6 @@ export default function EngaziaWhatsAppCRM() {
     }
   };
 
-  // وظيفة فلترة التاريخ المحدثة لتشمل (اليوم)
   const filterByDateRange = (cList: Customer[]) => {
     if (dateFilter === 'all') return cList;
     const now = new Date();
@@ -584,6 +767,9 @@ export default function EngaziaWhatsAppCRM() {
         .toast-banner { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #1e293b; color: #fff; padding: 12px 24px; border-radius: 12px; font-size: 14px; font-weight: 800; z-index: 9999; box-shadow: 0 10px 25px rgba(0,0,0,0.15); animation: fadeInOut 0.3s ease; }
         @keyframes fadeInOut { from { opacity: 0; transform: translate(-50%, -10px); } to { opacity: 1; transform: translate(-50%, 0); } }
 
+        .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px; border-bottom: 1px solid #f1f5f9; padding-bottom: 15px; }
+        .license-box { display: flex; align-items: center; gap: 8px; background: #f8fafc; padding: 6px 12px; border-radius: 8px; border: 1px solid #cbd5e1; }
+
         .header-brand { text-align: center; margin-bottom: 30px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
         .store-logo-badge { width: 68px; height: 68px; border-radius: 18px; background: #eef2ff; color: #4f46e5; display: flex; align-items: center; justify-content: center; font-size: 30px; font-weight: 900; box-shadow: 0 4px 15px rgba(79,70,229,0.15); border: 2px solid #c7d2fe; overflow: hidden; }
         .store-logo-badge img { width: 100%; height: 100%; object-fit: cover; }
@@ -624,7 +810,6 @@ export default function EngaziaWhatsAppCRM() {
         .btn-edit { background: #e0e7ff; color: #4f46e5; }
         .btn-danger { background: #fee2e2; color: #dc2626; }
 
-        /* استجابة الجوال وتحويل الجدول إلى بطاقات (Cards) في الشاشات الصغيرة */
         .table-container { width: 100%; background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; overflow-x: auto; }
         .contacts-table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: right; min-width: 850px; }
         .contacts-table th, .contacts-table td { padding: 10px 8px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
@@ -660,7 +845,6 @@ export default function EngaziaWhatsAppCRM() {
         .chip-btn:hover { border-color: #4f46e5; color: #4f46e5; }
         .chip-btn.active { background: #4f46e5; color: #fff; border-color: #4f46e5; box-shadow: 0 2px 8px rgba(79,70,229,0.2); }
 
-        /* نافذة تفاصيل العميل الشاملة مع الأرشيف الزمني (Timeline) */
         .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 9999; animation: fadeIn 0.2s ease; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .modal-content { background: #fff; border-radius: 20px; padding: 30px; width: 100%; max-width: 650px; box-shadow: 0 20px 40px rgba(0,0,0,0.15); border: 1px solid #e2e8f0; position: relative; max-height: 90vh; overflow-y: auto; }
@@ -679,7 +863,6 @@ export default function EngaziaWhatsAppCRM() {
         .timeline-list { max-height: 150px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
         .timeline-item { background: #f8fafc; border: 1px solid #e2e8f0; padding: 8px 12px; border-radius: 8px; font-size: 12px; display: flex; justify-content: space-between; align-items: center; }
 
-        /* إعدادات متقدمة */
         .settings-creation-box { display: flex; gap: 15px; align-items: flex-end; background: #fff; padding: 20px; border-radius: 12px; border: 2px dashed #cbd5e1; margin-bottom: 25px; flex-wrap: wrap; }
         .color-picker { padding: 2px; height: 44px; cursor: pointer; }
         .tags-list-container { display: flex; flex-direction: column; gap: 10px; }
@@ -702,10 +885,8 @@ export default function EngaziaWhatsAppCRM() {
         .btn-icon { padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 800; cursor: pointer; border: none; display: flex; align-items: center; gap: 5px; }
       `}</style>
 
-      {/* Toast Notification Banner */}
       {toastMessage && <div className="toast-banner">{toastMessage}</div>}
 
-      {/* نافذة ملف العميل الشامل مع الأرشيف والتعديل المباشر */}
       {selectedCustomer && (
         <div className="modal-overlay" onClick={() => setSelectedCustomer(null)}>
           <div className="modal-content" onClick={e => e.stopPropagation()}>
@@ -801,7 +982,6 @@ export default function EngaziaWhatsAppCRM() {
               </div>
             </div>
 
-            {/* الأرشيف وسجل تفاعلات العميل (Timeline) */}
             <div className="timeline-box">
               <div className="timeline-title">📜 أرشيف التواصل وسجل الملاحظات السابقة</div>
               <div className="timeline-list">
@@ -840,9 +1020,34 @@ export default function EngaziaWhatsAppCRM() {
       )}
 
       <div className="wrapper">
-        <Link href="/hub" className="back-link" style={{ color: '#4f46e5', textDecoration: 'none', fontWeight: 700, fontSize: '13px', display: 'inline-block', marginBottom: '15px' }}>← العودة للوحة الرئيسية</Link>
+        {/* هيدر يحتوي على العودة ومفتاح الاشتراك الموحد */}
+        <div className="header-top">
+          <Link href="/hub" className="back-link" style={{ color: '#4f46e5', textDecoration: 'none', fontWeight: 700, fontSize: '13px' }}>← العودة للوحة الرئيسية</Link>
 
-        {/* ترويسة المتجر الديناميكية */}
+          <div className="license-box">
+            <span style={{ fontSize: '12px', fontWeight: 800, color: '#475569' }}>🔑 الاشتراك:</span>
+            {isActivated ? (
+              <span style={{ fontSize: '12px', fontWeight: 900, color: '#10b981' }}>مفعل ✓</span>
+            ) : (
+              <>
+                <input 
+                  type="text" 
+                  placeholder="أدخل مفتاح الترخيص..." 
+                  value={licenseKeyInput} 
+                  onChange={(e) => setLicenseKeyInput(e.target.value)}
+                  style={{ border: '1px solid #cbd5e1', borderRadius: '6px', padding: '4px 8px', fontSize: '11px', outline: 'none', width: '130px', fontFamily: 'Tajawal, sans-serif' }}
+                />
+                <button 
+                  onClick={handleActivateLicense}
+                  style={{ background: '#4f46e5', color: '#fff', border: 'none', padding: '5px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 800, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif' }}
+                >
+                  تفعيل
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+
         <div className="header-brand">
           <div className="store-logo-badge">
             {storeLogo.startsWith('data:') || storeLogo.startsWith('http') || storeLogo.startsWith('/') ? (
@@ -863,7 +1068,6 @@ export default function EngaziaWhatsAppCRM() {
           <button className={`tab-btn ${activeTab === 'tags' ? 'active' : ''}`} onClick={() => setActiveTab('tags')}>⚙️ الإعدادات</button>
         </div>
 
-        {/* شريط الفلترة الزمنية العام */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f8fafc', border: '1px solid #e2e8f0', padding: '12px 20px', borderRadius: '12px', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
           <div style={{ fontSize: '13px', fontWeight: 800, color: '#475569' }}>📅 فلترة حسب الفترة الزمنية:</div>
           <div style={{ display: 'flex', gap: '8px' }}>
@@ -1071,7 +1275,6 @@ export default function EngaziaWhatsAppCRM() {
               </div>
             </div>
 
-            {/* طريقة عرض الجدول للشاشات الكبيرة */}
             <div className="table-container">
               <table className="contacts-table">
                 <thead>
@@ -1143,7 +1346,6 @@ export default function EngaziaWhatsAppCRM() {
               </table>
             </div>
 
-            {/* طريقة عرض البطاقات (Cards) المتجاوبة للشاشات الصغيرة والهواتف */}
             <div className="mobile-cards-view">
               {filteredContacts.map(c => {
                 const respConf = responseStateOptions.find(r => r.name === c.responseState);
@@ -1304,7 +1506,6 @@ export default function EngaziaWhatsAppCRM() {
         {/* 4. Settings */}
         {activeTab === 'tags' && (
           <div>
-            {/* إعدادات هوية المتجر */}
             <div className="section-box" style={{ background: '#eef2ff', borderColor: '#c7d2fe' }}>
               <div className="section-title">🛍 إعدادات هوية المتجر</div>
               <p className="section-desc">خصص اسم متجرك وقم برفع شعار المتجر من جهاز الكمبيوتر ليظهر باحترافية في أعلى المنصة.</p>
@@ -1324,7 +1525,6 @@ export default function EngaziaWhatsAppCRM() {
               </div>
             </div>
 
-            {/* نظام النسخ الاحتياطي والاستعادة */}
             <div className="section-box" style={{ background: '#f0fdf4', borderColor: '#bbf7d0' }}>
               <div className="section-title" style={{ color: '#166534' }}>💾 النسخ الاحتياطي واستعادة البيانات</div>
               <p className="section-desc">قم بتنزيل نسخة احتياطية لبيانات متجرك بملف JSON أو استعادتها بأي وقت لحماية بياناتك من الضياع.</p>
@@ -1380,7 +1580,6 @@ export default function EngaziaWhatsAppCRM() {
               </div>
             </div>
 
-            {/* إعدادات وتخصيص حالات العملاء الجديدة */}
             <div className="section-box">
               <div className="section-title">📌 تخصيص حالات العملاء</div>
               <p className="section-desc">أنشئ وعدل حالات العملاء (مثل نشط، مميز، محظور...) وتحكم بألوانها.</p>
@@ -1439,7 +1638,6 @@ export default function EngaziaWhatsAppCRM() {
               </div>
             </div>
 
-            {/* تخصيص حالات الرد في الإعدادات */}
             <div className="section-box">
               <div className="section-title">💬 تخصيص حالات الرد</div>
               <p className="section-desc">أنشئ وعدل حالات الرد المتاحة للعملاء (مثل بانتظار الرد، تم الاتفاق...) وتحكم بألوانها.</p>
