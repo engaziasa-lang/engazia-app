@@ -44,6 +44,9 @@ export default function ProfitCalculator() {
   const [licenseKeyInput, setLicenseKeyInput] = useState<string>('');
   const [isActivated, setIsActivated] = useState<boolean>(false);
 
+  // رابط الدفع المعتمد لـ Lemon Squeezy
+  const LEMON_CHECKOUT_URL = 'https://enjazya.lemonsqueezy.com/checkout/buy/80ff492a-01eb-4455-b1a8-96e12ab72562';
+
   const [results, setResults] = useState({
     paymentFees: 0,
     taxAmount: 0,
@@ -61,12 +64,12 @@ export default function ProfitCalculator() {
   // إعدادات JSONbin
   const MASTER_KEY = '$2a$10$MjUOD019x6uuVhydjtfL.cBlGqmIXvWR5b/tNrOZU6Ey8P.JOcyu';
 
-  // دالة لجلب البيانات سحابياً بناءً على كود التاجر (يخزن Bin ID في localStorage بعد أول ربط)
+  // دالة لجلب البيانات سحابياً بناءً على كود التاجر
   const loadDataFromCloud = async (licenseKey: string) => {
     if (!licenseKey) return;
     try {
       const binId = localStorage.getItem(`bin_id_${licenseKey}`);
-      if (!binId) return; // أول مرة لهذا التاجر على هذا الجهاز
+      if (!binId) return;
 
       const res = await fetch(`https://api.jsonbin.io/v3/b/${binId}/latest`, {
         headers: {
@@ -96,12 +99,10 @@ export default function ProfitCalculator() {
         merchant_key: licenseKey,
         tools_data: {
           profit_calculator: updatedProducts,
-          // الأدوات المستقبلية تضاف هنا بكل سهولة
         }
       };
 
       if (!binId) {
-        // إذا لم يكن للتاجر ملف (Bin) سحابي بعد، نقوم بانشائه تلقائياً
         const createRes = await fetch('https://api.jsonbin.io/v3/b', {
           method: 'POST',
           headers: {
@@ -117,7 +118,6 @@ export default function ProfitCalculator() {
           localStorage.setItem(`bin_id_${licenseKey}`, binId!);
         }
       } else {
-        // تحديث الملف الموجود مسبقاً
         await fetch(`https://api.jsonbin.io/v3/b/${binId}`, {
           method: 'PUT',
           headers: {
@@ -435,7 +435,12 @@ export default function ProfitCalculator() {
         .back-btn { background: #ffffff; color: #475569; padding: 8px 16px; border-radius: 8px; font-weight: 800; font-size: 13px; border: 1px solid #cbd5e1; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
         .back-btn:hover { background: #e2e8f0; color: #0f172a; }
         
+        .header-left-group { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
         .license-box { display: flex; align-items: center; gap: 8px; background: #fff; padding: 6px 12px; border-radius: 8px; border: 1px solid #cbd5e1; }
+        
+        .upgrade-btn { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: #fff !important; text-decoration: none; padding: 7px 14px; border-radius: 8px; font-weight: 800; font-size: 12px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(79,70,229,0.25); transition: transform 0.2s; white-space: nowrap; }
+        .upgrade-btn:hover { transform: translateY(-2px); }
+
         .currency-selector { display: flex; align-items: center; gap: 8px; background: #fff; padding: 6px 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-weight: 800; font-size: 12px; color: #475569; }
         .currency-selector select { border: none; outline: none; background: transparent; font-family: 'Tajawal', sans-serif; font-weight: 900; color: #4f46e5; cursor: pointer; }
 
@@ -530,56 +535,62 @@ export default function ProfitCalculator() {
           <span>→</span> العودة
         </Link>
 
-        {/* تفعيل مفتاح الاشتراك */}
-        <div className="license-box">
-          <span style={{ fontSize: '12px', fontWeight: 800, color: '#475569' }}>🔑 الاشتراك:</span>
-          {isActivated ? (
-            <span style={{ fontSize: '12px', fontWeight: 900, color: '#10b981' }}>مفعل ✓</span>
-          ) : (
-            <>
-              <input 
-                type="text" 
-                placeholder="أدخل مفتاح الترخيص..." 
-                value={licenseKeyInput} 
-                onChange={(e) => setLicenseKeyInput(e.target.value)}
-                style={{ border: '1px solid #cbd5e1', borderRadius: '6px', padding: '4px 8px', fontSize: '11px', outline: 'none', width: '130px', fontFamily: 'Tajawal, sans-serif' }}
-              />
-              <button 
-                onClick={handleActivateLicense}
-                style={{ background: '#4f46e5', color: '#fff', border: 'none', padding: '5px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 800, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif' }}
-              >
-                تفعيل
-              </button>
-            </>
-          )}
-        </div>
+        {/* مجموعة الأزرار على اليسار (زر الترقية وصندوق مفتاح الاشتراك والعملة) */}
+        <div className="header-left-group">
+          <div className="license-box">
+            <span style={{ fontSize: '12px', fontWeight: 800, color: '#475569' }}>🔑 الاشتراك:</span>
+            {isActivated ? (
+              <span style={{ fontSize: '12px', fontWeight: 900, color: '#10b981' }}>مفعل ✓</span>
+            ) : (
+              <>
+                <input 
+                  type="text" 
+                  placeholder="أدخل مفتاح الترخيص..." 
+                  value={licenseKeyInput} 
+                  onChange={(e) => setLicenseKeyInput(e.target.value)}
+                  style={{ border: '1px solid #cbd5e1', borderRadius: '6px', padding: '4px 8px', fontSize: '11px', outline: 'none', width: '130px', fontFamily: 'Tajawal, sans-serif' }}
+                />
+                <button 
+                  onClick={handleActivateLicense}
+                  style={{ background: '#4f46e5', color: '#fff', border: 'none', padding: '5px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 800, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif' }}
+                >
+                  تفعيل
+                </button>
+              </>
+            )}
+          </div>
 
-        <div className="currency-selector">
-          <span>العملة:</span>
-          <select value={currency} onChange={(e) => handleCurrencyChange(e.target.value)}>
-            <option value="ر.س">ريال سعودي (ر.س)</option>
-            <option value="$">دولار أمريكي ($)</option>
-            <option value="د.إ">درهم إماراتي (د.إ)</option>
-            <option value="د.ك">دينار كويتي (د.ك)</option>
-            <option value="ر.ع">ريال عماني (ر.ع)</option>
-            <option value="د.ب">دينار بحريني (د.ب)</option>
-            <option value="ر.ق">ريال قطري (ر.ق)</option>
-            <option value="د.أ">دينار أردني (د.أ)</option>
-            <option value="ج.م">جنيه مصري (ج.م)</option>
-            <option value="د.ت">دينار تونسي (د.ت)</option>
-            <option value="د.ج">دينار جزائري (د.ج)</option>
-            <option value="د.م">درهم مغربي (د.م)</option>
-            <option value="ل.س">ليرة سورية (ل.س)</option>
-            <option value="ل.ل">ليرة لبنانية (ل.ل)</option>
-            <option value="ج.س">جنيه سوداني (ج.س)</option>
-            <option value="د.ع">دينار عراقي (د.ع)</option>
-            <option value="ر.ي">ريال يمني (ر.ي)</option>
-            <option value="ل.د">دينار ليبي (ل.د)</option>
-            <option value="أوقية">أوقية موريتانية (أوقية)</option>
-            <option value="شلن">شلن صومالي (شلن)</option>
-            <option value="فرنك">فرنك جيبوتي (فرنك)</option>
-            <option value="ج.ق">جنيه جزر القمر (ج.ق)</option>
-          </select>
+          <a href={LEMON_CHECKOUT_URL} target="_blank" rel="noopener noreferrer" className="upgrade-btn">
+            ⚡ ترقية / اشتراك PRO
+          </a>
+
+          <div className="currency-selector">
+            <span>العملة:</span>
+            <select value={currency} onChange={(e) => handleCurrencyChange(e.target.value)}>
+              <option value="ر.س">ريال سعودي (ر.س)</option>
+              <option value="$">دولار أمريكي ($)</option>
+              <option value="د.إ">درهم إماراتي (د.إ)</option>
+              <option value="د.ك">دينار كويتي (د.ك)</option>
+              <option value="ر.ع">ريال عماني (ر.ع)</option>
+              <option value="د.ب">دينار بحريني (د.ب)</option>
+              <option value="ر.ق">ريال قطري (ر.ق)</option>
+              <option value="د.أ">دينار أردني (د.أ)</option>
+              <option value="ج.م">جنيه مصري (ج.م)</option>
+              <option value="د.ت">دينار تونسي (د.ت)</option>
+              <option value="د.ج">دينار جزائري (د.ج)</option>
+              <option value="د.م">درهم مغربي (د.م)</option>
+              <option value="ل.س">ليرة سورية (ل.س)</option>
+              <option value="ل.ل">ليرة لبنانية (ل.ل)</option>
+              <option value="ج.س">جنيه سوداني (ج.س)</option>
+              <option value="د.ع">دينار عراقي (د.ع)</option>
+              <option value="ر.ي">ريال يمني (ر.ي)</option>
+              <option value="ل.د">دينار ليبي (ل.د)</option>
+              <option value="أوقية">أوقية موريتانية (أوقية)</option>
+              <option value="شلن">شلن صومالي (شلن)</option>
+              <option value="فرنك">فرنك جيبوتي (فرنك)</option>
+              <option value="ج.ق">جنيه جزر القمر (ج.ق)</option>
+            </select>
+          </div>
         </div>
       </div>
 
