@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 
-// ملف الإعدادات العامة والمزامنة السحابية للغة والعملة والاشتراك
 const getGlobalConfig = () => {
   if (typeof window === 'undefined') {
     return { lang: 'ar', currency: 'SAR', licenseKey: '', isActivated: false };
@@ -24,9 +23,22 @@ const setGlobalConfig = (lang: string, currency: string) => {
   }
 };
 
+interface ToolInfo {
+  id: string;
+  title: string;
+  desc: string;
+  icon: string;
+  link: string;
+}
+
 interface Translations {
   [key: string]: {
+    brandName: string;
+    brandSub: string;
     live: string;
+    activate: string;
+    keyPlaceholder: string;
+    upgradeBtn: string;
     heroTitle: string;
     heroDesc: string;
     runTool: string;
@@ -40,12 +52,18 @@ interface Translations {
     terms: string;
     privacy: string;
     rights: string;
+    tools: ToolInfo[];
   };
 }
 
 const translations: Translations = {
   ar: {
+    brandName: 'إنجازيا',
+    brandSub: 'ENGAZIA',
     live: 'النظام مفعل',
+    activate: 'تفعيل',
+    keyPlaceholder: 'مفتاح الترخيص...',
+    upgradeBtn: '⚡ ترقية اشتراك',
     heroTitle: 'منصة إنجازيا ULTRA MAX',
     heroDesc: 'الترسانة السحابية المتكاملة لرواد التجارة الإلكترونية، 16 أداة تغنيك عن كل الاشتراكات الأخرى.',
     runTool: 'تشغيل الأداة',
@@ -58,10 +76,33 @@ const translations: Translations = {
     faq: 'الأسئلة الشائعة',
     terms: 'شروط الاستخدام',
     privacy: 'سياسة الخصوصية',
-    rights: 'جميع الحقوق محفوظة © 2026 منصة إنجازيا لتمكين التجارة الإلكترونية'
+    rights: 'جميع الحقوق محفوظة © 2026 منصة إنجازيا لتمكين التجارة الإلكترونية',
+    tools: [
+      { id: 'whatsapp', title: 'إدارة عملاء واتساب والمبيعات', desc: 'إدارة السلال المتروكة، إرسال روابط الدفع، وتصنيف عملاء الـ VIP.', icon: '💬', link: '/hub/whatsapp' },
+      { id: 'profit', title: 'حاسبة أرباح ونقاط التعادل', desc: 'احسب صافي أرباح منتجك بدقة بعد خصم التكاليف والإعلانات.', icon: '📊', link: '/hub/profit' },
+      { id: 'invoices', title: 'مولد الفواتير وسندات القبض', desc: 'أنشئ فواتير مبيعات نظامية واحترافية وجهزها للإرسال الفوري.', icon: '🧾', link: '/hub/invoices' },
+      { id: 'returns', title: 'حاسبة وتحليل خسائر المرتجعات', desc: 'قس تأثير الاسترجاع والاستبدال على صافي أرباحك الشهرية.', icon: '🔄', link: '/hub/returns' },
+      { id: 'expenses', title: 'مدير المصاريف والنفقات', desc: 'تتبع مصاريف المتجر الثابتة والمتغيرة لضبط التدفق النقدي.', icon: '💸', link: '/hub/expenses' },
+      { id: 'legal', title: 'مولد السياسات القانونية للمتجر', desc: 'أنشئ صفحات الاستبدال، الاسترجاع، والخصوصية المتوافقة نظامياً.', icon: '⚖', link: '/hub/legal' },
+      { id: 'roas', title: 'محلل عائد الإنفاق الإعلاني', desc: 'قس بدقة أداء إعلانات سناب وتيك توك وهل هي رابحة أم خاسرة.', icon: '📈', link: '/hub/roas' },
+      { id: 'fees', title: 'حاسبة رسوم بوابات الدفع', desc: 'احسب نسبة بوابات الدفع (تاب، مدى، تابي) وتأثيرها على الأرباح.', icon: '💳', link: '/hub/fees' },
+      { id: 'copy', title: 'مولد النصوص التسويقية والإعلانات', desc: 'اصنع سكربتات تيك توك وإعلانات جذابة لزيادة مبيعات منتجاتك.', icon: '✍️', link: '/hub/copy' },
+      { id: 'promos', title: 'ممول وأكواد خصم المتاجر', desc: 'أدر وأنشئ أكواد الخصم السريعة لتحفيز العملاء المترددين.', icon: '🎟️', link: '/hub/promos' },
+      { id: 'shipping', title: 'مدير تتبع الشحنات والتوصيل', desc: 'تابع حالات الشحنات وحل مشاكل استفسارات العملاء اليومية.', icon: '📦', link: '/hub/shipping' },
+      { id: 'scraper', title: 'تنسيق وتنظيف بيانات الإكسل', desc: 'نظف قوائم المنتجات والأسعار العشوائية وحولها لملفات مرتبة.', icon: '⚡', link: '/hub/scraper' },
+      { id: 'links', title: 'صانع روابط واتساب المباشرة', desc: 'أنشئ روابط مخصصة برسائل جاهزة للبايو في تيك توك وإعلاناتك.', icon: '🔗', link: '/hub/links' },
+      { id: 'reviews', title: 'أداة طلب وتقييمات العملاء', desc: 'ارسل رسائل تلقائية للعملاء بعد الاستلام لجمع التقييمات وبناء الثقة.', icon: '⭐', link: '/hub/reviews' },
+      { id: 'support', title: 'ردود خدمة العملاء السريعة', desc: 'انسخ ردود احترافية جاهزة للرد على استفسارات العملاء المكررة.', icon: '🎧', link: '/hub/support' },
+      { id: 'tips', title: 'مكتبة أسرار وحيل نمو المتاجر', desc: 'استراتيجيات حصرية لزيادة التحويل ورفع ولاء العملاء.', icon: '💡', link: '/hub/tips' }
+    ]
   },
   en: {
+    brandName: 'Engazia',
+    brandSub: 'ENGAZIA',
     live: 'System Active',
+    activate: 'Activate',
+    keyPlaceholder: 'License key...',
+    upgradeBtn: '⚡ Upgrade Plan',
     heroTitle: 'ENGAZIA ULTRA MAX Platform',
     heroDesc: 'The ultimate cloud ecosystem for e-commerce entrepreneurs, 16 powerful tools replacing all other subscriptions.',
     runTool: 'Launch Tool',
@@ -74,10 +115,33 @@ const translations: Translations = {
     faq: 'FAQ',
     terms: 'Terms of Use',
     privacy: 'Privacy Policy',
-    rights: 'All rights reserved © 2026 Engazia Platform'
+    rights: 'All rights reserved © 2026 Engazia Platform',
+    tools: [
+      { id: 'whatsapp', title: 'WhatsApp CRM & Sales', desc: 'Manage abandoned carts, payment links, and VIP customers.', icon: '💬', link: '/hub/whatsapp' },
+      { id: 'profit', title: 'Profit & Break-even Calculator', desc: 'Calculate exact net profits after ad and product costs.', icon: '📊', link: '/hub/profit' },
+      { id: 'invoices', title: 'Invoice & Receipt Generator', desc: 'Generate professional sales invoices instantly.', icon: '🧾', link: '/hub/invoices' },
+      { id: 'returns', title: 'Returns & Loss Analyzer', desc: 'Measure return impact on monthly net profits.', icon: '🔄', link: '/hub/returns' },
+      { id: 'expenses', title: 'Expenses Manager', desc: 'Track fixed and variable store expenses.', icon: '💸', link: '/hub/expenses' },
+      { id: 'legal', title: 'Store Legal Policies Generator', desc: 'Create compliant return and privacy policies.', icon: '⚖', link: '/hub/legal' },
+      { id: 'roas', title: 'Ad Spend ROAS Analyzer', desc: 'Measure exact performance of your ad campaigns.', icon: '📈', link: '/hub/roas' },
+      { id: 'fees', title: 'Payment Gateway Fees Calculator', desc: 'Calculate gateway fees impact on profit margins.', icon: '💳', link: '/hub/fees' },
+      { id: 'copy', title: 'Marketing Copy & Ad Generator', desc: 'Create TikTok scripts and converting ad copy.', icon: '✍️', link: '/hub/copy' },
+      { id: 'promos', title: 'Discount Promos Manager', desc: 'Manage and create instant discount codes.', icon: '🎟️', link: '/hub/promos' },
+      { id: 'shipping', title: 'Shipping & Delivery Tracker', desc: 'Track shipments and resolve customer inquiries.', icon: '📦', link: '/hub/shipping' },
+      { id: 'scraper', title: 'Excel Data Cleaner & Formatter', desc: 'Clean product lists and pricing formats.', icon: '⚡', link: '/hub/scraper' },
+      { id: 'links', title: 'WhatsApp Direct Link Maker', desc: 'Create custom WhatsApp bio links.', icon: '🔗', link: '/hub/links' },
+      { id: 'reviews', title: 'Customer Reviews Collector', desc: 'Send automated post-delivery review requests.', icon: '⭐', link: '/hub/reviews' },
+      { id: 'support', title: 'Quick Support Templates', desc: 'Copy professional ready-made support replies.', icon: '🎧', link: '/hub/support' },
+      { id: 'tips', title: 'Store Growth Secrets Library', desc: 'Exclusive growth and conversion strategies.', icon: '💡', link: '/hub/tips' }
+    ]
   },
   fr: {
+    brandName: 'Engazia',
+    brandSub: 'ENGAZIA',
     live: 'Système Actif',
+    activate: 'Activer',
+    keyPlaceholder: 'Clé de licence...',
+    upgradeBtn: '⚡ Mettre à niveau',
     heroTitle: 'Plateforme ENGAZIA ULTRA MAX',
     heroDesc: 'L\'écosystème cloud ultime pour les e-commerçants, 16 outils puissants remplaçant tous les abonnements.',
     runTool: 'Lancer l\'outil',
@@ -88,12 +152,35 @@ const translations: Translations = {
     pricing: 'Tarifs',
     support: 'Support',
     faq: 'FAQ',
-    terms: 'Conditions d\'utilisation',
-    privacy: 'Politique de confidentialité',
-    rights: 'Tous droits réservés © 2026 Plateforme Engazia'
+    terms: 'Conditions',
+    privacy: 'Confidentialité',
+    rights: 'Tous droits réservés © 2026 Engazia',
+    tools: [
+      { id: 'whatsapp', title: 'CRM WhatsApp & Ventes', desc: 'Gérez les paniers abandonnés et clients VIP.', icon: '💬', link: '/hub/whatsapp' },
+      { id: 'profit', title: 'Calculateur de profits', desc: 'Calculez vos bénéfices nets exacts.', icon: '📊', link: '/hub/profit' },
+      { id: 'invoices', title: 'Générateur de factures', desc: 'Générez des factures professionnelles instantanément.', icon: '🧾', link: '/hub/invoices' },
+      { id: 'returns', title: 'Analyseur de retours', desc: 'Mesurez l\'impact des retours sur vos profits.', icon: '🔄', link: '/hub/returns' },
+      { id: 'expenses', title: 'Gestionnaire de dépenses', desc: 'Suivez les dépenses fixes et variables.', icon: '💸', link: '/hub/expenses' },
+      { id: 'legal', title: 'Générateur de politiques', desc: 'Créez des politiques de retour conformes.', icon: '⚖', link: '/hub/legal' },
+      { id: 'roas', title: 'Analyseur ROAS', desc: 'Mesurez la performance de vos pubs.', icon: '📈', link: '/hub/roas' },
+      { id: 'fees', title: 'Calculateur de frais', desc: 'Calculez l\'impact des frais de passerelle.', icon: '💳', link: '/hub/fees' },
+      { id: 'copy', title: 'Générateur de texte marketing', desc: 'Créez des textes publicitaires performants.', icon: '✍️', link: '/hub/copy' },
+      { id: 'promos', title: 'Gestionnaire de promos', desc: 'Créez des codes de réduction instantanés.', icon: '🎟️', link: '/hub/promos' },
+      { id: 'shipping', title: 'Suivi des expéditions', desc: 'Suivez les envois et résolvez les requêtes.', icon: '📦', link: '/hub/shipping' },
+      { id: 'scraper', title: 'Nettoyeur de données Excel', desc: 'Nettoyez vos listes de prix et produits.', icon: '⚡', link: '/hub/scraper' },
+      { id: 'links', title: 'Générateur de lien WhatsApp', desc: 'Créez des liens bio WhatsApp personnalisés.', icon: '🔗', link: '/hub/links' },
+      { id: 'reviews', title: 'Collecteur d\'avis', desc: 'Envoyez des demandes d\'avis automatisées.', icon: '⭐', link: '/hub/reviews' },
+      { id: 'support', title: 'Modèles de support', desc: 'Copiez des réponses de support prêtes à l\'emploi.', icon: '🎧', link: '/hub/support' },
+      { id: 'tips', title: 'Bibliothèque de croissance', desc: 'Stratégies de croissance et conversion.', icon: '💡', link: '/hub/tips' }
+    ]
   },
   es: {
+    brandName: 'Engazia',
+    brandSub: 'ENGAZIA',
     live: 'Sistema Activo',
+    activate: 'Activar',
+    keyPlaceholder: 'Clave de licencia...',
+    upgradeBtn: '⚡ Actualizar plan',
     heroTitle: 'Plataforma ENGAZIA ULTRA MAX',
     heroDesc: 'El ecosistema en la nube definitivo para emprendedores de comercio electrónico, 16 potentes herramientas.',
     runTool: 'Iniciar herramienta',
@@ -103,29 +190,75 @@ const translations: Translations = {
     updates: 'Actualizaciones',
     pricing: 'Precios',
     support: 'Soporte',
-    faq: 'Preguntas frecuentes',
-    terms: 'Términos de uso',
-    privacy: 'Política de privacidad',
-    rights: 'Todos los derechos reservados © 2026 Engazia'
+    faq: 'FAQ',
+    terms: 'Términos',
+    privacy: 'Privacidad',
+    rights: 'Todos los derechos reservados © 2026 Engazia',
+    tools: [
+      { id: 'whatsapp', title: 'CRM de WhatsApp y Ventas', desc: 'Gestiona carritos abandonados y clientes VIP.', icon: '💬', link: '/hub/whatsapp' },
+      { id: 'profit', title: 'Calculadora de Beneficios', desc: 'Calcula beneficios netos exactos.', icon: '📊', link: '/hub/profit' },
+      { id: 'invoices', title: 'Generador de Facturas', desc: 'Genera facturas de venta profesionales.', icon: '🧾', link: '/hub/invoices' },
+      { id: 'returns', title: 'Analizador de Devoluciones', desc: 'Mide el impacto en tus beneficios mensuales.', icon: '🔄', link: '/hub/returns' },
+      { id: 'expenses', title: 'Gestor de Gastos', desc: 'Controla gastos fijos y variables.', icon: '💸', link: '/hub/expenses' },
+      { id: 'legal', title: 'Generador de Políticas', desc: 'Crea páginas de reembolso legales.', icon: '⚖', link: '/hub/legal' },
+      { id: 'roas', title: 'Analizador ROAS', desc: 'Mide el rendimiento de tus anuncios.', icon: '📈', link: '/hub/roas' },
+      { id: 'fees', title: 'Calculadora de Comisiones', desc: 'Calcula comisiones de pasarelas de pago.', icon: '💳', link: '/hub/fees' },
+      { id: 'copy', title: 'Generador de Copys', desc: 'Crea guiones y anuncios persuasivos.', icon: '✍️', link: '/hub/copy' },
+      { id: 'promos', title: 'Gestor de Códigos Promocionales', desc: 'Crea cupones de descuento instantáneos.', icon: '🎟️', link: '/hub/promos' },
+      { id: 'shipping', title: 'Rastreador de Envíos', desc: 'Sigue el estado de tus envíos.', icon: '📦', link: '/hub/shipping' },
+      { id: 'scraper', title: 'Limpiador de Datos Excel', desc: 'Limpia listas de precios y productos.', icon: '⚡', link: '/hub/scraper' },
+      { id: 'links', title: 'Creador de Enlaces WhatsApp', desc: 'Crea enlaces directos personalizados.', icon: '🔗', link: '/hub/links' },
+      { id: 'reviews', title: 'Recolector de Reseñas', desc: 'Solicita valoraciones automáticamente.', icon: '⭐', link: '/hub/reviews' },
+      { id: 'support', title: 'Plantillas de Soporte', desc: 'Respuestas rápidas para atención al cliente.', icon: '🎧', link: '/hub/support' },
+      { id: 'tips', title: 'Secretos de Crecimiento', desc: 'Estrategias exclusivas para escalar ventas.', icon: '💡', link: '/hub/tips' }
+    ]
   },
   tr: {
+    brandName: 'Engazia',
+    brandSub: 'ENGAZIA',
     live: 'Sistem Aktif',
+    activate: 'Etkinleştir',
+    keyPlaceholder: 'Lisans anahtarı...',
+    upgradeBtn: '⚡ Planı Yükselt',
     heroTitle: 'ENGAZIA ULTRA MAX Platformu',
     heroDesc: 'E-ticaret girişimcileri için nihai bulut ekosistemi, tüm aboneliklerin yerini alan 16 güçlü araç.',
     runTool: 'Aracı Başlat',
     footerDesc: 'E-ticaret satıcıları için lider bulut platformu.',
     platform: 'Platform',
     allTools: 'Tüm Araçlar',
-    updates: 'Yeni Güncellemeler',
+    updates: 'Güncellemeler',
     pricing: 'Fiyatlandırma',
     support: 'Destek',
-    faq: 'Sıkça Sorulanlar',
-    terms: 'Kullanım Şartları',
-    privacy: 'Gizlilik Politikası',
-    rights: 'Tüm hakları saklıdır © 2026 Engazia'
+    faq: 'SSS',
+    terms: 'Şartlar',
+    privacy: 'Gizlilik',
+    rights: 'Tüm hakları saklıdır © 2026 Engazia',
+    tools: [
+      { id: 'whatsapp', title: 'WhatsApp CRM ve Satış', desc: 'Terk edilmiş sepetleri ve VIP müşterileri yönetin.', icon: '💬', link: '/hub/whatsapp' },
+      { id: 'profit', title: 'Kâr ve Başa Baş Hesaplayıcı', desc: 'Net kârınızı tam olarak hesaplayın.', icon: '📊', link: '/hub/profit' },
+      { id: 'invoices', title: 'Fatura Oluşturucu', desc: 'Profesyonel satış faturaları oluşturun.', icon: '🧾', link: '/hub/invoices' },
+      { id: 'returns', title: 'İade ve Kayıp Analizcisi', desc: 'İadelerin kârınıza etkisini ölçün.', icon: '🔄', link: '/hub/returns' },
+      { id: 'expenses', title: 'Gider Yöneticisi', desc: 'Mağaza giderlerini takip edin.', icon: '💸', link: '/hub/expenses' },
+      { id: 'legal', title: 'Yasal Politika Oluşturucu', desc: 'Uyumlu iade ve gizlilik politikaları oluşturun.', icon: '⚖', link: '/hub/legal' },
+      { id: 'roas', title: 'Reklam ROAS Analizcisi', desc: 'Reklam kampanyalarınızın performansını ölçün.', icon: '📈', link: '/hub/roas' },
+      { id: 'fees', title: 'Ödeme Ağ Geçidi Komisyon Hesaplayıcı', desc: 'Komisyon oranlarını hesaplayın.', icon: '💳', link: '/hub/fees' },
+      { id: 'copy', title: 'Pazarlama Metni Oluşturucu', desc: 'Dönüşüm oranını artıracak reklam metinleri yazın.', icon: '✍️', link: '/hub/copy' },
+      { id: 'promos', title: 'İndirim Kuponu Yöneticisi', desc: 'Anında indirim kodları oluşturun.', icon: '🎟️', link: '/hub/promos' },
+      { id: 'shipping', title: 'Kargo Takip Yöneticisi', desc: 'Kargo durumlarını takip edin.', icon: '📦', link: '/hub/shipping' },
+      { id: 'scraper', title: 'Excel Veri Temizleyici', desc: 'Ürün listelerini ve fiyatları düzenleyin.', icon: '⚡', link: '/hub/scraper' },
+      { id: 'links', title: 'WhatsApp Direkt Bağlantı Oluşturucu', desc: 'Özel WhatsApp bağlantıları oluşturun.', icon: '🔗', link: '/hub/links' },
+      { id: 'reviews', title: 'Müşteri Yorum Toplayıcı', desc: 'Teslimat sonrası otomatik değerlendirme isteyin.', icon: '⭐', link: '/hub/reviews' },
+      { id: 'support', title: 'Hızlı Destek Yanıtları', desc: 'Hazır müşteri hizmetleri şablonları.', icon: '🎧', link: '/hub/support' },
+      { id: 'tips', title: 'Mağaza Büyüme Sırları', desc: 'Dönüşümü artıracak özel stratejiler.', icon: '💡', link: '/hub/tips' }
+    ]
   },
   zh: {
+    brandName: 'Engazia',
+    brandSub: 'ENGAZIA',
     live: '系统已激活',
+    activate: '激活',
+    keyPlaceholder: '授权密钥...',
+    upgradeBtn: '⚡ 升级高级版',
     heroTitle: 'ENGAZIA ULTRA MAX 平台',
     heroDesc: '电商创业者的终极云端生态系统，16款强大工具助您业务腾飞。',
     runTool: '启动工具',
@@ -138,10 +271,33 @@ const translations: Translations = {
     faq: '常见问题',
     terms: '使用条款',
     privacy: '隐私政策',
-    rights: '版权所有 © 2026 Engazia 平台'
+    rights: '版权所有 © 2026 Engazia 平台',
+    tools: [
+      { id: 'whatsapp', title: 'WhatsApp CRM 与销售', desc: '管理未付款购物车和VIP客户。', icon: '💬', link: '/hub/whatsapp' },
+      { id: 'profit', title: '利润与盈亏平衡计算器', desc: '精准计算扣除广告成本后的净利润。', icon: '📊', link: '/hub/profit' },
+      { id: 'invoices', title: '发票与收据生成器', desc: '立即生成专业的销售发票。', icon: '🧾', link: '/hub/invoices' },
+      { id: 'returns', title: '退货损失分析器', desc: '评估退货对月度净利润的影响。', icon: '🔄', link: '/hub/returns' },
+      { id: 'expenses', title: '店铺支出管理器', desc: '追踪固定与变动运营成本。', icon: '💸', link: '/hub/expenses' },
+      { id: 'legal', title: '法律政策生成器', desc: '创建符合规范的退换货与隐私政策。', icon: '⚖', link: '/hub/legal' },
+      { id: 'roas', title: '广告投资回报分析器', desc: '精准衡量广告投放效果是否盈利。', icon: '📈', link: '/hub/roas' },
+      { id: 'fees', title: '支付网关手续费计算器', desc: '计算支付通道费率对利润的影响。', icon: '💳', link: '/hub/fees' },
+      { id: 'copy', title: '营销文案与广告生成器', desc: '制作高转化率的广告脚本与文案。', icon: '✍️', link: '/hub/copy' },
+      { id: 'promos', title: '折扣优惠券管理器', desc: '管理并创建促销折扣代码。', icon: '🎟️', link: '/hub/promos' },
+      { id: 'shipping', title: '物流配送追踪器', desc: '实时跟进包裹状态并解决物流问题。', icon: '📦', link: '/hub/shipping' },
+      { id: 'scraper', title: 'Excel 数据清洗与整理', desc: '快速清理混乱的产品表格与价格。', icon: '⚡', link: '/hub/scraper' },
+      { id: 'links', title: 'WhatsApp 直链生成器', desc: '为社媒主页创建自定义直达链接。', icon: '🔗', link: '/hub/links' },
+      { id: 'reviews', title: '客户评价收集工具', desc: '自动发送收货后好评邀请。', icon: '⭐', link: '/hub/reviews' },
+      { id: 'support', title: '客服快捷回复模板', desc: '复制专业标准的客服常用回复。', icon: '🎧', link: '/hub/support' },
+      { id: 'tips', title: '店铺爆单增长秘籍', desc: '独家提升转化率与复购率的策略。', icon: '💡', link: '/hub/tips' }
+    ]
   },
   de: {
+    brandName: 'Engazia',
+    brandSub: 'ENGAZIA',
     live: 'System Aktiv',
+    activate: 'Aktivieren',
+    keyPlaceholder: 'Lizenzschlüssel...',
+    upgradeBtn: '⚡ Plan upgraden',
     heroTitle: 'ENGAZIA ULTRA MAX Plattform',
     heroDesc: 'Das ultimative Cloud-Ökosystem für E-Commerce-Unternehmer, 16 leistungsstarke Tools.',
     runTool: 'Tool starten',
@@ -154,10 +310,33 @@ const translations: Translations = {
     faq: 'FAQ',
     terms: 'Nutzungsbedingungen',
     privacy: 'Datenschutz',
-    rights: 'Alle Rechte vorbehalten © 2026 Engazia'
+    rights: 'Alle Rechte vorbehalten © 2026 Engazia',
+    tools: [
+      { id: 'whatsapp', title: 'WhatsApp CRM & Verkauf', desc: 'Warenkörbe und VIP-Kunden verwalten.', icon: '💬', link: '/hub/whatsapp' },
+      { id: 'profit', title: 'Gewinn- & Break-Even-Rechner', desc: 'Nettogewinne präzise berechnen.', icon: '📊', link: '/hub/profit' },
+      { id: 'invoices', title: 'Rechnungsgenerator', desc: 'Professionelle Rechnungen sofort erstellen.', icon: '🧾', link: '/hub/invoices' },
+      { id: 'returns', title: 'Retouren-Analysator', desc: 'Auswirkungen von Retouren messen.', icon: '🔄', link: '/hub/returns' },
+      { id: 'expenses', title: 'Ausgabenmanager', desc: 'Fixe und variable Kosten im Blick behalten.', icon: '💸', link: '/hub/expenses' },
+      { id: 'legal', title: 'Rechtsrichtlinien-Generator', desc: 'Konforme Widerrufsbelehrungen erstellen.', icon: '⚖', link: '/hub/legal' },
+      { id: 'roas', title: 'ROAS-Analysator', desc: 'Werbeperformance exakt messen.', icon: '📈', link: '/hub/roas' },
+      { id: 'fees', title: 'Zahlungs-Gateway Gebührenrechner', desc: 'Transaktionsgebühren kalkulieren.', icon: '💳', link: '/hub/fees' },
+      { id: 'copy', title: 'Marketing-Text-Generator', desc: 'Verkaufsfördernde Werbetexte erstellen.', icon: '✍️', link: '/hub/copy' },
+      { id: 'promos', title: 'Gutschein-Manager', desc: 'Rabattcodes unkompliziert verwalten.', icon: '🎟️', link: '/hub/promos' },
+      { id: 'shipping', title: 'Versand-Tracker', desc: 'Sendungsstatus überwachen.', icon: '📦', link: '/hub/shipping' },
+      { id: 'scraper', title: 'Excel Datenbereinigung', desc: 'Produktlisten und Preise formatieren.', icon: '⚡', link: '/hub/scraper' },
+      { id: 'links', title: 'WhatsApp Direktlink-Ersteller', desc: 'Individuelle Chat-Links generieren.', icon: '🔗', link: '/hub/links' },
+      { id: 'reviews', title: 'Kundenbewertungs-Tool', desc: 'Automatisierte Bewertungsanfragen versenden.', icon: '⭐', link: '/hub/reviews' },
+      { id: 'support', title: 'Support-Antwortvorlagen', desc: 'Professionelle Kundenservice-Vorlagen.', icon: '🎧', link: '/hub/support' },
+      { id: 'tips', title: 'Wachstums-Geheimnisse', desc: 'Exklusive Strategien zur Umsatzsteigerung.', icon: '💡', link: '/hub/tips' }
+    ]
   },
   id: {
+    brandName: 'Engazia',
+    brandSub: 'ENGAZIA',
     live: 'Sistem Aktif',
+    activate: 'Aktifkan',
+    keyPlaceholder: 'Kunci lisensi...',
+    upgradeBtn: '⚡ Upgrade Paket',
     heroTitle: 'Platform ENGAZIA ULTRA MAX',
     heroDesc: 'Ekosistem cloud ultimate untuk wirausahawan e-commerce, 16 alat canggih.',
     runTool: 'Buka Alat',
@@ -168,9 +347,27 @@ const translations: Translations = {
     pricing: 'Harga',
     support: 'Dukungan',
     faq: 'FAQ',
-    terms: 'Ketentuan Penggunaan',
-    privacy: 'Kebijakan Privasi',
-    rights: 'Hak cipta dilindungi © 2026 Engazia'
+    terms: 'Ketentuan',
+    privacy: 'Privasi',
+    rights: 'Hak cipta dilindungi © 2026 Engazia',
+    tools: [
+      { id: 'whatsapp', title: 'CRM & Penjualan WhatsApp', desc: 'Kelola keranjang terbengkalai dan pelanggan VIP.', icon: '💬', link: '/hub/whatsapp' },
+      { id: 'profit', title: 'Kalkulator Laba & Titik Impas', desc: 'Hitung laba bersih akurat setelah biaya iklan.', icon: '📊', link: '/hub/profit' },
+      { id: 'invoices', title: 'Pembuat Faktur & Kwitansi', desc: 'Buat faktur penjualan profesional secara instan.', icon: '🧾', link: '/hub/invoices' },
+      { id: 'returns', title: 'Analisis Kerugian Retur', desc: 'Ukur dampak pengembalian terhadap laba bulanan.', icon: '🔄', link: '/hub/returns' },
+      { id: 'expenses', title: 'Manajer Pengeluaran', desc: 'Lacak pengeluaran toko tetap dan variabel.', icon: '💸', link: '/hub/expenses' },
+      { id: 'legal', title: 'Pembuat Kebijakan Toko', desc: 'Buat halaman kebijakan privasi dan pengembalian.', icon: '⚖', link: '/hub/legal' },
+      { id: 'roas', title: 'Analisis ROAS Iklan', desc: 'Ukur kinerja kampanye iklan dengan tepat.', icon: '📈', link: '/hub/roas' },
+      { id: 'fees', title: 'Kalkulator Biaya Gateway Pembayaran', desc: 'Hitung dampak biaya pembayaran.', icon: '💳', link: '/hub/fees' },
+      { id: 'copy', title: 'Pembuat Salinan Pemasaran', desc: 'Buat skrip iklan dan salinan yang menghasilkan.', icon: '✍️', link: '/hub/copy' },
+      { id: 'promos', title: 'Manajer Promo Diskon', desc: 'Kelola dan buat kode diskon instan.', icon: '🎟️', link: '/hub/promos' },
+      { id: 'shipping', title: 'Pelacak Pengiriman & Logistik', desc: 'Lacak pengiriman dan atasi pertanyaan.', icon: '📦', link: '/hub/shipping' },
+      { id: 'scraper', title: 'Pembersih Data Excel', desc: 'Bersihkan daftar produk dan harga acak.', icon: '⚡', link: '/hub/scraper' },
+      { id: 'links', title: 'Pembuat Tautan Langsung WhatsApp', desc: 'Buat tautan khusus untuk bio TikTok/Iklan.', icon: '🔗', link: '/hub/links' },
+      { id: 'reviews', title: 'Kolektor Ulasan Pelanggan', desc: 'Kirim pesan otomatis untuk kumpulkan ulasan.', icon: '⭐', link: '/hub/reviews' },
+      { id: 'support', title: 'Balasan Cepat Layanan Pelanggan', desc: 'Salin balasan dukungan profesional siap pakai.', icon: '🎧', link: '/hub/support' },
+      { id: 'tips', title: 'Perpustakaan Rahasia Pertumbuhan', desc: 'Strategi eksklusif untuk tingkatkan konversi.', icon: '💡', link: '/hub/tips' }
+    ]
   }
 };
 
@@ -182,7 +379,6 @@ export default function EngaziaHomeHub() {
 
   const LEMON_CHECKOUT_URL = 'https://enjazya.lemonsqueezy.com/checkout/buy/80ff492a-01eb-4455-b1a8-96e12ab72562';
 
-  // جلب الإعدادات المخزنة تلقائياً عند تحميل الصفحة لأول مرة
   useEffect(() => {
     const config = getGlobalConfig();
     setCurrentLang(config.lang);
@@ -214,25 +410,6 @@ export default function EngaziaHomeHub() {
 
   const t = translations[currentLang] || translations.ar;
   const isRtl = currentLang === 'ar';
-
-  const tools = [
-    { id: 'whatsapp', title: currentLang === 'en' ? 'WhatsApp CRM & Sales' : currentLang === 'fr' ? 'CRM WhatsApp & Ventes' : currentLang === 'tr' ? 'WhatsApp CRM ve Satış' : 'إدارة عملاء واتساب والمبيعات', desc: currentLang === 'en' ? 'Manage abandoned carts, payment links, and VIP customers.' : 'إدارة السلال المتروكة، إرسال روابط الدفع، وتصنيف عملاء الـ VIP.', icon: '💬', link: '/hub/whatsapp' },
-    { id: 'profit', title: currentLang === 'en' ? 'Profit & Break-even Calculator' : currentLang === 'fr' ? 'Calculateur de profits' : 'حاسبة أرباح ونقاط التعادل', desc: currentLang === 'en' ? 'Calculate exact net profits after ad and product costs.' : 'احسب صافي أرباح منتجك بدقة بعد خصم التكاليف والإعلانات.', icon: '📊', link: '/hub/profit' },
-    { id: 'invoices', title: currentLang === 'en' ? 'Invoice & Receipt Generator' : currentLang === 'fr' ? 'Générateur de factures' : 'مولد الفواتير وسندات القبض', desc: currentLang === 'en' ? 'Generate professional sales invoices instantly.' : 'أنشئ فواتير مبيعات نظامية واحترافية وجهزها للإرسال الفوري.', icon: '🧾', link: '/hub/invoices' },
-    { id: 'returns', title: currentLang === 'en' ? 'Returns & Loss Analyzer' : currentLang === 'fr' ? 'Analyseur de retours' : 'حاسبة وتحليل خسائر المرتجعات', desc: currentLang === 'en' ? 'Measure return impact on monthly net profits.' : 'قس تأثير الاسترجاع والاستبدال على صافي أرباحك الشهرية.', icon: '🔄', link: '/hub/returns' },
-    { id: 'expenses', title: currentLang === 'en' ? 'Expenses Manager' : currentLang === 'fr' ? 'Gestionnaire de dépenses' : 'مدير المصاريف والنفقات', desc: currentLang === 'en' ? 'Track fixed and variable store expenses.' : 'تتبع مصاريف المتجر الثابتة والمتغيرة لضبط التدفق النقدي.', icon: '💸', link: '/hub/expenses' },
-    { id: 'legal', title: currentLang === 'en' ? 'Store Legal Policies Generator' : currentLang === 'fr' ? 'Générateur de politiques' : 'مولد السياسات القانونية للمتجر', desc: currentLang === 'en' ? 'Create compliant return and privacy policies.' : 'أنشئ صفحات الاستبدال، الاسترجاع، والخصوصية المتوافقة نظامياً.', icon: '⚖', link: '/hub/legal' },
-    { id: 'roas', title: currentLang === 'en' ? 'Ad Spend ROAS Analyzer' : currentLang === 'fr' ? 'Analyseur ROAS' : 'محلل عائد الإنفاق الإعلاني', desc: currentLang === 'en' ? 'Measure exact performance of your ad campaigns.' : 'قس بدقة أداء إعلانات سناب وتيك توك وهل هي رابحة أم خاسرة.', icon: '📈', link: '/hub/roas' },
-    { id: 'fees', title: currentLang === 'en' ? 'Payment Gateway Fees Calculator' : currentLang === 'fr' ? 'Calculateur de frais' : 'حاسبة رسوم بوابات الدفع', desc: currentLang === 'en' ? 'Calculate gateway fees impact on profit margins.' : 'احسب نسبة بوابات الدفع (تاب، مدى، تابي) وتأثيرها على الأرباح.', icon: '💳', link: '/hub/fees' },
-    { id: 'copy', title: currentLang === 'en' ? 'Marketing Copy & Ad Generator' : currentLang === 'fr' ? 'Générateur de texte marketing' : 'مولد النصوص التسويقية والإعلانات', desc: currentLang === 'en' ? 'Create TikTok scripts and converting ad copy.' : 'اصنع سكربتات تيك توك وإعلانات جذابة لزيادة مبيعات منتجاتك.', icon: '✍️', link: '/hub/copy' },
-    { id: 'promos', title: currentLang === 'en' ? 'Discount Promos Manager' : currentLang === 'fr' ? 'Gestionnaire de promos' : 'ممول وأكواد خصم المتاجر', desc: currentLang === 'en' ? 'Manage and create instant discount codes.' : 'أدر وأنشئ أكواد الخصم السريعة لتحفيز العملاء المترددين.', icon: '🎟️', link: '/hub/promos' },
-    { id: 'shipping', title: currentLang === 'en' ? 'Shipping & Delivery Tracker' : currentLang === 'fr' ? 'Suivi des expéditions' : 'مدير تتبع الشحنات والتوصيل', desc: currentLang === 'en' ? 'Track shipments and resolve customer inquiries.' : 'تابع حالات الشحنات وحل مشاكل استفسارات العملاء اليومية.', icon: '📦', link: '/hub/shipping' },
-    { id: 'scraper', title: currentLang === 'en' ? 'Excel Data Cleaner & Formatter' : currentLang === 'fr' ? 'Nettoyeur de données Excel' : 'تنسيق وتنظيف بيانات الإكسل', desc: currentLang === 'en' ? 'Clean product lists and pricing formats.' : 'نظف قوائم المنتجات والأسعار العشوائية وحولها لملفات مرتبة.', icon: '⚡', link: '/hub/scraper' },
-    { id: 'links', title: currentLang === 'en' ? 'WhatsApp Direct Link Maker' : currentLang === 'fr' ? 'Générateur de lien WhatsApp' : 'صانع روابط واتساب المباشرة', desc: currentLang === 'en' ? 'Create custom WhatsApp bio links.' : 'أنشئ روابط مخصصة برسائل جاهزة للبايو في تيك توك وإعلاناتك.', icon: '🔗', link: '/hub/links' },
-    { id: 'reviews', title: currentLang === 'en' ? 'Customer Reviews Collector' : currentLang === 'fr' ? 'Collecteur d\'avis' : 'أداة طلب وتقييمات العملاء', desc: currentLang === 'en' ? 'Send automated post-delivery review requests.' : 'ارسل رسائل تلقائية للعملاء بعد الاستلام لجمع التقييمات وبناء الثقة.', icon: '⭐', link: '/hub/reviews' },
-    { id: 'support', title: currentLang === 'en' ? 'Quick Support Templates' : currentLang === 'fr' ? 'Modèles de support' : 'ردود خدمة العملاء السريعة', desc: currentLang === 'en' ? 'Copy professional ready-made support replies.' : 'انسخ ردود احترافية جاهزة للرد على استفسارات العملاء المكررة.', icon: '🎧', link: '/hub/support' },
-    { id: 'tips', title: currentLang === 'en' ? 'Store Growth Secrets Library' : currentLang === 'fr' ? 'Bibliothèque de croissance' : 'مكتبة أسرار وحيل نمو المتاجر', desc: currentLang === 'en' ? 'Exclusive growth and conversion strategies.' : 'استراتيجيات حصرية لزيادة التحويل ورفع ولاء العملاء.', icon: '💡', link: '/hub/tips' }
-  ];
 
   return (
     <div className="hub-container" style={{ direction: isRtl ? 'rtl' : 'ltr' }}>
@@ -298,9 +475,9 @@ export default function EngaziaHomeHub() {
         @media(max-width: 640px) { .cards-grid { grid-template-columns: 1fr; } .hero h1 { font-size: 28px; } .footer-links { flex-direction: column; gap: 30px; } }
       `}</style>
 
-      {/* شريط التنقل العلوي مع التحكم الشامل باللغة والعملة والاشتراك */}
+      {/* شريط التحكم العلوي المترجم بالكامل */}
       <div className="navbar">
-        <div className="brand">إنجازيا <span>ENGAZIA</span></div>
+        <div className="brand">{t.brandName} <span>{t.brandSub}</span></div>
 
         <div className="nav-controls">
           <select className="select-control" value={currentLang} onChange={(e) => handleLanguageChange(e.target.value)}>
@@ -328,12 +505,12 @@ export default function EngaziaHomeHub() {
           <div className="license-box">
             <span style={{ fontSize: '11px', fontWeight: 800, color: '#475569' }}>🔑 PRO:</span>
             {isActivated ? (
-              <span style={{ fontSize: '11px', fontWeight: 900, color: '#10b981' }}>مفعل ✓</span>
+              <span style={{ fontSize: '11px', fontWeight: 900, color: '#10b981' }}>{t.live} ✓</span>
             ) : (
               <>
                 <input 
                   type="text" 
-                  placeholder="مفتاح الترخيص..." 
+                  placeholder={t.keyPlaceholder} 
                   value={licenseKeyInput} 
                   onChange={(e) => setLicenseKeyInput(e.target.value)}
                   style={{ border: '1px solid #cbd5e1', borderRadius: '4px', padding: '3px 6px', fontSize: '10px', outline: 'none', width: '80px', fontFamily: 'Tajawal, sans-serif' }}
@@ -342,14 +519,14 @@ export default function EngaziaHomeHub() {
                   onClick={handleActivateLicense}
                   style={{ background: '#4f46e5', color: '#fff', border: 'none', padding: '4px 8px', borderRadius: '4px', fontSize: '10px', fontWeight: 800, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif' }}
                 >
-                  تفعيل
+                  {t.activate}
                 </button>
               </>
             )}
           </div>
 
           <a href={LEMON_CHECKOUT_URL} target="_blank" rel="noopener noreferrer" className="upgrade-btn">
-            ⚡ ترقية اشتراك
+            {t.upgradeBtn}
           </a>
         </div>
       </div>
@@ -360,7 +537,7 @@ export default function EngaziaHomeHub() {
       </div>
 
       <div className="cards-grid">
-        {tools.map((tool, index) => (
+        {t.tools.map((tool, index) => (
           <Link href={tool.link} key={tool.id} className="card clean-link">
             <div>
               <div className="card-top">
@@ -381,7 +558,7 @@ export default function EngaziaHomeHub() {
       <footer className="footer">
         <div className="footer-content">
           <div className="footer-brand">
-            <h3>إنجازيا <span>ENGAZIA</span></h3>
+            <h3>{t.brandName} <span>{t.brandSub}</span></h3>
             <p>{t.footerDesc}</p>
           </div>
           <div className="footer-links">
