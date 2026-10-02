@@ -41,12 +41,6 @@ export default function ProfitCalculator() {
 
   const [searchQuery, setSearchQuery] = useState<string>('');
 
-  const [licenseKeyInput, setLicenseKeyInput] = useState<string>('');
-  const [isActivated, setIsActivated] = useState<boolean>(false);
-
-  // رابط الدفع المعتمد لـ Lemon Squeezy
-  const LEMON_CHECKOUT_URL = 'https://enjazya.lemonsqueezy.com/checkout/buy/80ff492a-01eb-4455-b1a8-96e12ab72562';
-
   const [results, setResults] = useState({
     paymentFees: 0,
     taxAmount: 0,
@@ -136,36 +130,34 @@ export default function ProfitCalculator() {
   useEffect(() => {
     const savedKey = localStorage.getItem('merchant_license_key');
     if (savedKey) {
-      setLicenseKeyInput(savedKey);
-      setIsActivated(true);
       loadDataFromCloud(savedKey);
     }
 
-    const savedCurr = localStorage.getItem('engazia_preferred_currency');
-    if (savedCurr) setCurrency(savedCurr);
+    // مزامنة العملة واللغة تلقائياً من الإعدادات العامة للمنصة
+    const globalCurr = localStorage.getItem('engazia_global_currency');
+    if (globalCurr) {
+      // مطابقة رموز العملات
+      const currMap: Record<string, string> = {
+        'SAR': 'ر.س',
+        'AED': 'د.إ',
+        'USD': '$',
+        'EUR': '€',
+        'GBP': '£',
+        'TRY': 'TRY',
+        'KWD': 'د.ك',
+        'QAR': 'ر.ق'
+      };
+      setCurrency(currMap[globalCurr] || globalCurr);
+    } else {
+      const savedCurr = localStorage.getItem('engazia_preferred_currency');
+      if (savedCurr) setCurrency(savedCurr);
+    }
 
     const saved = localStorage.getItem('engazia_profit_products_v10');
     if (saved) {
       try { setSavedProducts(JSON.parse(saved)); } catch (e) { console.error(e); }
     }
   }, []);
-
-  const handleActivateLicense = () => {
-    if (!licenseKeyInput.trim()) {
-      alert('الرجاء إدخال مفتاح الاشتراك الصحيح.');
-      return;
-    }
-    const cleanKey = licenseKeyInput.trim();
-    localStorage.setItem('merchant_license_key', cleanKey);
-    setIsActivated(true);
-    loadDataFromCloud(cleanKey);
-    alert('تم تفعيل مفتاح الاشتراك بنجاح وتزامن أدواتك!');
-  };
-
-  const handleCurrencyChange = (newCurr: string) => {
-    setCurrency(newCurr);
-    localStorage.setItem('engazia_preferred_currency', newCurr);
-  };
 
   useEffect(() => {
     calculateProfit();
@@ -244,7 +236,7 @@ export default function ProfitCalculator() {
     setTaxPercent(prod.taxPercent);
     setIsTaxInclusive(prod.isTaxInclusive);
     setReturnRate(prod.returnRate);
-    if (prod.currency) handleCurrencyChange(prod.currency);
+    if (prod.currency) setCurrency(prod.currency);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -431,18 +423,9 @@ export default function ProfitCalculator() {
         
         .tool-container { background-color: #f1f5f9; min-height: 100vh; font-family: 'Tajawal', sans-serif; direction: rtl; padding: 20px 15px 40px; }
         
-        .header { max-width: 1000px; margin: 0 auto 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        .header { max-width: 1000px; margin: 0 auto 20px; display: flex; justify-content: space-between; align-items: center; }
         .back-btn { background: #ffffff; color: #475569; padding: 8px 16px; border-radius: 8px; font-weight: 800; font-size: 13px; border: 1px solid #cbd5e1; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
         .back-btn:hover { background: #e2e8f0; color: #0f172a; }
-        
-        .header-left-group { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-        .license-box { display: flex; align-items: center; gap: 8px; background: #fff; padding: 6px 12px; border-radius: 8px; border: 1px solid #cbd5e1; }
-        
-        .upgrade-btn { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: #fff !important; text-decoration: none; padding: 7px 14px; border-radius: 8px; font-weight: 800; font-size: 12px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(79,70,229,0.25); transition: transform 0.2s; white-space: nowrap; }
-        .upgrade-btn:hover { transform: translateY(-2px); }
-
-        .currency-selector { display: flex; align-items: center; gap: 8px; background: #fff; padding: 6px 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-weight: 800; font-size: 12px; color: #475569; }
-        .currency-selector select { border: none; outline: none; background: transparent; font-family: 'Tajawal', sans-serif; font-weight: 900; color: #4f46e5; cursor: pointer; }
 
         .tool-title { text-align: center; margin-bottom: 25px; }
         .tool-title h1 { font-size: 26px; font-weight: 900; color: #0f172a; margin-bottom: 8px; letter-spacing: -0.5px; }
@@ -534,64 +517,6 @@ export default function ProfitCalculator() {
         <Link href="/hub" className="back-btn">
           <span>→</span> العودة
         </Link>
-
-        {/* مجموعة الأزرار على اليسار (زر الترقية وصندوق مفتاح الاشتراك والعملة) */}
-        <div className="header-left-group">
-          <div className="license-box">
-            <span style={{ fontSize: '12px', fontWeight: 800, color: '#475569' }}>🔑 الاشتراك:</span>
-            {isActivated ? (
-              <span style={{ fontSize: '12px', fontWeight: 900, color: '#10b981' }}>مفعل ✓</span>
-            ) : (
-              <>
-                <input 
-                  type="text" 
-                  placeholder="أدخل مفتاح الترخيص..." 
-                  value={licenseKeyInput} 
-                  onChange={(e) => setLicenseKeyInput(e.target.value)}
-                  style={{ border: '1px solid #cbd5e1', borderRadius: '6px', padding: '4px 8px', fontSize: '11px', outline: 'none', width: '130px', fontFamily: 'Tajawal, sans-serif' }}
-                />
-                <button 
-                  onClick={handleActivateLicense}
-                  style={{ background: '#4f46e5', color: '#fff', border: 'none', padding: '5px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 800, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif' }}
-                >
-                  تفعيل
-                </button>
-              </>
-            )}
-          </div>
-
-          <a href={LEMON_CHECKOUT_URL} target="_blank" rel="noopener noreferrer" className="upgrade-btn">
-            ⚡ ترقية / اشتراك PRO
-          </a>
-
-          <div className="currency-selector">
-            <span>العملة:</span>
-            <select value={currency} onChange={(e) => handleCurrencyChange(e.target.value)}>
-              <option value="ر.س">ريال سعودي (ر.س)</option>
-              <option value="$">دولار أمريكي ($)</option>
-              <option value="د.إ">درهم إماراتي (د.إ)</option>
-              <option value="د.ك">دينار كويتي (د.ك)</option>
-              <option value="ر.ع">ريال عماني (ر.ع)</option>
-              <option value="د.ب">دينار بحريني (د.ب)</option>
-              <option value="ر.ق">ريال قطري (ر.ق)</option>
-              <option value="د.أ">دينار أردني (د.أ)</option>
-              <option value="ج.م">جنيه مصري (ج.م)</option>
-              <option value="د.ت">دينار تونسي (د.ت)</option>
-              <option value="د.ج">دينار جزائري (د.ج)</option>
-              <option value="د.م">درهم مغربي (د.م)</option>
-              <option value="ل.س">ليرة سورية (ل.س)</option>
-              <option value="ل.ل">ليرة لبنانية (ل.ل)</option>
-              <option value="ج.س">جنيه سوداني (ج.س)</option>
-              <option value="د.ع">دينار عراقي (د.ع)</option>
-              <option value="ر.ي">ريال يمني (ر.ي)</option>
-              <option value="ل.د">دينار ليبي (ل.د)</option>
-              <option value="أوقية">أوقية موريتانية (أوقية)</option>
-              <option value="شلن">شلن صومالي (شلن)</option>
-              <option value="فرنك">فرنك جيبوتي (فرنك)</option>
-              <option value="ج.ق">جنيه جزر القمر (ج.ق)</option>
-            </select>
-          </div>
-        </div>
       </div>
 
       <div className="tool-title">
