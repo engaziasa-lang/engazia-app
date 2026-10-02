@@ -131,7 +131,7 @@ const toolTranslations: { [key: string]: any } = {
     btnTikTok: '🎬 生成 TikTok/Reels 脚本',
     btnTwitter: '🐦 生成推特广告文案',
     btnWhatsapp: '💬 生成 WhatsApp 营销广播消息',
-    panel2Title: '👁️️ 准备发布的文本',
+    panel2Title: '👁️ 准备发布的文本',
     previewPh: '点击左侧的生成按钮，文案将显示在此处...',
     copyBtn: '📋 复制文本到剪贴板',
     alertMissing: '请输入产品名称和核心优势。',
@@ -193,7 +193,6 @@ export default function MarketingCopyGenerator() {
   const [targetAudience, setTargetAudience] = useState('');
   const [generatedResult, setGeneratedResult] = useState('');
 
-  // جلب الإعدادات من القائمة الرئيسية (localStorage) فور تحميل الأداة
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const savedLang = localStorage.getItem('engazia_global_lang') || 'ar';
@@ -305,7 +304,8 @@ export default function MarketingCopyGenerator() {
       `}</style>
 
       <div className="header">
-        <Link href="/" className="back-btn">
+        {/* تم تحديث مسار العودة هنا ليوجه إلى /hub مباشرة */}
+        <Link href="/hub" className="back-btn">
           <span>{isRtl ? '→' : '←'}</span> {t.back}
         </Link>
         {licenseKey && (
