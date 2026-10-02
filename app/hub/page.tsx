@@ -25,17 +25,14 @@ const getInitialConfig = () => {
   }
 
   if (!storedCurrency) {
-    // تحديد العملة الافتراضية حسب اللغة المكتشفة
     if (storedLang === 'ar') {
       storedCurrency = 'SAR';
     } else if (storedLang === 'fr' || storedLang === 'de') {
       storedCurrency = 'EUR';
     } else if (storedLang === 'tr') {
       storedCurrency = 'TRY';
-    } else if (storedLang === 'zh') {
-      storedCurrency = 'USD';
     } else {
-      storedCurrency = 'USD'; // الافتراضي دولار إذا لم تكن مطابقة
+      storedCurrency = 'USD';
     }
     localStorage.setItem('engazia_global_currency', storedCurrency);
   }
@@ -64,7 +61,6 @@ interface ToolInfo {
 interface Translations {
   [key: string]: {
     brandName: string;
-    brandSub: string;
     live: string;
     activate: string;
     keyPlaceholder: string;
@@ -89,7 +85,6 @@ interface Translations {
 const translations: Translations = {
   ar: {
     brandName: 'إنجازيا',
-    brandSub: 'ENGAZIA',
     live: 'النظام مفعل',
     activate: 'تفعيل',
     keyPlaceholder: 'مفتاح الترخيص...',
@@ -128,7 +123,6 @@ const translations: Translations = {
   },
   en: {
     brandName: 'Engazia',
-    brandSub: 'ENGAZIA',
     live: 'System Active',
     activate: 'Activate',
     keyPlaceholder: 'License key...',
@@ -155,7 +149,7 @@ const translations: Translations = {
       { id: 'legal', title: 'Store Legal Policies Generator', desc: 'Create compliant return and privacy policies.', icon: '⚖', link: '/hub/legal' },
       { id: 'roas', title: 'Ad Spend ROAS Analyzer', desc: 'Measure exact performance of your ad campaigns.', icon: '📈', link: '/hub/roas' },
       { id: 'fees', title: 'Payment Gateway Fees Calculator', desc: 'Calculate gateway fees impact on profit margins.', icon: '💳', link: '/hub/fees' },
-      { id: 'copy', title: 'Marketing Copy & Ad Generator', desc: 'Create TikTok scripts and converting ad copy.', icon: '✍️', link: '/hub/copy' },
+      { id: 'copy', title: 'Marketing Copy & Ad Generator', desc: 'Create TikTok scripts and converting ad copy.', icon: '✍️️', link: '/hub/copy' },
       { id: 'promos', title: 'Discount Promos Manager', desc: 'Manage and create instant discount codes.', icon: '🎟️', link: '/hub/promos' },
       { id: 'shipping', title: 'Shipping & Delivery Tracker', desc: 'Track shipments and resolve customer inquiries.', icon: '📦', link: '/hub/shipping' },
       { id: 'scraper', title: 'Excel Data Cleaner & Formatter', desc: 'Clean product lists and pricing formats.', icon: '⚡', link: '/hub/scraper' },
@@ -167,7 +161,6 @@ const translations: Translations = {
   },
   fr: {
     brandName: 'Engazia',
-    brandSub: 'ENGAZIA',
     live: 'Système Actif',
     activate: 'Activer',
     keyPlaceholder: 'Clé de licence...',
@@ -206,7 +199,6 @@ const translations: Translations = {
   },
   es: {
     brandName: 'Engazia',
-    brandSub: 'ENGAZIA',
     live: 'Sistema Activo',
     activate: 'Activar',
     keyPlaceholder: 'Clave de licencia...',
@@ -245,7 +237,6 @@ const translations: Translations = {
   },
   tr: {
     brandName: 'Engazia',
-    brandSub: 'ENGAZIA',
     live: 'Sistem Aktif',
     activate: 'Etkinleştir',
     keyPlaceholder: 'Lisans anahtarı...',
@@ -273,7 +264,7 @@ const translations: Translations = {
       { id: 'roas', title: 'Reklam ROAS Analizcisi', desc: 'Reklam kampanyalarınızın performansını ölçün.', icon: '📈', link: '/hub/roas' },
       { id: 'fees', title: 'Ödeme Ağ Geçidi Komisyon Hesaplayıcı', desc: 'Komisyon oranlarını hesaplayın.', icon: '💳', link: '/hub/fees' },
       { id: 'copy', title: 'Pazarlama Metni Oluşturucu', desc: 'Dönüşüm oranını artıracak reklam metinleri yazın.', icon: '✍️', link: '/hub/copy' },
-      { id: 'promos', title: 'İndirim Kuponu Yöneticisi', desc: 'Anında indirim kodları oluşturun.', icon: '🎟️️', link: '/hub/promos' },
+      { id: 'promos', title: 'İndirim Kuponu Yöneticisi', desc: 'Anında indirim kodları oluşturun.', icon: '🎟️', link: '/hub/promos' },
       { id: 'shipping', title: 'Kargo Takip Yöneticisi', desc: 'Kargo durumlarını takip edin.', icon: '📦', link: '/hub/shipping' },
       { id: 'scraper', title: 'Excel Veri Temizleyici', desc: 'Ürün listelerini ve fiyatları düzenleyin.', icon: '⚡', link: '/hub/scraper' },
       { id: 'links', title: 'WhatsApp Direkt Bağlantı Oluşturucu', desc: 'Özel WhatsApp bağlantıları oluşturun.', icon: '🔗', link: '/hub/links' },
@@ -284,7 +275,6 @@ const translations: Translations = {
   },
   zh: {
     brandName: 'Engazia',
-    brandSub: 'ENGAZIA',
     live: '系统已激活',
     activate: '激活',
     keyPlaceholder: '授权密钥...',
@@ -323,7 +313,6 @@ const translations: Translations = {
   },
   de: {
     brandName: 'Engazia',
-    brandSub: 'ENGAZIA',
     live: 'System Aktiv',
     activate: 'Aktivieren',
     keyPlaceholder: 'Lizenzschlüssel...',
@@ -362,7 +351,6 @@ const translations: Translations = {
   },
   id: {
     brandName: 'Engazia',
-    brandSub: 'ENGAZIA',
     live: 'Sistem Aktif',
     activate: 'Aktifkan',
     keyPlaceholder: 'Kunci lisensi...',
@@ -507,7 +495,7 @@ export default function EngaziaHomeHub() {
 
       {/* شريط التحكم العلوي */}
       <div className="navbar">
-        <div className="brand">{t.brandName} <span>{t.brandSub}</span></div>
+        <div className="brand">{t.brandName}</div>
 
         <div className="nav-controls">
           <select className="select-control" value={currentLang} onChange={(e) => handleLanguageChange(e.target.value)}>
@@ -588,7 +576,7 @@ export default function EngaziaHomeHub() {
       <footer className="footer">
         <div className="footer-content">
           <div className="footer-brand">
-            <h3>{t.brandName} <span>{t.brandSub}</span></h3>
+            <h3>{t.brandName}</h3>
             <p>{t.footerDesc}</p>
           </div>
           <div className="footer-links">
