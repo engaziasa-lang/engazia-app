@@ -31,7 +31,7 @@ export default function ProfitCalculator() {
   const [shippingCost, setShippingCost] = useState<number | ''>('');
   const [adSpend, setAdSpend] = useState<number | ''>('');
   
-  // اختيار العملة
+  // العملة الافتراضية الريال السعودي
   const [currency, setCurrency] = useState<string>('ر.س');
 
   const [paymentFeePercent, setPaymentFeePercent] = useState<number>(2.5);
@@ -57,7 +57,7 @@ export default function ProfitCalculator() {
   const [savedProducts, setSavedProducts] = useState<SavedProduct[]>([]);
 
   useEffect(() => {
-    const saved = localStorage.getItem('engazia_profit_products_v8');
+    const saved = localStorage.getItem('engazia_profit_products_v9');
     if (saved) {
       try { setSavedProducts(JSON.parse(saved)); } catch (e) { console.error(e); }
     }
@@ -115,7 +115,7 @@ export default function ProfitCalculator() {
 
     const updatedList = [newProduct, ...savedProducts];
     setSavedProducts(updatedList);
-    localStorage.setItem('engazia_profit_products_v8', JSON.stringify(updatedList));
+    localStorage.setItem('engazia_profit_products_v9', JSON.stringify(updatedList));
     setProductName('');
   };
 
@@ -147,7 +147,7 @@ export default function ProfitCalculator() {
     if (window.confirm('هل أنت متأكد من حذف هذا المنتج؟')) {
       const updatedList = savedProducts.filter(p => p.id !== id);
       setSavedProducts(updatedList);
-      localStorage.setItem('engazia_profit_products_v8', JSON.stringify(updatedList));
+      localStorage.setItem('engazia_profit_products_v9', JSON.stringify(updatedList));
     }
   };
 
@@ -212,7 +212,6 @@ export default function ProfitCalculator() {
     document.body.removeChild(link);
   };
 
-  // الاستيراد الذكي برؤوس الأعمدة (Headers)
   const importFromExcel = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -232,7 +231,6 @@ export default function ProfitCalculator() {
           return;
         }
 
-        // قراءة الفهارس بناءً على أسماء الأعمدة (Headers) لتجنب أخطاء الترتيب
         const headers: string[] = [];
         headerRow.querySelectorAll('th, td').forEach(th => {
           headers.push(th.textContent?.trim() || '');
@@ -299,7 +297,7 @@ export default function ProfitCalculator() {
         if (newProducts.length > 0) {
           const updatedList = [...newProducts, ...savedProducts];
           setSavedProducts(updatedList);
-          localStorage.setItem('engazia_profit_products_v8', JSON.stringify(updatedList));
+          localStorage.setItem('engazia_profit_products_v9', JSON.stringify(updatedList));
           alert(`تم استيراد ${newProducts.length} منتج بنجاح بالاعتماد على الأعمدة المطابقة.`);
         }
       } catch (error) {
@@ -427,10 +425,27 @@ export default function ProfitCalculator() {
           <span>العملة:</span>
           <select value={currency} onChange={(e) => setCurrency(e.target.value)}>
             <option value="ر.س">ريال سعودي (ر.س)</option>
-            <option value="د.إ">درهم إماراتي (د.إ)</option>
             <option value="$">دولار أمريكي ($)</option>
-            <option value="ر.ع">ريال عماني (ر.ع)</option>
+            <option value="د.إ">درهم إماراتي (د.إ)</option>
             <option value="د.ك">دينار كويتي (د.ك)</option>
+            <option value="ر.ع">ريال عماني (ر.ع)</option>
+            <option value="د.ب">دينار بحريني (د.ب)</option>
+            <option value="ر.ق">ريال قطري (ر.ق)</option>
+            <option value="د.أ">دينار أردني (د.أ)</option>
+            <option value="ج.م">جنيه مصري (ج.م)</option>
+            <option value="د.ت">دينار تونسي (د.ت)</option>
+            <option value="د.ج">دينار جزائري (د.ج)</option>
+            <option value="د.م">درهم مغربي (د.م)</option>
+            <option value="ل.س">ليرة سورية (ل.س)</option>
+            <option value="ل.ل">ليرة لبنانية (ل.ل)</option>
+            <option value="ج.س">جنيه سوداني (ج.س)</option>
+            <option value="د.ع">دينار عراقي (د.ع)</option>
+            <option value="ر.ي">ريال يمني (ر.ي)</option>
+            <option value="ل.د">دينار ليبي (ل.د)</option>
+            <option value="أوقية">أوقية موريتانية (أوقية)</option>
+            <option value="شلن">شلن صومالي (شلن)</option>
+            <option value="فرنك">فرنك جيبوتي (فرنك)</option>
+            <option value="ج.ق">جنيه جزر القمر (ج.ق)</option>
           </select>
         </div>
       </div>
