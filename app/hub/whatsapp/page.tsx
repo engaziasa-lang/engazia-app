@@ -142,6 +142,9 @@ export default function EngaziaWhatsAppCRM() {
   const [isActivated, setIsActivated] = useState<boolean>(false);
   const MASTER_KEY = '$2a$10$MjUOD019x6uuVhydjtfL.cBlGqmIXvWR5b/tNrOZU6Ey8P.JOcyu';
 
+  // رابط الدفع المعتمد لـ Lemon Squeezy
+  const LEMON_CHECKOUT_URL = 'https://enjazya.lemonsqueezy.com/checkout/buy/80ff492a-01eb-4455-b1a8-96e12ab72562';
+
   // إشعار Toast عصري
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const showToast = (msg: string) => {
@@ -642,7 +645,7 @@ export default function EngaziaWhatsAppCRM() {
     if (window.confirm(`حذف التصنيف "${catName}"؟`)) {
       const updated = categories.filter(c => c.name !== catName);
       saveCategories(updated);
-      showToast('🗑️️ تم حذف التصنيف');
+      showToast('🗑 تم حذف التصنيف');
     }
   };
 
@@ -768,7 +771,10 @@ export default function EngaziaWhatsAppCRM() {
         @keyframes fadeInOut { from { opacity: 0; transform: translate(-50%, -10px); } to { opacity: 1; transform: translate(-50%, 0); } }
 
         .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px; border-bottom: 1px solid #f1f5f9; padding-bottom: 15px; }
+        .license-section { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
         .license-box { display: flex; align-items: center; gap: 8px; background: #f8fafc; padding: 6px 12px; border-radius: 8px; border: 1px solid #cbd5e1; }
+        .upgrade-btn { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: #fff; text-decoration: none; padding: 7px 14px; border-radius: 8px; font-weight: 800; font-size: 12px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(79,70,229,0.25); transition: transform 0.2s; }
+        .upgrade-btn:hover { transform: translateY(-2px); }
 
         .header-brand { text-align: center; margin-bottom: 30px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
         .store-logo-badge { width: 68px; height: 68px; border-radius: 18px; background: #eef2ff; color: #4f46e5; display: flex; align-items: center; justify-content: center; font-size: 30px; font-weight: 900; box-shadow: 0 4px 15px rgba(79,70,229,0.15); border: 2px solid #c7d2fe; overflow: hidden; }
@@ -1020,31 +1026,37 @@ export default function EngaziaWhatsAppCRM() {
       )}
 
       <div className="wrapper">
-        {/* هيدر يحتوي على العودة ومفتاح الاشتراك الموحد */}
+        {/* هيدر يحتوي على العودة ومفتاح الاشتراك وزر الترقية المباشر */}
         <div className="header-top">
           <Link href="/hub" className="back-link" style={{ color: '#4f46e5', textDecoration: 'none', fontWeight: 700, fontSize: '13px' }}>← العودة للوحة الرئيسية</Link>
 
-          <div className="license-box">
-            <span style={{ fontSize: '12px', fontWeight: 800, color: '#475569' }}>🔑 الاشتراك:</span>
-            {isActivated ? (
-              <span style={{ fontSize: '12px', fontWeight: 900, color: '#10b981' }}>مفعل ✓</span>
-            ) : (
-              <>
-                <input 
-                  type="text" 
-                  placeholder="أدخل مفتاح الترخيص..." 
-                  value={licenseKeyInput} 
-                  onChange={(e) => setLicenseKeyInput(e.target.value)}
-                  style={{ border: '1px solid #cbd5e1', borderRadius: '6px', padding: '4px 8px', fontSize: '11px', outline: 'none', width: '130px', fontFamily: 'Tajawal, sans-serif' }}
-                />
-                <button 
-                  onClick={handleActivateLicense}
-                  style={{ background: '#4f46e5', color: '#fff', border: 'none', padding: '5px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 800, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif' }}
-                >
-                  تفعيل
-                </button>
-              </>
-            )}
+          <div className="license-section">
+            <a href={LEMON_CHECKOUT_URL} target="_blank" rel="noopener noreferrer" className="upgrade-btn">
+              ⚡ ترقية / اشتراك PRO
+            </a>
+
+            <div className="license-box">
+              <span style={{ fontSize: '12px', fontWeight: 800, color: '#475569' }}>🔑 الاشتراك:</span>
+              {isActivated ? (
+                <span style={{ fontSize: '12px', fontWeight: 900, color: '#10b981' }}>مفعل ✓</span>
+              ) : (
+                <>
+                  <input 
+                    type="text" 
+                    placeholder="أدخل مفتاح الترخيص..." 
+                    value={licenseKeyInput} 
+                    onChange={(e) => setLicenseKeyInput(e.target.value)}
+                    style={{ border: '1px solid #cbd5e1', borderRadius: '6px', padding: '4px 8px', fontSize: '11px', outline: 'none', width: '130px', fontFamily: 'Tajawal, sans-serif' }}
+                  />
+                  <button 
+                    onClick={handleActivateLicense}
+                    style={{ background: '#4f46e5', color: '#fff', border: 'none', padding: '5px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 800, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif' }}
+                  >
+                    تفعيل
+                  </button>
+                </>
+              )}
+            </div>
           </div>
         </div>
 
