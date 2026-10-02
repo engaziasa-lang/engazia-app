@@ -24,24 +24,20 @@ interface SavedProduct {
 }
 
 export default function ProfitCalculator() {
-  // مدخلات المنتج الأساسية
   const [productName, setProductName] = useState<string>('');
   const [productCost, setProductCost] = useState<number | ''>('');
   const [sellingPrice, setSellingPrice] = useState<number | ''>('');
   const [shippingCost, setShippingCost] = useState<number | ''>('');
   const [adSpend, setAdSpend] = useState<number | ''>('');
   
-  // مدخلات النسب والرسوم المتغيرة
   const [paymentFeePercent, setPaymentFeePercent] = useState<number>(2.5);
   const [paymentFeeFixed, setPaymentFeeFixed] = useState<number>(1);
   const [taxPercent, setTaxPercent] = useState<number>(15);
   const [isTaxInclusive, setIsTaxInclusive] = useState<boolean>(true);
   const [returnRate, setReturnRate] = useState<number>(10);
 
-  // مربع البحث
   const [searchQuery, setSearchQuery] = useState<string>('');
 
-  // النتائج اللحظية
   const [results, setResults] = useState({
     paymentFees: 0,
     taxAmount: 0,
@@ -54,11 +50,10 @@ export default function ProfitCalculator() {
     roi: 0,
   });
 
-  // المنتجات المحفوظة
   const [savedProducts, setSavedProducts] = useState<SavedProduct[]>([]);
 
   useEffect(() => {
-    const saved = localStorage.getItem('engazia_profit_products_v5');
+    const saved = localStorage.getItem('engazia_profit_products_v6');
     if (saved) {
       try { setSavedProducts(JSON.parse(saved)); } catch (e) { console.error(e); }
     }
@@ -115,7 +110,7 @@ export default function ProfitCalculator() {
 
     const updatedList = [newProduct, ...savedProducts];
     setSavedProducts(updatedList);
-    localStorage.setItem('engazia_profit_products_v5', JSON.stringify(updatedList));
+    localStorage.setItem('engazia_profit_products_v6', JSON.stringify(updatedList));
     setProductName('');
   };
 
@@ -146,11 +141,10 @@ export default function ProfitCalculator() {
     if (window.confirm('هل أنت متأكد من حذف هذا المنتج؟')) {
       const updatedList = savedProducts.filter(p => p.id !== id);
       setSavedProducts(updatedList);
-      localStorage.setItem('engazia_profit_products_v5', JSON.stringify(updatedList));
+      localStorage.setItem('engazia_profit_products_v6', JSON.stringify(updatedList));
     }
   };
 
-  // دالة التصدير المحدثة لدعم اللغة العربية والاتجاه من اليمين لليسار (Excel HTML format)
   const exportToCSV = () => {
     if (savedProducts.length === 0) return alert('المحفظة فارغة.');
     
@@ -168,11 +162,9 @@ export default function ProfitCalculator() {
       p.profitMargin.toFixed(2)
     ]);
 
-    // بناء جدول HTML وتضمين تعليمات الاتجاه (RTL) وترميز UTF-8
     let htmlTable = `<html xmlns:x="urn:schemas-microsoft-com:office:excel">
       <head>
         <meta http-equiv="content-type" content="text/plain; charset=UTF-8"/>
-        <!-- فرض اتجاه الورقة من اليمين لليسار -->
         <xml>
           <x:ExcelWorkbook>
             <x:ExcelWorksheets>
@@ -202,17 +194,91 @@ export default function ProfitCalculator() {
       </body>
     </html>`;
 
-    // استخدام Data URI مع ترميز Base64 لتجنب أي مشاكل في الترميز
     const uri = 'data:application/vnd.ms-excel;base64,';
     const base64 = (s: string) => window.btoa(unescape(encodeURIComponent(s)));
 
     const link = document.createElement('a');
     link.href = uri + base64(htmlTable);
-    // تغيير اللاحقة إلى xls لضمان قراءة الجدول والتنسيقات
     link.download = `profit_portfolio_${new Date().toISOString().slice(0, 10)}.xls`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  const importFromExcel = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const text = event.target?.result as string;
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(text, 'text/html');
+        const rows = doc.querySelectorAll('tbody tr');
+        
+        if (rows.length === 0) {
+          alert('لم يتم العثور على بيانات. تأكد من أن الملف هو الذي تم تصديره من الأداة.');
+          return;
+        }
+
+        const newProducts: SavedProduct[] = [];
+
+        rows.forEach((row) => {
+          const cells = row.querySelectorAll('td');
+          if (cells.length >= 5) {
+            const name = cells[0].innerText.replace(/"/g, '').trim();
+            const sPrice = parseFloat(cells[1].innerText) || 0;
+            const pCost = parseFloat(cells[2].innerText) || 0;
+            const sCost = parseFloat(cells[3].innerText) || 0;
+            const aSpend = parseFloat(cells[4].innerText) || 0;
+
+            const pFees = (sPrice * (paymentFeePercent / 100)) + paymentFeeFixed;
+            const tValue = taxPercent / 100;
+            const tAmount = isTaxInclusive ? sPrice - (sPrice / (1 + tValue)) : sPrice * tValue;
+            const rCost = (pCost + sCost) * (returnRate / 100);
+            const totalCostWithoutAds = pCost + sCost + pFees + tAmount + rCost;
+            const maxC = sPrice - totalCostWithoutAds;
+            const beROAS = maxC > 0 ? (sPrice / maxC) : 0;
+            const nProfit = maxC - aSpend;
+            const pMargin = sPrice > 0 ? (nProfit / sPrice) * 100 : 0;
+            const totalInv = pCost + sCost + aSpend;
+            const roiVal = totalInv > 0 ? (nProfit / totalInv) * 100 : 0;
+
+            newProducts.push({
+              id: Date.now().toString() + Math.random().toString(36).substring(7),
+              name,
+              sellingPrice: sPrice,
+              productCost: pCost,
+              shippingCost: sCost,
+              adSpend: aSpend,
+              paymentFeePercent,
+              paymentFeeFixed,
+              taxPercent,
+              isTaxInclusive,
+              returnRate,
+              netProfit: nProfit,
+              profitMargin: pMargin,
+              maxCPA: maxC,
+              breakEvenROAS: beROAS,
+              roi: roiVal
+            });
+          }
+        });
+
+        if (newProducts.length > 0) {
+          const updatedList = [...newProducts, ...savedProducts];
+          setSavedProducts(updatedList);
+          localStorage.setItem('engazia_profit_products_v6', JSON.stringify(updatedList));
+          alert(`تم استيراد ${newProducts.length} منتج بنجاح وإضافتها للمحفظة.`);
+        }
+      } catch (error) {
+        console.error(error);
+        alert('حدث خطأ أثناء قراءة الملف. تأكد من صحة الصيغة.');
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = ''; // Reset file input
   };
 
   const filteredProducts = savedProducts.filter(p => 
@@ -274,23 +340,21 @@ export default function ProfitCalculator() {
         .detail-label { font-size: 10px; color: #94a3b8; font-weight: 700; }
         .detail-val { font-size: 13px; font-weight: 900; color: #f8fafc; direction: ltr; text-align: right; }
 
-        /* الأزرار الجديدة للحفظ والمسح */
         .action-buttons { display: flex; gap: 10px; margin-top: 15px; }
         .btn-save { background: #10b981; color: #fff; border: none; padding: 12px; border-radius: 10px; font-size: 14px; font-weight: 900; cursor: pointer; transition: 0.2s; font-family: 'Tajawal', sans-serif; flex: 2; }
         .btn-save:hover { background: #059669; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2); }
         .btn-clear { background: transparent; color: #94a3b8; border: 1px solid #334155; padding: 12px; border-radius: 10px; font-size: 13px; font-weight: 800; cursor: pointer; transition: 0.2s; font-family: 'Tajawal', sans-serif; flex: 1; }
         .btn-clear:hover { background: #334155; color: #fff; }
 
-        /* قسم الجدول والبحث */
         .saved-section-title { font-size: 16px; font-weight: 900; color: #1e293b; margin-bottom: 15px; max-width: 1000px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
         
-        .table-controls { display: flex; gap: 10px; align-items: center; flex: 1; justify-content: flex-end; }
-        .search-box { position: relative; max-width: 250px; width: 100%; }
+        .table-controls { display: flex; gap: 10px; align-items: center; flex: 1; justify-content: flex-end; flex-wrap: wrap; }
+        .search-box { position: relative; max-width: 200px; width: 100%; }
         .search-box input { width: 100%; padding: 8px 12px 8px 30px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 12px; font-family: 'Tajawal', sans-serif; outline: none; box-sizing: border-box; }
         .search-box span { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 12px; color: #94a3b8; }
         
-        .btn-export { background: #fff; border: 1px solid #cbd5e1; padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: 800; color: #475569; cursor: pointer; transition: 0.2s; white-space: nowrap; }
-        .btn-export:hover { background: #f8fafc; border-color: #94a3b8; color: #0f172a; }
+        .btn-action { display: inline-flex; align-items: center; justify-content: center; background: #fff; border: 1px solid #cbd5e1; padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: 800; color: #475569; cursor: pointer; transition: 0.2s; white-space: nowrap; font-family: 'Tajawal', sans-serif; }
+        .btn-action:hover { background: #f8fafc; border-color: #94a3b8; color: #0f172a; }
         
         .table-container { max-width: 1000px; margin: 0 auto; overflow-x: auto; background: #fff; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
         .styled-table { width: 100%; border-collapse: collapse; text-align: right; font-size: 12px; white-space: nowrap; min-width: 850px; }
@@ -310,6 +374,8 @@ export default function ProfitCalculator() {
         .pc-btn-edit:hover { background: #c7d2fe; }
         .pc-btn-delete { background: #fee2e2; color: #ef4444; }
         .pc-btn-delete:hover { background: #ef4444; color: #fff; }
+        
+        .index-cell { color: #94a3b8; font-weight: 900; font-size: 11px; text-align: center; }
 
         @media(max-width: 800px) { 
           .main-grid { grid-template-columns: 1fr; gap: 15px; } 
@@ -332,7 +398,6 @@ export default function ProfitCalculator() {
       </div>
 
       <div className="main-grid">
-        {/* القسم الأول: إدخال البيانات */}
         <div className="panel">
           <h2>🛒 بيانات المنتج والتكاليف</h2>
           
@@ -420,7 +485,6 @@ export default function ProfitCalculator() {
           </div>
         </div>
 
-        {/* القسم الثاني: النتائج اللحظية */}
         <div className="panel results-panel">
           <h2>🎯 التحليل المالي والنتائج</h2>
 
@@ -486,7 +550,6 @@ export default function ProfitCalculator() {
         </div>
       </div>
 
-      {/* القسم الثالث: محفظة المنتجات المحفوظة (الجدول والبحث) */}
       {savedProducts.length > 0 && (
         <>
           <div className="saved-section-title">
@@ -501,7 +564,11 @@ export default function ProfitCalculator() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
-              <button className="btn-export" onClick={exportToCSV}>📥 تصدير Excel</button>
+              <label className="btn-action" style={{ cursor: 'pointer' }}>
+                📤 استيراد Excel
+                <input type="file" accept=".xls,.html" onChange={importFromExcel} style={{ display: 'none' }} />
+              </label>
+              <button className="btn-action" onClick={exportToCSV}>📥 تصدير Excel</button>
             </div>
           </div>
           
@@ -509,6 +576,7 @@ export default function ProfitCalculator() {
             <table className="styled-table">
               <thead>
                 <tr>
+                  <th style={{ textAlign: 'center', width: '40px' }}>#</th>
                   <th>المنتج</th>
                   <th>سعر البيع</th>
                   <th>التكلفة</th>
@@ -523,8 +591,9 @@ export default function ProfitCalculator() {
               </thead>
               <tbody>
                 {filteredProducts.length > 0 ? (
-                  filteredProducts.map((prod) => (
+                  filteredProducts.map((prod, index) => (
                     <tr key={prod.id} style={{ borderLeft: `4px solid ${prod.profitMargin >= 20 ? '#10b981' : prod.profitMargin > 0 ? '#f59e0b' : '#ef4444'}` }}>
+                      <td className="index-cell">{index + 1}</td>
                       <td style={{ fontWeight: 900, color: '#0f172a' }}>{prod.name}</td>
                       <td dir="ltr" style={{ color: '#64748b' }}>{prod.sellingPrice} ر.س</td>
                       <td dir="ltr" style={{ color: '#64748b' }}>{prod.productCost} ر.س</td>
@@ -552,7 +621,7 @@ export default function ProfitCalculator() {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={10} style={{ textAlign: 'center', padding: '20px', color: '#64748b' }}>لا يوجد منتج يطابق بحثك "{searchQuery}"</td>
+                    <td colSpan={11} style={{ textAlign: 'center', padding: '20px', color: '#64748b' }}>لا يوجد منتج يطابق بحثك "{searchQuery}"</td>
                   </tr>
                 )}
               </tbody>
