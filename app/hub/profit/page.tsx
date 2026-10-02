@@ -31,7 +31,7 @@ export default function ProfitCalculator() {
   const [shippingCost, setShippingCost] = useState<number | ''>('');
   const [adSpend, setAdSpend] = useState<number | ''>('');
   
-  // العملة الافتراضية الريال السعودي
+  // حفظ واسترجاع العملة المفضلة للتاجر
   const [currency, setCurrency] = useState<string>('ر.س');
 
   const [paymentFeePercent, setPaymentFeePercent] = useState<number>(2.5);
@@ -57,11 +57,21 @@ export default function ProfitCalculator() {
   const [savedProducts, setSavedProducts] = useState<SavedProduct[]>([]);
 
   useEffect(() => {
-    const saved = localStorage.getItem('engazia_profit_products_v9');
+    // استرجاع العملة المحفوظة مسبقاً
+    const savedCurr = localStorage.getItem('engazia_preferred_currency');
+    if (savedCurr) setCurrency(savedCurr);
+
+    const saved = localStorage.getItem('engazia_profit_products_v10');
     if (saved) {
       try { setSavedProducts(JSON.parse(saved)); } catch (e) { console.error(e); }
     }
   }, []);
+
+  // دالة تغيير وحفظ العملة في التخزين المحلي
+  const handleCurrencyChange = (newCurr: string) => {
+    setCurrency(newCurr);
+    localStorage.setItem('engazia_preferred_currency', newCurr);
+  };
 
   useEffect(() => {
     calculateProfit();
@@ -115,7 +125,7 @@ export default function ProfitCalculator() {
 
     const updatedList = [newProduct, ...savedProducts];
     setSavedProducts(updatedList);
-    localStorage.setItem('engazia_profit_products_v9', JSON.stringify(updatedList));
+    localStorage.setItem('engazia_profit_products_v10', JSON.stringify(updatedList));
     setProductName('');
   };
 
@@ -139,7 +149,7 @@ export default function ProfitCalculator() {
     setTaxPercent(prod.taxPercent);
     setIsTaxInclusive(prod.isTaxInclusive);
     setReturnRate(prod.returnRate);
-    if (prod.currency) setCurrency(prod.currency);
+    if (prod.currency) handleCurrencyChange(prod.currency);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -147,7 +157,7 @@ export default function ProfitCalculator() {
     if (window.confirm('هل أنت متأكد من حذف هذا المنتج؟')) {
       const updatedList = savedProducts.filter(p => p.id !== id);
       setSavedProducts(updatedList);
-      localStorage.setItem('engazia_profit_products_v9', JSON.stringify(updatedList));
+      localStorage.setItem('engazia_profit_products_v10', JSON.stringify(updatedList));
     }
   };
 
@@ -297,7 +307,7 @@ export default function ProfitCalculator() {
         if (newProducts.length > 0) {
           const updatedList = [...newProducts, ...savedProducts];
           setSavedProducts(updatedList);
-          localStorage.setItem('engazia_profit_products_v9', JSON.stringify(updatedList));
+          localStorage.setItem('engazia_profit_products_v10', JSON.stringify(updatedList));
           alert(`تم استيراد ${newProducts.length} منتج بنجاح بالاعتماد على الأعمدة المطابقة.`);
         }
       } catch (error) {
@@ -423,7 +433,7 @@ export default function ProfitCalculator() {
         </Link>
         <div className="currency-selector">
           <span>العملة:</span>
-          <select value={currency} onChange={(e) => setCurrency(e.target.value)}>
+          <select value={currency} onChange={(e) => handleCurrencyChange(e.target.value)}>
             <option value="ر.س">ريال سعودي (ر.س)</option>
             <option value="$">دولار أمريكي ($)</option>
             <option value="د.إ">درهم إماراتي (د.إ)</option>
@@ -501,7 +511,7 @@ export default function ProfitCalculator() {
           </div>
 
           <div style={{ background: '#f8fafc', padding: '12px', borderRadius: '10px', border: '1px solid #e2e8f0', marginTop: '5px' }}>
-            <h3 style={{ fontSize: '11px', color: '#1e293b', marginBottom: '10px', fontWeight: 900 }}>⚙️ الإعدادات المتقدمة (الرسوم)</h3>
+            <h3 style={{ fontSize: '11px', color: '#1e293b', marginBottom: '10px', fontWeight: 900 }}>⚙️️ الإعدادات المتقدمة (الرسوم)</h3>
             
             <div className="grid-3-cols">
               <div className="input-group" style={{ marginBottom: 0 }}>
