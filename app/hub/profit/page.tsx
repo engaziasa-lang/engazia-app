@@ -35,8 +35,11 @@ export default function ProfitCalculator() {
   const [paymentFeePercent, setPaymentFeePercent] = useState<number>(2.5);
   const [paymentFeeFixed, setPaymentFeeFixed] = useState<number>(1);
   const [taxPercent, setTaxPercent] = useState<number>(15);
-  const [isTaxInclusive, setIsTaxInclusive] = useState<boolean>(true); // السعر شامل الضريبة
+  const [isTaxInclusive, setIsTaxInclusive] = useState<boolean>(true);
   const [returnRate, setReturnRate] = useState<number>(10);
+
+  // مربع البحث
+  const [searchQuery, setSearchQuery] = useState<string>('');
 
   // النتائج اللحظية
   const [results, setResults] = useState({
@@ -45,7 +48,7 @@ export default function ProfitCalculator() {
     returnsCost: 0,
     totalCostWithoutAds: 0,
     maxCPA: 0, 
-    breakEvenROAS: 0, // العائد الإعلاني المطلوب للتعادل
+    breakEvenROAS: 0, 
     netProfit: 0,
     profitMargin: 0,
     roi: 0,
@@ -54,15 +57,13 @@ export default function ProfitCalculator() {
   // المنتجات المحفوظة
   const [savedProducts, setSavedProducts] = useState<SavedProduct[]>([]);
 
-  // استرجاع المنتجات المحفوظة عند التحميل
   useEffect(() => {
-    const saved = localStorage.getItem('engazia_profit_products_v3');
+    const saved = localStorage.getItem('engazia_profit_products_v4');
     if (saved) {
       try { setSavedProducts(JSON.parse(saved)); } catch (e) { console.error(e); }
     }
   }, []);
 
-  // حساب النتائج تلقائياً عند تغيير أي رقم
   useEffect(() => {
     calculateProfit();
   }, [productCost, sellingPrice, shippingCost, adSpend, paymentFeePercent, paymentFeeFixed, taxPercent, isTaxInclusive, returnRate]);
@@ -78,48 +79,21 @@ export default function ProfitCalculator() {
       return;
     }
 
-    // 1. حساب رسوم الدفع (النسبة + الرسوم الثابتة)
     const paymentFees = (sPrice * (paymentFeePercent / 100)) + paymentFeeFixed;
-    
-    // 2. حساب الضريبة
     const taxValue = taxPercent / 100;
     const taxAmount = isTaxInclusive 
       ? sPrice - (sPrice / (1 + taxValue)) 
       : sPrice * taxValue;
-    
-    // 3. حساب تكلفة المرتجعات التقديرية
     const returnsCost = (pCost + sCost) * (returnRate / 100);
-
-    // 4. إجمالي التكاليف الأساسية (بدون إعلانات)
     const totalCostWithoutAds = pCost + sCost + paymentFees + taxAmount + returnsCost;
-
-    // 5. أقصى تكلفة استحواذ للعميل (Max CPA)
     const maxCPA = sPrice - totalCostWithoutAds;
-
-    // 6. العائد الإعلاني المطلوب (Break-even ROAS)
     const breakEvenROAS = maxCPA > 0 ? (sPrice / maxCPA) : 0;
-
-    // 7. الربح الصافي الفعلي للمبيعة الواحدة
     const netProfit = maxCPA - aSpend;
-
-    // 8. هامش الربح
     const profitMargin = (netProfit / sPrice) * 100;
-
-    // 9. العائد على الاستثمار (ROI)
     const totalInvestment = pCost + sCost + aSpend;
     const roi = totalInvestment > 0 ? (netProfit / totalInvestment) * 100 : 0;
 
-    setResults({
-      paymentFees,
-      taxAmount,
-      returnsCost,
-      totalCostWithoutAds,
-      maxCPA,
-      breakEvenROAS,
-      netProfit,
-      profitMargin,
-      roi
-    });
+    setResults({ paymentFees, taxAmount, returnsCost, totalCostWithoutAds, maxCPA, breakEvenROAS, netProfit, profitMargin, roi });
   };
 
   const saveProduct = () => {
@@ -135,22 +109,23 @@ export default function ProfitCalculator() {
       productCost: Number(productCost) || 0,
       shippingCost: Number(shippingCost) || 0,
       adSpend: Number(adSpend) || 0,
-      paymentFeePercent,
-      paymentFeeFixed,
-      taxPercent,
-      isTaxInclusive,
-      returnRate,
-      netProfit: results.netProfit,
-      profitMargin: results.profitMargin,
-      maxCPA: results.maxCPA,
-      breakEvenROAS: results.breakEvenROAS,
-      roi: results.roi
+      paymentFeePercent, paymentFeeFixed, taxPercent, isTaxInclusive, returnRate,
+      netProfit: results.netProfit, profitMargin: results.profitMargin, maxCPA: results.maxCPA, breakEvenROAS: results.breakEvenROAS, roi: results.roi
     };
 
     const updatedList = [newProduct, ...savedProducts];
     setSavedProducts(updatedList);
-    localStorage.setItem('engazia_profit_products_v3', JSON.stringify(updatedList));
+    localStorage.setItem('engazia_profit_products_v4', JSON.stringify(updatedList));
     setProductName('');
+  };
+
+  const clearInputs = () => {
+    setProductName('');
+    setSellingPrice('');
+    setProductCost('');
+    setShippingCost('');
+    setAdSpend('');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const loadProduct = (prod: SavedProduct) => {
@@ -168,10 +143,10 @@ export default function ProfitCalculator() {
   };
 
   const deleteProduct = (id: string) => {
-    if (window.confirm('هل أنت متأكد من حذف هذا المنتج من المحفظة؟')) {
+    if (window.confirm('هل أنت متأكد من حذف هذا المنتج؟')) {
       const updatedList = savedProducts.filter(p => p.id !== id);
       setSavedProducts(updatedList);
-      localStorage.setItem('engazia_profit_products_v3', JSON.stringify(updatedList));
+      localStorage.setItem('engazia_profit_products_v4', JSON.stringify(updatedList));
     }
   };
 
@@ -179,15 +154,7 @@ export default function ProfitCalculator() {
     if (savedProducts.length === 0) return alert('المحفظة فارغة.');
     const headers = ['اسم المنتج', 'سعر البيع', 'التكلفة', 'الشحن', 'التسويق المخصص', 'Max CPA', 'Break-even ROAS', 'الربح الصافي', 'هامش الربح %'];
     const rows = savedProducts.map(p => [
-      p.name,
-      p.sellingPrice,
-      p.productCost,
-      p.shippingCost,
-      p.adSpend,
-      p.maxCPA.toFixed(2),
-      p.breakEvenROAS.toFixed(2),
-      p.netProfit.toFixed(2),
-      p.profitMargin.toFixed(2)
+      p.name, p.sellingPrice, p.productCost, p.shippingCost, p.adSpend, p.maxCPA.toFixed(2), p.breakEvenROAS.toFixed(2), p.netProfit.toFixed(2), p.profitMargin.toFixed(2)
     ]);
     
     const csvContent = '\uFEFF' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
@@ -198,6 +165,11 @@ export default function ProfitCalculator() {
     link.download = `profit_portfolio_${new Date().toISOString().slice(0, 10)}.csv`;
     link.click();
   };
+
+  // فلترة المنتجات بناءً على البحث
+  const filteredProducts = savedProducts.filter(p => 
+    p.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div className="tool-container">
@@ -234,7 +206,6 @@ export default function ProfitCalculator() {
         .grid-2-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .grid-3-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 12px; }
 
-        /* Results Panel Styling */
         .results-panel { background: #1e293b; border: none; color: #ffffff; position: relative; overflow: hidden; }
         .results-panel h2 { color: #ffffff; border-color: #334155; }
         
@@ -246,7 +217,6 @@ export default function ProfitCalculator() {
         .result-label { font-size: 13px; font-weight: 800; color: #cbd5e1; display: flex; flex-direction: column; }
         .result-label small { font-size: 10px; color: #94a3b8; font-weight: 500; margin-top: 2px; }
         .highlight .result-label, .warning .result-label, .success .result-label { color: #ffffff; opacity: 0.9; }
-        .highlight .result-label small { color: #e0e7ff; }
         
         .result-value { font-size: 18px; font-weight: 900; color: #ffffff; display: flex; align-items: baseline; gap: 4px; direction: ltr; }
         .result-value span { font-size: 11px; font-weight: 700; opacity: 0.8; }
@@ -256,12 +226,22 @@ export default function ProfitCalculator() {
         .detail-label { font-size: 10px; color: #94a3b8; font-weight: 700; }
         .detail-val { font-size: 13px; font-weight: 900; color: #f8fafc; direction: ltr; text-align: right; }
 
-        .btn-save { background: #10b981; color: #fff; border: none; padding: 12px; width: 100%; border-radius: 10px; font-size: 14px; font-weight: 900; cursor: pointer; transition: 0.2s; margin-top: 8px; font-family: 'Tajawal', sans-serif; }
+        /* الأزرار الجديدة للحفظ والمسح */
+        .action-buttons { display: flex; gap: 10px; margin-top: 15px; }
+        .btn-save { background: #10b981; color: #fff; border: none; padding: 12px; border-radius: 10px; font-size: 14px; font-weight: 900; cursor: pointer; transition: 0.2s; font-family: 'Tajawal', sans-serif; flex: 2; }
         .btn-save:hover { background: #059669; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2); }
+        .btn-clear { background: transparent; color: #94a3b8; border: 1px solid #334155; padding: 12px; border-radius: 10px; font-size: 13px; font-weight: 800; cursor: pointer; transition: 0.2s; font-family: 'Tajawal', sans-serif; flex: 1; }
+        .btn-clear:hover { background: #334155; color: #fff; }
 
-        /* Saved Products Table Styles */
-        .saved-section-title { font-size: 16px; font-weight: 900; color: #1e293b; margin-bottom: 15px; max-width: 1000px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
-        .btn-export { background: #fff; border: 1px solid #cbd5e1; padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 800; color: #475569; cursor: pointer; transition: 0.2s; }
+        /* قسم الجدول والبحث */
+        .saved-section-title { font-size: 16px; font-weight: 900; color: #1e293b; margin-bottom: 15px; max-width: 1000px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+        
+        .table-controls { display: flex; gap: 10px; align-items: center; flex: 1; justify-content: flex-end; }
+        .search-box { position: relative; max-width: 250px; width: 100%; }
+        .search-box input { width: 100%; padding: 8px 12px 8px 30px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 12px; font-family: 'Tajawal', sans-serif; outline: none; box-sizing: border-box; }
+        .search-box span { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 12px; color: #94a3b8; }
+        
+        .btn-export { background: #fff; border: 1px solid #cbd5e1; padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: 800; color: #475569; cursor: pointer; transition: 0.2s; white-space: nowrap; }
         .btn-export:hover { background: #f8fafc; border-color: #94a3b8; color: #0f172a; }
         
         .table-container { max-width: 1000px; margin: 0 auto; overflow-x: auto; background: #fff; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
@@ -283,10 +263,12 @@ export default function ProfitCalculator() {
         .pc-btn-delete { background: #fee2e2; color: #ef4444; }
         .pc-btn-delete:hover { background: #ef4444; color: #fff; }
 
-        /* الشاشات المتوسطة والصغيرة */
         @media(max-width: 800px) { 
           .main-grid { grid-template-columns: 1fr; gap: 15px; } 
           .tool-container { padding: 15px 10px 30px; }
+          .saved-section-title { flex-direction: column; align-items: stretch; }
+          .table-controls { justify-content: space-between; }
+          .search-box { max-width: none; }
         }
       `}</style>
 
@@ -307,7 +289,7 @@ export default function ProfitCalculator() {
           <h2>🛒 بيانات المنتج والتكاليف</h2>
           
           <div className="input-group">
-            <label>اسم المنتج (اختياري)</label>
+            <label>اسم المنتج</label>
             <div className="input-wrapper">
               <input type="text" value={productName} onChange={(e) => setProductName(e.target.value)} placeholder="مثال: سماعة البلوتوث" />
             </div>
@@ -442,25 +424,37 @@ export default function ProfitCalculator() {
             </span>
           </div>
 
-          <div className="result-box highlight" style={{ marginBottom: '15px' }}>
+          <div className="result-box highlight" style={{ marginBottom: '5px' }}>
             <span className="result-label">هامش الربح الصافي</span>
             <span className="result-value">
               {results.profitMargin.toFixed(1)} <span>%</span>
             </span>
           </div>
 
-          <button className="btn-save" onClick={saveProduct}>
-            💾 حفظ في المحفظة
-          </button>
+          <div className="action-buttons">
+            <button className="btn-save" onClick={saveProduct}>💾 حفظ في المحفظة</button>
+            <button className="btn-clear" onClick={clearInputs}>🗑 مسح الحقول</button>
+          </div>
         </div>
       </div>
 
-      {/* القسم الثالث: محفظة المنتجات المحفوظة (الجدول الجديد) */}
+      {/* القسم الثالث: محفظة المنتجات المحفوظة (الجدول والبحث) */}
       {savedProducts.length > 0 && (
         <>
           <div className="saved-section-title">
-            <span>💼 المحفظة والمقارنة المالية ({savedProducts.length})</span>
-            <button className="btn-export" onClick={exportToCSV}>📥 تصدير Excel</button>
+            <span>💼 المحفظة ({savedProducts.length})</span>
+            <div className="table-controls">
+              <div className="search-box">
+                <span>🔍</span>
+                <input 
+                  type="text" 
+                  placeholder="ابحث عن منتج..." 
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+              <button className="btn-export" onClick={exportToCSV}>📥 تصدير Excel</button>
+            </div>
           </div>
           
           <div className="table-container">
@@ -480,33 +474,39 @@ export default function ProfitCalculator() {
                 </tr>
               </thead>
               <tbody>
-                {savedProducts.map((prod) => (
-                  <tr key={prod.id} style={{ borderLeft: `4px solid ${prod.profitMargin >= 20 ? '#10b981' : prod.profitMargin > 0 ? '#f59e0b' : '#ef4444'}` }}>
-                    <td style={{ fontWeight: 900, color: '#0f172a' }}>{prod.name}</td>
-                    <td dir="ltr" style={{ color: '#64748b' }}>{prod.sellingPrice} ر.س</td>
-                    <td dir="ltr" style={{ color: '#64748b' }}>{prod.productCost} ر.س</td>
-                    <td dir="ltr" style={{ color: '#64748b' }}>{prod.shippingCost} ر.س</td>
-                    <td dir="ltr" style={{ color: '#64748b' }}>{prod.adSpend} ر.س</td>
-                    
-                    <td dir="ltr" style={{ color: '#f59e0b', fontWeight: 800 }}>{prod.maxCPA.toFixed(2)}</td>
-                    <td dir="ltr" style={{ color: '#38bdf8', fontWeight: 800 }}>{prod.breakEvenROAS.toFixed(2)}x</td>
-                    
-                    <td dir="ltr" style={{ fontWeight: 900, color: prod.netProfit > 0 ? '#166534' : '#991b1b' }}>
-                      {prod.netProfit.toFixed(2)} ر.س
-                    </td>
-                    <td>
-                      <span className={`table-badge ${prod.profitMargin >= 20 ? 'bg-green' : prod.profitMargin > 0 ? 'bg-yellow' : 'bg-red'}`}>
-                        {prod.profitMargin.toFixed(1)}%
-                      </span>
-                    </td>
-                    <td>
-                      <div className="pc-actions">
-                        <button className="pc-btn pc-btn-edit" onClick={() => loadProduct(prod)} title="استدعاء للتعديل">✏️</button>
-                        <button className="pc-btn pc-btn-delete" onClick={() => deleteProduct(prod.id)} title="حذف المنتج">✕</button>
-                      </div>
-                    </td>
+                {filteredProducts.length > 0 ? (
+                  filteredProducts.map((prod) => (
+                    <tr key={prod.id} style={{ borderLeft: `4px solid ${prod.profitMargin >= 20 ? '#10b981' : prod.profitMargin > 0 ? '#f59e0b' : '#ef4444'}` }}>
+                      <td style={{ fontWeight: 900, color: '#0f172a' }}>{prod.name}</td>
+                      <td dir="ltr" style={{ color: '#64748b' }}>{prod.sellingPrice} ر.س</td>
+                      <td dir="ltr" style={{ color: '#64748b' }}>{prod.productCost} ر.س</td>
+                      <td dir="ltr" style={{ color: '#64748b' }}>{prod.shippingCost} ر.س</td>
+                      <td dir="ltr" style={{ color: '#64748b' }}>{prod.adSpend} ر.س</td>
+                      
+                      <td dir="ltr" style={{ color: '#f59e0b', fontWeight: 800 }}>{prod.maxCPA.toFixed(2)}</td>
+                      <td dir="ltr" style={{ color: '#38bdf8', fontWeight: 800 }}>{prod.breakEvenROAS.toFixed(2)}x</td>
+                      
+                      <td dir="ltr" style={{ fontWeight: 900, color: prod.netProfit > 0 ? '#166534' : '#991b1b' }}>
+                        {prod.netProfit.toFixed(2)} ر.س
+                      </td>
+                      <td>
+                        <span className={`table-badge ${prod.profitMargin >= 20 ? 'bg-green' : prod.profitMargin > 0 ? 'bg-yellow' : 'bg-red'}`}>
+                          {prod.profitMargin.toFixed(1)}%
+                        </span>
+                      </td>
+                      <td>
+                        <div className="pc-actions">
+                          <button className="pc-btn pc-btn-edit" onClick={() => loadProduct(prod)} title="استدعاء للتعديل">✏️</button>
+                          <button className="pc-btn pc-btn-delete" onClick={() => deleteProduct(prod.id)} title="حذف المنتج">✕</button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={10} style={{ textAlign: 'center', padding: '20px', color: '#64748b' }}>لا يوجد منتج يطابق بحثك "{searchQuery}"</td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>
