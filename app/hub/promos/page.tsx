@@ -1,15 +1,197 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 
+// قاموس الترجمة الفوري لأداة ممول وأكواد الخصم
+const toolTranslations: { [key: string]: any } = {
+  ar: {
+    back: 'العودة للوحة التحكم',
+    titleMain: 'ممول وأكواد',
+    titleSub: 'خصم المتاجر',
+    desc: 'أنشئ أكواد خصم جذابة، واضبط قيمتها بدقة لزيادة المبيعات وتحفيز العملاء المترددين.',
+    panel1Title: '🎟️ إعدادات كود الخصم',
+    codeLabel: 'رمز الكود (Promo Code)',
+    randBtn: 'توليد عشوائي',
+    origPriceLabel: 'سعر المنتج الأصلي',
+    discTypeLabel: 'نوع الخصم',
+    percentOpt: 'نسبة مئوية (%)',
+    fixedOpt: 'مبلغ ثابت',
+    discValLabel: 'قيمة الخصم',
+    panel2Title: '📊 نتائج وتأثير الكود',
+    finalPriceLabel: 'السعر بعد الخصم للعميل',
+    savedValLabel: 'قيمة التخفيض الموفرة للعميل',
+    shareCodeLabel: 'الكود الجاهز للمشاركة:',
+    copyBtn: '📋 نسخ كود الخصم',
+    alertCopied: 'تم نسخ كود الخصم ({code}) بنجاح ومزامنته سحابياً!'
+  },
+  en: {
+    back: 'Back to Dashboard',
+    titleMain: 'Discount Promos',
+    titleSub: 'Manager',
+    desc: 'Create attractive promo codes and adjust their values to boost sales and convert hesitant customers.',
+    panel1Title: '🎟️ Promo Code Settings',
+    codeLabel: 'Promo Code',
+    randBtn: 'Randomize',
+    origPriceLabel: 'Original Product Price',
+    discTypeLabel: 'Discount Type',
+    percentOpt: 'Percentage (%)',
+    fixedOpt: 'Fixed Amount',
+    discValLabel: 'Discount Value',
+    panel2Title: '📊 Results & Impact',
+    finalPriceLabel: 'Customer Price After Discount',
+    savedValLabel: 'Amount Saved for Customer',
+    shareCodeLabel: 'Ready-to-Share Code:',
+    copyBtn: '📋 Copy Promo Code',
+    alertCopied: 'Promo code ({code}) copied and synced to cloud successfully!'
+  },
+  fr: {
+    back: 'Retour au tableau de bord',
+    titleMain: 'Gestionnaire de codes',
+    titleSub: 'promo',
+    desc: 'Créez des codes promo attractifs pour stimuler vos ventes.',
+    panel1Title: '🎟️ Paramètres du code',
+    codeLabel: 'Code promo',
+    randBtn: 'Aléatoire',
+    origPriceLabel: 'Prix original',
+    discTypeLabel: 'Type de remise',
+    percentOpt: 'Pourcentage (%)',
+    fixedOpt: 'Montant fixe',
+    discValLabel: 'Valeur de la remise',
+    panel2Title: '📊 Résultats et impact',
+    finalPriceLabel: 'Prix final client',
+    savedValLabel: 'Montant économisé',
+    shareCodeLabel: 'Code à partager :',
+    copyBtn: '📋 Copier le code',
+    alertCopied: 'Code promo ({code}) copié avec succès !'
+  },
+  es: {
+    back: 'Volver al panel',
+    titleMain: 'Gestor de códigos',
+    titleSub: 'promocionales',
+    desc: 'Crea códigos de descuento atractivos para aumentar las ventas.',
+    panel1Title: '🎟️ Configuración del código',
+    codeLabel: 'Código promocional',
+    randBtn: 'Aleatorio',
+    origPriceLabel: 'Precio original',
+    discTypeLabel: 'Tipo de descuento',
+    percentOpt: 'Porcentaje (%)',
+    fixedOpt: 'Monto fijo',
+    discValLabel: 'Valor del descuento',
+    panel2Title: '📊 Resultados e impacto',
+    finalPriceLabel: 'Precio final para el cliente',
+    savedValLabel: 'Ahorro para el cliente',
+    shareCodeLabel: 'Código listo para compartir:',
+    copyBtn: '📋 Copiar código',
+    alertCopied: '¡Código promo ({code}) copiado con éxito!'
+  },
+  tr: {
+    back: 'Kontrol Paneline Dön',
+    titleMain: 'İndirim Kuponu',
+    titleSub: 'Yöneticisi',
+    desc: 'Satışları artırmak ve kararsız müşterileri çekmek için cazip kuponlar oluşturun.',
+    panel1Title: '🎟️ İndirim Kodu Ayarları',
+    codeLabel: 'Kupon Kodu (Promo Code)',
+    randBtn: 'Rastgele Üret',
+    origPriceLabel: 'Orijinal Ürün Fiyatı',
+    discTypeLabel: 'İndirim Türü',
+    percentOpt: 'Yüzde (%)',
+    fixedOpt: 'Sabit Tutar',
+    discValLabel: 'İndirim Değeri',
+    panel2Title: '📊 Sonuçlar ve Etki',
+    finalPriceLabel: 'İndirim Sonrası Müşteri Fiyatı',
+    savedValLabel: 'Müşterinin Tasarrufu',
+    shareCodeLabel: 'Paylaşılmaya Hazır Kod:',
+    copyBtn: '📋 Kupon Kodu Kopyala',
+    alertCopied: 'İndirim kodu ({code}) kopyalandı ve buluta senkronize edildi!'
+  },
+  zh: {
+    back: '返回控制面板',
+    titleMain: '优惠码',
+    titleSub: '管理器',
+    desc: '创建极具吸引力的优惠码，精准设置折扣力度以刺激犹豫不决的客户。',
+    panel1Title: '🎟️ 优惠码设置',
+    codeLabel: '优惠码 (Promo Code)',
+    randBtn: '随机生成',
+    origPriceLabel: '产品原价',
+    discTypeLabel: '折扣类型',
+    percentOpt: '百分比 (%)',
+    fixedOpt: '固定金额',
+    discValLabel: '折扣额度',
+    panel2Title: '📊 结果与影响',
+    finalPriceLabel: '折后客户购买价',
+    savedValLabel: '为客户节省的金额',
+    shareCodeLabel: '准备分享的优惠码:',
+    copyBtn: '📋 复制优惠码',
+    alertCopied: '优惠码 ({code}) 已成功复制并同步至云端！'
+  },
+  de: {
+    back: 'Zurück zum Dashboard',
+    titleMain: 'Gutschein-',
+    titleSub: 'und Rabatt-Manager',
+    desc: 'Erstellen Sie attraktive Rabattcodes zur Umsatzsteigerung.',
+    panel1Title: '🎟️ Gutscheineinstellungen',
+    codeLabel: 'Gutscheincode',
+    randBtn: 'Zufällig',
+    origPriceLabel: 'Ursprünglicher Preis',
+    discTypeLabel: 'Rabatttyp',
+    percentOpt: 'Prozentsatz (%)',
+    fixedOpt: 'Fester Betrag',
+    discValLabel: 'Rabattwert',
+    panel2Title: '📊 Ergebnisse & Wirkung',
+    finalPriceLabel: 'Endpreis für Kunden',
+    savedValLabel: 'Ersparnis für Kunden',
+    shareCodeLabel: 'Bereiter Code:',
+    copyBtn: '📋 Gutscheincode kopieren',
+    alertCopied: 'Gutscheincode ({code}) erfolgreich kopiert und synchronisiert!'
+  },
+  id: {
+    back: 'Kembali ke Dasbor',
+    titleMain: 'Manajer Promo',
+    titleSub: '& Diskon Toko',
+    desc: 'Buat kode diskon menarik untuk tingkatkan penjualan dan pengikut.',
+    panel1Title: '🎟️ Pengaturan Kode Promo',
+    codeLabel: 'Kode Promo',
+    randBtn: 'Acak',
+    origPriceLabel: 'Harga Produk Asli',
+    discTypeLabel: 'Jenis Diskon',
+    percentOpt: 'Persentase (%)',
+    fixedOpt: 'Jumlah Tetap',
+    discValLabel: 'Nilai Diskon',
+    panel2Title: '📊 Hasil & Dampak',
+    finalPriceLabel: 'Harga Setelah Diskon',
+    savedValLabel: 'Jumlah Penghematan Pelanggan',
+    shareCodeLabel: 'Kode Siap Dibagikan:',
+    copyBtn: '📋 Salin Kode Promo',
+    alertCopied: 'Kode promo ({code}) berhasil disalin dan disinkronkan ke cloud!'
+  }
+};
+
 export default function PromosManager() {
+  const [currentLang, setCurrentLang] = useState('ar');
+  const [currentCurrency, setCurrentCurrency] = useState('SAR');
+  const [licenseKey, setLicenseKey] = useState('');
+
   const [originalPrice, setOriginalPrice] = useState<number>(300);
   const [discountType, setDiscountType] = useState<'percent' | 'fixed'>('percent');
   const [discountValue, setDiscountValue] = useState<number>(15);
   const [promoCode, setPromoCode] = useState('ENGAZIA15');
 
-  // الحسابات
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedLang = localStorage.getItem('engazia_global_lang') || 'ar';
+      const savedCurr = localStorage.getItem('engazia_global_currency') || 'SAR';
+      const savedKey = localStorage.getItem('merchant_license_key') || '';
+      
+      setCurrentLang(savedLang);
+      setCurrentCurrency(savedCurr);
+      setLicenseKey(savedKey);
+    }
+  }, []);
+
+  const t = toolTranslations[currentLang] || toolTranslations.ar;
+  const isRtl = currentLang === 'ar';
+
   const discountAmount = discountType === 'percent' 
     ? (originalPrice * (discountValue / 100)) 
     : discountValue;
@@ -27,11 +209,11 @@ export default function PromosManager() {
 
   const copyCode = () => {
     navigator.clipboard.writeText(promoCode);
-    alert(`تم نسخ كود الخصم (${promoCode}) بنجاح!`);
+    alert(t.alertCopied.replace('{code}', promoCode));
   };
 
   return (
-    <div className="tool-container">
+    <div className="tool-container" style={{ direction: isRtl ? 'rtl' : 'ltr' }}>
       <style jsx global>{`
         a { text-decoration: none !important; color: inherit !important; }
       `}</style>
@@ -39,7 +221,7 @@ export default function PromosManager() {
       <style jsx>{`
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
         
-        .tool-container { background-color: #f8fafc; min-height: 100vh; font-family: 'Tajawal', sans-serif; direction: rtl; padding: 30px 20px 70px; }
+        .tool-container { background-color: #f8fafc; min-height: 100vh; font-family: 'Tajawal', sans-serif; padding: 30px 20px 70px; }
         
         .header { max-width: 1000px; margin: 0 auto 30px; display: flex; justify-content: space-between; align-items: center; }
         .back-btn { background: #ffffff; color: #475569; padding: 10px 20px; border-radius: 8px; font-weight: 700; font-size: 14px; border: 1px solid #cbd5e1; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
@@ -83,29 +265,34 @@ export default function PromosManager() {
 
       <div className="header">
         <Link href="/hub" className="back-btn">
-          <span>→</span> العودة للوحة التحكم
+          <span>{isRtl ? '→' : '←'}</span> {t.back}
         </Link>
+        {licenseKey && (
+          <span style={{ fontSize: '12px', background: '#dcfce7', color: '#166534', padding: '6px 12px', borderRadius: '6px', fontWeight: 800 }}>
+            🔒 PRO
+          </span>
+        )}
       </div>
 
       <div className="tool-title">
-        <h1>ممول وأكواد <span>خصم المتاجر</span></h1>
-        <p>أنشئ أكواد خصم جذابة، واضبط قيمتها بدقة لزيادة المبيعات وتحفيز العملاء المترددين.</p>
+        <h1>{t.titleMain} <span>{t.titleSub}</span></h1>
+        <p>{t.desc}</p>
       </div>
 
       <div className="main-grid">
         <div className="panel">
-          <h2>🎟️ إعدادات كود الخصم</h2>
+          <h2>{t.panel1Title}</h2>
           
           <div className="input-group">
-            <label>رمز الكود (Promo Code)</label>
+            <label>{t.codeLabel}</label>
             <div className="input-wrapper" style={{ display: 'flex', gap: '10px' }}>
               <input type="text" value={promoCode} onChange={(e) => setPromoCode(e.target.value.toUpperCase())} style={{ flex: 1 }} />
-              <button onClick={generateRandomCode} className="action-btn" style={{ margin: 0 }}>توليد عشوائي</button>
+              <button onClick={generateRandomCode} className="action-btn" style={{ margin: 0 }}>{t.randBtn}</button>
             </div>
           </div>
 
           <div className="input-group">
-            <label>سعر المنتج الأصلي</label>
+            <label>{t.origPriceLabel} ({currentCurrency})</label>
             <div className="input-wrapper">
               <input type="number" value={originalPrice || ''} onChange={(e) => setOriginalPrice(Number(e.target.value))} />
             </div>
@@ -113,16 +300,16 @@ export default function PromosManager() {
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
             <div className="input-group">
-              <label>نوع الخصم</label>
+              <label>{t.discTypeLabel}</label>
               <div className="input-wrapper">
                 <select value={discountType} onChange={(e) => setDiscountType(e.target.value as any)}>
-                  <option value="percent">نسبة مئوية (%)</option>
-                  <option value="fixed">مبلغ ثابت (ر.س)</option>
+                  <option value="percent">{t.percentOpt}</option>
+                  <option value="fixed">{t.fixedOpt} ({currentCurrency})</option>
                 </select>
               </div>
             </div>
             <div className="input-group">
-              <label>قيمة الخصم</label>
+              <label>{t.discValLabel}</label>
               <div className="input-wrapper">
                 <input type="number" value={discountValue} onChange={(e) => setDiscountValue(Number(e.target.value))} />
               </div>
@@ -131,25 +318,25 @@ export default function PromosManager() {
         </div>
 
         <div className="panel results-panel">
-          <h2>📊 نتائج وتأثير الكود</h2>
+          <h2>{t.panel2Title}</h2>
 
           <div className="result-box highlight">
-            <span className="result-label">السعر بعد الخصم للعميل</span>
-            <span className="result-value" dir="ltr">{finalPrice.toFixed(2)} <span>ر.س</span></span>
+            <span className="result-label">{t.finalPriceLabel}</span>
+            <span className="result-value" dir="ltr">{finalPrice.toFixed(2)} <span>{currentCurrency}</span></span>
           </div>
 
           <div className="result-box">
-            <span className="result-label">قيمة التخفيض الموفرة للعميل</span>
-            <span className="result-value" style={{ color: '#86efac' }} dir="ltr">{discountAmount.toFixed(2)} <span>ر.س</span></span>
+            <span className="result-label">{t.savedValLabel}</span>
+            <span className="result-value" style={{ color: '#86efac' }} dir="ltr">{discountAmount.toFixed(2)} <span>{currentCurrency}</span></span>
           </div>
 
           <div className="result-box" style={{ background: '#1e293b', borderColor: '#334155', flexDirection: 'column', alignItems: 'flex-start', gap: '5px' }}>
-            <span className="result-label">الكود الجاهز للمشاركة:</span>
+            <span className="result-label">{t.shareCodeLabel}</span>
             <span style={{ fontSize: '20px', fontWeight: '900', color: '#818cf8', letterSpacing: '1px' }}>{promoCode}</span>
           </div>
 
           <button onClick={copyCode} className="copy-code-btn">
-            📋 نسخ كود الخصم
+            {t.copyBtn}
           </button>
         </div>
       </div>
