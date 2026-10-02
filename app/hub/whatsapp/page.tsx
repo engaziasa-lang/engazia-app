@@ -85,11 +85,6 @@ const toolTranslations: { [key: string]: any } = {
     backupBox: '💾 النسخ الاحتياطي واستعادة البيانات',
     downloadBackup: '📥 تحميل نسخة احتياطية (JSON)',
     restoreBackup: '♻️ استعادة البيانات من ملف',
-    filterByTime: '📅 فلترة حسب الفترة الزمنية:',
-    filterAllTime: 'كل الوقت',
-    filterToday: 'اليوم',
-    filterThisWeek: 'هذا الأسبوع',
-    filterThisMonth: 'هذا الشهر',
     perfIndicators: 'مؤشرات الأداء المباشرة',
     latestCustomers: 'أحدث العملاء تسجيلاً',
     dealSuccessRate: '📊 نسبة إتمام الصفقات',
@@ -103,11 +98,16 @@ const toolTranslations: { [key: string]: any } = {
     selectTemplateTitle: '2. اختر أو صمم رسالتك',
     generateMsgBtn: '⚡ توليد ومعاينة الرسالة',
     sendWaBtn: '🟢 إرسال عبر واتساب (Wa.me)',
-    generalSysSettings: '⚡ إعدادات النظام العامة',
     defaultDiscountLabel: 'كود الخصم الافتراضي',
     customizeStatusTitle: '📌 تخصيص حالات العملاء',
     customizeRespTitle: '💬 تخصيص حالات الرد',
-    customizeCatTitle: '🏷️ تخصيص تصنيفات وحالات العملاء',
+    customizeCatTitle: '🏷️️ تخصيص تصنيفات وحالات العملاء',
+    newCatLabel: 'اسم التصنيف الجديد',
+    newStatusLabel: 'اسم الحالة الجديدة',
+    newRespLabel: 'اسم حالة الرد الجديدة',
+    colorLabel: 'اللون',
+    addBtn: '➕ إضافة',
+    deleteBtn: 'حذف',
     cats: {
       newCustomer: 'عميل جديد',
       abandonedCart: 'سلة متروكة',
@@ -165,11 +165,6 @@ const toolTranslations: { [key: string]: any } = {
     backupBox: '💾 Backup & Restore Data',
     downloadBackup: '📥 Download Backup (JSON)',
     restoreBackup: '♻️ Restore Data from File',
-    filterByTime: '📅 Filter by Time Range:',
-    filterAllTime: 'All Time',
-    filterToday: 'Today',
-    filterThisWeek: 'This Week',
-    filterThisMonth: 'This Month',
     perfIndicators: 'Live Performance Indicators',
     latestCustomers: 'Latest Registered Customers',
     dealSuccessRate: '📊 Deal Success Rate',
@@ -183,11 +178,16 @@ const toolTranslations: { [key: string]: any } = {
     selectTemplateTitle: '2. Select or Design Message',
     generateMsgBtn: '⚡ Generate & Preview Message',
     sendWaBtn: '🟢 Send via WhatsApp (Wa.me)',
-    generalSysSettings: '⚡ General System Settings',
     defaultDiscountLabel: 'Default Discount Code',
     customizeStatusTitle: '📌 Customize Customer Statuses',
     customizeRespTitle: '💬 Customize Response States',
     customizeCatTitle: '🏷️ Customize Customer Categories',
+    newCatLabel: 'New Category Name',
+    newStatusLabel: 'New Customer Status',
+    newRespLabel: 'New Response State',
+    colorLabel: 'Color',
+    addBtn: '➕ Add',
+    deleteBtn: 'Delete',
     cats: {
       newCustomer: 'New Customer',
       abandonedCart: 'Abandoned Cart',
@@ -225,7 +225,7 @@ const toolTranslations: { [key: string]: any } = {
     tabAnalytics: '📈 Analyses avancées',
     tabCrm: '👥 Clients',
     tabMessaging: '💬 Messagerie',
-    tabTags: '⚙️ Paramètres',
+    tabTags: '⚙️️ Paramètres',
     salesTitle: 'Ventes totales',
     totalCustomers: 'Clients totaux',
     newCustomerTitle: '➕ Ajouter un client',
@@ -245,11 +245,6 @@ const toolTranslations: { [key: string]: any } = {
     backupBox: '💾 Sauvegarde',
     downloadBackup: '📥 Télécharger la sauvegarde',
     restoreBackup: '♻️ Restaurer',
-    filterByTime: '📅 Filtrer par période :',
-    filterAllTime: 'Tout le temps',
-    filterToday: 'Aujourd\'hui',
-    filterThisWeek: 'Cette semaine',
-    filterThisMonth: 'Ce mois-ci',
     perfIndicators: 'Indicateurs de performance en direct',
     latestCustomers: 'Derniers clients enregistrés',
     dealSuccessRate: '📊 Taux de réussite des transactions',
@@ -263,11 +258,16 @@ const toolTranslations: { [key: string]: any } = {
     selectTemplateTitle: '2. Sélectionnez ou concevez un message',
     generateMsgBtn: '⚡ Générer et prévisualiser',
     sendWaBtn: '🟢 Envoyer via WhatsApp',
-    generalSysSettings: '⚡ Paramètres généraux du système',
     defaultDiscountLabel: 'Code de réduction par défaut',
     customizeStatusTitle: '📌 Personnaliser les statuts',
     customizeRespTitle: '💬 Personnaliser les états de réponse',
     customizeCatTitle: '🏷️ Personnaliser les catégories',
+    newCatLabel: 'Nom de la nouvelle catégorie',
+    newStatusLabel: 'Nouveau statut client',
+    newRespLabel: 'Nouvel état de réponse',
+    colorLabel: 'Couleur',
+    addBtn: '➕ Ajouter',
+    deleteBtn: 'Supprimer',
     cats: {
       newCustomer: 'Nouveau client',
       abandonedCart: 'Panier abandonné',
@@ -324,12 +324,7 @@ const toolTranslations: { [key: string]: any } = {
     actions: 'Acciones',
     backupBox: '💾 Copia de seguridad y restauración',
     downloadBackup: '📥 Descargar copia de seguridad',
-    restoreBackup: '♻️ Restaurar datos',
-    filterByTime: '📅 Filtrar por período:',
-    filterAllTime: 'Todo el tiempo',
-    filterToday: 'Hoy',
-    filterThisWeek: 'Esta semana',
-    filterThisMonth: 'Este mes',
+    restoreBackup: '♻️️ Restaurar datos',
     perfIndicators: 'Indicadores de rendimiento en vivo',
     latestCustomers: 'Últimos clientes registrados',
     dealSuccessRate: '📊 Tasa de éxito de acuerdos',
@@ -343,11 +338,16 @@ const toolTranslations: { [key: string]: any } = {
     selectTemplateTitle: '2. Seleccionar o diseñar mensaje',
     generateMsgBtn: '⚡ Generar y vista previa',
     sendWaBtn: '🟢 Enviar por WhatsApp',
-    generalSysSettings: '⚡ Configuración general del sistema',
     defaultDiscountLabel: 'Código de descuento predeterminado',
     customizeStatusTitle: '📌 Personalizar estados',
     customizeRespTitle: '💬 Personalizar estados de respuesta',
     customizeCatTitle: '🏷 Personalizar categorías',
+    newCatLabel: 'Nombre de nueva categoría',
+    newStatusLabel: 'Nuevo estado de cliente',
+    newRespLabel: 'Nuevo estado de respuesta',
+    colorLabel: 'Color',
+    addBtn: '➕ Añadir',
+    deleteBtn: 'Eliminar',
     cats: {
       newCustomer: 'Nuevo cliente',
       abandonedCart: 'Carrito abandonado',
@@ -405,11 +405,6 @@ const toolTranslations: { [key: string]: any } = {
     backupBox: '💾 Yedekleme ve Geri Yükleme',
     downloadBackup: '📥 Yedek İndir (JSON)',
     restoreBackup: '♻️ Dosyadan Geri Yükle',
-    filterByTime: '📅 Zaman Aralığına Göre Filtrele:',
-    filterAllTime: 'Tüm Zamanlar',
-    filterToday: 'Bugün',
-    filterThisWeek: 'Bu Hafta',
-    filterThisMonth: 'Bu Ay',
     perfIndicators: 'Canlı Performans Göstergeleri',
     latestCustomers: 'Son Kayıt olan Müşteriler',
     dealSuccessRate: '📊 Anlaşma Başarı Oranı',
@@ -423,11 +418,16 @@ const toolTranslations: { [key: string]: any } = {
     selectTemplateTitle: '2. Mesaj Seç veya Tasarla',
     generateMsgBtn: '⚡ Mesajı Oluştur ve Önizle',
     sendWaBtn: '🟢 WhatsApp ile Gönder',
-    generalSysSettings: '⚡ Genel Sistem Ayarları',
     defaultDiscountLabel: 'Varsayılan İndirim Kodu',
     customizeStatusTitle: '📌 Müşteri Durumlarını Özelleştir',
     customizeRespTitle: '💬 Yanıt Durumlarını Özelleştir',
     customizeCatTitle: '🏷 Müşteri Kategorilerini Özelleştir',
+    newCatLabel: 'Yeni Kategori Adı',
+    newStatusLabel: 'Yeni Müşteri Durumu',
+    newRespLabel: 'Yeni Yanıt Durumu',
+    colorLabel: 'Renk',
+    addBtn: '➕ Ekle',
+    deleteBtn: 'Sil',
     cats: {
       newCustomer: 'Yeni Müşteri',
       abandonedCart: 'Terk Edilmiş Sepet',
@@ -485,11 +485,6 @@ const toolTranslations: { [key: string]: any } = {
     backupBox: '💾 备份与恢复数据',
     downloadBackup: '📥 下载备份 (JSON)',
     restoreBackup: '♻️ 从文件恢复数据',
-    filterByTime: '📅 按时间范围筛选：',
-    filterAllTime: '所有时间',
-    filterToday: '今天',
-    filterThisWeek: '本周',
-    filterThisMonth: '本月',
     perfIndicators: '实时业绩指标',
     latestCustomers: '最新登记客户',
     dealSuccessRate: '📊 交易成交率',
@@ -503,11 +498,16 @@ const toolTranslations: { [key: string]: any } = {
     selectTemplateTitle: '2. 选择或设计消息',
     generateMsgBtn: '⚡ 生成并预览消息',
     sendWaBtn: '🟢 通过 WhatsApp 发送',
-    generalSysSettings: '⚡ 系统通用设置',
     defaultDiscountLabel: '默认优惠码',
     customizeStatusTitle: '📌 自定义客户状态',
     customizeRespTitle: '💬 自定义回复状态',
     customizeCatTitle: '🏷️ 自定义客户分类',
+    newCatLabel: '新分类名称',
+    newStatusLabel: '新客户状态',
+    newRespLabel: '新回复状态',
+    colorLabel: '颜色',
+    addBtn: '➕ 添加',
+    deleteBtn: '删除',
     cats: {
       newCustomer: '新客户',
       abandonedCart: '购物车未付款',
@@ -565,11 +565,6 @@ const toolTranslations: { [key: string]: any } = {
     backupBox: '💾 Backup & Wiederherstellung',
     downloadBackup: '📥 Backup herunterladen (JSON)',
     restoreBackup: '♻️ Daten wiederherstellen',
-    filterByTime: '📅 Nach Zeitrahmen filtern:',
-    filterAllTime: 'Alle Zeit',
-    filterToday: 'Heute',
-    filterThisWeek: 'Diese Woche',
-    filterThisMonth: 'Diesen Monat',
     perfIndicators: 'Live-Leistungsindikatoren',
     latestCustomers: 'Neueste Kunden',
     dealSuccessRate: '📊 Abschlussquote',
@@ -583,11 +578,16 @@ const toolTranslations: { [key: string]: any } = {
     selectTemplateTitle: '2. Nachricht auswählen',
     generateMsgBtn: '⚡ Nachricht generieren',
     sendWaBtn: '🟢 Über WhatsApp senden',
-    generalSysSettings: '⚡ Allgemeine Systemeinstellungen',
     defaultDiscountLabel: 'Standard-Gutscheincode',
     customizeStatusTitle: '📌 Status anpassen',
     customizeRespTitle: '💬 Antwortstatus anpassen',
     customizeCatTitle: '🏷️ Kategorien anpassen',
+    newCatLabel: 'Neuer Kategoriename',
+    newStatusLabel: 'Neuer Kundenstatus',
+    newRespLabel: 'Neuer Antwortstatus',
+    colorLabel: 'Farbe',
+    addBtn: '➕ Hinzufügen',
+    deleteBtn: 'Löschen',
     cats: {
       newCustomer: 'Neukunde',
       abandonedCart: 'Abgebrochener Warenkorb',
@@ -645,11 +645,6 @@ const toolTranslations: { [key: string]: any } = {
     backupBox: 'Cadangkan & Pulihkan Data',
     downloadBackup: 'Unduh Cadangan (JSON)',
     restoreBackup: 'Pulihkan dari File',
-    filterByTime: 'Filter Berdasarkan Waktu:',
-    filterAllTime: 'Semua Waktu',
-    filterToday: 'Hari Ini',
-    filterThisWeek: 'Minggu Ini',
-    filterThisMonth: 'Bulan Ini',
     perfIndicators: 'Indikator Kinerja Langsung',
     latestCustomers: 'Pelanggan Terbaru',
     dealSuccessRate: 'Tingkat Keberhasilan Kesepakatan',
@@ -663,11 +658,16 @@ const toolTranslations: { [key: string]: any } = {
     selectTemplateTitle: 'Pilih atau Rancang Pesan',
     generateMsgBtn: 'Buat & Pratinjau Pesan',
     sendWaBtn: 'Kirim via WhatsApp',
-    generalSysSettings: 'Pengaturan Sistem Umum',
     defaultDiscountLabel: 'Kode Diskon Default',
     customizeStatusTitle: 'Sesuaikan Status',
     customizeRespTitle: 'Sesuaikan Status Respon',
     customizeCatTitle: 'Sesuaikan Kategori',
+    newCatLabel: 'Nama Kategori Baru',
+    newStatusLabel: 'Status Pelanggan Baru',
+    newRespLabel: 'Status Respon Baru',
+    colorLabel: 'Warna',
+    addBtn: '➕ Tambah',
+    deleteBtn: 'Hapus',
     cats: {
       newCustomer: 'Pelanggan Baru',
       abandonedCart: 'Keranjang Terbengkalai',
@@ -707,7 +707,6 @@ export default function EngaziaWhatsAppCRM() {
   const [contacts, setContacts] = useState<Customer[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('all');
-  const [dateFilter, setDateFilter] = useState<'all' | 'today' | 'this_week' | 'this_month'>('all');
   
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [newTimelineNote, setNewTimelineNote] = useState('');
@@ -859,7 +858,7 @@ export default function EngaziaWhatsAppCRM() {
 
   const exportBackupJSON = () => {
     const backupData = {
-      defaultDiscountCode, contacts, categories, statusOptions, responseStateOptions, templates, version: '2.6'
+      defaultDiscountCode, contacts, categories, statusOptions, responseStateOptions, templates, version: '2.7'
     };
     const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -1097,33 +1096,12 @@ export default function EngaziaWhatsAppCRM() {
     if (customerId) updateLastContact(customerId, 'مراسلة عبر Wa.me');
   };
 
-  const filterByDateRange = (cList: Customer[]) => {
-    if (dateFilter === 'all') return cList;
-    const now = new Date();
-    const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-    return cList.filter(c => {
-      if (!c.date) return false;
-      const cDate = new Date(c.date);
-      if (isNaN(cDate.getTime())) return false;
-      if (dateFilter === 'today') return c.date === todayStr;
-      if (dateFilter === 'this_month') return cDate.getFullYear() === now.getFullYear() && cDate.getMonth() === now.getMonth();
-      if (dateFilter === 'this_week') {
-        const firstDayOfWeek = new Date(now);
-        firstDayOfWeek.setDate(now.getDate() - now.getDay());
-        firstDayOfWeek.setHours(0, 0, 0, 0);
-        return cDate >= firstDayOfWeek;
-      }
-      return true;
-    });
-  };
-
-  const timeFilteredContacts = filterByDateRange(contacts);
   const saleCategoriesNames = categories.filter(cat => cat.isSale).map(cat => getCatDisplay(cat.nameKey, cat.fallbackName));
-  const totalValidSales = timeFilteredContacts
+  const totalValidSales = contacts
     .filter(c => saleCategoriesNames.includes(c.category))
     .reduce((acc, c) => acc + (Number(c.amount) || 0), 0);
   
-  const filteredContacts = timeFilteredContacts.filter(c => {
+  const filteredContacts = contacts.filter(c => {
     const matchSearch = c.name.toLowerCase().includes(searchTerm.toLowerCase()) || c.phone.includes(searchTerm) || c.orderNumber.includes(searchTerm);
     const matchCat = filterCategory === 'all' || c.category === filterCategory;
     return matchSearch && matchCat;
@@ -1304,16 +1282,6 @@ export default function EngaziaWhatsAppCRM() {
           <button className={`tab-btn ${activeTab === 'tags' ? 'active' : ''}`} onClick={() => setActiveTab('tags')}>{t.tabTags}</button>
         </div>
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f8fafc', border: '1px solid #e2e8f0', padding: '12px 20px', borderRadius: '12px', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
-          <div style={{ fontSize: '13px', fontWeight: 800, color: '#475569' }}>{t.filterByTime}</div>
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <button className={`chip-btn ${dateFilter === 'all' ? 'active' : ''}`} onClick={() => setDateFilter('all')}>{t.filterAllTime}</button>
-            <button className={`chip-btn ${dateFilter === 'today' ? 'active' : ''}`} onClick={() => setDateFilter('today')}>{t.filterToday}</button>
-            <button className={`chip-btn ${dateFilter === 'this_week' ? 'active' : ''}`} onClick={() => setDateFilter('this_week')}>{t.filterThisWeek}</button>
-            <button className={`chip-btn ${dateFilter === 'this_month' ? 'active' : ''}`} onClick={() => setDateFilter('this_month')}>{t.filterThisMonth}</button>
-          </div>
-        </div>
-
         {/* 1. Dashboard */}
         {activeTab === 'dashboard' && (
           <div>
@@ -1325,14 +1293,14 @@ export default function EngaziaWhatsAppCRM() {
               </div>
               <div className="stat-card" style={{ borderBottom: '4px solid #10b981' }}>
                 <div className="stat-title">{t.totalCustomers}</div>
-                <div className="stat-num">{timeFilteredContacts.length}</div>
+                <div className="stat-num">{contacts.length}</div>
               </div>
               {categories.map(cat => {
                 const catName = getCatDisplay(cat.nameKey, cat.fallbackName);
                 return (
                   <div key={cat.nameKey || cat.fallbackName} className="stat-card" style={{ borderBottom: `4px solid ${cat.color}` }}>
                     <div className="stat-title">{catName}</div>
-                    <div className="stat-num">{timeFilteredContacts.filter(c => c.category === catName).length}</div>
+                    <div className="stat-num">{contacts.filter(c => c.category === catName).length}</div>
                   </div>
                 );
               })}
@@ -1353,7 +1321,7 @@ export default function EngaziaWhatsAppCRM() {
                   </tr>
                 </thead>
                 <tbody>
-                  {timeFilteredContacts.slice(0, 5).map(c => {
+                  {contacts.slice(0, 5).map(c => {
                     const matchedResp = responseStateOptions.find(r => getRespDisplay(r.nameKey, r.fallbackName) === c.responseState);
                     const matchedCat = categories.find(cat => getCatDisplay(cat.nameKey, cat.fallbackName) === c.category);
                     const matchedSt = statusOptions.find(st => getStatusDisplay(st.nameKey, st.fallbackName) === c.status);
@@ -1374,7 +1342,7 @@ export default function EngaziaWhatsAppCRM() {
                       </tr>
                     );
                   })}
-                  {timeFilteredContacts.length === 0 && <tr><td colSpan={7} style={{textAlign: 'center', padding: '30px', color: '#64748b'}}>لا يوجد عملاء بالفترة المحددة.</td></tr>}
+                  {contacts.length === 0 && <tr><td colSpan={7} style={{textAlign: 'center', padding: '30px', color: '#64748b'}}>لا يوجد عملاء مسجلين بعد.</td></tr>}
                 </tbody>
               </table>
             </div>
@@ -1389,19 +1357,19 @@ export default function EngaziaWhatsAppCRM() {
               <div className="stat-card" style={{ textAlign: isRtl ? 'right' : 'left', padding: '25px' }}>
                 <div className="stat-title" style={{ marginBottom: '10px' }}>{t.dealSuccessRate}</div>
                 <div className="stat-num" style={{ color: '#10b981', textAlign: isRtl ? 'right' : 'left' }}>
-                  {timeFilteredContacts.length > 0 ? ((timeFilteredContacts.filter(c => c.responseState === getRespDisplay('agreed', 'تم الاتفاق')).length / timeFilteredContacts.length) * 100).toFixed(1) : 0}%
+                  {contacts.length > 0 ? ((contacts.filter(c => c.responseState === getRespDisplay('agreed', 'تم الاتفاق')).length / contacts.length) * 100).toFixed(1) : 0}%
                 </div>
               </div>
               <div className="stat-card" style={{ textAlign: isRtl ? 'right' : 'left', padding: '25px' }}>
                 <div className="stat-title" style={{ marginBottom: '10px' }}>{t.pendingResponses}</div>
                 <div className="stat-num" style={{ color: '#d97706', textAlign: isRtl ? 'right' : 'left' }}>
-                  {timeFilteredContacts.filter(c => c.responseState === getRespDisplay('pending', 'بانتظار الرد') || !c.responseState).length}
+                  {contacts.filter(c => c.responseState === getRespDisplay('pending', 'بانتظار الرد') || !c.responseState).length}
                 </div>
               </div>
               <div className="stat-card" style={{ textAlign: isRtl ? 'right' : 'left', padding: '25px' }}>
                 <div className="stat-title" style={{ marginBottom: '10px' }}>{t.avgCustomerValue}</div>
                 <div className="stat-num" style={{ color: '#4f46e5', textAlign: isRtl ? 'right' : 'left' }}>
-                  {timeFilteredContacts.length > 0 ? (totalValidSales / timeFilteredContacts.length).toFixed(0) : 0} <span style={{fontSize:'12px'}}>{currentCurrency}</span>
+                  {contacts.length > 0 ? (totalValidSales / contacts.length).toFixed(0) : 0} <span style={{fontSize:'12px'}}>{currentCurrency}</span>
                 </div>
               </div>
             </div>
@@ -1411,8 +1379,8 @@ export default function EngaziaWhatsAppCRM() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginTop: '15px' }}>
                 {categories.map(cat => {
                   const catName = getCatDisplay(cat.nameKey, cat.fallbackName);
-                  const count = timeFilteredContacts.filter(c => c.category === catName).length;
-                  const pct = timeFilteredContacts.length > 0 ? (count / timeFilteredContacts.length) * 100 : 0;
+                  const count = contacts.filter(c => c.category === catName).length;
+                  const pct = contacts.length > 0 ? (count / contacts.length) * 100 : 0;
                   return (
                     <div key={cat.nameKey || cat.fallbackName}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: 800, marginBottom: '5px' }}>
@@ -1487,12 +1455,12 @@ export default function EngaziaWhatsAppCRM() {
               </div>
 
               <div className="filter-chips">
-                <button className={`chip-btn ${filterCategory === 'all' ? 'active' : ''}`} onClick={() => setFilterCategory('all')}>All ({timeFilteredContacts.length})</button>
+                <button className={`chip-btn ${filterCategory === 'all' ? 'active' : ''}`} onClick={() => setFilterCategory('all')}>All ({contacts.length})</button>
                 {categories.map(cat => {
                   const catName = getCatDisplay(cat.nameKey, cat.fallbackName);
                   return (
                     <button key={cat.nameKey || cat.fallbackName} className={`chip-btn ${filterCategory === catName ? 'active' : ''}`} onClick={() => setFilterCategory(catName)}>
-                      {catName} ({timeFilteredContacts.filter(c => c.category === catName).length})
+                      {catName} ({contacts.filter(c => c.category === catName).length})
                     </button>
                   );
                 })}
@@ -1642,14 +1610,14 @@ export default function EngaziaWhatsAppCRM() {
               <div className="section-title">{t.customizeCatTitle}</div>
               <form onSubmit={addCategory} className="settings-creation-box">
                 <div className="form-group" style={{ flex: 2, margin: 0 }}>
-                  <label>New Category Name</label>
-                  <input type="text" className="form-control" placeholder="Type category..." value={newCatName} onChange={e => setNewCatName(e.target.value)} />
+                  <label>{t.newCatLabel}</label>
+                  <input type="text" className="form-control" placeholder="..." value={newCatName} onChange={e => setNewCatName(e.target.value)} />
                 </div>
                 <div className="form-group" style={{ margin: 0 }}>
-                  <label>Color</label>
+                  <label>{t.colorLabel}</label>
                   <input type="color" className="form-control color-picker-sm" value={newCatBg} onChange={e => setNewCatBg(e.target.value)} />
                 </div>
-                <button type="submit" className="btn-main" style={{ padding: '12px 20px' }}>➕ Add Category</button>
+                <button type="submit" className="btn-main" style={{ padding: '12px 20px' }}>{t.addBtn}</button>
               </form>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 {categories.map(cat => {
@@ -1657,7 +1625,7 @@ export default function EngaziaWhatsAppCRM() {
                   return (
                     <div key={cat.nameKey || cat.fallbackName} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fff', padding: '12px 20px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
                       <span className="badge" style={{ background: cat.bg, color: cat.color }}>{catName}</span>
-                      <button className="btn-sm btn-danger" onClick={() => deleteCategory(cat.fallbackName)}>Delete</button>
+                      <button className="btn-sm btn-danger" onClick={() => deleteCategory(cat.fallbackName)}>{t.deleteBtn}</button>
                     </div>
                   );
                 })}
@@ -1669,14 +1637,14 @@ export default function EngaziaWhatsAppCRM() {
               <div className="section-title">{t.customizeStatusTitle}</div>
               <form onSubmit={addStatusOption} className="settings-creation-box">
                 <div className="form-group" style={{ flex: 2, margin: 0 }}>
-                  <label>New Customer Status</label>
-                  <input type="text" className="form-control" placeholder="Type status..." value={newStatusName} onChange={e => setNewStatusName(e.target.value)} />
+                  <label>{t.newStatusLabel}</label>
+                  <input type="text" className="form-control" placeholder="..." value={newStatusName} onChange={e => setNewStatusName(e.target.value)} />
                 </div>
                 <div className="form-group" style={{ margin: 0 }}>
-                  <label>Color</label>
+                  <label>{t.colorLabel}</label>
                   <input type="color" className="form-control color-picker-sm" value={newStatusBg} onChange={e => setNewStatusBg(e.target.value)} />
                 </div>
-                <button type="submit" className="btn-main" style={{ padding: '12px 20px' }}>➕ Add Status</button>
+                <button type="submit" className="btn-main" style={{ padding: '12px 20px' }}>{t.addBtn}</button>
               </form>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 {statusOptions.map(st => {
@@ -1684,7 +1652,7 @@ export default function EngaziaWhatsAppCRM() {
                   return (
                     <div key={st.nameKey || st.fallbackName} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fff', padding: '12px 20px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
                       <span className="badge" style={{ background: st.bg, color: st.color }}>{stName}</span>
-                      <button className="btn-sm btn-danger" onClick={() => deleteStatusOption(st.fallbackName)}>Delete</button>
+                      <button className="btn-sm btn-danger" onClick={() => deleteStatusOption(st.fallbackName)}>{t.deleteBtn}</button>
                     </div>
                   );
                 })}
@@ -1696,14 +1664,14 @@ export default function EngaziaWhatsAppCRM() {
               <div className="section-title">{t.customizeRespTitle}</div>
               <form onSubmit={addResponseStateOption} className="settings-creation-box">
                 <div className="form-group" style={{ flex: 2, margin: 0 }}>
-                  <label>New Response State</label>
-                  <input type="text" className="form-control" placeholder="Type response state..." value={newRespName} onChange={e => setNewRespName(e.target.value)} />
+                  <label>{t.newRespLabel}</label>
+                  <input type="text" className="form-control" placeholder="..." value={newRespName} onChange={e => setNewRespName(e.target.value)} />
                 </div>
                 <div className="form-group" style={{ margin: 0 }}>
-                  <label>Color</label>
+                  <label>{t.colorLabel}</label>
                   <input type="color" className="form-control color-picker-sm" value={newRespBg} onChange={e => setNewRespBg(e.target.value)} />
                 </div>
-                <button type="submit" className="btn-main" style={{ padding: '12px 20px' }}>➕ Add Response State</button>
+                <button type="submit" className="btn-main" style={{ padding: '12px 20px' }}>{t.addBtn}</button>
               </form>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 {responseStateOptions.map(resp => {
@@ -1711,7 +1679,7 @@ export default function EngaziaWhatsAppCRM() {
                   return (
                     <div key={resp.nameKey || resp.fallbackName} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fff', padding: '12px 20px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
                       <span className="badge" style={{ background: resp.bg, color: resp.color }}>{respName}</span>
-                      <button className="btn-sm btn-danger" onClick={() => deleteResponseStateOption(resp.fallbackName)}>Delete</button>
+                      <button className="btn-sm btn-danger" onClick={() => deleteResponseStateOption(resp.fallbackName)}>{t.deleteBtn}</button>
                     </div>
                   );
                 })}
@@ -1722,7 +1690,7 @@ export default function EngaziaWhatsAppCRM() {
               <div className="section-title" style={{ color: '#166534' }}>{t.backupBox}</div>
               <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
                 <button className="btn-main" style={{ background: '#10b981' }} onClick={exportBackupJSON}>{t.downloadBackup}</button>
-                <button className="btn-main" style={{ background: '#fff', color: '#166534', border: '1px title solid #bbf7d0' }} onClick={() => restoreFileRef.current?.click()}>{t.restoreBackup}</button>
+                <button className="btn-main" style={{ background: مفتاح => '#fff', color: '#166534', border: '1px solid #bbf7d0' }} onClick={() => restoreFileRef.current?.click()}>{t.restoreBackup}</button>
                 <input type="file" ref={restoreFileRef} onChange={importBackupJSON} accept=".json" style={{ display: 'none' }} />
               </div>
             </div>
