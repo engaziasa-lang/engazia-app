@@ -101,7 +101,7 @@ const toolTranslations: { [key: string]: any } = {
     defaultDiscountLabel: 'كود الخصم الافتراضي',
     customizeStatusTitle: '📌 تخصيص حالات العملاء',
     customizeRespTitle: '💬 تخصيص حالات الرد',
-    customizeCatTitle: '🏷️️ تخصيص تصنيفات وحالات العملاء',
+    customizeCatTitle: '🏷 تخصيص تصنيفات وحالات العملاء',
     newCatLabel: 'اسم التصنيف الجديد',
     newStatusLabel: 'اسم الحالة الجديدة',
     newRespLabel: 'اسم حالة الرد الجديدة',
@@ -225,7 +225,7 @@ const toolTranslations: { [key: string]: any } = {
     tabAnalytics: '📈 Analyses avancées',
     tabCrm: '👥 Clients',
     tabMessaging: '💬 Messagerie',
-    tabTags: '⚙️️ Paramètres',
+    tabTags: '⚙️ Paramètres',
     salesTitle: 'Ventes totales',
     totalCustomers: 'Clients totaux',
     newCustomerTitle: '➕ Ajouter un client',
@@ -324,7 +324,7 @@ const toolTranslations: { [key: string]: any } = {
     actions: 'Acciones',
     backupBox: '💾 Copia de seguridad y restauración',
     downloadBackup: '📥 Descargar copia de seguridad',
-    restoreBackup: '♻️️ Restaurar datos',
+    restoreBackup: '♻️ Restaurar datos',
     perfIndicators: 'Indicadores de rendimiento en vivo',
     latestCustomers: 'Últimos clientes registrados',
     dealSuccessRate: '📊 Tasa de éxito de acuerdos',
@@ -404,7 +404,7 @@ const toolTranslations: { [key: string]: any } = {
     actions: 'İşlemler',
     backupBox: '💾 Yedekleme ve Geri Yükleme',
     downloadBackup: '📥 Yedek İndir (JSON)',
-    restoreBackup: '♻️ Dosyadan Geri Yükle',
+    restoreBackup: '♻️️ Dosyadan Geri Yükle',
     perfIndicators: 'Canlı Performans Göstergeleri',
     latestCustomers: 'Son Kayıt olan Müşteriler',
     dealSuccessRate: '📊 Anlaşma Başarı Oranı',
@@ -581,7 +581,7 @@ const toolTranslations: { [key: string]: any } = {
     defaultDiscountLabel: 'Standard-Gutscheincode',
     customizeStatusTitle: '📌 Status anpassen',
     customizeRespTitle: '💬 Antwortstatus anpassen',
-    customizeCatTitle: '🏷️ Kategorien anpassen',
+    customizeCatTitle: '🏷️️ Kategorien anpassen',
     newCatLabel: 'Neuer Kategoriename',
     newStatusLabel: 'Neuer Kundenstatus',
     newRespLabel: 'Neuer Antwortstatus',
@@ -1690,7 +1690,7 @@ export default function EngaziaWhatsAppCRM() {
               <div className="section-title" style={{ color: '#166534' }}>{t.backupBox}</div>
               <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
                 <button className="btn-main" style={{ background: '#10b981' }} onClick={exportBackupJSON}>{t.downloadBackup}</button>
-                <button className="btn-main" style={{ background: مفتاح => '#fff', color: '#166534', border: '1px solid #bbf7d0' }} onClick={() => restoreFileRef.current?.click()}>{t.restoreBackup}</button>
+                <button className="btn-main" style={{ background: '#fff', color: '#166534', border: '1px solid #bbf7d0' }} onClick={() => restoreFileRef.current?.click()}>{t.restoreBackup}</button>
                 <input type="file" ref={restoreFileRef} onChange={importBackupJSON} accept=".json" style={{ display: 'none' }} />
               </div>
             </div>
