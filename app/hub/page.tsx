@@ -2,7 +2,27 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { getGlobalConfig, setGlobalConfig } from '@/utils/globalConfig'; // استدعاء المساعد العام
+
+// ملف الإعدادات العامة والمزامنة السحابية للغة والعملة والاشتراك
+const getGlobalConfig = () => {
+  if (typeof window === 'undefined') {
+    return { lang: 'ar', currency: 'SAR', licenseKey: '', isActivated: false };
+  }
+  
+  const lang = localStorage.getItem('engazia_global_lang') || 'ar';
+  const currency = localStorage.getItem('engazia_global_currency') || 'SAR';
+  const licenseKey = localStorage.getItem('merchant_license_key') || '';
+  const isActivated = !!licenseKey;
+
+  return { lang, currency, licenseKey, isActivated };
+};
+
+const setGlobalConfig = (lang: string, currency: string) => {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('engazia_global_lang', lang);
+    localStorage.setItem('engazia_global_currency', currency);
+  }
+};
 
 interface Translations {
   [key: string]: {
@@ -171,7 +191,6 @@ export default function EngaziaHomeHub() {
     setIsActivated(config.isActivated);
   }, []);
 
-  // حفظ التغيير فوراً ودون الحاجة لتكراره إلا إذا أراد التاجر
   const handleLanguageChange = (lang: string) => {
     setCurrentLang(lang);
     setGlobalConfig(lang, currentCurrency);
@@ -279,7 +298,7 @@ export default function EngaziaHomeHub() {
         @media(max-width: 640px) { .cards-grid { grid-template-columns: 1fr; } .hero h1 { font-size: 28px; } .footer-links { flex-direction: column; gap: 30px; } }
       `}</style>
 
-      {/* شريط التحكم المركزي باللغة والعملة والاشتراك */}
+      {/* شريط التنقل العلوي مع التحكم الشامل باللغة والعملة والاشتراك */}
       <div className="navbar">
         <div className="brand">إنجازيا <span>ENGAZIA</span></div>
 
