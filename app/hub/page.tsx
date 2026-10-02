@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'main' in window ? undefined : React;
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 
 interface LanguageDictionary {
@@ -56,7 +56,7 @@ const translations: LanguageDictionary = {
     rights: 'All rights reserved © 2026 Engazia Platform'
   },
   fr: {
-    live: 'Système Actيف',
+    live: 'Système Actif',
     heroTitle: 'Plateforme ENGAZIA ULTRA MAX',
     heroDesc: 'L\'écosystème cloud ultime pour les e-commerçants, 16 outils puissants remplaçant tous les abonnements.',
     runTool: 'Lancer l\'outil',
@@ -74,7 +74,6 @@ const translations: LanguageDictionary = {
 };
 
 export default function EngaziaHomeHub() {
-  // حالات اللغة والعملة والترخيص (تُحفظ في localStorage لتلهم جميع الأدوات)
   const [currentLang, setCurrentLang] = useState<string>('ar');
   const [currentCurrency, setCurrentCurrency] = useState<string>('SAR');
   const [licenseKeyInput, setLicenseKeyInput] = useState<string>('');
@@ -158,9 +157,6 @@ export default function EngaziaHomeHub() {
         .license-box { display: flex; align-items: center; gap: 8px; background: #f8fafc; padding: 4px 10px; border-radius: 8px; border: 1px solid #cbd5e1; }
         .upgrade-btn { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: #fff !important; padding: 6px 12px; border-radius: 8px; font-weight: 800; font-size: 12px; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; box-shadow: 0 4px 10px rgba(79,70,229,0.2); }
         
-        .badge-live { background: #dcfce7; color: #166534; padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 800; display: flex; align-items: center; gap: 6px; border: 1px solid #bbf7d0; }
-        .badge-live::before { content: ''; width: 7px; height: 7px; background-color: #16a34a; border-radius: 50%; }
-        
         .hero { text-align: center; max-width: 800px; margin: 0 auto 50px; }
         .hero h1 { font-size: 36px; font-weight: 900; color: #0f172a; margin-bottom: 15px; letter-spacing: -0.5px; }
         .hero h1 span { color: #4f46e5; }
@@ -205,19 +201,16 @@ export default function EngaziaHomeHub() {
         @media(max-width: 640px) { .cards-grid { grid-template-columns: 1fr; } .hero h1 { font-size: 28px; } .footer-links { flex-direction: column; gap: 30px; } }
       `}</style>
 
-      {/* شريط التنقل العلوي مع محدد اللغة، العملة، التخزين السحابي والاشتراك */}
       <div className="navbar">
         <div className="brand">إنجازيا <span>ENGAZIA</span></div>
 
         <div className="nav-controls">
-          {/* محدد اللغة */}
           <select className="select-control" value={currentLang} onChange={(e) => handleLanguageChange(e.target.value)}>
             <option value="ar">العربية 🇸🇦</option>
             <option value="en">English 🇬🇧</option>
             <option value="fr">Français 🇫🇷</option>
           </select>
 
-          {/* محدد العملة */}
           <select className="select-control" value={currentCurrency} onChange={(e) => handleCurrencyChange(e.target.value)}>
             <option value="SAR">SAR (ر.س)</option>
             <option value="AED">AED (د.إ)</option>
@@ -225,7 +218,6 @@ export default function EngaziaHomeHub() {
             <option value="EUR">EUR (€)</option>
           </select>
 
-          {/* تفعيل الاشتراك السحابي الموحد */}
           <div className="license-box">
             <span style={{ fontSize: '11px', fontWeight: 800, color: '#475569' }}>🔑 PRO:</span>
             {isActivated ? (
