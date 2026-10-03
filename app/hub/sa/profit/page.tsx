@@ -16,7 +16,7 @@ interface ProfitItem {
 
 export default function ProfitCalculatorSA() {
   // بيانات الإدخال للحاسبة الفورية
-  const [productName, setProductName] = useState<string>('منتج تجريبي');
+  const [productName, setProductName] = useState<string>('');
   const [sellingPrice, setSellingPrice] = useState<number>(200);
   const [productCost, setProductCost] = useState<number>(60);
   const [shippingCost, setShippingCost] = useState<number>(25);
@@ -28,7 +28,6 @@ export default function ProfitCalculatorSA() {
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const LEMON_CHECKOUT_URL = 'https://seerk.lemonsqueezy.com/checkout/buy/80ff492a-01eb-4455-b1a8-96e12ab72562';
 
   // تحميل البيانات من localStorage عند الفتح
   useEffect(() => {
@@ -53,7 +52,16 @@ export default function ProfitCalculatorSA() {
   const totalCosts = productCost + shippingCost + vatAmount + gatewayFeeAmount;
   const netProfit = sellingPrice - totalCosts;
   const margin = sellingPrice > 0 ? (netProfit / sellingPrice) * 100 : 0;
-  const breakEvenUnits = netProfit > 0 ? Math.ceil(totalCosts / netProfit) : 0;
+
+  // مسح وتصفير حقول الإدخال
+  const handleClearForm = () => {
+    setProductName('');
+    setSellingPrice(200);
+    setProductCost(60);
+    setShippingCost(25);
+    setGatewayFeePercent(2.2);
+    setEditingId(null);
+  };
 
   // إضافة أو تعديل منتج في الجدول السفلي مع تقييد التجريبي بـ 3 منتجات
   const handleSaveItem = (e: React.FormEvent) => {
@@ -98,10 +106,8 @@ export default function ProfitCalculatorSA() {
       alert('✅ تمت إضافة المنتج إلى جدول التحليل بنجاح!');
     }
 
-    // إعادة الحقول للافتراضي
-    setProductName('');
-    setSellingPrice(200);
-    setProductCost(60);
+    // تصفير الحقول بعد الحفظ
+    handleClearForm();
   };
 
   // تعبئة الحقول للتعديل
@@ -184,8 +190,11 @@ export default function ProfitCalculatorSA() {
         @media(max-width: 768px) { .grid-layout { grid-template-columns: 1fr; } }
         
         .card { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
-        .card-title { font-size: 18px; font-weight: 800; color: #1e293b; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .card-title { font-size: 18px; font-weight: 800; color: #1e293b; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
         
+        .clear-form-btn { background: #f1f5f9; border: 1px solid #cbd5e1; color: #475569; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s; font-family: 'Tajawal', sans-serif; display: flex; align-items: center; gap: 5px; }
+        .clear-form-btn:hover { background: #e2e8f0; color: #0f172a; }
+
         .input-group { margin-bottom: 15px; }
         .input-group label { display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 6px; }
         .input-wrapper { position: relative; display: flex; align-items: center; }
@@ -232,7 +241,12 @@ export default function ProfitCalculatorSA() {
         {/* قسم المدخلات */}
         <div className="card">
           <h2 className="card-title">
-            <span>{editingId ? 'تعديل بيانات المنتج' : 'حساب منتج جديد'}</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <span>{editingId ? 'تعديل بيانات المنتج' : 'حساب منتج جديد'}</span>
+              <button type="button" className="clear-form-btn" onClick={handleClearForm} title="مسح الحقول لإدخال منتج جديد">
+                🧹 مسح الحقول
+              </button>
+            </div>
             {!isActivated && <span className="trial-badge">تجريبي: {items.length}/3</span>}
           </h2>
 
