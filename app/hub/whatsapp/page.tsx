@@ -216,7 +216,7 @@ const toolTranslations: { [key: string]: any } = {
     successToastRestore: '♻ Backup restored successfully!',
     cloudMasterKeyLabel: 'Cloud Master Key',
     cloudBinIdLabel: 'Cloud Bin ID',
-    cloudSaveSuccess: '☁️️ Data saved to cloud successfully!',
+    cloudSaveSuccess: '☁️ Data saved to cloud successfully!',
     cloudLoadSuccess: '🔄 Data loaded from cloud successfully!',
     errorPhone: '❌ Invalid phone number!',
     errorBackup: '❌ Invalid backup file.',
@@ -338,7 +338,7 @@ const toolTranslations: { [key: string]: any } = {
     tabAnalytics: '📈 Análisis avanzados',
     tabCrm: '👥 Clientes',
     tabMessaging: '💬 Mensajería',
-    tabTags: '⚙️ Configuración',
+    tabTags: '⚙️️ Configuración',
     salesTitle: 'Ventas totales reales',
     totalCustomers: 'Clientes totales',
     newCustomerTitle: '➕ Registrar nuevo cliente',
@@ -684,7 +684,7 @@ const toolTranslations: { [key: string]: any } = {
     targetCustomerData: 'Data Target',
     searchCrmPlaceholder: 'Ketik nama...',
     selectTemplateTitle: 'Pilih Pesan',
-    generateMsgBtn: 'Buات',
+    generateMsgBtn: 'Buat',
     sendWaBtn: 'Kirim via WhatsApp',
     defaultDiscountLabel: 'Kode Diskon',
     customizeStatusTitle: 'Status',
@@ -893,7 +893,7 @@ export default function EngaziaWhatsAppCRM() {
     if (!cloudMasterKey.trim()) return showToast('⚠️ أدخل مفتاح Master Key السحابي.');
     try {
       showToast('☁️ جاري الحفظ في السحاب...');
-      const payload = { defaultDiscountCode, contacts, categories, statusOptions, responseStateOptions, version: '3.2' };
+      const payload = { defaultDiscountCode, contacts, categories, statusOptions, responseStateOptions, version: '3.3' };
       
       let endpoint = 'https://api.jsonbin.io/v3/b';
       let method = 'POST';
@@ -961,7 +961,7 @@ export default function EngaziaWhatsAppCRM() {
 
   const exportBackupJSON = () => {
     const backupData = {
-      defaultDiscountCode, contacts, categories, statusOptions, responseStateOptions, version: '3.2'
+      defaultDiscountCode, contacts, categories, statusOptions, responseStateOptions, version: '3.3'
     };
     const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
