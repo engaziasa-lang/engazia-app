@@ -125,11 +125,11 @@ const toolTranslations: { [key: string]: any } = {
     selectStatusPlaceholder: '📌 اختر حالة العميل...',
     selectRespPlaceholder: '💬 اختر حالة الرد...',
     smartRemindersTitle: 'نظام التذكيرات والمتابعة التلقائية',
-    smartRemindersDesc: 'العملاء الذين تتطلب حالتهم متابعة أو مرور أكثر من 24 ساعة على السلة المتروكة[cite: 22]:',
+    smartRemindersDesc: 'العملاء الذين تتطلب حالتهم متابعة أو مرور أكثر من 24 ساعة على السلة المتروكة:',
     noReminders: 'ممتاز! لا توجد تذكيرات معلقة حالياً.',
     cloudSyncStatus: '☁️ المزامنة السحابية الخلفية الآمنة (Backend Sync)',
-    cloudSyncActive: 'المزامنة التلقائية مفعلة في الخلفية بأمان تام[cite: 22].',
-    extraVarsLabel: 'متغيرات القوالب المتقدمة[cite: 22]:',
+    cloudSyncActive: 'المزامنة التلقائية مفعلة في الخلفية بأمان تام.',
+    extraVarsLabel: 'متغيرات القوالب المتقدمة:',
     varProductName: 'اسم المنتج',
     varInvoiceAmount: 'قيمة الفاتورة',
     cats: {
@@ -236,11 +236,11 @@ const toolTranslations: { [key: string]: any } = {
     selectStatusPlaceholder: '📌 Select Status...',
     selectRespPlaceholder: '💬 Select Response State...',
     smartRemindersTitle: 'Smart Reminders & Auto-Followup System',
-    smartRemindersDesc: 'Customers requiring attention or over 24 hours in abandoned carts[cite: 22]:',
+    smartRemindersDesc: 'Customers requiring attention or over 24 hours in abandoned carts:',
     noReminders: 'Great! No pending reminders at the moment.',
     cloudSyncStatus: '☁ Backend Secure Cloud Sync',
-    cloudSyncActive: 'Auto-sync is safely active in the background[cite: 22].',
-    extraVarsLabel: 'Advanced Template Variables[cite: 22]:',
+    cloudSyncActive: 'Auto-sync is safely active in the background.',
+    extraVarsLabel: 'Advanced Template Variables:',
     varProductName: 'Product Name',
     varInvoiceAmount: 'Invoice Amount',
     cats: {
@@ -269,6 +269,117 @@ const toolTranslations: { [key: string]: any } = {
       t3Text: 'Hello [الاسم] 📦\nYour order #[الطلب] ([المنتج]) with value [المبلغ] has been shipped and will arrive soon.',
       t4Title: 'Payment Link',
       t4Text: 'Hello [الاسم] 💳\nHere is your quick payment link to complete order #[الطلب] ([المنتج]) for [المبلغ]: [إضافي]'
+    }
+  },
+  fr: {
+    back: '← Retour au tableau de bord',
+    titleMain: 'Gestion de la relation client',
+    titleSub: 'WhatsApp CRM',
+    desc: 'Le système le plus intelligent pour la gestion des clients e-commerce et l’automatisation',
+    tabDashboard: '📊 Tableau de bord',
+    tabAnalytics: '📈 Analyses Avancées',
+    tabCrm: '👥 CRM & Contacts',
+    tabMessaging: '💬 Messagerie & Campagnes',
+    tabSmartReminders: '⏰ Rappels Intelligents',
+    tabTags: '⚙️ Paramètres',
+    salesTitle: 'Ventes Réelles Totales',
+    totalCustomers: 'Clients Totaux',
+    newCustomerTitle: '➕ Ajouter un Nouveau Client',
+    nameLabel: 'Nom du Client',
+    countryCodeLabel: 'Indicatif Pays',
+    phoneLabel: 'Numéro de Téléphone',
+    orderNumLabel: 'Numéro de Commande (#)',
+    categoryLabel: '📁 Catégorie',
+    statusLabel: '📌 Statut Client',
+    responseStateLabel: '💬 État de Réponse',
+    amountLabel: 'Achats',
+    noteLabel: 'Notes Client',
+    saveBtn: 'Enregistrer & Ajouter',
+    searchPlaceholder: '🔍 Rechercher par nom, téléphone, ou commande...',
+    importBtn: '📤 Importer CSV',
+    exportBtn: '📥 Exporter Excel',
+    actions: 'Actions',
+    backupBox: '💾 Sauvegarde & Stockage Cloud (JsonBin)',
+    downloadBackup: '📥 Télécharger la Sauvegarde (JSON)',
+    restoreBackup: '♻ Restaurer les Données',
+    cloudSave: '☁️ Enregistrer sur le Cloud',
+    cloudLoad: '🔄 Charger depuis le Cloud',
+    perfIndicators: 'Indicateurs de Performance en Direct',
+    latestCustomers: 'Derniers Clients Enregistrés',
+    dealSuccessRate: '📊 Taux de Réussite des Transactions',
+    pendingResponses: '⏳ Réponses en Attente',
+    avgCustomerValue: '💰 Valeur à Vie du Client (LTV)',
+    categoryDistribution: '🎯 Distribution des Catégories & Pourcentages',
+    singleMsgMode: 'Message Client Unique',
+    broadcastMsgMode: 'Campagne de Diffusion (File d’attente)',
+    targetCustomerData: '1. Données du Client Cible',
+    searchCrmPlaceholder: 'Tapez le nom du client...',
+    selectTemplateTitle: '2. Sélectionner ou Concevoir le Message',
+    generateMsgBtn: '⚡ Générer & Prévisualiser le Message',
+    sendWaBtn: '🟢 Envoyer via WhatsApp (Wa.me)',
+    defaultDiscountLabel: 'Code de Réduction par Défaut',
+    customizeStatusTitle: '📌 Personnaliser les Statuts Clients',
+    customizeRespTitle: '💬 Personnaliser les États de Réponse',
+    customizeCatTitle: '🏷 Personnaliser les Catégories',
+    newCatLabel: 'Nom de la Nouvelle Catégorie',
+    newStatusLabel: 'Nouveau Statut Client',
+    newRespLabel: 'Nouvel État de Réponse',
+    bgColorLabel: 'Couleur de Fond',
+    textColorLabel: 'Couleur du Texte',
+    addBtn: '➕ Ajouter',
+    deleteBtn: 'Supprimer',
+    lastContactHeader: 'Dernier Contact',
+    neverContacted: 'Jamais',
+    addToArchiveBtn: 'Ajouter aux Archives',
+    newArchivePlaceholder: 'Ajouter une nouvelle note...',
+    successAdded: '✨ Client ajouté avec succès !',
+    successToastArchive: '📝 Note ajoutée aux archives avec succès',
+    successToastTime: '🕒 Temps de contact et archives enregistrés',
+    successToastBackup: '📦 Sauvegarde exportée avec succès',
+    successToastRestore: '♻ Sauvegarde restaurée avec succès !',
+    cloudMasterKeyLabel: 'Clé Maître Cloud',
+    cloudBinIdLabel: 'ID de Conteneur Cloud',
+    cloudSaveSuccess: '☁️ Données enregistrées sur le cloud !',
+    cloudLoadSuccess: '🔄 Données chargées depuis le cloud !',
+    errorPhone: '❌ Numéro de téléphone invalide !',
+    errorBackup: '❌ Fichier de sauvegarde invalide.',
+    selectCatPlaceholder: '📁 Sélectionner la Catégorie...',
+    selectStatusPlaceholder: '📌 Sélectionner le Statut...',
+    selectRespPlaceholder: '💬 Sélectionner l’État de Réponse...',
+    smartRemindersTitle: 'Système de Rappels Intelligents & Suivi',
+    smartRemindersDesc: 'Clients nécessitant une attention ou paniers abandonnés depuis plus de 24h :',
+    noReminders: 'Super ! Aucun rappel en attente pour le moment.',
+    cloudSyncStatus: '☁ Synchronisation Cloud Sécurisée',
+    cloudSyncActive: 'La synchronisation automatique est active en arrière-plan.',
+    extraVarsLabel: 'Variables de Modèle Avancées :',
+    varProductName: 'Nom du Produit',
+    varInvoiceAmount: 'Montant de la Facture',
+    cats: {
+      newCustomer: 'Nouveau Client',
+      abandonedCart: 'Panier Abandonné',
+      pendingPayment: 'Paiement en Attente',
+      shipped: 'Expédié & Livré'
+    },
+    statuses: {
+      active: 'Actif',
+      vip: 'VIP',
+      paused: 'En Pause',
+      banned: 'Banni'
+    },
+    responseStates: {
+      pending: 'En Attente',
+      agreed: 'Accord Conclu',
+      closed: 'Commande Fermée'
+    },
+    tpls: {
+      t1Title: 'Confirmation de Commande',
+      t1Text: 'Bonjour [الاسم] 👋\nVotre commande #[الطلب] pour [المنتج] d’un montant de [المبلغ] a été confirmée avec succès. Merci !',
+      t2Title: 'Panier Abandonné',
+      t2Text: 'Bonjour [الاسم] 😊\nNous avons remarqué des articles dans votre panier #[الطلب] ([المنتج]). Besoin d’aide pour [المبلغ] ?',
+      t3Title: 'Suivi de Livraison',
+      t3Text: 'Bonjour [الاسم] 📦\nVotre commande #[الطلب] ([المنتج]) d’une valeur de [المبلغ] a été expédiée.',
+      t4Title: 'Lien de Paiement',
+      t4Text: 'Bonjour [الاسم] 💳\nVoici votre lien de paiement rapide pour la commande #[الطلب] ([المنتج]) de [المبلغ] : [إضافي]'
     }
   }
 };
@@ -356,7 +467,8 @@ export default function EngaziaWhatsAppCRM() {
   const suggestionsRef = useRef<HTMLDivElement>(null);
   const [showSuggestions, setShowSuggestions] = useState(false);
 
-  const t = toolTranslations[currentLang] || toolTranslations.ar;
+  // نظام الـ Fallback الديناميكي الذكي لدعم أي لغة منصة غير معرفة صراحة (تعود للإنجليزية ثم العربية)
+  const t = toolTranslations[currentLang] || toolTranslations['en'] || toolTranslations['ar'];
   const isRtl = currentLang === 'ar';
 
   const templates = [
@@ -367,8 +479,8 @@ export default function EngaziaWhatsAppCRM() {
   ];
 
   const getTplDisplay = (tpl: { id: number; icon: string; titleKey: string; textKey: string }) => {
-    const title = t.tpls && t.tpls[tpl.titleKey] ? t.tpls[tpl.titleKey] : 'Template';
-    const text = t.tpls && t.tpls[tpl.textKey] ? t.tpls[tpl.textKey] : '';
+    const title = t.tpls && t.tpls[tpl.titleKey] ? t.tpls[tpl.titleKey] : toolTranslations.en.tpls[tpl.titleKey];
+    const text = t.tpls && t.tpls[tpl.textKey] ? t.tpls[tpl.textKey] : toolTranslations.en.tpls[tpl.textKey];
     return { title, text, icon: tpl.icon };
   };
 
@@ -409,7 +521,6 @@ export default function EngaziaWhatsAppCRM() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // تفعيل المزامنة الخلفية الصامتة[cite: 22]
   useEffect(() => {
     const backgroundSyncTimer = setInterval(() => {
       const savedContacts = localStorage.getItem('engazia_whatsapp_pro_crm_v16');
@@ -441,9 +552,9 @@ export default function EngaziaWhatsAppCRM() {
   };
 
   const saveToCloud = async () => {
-    if (!cloudMasterKey.trim()) return showToast('⚠️ أدخل مفتاح Master Key السحابي.');
+    if (!cloudMasterKey.trim()) return showToast('⚠️ Master Key required.');
     try {
-      showToast('☁️ جاري الحفظ في السحاب...');
+      showToast('☁️ Saving to cloud...');
       const payload = { defaultDiscountCode, contacts, categories, statusOptions, responseStateOptions, version: '3.9' };
       
       let endpoint = 'https://api.jsonbin.io/v3/b';
@@ -473,17 +584,17 @@ export default function EngaziaWhatsAppCRM() {
         localStorage.setItem('engazia_cloud_master_key', cloudMasterKey.trim());
         showToast(t.cloudSaveSuccess);
       } else {
-        showToast('❌ خطأ في الحفظ السحابي: ' + (data.message || 'تأكد من المفتاح'));
+        showToast('❌ Cloud error: ' + (data.message || 'Check key'));
       }
     } catch (err) {
-      showToast('❌ حدث خطأ أثناء الاتصال بالخادم السحابي.');
+      showToast('❌ Cloud connection error.');
     }
   };
 
   const loadFromCloud = async () => {
-    if (!cloudMasterKey.trim() || !cloudBinId.trim()) return showToast('⚠️ أدخل Master Key و Bin ID لاسترجاع البيانات.');
+    if (!cloudMasterKey.trim() || !cloudBinId.trim()) return showToast('⚠️ Enter Master Key and Bin ID.');
     try {
-      showToast('🔄 جاري الاسترجاع من السحاب...');
+      showToast('🔄 Loading from cloud...');
       const res = await fetch(`https://api.jsonbin.io/v3/b/${cloudBinId.trim()}/latest`, {
         method: 'GET',
         headers: {
@@ -503,10 +614,10 @@ export default function EngaziaWhatsAppCRM() {
         localStorage.setItem('engazia_cloud_bin_id', cloudBinId.trim());
         showToast(t.cloudLoadSuccess);
       } else {
-        showToast('❌ تعذر العثور على البيانات في الحاوية المحددة.');
+        showToast('❌ Data not found.');
       }
     } catch (err) {
-      showToast('❌ حدث خطأ أثناء جلب البيانات من السحاب.');
+      showToast('❌ Fetch error.');
     }
   };
 
@@ -600,7 +711,7 @@ export default function EngaziaWhatsAppCRM() {
   };
 
   const addTimelineLogToCustomer = (customerId: string) => {
-    if (!newTimelineNote.trim()) return showToast('⚠️️ أدخل نص الملاحظة.');
+    if (!newTimelineNote.trim()) return showToast('⚠️ Note required.');
     const now = new Date();
     const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
     
@@ -628,7 +739,7 @@ export default function EngaziaWhatsAppCRM() {
 
   const addContact = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newName || !newPhone) return showToast('⚠️ أدخل الاسم ورقم الجوال.');
+    if (!newName || !newPhone) return showToast('⚠️ Name and phone required.');
     
     const cleanPhoneCheck = toEnglishDigits(newPhone).replace(/\D/g, '');
     if (cleanPhoneCheck.length < 7) return showToast(t.errorPhone);
@@ -667,10 +778,10 @@ export default function EngaziaWhatsAppCRM() {
   };
 
   const deleteContact = (id: string) => {
-    if (window.confirm('هل أنت متأكد من حذف هذا العميل؟')) {
+    if (window.confirm('Are you sure you want to delete this customer?')) {
       saveContacts(contacts.filter(c => c.id !== id));
       setSelectedCustomer(null);
-      showToast('🗑️ تم حذف العميل');
+      showToast('🗑️ Customer deleted');
     }
   };
 
@@ -679,12 +790,12 @@ export default function EngaziaWhatsAppCRM() {
     if (!newCatName) return;
     saveCategories([...categories, { nameKey: 'custom_' + Date.now(), fallbackName: newCatName, bg: newCatBg, color: newCatColor, isSale: newCatIsSale }]);
     setNewCatName('');
-    showToast('🏷 تم إضافة التصنيف بنجاح');
+    showToast('🏷 Category added');
   };
 
   const deleteCategory = (fallbackName: string) => {
     saveCategories(categories.filter(c => c.fallbackName !== fallbackName));
-    showToast('🗑 تم حذف التصنيف');
+    showToast('🗑 Category deleted');
   };
 
   const addStatusOption = (e: React.FormEvent) => {
@@ -692,12 +803,12 @@ export default function EngaziaWhatsAppCRM() {
     if (!newStatusName) return;
     saveStatuses([...statusOptions, { nameKey: 'custom_st_' + Date.now(), fallbackName: newStatusName, bg: newStatusBg, color: newStatusColor }]);
     setNewStatusName('');
-    showToast('✨ تم إضافة الحالة بنجاح');
+    showToast('✨ Status added');
   };
 
   const deleteStatusOption = (fallbackName: string) => {
     saveStatuses(statusOptions.filter(s => s.fallbackName !== fallbackName));
-    showToast('🗑 تم حذف الحالة');
+    showToast('🗑 Status deleted');
   };
 
   const addResponseStateOption = (e: React.FormEvent) => {
@@ -705,12 +816,12 @@ export default function EngaziaWhatsAppCRM() {
     if (!newRespName) return;
     saveResponseStates([...responseStateOptions, { nameKey: 'custom_resp_' + Date.now(), fallbackName: newRespName, bg: newRespBg, color: newRespColor }]);
     setNewRespName('');
-    showToast('✨ تم إضافة حالة الرد بنجاح');
+    showToast('✨ Response state added');
   };
 
   const deleteResponseStateOption = (fallbackName: string) => {
     saveResponseStates(responseStateOptions.filter(r => r.fallbackName !== fallbackName));
-    showToast('🗑️ تم حذف حالة الرد');
+    showToast('🗑️ Response state deleted');
   };
 
   const routeToMessaging = (c: Customer) => {
@@ -745,13 +856,13 @@ export default function EngaziaWhatsAppCRM() {
     const encodedText = encodeURIComponent(text);
     const url = fullNum ? `https://wa.me/${fullNum}?text=${encodedText}` : `https://wa.me/?text=${encodedText}`;
     window.open(url, '_blank');
-    if (customerId) updateLastContact(customerId, 'مراسلة عبر Wa.me');
+    if (customerId) updateLastContact(customerId, 'Wa.me Messaging');
   };
 
   const handleBroadcastQueueSend = () => {
     const targetList = contacts.filter(c => c.category === broadcastCat);
     if (targetList.length === 0) {
-      showToast('⚠️ لا يوجد عملاء في هذه الفئة المستهدفة.');
+      showToast('⚠️ No customers found in target segment.');
       return;
     }
     const tpl = templates.find(item => item.id === activeTemplateId);
@@ -773,7 +884,7 @@ export default function EngaziaWhatsAppCRM() {
         openWhatsAppDirect(c.countryCode || '+966', c.phone, msg, c.id);
       }, index * 800);
     });
-    showToast(`🚀 تم بدء فتح طابور الحملة الجماعية لعدد ${targetList.length} عميل.`);
+    showToast(`🚀 Broadcast queue started for ${targetList.length} customers.`);
   };
 
   const saleCategoriesNames = categories.filter(cat => cat.isSale).map(cat => getCatDisplay(cat.nameKey, cat.fallbackName));
@@ -861,7 +972,7 @@ export default function EngaziaWhatsAppCRM() {
         <div className="modal-overlay" onClick={() => setSelectedCustomer(null)}>
           <div className="modal-content" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
-              <h3 className="modal-title">✏ ملف العميل والأرشيف</h3>
+              <h3 className="modal-title">✏ {t.nameLabel}</h3>
               <button className="close-modal-btn" onClick={() => setSelectedCustomer(null)}>✕</button>
             </div>
             
@@ -922,7 +1033,7 @@ export default function EngaziaWhatsAppCRM() {
             </div>
 
             <div className="timeline-box">
-              <div className="timeline-title">📜 الأرشيف وسجل الملاحظات</div>
+              <div className="timeline-title">📜 {t.addToArchiveBtn}</div>
               <div className="timeline-list">
                 {selectedCustomer.timeline && selectedCustomer.timeline.length > 0 ? (
                   selectedCustomer.timeline.map((log) => (
@@ -932,7 +1043,7 @@ export default function EngaziaWhatsAppCRM() {
                     </div>
                   ))
                 ) : (
-                  <div style={{ fontSize: '12px', color: '#64748b', textAlign: 'center', padding: '10px' }}>لا توجد سجلات تواصل سابقة.</div>
+                  <div style={{ fontSize: '12px', color: '#64748b', textAlign: 'center', padding: '10px' }}>No records found.</div>
                 )}
               </div>
               <div style={{ display: 'flex', gap: '10px' }}>
@@ -942,9 +1053,9 @@ export default function EngaziaWhatsAppCRM() {
             </div>
 
             <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
-              <button className="btn-wa" style={{ flex: 2 }} onClick={() => openWhatsAppDirect(selectedCustomer.countryCode || '+966', selectedCustomer.phone, 'مرحباً', selectedCustomer.id)}>{t.sendWaBtn}</button>
+              <button className="btn-wa" style={{ flex: 2 }} onClick={() => openWhatsAppDirect(selectedCustomer.countryCode || '+966', selectedCustomer.phone, 'Hello', selectedCustomer.id)}>{t.sendWaBtn}</button>
               <button className="btn-sm btn-danger" style={{ padding: '0 20px', fontSize: '13px', fontWeight: 800 }} onClick={() => deleteContact(selectedCustomer.id)}>{t.deleteBtn}</button>
-              <button className="btn-main" style={{ flex: 1, background: '#f1f5f9', color: '#1e293b' }} onClick={() => setSelectedCustomer(null)}>إغلاق</button>
+              <button className="btn-main" style={{ flex: 1, background: '#f1f5f9', color: '#1e293b' }} onClick={() => setSelectedCustomer(null)}>Close</button>
             </div>
           </div>
         </div>
@@ -1028,7 +1139,7 @@ export default function EngaziaWhatsAppCRM() {
                       </tr>
                     );
                   })}
-                  {contacts.length === 0 && <tr><td colSpan={7} style={{textAlign: 'center', padding: '30px', color: '#64748b'}}>لا يوجد عملاء.</td></tr>}
+                  {contacts.length === 0 && <tr><td colSpan={7} style={{textAlign: 'center', padding: '30px', color: '#64748b'}}>No customers.</td></tr>}
                 </tbody>
               </table>
             </div>
@@ -1226,7 +1337,7 @@ export default function EngaziaWhatsAppCRM() {
                       </td>
                     </tr>
                   ))}
-                  {filteredContacts.length === 0 && <tr><td colSpan={10} style={{textAlign: 'center', padding: '30px', color: '#64748b'}}>لا يوجد عملاء.</td></tr>}
+                  {filteredContacts.length === 0 && <tr><td colSpan={10} style={{textAlign: 'center', padding: '30px', color: '#64748b'}}>No customers.</td></tr>}
                 </tbody>
               </table>
             </div>
@@ -1300,11 +1411,10 @@ export default function EngaziaWhatsAppCRM() {
                 })}
               </div>
 
-              {/* حقول المتغيرات المتقدمة الجديدة[cite: 22] */}
               <div className="form-grid" style={{ marginBottom: '15px' }}>
                 <div className="form-group">
                   <label>{t.varProductName}:</label>
-                  <input type="text" className="form-control" value={productName} onChange={e => setProductName(e.target.value)} placeholder="مثال: ساعة ذكية..." />
+                  <input type="text" className="form-control" value={productName} onChange={e => setProductName(e.target.value)} placeholder="Product name..." />
                 </div>
                 <div className="form-group">
                   <label>{t.varInvoiceAmount}:</label>
@@ -1314,7 +1424,7 @@ export default function EngaziaWhatsAppCRM() {
 
               <div style={{ display: 'flex', gap: '15px', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap' }}>
                 <div style={{ flex: 1, minWidth: '220px' }}>
-                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 800, color: '#475569', marginBottom: '6px' }}>نص إضافي / رابط الدفع:</label>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 800, color: '#475569', marginBottom: '6px' }}>Extra Text / Payment Link:</label>
                   <input type="text" className="form-control input-ltr" value={extraInfo} onChange={e => setExtraInfo(e.target.value)} placeholder="https://..." />
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', paddingTop: '20px' }}>
@@ -1331,7 +1441,7 @@ export default function EngaziaWhatsAppCRM() {
                   {messagingMode === 'single' ? (
                     <button className="btn-wa" style={{ width: '100%' }} onClick={() => openWhatsAppDirect(customerCountryCode, customerPhone, generatedMsg)}>{t.sendWaBtn}</button>
                   ) : (
-                    <button className="btn-wa" style={{ width: '100%', background: '#4f46e5' }} onClick={handleBroadcastQueueSend}>🚀 بدء إرسال الحملة الجماعية (الطابور التسلسلي)</button>
+                    <button className="btn-wa" style={{ width: '100%', background: '#4f46e5' }} onClick={handleBroadcastQueueSend}>🚀 Start Broadcast Queue</button>
                   )}
                 </div>
               )}
@@ -1357,18 +1467,18 @@ export default function EngaziaWhatsAppCRM() {
                     </tr>
                   </thead>
                   <tbody>
-                    {contacts.filter(c => c.category === 'سلة متروكة' || c.category === 'Abandoned Cart' || !c.responseState || c.responseState.includes('بانتظار')).map(c => (
+                    {contacts.filter(c => c.category === 'سلة متروكة' || c.category === 'Abandoned Cart' || c.category === 'Panier Abandonné' || !c.responseState || c.responseState.includes('بانتظار') || c.responseState.includes('Pending')).map(c => (
                       <tr key={c.id}>
                         <td><span style={{ fontWeight: 800, color: '#4f46e5', cursor: 'pointer' }} onClick={() => setSelectedCustomer(c)}>{c.name}</span></td>
                         <td><span className="badge" style={{ background: '#fee2e2', color: '#dc2626' }}>{c.category}</span></td>
                         <td style={{ direction: 'ltr', textAlign: 'left' }}>{c.orderNumber}</td>
                         <td style={{ direction: 'ltr', textAlign: 'left', color: '#d97706', fontWeight: 700 }}>{c.lastContactDate || t.neverContacted}</td>
                         <td>
-                          <button className="btn-sm btn-success" onClick={() => routeToMessaging(c)}>💬 إرسال تذكير</button>
+                          <button className="btn-sm btn-success" onClick={() => routeToMessaging(c)}>💬 Reminder</button>
                         </td>
                       </tr>
                     ))}
-                    {contacts.filter(c => c.category === 'سلة متروكة' || c.category === 'Abandoned Cart' || !c.responseState || c.responseState.includes('بانتظار')).length === 0 && (
+                    {contacts.filter(c => c.category === 'سلة متروكة' || c.category === 'Abandoned Cart' || c.category === 'Panier Abandonné' || !c.responseState || c.responseState.includes('بانتظار') || c.responseState.includes('Pending')).length === 0 && (
                       <tr><td colSpan={5} style={{ textAlign: 'center', padding: '30px', color: '#64748b' }}>{t.noReminders}</td></tr>
                     )}
                   </tbody>
