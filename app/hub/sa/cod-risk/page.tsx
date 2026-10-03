@@ -1,49 +1,157 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 
-export default function CodRiskAnalyzerSA() {
-  const [orderValue, setOrderValue] = useState<number>(250); // قيمة الطلب
-  const [productCost, setProductCost] = useState<number>(70); // تكلفة المنتج
-  const [shippingCost, setShippingCost] = useState<number>(25); // شحن الذهاب
-  const [returnShippingCost, setReturnShippingCost] = useState<number>(25); // شحن العودة في حال الرفض
-  const [codExtraFee, setCodExtraFee] = useState<number>(10); // رسوم خدمة الدفع عند الاستلام الإضافية لشركات الشحن
-  const [refusalRate, setRefusalRate] = useState<number>(15); // نسبة رفض الاستلام %
+interface CodRiskItem {
+  id: string;
+  cityName: string;
+  totalCodOrders: number;
+  rejectedOrders: number;
+  averageOrderValue: number;
+  shippingLossPerOrder: number;
+  totalMonthlyLoss: number;
+}
 
-  const [results, setResults] = useState({
-    successfulOrderProfit: 0,
-    refusedOrderLoss: 0,
-    expectedValuePerOrder: 0,
-    totalMonthlyRiskLoss: 0,
-  });
+export default function CodRiskAnalyzerSA() {
+  const [cityName, setCityName] = useState<string>('منطقة الرياض والتشغيل');
+  const [totalCodOrders, setTotalCodOrders] = useState<number | ''>(500);
+  const [rejectedOrders, setRejectedOrders] = useState<number | ''>(75);
+  const [averageOrderValue, setAverageOrderValue] = useState<number | ''>(250);
+  const [shippingLossPerOrder, setShippingLossPerOrder] = useState<number | ''>(35);
+
+  const [items, setItems] = useState<CodRiskItem[]>([]);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [editingId, setEditingId] = useState<string | null>(null);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    // 1. ربح الطلب الناجح (المستلم) مع الدفع عند الاستلام
-    // السعر - التكلفة - شحن الذهاب - رسوم خدمة الدفع عند الاستلام
-    const successfulOrderProfit = orderValue - productCost - shippingCost - codExtraFee;
+    const saved = localStorage.getItem('seerk_cod_risk_analysis_items');
+    if (saved) {
+      try { setItems(JSON.parse(saved)); } catch (e) { }
+    }
+  }, []);
 
-    // 2. خسارة الطلب المرفوض (الذي لم يستلمه العميل)
-    // تشمل: تكلفة شحن الذهاب + تكلفة شحن العودة (عكسي) + أي خسائر تغليف/تالف (نحتسبها افتراضياً 5 ريال)
-    const refusalHandlingLoss = shippingCost + returnShippingCost + 5;
-    const refusedOrderLoss = refusalHandlingLoss;
+  const saveToLocalStorage = (newItems: CodRiskItem[]) => {
+    setItems(newItems);
+    localStorage.setItem('seerk_cod_risk_analysis_items', JSON.stringify(newItems));
+  };
 
-    // 3. القيمة المتوقعة للطلب الواحد بناءً على نسبة الرفض (Expected Value)
-    // (ربح الطلب الناجح * نسبة النجاح) - (خسارة الطلب المرفوض * نسبة الرفض)
-    const successRate = 1 - (refusalRate / 100);
-    const refuseDecimal = refusalRate / 100;
-    const expectedValuePerOrder = (successfulOrderProfit * successRate) - (refusedOrderLoss * refuseDecimal);
+  const isActivated = typeof window !== 'undefined' && !!localStorage.getItem('merchant_license_key');
 
-    // 4. الخسارة الشهرية المتوقعة من الطلبات المرفوضة (بافتراض 300 طلب شهرياً مثلاً)
-    const totalMonthlyRiskLoss = refusedOrderLoss * (300 * refuseDecimal);
+  const totalOrders = typeof totalCodOrders === 'number' ? totalCodOrders : 0;
+  const rejected = typeof rejectedOrders === 'number' ? rejectedOrders : 0;
+  const sLoss = typeof shippingLossPerOrder === 'number' ? shippingLossPerOrder : 0;
 
-    setResults({
-      successfulOrderProfit,
-      refusedOrderLoss,
-      expectedValuePerOrder,
-      totalMonthlyRiskLoss,
+  // الحسابات الفعلية
+  const rejectionRate = totalOrders > 0 ? (rejected / totalOrders) * 100 : 0;
+  const totalMonthlyLoss = rejected * sLoss;
+
+  const handleClearForm = () => {
+    setCityName('');
+    setTotalCodOrders('');
+    setRejectedOrders('');
+    setAverageOrderValue('');
+    setShippingLossPerOrder('');
+    setEditingId(null);
+  };
+
+  const handleSaveItem = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!isActivated && items.length >= 3 && !editingId) {
+      alert('🔒 عذراً، لقد استهلكت الحد التجريبي (3 سجلات). يرجى ترقية حسابك لفتح السعة الكاملة بلا حدود!');
+      return;
+    }
+    if (!cityName.trim() || totalOrders <= 0) {
+      alert('الرجاء إدخال اسم المنطقة وعدد الطلبات بشكل صحيح.');
+      return;
+    }
+
+    if (editingId) {
+      const updated = items.map(item => item.id === editingId ? {
+        ...item,
+        cityName,
+        totalCodOrders: totalOrders,
+        rejectedOrders: rejected,
+        averageOrderValue: typeof averageOrderValue === 'number' ? averageOrderValue : 0,
+        shippingLossPerOrder: sLoss,
+        totalMonthlyLoss: Number(totalMonthlyLoss.toFixed(2)),
+      } : item);
+      saveToLocalStorage(updated);
+      setEditingId(null);
+      alert('✨ تم تحديث السجل بنجاح!');
+    } else {
+      const newItem: CodRiskItem = {
+        id: Date.now().toString(),
+        cityName,
+        totalCodOrders: totalOrders,
+        rejectedOrders: rejected,
+        averageOrderValue: typeof averageOrderValue === 'number' ? averageOrderValue : 0,
+        shippingLossPerOrder: sLoss,
+        totalMonthlyLoss: Number(totalMonthlyLoss.toFixed(2)),
+      };
+      saveToLocalStorage([...items, newItem]);
+      alert('✅ تمت إضافة التحليل إلى السجل بنجاح!');
+    }
+
+    handleClearForm();
+  };
+
+  const handleEdit = (item: CodRiskItem) => {
+    setCityName(item.cityName);
+    setTotalCodOrders(item.totalCodOrders);
+    setRejectedOrders(item.rejectedOrders);
+    setAverageOrderValue(item.averageOrderValue);
+    setShippingLossPerOrder(item.shippingLossPerOrder);
+    setEditingId(item.id);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleDelete = (id: string) => {
+    if (confirm('هل أنت متأكد من حذف هذا السجل؟')) {
+      const filtered = items.filter(i => i.id !== id);
+      saveToLocalStorage(filtered);
+    }
+  };
+
+  const handleExportCsv = () => {
+    if (items.length === 0) {
+      alert('لا توجد بيانات لتصديرها.');
+      return;
+    }
+    let csv = "data:text/csv;charset=utf-8,ID,City,TotalOrders,RejectedOrders,Loss\n";
+    items.forEach((row, idx) => {
+      csv += `${idx + 1},${row.cityName},${row.totalCodOrders},${row.rejectedOrders},${row.totalMonthlyLoss}\n`;
     });
-  }, [orderValue, productCost, shippingCost, returnShippingCost, codExtraFee, refusalRate]);
+    const encodedUri = encodeURI(csv);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "seerk_cod_risk_analysis.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleImportJson = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const reader = new FileReader();
+    if (e.target.files && e.target.files[0]) {
+      reader.readAsText(e.target.files[0], "UTF-8");
+      reader.onload = (event) => {
+        try {
+          const imported = JSON.parse(event.target?.result as string);
+          if (Array.isArray(imported)) {
+            saveToLocalStorage(imported);
+            alert('✨ تم استيراد البيانات بنجاح!');
+          }
+        } catch (err) {
+          alert('❌ ملف غير صالح.');
+        }
+      };
+    }
+  };
+
+  const filteredItems = items.filter(item => item.cityName.toLowerCase().includes(searchQuery.toLowerCase()));
 
   return (
     <div className="tool-container">
@@ -52,43 +160,59 @@ export default function CodRiskAnalyzerSA() {
         a { text-decoration: none; }
       `}</style>
       <style jsx>{`
-        .tool-container { direction: rtl; max-width: 1000px; margin: 40px auto; padding: 20px; }
+        .tool-container { direction: rtl; max-width: 1100px; margin: 40px auto; padding: 20px; }
         
-        .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; }
+        .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; }
         .back-btn { background: #ffffff; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 8px; color: #475569; font-weight: 700; font-size: 14px; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
         .back-btn:hover { background: #f1f5f9; color: #0f172a; }
         
         .title-box h1 { font-size: 24px; font-weight: 900; color: #0f172a; margin: 0 0 5px 0; }
         .title-box p { color: #64748b; margin: 0; font-size: 14px; }
         
-        .grid-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        .grid-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 40px; }
         @media(max-width: 768px) { .grid-layout { grid-template-columns: 1fr; } }
         
         .card { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
-        .card-title { font-size: 18px; font-weight: 800; color: #1e293b; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; }
+        .card-title { font-size: 18px; font-weight: 800; color: #1e293b; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
         
+        .clear-form-btn { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: 'Tajawal', sans-serif; display: flex; align-items: center; gap: 5px; }
+        .clear-form-btn:hover { background: #fecaca; }
+
         .input-group { margin-bottom: 15px; }
         .input-group label { display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 6px; }
         .input-wrapper { position: relative; display: flex; align-items: center; }
-        .input-wrapper input { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 15px; font-family: 'Tajawal', sans-serif; outline: none; transition: border 0.2s; background: #f8fafc; color: #0f172a; font-weight: 600; }
+        .input-wrapper input { width: 100%; padding: 10px 45px 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 15px; font-family: 'Tajawal', sans-serif; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; }
         .input-wrapper input:focus { border-color: #047857; background: #ffffff; }
-        .currency-tag { position: absolute; left: 15px; color: #94a3b8; font-weight: 700; font-size: 13px; }
+        .currency-tag { position: absolute; left: 14px; color: #64748b; font-weight: 800; font-size: 13px; pointer-events: none; }
         
+        .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: 'Tajawal', sans-serif; margin-top: 10px; }
+        .action-btn:hover { background: #065f46; }
+
         .result-box { background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; }
         .result-box.danger { background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); color: #fff; border: none; padding: 20px; }
-        .result-box.primary { background: linear-gradient(135deg, #047857 0%, #065f46 100%); color: #fff; border: none; padding: 20px; }
-        
         .result-label { font-size: 13px; font-weight: 700; color: #64748b; }
-        .danger .result-label, .primary .result-label { color: #ffffff; opacity: 0.9; }
-        
+        .danger .result-label { color: #ffffff; opacity: 0.9; }
         .result-value { font-size: 18px; font-weight: 900; color: #0f172a; }
-        .danger .result-value, .primary .result-value { font-size: 24px; color: #ffffff; }
+        .danger .result-value { font-size: 26px; color: #ffffff; }
+
+        .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
+        .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
+        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: 'Tajawal', sans-serif; font-size: 13px; outline: none; width: 250px; }
+        .table-btns { display: flex; gap: 10px; }
+        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: 'Tajawal', sans-serif; }
+        .t-btn:hover { background: #f1f5f9; }
+
+        .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+        .data-table th { background: #f8fafc; padding: 12px; text-align: right; border-bottom: 2px solid #cbd5e1; font-weight: 800; color: #334155; }
+        .data-table td { padding: 12px; border-bottom: 1px solid #e2e8f0; color: #0f172a; font-weight: 600; }
+        
+        .trial-badge { background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 800; }
       `}</style>
 
       <div className="header">
         <div className="title-box">
-          <h1>محلل تكاليف ومخاطر الدفع عند الاستلام (COD) 🚚</h1>
-          <p>احسب تأثير نسبة رفض الطلبات وتكاليف الشحن العكسي على أرباح متجرك</p>
+          <h1>محلل تكاليف الدفع عند الاستلام (COD) 🚚</h1>
+          <p>احسب نسبة الإلغاء، رسوم الشحن الضائع، والخسائر الناتجة عن عدم الاستلام في السوق السعودي</p>
         </div>
         <Link href="/hub/sa" className="back-btn">
           <span>←</span> عودة للمنصة
@@ -98,98 +222,143 @@ export default function CodRiskAnalyzerSA() {
       <div className="grid-layout">
         {/* قسم المدخلات */}
         <div className="card">
-          <h2 className="card-title">معطيات الشحن والطلبات</h2>
-          
-          <div className="input-group">
-            <label>قيمة الطلب الإجمالية</label>
-            <div className="input-wrapper">
-              <input type="number" min="0" value={orderValue || ''} onChange={(e) => setOrderValue(Number(e.target.value))} />
-              <span className="currency-tag">ر.س</span>
+          <h2 className="card-title">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <span>{editingId ? 'تعديل السجل' : 'تحليل مخاطر جديدة'}</span>
+              <button type="button" className="clear-form-btn" onClick={handleClearForm} title="مسح الحقول">
+                🧹 مسح الحقول
+              </button>
             </div>
-          </div>
+            {!isActivated && <span className="trial-badge">تجريبي: {items.length}/3</span>}
+          </h2>
 
-          <div className="input-group">
-            <label>تكلفة المنتج الأساسية</label>
-            <div className="input-wrapper">
-              <input type="number" min="0" value={productCost || ''} onChange={(e) => setProductCost(Number(e.target.value))} />
-              <span className="currency-tag">ر.س</span>
+          <form onSubmit={handleSaveItem}>
+            <div className="input-group">
+              <label>المنطقة أو نطاق التشغيل</label>
+              <div className="input-wrapper">
+                <input type="text" value={cityName} onChange={(e) => setCityName(e.target.value)} placeholder="مثال: الرياض والمنطقة الوسطى" required />
+              </div>
             </div>
-          </div>
 
-          <div className="input-group">
-            <label>تكلفة شحن الذهاب للعميل</label>
-            <div className="input-wrapper">
-              <input type="number" min="0" value={shippingCost || ''} onChange={(e) => setShippingCost(Number(e.target.value))} />
-              <span className="currency-tag">ر.س</span>
+            <div className="input-group">
+              <label>إجمالي طلبات الدفع عند الاستلام (COD)</label>
+              <div className="input-wrapper">
+                <input type="number" min="0" value={totalCodOrders === '' ? '' : totalCodOrders} onChange={(e) => setTotalCodOrders(e.target.value === '' ? '' : Number(e.target.value))} placeholder="500" required />
+              </div>
             </div>
-          </div>
 
-          <div className="input-group">
-            <label>تكلفة الشحن العكسي (عند رفض الاستلام)</label>
-            <div className="input-wrapper">
-              <input type="number" min="0" value={returnShippingCost || ''} onChange={(e) => setReturnShippingCost(Number(e.target.value))} />
-              <span className="currency-tag">ر.س</span>
+            <div className="input-group">
+              <label>عدد الطلبات المرفوضة أو غير المستلمة</label>
+              <div className="input-wrapper">
+                <input type="number" min="0" value={rejectedOrders === '' ? '' : rejectedOrders} onChange={(e) => setRejectedOrders(e.target.value === '' ? '' : Number(e.target.value))} placeholder="75" required />
+              </div>
             </div>
-          </div>
 
-          <div className="input-group">
-            <label>رسوم خدمة الدفع عند الاستلام الإضافية (من شركة الشحن)</label>
-            <div className="input-wrapper">
-              <input type="number" min="0" value={codExtraFee || ''} onChange={(e) => setCodExtraFee(Number(e.target.value))} />
-              <span className="currency-tag">ر.س</span>
+            <div className="input-group">
+              <label>متوسط قيمة الطلب الواحد (ر.س)</label>
+              <div className="input-wrapper">
+                <input type="number" min="0" value={averageOrderValue === '' ? '' : averageOrderValue} onChange={(e) => setAverageOrderValue(e.target.value === '' ? '' : Number(e.target.value))} placeholder="250" />
+                <span className="currency-tag">ر.س</span>
+              </div>
             </div>
-          </div>
 
-          <div className="input-group">
-            <label>نسبة رفض الاستلام المتوقعة (%)</label>
-            <div className="input-wrapper">
-              <input type="number" min="0" max="100" value={refusalRate || ''} onChange={(e) => setRefusalRate(Number(e.target.value))} />
-              <span className="currency-tag">%</span>
+            <div className="input-group">
+              <label>تكلفة الشحن الضائع للطلب المرفوض (ر.س)</label>
+              <div className="input-wrapper">
+                <input type="number" min="0" value={shippingLossPerOrder === '' ? '' : shippingLossPerOrder} onChange={(e) => setShippingLossPerOrder(e.target.value === '' ? '' : Number(e.target.value))} placeholder="35" />
+                <span className="currency-tag">ر.س</span>
+              </div>
             </div>
-          </div>
+
+            <button type="submit" className="action-btn">
+              {editingId ? '💾 حفظ التعديلات' : '+ حفظ التحليل في السجل'}
+            </button>
+          </form>
         </div>
 
-        {/* قسم النتائج والمخاطر */}
+        {/* قسم النتائج الفورية */}
         <div className="card">
-          <h2 className="card-title">تحليل مخاطر وتكاليف COD</h2>
-
-          <div className="result-box primary">
-            <div>
-              <div className="result-label">ربح الطلب في حال الاستلام الناجح</div>
-              <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '2px' }}>بعد خصم التكلفة والشحن ورسوم الخدمة</div>
-            </div>
-            <div className="result-value">
-              {results.successfulOrderProfit.toFixed(2)} ر.س
-            </div>
-          </div>
+          <h2 className="card-title">تحليل المخاطر والخسائر الفوري</h2>
 
           <div className="result-box danger">
             <div>
-              <div className="result-label">خسارة الطلب في حال رفض العميل الاستلام</div>
-              <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '2px' }}>شحن ذهاب وعودة وتالف</div>
+              <div className="result-label">إجمالي الخسائر المالية من عدم الاستلام</div>
+              <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '2px' }}>تكلفة الشحن الضائع للطلبات المرفوضة</div>
             </div>
             <div className="result-value">
-              -{results.refusedOrderLoss.toFixed(2)} ر.س
+              {totalMonthlyLoss.toFixed(2)} ر.س
             </div>
           </div>
 
           <div className="result-box">
-            <span className="result-label">القيمة المتوقعة الحقيقية لكل طلب (مع حساب الرفض)</span>
-            <span className="result-value" style={{ color: results.expectedValuePerOrder >= 0 ? '#10b981' : '#dc2626' }}>
-              {results.expectedValuePerOrder.toFixed(2)} ر.س
-            </span>
+            <span className="result-label">نسبة رفض واسترجاع الشحنات (%)</span>
+            <span className="result-value" style={{ color: '#dc2626' }}>{rejectionRate.toFixed(1)}%</span>
           </div>
 
-          <div className="result-box" style={{ background: '#fef2f2', borderColor: '#fecaca' }}>
-            <div>
-              <div className="result-label" style={{ color: '#991b1b' }}>إجمالي الخسارة الشهرية المقدرة (بافتراض 300 طلب)</div>
-              <div style={{ fontSize: '11px', color: '#b91c1c', marginTop: '2px' }}>بسبب الطلبات المرفوضة وعدم الاستلام</div>
-            </div>
-            <span className="result-value" style={{ color: '#991b1b' }}>
-              {results.totalMonthlyRiskLoss.toFixed(2)} ر.س
-            </span>
+          <div className="result-box">
+            <span className="result-label">إجمالي الطلبات المستلمة والناجحة</span>
+            <span className="result-value" style={{ color: '#047857' }}>{Math.max(0, totalOrders - rejected)} طلب</span>
           </div>
+        </div>
+      </div>
 
+      {/* جدول إدارة السجلات السفلي */}
+      <div className="table-section">
+        <div className="table-toolbar">
+          <input 
+            type="text" 
+            className="search-input" 
+            placeholder="🔍 بحث باسم المنطقة..." 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          <div className="table-btns">
+            <button className="t-btn" onClick={handleExportCsv}>📥 تصدير CSV</button>
+            <button className="t-btn" onClick={() => fileInputRef.current?.click()}>📂 استيراد</button>
+            <input type="file" ref={fileInputRef} onChange={handleImportJson} accept=".json" style={{ display: 'none' }} />
+          </div>
+        </div>
+
+        <div style={{ overflowX: 'auto' }}>
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>المنطقة / النطاق</th>
+                <th>إجمالي الطلبات</th>
+                <th>الطلبات المرفوضة</th>
+                <th>نسبة الرفض</th>
+                <th>إجمالي الخسارة</th>
+                <th>الإجراءات</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredItems.length === 0 ? (
+                <tr>
+                  <td colSpan={7} style={{ textAlign: 'center', color: '#94a3b8', padding: '30px 0' }}>
+                    لا توجد تحليلات مخزنة حالياً.
+                  </td>
+                </tr>
+              ) : (
+                filteredItems.map((item, idx) => (
+                  <tr key={item.id}>
+                    <td>{idx + 1}</td>
+                    <td style={{ fontWeight: 800 }}>{item.cityName}</td>
+                    <td>{item.totalCodOrders}</td>
+                    <td>{item.rejectedOrders}</td>
+                    <td style={{ color: '#dc2626' }}>{item.totalCodOrders > 0 ? ((item.rejectedOrders / item.totalCodOrders) * 100).toFixed(1) : 0}%</td>
+                    <td style={{ color: '#dc2626', fontWeight: 900 }}>{item.totalMonthlyLoss} ر.س</td>
+                    <td>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button onClick={() => handleEdit(item)} style={{ background: '#e0f2fe', color: '#0369a1', border: 'none', padding: '5px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 800, cursor: 'pointer' }}>تعديل</button>
+                        <button onClick={() => handleDelete(item.id)} style={{ background: '#fee2e2', color: '#991b1b', border: 'none', padding: '5px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 800, cursor: 'pointer' }}>حذف</button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
