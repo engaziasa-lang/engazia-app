@@ -48,15 +48,6 @@ interface ResponseStateConfig {
   color: string;
 }
 
-interface Template {
-  id: number;
-  icon: string;
-  titleKey: string;
-  fallbackTitle: string;
-  textKey: string;
-  fallbackText: string;
-}
-
 const toolTranslations: { [key: string]: any } = {
   ar: {
     back: '← العودة لوحة التحكم',
@@ -222,7 +213,7 @@ const toolTranslations: { [key: string]: any } = {
     successToastRestore: '♻ Backup restored successfully!',
     cloudMasterKeyLabel: 'Cloud Master Key',
     cloudBinIdLabel: 'Cloud Bin ID',
-    cloudSaveSuccess: '☁️ Data saved to cloud successfully!',
+    cloudSaveSuccess: '☁️️ Data saved to cloud successfully!',
     cloudLoadSuccess: '🔄 Data loaded from cloud successfully!',
     errorPhone: '❌ Invalid phone number!',
     errorBackup: '❌ Invalid backup file.',
@@ -284,7 +275,7 @@ const toolTranslations: { [key: string]: any } = {
     backupBox: '💾 Sauvegarde & Cloud',
     downloadBackup: '📥 Télécharger',
     restoreBackup: '♻ Restaurer',
-    cloudSave: '☁️ Enregistrer sur le Cloud',
+    cloudSave: '☁️️ Enregistrer sur le Cloud',
     cloudLoad: '🔄 Charger depuis le Cloud',
     perfIndicators: 'Indicateurs de performance en direct',
     latestCustomers: 'Derniers clients enregistrés',
@@ -659,7 +650,7 @@ const toolTranslations: { [key: string]: any } = {
     backupBox: 'Cadangan Data & Cloud (JsonBin)',
     downloadBackup: 'Unduh Cadangan',
     restoreBackup: 'Pulihkan',
-    cloudSave: '☁️️ Simpan ke Cloud',
+    cloudSave: '☁️ Simpan ke Cloud',
     cloudLoad: '🔄 Muat dari Cloud',
     perfIndicators: 'Indikator Kinerja',
     latestCustomers: 'Pelanggan Terbaru',
@@ -754,14 +745,7 @@ export default function EngaziaWhatsAppCRM() {
   const [generatedMsg, setGeneratedMsg] = useState('');
   
   const [broadcastCat, setBroadcastCat] = useState('');
-
   const [activeTemplateId, setActiveTemplateId] = useState<number>(1);
-  const [templates, setTemplates] = useState<Template[]>([
-    { id: 1, icon: '✅', titleKey: 't1Title', fallbackTitle: 'Order Confirmation', textKey: 't1Text', fallbackText: 'Hello [الاسم]' },
-    { id: 2, icon: '🛒', titleKey: 't2Title', fallbackTitle: 'Abandoned Cart', textKey: 't2Text', fallbackText: 'Hi [الاسم]' },
-    { id: 3, icon: '📦', titleKey: 't3Title', fallbackTitle: 'Shipping Tracker', textKey: 't3Text', fallbackText: 'Hello [الاسم]' },
-    { id: 4, icon: '💳', titleKey: 't4Title', fallbackTitle: 'Payment Link', textKey: 't4Text', fallbackText: 'Hello [الاسم]' }
-  ]);
 
   const [categories, setCategories] = useState<TagConfig[]>([]);
   const [newCatName, setNewCatName] = useState('');
@@ -782,6 +766,20 @@ export default function EngaziaWhatsAppCRM() {
 
   const t = toolTranslations[currentLang] || toolTranslations.ar;
   const isRtl = currentLang === 'ar';
+
+  // تعريف القوالب بشكل ديناميكي بناءً على قاموس الترجمة الحالي لضمان عدم ظهورها فارغة أبداً
+  const templates = [
+    { id: 1, icon: '✅', titleKey: 't1Title', textKey: 't1Text' },
+    { id: 2, icon: '🛒', titleKey: 't2Title', textKey: 't2Text' },
+    { id: 3, icon: '📦', titleKey: 't3Title', textKey: 't3Text' },
+    { id: 4, icon: '💳', titleKey: 't4Title', textKey: 't4Text' }
+  ];
+
+  const getTplDisplay = (tpl: { id: number; icon: string; titleKey: string; textKey: string }) => {
+    const title = t.tpls && t.tpls[tpl.titleKey] ? t.tpls[tpl.titleKey] : 'Template';
+    const text = t.tpls && t.tpls[tpl.textKey] ? t.tpls[tpl.textKey] : '';
+    return { title, text, icon: tpl.icon };
+  };
 
   useEffect(() => {
     if (t && t.cats) {
@@ -836,9 +834,6 @@ export default function EngaziaWhatsAppCRM() {
     const savedResponseStates = localStorage.getItem('engazia_whatsapp_response_states_v1');
     if (savedResponseStates) { try { setResponseStateOptions(JSON.parse(savedResponseStates)); } catch (e) { console.error(e); } }
 
-    const savedTpls = localStorage.getItem('engazia_templates_v2');
-    if (savedTpls) { try { setTemplates(JSON.parse(savedTpls)); } catch (e) { console.error(e); } }
-
     const savedDisc = localStorage.getItem('engazia_default_discount');
     if (savedDisc) setDefaultDiscountCode(savedDisc);
 
@@ -875,7 +870,7 @@ export default function EngaziaWhatsAppCRM() {
     if (!cloudMasterKey.trim()) return showToast('⚠️ أدخل مفتاح Master Key السحابي.');
     try {
       showToast('☁️ جاري الحفظ في السحاب...');
-      const payload = { defaultDiscountCode, contacts, categories, statusOptions, responseStateOptions, templates, version: '3.0' };
+      const payload = { defaultDiscountCode, contacts, categories, statusOptions, responseStateOptions, version: '3.1' };
       
       let endpoint = 'https://api.jsonbin.io/v3/b';
       let method = 'POST';
@@ -928,7 +923,6 @@ export default function EngaziaWhatsAppCRM() {
         if (rec.categories) { setCategories(rec.categories); localStorage.setItem('engazia_whatsapp_categories_v2', JSON.stringify(rec.categories)); }
         if (rec.statusOptions) { setStatusOptions(rec.statusOptions); localStorage.setItem('engazia_whatsapp_statuses_v1', JSON.stringify(rec.statusOptions)); }
         if (rec.responseStateOptions) { setResponseStateOptions(rec.responseStateOptions); localStorage.setItem('engazia_whatsapp_response_states_v1', JSON.stringify(rec.responseStateOptions)); }
-        if (rec.templates) { setTemplates(rec.templates); localStorage.setItem('engazia_templates_v2', JSON.stringify(rec.templates)); }
         if (rec.defaultDiscountCode) { setDefaultDiscountCode(rec.defaultDiscountCode); localStorage.setItem('engazia_default_discount', rec.defaultDiscountCode); }
         
         localStorage.setItem('engazia_cloud_master_key', cloudMasterKey.trim());
@@ -944,7 +938,7 @@ export default function EngaziaWhatsAppCRM() {
 
   const exportBackupJSON = () => {
     const backupData = {
-      defaultDiscountCode, contacts, categories, statusOptions, responseStateOptions, templates, version: '3.0'
+      defaultDiscountCode, contacts, categories, statusOptions, responseStateOptions, version: '3.1'
     };
     const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -966,7 +960,6 @@ export default function EngaziaWhatsAppCRM() {
         if (data && data.categories) { setCategories(data.categories); localStorage.setItem('engazia_whatsapp_categories_v2', JSON.stringify(data.categories)); }
         if (data && data.statusOptions) { setStatusOptions(data.statusOptions); localStorage.setItem('engazia_whatsapp_statuses_v1', JSON.stringify(data.statusOptions)); }
         if (data && data.responseStateOptions) { setResponseStateOptions(data.responseStateOptions); localStorage.setItem('engazia_whatsapp_response_states_v1', JSON.stringify(data.responseStateOptions)); }
-        if (data && data.templates) { setTemplates(data.templates); localStorage.setItem('engazia_templates_v2', JSON.stringify(data.templates)); }
         showToast(t.successToastRestore);
       } catch (err) {
         showToast(t.errorBackup);
@@ -1004,12 +997,6 @@ export default function EngaziaWhatsAppCRM() {
   const getRespDisplay = (respKey: string, fallback: string) => {
     if (t.responseStates && t.responseStates[respKey]) return t.responseStates[respKey];
     return fallback;
-  };
-
-  const getTplDisplay = (tpl: Template) => {
-    const title = (t.tpls && t.tpls[tpl.titleKey]) ? t.tpls[tpl.titleKey] : tpl.fallbackTitle;
-    const text = (t.tpls && t.tpls[tpl.textKey]) ? t.tpls[tpl.textKey] : tpl.fallbackText;
-    return { title, text, icon: tpl.icon || '💬' };
   };
 
   const updateLastContact = (id: string, customNote?: string) => {
@@ -1163,7 +1150,7 @@ export default function EngaziaWhatsAppCRM() {
   };
 
   const handleGenerateMessage = () => {
-    const tpl = templates.find(t => t.id === activeTemplateId);
+    const tpl = templates.find(item => item.id === activeTemplateId);
     if (!tpl) return;
     const resolvedTpl = getTplDisplay(tpl);
     let msg = resolvedTpl.text
@@ -1188,7 +1175,7 @@ export default function EngaziaWhatsAppCRM() {
       showToast('⚠️ لا يوجد عملاء في هذه الفئة المستهدفة.');
       return;
     }
-    const tpl = templates.find(t => t.id === activeTemplateId);
+    const tpl = templates.find(item => item.id === activeTemplateId);
     if (!tpl) return;
     const resolvedTpl = getTplDisplay(tpl);
 
@@ -1711,9 +1698,9 @@ export default function EngaziaWhatsAppCRM() {
                 {templates.map(tpl => {
                   const resolved = getTplDisplay(tpl);
                   return (
-                    <div key={tpl.id} onClick={() => setActiveTemplateId(tpl.id)} style={{ padding: '14px 10px', border: '2px solid #e2e8f0', borderRadius: '12px', cursor: 'pointer', textAlign: 'center', fontWeight: 800, fontSize: '13px', color: activeTemplateId === tpl.id ? '#4f46e5' : '#64748b', background: activeTemplateId === tpl.id ? '#eef2ff' : '#fff', display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'center' }}>
-                      <span style={{ fontSize: '20px' }}>{resolved.icon}</span>
-                      <span>{resolved.title}</span>
+                    <div key={tpl.id} onClick={() => setActiveTemplateId(tpl.id)} style={{ padding: '16px 12px', border: '2px solid #e2e8f0', borderRadius: '14px', cursor: 'pointer', textAlign: 'center', fontWeight: 800, fontSize: '13px', color: activeTemplateId === tpl.id ? '#4f46e5' : '#64748b', background: activeTemplateId === tpl.id ? '#eef2ff' : '#fff', display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
+                      <span style={{ fontSize: '24px' }}>{resolved.icon}</span>
+                      <span style={{ fontSize: '13px', fontWeight: 900, color: '#1e293b' }}>{resolved.title}</span>
                     </div>
                   );
                 })}
