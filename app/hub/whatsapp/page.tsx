@@ -101,7 +101,8 @@ const toolTranslations: { [key: string]: any } = {
     newCatLabel: 'اسم التصنيف الجديد',
     newStatusLabel: 'اسم الحالة الجديدة',
     newRespLabel: 'اسم حالة الرد الجديدة',
-    colorLabel: 'اللون',
+    bgColorLabel: 'لون الخلفية',
+    textColorLabel: 'لون الخط',
     addBtn: '➕ إضافة',
     deleteBtn: 'حذف',
     lastContactHeader: 'آخر تواصل',
@@ -179,7 +180,7 @@ const toolTranslations: { [key: string]: any } = {
     actions: 'Actions',
     backupBox: '💾 Backup & Cloud Storage (JsonBin)',
     downloadBackup: '📥 Download Backup (JSON)',
-    restoreBackup: '♻️ Restore Data from File',
+    restoreBackup: '♻️️ Restore Data from File',
     cloudSave: '☁️ Save to Cloud',
     cloudLoad: '🔄 Load from Cloud',
     perfIndicators: 'Live Performance Indicators',
@@ -202,7 +203,8 @@ const toolTranslations: { [key: string]: any } = {
     newCatLabel: 'New Category Name',
     newStatusLabel: 'New Customer Status',
     newRespLabel: 'New Response State',
-    colorLabel: 'Color',
+    bgColorLabel: 'Background Color',
+    textColorLabel: 'Text Color',
     addBtn: '➕ Add',
     deleteBtn: 'Delete',
     lastContactHeader: 'Last Contact',
@@ -411,7 +413,7 @@ export default function EngaziaWhatsAppCRM() {
     if (!cloudMasterKey.trim()) return showToast('⚠️ أدخل مفتاح Master Key السحابي.');
     try {
       showToast('☁️ جاري الحفظ في السحاب...');
-      const payload = { defaultDiscountCode, contacts, categories, statusOptions, responseStateOptions, version: '3.7' };
+      const payload = { defaultDiscountCode, contacts, categories, statusOptions, responseStateOptions, version: '3.8' };
       
       let endpoint = 'https://api.jsonbin.io/v3/b';
       let method = 'POST';
@@ -479,7 +481,7 @@ export default function EngaziaWhatsAppCRM() {
 
   const exportBackupJSON = () => {
     const backupData = {
-      defaultDiscountCode, contacts, categories, statusOptions, responseStateOptions, version: '3.7'
+      defaultDiscountCode, contacts, categories, statusOptions, responseStateOptions, version: '3.8'
     };
     const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -1295,8 +1297,12 @@ export default function EngaziaWhatsAppCRM() {
                   <input type="text" className="form-control" placeholder="..." value={newCatName} onChange={e => setNewCatName(e.target.value)} />
                 </div>
                 <div className="form-group" style={{ margin: 0 }}>
-                  <label>{t.colorLabel}</label>
+                  <label>{t.bgColorLabel}</label>
                   <input type="color" className="form-control color-picker-sm" value={newCatBg} onChange={e => setNewCatBg(e.target.value)} />
+                </div>
+                <div className="form-group" style={{ margin: 0 }}>
+                  <label>{t.textColorLabel}</label>
+                  <input type="color" className="form-control color-picker-sm" value={newCatColor} onChange={e => setNewCatColor(e.target.value)} />
                 </div>
                 <button type="submit" className="btn-main" style={{ padding: '12px 20px' }}>{t.addBtn}</button>
               </form>
@@ -1321,8 +1327,12 @@ export default function EngaziaWhatsAppCRM() {
                   <input type="text" className="form-control" placeholder="..." value={newStatusName} onChange={e => setNewStatusName(e.target.value)} />
                 </div>
                 <div className="form-group" style={{ margin: 0 }}>
-                  <label>{t.colorLabel}</label>
+                  <label>{t.bgColorLabel}</label>
                   <input type="color" className="form-control color-picker-sm" value={newStatusBg} onChange={e => setNewStatusBg(e.target.value)} />
+                </div>
+                <div className="form-group" style={{ margin: 0 }}>
+                  <label>{t.textColorLabel}</label>
+                  <input type="color" className="form-control color-picker-sm" value={newStatusColor} onChange={e => setNewStatusColor(e.target.value)} />
                 </div>
                 <button type="submit" className="btn-main" style={{ padding: '12px 20px' }}>{t.addBtn}</button>
               </form>
@@ -1347,8 +1357,12 @@ export default function EngaziaWhatsAppCRM() {
                   <input type="text" className="form-control" placeholder="..." value={newRespName} onChange={e => setNewRespName(e.target.value)} />
                 </div>
                 <div className="form-group" style={{ margin: 0 }}>
-                  <label>{t.colorLabel}</label>
+                  <label>{t.bgColorLabel}</label>
                   <input type="color" className="form-control color-picker-sm" value={newRespBg} onChange={e => setNewRespBg(e.target.value)} />
+                </div>
+                <div className="form-group" style={{ margin: 0 }}>
+                  <label>{t.textColorLabel}</label>
+                  <input type="color" className="form-control color-picker-sm" value={newRespColor} onChange={e => setNewRespColor(e.target.value)} />
                 </div>
                 <button type="submit" className="btn-main" style={{ padding: '12px 20px' }}>{t.addBtn}</button>
               </form>
