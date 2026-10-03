@@ -85,9 +85,11 @@ const toolTranslations: { [key: string]: any } = {
     importBtn: '📤 استيراد CSV',
     exportBtn: '📥 تصدير Excel',
     actions: 'الإجراءات',
-    backupBox: '💾 النسخ الاحتياطي واستعادة البيانات',
+    backupBox: '💾 النسخ الاحتياطي والتخزين السحابي (JsonBin)',
     downloadBackup: '📥 تحميل نسخة احتياطية (JSON)',
     restoreBackup: '♻️ استعادة البيانات من ملف',
+    cloudSave: '☁️ حفظ بالسحاب (Cloud Sync)',
+    cloudLoad: '🔄 استرجاع من السحاب',
     perfIndicators: 'مؤشرات الأداء المباشرة',
     latestCustomers: 'أحدث العملاء تسجيلاً',
     dealSuccessRate: '📊 نسبة إتمام الصفقات',
@@ -120,6 +122,10 @@ const toolTranslations: { [key: string]: any } = {
     successToastTime: '🕒 تم تسجيل وقت التواصل والأرشيف بنجاح',
     successToastBackup: '📦 تم تصدير نسخة الاحتياط بنجاح',
     successToastRestore: '♻ تم استعادة النسخة الاحتياطية بنجاح!',
+    cloudMasterKeyLabel: 'مفتاح الماستر السحابي (Master Key)',
+    cloudBinIdLabel: 'معرف الحاوية السحابية (Bin ID)',
+    cloudSaveSuccess: '☁️ تم حفظ البيانات في السحاب بنجاح!',
+    cloudLoadSuccess: '🔄 تم استرجاع البيانات من السحاب بنجاح!',
     errorPhone: '❌ رقم الجوال يجب أن يكون صحيحاً!',
     errorBackup: '❌ ملف النسخ الاحتياطي غير صالح.',
     cats: {
@@ -177,9 +183,11 @@ const toolTranslations: { [key: string]: any } = {
     importBtn: '📤 Import CSV',
     exportBtn: '📥 Export Excel',
     actions: 'Actions',
-    backupBox: '💾 Backup & Restore Data',
+    backupBox: '💾 Backup & Cloud Storage (JsonBin)',
     downloadBackup: '📥 Download Backup (JSON)',
     restoreBackup: '♻️ Restore Data from File',
+    cloudSave: '☁️ Save to Cloud',
+    cloudLoad: '🔄 Load from Cloud',
     perfIndicators: 'Live Performance Indicators',
     latestCustomers: 'Latest Registered Customers',
     dealSuccessRate: '📊 Deal Success Rate',
@@ -196,7 +204,7 @@ const toolTranslations: { [key: string]: any } = {
     defaultDiscountLabel: 'Default Discount Code',
     customizeStatusTitle: '📌 Customize Customer Statuses',
     customizeRespTitle: '💬 Customize Response States',
-    customizeCatTitle: '🏷️️ Customize Customer Categories',
+    customizeCatTitle: '🏷 Customize Customer Categories',
     newCatLabel: 'New Category Name',
     newStatusLabel: 'New Customer Status',
     newRespLabel: 'New Response State',
@@ -212,6 +220,10 @@ const toolTranslations: { [key: string]: any } = {
     successToastTime: '🕒 Contact time and archive recorded',
     successToastBackup: '📦 Backup exported successfully',
     successToastRestore: '♻ Backup restored successfully!',
+    cloudMasterKeyLabel: 'Cloud Master Key',
+    cloudBinIdLabel: 'Cloud Bin ID',
+    cloudSaveSuccess: '☁️ Data saved to cloud successfully!',
+    cloudLoadSuccess: '🔄 Data loaded from cloud successfully!',
     errorPhone: '❌ Invalid phone number!',
     errorBackup: '❌ Invalid backup file.',
     cats: {
@@ -269,9 +281,11 @@ const toolTranslations: { [key: string]: any } = {
     importBtn: '📤 Importer',
     exportBtn: '📥 Exporter',
     actions: 'Actions',
-    backupBox: '💾 Sauvegarde',
-    downloadBackup: '📥 Télécharger la sauvegarde',
-    restoreBackup: '♻️️ Restaurer',
+    backupBox: '💾 Sauvegarde & Cloud',
+    downloadBackup: '📥 Télécharger',
+    restoreBackup: '♻ Restaurer',
+    cloudSave: '☁️ Enregistrer sur le Cloud',
+    cloudLoad: '🔄 Charger depuis le Cloud',
     perfIndicators: 'Indicateurs de performance en direct',
     latestCustomers: 'Derniers clients enregistrés',
     dealSuccessRate: '📊 Taux de réussite',
@@ -304,35 +318,16 @@ const toolTranslations: { [key: string]: any } = {
     successToastTime: '🕒 Contact enregistré',
     successToastBackup: '📦 Sauvegarde exportée',
     successToastRestore: '♻ Sauvegarde restaurée !',
+    cloudMasterKeyLabel: 'Cloud Master Key',
+    cloudBinIdLabel: 'Cloud Bin ID',
+    cloudSaveSuccess: '☁️ Données enregistrées sur le cloud avec succès !',
+    cloudLoadSuccess: '🔄 Données chargées depuis le cloud avec succès !',
     errorPhone: '❌ Numéro invalide !',
     errorBackup: '❌ Fichier invalide.',
-    cats: {
-      newCustomer: 'Nouveau client',
-      abandonedCart: 'Panier abandonné',
-      pendingPayment: 'Paiement en attente',
-      shipped: 'Expédié & Livré'
-    },
-    statuses: {
-      active: 'Actif',
-      vip: 'VIP',
-      paused: 'En pause',
-      banned: 'Banni'
-    },
-    responseStates: {
-      pending: 'En attente',
-      agreed: 'Accord conclu',
-      closed: 'Fermé'
-    },
-    tpls: {
-      t1Title: 'Confirmation',
-      t1Text: 'Bonjour [الاسم] 👋\nVotre commande #[الطلب] a été confirmée.',
-      t2Title: 'Panier abandonné',
-      t2Text: 'Bonjour [الاسم] 😊\nPanier #[الطلب].',
-      t3Title: 'Suivi',
-      t3Text: 'Bonjour [الاسم] 📦\nCommande #[الطلب] expédiée.',
-      t4Title: 'Paiement',
-      t4Text: 'Bonjour [الاسم] 💳\nLien : [إضافي]'
-    }
+    cats: { newCustomer: 'Nouveau client', abandonedCart: 'Panier abandonné', pendingPayment: 'Paiement en attente', shipped: 'Expédié & Livré' },
+    statuses: { active: 'Actif', vip: 'VIP', paused: 'En pause', banned: 'Banni' },
+    responseStates: { pending: 'En attente', agreed: 'Accord conclu', closed: 'Fermé' },
+    tpls: { t1Title: 'Confirmation', t1Text: 'Bonjour [الاسم] 👋\nVotre commande #[الطلب] a été confirmée.', t2Title: 'Panier abandonné', t2Text: 'Bonjour [الاسم] 😊\nPanier #[الطلب].', t3Title: 'Suivi', t3Text: 'Bonjour [الاسم] 📦\nCommande #[الطلب] expédiée.', t4Title: 'Paiement', t4Text: 'Bonjour [الاسم] 💳\nLien : [إضافي]' }
   },
   es: {
     back: '← Volver al panel',
@@ -361,9 +356,11 @@ const toolTranslations: { [key: string]: any } = {
     importBtn: '📤 Importar',
     exportBtn: '📥 Exportar',
     actions: 'Acciones',
-    backupBox: '💾 Copia de seguridad',
+    backupBox: '💾 Copia de seguridad y Nube',
     downloadBackup: '📥 Descargar',
-    restoreBackup: '♻️️ Restaurar',
+    restoreBackup: '♻ Restaurar',
+    cloudSave: '☁️ Guardar en la Nube',
+    cloudLoad: '🔄 Cargar desde la Nube',
     perfIndicators: 'Rendimiento en vivo',
     latestCustomers: 'Últimos clientes',
     dealSuccessRate: '📊 Tasa de éxito',
@@ -396,35 +393,16 @@ const toolTranslations: { [key: string]: any } = {
     successToastTime: '🕒 Contacto registrado',
     successToastBackup: '📦 Exportado',
     successToastRestore: '♻ ¡Restaurado!',
+    cloudMasterKeyLabel: 'Cloud Master Key',
+    cloudBinIdLabel: 'Cloud Bin ID',
+    cloudSaveSuccess: '☁️ ¡Datos guardados en la nube con éxito!',
+    cloudLoadSuccess: '🔄 ¡Datos cargados desde la nube con éxito!',
     errorPhone: '❌ Teléfono inválido',
     errorBackup: '❌ Archivo inválido',
-    cats: {
-      newCustomer: 'Nuevo cliente',
-      abandonedCart: 'Carrito abandonado',
-      pendingPayment: 'Pago pendiente',
-      shipped: 'Enviado'
-    },
-    statuses: {
-      active: 'Activo',
-      vip: 'VIP',
-      paused: 'Pausado',
-      banned: 'Bloqueado'
-    },
-    responseStates: {
-      pending: 'Pendiente',
-      agreed: 'Acordado',
-      closed: 'Cerrado'
-    },
-    tpls: {
-      t1Title: 'Confirmación',
-      t1Text: 'Hola [الاسم] 👋\nPedido #[الطلب] confirmado.',
-      t2Title: 'Carrito',
-      t2Text: 'Hola [الاسم] 😊\nCarrito #[الطلب].',
-      t3Title: 'Envío',
-      t3Text: 'Hola [الاسم] 📦\nEnviado.',
-      t4Title: 'Pago',
-      t4Text: 'Hola [الاسم] 💳\nEnlace: [إضافي]'
-    }
+    cats: { newCustomer: 'Nuevo cliente', abandonedCart: 'Carrito abandonado', pendingPayment: 'Pago pendiente', shipped: 'Enviado' },
+    statuses: { active: 'Activo', vip: 'VIP', paused: 'Pausado', banned: 'Bloqueado' },
+    responseStates: { pending: 'Pendiente', agreed: 'Acordado', closed: 'Cerrado' },
+    tpls: { t1Title: 'Confirmación', t1Text: 'Hola [الاسم] 👋\nPedido #[الطلب] confirmado.', t2Title: 'Carrito', t2Text: 'Hola [الاسم] 😊\nCarrito #[الطلب].', t3Title: 'Envío', t3Text: 'Hola [الاسم] 📦\nEnviado.', t4Title: 'Pago', t4Text: 'Hola [الاسم] 💳\nEnlace: [إضافي]' }
   },
   tr: {
     back: '← Kontrol Paneline Dön',
@@ -453,9 +431,11 @@ const toolTranslations: { [key: string]: any } = {
     importBtn: '📤 İçe Aktar',
     exportBtn: '📥 Dışa Aktar',
     actions: 'İşlemler',
-    backupBox: '💾 Yedekleme',
+    backupBox: '💾 Yedekleme & Bulut (JsonBin)',
     downloadBackup: '📥 Yedek İndir',
     restoreBackup: '♻ Geri Yükle',
+    cloudSave: '☁️ Buluta Kaydet',
+    cloudLoad: '🔄 Buluttan Yükle',
     perfIndicators: 'Canlı Göstergeler',
     latestCustomers: 'Son Müşteriler',
     dealSuccessRate: '📊 Başarı Oranı',
@@ -488,35 +468,16 @@ const toolTranslations: { [key: string]: any } = {
     successToastTime: '🕒 Zaman kaydedildi',
     successToastBackup: '📦 Yedek indirildi',
     successToastRestore: '♻ Geri yüklendi!',
+    cloudMasterKeyLabel: 'Cloud Master Key',
+    cloudBinIdLabel: 'Cloud Bin ID',
+    cloudSaveSuccess: '☁️ Veriler buluta başarıyla kaydedildi!',
+    cloudLoadSuccess: '🔄 Veriler buluttان başarıyla yüklendi!',
     errorPhone: '❌ Geçersiz telefon!',
     errorBackup: '❌ Geçersiz dosya.',
-    cats: {
-      newCustomer: 'Yeni Müşteri',
-      abandonedCart: 'Terk Sepet',
-      pendingPayment: 'Ödeme Bekleniyor',
-      shipped: 'Kargolandı'
-    },
-    statuses: {
-      active: 'Aktif',
-      vip: 'VIP',
-      paused: 'Duraklatıldı',
-      banned: 'Yasaklı'
-    },
-    responseStates: {
-      pending: 'Bekliyor',
-      agreed: 'Anlaşıldı',
-      closed: 'Kapatıldı'
-    },
-    tpls: {
-      t1Title: 'Onay',
-      t1Text: 'Merhaba [الاسم] 👋\nSipariş #[الطلب] onaylandı.',
-      t2Title: 'Sepet',
-      t2Text: 'Merhaba [الاسم] 😊\nSepet #[الطلب].',
-      t3Title: 'Kargo',
-      t3Text: 'Merhaba [الاسم] 📦\nKargoda.',
-      t4Title: 'Ödeme',
-      t4Text: 'Merhaba [الاسم] 💳\nLink: [إضافي]'
-    }
+    cats: { newCustomer: 'Yeni Müşteri', abandonedCart: 'Terk Sepet', pendingPayment: 'Ödeme Bekleniyor', shipped: 'Kargolandı' },
+    statuses: { active: 'Aktif', vip: 'VIP', paused: 'Duraklatıldı', banned: 'Yasaklı' },
+    responseStates: { pending: 'Bekliyor', agreed: 'Anlaşıldı', closed: 'Kapatıldı' },
+    tpls: { t1Title: 'Onay', t1Text: 'Merhaba [الاسم] 👋\nSipariş #[الطلب] onaylandı.', t2Title: 'Sepet', t2Text: 'Merhaba [الاسم] 😊\nSepet #[الطلب].', t3Title: 'Kargo', t3Text: 'Merhaba [الاسم] 📦\nKargoda.', t4Title: 'Ödeme', t4Text: 'Merhaba [الاسم] 💳\nLink: [إضافي]' }
   },
   zh: {
     back: '← 返回面板',
@@ -545,9 +506,11 @@ const toolTranslations: { [key: string]: any } = {
     importBtn: '📤 导入',
     exportBtn: '📥 导出',
     actions: '操作',
-    backupBox: '💾 备份与恢复',
+    backupBox: '💾 备份与云端存储 (JsonBin)',
     downloadBackup: '📥 下载备份',
     restoreBackup: '♻️ 恢复',
+    cloudSave: '☁️ 保存到云端',
+    cloudLoad: '🔄 从云端加载',
     perfIndicators: '实时业绩指标',
     latestCustomers: '最新登记客户',
     dealSuccessRate: '📊 成交率',
@@ -580,35 +543,16 @@ const toolTranslations: { [key: string]: any } = {
     successToastTime: '🕒 联系时间已记录',
     successToastBackup: '📦 备份导出成功',
     successToastRestore: '♻ 恢复成功！',
+    cloudMasterKeyLabel: 'Cloud Master Key',
+    cloudBinIdLabel: 'Cloud Bin ID',
+    cloudSaveSuccess: '☁️ 数据成功保存至云端！',
+    cloudLoadSuccess: '🔄 数据从云端加载成功！',
     errorPhone: '❌ 手机号无效！',
     errorBackup: '❌ 备份文件无效。',
-    cats: {
-      newCustomer: '新客户',
-      abandonedCart: '未付款购物车',
-      pendingPayment: '等待付款',
-      shipped: '已发货'
-    },
-    statuses: {
-      active: '活跃',
-      vip: 'VIP',
-      paused: '暂停',
-      banned: '拉黑'
-    },
-    responseStates: {
-      pending: '等待回复',
-      agreed: '达成一致',
-      closed: '关闭'
-    },
-    tpls: {
-      t1Title: '确认',
-      t1Text: '您好 [الاسم] 👋\n订单 #[الطلب] 已确认。',
-      t2Title: '购物车',
-      t2Text: '您好 [الاسم] 😊\n购物车 #[الطلب]。',
-      t3Title: '物流',
-      t3Text: '您好 [الاسم] 📦\n已发货。',
-      t4Title: '支付',
-      t4Text: '您好 [الاسم] 💳\n链接：[إضافي]'
-    }
+    cats: { newCustomer: '新客户', abandonedCart: '未付款购物车', pendingPayment: '等待付款', shipped: '已发货' },
+    statuses: { active: '活跃', vip: 'VIP', paused: '暂停', banned: '拉黑' },
+    responseStates: { pending: '等待回复', agreed: '达成一致', closed: '关闭' },
+    tpls: { t1Title: '确认', t1Text: '您好 [الاسم] 👋\n订单 #[الطلب] 已确认。', t2Title: '购物车', t2Text: '您好 [الاسم] 😊\n购物车 #[الطلب]。', t3Title: '物流', t3Text: '您好 [الاسم] 📦\n已发货。', t4Title: '支付', t4Text: '您好 [الاسم] 💳\n链接：[إضافي]' }
   },
   de: {
     back: '← Zurück zum Dashboard',
@@ -637,9 +581,11 @@ const toolTranslations: { [key: string]: any } = {
     importBtn: '📤 Importieren',
     exportBtn: '📥 Exportieren',
     actions: 'Aktionen',
-    backupBox: '💾 Backup',
+    backupBox: '💾 Backup & Cloud-Speicher (JsonBin)',
     downloadBackup: '📥 Backup herunterladen',
     restoreBackup: '♻️ Wiederherstellen',
+    cloudSave: '☁️ In der Cloud speichern',
+    cloudLoad: '🔄 Aus der Cloud laden',
     perfIndicators: 'Live-Indikatoren',
     latestCustomers: 'Neueste Kunden',
     dealSuccessRate: '📊 Abschlussquote',
@@ -672,35 +618,16 @@ const toolTranslations: { [key: string]: any } = {
     successToastTime: '🕒 Kontakt gespeichert',
     successToastBackup: '📦 Backup exportiert',
     successToastRestore: '♻ Wiederhergestellt!',
+    cloudMasterKeyLabel: 'Cloud Master Key',
+    cloudBinIdLabel: 'Cloud Bin ID',
+    cloudSaveSuccess: '☁️️ Daten erfolgreich in der Cloud gespeichert!',
+    cloudLoadSuccess: '🔄 Daten erfolgreich aus der Cloud geladen!',
     errorPhone: '❌ Ungültige Nummer!',
     errorBackup: '❌ Ungültige Datei.',
-    cats: {
-      newCustomer: 'Neukunde',
-      abandonedCart: 'Warenkorb',
-      pendingPayment: 'Zahlung ausstehend',
-      shipped: 'Versendet'
-    },
-    statuses: {
-      active: 'Aktiv',
-      vip: 'VIP',
-      paused: 'Pausiert',
-      banned: 'Gesperrt'
-    },
-    responseStates: {
-      pending: 'Ausstehend',
-      agreed: 'Vereinbart',
-      closed: 'Geschlossen'
-    },
-    tpls: {
-      t1Title: 'Bestätigung',
-      t1Text: 'Hallo [الاسم] 👋\nBestellung #[الطلب] bestätigt.',
-      t2Title: 'Warenkorb',
-      t2Text: 'Hallo [الاسم] 😊\nWarenkorb #[الطلب].',
-      t3Title: 'Versand',
-      t3Text: 'Hallo [الاسم] 📦\nVersendet.',
-      t4Title: 'Zahlung',
-      t4Text: 'Hallo [الاسم] 💳\nLink: [إضافي]'
-    }
+    cats: { newCustomer: 'Neukunde', abandonedCart: 'Warenkorb', pendingPayment: 'Zahlung ausstehend', shipped: 'Versendet' },
+    statuses: { active: 'Aktiv', vip: 'VIP', paused: 'Pausiert', banned: 'Gesperrt' },
+    responseStates: { pending: 'Ausstehend', agreed: 'Vereinbart', closed: 'Geschlossen' },
+    tpls: { t1Title: 'Bestätigung', t1Text: 'Hallo [الاسم] 👋\nBestellung #[الطلب] bestätigt.', t2Title: 'Warenkorb', t2Text: 'Hallo [الاسم] 😊\nWarenkorb #[الطلب].', t3Title: 'Versand', t3Text: 'Hallo [الاسم] 📦\nVersendet.', t4Title: 'Zahlung', t4Text: 'Hallo [الاسم] 💳\nLink: [إضافي]' }
   },
   id: {
     back: '← Kembali ke Dasbor',
@@ -729,9 +656,11 @@ const toolTranslations: { [key: string]: any } = {
     importBtn: '📤 Impor',
     exportBtn: '📥 Ekspor',
     actions: 'Tindakan',
-    backupBox: 'Cadangan Data',
+    backupBox: 'Cadangan Data & Cloud (JsonBin)',
     downloadBackup: 'Unduh Cadangan',
     restoreBackup: 'Pulihkan',
+    cloudSave: '☁️ Simpan ke Cloud',
+    cloudLoad: '🔄 Muat dari Cloud',
     perfIndicators: 'Indikator Kinerja',
     latestCustomers: 'Pelanggan Terbaru',
     dealSuccessRate: 'Tingkat Keberhasilan',
@@ -764,35 +693,16 @@ const toolTranslations: { [key: string]: any } = {
     successToastTime: '🕒 Waktu dicatat',
     successToastBackup: '📦 Dicadangkan',
     successToastRestore: '♻ Dipulihkan!',
+    cloudMasterKeyLabel: 'Cloud Master Key',
+    cloudBinIdLabel: 'Cloud Bin ID',
+    cloudSaveSuccess: '☁️ Data berhasil disimpan ke cloud!',
+    cloudLoadSuccess: '🔄 Data berhasil dimuat dari cloud!',
     errorPhone: '❌ Nomor tidak valid!',
     errorBackup: '❌ File tidak valid.',
-    cats: {
-      newCustomer: 'Pelanggan Baru',
-      abandonedCart: 'Keranjang Terbengkalai',
-      pendingPayment: 'Menunggu Pembayaran',
-      shipped: 'Dikirim'
-    },
-    statuses: {
-      active: 'Aktif',
-      vip: 'VIP',
-      paused: 'Ditunda',
-      banned: 'Diblokir'
-    },
-    responseStates: {
-      pending: 'Menunggu',
-      agreed: 'Sepakat',
-      closed: 'Ditutup'
-    },
-    tpls: {
-      t1Title: 'Konfirmasi',
-      t1Text: 'Halo [الاسم] 👋\nPesanan #[الطلب] dikonfirmasi.',
-      t2Title: 'Keranjang',
-      t2Text: 'Halo [الاسم] 😊\nKeranjang #[الطلب].',
-      t3Title: 'Pengiriman',
-      t3Text: 'Halo [الاسم] 📦\nTelah dikirim.',
-      t4Title: 'Pembayaran',
-      t4Text: 'Halo [الاسم] 💳\nTautan: [إضافي]'
-    }
+    cats: { newCustomer: 'Pelanggan Baru', abandonedCart: 'Keranjang Terbengkalai', pendingPayment: 'Menunggu Pembayaran', shipped: 'Dikirim' },
+    statuses: { active: 'Aktif', vip: 'VIP', paused: 'Ditunda', banned: 'Diblokir' },
+    responseStates: { pending: 'Menunggu', agreed: 'Sepakat', closed: 'Ditutup' },
+    tpls: { t1Title: 'Konfirmasi', t1Text: 'Halo [الاسم] 👋\nPesanan #[الطلب] dikonfirmasi.', t2Title: 'Keranjang', t2Text: 'Halo [الاسم] 😊\nKeranjang #[الطلب].', t3Title: 'Pengiriman', t3Text: 'Halo [الاسم] 📦\nTelah dikirim.', t4Title: 'Pembayaran', t4Text: 'Halo [الاسم] 💳\nTautan: [إضافي]' }
   }
 };
 
@@ -830,6 +740,10 @@ export default function EngaziaWhatsAppCRM() {
   const [newRespColor, setNewRespColor] = useState('#4f46e5');
 
   const [defaultDiscountCode, setDefaultDiscountCode] = useState('ENGAZIA10');
+
+  // إعدادات التخزين السحابي JsonBin
+  const [cloudMasterKey, setCloudMasterKey] = useState('$2a$10$MjUOD019x6uuVhyrdjtfl.CBlGqmIXvW5b/tNrOZU6Ey8P.JOcyu');
+  const [cloudBinId, setCloudBinId] = useState('');
 
   const [messagingMode, setMessagingMode] = useState<'single' | 'broadcast'>('single');
   const [customerName, setCustomerName] = useState('');
@@ -907,6 +821,11 @@ export default function EngaziaWhatsAppCRM() {
       const savedCurr = localStorage.getItem('engazia_global_currency') || 'SAR';
       setCurrentLang(savedLang);
       setCurrentCurrency(savedCurr);
+
+      const savedKey = localStorage.getItem('engazia_cloud_master_key');
+      const savedBin = localStorage.getItem('engazia_cloud_bin_id');
+      if (savedKey) setCloudMasterKey(savedKey);
+      if (savedBin) setCloudBinId(savedBin);
     }
 
     const savedContacts = localStorage.getItem('engazia_whatsapp_pro_crm_v16');
@@ -956,9 +875,81 @@ export default function EngaziaWhatsAppCRM() {
     localStorage.setItem('engazia_whatsapp_response_states_v1', JSON.stringify(updated));
   };
 
+  // وظائف التخزين السحابي عبر JsonBin.io
+  const saveToCloud = async () => {
+    if (!cloudMasterKey.trim()) return showToast('⚠️ أدخل مفتاح Master Key السحابي.');
+    try {
+      showToast('☁️ جاري الحفظ في السحاب...');
+      const payload = { defaultDiscountCode, contacts, categories, statusOptions, responseStateOptions, templates, version: '3.0' };
+      
+      let endpoint = 'https://api.jsonbin.io/v3/b';
+      let method = 'POST';
+      let headers: any = {
+        'Content-Type': 'application/json',
+        'X-Master-Key': cloudMasterKey.trim()
+      };
+
+      if (cloudBinId.trim()) {
+        endpoint = `https://api.jsonbin.io/v3/b/${cloudBinId.trim()}`;
+        method = 'PUT';
+      }
+
+      const res = await fetch(endpoint, {
+        method,
+        headers,
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (res.ok) {
+        const newBinId = data.metadata?.id || data.id || cloudBinId;
+        if (newBinId && !cloudBinId) {
+          setCloudBinId(newBinId);
+          localStorage.setItem('engazia_cloud_bin_id', newBinId);
+        }
+        localStorage.setItem('engazia_cloud_master_key', cloudMasterKey.trim());
+        showToast(t.cloudSaveSuccess);
+      } else {
+        showToast('❌ خطأ في الحفظ السحابي: ' + (data.message || 'تأكد من المفتاح'));
+      }
+    } catch (err) {
+      showToast('❌ حدث خطأ أثناء الاتصال بالخادم السحابي.');
+    }
+  };
+
+  const loadFromCloud = async () => {
+    if (!cloudMasterKey.trim() || !cloudBinId.trim()) return showToast('⚠️ أدخل Master Key و Bin ID لاسترجاع البيانات.');
+    try {
+      showToast('🔄 جاري الاسترجاع من السحاب...');
+      const res = await fetch(`https://api.jsonbin.io/v3/b/${cloudBinId.trim()}/latest`, {
+        method: 'GET',
+        headers: {
+          'X-Master-Key': cloudMasterKey.trim()
+        }
+      });
+      const data = await res.json();
+      if (res.ok && data.record) {
+        const rec = data.record;
+        if (rec.contacts) { setContacts(rec.contacts); localStorage.setItem('engazia_whatsapp_pro_crm_v16', JSON.stringify(rec.contacts)); }
+        if (rec.categories) { setCategories(rec.categories); localStorage.setItem('engazia_whatsapp_categories_v2', JSON.stringify(rec.categories)); }
+        if (rec.statusOptions) { setStatusOptions(rec.statusOptions); localStorage.setItem('engazia_whatsapp_statuses_v1', JSON.stringify(rec.statusOptions)); }
+        if (rec.responseStateOptions) { setResponseStateOptions(rec.responseStateOptions); localStorage.setItem('engazia_whatsapp_response_states_v1', JSON.stringify(rec.responseStateOptions)); }
+        if (rec.templates) { setTemplates(rec.templates); localStorage.setItem('engazia_templates_v2', JSON.stringify(rec.templates)); }
+        if (rec.defaultDiscountCode) { setDefaultDiscountCode(rec.defaultDiscountCode); localStorage.setItem('engazia_default_discount', rec.defaultDiscountCode); }
+        
+        localStorage.setItem('engazia_cloud_master_key', cloudMasterKey.trim());
+        localStorage.setItem('engazia_cloud_bin_id', cloudBinId.trim());
+        showToast(t.cloudLoadSuccess);
+      } else {
+        showToast('❌ تعذر العثور على البيانات في الحاوية المحددة.');
+      }
+    } catch (err) {
+      showToast('❌ حدث خطأ أثناء جلب البيانات من السحاب.');
+    }
+  };
+
   const exportBackupJSON = () => {
     const backupData = {
-      defaultDiscountCode, contacts, categories, statusOptions, responseStateOptions, templates, version: '2.9'
+      defaultDiscountCode, contacts, categories, statusOptions, responseStateOptions, templates, version: '3.0'
     };
     const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -1840,10 +1831,25 @@ export default function EngaziaWhatsAppCRM() {
               </div>
             </div>
 
+            {/* قسم التخزين السحابي الجديد متوافق مع JsonBin.io */}
             <div className="section-box" style={{ background: '#f0fdf4', borderColor: '#bbf7d0' }}>
               <div className="section-title" style={{ color: '#166534' }}>{t.backupBox}</div>
+              
+              <div className="form-grid" style={{ marginBottom: '15px' }}>
+                <div className="form-group">
+                  <label>{t.cloudMasterKeyLabel}</label>
+                  <input type="text" className="form-control input-ltr" value={cloudMasterKey} onChange={e => setCloudMasterKey(e.target.value)} placeholder="$2a$10$..." />
+                </div>
+                <div className="form-group">
+                  <label>{t.cloudBinIdLabel}</label>
+                  <input type="text" className="form-control input-ltr" value={cloudBinId} onChange={e => setCloudBinId(e.target.value)} placeholder="Bin ID (e.g. 65f...)" />
+                </div>
+              </div>
+
               <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
-                <button className="btn-main" style={{ background: '#10b981' }} onClick={exportBackupJSON}>{t.downloadBackup}</button>
+                <button className="btn-main" style={{ background: '#10b981' }} onClick={saveToCloud}>{t.cloudSave}</button>
+                <button className="btn-main" style={{ background: '#0284c7' }} onClick={loadFromCloud}>{t.cloudLoad}</button>
+                <button className="btn-main" style={{ background: '#4f46e5' }} onClick={exportBackupJSON}>{t.downloadBackup}</button>
                 <button className="btn-main" style={{ background: '#fff', color: '#166534', border: '1px solid #bbf7d0' }} onClick={() => restoreFileRef.current?.click()}>{t.restoreBackup}</button>
                 <input type="file" ref={restoreFileRef} onChange={importBackupJSON} accept=".json" style={{ display: 'none' }} />
               </div>
