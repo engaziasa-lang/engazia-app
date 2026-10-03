@@ -13,11 +13,11 @@ interface WhatsAppClientItem {
 }
 
 export default function WhatsAppCrmManagerSA() {
-  const [clientName, setClientName] = useState<string>('سارة الشمري');
-  const [phoneNumber, setPhoneNumber] = useState<string>('0501234567');
+  const [clientName, setClientName] = useState<string>('');
+  const [phoneNumber, setPhoneNumber] = useState<string>('');
   const [orderStatus, setOrderStatus] = useState<string>('سلة متروكة (Abandoned Cart)');
-  const [orderValue, setOrderValue] = useState<number | ''>(320);
-  const [notes, setNotes] = useState<string>('لم تكمل الدفع عند بوابات الدفع');
+  const [orderValue, setOrderValue] = useState<number | ''>('');
+  const [notes, setNotes] = useState<string>('');
 
   const [items, setItems] = useState<WhatsAppClientItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -49,7 +49,7 @@ export default function WhatsAppCrmManagerSA() {
 
   const defaultMsg = `أهلاً بك يا أستاذ/ة ${clientName || 'عزيزنا العميل'} 👋\nلاحظنا عدم إتمامك للطلب في متجرنا بقيمة ${orderValue || 0} ر.س. هل تواجه مشكلة في الدفع أو تحتاج مساعدة؟ تفضل وهذا رابط مباشر لإتمام طلبك بكل سهولة ✨`;
   const encodedMsg = encodeURIComponent(defaultMsg);
-  const whatsappDirectUrl = `https://wa.me/${cleanPhone}?text=${encodedMsg}`;
+  const whatsappDirectUrl = cleanPhone ? `https://wa.me/${cleanPhone}?text=${encodedMsg}` : '#';
 
   const handleClearForm = () => {
     setClientName('');
@@ -188,7 +188,6 @@ export default function WhatsAppCrmManagerSA() {
         .input-wrapper input, .input-wrapper select, .input-wrapper textarea { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 15px; font-family: 'Tajawal', sans-serif; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; }
         .input-wrapper input:focus, .input-wrapper select:focus, .input-wrapper textarea:focus { border-color: #25d366; background: #ffffff; }
         .input-wrapper textarea { height: 80px; resize: vertical; }
-        .currency-tag { position: absolute; left: 14px; color: #64748b; font-weight: 800; font-size: 13px; pointer-events: none; }
         
         .action-btn { background: #25d366; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: 'Tajawal', sans-serif; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .action-btn:hover { background: #20ba5a; }
@@ -237,14 +236,14 @@ export default function WhatsAppCrmManagerSA() {
             <div className="input-group">
               <label>اسم العميل</label>
               <div className="input-wrapper">
-                <input type="text" value={clientName} onChange={(e) => setClientName(e.target.value)} placeholder="مثال: سارة الشمري" required />
+                <input type="text" value={clientName} onChange={(e) => setClientName(e.target.value)} placeholder="مثال: أحمد العتيبي" required />
               </div>
             </div>
 
             <div className="input-group">
               <label>رقم الجوال (يبدأ بـ 05 أو 966)</label>
               <div className="input-wrapper">
-                <input type="text" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} placeholder="0501234567" required />
+                <input type="text" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} placeholder="05xxxxxxxx" required />
               </div>
             </div>
 
@@ -263,8 +262,7 @@ export default function WhatsAppCrmManagerSA() {
             <div className="input-group">
               <label>قيمة السلة أو الطلب (ر.س)</label>
               <div className="input-wrapper">
-                <input type="number" min="0" value={orderValue === '' ? '' : orderValue} onChange={(e) => setOrderValue(e.target.value === '' ? '' : Number(e.target.value))} placeholder="320" />
-                <span className="currency-tag">ر.س</span>
+                <input type="number" min="0" value={orderValue === '' ? '' : orderValue} onChange={(e) => setOrderValue(e.target.value === '' ? '' : Number(e.target.value))} placeholder="0.00" />
               </div>
             </div>
 
@@ -291,7 +289,7 @@ export default function WhatsAppCrmManagerSA() {
               {defaultMsg}
             </div>
 
-            <a href={whatsappDirectUrl} target="_blank" rel="noopener noreferrer">
+            <a href={whatsappDirectUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => { if (!cleanPhone) { e.preventDefault(); alert('الرجاء إدخال رقم جوال صحيح أولاً.'); } }}>
               <button type="button" className="action-btn" style={{ width: '100%', marginTop: '0' }}>
                 🚀 فتح محادثة واتساب فوراً
               </button>
