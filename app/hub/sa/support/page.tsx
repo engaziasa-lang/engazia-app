@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import Link from 'next/link5'; // تم التصحيح إلى رابط عادي لتجنب أي أخطاء في الروابط
+import Link from 'next/link';
 
 export default function CustomerSupportTemplatesSA() {
   const [selectedCategory, setSelectedCategory] = useState<'shipping' | 'payment' | 'exchange' | 'greeting'>('shipping');
