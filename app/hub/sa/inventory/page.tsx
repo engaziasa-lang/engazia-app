@@ -1,47 +1,160 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 
-export default function InventoryPlannerSA() {
-  const [currentStock, setCurrentStock] = useState<number>(500); // المخزون الحالي المتوفر
-  const [dailySalesNormal, setDailySalesNormal] = useState<number>(15); // متوسط المبيعات اليومية في الأيام العادية
-  const [seasonMultiplier, setSeasonMultiplier] = useState<number>(3.0); // مضاعف الطلب في الموسم (مثلاً 3 أضعاف المعتاد)
-  const [seasonDays, setSeasonDays] = useState<number>(10); // عدد أيام الموسم (مثل ذروة العشر الأواخر أو اليوم الوطني)
-  const [supplierLeadTimeDays, setSupplierLeadTimeDays] = useState<number>(14); // مدة توريد الشحنة الجديدة من المورد (بالأيام)
+interface InventoryItem {
+  id: string;
+  productName: string;
+  seasonName: string;
+  currentStock: number;
+  expectedDemand: number;
+  leadTimeDays: number;
+  recommendedOrder: number;
+}
 
-  const [results, setResults] = useState({
-    projectedSeasonDemand: 0,
-    requiredStockToOrder: 0,
-    daysUntilStockout: 0,
-    isAtRisk: false,
-  });
+export default function InventoryPlannerSA() {
+  const [productName, setProductName] = useState<string>('');
+  const [seasonName, setSeasonName] = useState<string>('موسم رمضان والعيد');
+  const [currentStock, setCurrentStock] = useState<number | ''>('');
+  const [expectedDemand, setExpectedDemand] = useState<number | ''>('');
+  const [leadTimeDays, setLeadTimeDays] = useState<number | ''>(14);
+
+  const [items, setItems] = useState<InventoryItem[]>([]);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [editingId, setEditingId] = useState<string | null>(null);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    // 1. الطلب المتوقع خلال أيام الموسم (مبيعات الموسم المتوقعة)
-    const projectedSeasonDemand = Math.round(dailySalesNormal * seasonMultiplier * seasonDays);
+    const saved = localStorage.getItem('seerk_inventory_planner_items');
+    if (saved) {
+      try { setItems(JSON.parse(saved)); } catch (e) { }
+    }
+  }, []);
 
-    // 2. المبيعات المتوقعة خلال فترة وصول الشحنة من المورد (Lead Time)
-    const demandDuringLeadTime = dailySalesNormal * supplierLeadTimeDays;
+  const saveToLocalStorage = (newItems: InventoryItem[]) => {
+    setItems(newItems);
+    localStorage.setItem('seerk_inventory_planner_items', JSON.stringify(newItems));
+  };
 
-    // 3. الكمية المطلوبة للطلب من المورد لتغطية الموسم مع أمان المخزون
-    // (الطلب المتوقع للموسم + الاستهلاك أثناء الانتظار) - المخزون الحالي
-    const totalNeeded = projectedSeasonDemand + demandDuringLeadTime;
-    const requiredStockToOrder = Math.max(0, totalNeeded - currentStock);
+  const isActivated = typeof window !== 'undefined' && !!localStorage.getItem('merchant_license_key');
 
-    // 4. متى سينفذ المخزون الحالي بالأسعار العادية؟
-    const daysUntilStockout = dailySalesNormal > 0 ? Math.floor(currentStock / dailySalesNormal) : 0;
+  const stock = typeof currentStock === 'number' ? currentStock : 0;
+  const demand = typeof expectedDemand === 'number' ? expectedDemand : 0;
+  const lt = typeof leadTimeDays === 'number' ? leadTimeDays : 0;
 
-    // هل المخزون الحالي في خطر النفاذ قبل انتهاء الموسم؟
-    const isAtRisk = currentStock < (demandDuringLeadTime + (dailySalesNormal * seasonDays));
+  // الحسابات الفعلية: الكمية الموصى بطلبها = الطلب المتوقع خلال الموسم + احتياطي الأمان لفترة التوريد ناقص المخزون الحالي
+  const safetyStock = Math.ceil((demand / 30) * lt * 0.2);
+  const recommendedOrder = Math.max(0, (demand + safetyStock) - stock);
 
-    setResults({
-      projectedSeasonDemand,
-      requiredStockToOrder,
-      daysUntilStockout,
-      isAtRisk,
+  const handleClearForm = () => {
+    setProductName('');
+    setSeasonName('موسم رمضان والعيد');
+    setCurrentStock('');
+    setExpectedDemand('');
+    setLeadTimeDays(14);
+    setEditingId(null);
+  };
+
+  const handleSaveItem = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!isActivated && items.length >= 3 && !editingId) {
+      alert('🔒 عذراً، لقد استهلكت الحد التجريبي (3 خطط). يرجى ترقية حسابك لفتح السعة الكاملة بلا حدود!');
+      return;
+    }
+    if (!productName.trim() || demand <= 0) {
+      alert('الرجاء إدخال اسم المنتج والطلب المتوقع.');
+      return;
+    }
+
+    if (editingId) {
+      const updated = items.map(item => item.id === editingId ? {
+        ...item,
+        productName,
+        seasonName,
+        currentStock: stock,
+        expectedDemand: demand,
+        leadTimeDays: lt,
+        recommendedOrder,
+      } : item);
+      saveToLocalStorage(updated);
+      setEditingId(null);
+      alert('✨ تم تحديث خطة المخزون بنجاح!');
+    } else {
+      const newItem: InventoryItem = {
+        id: Date.now().toString(),
+        productName,
+        seasonName,
+        currentStock: stock,
+        expectedDemand: demand,
+        leadTimeDays: lt,
+        recommendedOrder,
+      };
+      saveToLocalStorage([...items, newItem]);
+      alert('✅ تمت إضافة خطة المخزون إلى السجل بنجاح!');
+    }
+
+    handleClearForm();
+  };
+
+  const handleEdit = (item: InventoryItem) => {
+    setProductName(item.productName);
+    setSeasonName(item.seasonName);
+    setCurrentStock(item.currentStock);
+    setExpectedDemand(item.expectedDemand);
+    setLeadTimeDays(item.leadTimeDays);
+    setEditingId(item.id);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleDelete = (id: string) => {
+    if (confirm('هل أنت متأكد من حذف هذه الخطة من السجل؟')) {
+      const filtered = items.filter(i => i.id !== id);
+      saveToLocalStorage(filtered);
+    }
+  };
+
+  const handleExportCsv = () => {
+    if (items.length === 0) {
+      alert('لا توجد بيانات لتصديرها.');
+      return;
+    }
+    let csv = "data:text/csv;charset=utf-8,ID,Product,Season,Stock,Demand,Recommended\n";
+    items.forEach((row, idx) => {
+      csv += `${idx + 1},${row.productName},${row.seasonName},${row.currentStock},${row.expectedDemand},${row.recommendedOrder}\n`;
     });
-  }, [currentStock, dailySalesNormal, seasonMultiplier, seasonDays, supplierLeadTimeDays]);
+    const encodedUri = encodeURI(csv);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "seerk_inventory_planner.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleImportJson = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const reader = new FileReader();
+    if (e.target.files && e.target.files[0]) {
+      reader.readAsText(e.target.files[0], "UTF-8");
+      reader.onload = (event) => {
+        try {
+          const imported = JSON.parse(event.target?.result as string);
+          if (Array.isArray(imported)) {
+            saveToLocalStorage(imported);
+            alert('✨ تم استيراد بيانات المخزون بنجاح!');
+          }
+        } catch (err) {
+          alert('❌ ملف غير صالح.');
+        }
+      };
+    }
+  };
+
+  const filteredItems = items.filter(item => 
+    item.productName.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    item.seasonName.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div className="tool-container">
@@ -50,45 +163,58 @@ export default function InventoryPlannerSA() {
         a { text-decoration: none; }
       `}</style>
       <style jsx>{`
-        .tool-container { direction: rtl; max-width: 1000px; margin: 40px auto; padding: 20px; }
+        .tool-container { direction: rtl; max-width: 1100px; margin: 40px auto; padding: 20px; }
         
-        .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; }
+        .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; }
         .back-btn { background: #ffffff; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 8px; color: #475569; font-weight: 700; font-size: 14px; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
         .back-btn:hover { background: #f1f5f9; color: #0f172a; }
         
         .title-box h1 { font-size: 24px; font-weight: 900; color: #0f172a; margin: 0 0 5px 0; }
         .title-box p { color: #64748b; margin: 0; font-size: 14px; }
         
-        .grid-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        .grid-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 40px; }
         @media(max-width: 768px) { .grid-layout { grid-template-columns: 1fr; } }
         
         .card { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
-        .card-title { font-size: 18px; font-weight: 800; color: #1e293b; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; }
+        .card-title { font-size: 18px; font-weight: 800; color: #1e293b; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
         
+        .clear-form-btn { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: 'Tajawal', sans-serif; display: flex; align-items: center; gap: 5px; }
+        .clear-form-btn:hover { background: #fecaca; }
+
         .input-group { margin-bottom: 15px; }
         .input-group label { display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 6px; }
-        .input-wrapper input { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 15px; font-family: 'Tajawal', sans-serif; outline: none; transition: border 0.2s; background: #f8fafc; color: #0f172a; font-weight: 600; }
-        .input-wrapper input:focus { border-color: #047857; background: #ffffff; }
+        .input-wrapper { position: relative; display: flex; align-items: center; }
+        .input-wrapper input, .input-wrapper select { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 15px; font-family: 'Tajawal', sans-serif; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; }
+        .input-wrapper input:focus, .input-wrapper select:focus { border-color: #047857; background: #ffffff; }
         
+        .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: 'Tajawal', sans-serif; margin-top: 10px; }
+        .action-btn:hover { background: #065f46; }
+
         .result-box { background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; }
         .result-box.primary { background: linear-gradient(135deg, #047857 0%, #065f46 100%); color: #fff; border: none; padding: 20px; }
-        .result-box.danger { background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); color: #fff; border: none; padding: 20px; }
-        
         .result-label { font-size: 13px; font-weight: 700; color: #64748b; }
-        .primary .result-label, .danger .result-label { color: #ffffff; opacity: 0.9; }
-        
+        .primary .result-label { color: #ffffff; opacity: 0.9; }
         .result-value { font-size: 18px; font-weight: 900; color: #0f172a; }
-        .primary .result-value, .danger .result-value { font-size: 24px; color: #ffffff; }
+        .primary .result-value { font-size: 26px; color: #ffffff; }
+
+        .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
+        .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
+        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: 'Tajawal', sans-serif; font-size: 13px; outline: none; width: 250px; }
+        .table-btns { display: flex; gap: 10px; }
+        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: 'Tajawal', sans-serif; }
+        .t-btn:hover { background: #f1f5f9; }
+
+        .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+        .data-table th { background: #f8fafc; padding: 12px; text-align: right; border-bottom: 2px solid #cbd5e1; font-weight: 800; color: #334155; }
+        .data-table td { padding: 12px; border-bottom: 1px solid #e2e8f0; color: #0f172a; font-weight: 600; }
         
-        .status-badge { display: inline-block; padding: 6px 12px; border-radius: 6px; font-weight: 800; font-size: 13px; margin-bottom: 15px; }
-        .status-badge.success { background: #dcfce7; color: #166534; }
-        .status-badge.fail { background: #fee2e2; color: #991b1b; }
+        .trial-badge { background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 800; }
       `}</style>
 
       <div className="header">
         <div className="title-box">
           <h1>مخطط المخزون للمواسم السعودية 📅</h1>
-          <p>توقع كميات البضاعة المطلوبة لمواسم (رمضان، اليوم الوطني، العيد) بدقة وتجنب نفاذ المخزون</p>
+          <p>توقع الكميات المطلوبة لمواسم (رمضان، العيد، اليوم الوطني) لتجنب نفاذ الكمية وضياع المبيعات</p>
         </div>
         <Link href="/hub/sa" className="back-btn">
           <span>←</span> عودة للمنصة
@@ -98,76 +224,147 @@ export default function InventoryPlannerSA() {
       <div className="grid-layout">
         {/* قسم المدخلات */}
         <div className="card">
-          <h2 className="card-title">معطيات المخزون والموسم</h2>
-          
-          <div className="input-group">
-            <label>المخزون الحالي المتوفر (قطعة)</label>
-            <div className="input-wrapper">
-              <input type="number" min="0" value={currentStock || ''} onChange={(e) => setCurrentStock(Number(e.target.value))} />
+          <h2 className="card-title">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <span>{editingId ? 'تعديل الخطة' : 'تخطيط موسم جديد'}</span>
+              <button type="button" className="clear-form-btn" onClick={handleClearForm} title="مسح الحقول">
+                🧹 مسح الحقول
+              </button>
             </div>
-          </div>
+            {!isActivated && <span className="trial-badge">تجريبي: {items.length}/3</span>}
+          </h2>
 
-          <div className="input-group">
-            <label>متوسط المبيعات اليومية في الأيام العادية</label>
-            <div className="input-wrapper">
-              <input type="number" min="0" value={dailySalesNormal || ''} onChange={(e) => setDailySalesNormal(Number(e.target.value))} />
+          <form onSubmit={handleSaveItem}>
+            <div className="input-group">
+              <label>اسم المنتج أو الصنف</label>
+              <div className="input-wrapper">
+                <input type="text" value={productName} onChange={(e) => setProductName(e.target.value)} placeholder="مثال: بوكس عطور العيد" required />
+              </div>
             </div>
-          </div>
 
-          <div className="input-group">
-            <label>مضاعف ارتفاع الطلب في الموسم (Multiplier)</label>
-            <div className="input-wrapper">
-              <input type="number" step="0.5" min="1" value={seasonMultiplier || ''} onChange={(e) => setSeasonMultiplier(Number(e.target.value))} />
+            <div className="input-group">
+              <label>اسم الموسم المستهدف</label>
+              <div className="input-wrapper">
+                <select value={seasonName} onChange={(e) => setSeasonName(e.target.value)}>
+                  <option value="موسم رمضان والعيد">موسم رمضان والعيد</option>
+                  <option value="اليوم الوطني السعودي (23 سبتمبر)">اليوم الوطني السعودي (23 سبتمبر)</option>
+                  <option value="يوم التأسيس (22 فبراير)">يوم التأسيس (22 فبراير)</option>
+                  <option value="موسم العودة للمدارس">موسم العودة للمدارس</option>
+                  <option value="الجمعة البيضاء (تخفيضات نوفمبر)">الجمعة البيضاء (تخفيضات نوفمبر)</option>
+                </select>
+              </div>
             </div>
-          </div>
 
-          <div className="input-group">
-            <label>عدد أيام ذروة الموسم</label>
-            <div className="input-wrapper">
-              <input type="number" min="1" value={seasonDays || ''} onChange={(e) => setSeasonDays(Number(e.target.value))} />
+            <div className="input-group">
+              <label>المخزون الحالي المتوفر (قطعة)</label>
+              <div className="input-wrapper">
+                <input type="number" min="0" value={currentStock === '' ? '' : currentStock} onChange={(e) => setCurrentStock(e.target.value === '' ? '' : Number(e.target.value))} placeholder="100" required />
+              </div>
             </div>
-          </div>
 
-          <div className="input-group">
-            <label>مدة توريد الشحنة الجديدة من المورد (بالأيام)</label>
-            <div className="input-wrapper">
-              <input type="number" min="0" value={supplierLeadTimeDays || ''} onChange={(e) => setSupplierLeadTimeDays(Number(e.target.value))} />
+            <div className="input-group">
+              <label>الطلب أو المبيعات المتوقعة خلال الموسم (قطعة)</label>
+              <div className="input-wrapper">
+                <input type="number" min="0" value={expectedDemand === '' ? '' : expectedDemand} onChange={(e) => setExpectedDemand(e.target.value === '' ? '' : Number(e.target.value))} placeholder="600" required />
+              </div>
             </div>
-          </div>
+
+            <div className="input-group">
+              <label>فترة التوريد من المورد (Lead Time بالأيام)</label>
+              <div className="input-wrapper">
+                <input type="number" min="0" value={leadTimeDays === '' ? '' : leadTimeDays} onChange={(e) => setLeadTimeDays(e.target.value === '' ? '' : Number(e.target.value))} placeholder="14" required />
+              </div>
+            </div>
+
+            <button type="submit" className="action-btn">
+              {editingId ? '💾 حفظ التعديلات' : '+ حفظ الخطة في السجل'}
+            </button>
+          </form>
         </div>
 
-        {/* قسم النتائج والتوصيات */}
+        {/* قسم النتائج الفورية */}
         <div className="card">
-          <h2 className="card-title">تحليل خطة المخزون</h2>
-
-          <div>
-            {!results.isAtRisk ? (
-              <div className="status-badge success">🟢 المخزون مطمئن ويفي بمتطلبات الموسم</div>
-            ) : (
-              <div className="status-badge fail">🔴 تحذير: خطر نفاذ البضاعة أثناء الموسم!</div>
-            )}
-          </div>
+          <h2 className="card-title">توصية المخزون الفورية</h2>
 
           <div className="result-box primary">
             <div>
-              <div className="result-label">الكمية المطلوبة للطلب من المورد فوراً</div>
-              <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '2px' }}>لتغطية طلبات الموسم بدون انقطاع</div>
+              <div className="result-label">الكمية الموصى بطلبها وتوريدها للموسم</div>
+              <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '2px' }}>الطلب المتوقع + احتياطي الأمان - المخزون الحالي</div>
             </div>
             <div className="result-value">
-              {results.requiredStockToOrder} قطعة
+              {recommendedOrder} قطعة
             </div>
           </div>
 
           <div className="result-box">
-            <span className="result-label">المبيعات المتوقعة خلال أيام الموسم</span>
-            <span className="result-value" style={{ color: '#047857' }}>{results.projectedSeasonDemand} قطعة</span>
+            <span className="result-label">مخزون الأمان المقترح لفترة التوريد</span>
+            <span className="result-value" style={{ color: '#047857' }}>{safetyStock} قطعة</span>
           </div>
 
           <div className="result-box">
-            <span className="result-label">عدد الأيام حتى نفاذ المخزون الحالي (بالمعدل العادي)</span>
-            <span className="result-value">{results.daysUntilStockout} يوم</span>
+            <span className="result-label">إجمالي الاحتياج الكلي للموسم</span>
+            <span className="result-value">{demand + safetyStock} قطعة</span>
           </div>
+        </div>
+      </div>
 
+      {/* جدول إدارة السجلات السفلي */}
+      <div className="table-section">
+        <div className="table-toolbar">
+          <input 
+            type="text" 
+            className="search-input" 
+            placeholder="🔍 بحث باسم المنتج أو الموسم..." 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          <div className="table-btns">
+            <button className="t-btn" onClick={handleExportCsv}>📥 تصدير CSV</button>
+            <button className="t-btn" onClick={() => fileInputRef.current?.click()}>📂 استيراد</button>
+            <input type="file" ref={fileInputRef} onChange={handleImportJson} accept=".json" style={{ display: 'none' }} />
+          </div>
+        </div>
+
+        <div style={{ overflowX: 'auto' }}>
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>اسم المنتج</th>
+                <th>الموسم</th>
+                <th>المخزون الحالي</th>
+                <th>الطلب المتوقع</th>
+                <th>الكمية الموصى بطلبها</th>
+                <th>الإجراءات</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredItems.length === 0 ? (
+                <tr>
+                  <td colSpan={7} style={{ textAlign: 'center', color: '#94a3b8', padding: '30px 0' }}>
+                    لا توجد خطط مخزون مسجلة حالياً.
+                  </td>
+                </tr>
+              ) : (
+                filteredItems.map((item, idx) => (
+                  <tr key={item.id}>
+                    <td>{idx + 1}</td>
+                    <td style={{ fontWeight: 800 }}>{item.productName}</td>
+                    <td>{item.seasonName}</td>
+                    <td>{item.currentStock} قطعه</td>
+                    <td>{item.expectedDemand} قطعه</td>
+                    <td style={{ color: '#047857', fontWeight: 900 }}>{item.recommendedOrder} قطعة</td>
+                    <td>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button onClick={() => handleEdit(item)} style={{ background: '#e0f2fe', color: '#0369a1', border: 'none', padding: '5px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 800, cursor: 'pointer' }}>تعديل</button>
+                        <button onClick={() => handleDelete(item.id)} style={{ background: '#fee2e2', color: '#991b1b', border: 'none', padding: '5px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 800, cursor: 'pointer' }}>حذف</button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
