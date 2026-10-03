@@ -50,6 +50,7 @@ interface ResponseStateConfig {
 
 interface Template {
   id: number;
+  icon: string;
   titleKey: string;
   fallbackTitle: string;
   textKey: string;
@@ -139,13 +140,13 @@ const toolTranslations: { [key: string]: any } = {
       closed: 'أغلق الطلب'
     },
     tpls: {
-      t1Title: '✅ تأكيد الطلب',
+      t1Title: 'تأكيد الطلب',
       t1Text: 'مرحباً بك يا [الاسم] 👋\nتم تأكيد طلبك رقم ([الطلب]) بنجاح، ونعمل حالياً على تجهيزه وشحنه لك. شكراً لثقتك بمتجرنا 💙',
-      t2Title: '🛒 سلة متروكة',
+      t2Title: 'سلة متروكة',
       t2Text: 'أهلاً بك يا [الاسم] 😊\nلاحظنا عدم إتمام طلبك رقم ([الطلب]). هل تواجه مشكلة في الدفع؟ نحن هنا لمساعدتك.',
-      t3Title: '📦 تتبع الشحنة',
+      t3Title: 'تتبع الشحنة',
       t3Text: 'مرحباً [الاسم] 📦\nتم تسليم طلبك رقم ([الطلب]) لشركة الشحن، وسيصلك قريباً.',
-      t4Title: '💳 رابط الدفع',
+      t4Title: 'رابط الدفع',
       t4Text: 'مرحباً بك يا [الاسم] 💳\nلتسهيل إتمام طلبك، يسعدنا تزويدك برابط الدفع السريع: [إضافي]'
     }
   },
@@ -231,13 +232,13 @@ const toolTranslations: { [key: string]: any } = {
       closed: 'Order Closed'
     },
     tpls: {
-      t1Title: '✅ Order Confirmation',
+      t1Title: 'Order Confirmation',
       t1Text: 'Hello [الاسم] 👋\nYour order #[الطلب] has been successfully confirmed and is being processed. Thank you!',
-      t2Title: '🛒 Abandoned Cart',
+      t2Title: 'Abandoned Cart',
       t2Text: 'Hi [الاسم] 😊\nWe noticed you left items in cart #[الطلب]. Need any help with checkout?',
-      t3Title: '📦 Shipping Tracker',
+      t3Title: 'Shipping Tracker',
       t3Text: 'Hello [الاسم] 📦\nYour order #[الطلب] has been shipped and will arrive soon.',
-      t4Title: '💳 Payment Link',
+      t4Title: 'Payment Link',
       t4Text: 'Hello [الاسم] 💳\nHere is your quick payment link to complete order #[الطلب]: [إضافي]'
     }
   },
@@ -323,13 +324,13 @@ const toolTranslations: { [key: string]: any } = {
       closed: 'Fermé'
     },
     tpls: {
-      t1Title: '✅ Confirmation',
+      t1Title: 'Confirmation',
       t1Text: 'Bonjour [الاسم] 👋\nVotre commande #[الطلب] a été confirmée.',
-      t2Title: '🛒 Panier abandonné',
+      t2Title: 'Panier abandonné',
       t2Text: 'Bonjour [الاسم] 😊\nPanier #[الطلب].',
-      t3Title: '📦 Suivi',
+      t3Title: 'Suivi',
       t3Text: 'Bonjour [الاسم] 📦\nCommande #[الطلب] expédiée.',
-      t4Title: '💳 Paiement',
+      t4Title: 'Paiement',
       t4Text: 'Bonjour [الاسم] 💳\nLien : [إضافي]'
     }
   },
@@ -415,13 +416,13 @@ const toolTranslations: { [key: string]: any } = {
       closed: 'Cerrado'
     },
     tpls: {
-      t1Title: '✅ Confirmación',
+      t1Title: 'Confirmación',
       t1Text: 'Hola [الاسم] 👋\nPedido #[الطلب] confirmado.',
-      t2Title: '🛒 Carrito',
+      t2Title: 'Carrito',
       t2Text: 'Hola [الاسم] 😊\nCarrito #[الطلب].',
-      t3Title: '📦 Envío',
+      t3Title: 'Envío',
       t3Text: 'Hola [الاسم] 📦\nEnviado.',
-      t4Title: '💳 Pago',
+      t4Title: 'Pago',
       t4Text: 'Hola [الاسم] 💳\nEnlace: [إضافي]'
     }
   },
@@ -507,13 +508,13 @@ const toolTranslations: { [key: string]: any } = {
       closed: 'Kapatıldı'
     },
     tpls: {
-      t1Title: '✅ Onay',
+      t1Title: 'Onay',
       t1Text: 'Merhaba [الاسم] 👋\nSipariş #[الطلب] onaylandı.',
-      t2Title: '🛒 Sepet',
+      t2Title: 'Sepet',
       t2Text: 'Merhaba [الاسم] 😊\nSepet #[الطلب].',
-      t3Title: '📦 Kargo',
+      t3Title: 'Kargo',
       t3Text: 'Merhaba [الاسم] 📦\nKargoda.',
-      t4Title: '💳 Ödeme',
+      t4Title: 'Ödeme',
       t4Text: 'Merhaba [الاسم] 💳\nLink: [إضافي]'
     }
   },
@@ -526,7 +527,7 @@ const toolTranslations: { [key: string]: any } = {
     tabAnalytics: '📈 高级分析',
     tabCrm: '👥 客户管理',
     tabMessaging: '💬 消息与营销',
-    tabTags: '⚙️️ 设置',
+    tabTags: '⚙ 设置',
     salesTitle: '实际销售总额',
     totalCustomers: '客户总数',
     newCustomerTitle: '➕ 登记新客户',
@@ -599,13 +600,13 @@ const toolTranslations: { [key: string]: any } = {
       closed: '关闭'
     },
     tpls: {
-      t1Title: '✅ 确认',
+      t1Title: '确认',
       t1Text: '您好 [الاسم] 👋\n订单 #[الطلب] 已确认。',
-      t2Title: '🛒 购物车',
+      t2Title: '购物车',
       t2Text: '您好 [الاسم] 😊\n购物车 #[الطلب]。',
-      t3Title: '📦 物流',
+      t3Title: '物流',
       t3Text: '您好 [الاسم] 📦\n已发货。',
-      t4Title: '💳 支付',
+      t4Title: '支付',
       t4Text: '您好 [الاسم] 💳\n链接：[إضافي]'
     }
   },
@@ -691,13 +692,13 @@ const toolTranslations: { [key: string]: any } = {
       closed: 'Geschlossen'
     },
     tpls: {
-      t1Title: '✅ Bestätigung',
+      t1Title: 'Bestätigung',
       t1Text: 'Hallo [الاسم] 👋\nBestellung #[الطلب] bestätigt.',
-      t2Title: '🛒 Warenkorb',
+      t2Title: 'Warenkorb',
       t2Text: 'Hallo [الاسم] 😊\nWarenkorb #[الطلب].',
-      t3Title: '📦 Versand',
+      t3Title: 'Versand',
       t3Text: 'Hallo [الاسم] 📦\nVersendet.',
-      t4Title: '💳 Zahlung',
+      t4Title: 'Zahlung',
       t4Text: 'Hallo [الاسم] 💳\nLink: [إضافي]'
     }
   },
@@ -738,7 +739,7 @@ const toolTranslations: { [key: string]: any } = {
     avgCustomerValue: 'Nilai Pelanggan (LTV)',
     categoryDistribution: 'Distribusi Kategori',
     singleMsgMode: 'Pesan Tunggal',
-    broadcastMsgMode: 'Kampanye',
+    broadcastMsgMode: 'Kampagne',
     targetCustomerData: 'Data Target',
     searchCrmPlaceholder: 'Ketik nama...',
     selectTemplateTitle: 'Pilih Pesan',
@@ -783,13 +784,13 @@ const toolTranslations: { [key: string]: any } = {
       closed: 'Ditutup'
     },
     tpls: {
-      t1Title: '✅ Konfirmasi',
+      t1Title: 'Konfirmasi',
       t1Text: 'Halo [الاسم] 👋\nPesanan #[الطلب] dikonfirmasi.',
-      t2Title: '🛒 Keranjang',
+      t2Title: 'Keranjang',
       t2Text: 'Halo [الاسم] 😊\nKeranjang #[الطلب].',
-      t3Title: '📦 Pengiriman',
+      t3Title: 'Pengiriman',
       t3Text: 'Halo [الاسم] 📦\nTelah dikirim.',
-      t4Title: '💳 Pembayaran',
+      t4Title: 'Pembayaran',
       t4Text: 'Halo [الاسم] 💳\nTautan: [إضافي]'
     }
   }
@@ -891,10 +892,10 @@ export default function EngaziaWhatsAppCRM() {
       }
       if (templates.length === 0) {
         setTemplates([
-          { id: 1, titleKey: 't1Title', fallbackTitle: t.tpls.t1Title, textKey: 't1Text', fallbackText: t.tpls.t1Text },
-          { id: 2, titleKey: 't2Title', fallbackTitle: t.tpls.t2Title, textKey: 't2Text', fallbackText: t.tpls.t2Text },
-          { id: 3, titleKey: 't3Title', fallbackTitle: t.tpls.t3Title, textKey: 't3Text', fallbackText: t.tpls.t3Text },
-          { id: 4, titleKey: 't4Title', fallbackTitle: t.tpls.t4Title, textKey: 't4Text', fallbackText: t.tpls.t4Text }
+          { id: 1, icon: '✅', titleKey: 't1Title', fallbackTitle: t.tpls.t1Title, textKey: 't1Text', fallbackText: t.tpls.t1Text },
+          { id: 2, icon: '🛒', titleKey: 't2Title', fallbackTitle: t.tpls.t2Title, textKey: 't2Text', fallbackText: t.tpls.t2Text },
+          { id: 3, icon: '📦', titleKey: 't3Title', fallbackTitle: t.tpls.t3Title, textKey: 't3Text', fallbackText: t.tpls.t3Text },
+          { id: 4, icon: '💳', titleKey: 't4Title', fallbackTitle: t.tpls.t4Title, textKey: 't4Text', textKey: 't4Text', fallbackText: t.tpls.t4Text }
         ]);
       }
     }
@@ -957,7 +958,7 @@ export default function EngaziaWhatsAppCRM() {
 
   const exportBackupJSON = () => {
     const backupData = {
-      defaultDiscountCode, contacts, categories, statusOptions, responseStateOptions, templates, version: '2.8'
+      defaultDiscountCode, contacts, categories, statusOptions, responseStateOptions, templates, version: '2.9'
     };
     const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -1004,11 +1005,6 @@ export default function EngaziaWhatsAppCRM() {
               .replace(/[۰-۹]/g, (d) => String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d)));
   };
 
-  const isPhoneValid = (phone: string) => {
-    const clean = toEnglishDigits(phone).replace(/\D/g, '');
-    return clean.length >= 7;
-  };
-
   const getCatDisplay = (catNameKey: string, fallback: string) => {
     if (t.cats && t.cats[catNameKey]) return t.cats[catNameKey];
     return fallback;
@@ -1027,7 +1023,7 @@ export default function EngaziaWhatsAppCRM() {
   const getTplDisplay = (tpl: Template) => {
     const title = (t.tpls && t.tpls[tpl.titleKey]) ? t.tpls[tpl.titleKey] : tpl.fallbackTitle;
     const text = (t.tpls && t.tpls[tpl.textKey]) ? t.tpls[tpl.textKey] : tpl.fallbackText;
-    return { title, text };
+    return { title, text, icon: tpl.icon || '💬' };
   };
 
   const updateLastContact = (id: string, customNote?: string) => {
@@ -1729,8 +1725,9 @@ export default function EngaziaWhatsAppCRM() {
                 {templates.map(tpl => {
                   const resolved = getTplDisplay(tpl);
                   return (
-                    <div key={tpl.id} onClick={() => setActiveTemplateId(tpl.id)} style={{ padding: '12px 10px', border: '2px solid #e2e8f0', borderRadius: '12px', cursor: 'pointer', textAlign: 'center', fontWeight: 800, fontSize: '12px', color: activeTemplateId === tpl.id ? '#4f46e5' : '#64748b', background: activeTemplateId === tpl.id ? '#eef2ff' : '#fff' }}>
-                      {resolved.title}
+                    <div key={tpl.id} onClick={() => setActiveTemplateId(tpl.id)} style={{ padding: '14px 10px', border: '2px solid #e2e8f0', borderRadius: '12px', cursor: 'pointer', textAlign: 'center', fontWeight: 800, fontSize: '13px', color: activeTemplateId === tpl.id ? '#4f46e5' : '#64748b', background: activeTemplateId === tpl.id ? '#eef2ff' : '#fff', display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'center' }}>
+                      <span style={{ fontSize: '20px' }}>{resolved.icon}</span>
+                      <span>{resolved.title}</span>
                     </div>
                   );
                 })}
