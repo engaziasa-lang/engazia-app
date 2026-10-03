@@ -119,6 +119,9 @@ const toolTranslations: { [key: string]: any } = {
     cloudLoadSuccess: '🔄 تم استرجاع البيانات من السحاب بنجاح!',
     errorPhone: '❌ رقم الجوال يجب أن يكون صحيحاً!',
     errorBackup: '❌ ملف النسخ الاحتياطي غير صالح.',
+    selectCatPlaceholder: '📁 اختر التصنيف...',
+    selectStatusPlaceholder: '📌 اختر حالة العميل...',
+    selectRespPlaceholder: '💬 اختر حالة الرد...',
     cats: {
       newCustomer: 'عميل جديد',
       abandonedCart: 'سلة متروكة',
@@ -217,6 +220,9 @@ const toolTranslations: { [key: string]: any } = {
     cloudLoadSuccess: '🔄 Data loaded from cloud successfully!',
     errorPhone: '❌ Invalid phone number!',
     errorBackup: '❌ Invalid backup file.',
+    selectCatPlaceholder: '📁 Select Category...',
+    selectStatusPlaceholder: '📌 Select Status...',
+    selectRespPlaceholder: '💬 Select Response State...',
     cats: {
       newCustomer: 'New Customer',
       abandonedCart: 'Abandoned Cart',
@@ -275,7 +281,7 @@ const toolTranslations: { [key: string]: any } = {
     backupBox: '💾 Sauvegarde & Cloud',
     downloadBackup: '📥 Télécharger',
     restoreBackup: '♻ Restaurer',
-    cloudSave: '☁️️ Enregistrer sur le Cloud',
+    cloudSave: '☁️ Enregistrer sur le Cloud',
     cloudLoad: '🔄 Charger depuis le Cloud',
     perfIndicators: 'Indicateurs de performance en direct',
     latestCustomers: 'Derniers clients enregistrés',
@@ -315,6 +321,9 @@ const toolTranslations: { [key: string]: any } = {
     cloudLoadSuccess: '🔄 Données chargées depuis le cloud avec succès !',
     errorPhone: '❌ Numéro invalide !',
     errorBackup: '❌ Fichier invalide.',
+    selectCatPlaceholder: '📁 Sélectionner catégorie...',
+    selectStatusPlaceholder: '📌 Sélectionner statut...',
+    selectRespPlaceholder: '💬 Sélectionner réponse...',
     cats: { newCustomer: 'Nouveau client', abandonedCart: 'Panier abandonné', pendingPayment: 'Paiement en attente', shipped: 'Expédié & Livré' },
     statuses: { active: 'Actif', vip: 'VIP', paused: 'En pause', banned: 'Banni' },
     responseStates: { pending: 'En attente', agreed: 'Accord conclu', closed: 'Fermé' },
@@ -390,6 +399,9 @@ const toolTranslations: { [key: string]: any } = {
     cloudLoadSuccess: '🔄 ¡Datos cargados desde la nube con éxito!',
     errorPhone: '❌ Teléfono inválido',
     errorBackup: '❌ Archivo inválido',
+    selectCatPlaceholder: '📁 Seleccionar categoría...',
+    selectStatusPlaceholder: '📌 Seleccionar estado...',
+    selectRespPlaceholder: '💬 Seleccionar respuesta...',
     cats: { newCustomer: 'Nuevo cliente', abandonedCart: 'Carrito abandonado', pendingPayment: 'Pago pendiente', shipped: 'Enviado' },
     statuses: { active: 'Activo', vip: 'VIP', paused: 'Pausado', banned: 'Bloqueado' },
     responseStates: { pending: 'Pendiente', agreed: 'Acordado', closed: 'Cerrado' },
@@ -465,6 +477,9 @@ const toolTranslations: { [key: string]: any } = {
     cloudLoadSuccess: '🔄 Veriler buluttan başarıyla yüklendi!',
     errorPhone: '❌ Geçersiz telefon!',
     errorBackup: '❌ Geçersiz dosya.',
+    selectCatPlaceholder: '📁 Kategori Seç...',
+    selectStatusPlaceholder: '📌 Durum Seç...',
+    selectRespPlaceholder: '💬 Yanıt Durumu Seç...',
     cats: { newCustomer: 'Yeni Müşteri', abandonedCart: 'Terk Sepet', pendingPayment: 'Ödeme Bekleniyor', shipped: 'Kargolandı' },
     statuses: { active: 'Aktif', vip: 'VIP', paused: 'Duraklatıldı', banned: 'Yasaklı' },
     responseStates: { pending: 'Bekliyor', agreed: 'Anlaşıldı', closed: 'Kapatıldı' },
@@ -540,6 +555,9 @@ const toolTranslations: { [key: string]: any } = {
     cloudLoadSuccess: '🔄 数据从云端加载成功！',
     errorPhone: '❌ 手机号无效！',
     errorBackup: '❌ 备份文件无效。',
+    selectCatPlaceholder: '📁 选择分类...',
+    selectStatusPlaceholder: '📌 选择状态...',
+    selectRespPlaceholder: '💬 选择回复状态...',
     cats: { newCustomer: '新客户', abandonedCart: '未付款购物车', pendingPayment: '等待付款', shipped: '已发货' },
     statuses: { active: '活跃', vip: 'VIP', paused: '暂停', banned: '拉黑' },
     responseStates: { pending: '等待回复', agreed: '达成一致', closed: '关闭' },
@@ -615,6 +633,9 @@ const toolTranslations: { [key: string]: any } = {
     cloudLoadSuccess: '🔄 Daten erfolgreich aus der Cloud geladen!',
     errorPhone: '❌ Ungültige Nummer!',
     errorBackup: '❌ Ungültige Datei.',
+    selectCatPlaceholder: '📁 Kategorie auswählen...',
+    selectStatusPlaceholder: '📌 Status auswählen...',
+    selectRespPlaceholder: '💬 Antwortstatus auswählen...',
     cats: { newCustomer: 'Neukunde', abandonedCart: 'Warenkorb', pendingPayment: 'Zahlung ausstehend', shipped: 'Versendet' },
     statuses: { active: 'Aktiv', vip: 'VIP', paused: 'Pausiert', banned: 'Gesperrt' },
     responseStates: { pending: 'Ausstehend', agreed: 'Vereinbart', closed: 'Geschlossen' },
@@ -663,7 +684,7 @@ const toolTranslations: { [key: string]: any } = {
     targetCustomerData: 'Data Target',
     searchCrmPlaceholder: 'Ketik nama...',
     selectTemplateTitle: 'Pilih Pesan',
-    generateMsgBtn: 'Buat',
+    generateMsgBtn: 'Buات',
     sendWaBtn: 'Kirim via WhatsApp',
     defaultDiscountLabel: 'Kode Diskon',
     customizeStatusTitle: 'Status',
@@ -690,6 +711,9 @@ const toolTranslations: { [key: string]: any } = {
     cloudLoadSuccess: '🔄 Data berhasil dimuat dari cloud!',
     errorPhone: '❌ Nomor tidak valid!',
     errorBackup: '❌ File tidak valid.',
+    selectCatPlaceholder: '📁 Pilih Kategori...',
+    selectStatusPlaceholder: '📌 Pilih Status...',
+    selectRespPlaceholder: '💬 Pilih Status Respon...',
     cats: { newCustomer: 'Pelanggan Baru', abandonedCart: 'Keranjang Terbengkalai', pendingPayment: 'Menunggu Pembayaran', shipped: 'Dikirim' },
     statuses: { active: 'Aktif', vip: 'VIP', paused: 'Ditunda', banned: 'Diblokir' },
     responseStates: { pending: 'Menunggu', agreed: 'Sepakat', closed: 'Ditutup' },
@@ -767,7 +791,6 @@ export default function EngaziaWhatsAppCRM() {
   const t = toolTranslations[currentLang] || toolTranslations.ar;
   const isRtl = currentLang === 'ar';
 
-  // تعريف القوالب بشكل ديناميكي بناءً على قاموس الترجمة الحالي لضمان عدم ظهورها فارغة أبداً
   const templates = [
     { id: 1, icon: '✅', titleKey: 't1Title', textKey: 't1Text' },
     { id: 2, icon: '🛒', titleKey: 't2Title', textKey: 't2Text' },
@@ -870,7 +893,7 @@ export default function EngaziaWhatsAppCRM() {
     if (!cloudMasterKey.trim()) return showToast('⚠️ أدخل مفتاح Master Key السحابي.');
     try {
       showToast('☁️ جاري الحفظ في السحاب...');
-      const payload = { defaultDiscountCode, contacts, categories, statusOptions, responseStateOptions, version: '3.1' };
+      const payload = { defaultDiscountCode, contacts, categories, statusOptions, responseStateOptions, version: '3.2' };
       
       let endpoint = 'https://api.jsonbin.io/v3/b';
       let method = 'POST';
@@ -938,7 +961,7 @@ export default function EngaziaWhatsAppCRM() {
 
   const exportBackupJSON = () => {
     const backupData = {
-      defaultDiscountCode, contacts, categories, statusOptions, responseStateOptions, version: '3.1'
+      defaultDiscountCode, contacts, categories, statusOptions, responseStateOptions, version: '3.2'
     };
     const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -1301,6 +1324,7 @@ export default function EngaziaWhatsAppCRM() {
               <div className="modal-item">
                 <span className="modal-item-label">{t.categoryLabel}</span>
                 <select className="modal-edit-input" value={selectedCustomer.category} onChange={e => updateCustomerField(selectedCustomer.id, 'category', e.target.value)}>
+                  <option value="">{t.selectCatPlaceholder}</option>
                   {categories.map(cat => {
                     const catName = getCatDisplay(cat.nameKey, cat.fallbackName);
                     return <option key={cat.nameKey || cat.fallbackName} value={catName}>{catName}</option>;
@@ -1310,6 +1334,7 @@ export default function EngaziaWhatsAppCRM() {
               <div className="modal-item">
                 <span className="modal-item-label">{t.statusLabel}</span>
                 <select className="modal-edit-input" value={selectedCustomer.status} onChange={e => updateCustomerField(selectedCustomer.id, 'status', e.target.value)}>
+                  <option value="">{t.selectStatusPlaceholder}</option>
                   {statusOptions.map(st => {
                     const stName = getStatusDisplay(st.nameKey, st.fallbackName);
                     return <option key={st.nameKey || st.fallbackName} value={stName}>{stName}</option>;
@@ -1318,7 +1343,8 @@ export default function EngaziaWhatsAppCRM() {
               </div>
               <div className="modal-item">
                 <span className="modal-item-label">{t.responseStateLabel}</span>
-                <select className="modal-edit-input" value={selectedCustomer.responseState} onChange={e => updateCustomerField(selectedCustomer.id, 'responseState', e.target.value)}>
+                <select className="modal-edit-input" value={selectedCustomer.responseState || ''} onChange={e => updateCustomerField(selectedCustomer.id, 'responseState', e.target.value)}>
+                  <option value="">{t.selectRespPlaceholder}</option>
                   {responseStateOptions.map(resp => {
                     const respName = getRespDisplay(resp.nameKey, resp.fallbackName);
                     return <option key={resp.nameKey || resp.fallbackName} value={respName}>{respName}</option>;
@@ -1514,6 +1540,7 @@ export default function EngaziaWhatsAppCRM() {
                   <div className="form-group">
                     <label>{t.categoryLabel}</label>
                     <select className="form-control" value={newCategory} onChange={e => setNewCategory(e.target.value)}>
+                      <option value="">{t.selectCatPlaceholder}</option>
                       {categories.map(cat => {
                         const catName = getCatDisplay(cat.nameKey, cat.fallbackName);
                         return <option key={cat.nameKey || cat.fallbackName} value={catName}>{catName}</option>;
@@ -1523,6 +1550,7 @@ export default function EngaziaWhatsAppCRM() {
                   <div className="form-group">
                     <label>{t.statusLabel}</label>
                     <select className="form-control" value={newStatus} onChange={e => setNewStatus(e.target.value)}>
+                      <option value="">{t.selectStatusPlaceholder}</option>
                       {statusOptions.map(st => {
                         const stName = getStatusDisplay(st.nameKey, st.fallbackName);
                         return <option key={st.nameKey || st.fallbackName} value={stName}>{stName}</option>;
@@ -1532,6 +1560,7 @@ export default function EngaziaWhatsAppCRM() {
                   <div className="form-group">
                     <label>{t.responseStateLabel}</label>
                     <select className="form-control" value={newResponseState} onChange={e => setNewResponseState(e.target.value)}>
+                      <option value="">{t.selectRespPlaceholder}</option>
                       {responseStateOptions.map(resp => {
                         const respName = getRespDisplay(resp.nameKey, resp.fallbackName);
                         return <option key={resp.nameKey || resp.fallbackName} value={respName}>{respName}</option>;
@@ -1599,6 +1628,7 @@ export default function EngaziaWhatsAppCRM() {
                       <td><input type="text" className="cell-input input-ltr" value={c.orderNumber} onChange={e => updateCustomerField(c.id, 'orderNumber', e.target.value)} /></td>
                       <td>
                         <select className="cell-input" value={c.category} onChange={e => updateCustomerField(c.id, 'category', e.target.value)}>
+                          <option value="">{t.selectCatPlaceholder}</option>
                           {categories.map(cat => {
                             const catName = getCatDisplay(cat.nameKey, cat.fallbackName);
                             return <option key={cat.nameKey || cat.fallbackName} value={catName}>{catName}</option>;
@@ -1607,6 +1637,7 @@ export default function EngaziaWhatsAppCRM() {
                       </td>
                       <td>
                         <select className="cell-input" value={c.status} onChange={e => updateCustomerField(c.id, 'status', e.target.value)}>
+                          <option value="">{t.selectStatusPlaceholder}</option>
                           {statusOptions.map(st => {
                             const stName = getStatusDisplay(st.nameKey, st.fallbackName);
                             return <option key={st.nameKey || st.fallbackName} value={stName}>{stName}</option>;
@@ -1614,7 +1645,8 @@ export default function EngaziaWhatsAppCRM() {
                         </select>
                       </td>
                       <td>
-                        <select className="cell-input" value={c.responseState} onChange={e => updateCustomerField(c.id, 'responseState', e.target.value)}>
+                        <select className="cell-input" value={c.responseState || ''} onChange={e => updateCustomerField(c.id, 'responseState', e.target.value)}>
+                          <option value="">{t.selectRespPlaceholder}</option>
                           {responseStateOptions.map(resp => {
                             const respName = getRespDisplay(resp.nameKey, resp.fallbackName);
                             return <option key={resp.nameKey || resp.fallbackName} value={respName}>{respName}</option>;
@@ -1682,6 +1714,7 @@ export default function EngaziaWhatsAppCRM() {
                   <div className="form-group" style={{ maxWidth: '400px' }}>
                     <label>Select Target Category:</label>
                     <select className="form-control" value={broadcastCat} onChange={e => setBroadcastCat(e.target.value)}>
+                      <option value="">{t.selectCatPlaceholder}</option>
                       {categories.map(cat => {
                         const catName = getCatDisplay(cat.nameKey, cat.fallbackName);
                         return <option key={cat.nameKey || cat.fallbackName} value={catName}>{catName} ({contacts.filter(c => c.category === catName).length})</option>;
