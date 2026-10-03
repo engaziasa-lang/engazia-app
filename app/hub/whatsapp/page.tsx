@@ -76,11 +76,9 @@ const toolTranslations: { [key: string]: any } = {
     importBtn: '📤 استيراد CSV',
     exportBtn: '📥 تصدير Excel',
     actions: 'الإجراءات',
-    backupBox: '💾 النسخ الاحتياطي والتخزين السحابي (JsonBin)',
+    backupBox: '💾 النسخ الاحتياطي والملفات المحلية',
     downloadBackup: '📥 تحميل نسخة احتياطية (JSON)',
     restoreBackup: '♻️ استعادة البيانات من ملف',
-    cloudSave: '☁️ حفظ بالسحاب (Cloud Sync)',
-    cloudLoad: '🔄 استرجاع من السحاب',
     perfIndicators: 'مؤشرات الأداء المباشرة',
     latestCustomers: 'أحدث العملاء تسجيلاً',
     dealSuccessRate: '📊 نسبة إتمام الصفقات',
@@ -114,10 +112,6 @@ const toolTranslations: { [key: string]: any } = {
     successToastTime: '🕒 تم تسجيل وقت التواصل والأرشيف بنجاح',
     successToastBackup: '📦 تم تصدير نسخة الاحتياط بنجاح',
     successToastRestore: '♻ تم استعادة النسخة الاحتياطية بنجاح!',
-    cloudMasterKeyLabel: 'مفتاح الماستر السحابي (Master Key)',
-    cloudBinIdLabel: 'معرف الحاوية السحابية (Bin ID)',
-    cloudSaveSuccess: '☁️ تم حفظ البيانات في السحاب بنجاح!',
-    cloudLoadSuccess: '🔄 تم استرجاع البيانات من السحاب بنجاح!',
     errorPhone: '❌ رقم الجوال يجب أن يكون صحيحاً!',
     errorBackup: '❌ ملف النسخ الاحتياطي غير صالح.',
     selectCatPlaceholder: '📁 اختر التصنيف...',
@@ -178,11 +172,9 @@ const toolTranslations: { [key: string]: any } = {
     importBtn: '📤 Import CSV',
     exportBtn: '📥 Export Excel',
     actions: 'Actions',
-    backupBox: '💾 Backup & Cloud Storage (JsonBin)',
+    backupBox: '💾 Local Backup & Files',
     downloadBackup: '📥 Download Backup (JSON)',
-    restoreBackup: '♻️️ Restore Data from File',
-    cloudSave: '☁️ Save to Cloud',
-    cloudLoad: '🔄 Load from Cloud',
+    restoreBackup: '♻ Restore Data from File',
     perfIndicators: 'Live Performance Indicators',
     latestCustomers: 'Latest Registered Customers',
     dealSuccessRate: '📊 Deal Success Rate',
@@ -216,10 +208,6 @@ const toolTranslations: { [key: string]: any } = {
     successToastTime: '🕒 Contact time and archive recorded',
     successToastBackup: '📦 Backup exported successfully',
     successToastRestore: '♻ Backup restored successfully!',
-    cloudMasterKeyLabel: 'Cloud Master Key',
-    cloudBinIdLabel: 'Cloud Bin ID',
-    cloudSaveSuccess: '☁️ Data saved to cloud successfully!',
-    cloudLoadSuccess: '🔄 Data loaded from cloud successfully!',
     errorPhone: '❌ Invalid phone number!',
     errorBackup: '❌ Invalid backup file.',
     selectCatPlaceholder: '📁 Select Category...',
@@ -299,9 +287,6 @@ export default function EngaziaWhatsAppCRM() {
 
   const [defaultDiscountCode, setDefaultDiscountCode] = useState('ENGAZIA10');
 
-  const [cloudMasterKey, setCloudMasterKey] = useState('$2a$10$MjUOD019x6uuVhyrdjtfl.CBlGqmIXvW5b/tNrOZU6Ey8P.JOcyu');
-  const [cloudBinId, setCloudBinId] = useState('');
-
   const [messagingMode, setMessagingMode] = useState<'single' | 'broadcast'>('single');
   const [customerName, setCustomerName] = useState('');
   const [customerCountryCode, setCustomerCountryCode] = useState('+966');
@@ -358,11 +343,6 @@ export default function EngaziaWhatsAppCRM() {
       const savedCurr = localStorage.getItem('engazia_global_currency') || 'SAR';
       setCurrentLang(savedLang);
       setCurrentCurrency(savedCurr);
-
-      const savedKey = localStorage.getItem('engazia_cloud_master_key');
-      const savedBin = localStorage.getItem('engazia_cloud_bin_id');
-      if (savedKey) setCloudMasterKey(savedKey);
-      if (savedBin) setCloudBinId(savedBin);
     }
 
     const savedContacts = localStorage.getItem('engazia_whatsapp_pro_crm_v16');
@@ -407,76 +387,6 @@ export default function EngaziaWhatsAppCRM() {
   const saveResponseStates = (updated: ResponseStateConfig[]) => {
     setResponseStateOptions(updated);
     localStorage.setItem('engazia_whatsapp_response_states_v1', JSON.stringify(updated));
-  };
-
-  const saveToCloud = async () => {
-    if (!cloudMasterKey.trim()) return showToast('⚠️ أدخل مفتاح Master Key السحابي.');
-    try {
-      showToast('☁️ جاري الحفظ في السحاب...');
-      const payload = { defaultDiscountCode, contacts, categories, statusOptions, responseStateOptions, version: '3.8' };
-      
-      let endpoint = 'https://api.jsonbin.io/v3/b';
-      let method = 'POST';
-      let headers: any = {
-        'Content-Type': 'application/json',
-        'X-Master-Key': cloudMasterKey.trim()
-      };
-
-      if (cloudBinId.trim()) {
-        endpoint = `https://api.jsonbin.io/v3/b/${cloudBinId.trim()}`;
-        method = 'PUT';
-      }
-
-      const res = await fetch(endpoint, {
-        method,
-        headers,
-        body: JSON.stringify(payload)
-      });
-      const data = await res.json();
-      if (res.ok) {
-        const newBinId = data.metadata?.id || data.id || cloudBinId;
-        if (newBinId && !cloudBinId) {
-          setCloudBinId(newBinId);
-          localStorage.setItem('engazia_cloud_bin_id', newBinId);
-        }
-        localStorage.setItem('engazia_cloud_master_key', cloudMasterKey.trim());
-        showToast(t.cloudSaveSuccess);
-      } else {
-        showToast('❌ خطأ في الحفظ السحابي: ' + (data.message || 'تأكد من المفتاح'));
-      }
-    } catch (err) {
-      showToast('❌ حدث خطأ أثناء الاتصال بالخادم السحابي.');
-    }
-  };
-
-  const loadFromCloud = async () => {
-    if (!cloudMasterKey.trim() || !cloudBinId.trim()) return showToast('⚠️ أدخل Master Key و Bin ID لاسترجاع البيانات.');
-    try {
-      showToast('🔄 جاري الاسترجاع من السحاب...');
-      const res = await fetch(`https://api.jsonbin.io/v3/b/${cloudBinId.trim()}/latest`, {
-        method: 'GET',
-        headers: {
-          'X-Master-Key': cloudMasterKey.trim()
-        }
-      });
-      const data = await res.json();
-      if (res.ok && data.record) {
-        const rec = data.record;
-        if (rec.contacts) { setContacts(rec.contacts); localStorage.setItem('engazia_whatsapp_pro_crm_v16', JSON.stringify(rec.contacts)); }
-        if (rec.categories) { setCategories(rec.categories); localStorage.setItem('engazia_whatsapp_categories_v2', JSON.stringify(rec.categories)); }
-        if (rec.statusOptions) { setStatusOptions(rec.statusOptions); localStorage.setItem('engazia_whatsapp_statuses_v1', JSON.stringify(rec.statusOptions)); }
-        if (rec.responseStateOptions) { setResponseStateOptions(rec.responseStateOptions); localStorage.setItem('engazia_whatsapp_response_states_v1', JSON.stringify(rec.responseStateOptions)); }
-        if (rec.defaultDiscountCode) { setDefaultDiscountCode(rec.defaultDiscountCode); localStorage.setItem('engazia_default_discount', rec.defaultDiscountCode); }
-        
-        localStorage.setItem('engazia_cloud_master_key', cloudMasterKey.trim());
-        localStorage.setItem('engazia_cloud_bin_id', cloudBinId.trim());
-        showToast(t.cloudLoadSuccess);
-      } else {
-        showToast('❌ تعذر العثور على البيانات في الحاوية المحددة.');
-      }
-    } catch (err) {
-      showToast('❌ حدث خطأ أثناء جلب البيانات من السحاب.');
-    }
   };
 
   const exportBackupJSON = () => {
@@ -569,7 +479,7 @@ export default function EngaziaWhatsAppCRM() {
   };
 
   const addTimelineLogToCustomer = (customerId: string) => {
-    if (!newTimelineNote.trim()) return showToast('⚠️ أدخل نص الملاحظة.');
+    if (!newTimelineNote.trim()) return showToast('⚠️️ أدخل نص الملاحظة.');
     const now = new Date();
     const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
     
@@ -1381,21 +1291,7 @@ export default function EngaziaWhatsAppCRM() {
 
             <div className="section-box" style={{ background: '#f0fdf4', borderColor: '#bbf7d0' }}>
               <div className="section-title" style={{ color: '#166534' }}>{t.backupBox}</div>
-              
-              <div className="form-grid" style={{ marginBottom: '15px' }}>
-                <div className="form-group">
-                  <label>{t.cloudMasterKeyLabel}</label>
-                  <input type="text" className="form-control input-ltr" value={cloudMasterKey} onChange={e => setCloudMasterKey(e.target.value)} placeholder="$2a$10$..." />
-                </div>
-                <div className="form-group">
-                  <label>{t.cloudBinIdLabel}</label>
-                  <input type="text" className="form-control input-ltr" value={cloudBinId} onChange={e => setCloudBinId(e.target.value)} placeholder="Bin ID (e.g. 65f...)" />
-                </div>
-              </div>
-
-              <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
-                <button className="btn-main" style={{ background: '#10b981' }} onClick={saveToCloud}>{t.cloudSave}</button>
-                <button className="btn-main" style={{ background: '#0284c7' }} onClick={loadFromCloud}>{t.cloudLoad}</button>
+              <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap', marginTop: '15px' }}>
                 <button className="btn-main" style={{ background: '#4f46e5' }} onClick={exportBackupJSON}>{t.downloadBackup}</button>
                 <button className="btn-main" style={{ background: '#fff', color: '#166534', border: '1px solid #bbf7d0' }} onClick={() => restoreFileRef.current?.click()}>{t.restoreBackup}</button>
                 <input type="file" ref={restoreFileRef} onChange={importBackupJSON} accept=".json" style={{ display: 'none' }} />
