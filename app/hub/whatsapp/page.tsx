@@ -895,7 +895,7 @@ export default function EngaziaWhatsAppCRM() {
           { id: 1, icon: '✅', titleKey: 't1Title', fallbackTitle: t.tpls.t1Title, textKey: 't1Text', fallbackText: t.tpls.t1Text },
           { id: 2, icon: '🛒', titleKey: 't2Title', fallbackTitle: t.tpls.t2Title, textKey: 't2Text', fallbackText: t.tpls.t2Text },
           { id: 3, icon: '📦', titleKey: 't3Title', fallbackTitle: t.tpls.t3Title, textKey: 't3Text', fallbackText: t.tpls.t3Text },
-          { id: 4, icon: '💳', titleKey: 't4Title', fallbackTitle: t.tpls.t4Title, textKey: 't4Text', textKey: 't4Text', fallbackText: t.tpls.t4Text }
+          { id: 4, icon: '💳', titleKey: 't4Title', fallbackTitle: t.tpls.t4Title, textKey: 't4Text', fallbackText: t.tpls.t4Text }
         ]);
       }
     }
