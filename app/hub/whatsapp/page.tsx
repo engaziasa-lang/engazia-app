@@ -276,12 +276,21 @@ export default function EngaziaWhatsAppCRM() {
   const [newAmount, setNewAmount] = useState('');
   const [newNote, setNewNote] = useState('');
 
-  const [statusOptions, setStatusOptions] = useState<StatusConfig[]>([]);
+  const [statusOptions, setStatusOptions] = useState<StatusConfig[]>([
+    { nameKey: 'active', fallbackName: 'نشط', bg: '#dcfce7', color: '#15803d' },
+    { nameKey: 'vip', fallbackName: 'مميز VIP', bg: '#fef3c7', color: '#d97706' },
+    { nameKey: 'paused', fallbackName: 'متوقف', bg: '#fee2e2', color: '#dc2626' },
+    { nameKey: 'banned', fallbackName: 'محظور', bg: '#f1f5f9', color: '#475569' }
+  ]);
   const [newStatusName, setNewStatusName] = useState('');
   const [newStatusBg, setNewStatusBg] = useState('#e0e7ff');
   const [newStatusColor, setNewStatusColor] = useState('#4f46e5');
 
-  const [responseStateOptions, setResponseStateOptions] = useState<ResponseStateConfig[]>([]);
+  const [responseStateOptions, setResponseStateOptions] = useState<ResponseStateConfig[]>([
+    { nameKey: 'pending', fallbackName: 'بانتظار الرد', bg: '#fef3c7', color: '#d97706' },
+    { nameKey: 'agreed', fallbackName: 'تم الاتفاق', bg: '#dcfce7', color: '#15803d' },
+    { nameKey: 'closed', fallbackName: 'أغلق الطلب', bg: '#fee2e2', color: '#dc2626' }
+  ]);
   const [newRespName, setNewRespName] = useState('');
   const [newRespBg, setNewRespBg] = useState('#e0e7ff');
   const [newRespColor, setNewRespColor] = useState('#4f46e5');
@@ -303,7 +312,12 @@ export default function EngaziaWhatsAppCRM() {
   const [broadcastCat, setBroadcastCat] = useState('');
   const [activeTemplateId, setActiveTemplateId] = useState<number>(1);
 
-  const [categories, setCategories] = useState<TagConfig[]>([]);
+  const [categories, setCategories] = useState<TagConfig[]>([
+    { nameKey: 'newCustomer', fallbackName: 'عميل جديد', bg: '#dbeafe', color: '#1d4ed8', isSale: true },
+    { nameKey: 'abandonedCart', fallbackName: 'سلة متروكة', bg: '#fee2e2', color: '#dc2626', isSale: false },
+    { nameKey: 'pendingPayment', fallbackName: 'بانتظار الدفع', bg: '#fef3c7', color: '#d97706', isSale: false },
+    { nameKey: 'shipped', fallbackName: 'تم الشحن والتوصيل', bg: '#dcfce7', color: '#15803d', isSale: true }
+  ]);
   const [newCatName, setNewCatName] = useState('');
   const [newCatBg, setNewCatBg] = useState('#e0e7ff');
   const [newCatColor, setNewCatColor] = useState('#4f46e5');
@@ -335,34 +349,6 @@ export default function EngaziaWhatsAppCRM() {
     const text = t.tpls && t.tpls[tpl.textKey] ? t.tpls[tpl.textKey] : '';
     return { title, text, icon: tpl.icon };
   };
-
-  useEffect(() => {
-    if (t && t.cats) {
-      if (categories.length === 0) {
-        setCategories([
-          { nameKey: 'newCustomer', fallbackName: t.cats.newCustomer, bg: '#dbeafe', color: '#1d4ed8', isSale: true },
-          { nameKey: 'abandonedCart', fallbackName: t.cats.abandonedCart, bg: '#fee2e2', color: '#dc2626', isSale: false },
-          { nameKey: 'pendingPayment', fallbackName: t.cats.pendingPayment, bg: '#fef3c7', color: '#d97706', isSale: false },
-          { nameKey: 'shipped', fallbackName: t.cats.shipped, bg: '#dcfce7', color: '#15803d', isSale: true }
-        ]);
-      }
-      if (statusOptions.length === 0) {
-        setStatusOptions([
-          { nameKey: 'active', fallbackName: t.statuses.active, bg: '#dcfce7', color: '#15803d' },
-          { nameKey: 'vip', fallbackName: t.statuses.vip, bg: '#fef3c7', color: '#d97706' },
-          { nameKey: 'paused', fallbackName: t.statuses.paused, bg: '#fee2e2', color: '#dc2626' },
-          { nameKey: 'banned', fallbackName: t.statuses.banned, bg: '#f1f5f9', color: '#475569' }
-        ]);
-      }
-      if (responseStateOptions.length === 0) {
-        setResponseStateOptions([
-          { nameKey: 'pending', fallbackName: t.responseStates.pending, bg: '#fef3c7', color: '#d97706' },
-          { nameKey: 'agreed', fallbackName: t.responseStates.agreed, bg: '#dcfce7', color: '#15803d' },
-          { nameKey: 'closed', fallbackName: t.responseStates.closed, bg: '#fee2e2', color: '#dc2626' }
-        ]);
-      }
-    }
-  }, [currentLang]);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -425,7 +411,7 @@ export default function EngaziaWhatsAppCRM() {
     if (!cloudMasterKey.trim()) return showToast('⚠️ أدخل مفتاح Master Key السحابي.');
     try {
       showToast('☁️ جاري الحفظ في السحاب...');
-      const payload = { defaultDiscountCode, contacts, categories, statusOptions, responseStateOptions, version: '3.5' };
+      const payload = { defaultDiscountCode, contacts, categories, statusOptions, responseStateOptions, version: '3.6' };
       
       let endpoint = 'https://api.jsonbin.io/v3/b';
       let method = 'POST';
@@ -493,7 +479,7 @@ export default function EngaziaWhatsAppCRM() {
 
   const exportBackupJSON = () => {
     const backupData = {
-      defaultDiscountCode, contacts, categories, statusOptions, responseStateOptions, version: '3.5'
+      defaultDiscountCode, contacts, categories, statusOptions, responseStateOptions, version: '3.6'
     };
     const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
