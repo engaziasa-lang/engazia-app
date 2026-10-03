@@ -132,6 +132,13 @@ const toolTranslations: { [key: string]: any } = {
     extraVarsLabel: 'متغيرات القوالب المتقدمة:',
     varProductName: 'اسم المنتج',
     varInvoiceAmount: 'قيمة الفاتورة',
+    extraTextLabel: 'نص إضافي / رابط الدفع:',
+    startBroadcastBtn: '🚀 بدء إرسال الحملة الجماعية (الطابور التسلسلي)',
+    reminderBtn: '💬 إرسال تذكير',
+    closeBtn: 'إغلاق',
+    noCustomers: 'لا يوجد عملاء.',
+    noRecords: 'لا توجد سجلات تواصل سابقة.',
+    allFilter: 'الكل',
     cats: {
       newCustomer: 'عميل جديد',
       abandonedCart: 'سلة متروكة',
@@ -243,6 +250,13 @@ const toolTranslations: { [key: string]: any } = {
     extraVarsLabel: 'Advanced Template Variables:',
     varProductName: 'Product Name',
     varInvoiceAmount: 'Invoice Amount',
+    extraTextLabel: 'Extra Text / Payment Link:',
+    startBroadcastBtn: '🚀 Start Broadcast Queue',
+    reminderBtn: '💬 Send Reminder',
+    closeBtn: 'Close',
+    noCustomers: 'No customers.',
+    noRecords: 'No records found.',
+    allFilter: 'All',
     cats: {
       newCustomer: 'New Customer',
       abandonedCart: 'Abandoned Cart',
@@ -354,6 +368,13 @@ const toolTranslations: { [key: string]: any } = {
     extraVarsLabel: 'Variables de Modèle Avancées :',
     varProductName: 'Nom du Produit',
     varInvoiceAmount: 'Montant de la Facture',
+    extraTextLabel: 'Texte supplémentaire / Lien de paiement :',
+    startBroadcastBtn: '🚀 Démarrer la file d’attente de diffusion',
+    reminderBtn: '💬 Envoyer un rappel',
+    closeBtn: 'Fermer',
+    noCustomers: 'Aucun client.',
+    noRecords: 'Aucun enregistrement trouvé.',
+    allFilter: 'Tous',
     cats: {
       newCustomer: 'Nouveau Client',
       abandonedCart: 'Panier Abandonné',
@@ -861,7 +882,7 @@ export default function EngaziaWhatsAppCRM() {
   const handleBroadcastQueueSend = () => {
     const targetList = contacts.filter(c => c.category === broadcastCat);
     if (targetList.length === 0) {
-      showToast('⚠️ No customers found in target segment.');
+      showToast('⚠️️ No customers found in target segment.');
       return;
     }
     const tpl = templates.find(item => item.id === activeTemplateId);
@@ -1042,7 +1063,7 @@ export default function EngaziaWhatsAppCRM() {
                     </div>
                   ))
                 ) : (
-                  <div style={{ fontSize: '12px', color: '#64748b', textAlign: 'center', padding: '10px' }}>No records found.</div>
+                  <div style={{ fontSize: '12px', color: '#64748b', textAlign: 'center', padding: '10px' }}>{t.noRecords}</div>
                 )}
               </div>
               <div style={{ display: 'flex', gap: '10px' }}>
@@ -1054,7 +1075,7 @@ export default function EngaziaWhatsAppCRM() {
             <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
               <button className="btn-wa" style={{ flex: 2 }} onClick={() => openWhatsAppDirect(selectedCustomer.countryCode || '+966', selectedCustomer.phone, 'Hello', selectedCustomer.id)}>{t.sendWaBtn}</button>
               <button className="btn-sm btn-danger" style={{ padding: '0 20px', fontSize: '13px', fontWeight: 800 }} onClick={() => deleteContact(selectedCustomer.id)}>{t.deleteBtn}</button>
-              <button className="btn-main" style={{ flex: 1, background: '#f1f5f9', color: '#1e293b' }} onClick={() => setSelectedCustomer(null)}>Close</button>
+              <button className="btn-main" style={{ flex: 1, background: '#f1f5f9', color: '#1e293b' }} onClick={() => setSelectedCustomer(null)}>{t.closeBtn}</button>
             </div>
           </div>
         </div>
@@ -1138,7 +1159,7 @@ export default function EngaziaWhatsAppCRM() {
                       </tr>
                     );
                   })}
-                  {contacts.length === 0 && <tr><td colSpan={7} style={{textAlign: 'center', padding: '30px', color: '#64748b'}}>No customers.</td></tr>}
+                  {contacts.length === 0 && <tr><td colSpan={7} style={{textAlign: 'center', padding: '30px', color: '#64748b'}}>{t.noCustomers}</td></tr>}
                 </tbody>
               </table>
             </div>
@@ -1152,13 +1173,13 @@ export default function EngaziaWhatsAppCRM() {
               <div className="stat-card" style={{ textAlign: isRtl ? 'right' : 'left', padding: '25px' }}>
                 <div className="stat-title" style={{ marginBottom: '10px' }}>{t.dealSuccessRate}</div>
                 <div className="stat-num" style={{ color: '#10b981', textAlign: isRtl ? 'right' : 'left' }}>
-                  {contacts.length > 0 ? ((contacts.filter(c => c.responseState === getRespDisplay('agreed', 'تم الاتفاق')).length / contacts.length) * 100).toFixed(1) : 0}%
+                  {contacts.length > 0 ? ((contacts.filter(c => c.responseState === getRespDisplay('agreed', 'تم الاتفاق') || c.responseState === getRespDisplay('agreed', 'Deal Agreed') || c.responseState === getRespDisplay('agreed', 'Accord Conclu')).length / contacts.length) * 100).toFixed(1) : 0}%
                 </div>
               </div>
               <div className="stat-card" style={{ textAlign: isRtl ? 'right' : 'left', padding: '25px' }}>
                 <div className="stat-title" style={{ marginBottom: '10px' }}>{t.pendingResponses}</div>
                 <div className="stat-num" style={{ color: '#d97706', textAlign: isRtl ? 'right' : 'left' }}>
-                  {contacts.filter(c => c.responseState === getRespDisplay('pending', 'بانتظار الرد') || !c.responseState).length}
+                  {contacts.filter(c => c.responseState === getRespDisplay('pending', 'بانتظار الرد') || c.responseState === getRespDisplay('pending', 'Pending Response') || c.responseState === getRespDisplay('pending', 'En Attente') || !c.responseState).length}
                 </div>
               </div>
               <div className="stat-card" style={{ textAlign: isRtl ? 'right' : 'left', padding: '25px' }}>
@@ -1258,7 +1279,7 @@ export default function EngaziaWhatsAppCRM() {
               </div>
 
               <div className="filter-chips">
-                <button className={`chip-btn ${filterCategory === 'all' ? 'active' : ''}`} onClick={() => setFilterCategory('all')}>All ({contacts.length})</button>
+                <button className={`chip-btn ${filterCategory === 'all' ? 'active' : ''}`} onClick={() => setFilterCategory('all')}>{t.allFilter} ({contacts.length})</button>
                 {categories.map(cat => {
                   const catName = getCatDisplay(cat.nameKey, cat.fallbackName);
                   return (
@@ -1336,7 +1357,7 @@ export default function EngaziaWhatsAppCRM() {
                       </td>
                     </tr>
                   ))}
-                  {filteredContacts.length === 0 && <tr><td colSpan={10} style={{textAlign: 'center', padding: '30px', color: '#64748b'}}>No customers.</td></tr>}
+                  {filteredContacts.length === 0 && <tr><td colSpan={10} style={{textAlign: 'center', padding: '30px', color: '#64748b'}}>{t.noCustomers}</td></tr>}
                 </tbody>
               </table>
             </div>
@@ -1381,9 +1402,9 @@ export default function EngaziaWhatsAppCRM() {
                 </>
               ) : (
                 <>
-                  <div className="section-title">Broadcast Target Segment</div>
+                  <div className="section-title">{t.broadcastMsgMode}</div>
                   <div className="form-group" style={{ maxWidth: '400px' }}>
-                    <label>Select Target Category:</label>
+                    <label>{t.selectCatPlaceholder}</label>
                     <select className="form-control" value={broadcastCat} onChange={e => setBroadcastCat(e.target.value)}>
                       <option value="">{t.selectCatPlaceholder}</option>
                       {categories.map(cat => {
@@ -1413,17 +1434,17 @@ export default function EngaziaWhatsAppCRM() {
               <div className="form-grid" style={{ marginBottom: '15px' }}>
                 <div className="form-group">
                   <label>{t.varProductName}:</label>
-                  <input type="text" className="form-control" value={productName} onChange={e => setProductName(e.target.value)} placeholder="Product name..." />
+                  <input type="text" className="form-control" value={productName} onChange={e => setProductName(e.target.value)} placeholder="..." />
                 </div>
                 <div className="form-group">
                   <label>{t.varInvoiceAmount}:</label>
-                  <input type="text" className="form-control input-ltr" value={invoiceAmount} onChange={e => setInvoiceAmount(toEnglishDigits(e.target.value))} placeholder="299 SAR" />
+                  <input type="text" className="form-control input-ltr" value={invoiceAmount} onChange={e => setInvoiceAmount(toEnglishDigits(e.target.value))} placeholder="299" />
                 </div>
               </div>
 
               <div style={{ display: 'flex', gap: '15px', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap' }}>
                 <div style={{ flex: 1, minWidth: '220px' }}>
-                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 800, color: '#475569', marginBottom: '6px' }}>Extra Text / Payment Link:</label>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 800, color: '#475569', marginBottom: '6px' }}>{t.extraTextLabel}</label>
                   <input type="text" className="form-control input-ltr" value={extraInfo} onChange={e => setExtraInfo(e.target.value)} placeholder="https://..." />
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', paddingTop: '20px' }}>
@@ -1440,7 +1461,7 @@ export default function EngaziaWhatsAppCRM() {
                   {messagingMode === 'single' ? (
                     <button className="btn-wa" style={{ width: '100%' }} onClick={() => openWhatsAppDirect(customerCountryCode, customerPhone, generatedMsg)}>{t.sendWaBtn}</button>
                   ) : (
-                    <button className="btn-wa" style={{ width: '100%', background: '#4f46e5' }} onClick={handleBroadcastQueueSend}>🚀 Start Broadcast Queue</button>
+                    <button className="btn-wa" style={{ width: '100%', background: '#4f46e5' }} onClick={handleBroadcastQueueSend}>{t.startBroadcastBtn}</button>
                   )}
                 </div>
               )}
@@ -1466,18 +1487,18 @@ export default function EngaziaWhatsAppCRM() {
                     </tr>
                   </thead>
                   <tbody>
-                    {contacts.filter(c => c.category === 'سلة متروكة' || c.category === 'Abandoned Cart' || c.category === 'Panier Abandonné' || !c.responseState || c.responseState.includes('بانتظار') || c.responseState.includes('Pending')).map(c => (
+                    {contacts.filter(c => c.category === 'سلة متروكة' || c.category === 'Abandoned Cart' || c.category === 'Panier Abandonné' || !c.responseState || c.responseState.includes('بانتظار') || c.responseState.includes('Pending') || c.responseState.includes('Attente')).map(c => (
                       <tr key={c.id}>
                         <td><span style={{ fontWeight: 800, color: '#4f46e5', cursor: 'pointer' }} onClick={() => setSelectedCustomer(c)}>{c.name}</span></td>
                         <td><span className="badge" style={{ background: '#fee2e2', color: '#dc2626' }}>{c.category}</span></td>
                         <td style={{ direction: 'ltr', textAlign: 'left' }}>{c.orderNumber}</td>
                         <td style={{ direction: 'ltr', textAlign: 'left', color: '#d97706', fontWeight: 700 }}>{c.lastContactDate || t.neverContacted}</td>
                         <td>
-                          <button className="btn-sm btn-success" onClick={() => routeToMessaging(c)}>💬 Reminder</button>
+                          <button className="btn-sm btn-success" onClick={() => routeToMessaging(c)}>{t.reminderBtn}</button>
                         </td>
                       </tr>
                     ))}
-                    {contacts.filter(c => c.category === 'سلة متروكة' || c.category === 'Abandoned Cart' || c.category === 'Panier Abandonné' || !c.responseState || c.responseState.includes('بانتظار') || c.responseState.includes('Pending')).length === 0 && (
+                    {contacts.filter(c => c.category === 'سلة متروكة' || c.category === 'Abandoned Cart' || c.category === 'Panier Abandonné' || !c.responseState || c.responseState.includes('بانتظار') || c.responseState.includes('Pending') || c.responseState.includes('Attente')).length === 0 && (
                       <tr><td colSpan={5} style={{ textAlign: 'center', padding: '30px', color: '#64748b' }}>{t.noReminders}</td></tr>
                     )}
                   </tbody>
