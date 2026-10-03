@@ -13,6 +13,7 @@ interface TimelineLog {
 interface Customer {
   id: string;
   name: string;
+  countryCode: string;
   phone: string;
   orderNumber: string;
   category: string;
@@ -70,7 +71,8 @@ const toolTranslations: { [key: string]: any } = {
     totalCustomers: 'إجمالي العملاء',
     newCustomerTitle: '➕ تسجيل عميل جديد',
     nameLabel: 'اسم العميل',
-    phoneLabel: 'رقم الجوال (10 أرقام على الأقل)',
+    countryCodeLabel: 'رمز الدولة',
+    phoneLabel: 'رقم الجوال',
     orderNumLabel: 'رقم الطلب (#)',
     categoryLabel: 'التصنيف',
     statusLabel: 'حالة العميل',
@@ -108,6 +110,17 @@ const toolTranslations: { [key: string]: any } = {
     colorLabel: 'اللون',
     addBtn: '➕ إضافة',
     deleteBtn: 'حذف',
+    lastContactHeader: 'آخر تواصل',
+    neverContacted: 'لم يتم',
+    addToArchiveBtn: 'إضافة للأرشيف',
+    newArchivePlaceholder: 'أضف ملاحظة جديدة للأرشيف...',
+    successAdded: '✨ تم إضافة العميل بنجاح!',
+    successToastArchive: '📝 تمت إضافة الملاحظة للأرشيف بنجاح',
+    successToastTime: '🕒 تم تسجيل وقت التواصل والأرشيف بنجاح',
+    successToastBackup: '📦 تم تصدير نسخة الاحتياط بنجاح',
+    successToastRestore: '♻ تم استعادة النسخة الاحتياطية بنجاح!',
+    errorPhone: '❌ رقم الجوال يجب أن يكون صحيحاً!',
+    errorBackup: '❌ ملف النسخ الاحتياطي غير صالح.',
     cats: {
       newCustomer: 'عميل جديد',
       abandonedCart: 'سلة متروكة',
@@ -150,7 +163,8 @@ const toolTranslations: { [key: string]: any } = {
     totalCustomers: 'Total Customers',
     newCustomerTitle: '➕ Register New Customer',
     nameLabel: 'Customer Name',
-    phoneLabel: 'Phone Number (At least 10 digits)',
+    countryCodeLabel: 'Country Code',
+    phoneLabel: 'Phone Number',
     orderNumLabel: 'Order Number (#)',
     categoryLabel: 'Category',
     statusLabel: 'Customer Status',
@@ -188,6 +202,17 @@ const toolTranslations: { [key: string]: any } = {
     colorLabel: 'Color',
     addBtn: '➕ Add',
     deleteBtn: 'Delete',
+    lastContactHeader: 'Last Contact',
+    neverContacted: 'Never',
+    addToArchiveBtn: 'Add to Archive',
+    newArchivePlaceholder: 'Add a new note to archive...',
+    successAdded: '✨ Customer added successfully!',
+    successToastArchive: '📝 Note added to archive successfully',
+    successToastTime: '🕒 Contact time and archive recorded',
+    successToastBackup: '📦 Backup exported successfully',
+    successToastRestore: '♻ Backup restored successfully!',
+    errorPhone: '❌ Invalid phone number!',
+    errorBackup: '❌ Invalid backup file.',
     cats: {
       newCustomer: 'New Customer',
       abandonedCart: 'Abandoned Cart',
@@ -230,6 +255,7 @@ const toolTranslations: { [key: string]: any } = {
     totalCustomers: 'Clients totaux',
     newCustomerTitle: '➕ Ajouter un client',
     nameLabel: 'Nom du client',
+    countryCodeLabel: 'Indicatif',
     phoneLabel: 'Numéro de téléphone',
     orderNumLabel: 'Numéro de commande',
     categoryLabel: 'Catégorie',
@@ -247,7 +273,7 @@ const toolTranslations: { [key: string]: any } = {
     restoreBackup: '♻️ Restaurer',
     perfIndicators: 'Indicateurs de performance en direct',
     latestCustomers: 'Derniers clients enregistrés',
-    dealSuccessRate: '📊 Taux de réussite des transactions',
+    dealSuccessRate: '📊 Taux de réussite',
     pendingResponses: '⏳ Réponses en attente',
     avgCustomerValue: '💰 Valeur à vie du client (LTV)',
     categoryDistribution: '🎯 Distribution des catégories',
@@ -268,6 +294,17 @@ const toolTranslations: { [key: string]: any } = {
     colorLabel: 'Couleur',
     addBtn: '➕ Ajouter',
     deleteBtn: 'Supprimer',
+    lastContactHeader: 'Dernier contact',
+    neverContacted: 'Jamais',
+    addToArchiveBtn: 'Ajouter aux archives',
+    newArchivePlaceholder: 'Ajouter une note...',
+    successAdded: '✨ Client ajouté !',
+    successToastArchive: '📝 Note ajoutée',
+    successToastTime: '🕒 Contact enregistré',
+    successToastBackup: '📦 Sauvegarde exportée',
+    successToastRestore: '♻ Sauvegarde restaurée !',
+    errorPhone: '❌ Numéro invalide !',
+    errorBackup: '❌ Fichier invalide.',
     cats: {
       newCustomer: 'Nouveau client',
       abandonedCart: 'Panier abandonné',
@@ -281,26 +318,26 @@ const toolTranslations: { [key: string]: any } = {
       banned: 'Banni'
     },
     responseStates: {
-      pending: 'En attente de réponse',
+      pending: 'En attente',
       agreed: 'Accord conclu',
-      closed: 'Commande fermée'
+      closed: 'Fermé'
     },
     tpls: {
-      t1Title: '✅ Confirmation de commande',
-      t1Text: 'Bonjour [الاسم] 👋\nVotre commande #[الطلب] a été confirmée avec succès.',
+      t1Title: '✅ Confirmation',
+      t1Text: 'Bonjour [الاسم] 👋\nVotre commande #[الطلب] a été confirmée.',
       t2Title: '🛒 Panier abandonné',
-      t2Text: 'Bonjour [الاسم] 😊\nVous avez laissé des articles dans votre panier #[الطلب].',
-      t3Title: '📦 Suivi d\'expédition',
-      t3Text: 'Bonjour [الاسم] 📦\nVotre commande #[الطلب] a été expédiée.',
-      t4Title: '💳 Lien de paiement',
-      t4Text: 'Bonjour [الاسم] 💳\nVoici votre lien de paiement : [إضافي]'
+      t2Text: 'Bonjour [الاسم] 😊\nPanier #[الطلب].',
+      t3Title: '📦 Suivi',
+      t3Text: 'Bonjour [الاسم] 📦\nCommande #[الطلب] expédiée.',
+      t4Title: '💳 Paiement',
+      t4Text: 'Bonjour [الاسم] 💳\nLien : [إضافي]'
     }
   },
   es: {
     back: '← Volver al panel',
     titleMain: 'Gestión de relaciones con clientes',
     titleSub: 'WhatsApp CRM',
-    desc: 'El sistema más inteligente para la gestión de clientes de comercio electrónico',
+    desc: 'El sistema más inteligente para la gestión de clientes',
     tabDashboard: '📊 Panel',
     tabAnalytics: '📈 Análisis avanzados',
     tabCrm: '👥 Clientes',
@@ -310,49 +347,61 @@ const toolTranslations: { [key: string]: any } = {
     totalCustomers: 'Clientes totales',
     newCustomerTitle: '➕ Registrar nuevo cliente',
     nameLabel: 'Nombre del cliente',
+    countryCodeLabel: 'Código de país',
     phoneLabel: 'Número de teléfono',
     orderNumLabel: 'Número de pedido',
     categoryLabel: 'Categoría',
-    statusLabel: 'Estado del cliente',
+    statusLabel: 'Estado',
     responseStateLabel: '💬 Estado de respuesta',
     amountLabel: 'Compras',
-    noteLabel: 'Notas del cliente',
-    saveBtn: 'Guardar y agregar cliente',
-    searchPlaceholder: '🔍 Buscar por nombre, teléfono...',
-    importBtn: '📤 Importar CSV',
-    exportBtn: '📥 Exportar Excel',
+    noteLabel: 'Notas',
+    saveBtn: 'Guardar y agregar',
+    searchPlaceholder: '🔍 Buscar...',
+    importBtn: '📤 Importar',
+    exportBtn: '📥 Exportar',
     actions: 'Acciones',
-    backupBox: '💾 Copia de seguridad y restauración',
-    downloadBackup: '📥 Descargar copia de seguridad',
-    restoreBackup: '♻️ Restaurar datos',
-    perfIndicators: 'Indicadores de rendimiento en vivo',
-    latestCustomers: 'Últimos clientes registrados',
-    dealSuccessRate: '📊 Tasa de éxito de acuerdos',
-    pendingResponses: '⏳ Respuestas pendientes',
+    backupBox: '💾 Copia de seguridad',
+    downloadBackup: '📥 Descargar',
+    restoreBackup: '♻️ Restaurar',
+    perfIndicators: 'Rendimiento en vivo',
+    latestCustomers: 'Últimos clientes',
+    dealSuccessRate: '📊 Tasa de éxito',
+    pendingResponses: '⏳ Pendientes',
     avgCustomerValue: '💰 Valor del cliente (LTV)',
-    categoryDistribution: '🎯 Distribución de categorías',
-    singleMsgMode: 'Mensaje de cliente único',
-    broadcastMsgMode: 'Campaña de difusión',
-    targetCustomerData: '1. Datos del cliente objetivo',
-    searchCrmPlaceholder: 'Escribe el nombre del cliente...',
-    selectTemplateTitle: '2. Seleccionar o diseñar mensaje',
-    generateMsgBtn: '⚡ Generar y vista previa',
+    categoryDistribution: '🎯 Distribución',
+    singleMsgMode: 'Mensaje único',
+    broadcastMsgMode: 'Difusión',
+    targetCustomerData: '1. Datos del cliente',
+    searchCrmPlaceholder: 'Escribe el nombre...',
+    selectTemplateTitle: '2. Seleccionar mensaje',
+    generateMsgBtn: '⚡ Generar',
     sendWaBtn: '🟢 Enviar por WhatsApp',
-    defaultDiscountLabel: 'Código de descuento predeterminado',
-    customizeStatusTitle: '📌 Personalizar estados',
-    customizeRespTitle: '💬 Personalizar estados de respuesta',
-    customizeCatTitle: '🏷 Personalizar categorías',
-    newCatLabel: 'Nombre de nueva categoría',
-    newStatusLabel: 'Nuevo estado de cliente',
-    newRespLabel: 'Nuevo estado de respuesta',
+    defaultDiscountLabel: 'Código de descuento',
+    customizeStatusTitle: '📌 Estados',
+    customizeRespTitle: '💬 Respuestas',
+    customizeCatTitle: '🏷 Categorías',
+    newCatLabel: 'Nueva categoría',
+    newStatusLabel: 'Nuevo estado',
+    newRespLabel: 'Nuevo estado respuesta',
     colorLabel: 'Color',
     addBtn: '➕ Añadir',
     deleteBtn: 'Eliminar',
+    lastContactHeader: 'Último contacto',
+    neverContacted: 'Nunca',
+    addToArchiveBtn: 'Añadir archivo',
+    newArchivePlaceholder: 'Nota...',
+    successAdded: '✨ ¡Añadido!',
+    successToastArchive: '📝 Nota añadida',
+    successToastTime: '🕒 Contacto registrado',
+    successToastBackup: '📦 Exportado',
+    successToastRestore: '♻ ¡Restaurado!',
+    errorPhone: '❌ Teléfono inválido',
+    errorBackup: '❌ Archivo inválido',
     cats: {
       newCustomer: 'Nuevo cliente',
       abandonedCart: 'Carrito abandonado',
       pendingPayment: 'Pago pendiente',
-      shipped: 'Enviado y entregado'
+      shipped: 'Enviado'
     },
     statuses: {
       active: 'Activo',
@@ -361,78 +410,90 @@ const toolTranslations: { [key: string]: any } = {
       banned: 'Bloqueado'
     },
     responseStates: {
-      pending: 'Esperando respuesta',
-      agreed: 'Acuerdo cerrado',
-      closed: 'Pedido cerrado'
+      pending: 'Pendiente',
+      agreed: 'Acordado',
+      closed: 'Cerrado'
     },
     tpls: {
-      t1Title: '✅ Confirmación de pedido',
-      t1Text: 'Hola [الاسم] 👋\nTu pedido #[الطلب] ha sido confirmado con éxito.',
-      t2Title: '🛒 Carrito abandonado',
-      t2Text: 'Hola [الاسم] 😊\nNotamos que dejaste artículos en tu carrito #[الطلب].',
-      t3Title: '📦 Seguimiento de envío',
-      t3Text: 'Hola [الاسم] 📦\nTu pedido #[الطلب] ha sido enviado.',
-      t4Title: '💳 Enlace de pago',
-      t4Text: 'Hola [الاسم] 💳\nAquí tienes tu enlace de pago: [إضافي]'
+      t1Title: '✅ Confirmación',
+      t1Text: 'Hola [الاسم] 👋\nPedido #[الطلب] confirmado.',
+      t2Title: '🛒 Carrito',
+      t2Text: 'Hola [الاسم] 😊\nCarrito #[الطلب].',
+      t3Title: '📦 Envío',
+      t3Text: 'Hola [الاسم] 📦\nEnviado.',
+      t4Title: '💳 Pago',
+      t4Text: 'Hola [الاسم] 💳\nEnlace: [إضافي]'
     }
   },
   tr: {
     back: '← Kontrol Paneline Dön',
     titleMain: 'Müşteri İlişkileri Yönetimi',
     titleSub: 'WhatsApp CRM',
-    desc: 'E-ticaret müşteri yönetimi ve mesajlaşma otomasyonu için en akıllı sistem',
+    desc: 'E-ticaret müşteri yönetimi için en akıllı sistem',
     tabDashboard: '📊 Kontrol Paneli',
-    tabAnalytics: '📈 Gelişmiş Analitik',
+    tabAnalytics: '📈 Analitik',
     tabCrm: '👥 Müşteri Yönetimi',
-    tabMessaging: '💬 Mesajlaşma ve Kampanyalar',
+    tabMessaging: '💬 Mesajlaşma',
     tabTags: '⚙️ Ayarlar',
-    salesTitle: 'Toplam Gerçekleşen Satış',
+    salesTitle: 'Toplam Satış',
     totalCustomers: 'Toplam Müşteri',
     newCustomerTitle: '➕ Yeni Müşteri Kaydet',
     nameLabel: 'Müşteri Adı',
+    countryCodeLabel: 'Ülke Kodu',
     phoneLabel: 'Telefon Numarası',
-    orderNumLabel: 'Sipariş Numarası (#)',
+    orderNumLabel: 'Sipariş Numarası',
     categoryLabel: 'Kategori',
     statusLabel: 'Müşteri Durumu',
     responseStateLabel: '💬 Yanıt Durumu',
-    amountLabel: 'Alışveriş Tutarı',
-    noteLabel: 'Müşteri Notları',
-    saveBtn: 'Kaydet ve Müşteri Ekle',
-    searchPlaceholder: '🔍 İsim, telefon veya sipariş no ile ara...',
-    importBtn: '📤 CSV İçe Aktar',
-    exportBtn: '📥 Excel Dışa Aktar',
+    amountLabel: 'Alışveriş',
+    noteLabel: 'Notlar',
+    saveBtn: 'Kaydet',
+    searchPlaceholder: '🔍 Ara...',
+    importBtn: '📤 İçe Aktar',
+    exportBtn: '📥 Dışa Aktar',
     actions: 'İşlemler',
-    backupBox: '💾 Yedekleme ve Geri Yükleme',
-    downloadBackup: '📥 Yedek İndir (JSON)',
-    restoreBackup: '♻️️ Dosyadan Geri Yükle',
-    perfIndicators: 'Canlı Performans Göstergeleri',
-    latestCustomers: 'Son Kayıt olan Müşteriler',
-    dealSuccessRate: '📊 Anlaşma Başarı Oranı',
-    pendingResponses: '⏳ Bekleyen Yanıtlar',
-    avgCustomerValue: '💰 Müşteri Yaşam Boyu Değeri (LTV)',
-    categoryDistribution: '🎯 Kategori Dağılımı ve Yüzdeleri',
-    singleMsgMode: 'Tekil Müşteri Mesajı',
-    broadcastMsgMode: 'Toplu Kampanya (Kuyruk)',
-    targetCustomerData: '1. Hedef Müşteri Verileri',
-    searchCrmPlaceholder: 'Müşteri adını yazın...',
-    selectTemplateTitle: '2. Mesaj Seç veya Tasarla',
-    generateMsgBtn: '⚡ Mesajı Oluştur ve Önizle',
+    backupBox: '💾 Yedekleme',
+    downloadBackup: '📥 Yedek İndir',
+    restoreBackup: '♻ Geri Yükle',
+    perfIndicators: 'Canlı Göstergeler',
+    latestCustomers: 'Son Müşteriler',
+    dealSuccessRate: '📊 Başarı Oranı',
+    pendingResponses: '⏳ Bekleyenler',
+    avgCustomerValue: '💰 Müşteri Değeri (LTV)',
+    categoryDistribution: '🎯 Dağılım',
+    singleMsgMode: 'Tekil Mesaj',
+    broadcastMsgMode: 'Toplu Kampanya',
+    targetCustomerData: '1. Hedef Müşteri',
+    searchCrmPlaceholder: 'İsim yazın...',
+    selectTemplateTitle: '2. Mesaj Seç',
+    generateMsgBtn: '⚡ Oluştur',
     sendWaBtn: '🟢 WhatsApp ile Gönder',
-    defaultDiscountLabel: 'Varsayılan İndirim Kodu',
-    customizeStatusTitle: '📌 Müşteri Durumlarını Özelleştir',
-    customizeRespTitle: '💬 Yanıt Durumlarını Özelleştir',
-    customizeCatTitle: '🏷 Müşteri Kategorilerini Özelleştir',
-    newCatLabel: 'Yeni Kategori Adı',
-    newStatusLabel: 'Yeni Müşteri Durumu',
+    defaultDiscountLabel: 'İndirim Kodu',
+    customizeStatusTitle: '📌 Durumlar',
+    customizeRespTitle: '💬 Yanıt Durumları',
+    customizeCatTitle: '🏷 Kategoriler',
+    newCatLabel: 'Yeni Kategori',
+    newStatusLabel: 'Yeni Durum',
     newRespLabel: 'Yeni Yanıt Durumu',
     colorLabel: 'Renk',
     addBtn: '➕ Ekle',
     deleteBtn: 'Sil',
+    lastContactHeader: 'Son İletişim',
+    neverContacted: 'Hiç',
+    addToArchiveBtn: 'Arşive Ekle',
+    newArchivePlaceholder: 'Not ekle...',
+    successAdded: '✨ Başarıyla eklendi!',
+    successToastArchive: '📝 Not eklendi',
+    successToastTime: '🕒 Zaman kaydedildi',
+    successToastBackup: '📦 Yedek indirildi',
+    successToastRestore: '♻ Geri yüklendi!',
+    errorPhone: '❌ Geçersiz telefon!',
+    errorBackup: '❌ Geçersiz dosya.',
     cats: {
       newCustomer: 'Yeni Müşteri',
-      abandonedCart: 'Terk Edilmiş Sepet',
+      abandonedCart: 'Terk Sepet',
       pendingPayment: 'Ödeme Bekleniyor',
-      shipped: 'Kargolandı ve Teslim Edildi'
+      shipped: 'Kargolandı'
     },
     statuses: {
       active: 'Aktif',
@@ -441,99 +502,111 @@ const toolTranslations: { [key: string]: any } = {
       banned: 'Yasaklı'
     },
     responseStates: {
-      pending: 'Yanıt Bekleniyor',
+      pending: 'Bekliyor',
       agreed: 'Anlaşıldı',
-      closed: 'Sipariş Kapatıldı'
+      closed: 'Kapatıldı'
     },
     tpls: {
-      t1Title: '✅ Sipariş Onayı',
-      t1Text: 'Merhaba [الاسم] 👋\n#[الطلب] numaralı siparişiniz başarıyla onaylandı.',
-      t2Title: '🛒 Terk Edilmiş Sepet',
-      t2Text: 'Merhaba [الاسم] 😊\n#[الطلب] sepetinizde ürün bıraktığınızı fark ettik.',
-      t3Title: '📦 Kargo Takibi',
-      t3Text: 'Merhaba [الاسم] 📦\n#[الطلب] numaralı siparişiniz kargoya verildi.',
-      t4Title: '💳 Ödeme Bağlantısı',
-      t4Text: 'Merhaba [الاسم] 💳\nÖdeme bağlantınız: [إضافي]'
+      t1Title: '✅ Onay',
+      t1Text: 'Merhaba [الاسم] 👋\nSipariş #[الطلب] onaylandı.',
+      t2Title: '🛒 Sepet',
+      t2Text: 'Merhaba [الاسم] 😊\nSepet #[الطلب].',
+      t3Title: '📦 Kargo',
+      t3Text: 'Merhaba [الاسم] 📦\nKargoda.',
+      t4Title: '💳 Ödeme',
+      t4Text: 'Merhaba [الاسم] 💳\nLink: [إضافي]'
     }
   },
   zh: {
-    back: '← 返回控制面板',
+    back: '← 返回面板',
     titleMain: '客户关系管理系统',
     titleSub: 'WhatsApp CRM',
-    desc: '最智能的电商客户管理与消息自动化系统',
+    desc: '最智能的电商客户管理系统',
     tabDashboard: '📊 仪表盘',
     tabAnalytics: '📈 高级分析',
     tabCrm: '👥 客户管理',
     tabMessaging: '💬 消息与营销',
-    tabTags: '⚙️ 设置',
+    tabTags: '⚙️️ 设置',
     salesTitle: '实际销售总额',
     totalCustomers: '客户总数',
     newCustomerTitle: '➕ 登记新客户',
     nameLabel: '客户姓名',
+    countryCodeLabel: '国家代码',
     phoneLabel: '手机号码',
-    orderNumLabel: '订单号 (#)',
+    orderNumLabel: '订单号',
     categoryLabel: '分类',
     statusLabel: '客户状态',
     responseStateLabel: '💬 回复状态',
     amountLabel: '购买金额',
-    noteLabel: '客户备注',
-    saveBtn: '保存并添加客户',
-    searchPlaceholder: '🔍 按姓名、手机号或订单号搜索...',
-    importBtn: '📤 导入 CSV',
-    exportBtn: '📥 导出 Excel',
+    noteLabel: '备注',
+    saveBtn: '保存并添加',
+    searchPlaceholder: '🔍 搜索...',
+    importBtn: '📤 导入',
+    exportBtn: '📥 导出',
     actions: '操作',
-    backupBox: '💾 备份与恢复数据',
-    downloadBackup: '📥 下载备份 (JSON)',
-    restoreBackup: '♻️ 从文件恢复数据',
+    backupBox: '💾 备份与恢复',
+    downloadBackup: '📥 下载备份',
+    restoreBackup: '♻️ 恢复',
     perfIndicators: '实时业绩指标',
     latestCustomers: '最新登记客户',
-    dealSuccessRate: '📊 交易成交率',
+    dealSuccessRate: '📊 成交率',
     pendingResponses: '⏳ 待回复',
-    avgCustomerValue: '💰 客户生命周期价值 (LTV)',
-    categoryDistribution: '🎯 分类分布与百分比',
+    avgCustomerValue: '💰 客户价值 (LTV)',
+    categoryDistribution: '🎯 分类分布',
     singleMsgMode: '单客户消息',
-    broadcastMsgMode: '群发营销活动',
+    broadcastMsgMode: '群发营销',
     targetCustomerData: '1. 目标客户数据',
     searchCrmPlaceholder: '输入客户姓名...',
-    selectTemplateTitle: '2. 选择或设计消息',
-    generateMsgBtn: '⚡ 生成并预览消息',
+    selectTemplateTitle: '2. 选择模板',
+    generateMsgBtn: '⚡ 生成消息',
     sendWaBtn: '🟢 通过 WhatsApp 发送',
     defaultDiscountLabel: '默认优惠码',
-    customizeStatusTitle: '📌 自定义客户状态',
-    customizeRespTitle: '💬 自定义回复状态',
-    customizeCatTitle: '🏷️ 自定义客户分类',
+    customizeStatusTitle: '📌 状态设置',
+    customizeRespTitle: '💬 回复状态设置',
+    customizeCatTitle: '🏷️ 分类设置',
     newCatLabel: '新分类名称',
-    newStatusLabel: '新客户状态',
+    newStatusLabel: '新状态名称',
     newRespLabel: '新回复状态',
     colorLabel: '颜色',
     addBtn: '➕ 添加',
     deleteBtn: '删除',
+    lastContactHeader: '最后联系',
+    neverContacted: '从未',
+    addToArchiveBtn: '加入档案',
+    newArchivePlaceholder: '添加备注...',
+    successAdded: '✨ 添加成功！',
+    successToastArchive: '📝 备注已添加',
+    successToastTime: '🕒 联系时间已记录',
+    successToastBackup: '📦 备份导出成功',
+    successToastRestore: '♻ 恢复成功！',
+    errorPhone: '❌ 手机号无效！',
+    errorBackup: '❌ 备份文件无效。',
     cats: {
       newCustomer: '新客户',
-      abandonedCart: '购物车未付款',
+      abandonedCart: '未付款购物车',
       pendingPayment: '等待付款',
-      shipped: '已发货并送达'
+      shipped: '已发货'
     },
     statuses: {
       active: '活跃',
-      vip: 'VIP客户',
+      vip: 'VIP',
       paused: '暂停',
-      banned: '已拉黑'
+      banned: '拉黑'
     },
     responseStates: {
       pending: '等待回复',
       agreed: '达成一致',
-      closed: '订单关闭'
+      closed: '关闭'
     },
     tpls: {
-      t1Title: '✅ 订单确认',
-      t1Text: '您好 [الاسم] 👋\n您的订单 #[الطلب] 已成功确认。',
-      t2Title: '🛒 购物车未付款',
-      t2Text: '您好 [الاسم] 😊\n我们注意到您在购物车 #[الطلب] 留下了商品。',
-      t3Title: '📦 物流追踪',
-      t3Text: '您好 [الاسم] 📦\n您的订单 #[الطلب] 已发货。',
-      t4Title: '💳 支付链接',
-      t4Text: '您好 [الاسم] 💳\n这是您的快捷支付链接：[إضافي]'
+      t1Title: '✅ 确认',
+      t1Text: '您好 [الاسم] 👋\n订单 #[الطلب] 已确认。',
+      t2Title: '🛒 购物车',
+      t2Text: '您好 [الاسم] 😊\n购物车 #[الطلب]。',
+      t3Title: '📦 物流',
+      t3Text: '您好 [الاسم] 📦\n已发货。',
+      t4Title: '💳 支付',
+      t4Text: '您好 [الاسم] 💳\n链接：[إضافي]'
     }
   },
   de: {
@@ -542,57 +615,69 @@ const toolTranslations: { [key: string]: any } = {
     titleSub: 'WhatsApp CRM',
     desc: 'Das intelligenteste System für E-Commerce-Kundenmanagement',
     tabDashboard: '📊 Dashboard',
-    tabAnalytics: '📈 Erweiterte Analysen',
-    tabCrm: '👥 Kundenverwaltung',
-    tabMessaging: '💬 Nachrichten & Kampagnen',
+    tabAnalytics: '📈 Analysen',
+    tabCrm: '👥 Kunden',
+    tabMessaging: '💬 Nachrichten',
     tabTags: '⚙️ Einstellungen',
     salesTitle: 'Gesamtumsatz',
     totalCustomers: 'Kunden gesamt',
-    newCustomerTitle: '➕ Neuen Kunden registrieren',
+    newCustomerTitle: '➕ Kunden hinzufügen',
     nameLabel: 'Kundenname',
+    countryCodeLabel: 'Ländervorwahl',
     phoneLabel: 'Telefonnummer',
-    orderNumLabel: 'Bestellnummer (#)',
+    orderNumLabel: 'Bestellnummer',
     categoryLabel: 'Kategorie',
-    statusLabel: 'Kundenstatus',
-    responseStateLabel: '💬 Antworteinfluss',
+    statusLabel: 'Status',
+    responseStateLabel: '💬 Antwortstatus',
     amountLabel: 'Einkäufe',
-    noteLabel: 'Kundennotizen',
-    saveBtn: 'Speichern & Hinzufügen',
-    searchPlaceholder: '🔍 Suchen nach Name, Telefon...',
-    importBtn: '📤 CSV importieren',
-    exportBtn: '📥 Excel exportieren',
+    noteLabel: 'Notizen',
+    saveBtn: 'Speichern',
+    searchPlaceholder: '🔍 Suchen...',
+    importBtn: '📤 Importieren',
+    exportBtn: '📥 Exportieren',
     actions: 'Aktionen',
-    backupBox: '💾 Backup & Wiederherstellung',
-    downloadBackup: '📥 Backup herunterladen (JSON)',
-    restoreBackup: '♻️ Daten wiederherstellen',
-    perfIndicators: 'Live-Leistungsindikatoren',
+    backupBox: '💾 Backup',
+    downloadBackup: '📥 Backup herunterladen',
+    restoreBackup: '♻️ Wiederherstellen',
+    perfIndicators: 'Live-Indikatoren',
     latestCustomers: 'Neueste Kunden',
     dealSuccessRate: '📊 Abschlussquote',
-    pendingResponses: '⏳ Ausstehende Antworten',
+    pendingResponses: '⏳ Ausstehend',
     avgCustomerValue: '💰 Kundenwert (LTV)',
-    categoryDistribution: '🎯 Kategorieduschnitt',
+    categoryDistribution: '🎯 Verteilung',
     singleMsgMode: 'Einzelnachricht',
-    broadcastMsgMode: 'Kampagne (Warteschlange)',
-    targetCustomerData: '1. Zielkundendaten',
-    searchCrmPlaceholder: 'Kundenname eingeben...',
-    selectTemplateTitle: '2. Nachricht auswählen',
-    generateMsgBtn: '⚡ Nachricht generieren',
+    broadcastMsgMode: 'Kampagne',
+    targetCustomerData: '1. Kundendaten',
+    searchCrmPlaceholder: 'Name eingeben...',
+    selectTemplateTitle: '2. Nachricht wählen',
+    generateMsgBtn: '⚡ Generieren',
     sendWaBtn: '🟢 Über WhatsApp senden',
-    defaultDiscountLabel: 'Standard-Gutscheincode',
-    customizeStatusTitle: '📌 Status anpassen',
-    customizeRespTitle: '💬 Antwortstatus anpassen',
-    customizeCatTitle: '🏷️️ Kategorien anpassen',
-    newCatLabel: 'Neuer Kategoriename',
-    newStatusLabel: 'Neuer Kundenstatus',
+    defaultDiscountLabel: 'Gutscheincode',
+    customizeStatusTitle: '📌 Status',
+    customizeRespTitle: '💬 Antwortstatus',
+    customizeCatTitle: '🏷 Kategorien',
+    newCatLabel: 'Neue Kategorie',
+    newStatusLabel: 'Neuer Status',
     newRespLabel: 'Neuer Antwortstatus',
     colorLabel: 'Farbe',
     addBtn: '➕ Hinzufügen',
     deleteBtn: 'Löschen',
+    lastContactHeader: 'Letzter Kontakt',
+    neverContacted: 'Nie',
+    addToArchiveBtn: 'Ins Archiv',
+    newArchivePlaceholder: 'Notiz...',
+    successAdded: '✨ Hinzugefügt!',
+    successToastArchive: '📝 Notiz hinzugefügt',
+    successToastTime: '🕒 Kontakt gespeichert',
+    successToastBackup: '📦 Backup exportiert',
+    successToastRestore: '♻ Wiederhergestellt!',
+    errorPhone: '❌ Ungültige Nummer!',
+    errorBackup: '❌ Ungültige Datei.',
     cats: {
       newCustomer: 'Neukunde',
-      abandonedCart: 'Abgebrochener Warenkorb',
+      abandonedCart: 'Warenkorb',
       pendingPayment: 'Zahlung ausstehend',
-      shipped: 'Versendet & Geliefert'
+      shipped: 'Versendet'
     },
     statuses: {
       active: 'Aktiv',
@@ -601,78 +686,90 @@ const toolTranslations: { [key: string]: any } = {
       banned: 'Gesperrt'
     },
     responseStates: {
-      pending: 'Antwort ausstehend',
-      agreed: 'Deal vereinbart',
-      closed: 'Bestellung geschlossen'
+      pending: 'Ausstehend',
+      agreed: 'Vereinbart',
+      closed: 'Geschlossen'
     },
     tpls: {
-      t1Title: '✅ Bestellbestätigung',
-      t1Text: 'Hallo [الاسم] 👋\nIhre Bestellung #[الطلب] wurde erfolgreich bestätigt.',
-      t2Title: '🛒 Abgebrochener Warenkorb',
-      t2Text: 'Hallo [الاسم] 😊\nWir haben bemerkt, dass Sie Artikel in Ihrem Warenkorb #[الطلب] gelassen haben.',
-      t3Title: '📦 Sendungsverfolgung',
-      t3Text: 'Hallo [الاسم] 📦\nIhre Bestellung #[الطلب] wurde versendet.',
-      t4Title: '💳 Zahlungslink',
-      t4Text: 'Hallo [الاسم] 💳\nHier ist Ihr Zahlungslink: [إضافي]'
+      t1Title: '✅ Bestätigung',
+      t1Text: 'Hallo [الاسم] 👋\nBestellung #[الطلب] bestätigt.',
+      t2Title: '🛒 Warenkorb',
+      t2Text: 'Hallo [الاسم] 😊\nWarenkorb #[الطلب].',
+      t3Title: '📦 Versand',
+      t3Text: 'Hallo [الاسم] 📦\nVersendet.',
+      t4Title: '💳 Zahlung',
+      t4Text: 'Hallo [الاسم] 💳\nLink: [إضافي]'
     }
   },
   id: {
     back: '← Kembali ke Dasbor',
     titleMain: 'Manajemen Hubungan Pelanggan',
     titleSub: 'WhatsApp CRM',
-    desc: 'Sistem cerdas untuk manajemen pelanggan e-commerce dan otomatisasi pesan',
+    desc: 'Sistem cerdas untuk manajemen pelanggan e-commerce',
     tabDashboard: '📊 Dasbor',
-    tabAnalytics: '📈 Analisis Lanjutan',
-    tabCrm: '👥 Manajemen Pelanggan',
-    tabMessaging: '💬 Pesan & Kampanye',
+    tabAnalytics: '📈 Analisis',
+    tabCrm: '👥 Pelanggan',
+    tabMessaging: '💬 Pesan',
     tabTags: '⚙️ Pengaturan',
-    salesTitle: 'Total Penjualan Aktual',
+    salesTitle: 'Total Penjualan',
     totalCustomers: 'Total Pelanggan',
-    newCustomerTitle: '➕ Daftarkan Pelanggan Baru',
+    newCustomerTitle: '➕ Tambah Pelanggan',
     nameLabel: 'Nama Pelanggan',
+    countryCodeLabel: 'Kode Negara',
     phoneLabel: 'Nomor Telepon',
-    orderNumLabel: 'Nomor Pesanan (#)',
+    orderNumLabel: 'Nomor Pesanan',
     categoryLabel: 'Kategori',
-    statusLabel: 'Status Pelanggan',
+    statusLabel: 'Status',
     responseStateLabel: '💬 Status Respon',
     amountLabel: 'Pembelian',
-    noteLabel: 'Catatan Pelanggan',
-    saveBtn: 'Simpan & Tambah Pelanggan',
-    searchPlaceholder: '🔍 Cari berdasarkan nama, telepon...',
-    importBtn: '📤 Impor CSV',
-    exportBtn: '📥 Ekspor Excel',
+    noteLabel: 'Catatan',
+    saveBtn: 'Simpan',
+    searchPlaceholder: '🔍 Cari...',
+    importBtn: '📤 Impor',
+    exportBtn: '📥 Ekspor',
     actions: 'Tindakan',
-    backupBox: 'Cadangkan & Pulihkan Data',
-    downloadBackup: 'Unduh Cadangan (JSON)',
-    restoreBackup: 'Pulihkan dari File',
-    perfIndicators: 'Indikator Kinerja Langsung',
+    backupBox: 'Cadangan Data',
+    downloadBackup: 'Unduh Cadangan',
+    restoreBackup: 'Pulihkan',
+    perfIndicators: 'Indikator Kinerja',
     latestCustomers: 'Pelanggan Terbaru',
-    dealSuccessRate: 'Tingkat Keberhasilan Kesepakatan',
+    dealSuccessRate: 'Tingkat Keberhasilan',
     pendingResponses: 'Respon Tertunda',
     avgCustomerValue: 'Nilai Pelanggan (LTV)',
     categoryDistribution: 'Distribusi Kategori',
-    singleMsgMode: 'Pesan Pelanggan Tunggal',
-    broadcastMsgMode: 'Kampagne Siaran',
-    targetCustomerData: 'Data Pelanggan Target',
-    searchCrmPlaceholder: 'Ketik nama pelanggan...',
-    selectTemplateTitle: 'Pilih atau Rancang Pesan',
-    generateMsgBtn: 'Buat & Pratinjau Pesan',
+    singleMsgMode: 'Pesan Tunggal',
+    broadcastMsgMode: 'Kampanye',
+    targetCustomerData: 'Data Target',
+    searchCrmPlaceholder: 'Ketik nama...',
+    selectTemplateTitle: 'Pilih Pesan',
+    generateMsgBtn: 'Buat',
     sendWaBtn: 'Kirim via WhatsApp',
-    defaultDiscountLabel: 'Kode Diskon Default',
-    customizeStatusTitle: 'Sesuaikan Status',
-    customizeRespTitle: 'Sesuaikan Status Respon',
-    customizeCatTitle: 'Sesuaikan Kategori',
-    newCatLabel: 'Nama Kategori Baru',
-    newStatusLabel: 'Status Pelanggan Baru',
+    defaultDiscountLabel: 'Kode Diskon',
+    customizeStatusTitle: 'Status',
+    customizeRespTitle: 'Status Respon',
+    customizeCatTitle: 'Kategori',
+    newCatLabel: 'Kategori Baru',
+    newStatusLabel: 'Status Baru',
     newRespLabel: 'Status Respon Baru',
     colorLabel: 'Warna',
     addBtn: '➕ Tambah',
     deleteBtn: 'Hapus',
+    lastContactHeader: 'Kontak Terakhir',
+    neverContacted: 'Belum pernah',
+    addToArchiveBtn: 'Tambah Arsip',
+    newArchivePlaceholder: 'Catatan...',
+    successAdded: '✨ Ditambahkan!',
+    successToastArchive: '📝 Catatan ditambahkan',
+    successToastTime: '🕒 Waktu dicatat',
+    successToastBackup: '📦 Dicadangkan',
+    successToastRestore: '♻ Dipulihkan!',
+    errorPhone: '❌ Nomor tidak valid!',
+    errorBackup: '❌ File tidak valid.',
     cats: {
       newCustomer: 'Pelanggan Baru',
       abandonedCart: 'Keranjang Terbengkalai',
       pendingPayment: 'Menunggu Pembayaran',
-      shipped: 'Dikirim & Diterima'
+      shipped: 'Dikirim'
     },
     statuses: {
       active: 'Aktif',
@@ -681,19 +778,19 @@ const toolTranslations: { [key: string]: any } = {
       banned: 'Diblokir'
     },
     responseStates: {
-      pending: 'Menunggu Respon',
+      pending: 'Menunggu',
       agreed: 'Sepakat',
-      closed: 'Pesanan Ditutup'
+      closed: 'Ditutup'
     },
     tpls: {
-      t1Title: '✅ Konfirmasi Pesanan',
-      t1Text: 'Halo [الاسم] 👋\nPesanan Anda #[الطلب] telah berhasil dikonfirmasi.',
-      t2Title: '🛒 Keranjang Terbengkalai',
-      t2Text: 'Halo [الاسم] 😊\nKami melihat ada produk di keranjang #[الطلب] Anda.',
-      t3Title: '📦 Pelacakan Pengiriman',
-      t3Text: 'Halo [الاسم] 📦\nPesanan #[الطلب] Anda telah dikirim.',
-      t4Title: '💳 Tautan Pembayaran',
-      t4Text: 'Halo [الاسم] 💳\nBerikut tautan pembayaran Anda: [إضافي]'
+      t1Title: '✅ Konfirmasi',
+      t1Text: 'Halo [الاسم] 👋\nPesanan #[الطلب] dikonfirmasi.',
+      t2Title: '🛒 Keranjang',
+      t2Text: 'Halo [الاسم] 😊\nKeranjang #[الطلب].',
+      t3Title: '📦 Pengiriman',
+      t3Text: 'Halo [الاسم] 📦\nTelah dikirim.',
+      t4Title: '💳 Pembayaran',
+      t4Text: 'Halo [الاسم] 💳\nTautan: [إضافي]'
     }
   }
 };
@@ -712,6 +809,7 @@ export default function EngaziaWhatsAppCRM() {
   const [newTimelineNote, setNewTimelineNote] = useState('');
   
   const [newName, setNewName] = useState('');
+  const [newCountryCode, setNewCountryCode] = useState('+966');
   const [newPhone, setNewPhone] = useState('');
   const [newOrderNumber, setNewOrderNumber] = useState('');
   const [newCategory, setNewCategory] = useState('');
@@ -734,6 +832,7 @@ export default function EngaziaWhatsAppCRM() {
 
   const [messagingMode, setMessagingMode] = useState<'single' | 'broadcast'>('single');
   const [customerName, setCustomerName] = useState('');
+  const [customerCountryCode, setCustomerCountryCode] = useState('+966');
   const [customerPhone, setCustomerPhone] = useState('');
   const [orderNumber, setOrderNumber] = useState('');
   const [extraInfo, setExtraInfo] = useState('');
@@ -858,7 +957,7 @@ export default function EngaziaWhatsAppCRM() {
 
   const exportBackupJSON = () => {
     const backupData = {
-      defaultDiscountCode, contacts, categories, statusOptions, responseStateOptions, templates, version: '2.7'
+      defaultDiscountCode, contacts, categories, statusOptions, responseStateOptions, templates, version: '2.8'
     };
     const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -866,7 +965,7 @@ export default function EngaziaWhatsAppCRM() {
     link.href = url;
     link.download = `engazia_backup_${new Date().toISOString().slice(0, 10)}.json`;
     link.click();
-    showToast('📦 تم تصدير نسخة الاحتياط بنجاح');
+    showToast(t.successToastBackup);
   };
 
   const importBackupJSON = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -881,19 +980,22 @@ export default function EngaziaWhatsAppCRM() {
         if (data && data.statusOptions) { setStatusOptions(data.statusOptions); localStorage.setItem('engazia_whatsapp_statuses_v1', JSON.stringify(data.statusOptions)); }
         if (data && data.responseStateOptions) { setResponseStateOptions(data.responseStateOptions); localStorage.setItem('engazia_whatsapp_response_states_v1', JSON.stringify(data.responseStateOptions)); }
         if (data && data.templates) { setTemplates(data.templates); localStorage.setItem('engazia_templates_v2', JSON.stringify(data.templates)); }
-        showToast('♻ تم استعادة النسخة الاحتياطية بنجاح!');
+        showToast(t.successToastRestore);
       } catch (err) {
-        showToast('❌ ملف النسخ الاحتياطي غير صالح.');
+        showToast(t.errorBackup);
       }
       e.target.value = '';
     };
     reader.readAsText(file);
   };
 
-  const formatPhone = (phone: string) => {
-    let clean = phone.replace(/\D/g, '');
-    if (clean.startsWith('0')) clean = '966' + clean.substring(1);
-    return clean;
+  const formatPhoneInternational = (countryCode: string, phone: string) => {
+    let cleanCode = countryCode.replace(/\D/g, '');
+    let cleanPhone = phone.replace(/\D/g, '');
+    if (cleanPhone.startsWith('0')) {
+      cleanPhone = cleanPhone.substring(1);
+    }
+    return cleanCode + cleanPhone;
   };
 
   const toEnglishDigits = (str: string) => {
@@ -904,7 +1006,7 @@ export default function EngaziaWhatsAppCRM() {
 
   const isPhoneValid = (phone: string) => {
     const clean = toEnglishDigits(phone).replace(/\D/g, '');
-    return clean.length >= 10;
+    return clean.length >= 7;
   };
 
   const getCatDisplay = (catNameKey: string, fallback: string) => {
@@ -937,8 +1039,8 @@ export default function EngaziaWhatsAppCRM() {
         const newLog: TimelineLog = {
           id: Date.now().toString(),
           date: dateStr,
-          action: 'تم التواصل عبر واتساب',
-          note: customNote || 'فتح رابط المحادثة'
+          action: 'WhatsApp Contact',
+          note: customNote || 'Opened Chat'
         };
         const existingTimeline = c.timeline || [];
         return { ...c, lastContactDate: dateStr, timeline: [newLog, ...existingTimeline] };
@@ -951,18 +1053,18 @@ export default function EngaziaWhatsAppCRM() {
       const target = updated.find(x => x.id === id);
       if (target) setSelectedCustomer(target);
     }
-    showToast('🕒 تم تسجيل وقت التواصل والأرشيف بنجاح');
+    showToast(t.successToastTime);
   };
 
   const addTimelineLogToCustomer = (customerId: string) => {
-    if (!newTimelineNote.trim()) return showToast('⚠️ أدخل نص الملاحظة في الأرشيف.');
+    if (!newTimelineNote.trim()) return showToast('⚠️ أدخل نص الملاحظة.');
     const now = new Date();
     const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
     
     const newLog: TimelineLog = {
       id: Date.now().toString(),
       date: dateStr,
-      action: 'إضافة ملاحظة يدوية',
+      action: 'Manual Note',
       note: newTimelineNote
     };
 
@@ -978,7 +1080,7 @@ export default function EngaziaWhatsAppCRM() {
     const target = updated.find(x => x.id === customerId);
     if (target) setSelectedCustomer(target);
     setNewTimelineNote('');
-    showToast('📝 تمت إضافة الملاحظة للأرشيف بنجاح');
+    showToast(t.successToastArchive);
   };
 
   const addContact = (e: React.FormEvent) => {
@@ -986,7 +1088,7 @@ export default function EngaziaWhatsAppCRM() {
     if (!newName || !newPhone) return showToast('⚠️ أدخل الاسم ورقم الجوال.');
     
     const cleanPhoneCheck = toEnglishDigits(newPhone).replace(/\D/g, '');
-    if (cleanPhoneCheck.length < 10) return showToast('❌ رقم الجوال يجب أن يكون 10 أرقام على الأقل!');
+    if (cleanPhoneCheck.length < 7) return showToast(t.errorPhone);
 
     const now = new Date();
     const enDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
@@ -994,7 +1096,8 @@ export default function EngaziaWhatsAppCRM() {
     const newCust: Customer = {
       id: Date.now().toString(),
       name: newName,
-      phone: toEnglishDigits(formatPhone(newPhone)),
+      countryCode: newCountryCode,
+      phone: toEnglishDigits(newPhone),
       orderNumber: toEnglishDigits(newOrderNumber || '#---'),
       category: newCategory || categories[0]?.fallbackName || '',
       status: newStatus || statusOptions[0]?.fallbackName || '',
@@ -1002,16 +1105,16 @@ export default function EngaziaWhatsAppCRM() {
       amount: toEnglishDigits(newAmount || '0'),
       note: newNote,
       date: enDate,
-      lastContactDate: 'لم يتم التواصل',
-      timeline: [{ id: '1', date: enDate, action: 'إنشاء العميل', note: 'تم إضافة العميل للنظام' }]
+      lastContactDate: t.neverContacted,
+      timeline: [{ id: '1', date: enDate, action: 'Created', note: 'Customer registered' }]
     };
     saveContacts([newCust, ...contacts]);
     setNewName(''); setNewPhone(''); setNewOrderNumber(''); setNewAmount(''); setNewNote('');
-    showToast('✨ تم إضافة العميل بنجاح!');
+    showToast(t.successAdded);
   };
 
   const updateCustomerField = (id: string, field: string, value: string) => {
-    const cleanVal = (field === 'phone' || field === 'orderNumber' || field === 'amount') ? toEnglishDigits(value) : value;
+    const cleanVal = (field === 'phone' || field === 'orderNumber' || field === 'amount' || field === 'countryCode') ? toEnglishDigits(value) : value;
     const updated = contacts.map(c => c.id === id ? { ...c, [field]: cleanVal } : c);
     saveContacts(updated);
     if (selectedCustomer && selectedCustomer.id === id) {
@@ -1069,6 +1172,7 @@ export default function EngaziaWhatsAppCRM() {
   const routeToMessaging = (c: Customer) => {
     setSelectedCustomer(null);
     setCustomerName(c.name);
+    setCustomerCountryCode(c.countryCode || '+966');
     setCustomerPhone(c.phone);
     setOrderNumber(c.orderNumber);
     setMessagingMode('single');
@@ -1088,12 +1192,36 @@ export default function EngaziaWhatsAppCRM() {
     setGeneratedMsg(msg);
   };
 
-  const openWhatsAppDirect = (phone: string, text: string, customerId?: string) => {
-    const clean = formatPhone(phone);
+  const openWhatsAppDirect = (countryCode: string, phone: string, text: string, customerId?: string) => {
+    const fullNum = formatPhoneInternational(countryCode || '+966', phone);
     const encodedText = encodeURIComponent(text);
-    const url = clean ? `https://wa.me/${clean}?text=${encodedText}` : `https://wa.me/?text=${encodedText}`;
+    const url = fullNum ? `https://wa.me/${fullNum}?text=${encodedText}` : `https://wa.me/?text=${encodedText}`;
     window.open(url, '_blank');
     if (customerId) updateLastContact(customerId, 'مراسلة عبر Wa.me');
+  };
+
+  const handleBroadcastQueueSend = () => {
+    const targetList = contacts.filter(c => c.category === broadcastCat);
+    if (targetList.length === 0) {
+      showToast('⚠️ لا يوجد عملاء في هذه الفئة المستهدفة.');
+      return;
+    }
+    const tpl = templates.find(t => t.id === activeTemplateId);
+    if (!tpl) return;
+    const resolvedTpl = getTplDisplay(tpl);
+
+    targetList.forEach((c, index) => {
+      let msg = resolvedTpl.text
+        .replace(/\[الاسم\]/g, c.name)
+        .replace(/\[الطلب\]/g, c.orderNumber)
+        .replace(/\[إضافي\]/g, extraInfo);
+      if (includeDiscount) msg += `\n\n🎁 Discount Code: *${defaultDiscountCode}*`;
+      
+      setTimeout(() => {
+        openWhatsAppDirect(c.countryCode || '+966', c.phone, msg, c.id);
+      }, index * 800);
+    });
+    showToast(`🚀 تم بدء فتح طابور الحملة الجماعية لعدد ${targetList.length} عميل.`);
   };
 
   const saleCategoriesNames = categories.filter(cat => cat.isSale).map(cat => getCatDisplay(cat.nameKey, cat.fallbackName));
@@ -1181,7 +1309,7 @@ export default function EngaziaWhatsAppCRM() {
         <div className="modal-overlay" onClick={() => setSelectedCustomer(null)}>
           <div className="modal-content" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
-              <h3 className="modal-title">✏ ملف العميل الشامل والأرشيف السجلي</h3>
+              <h3 className="modal-title">✏ ملف العميل والأرشيف</h3>
               <button className="close-modal-btn" onClick={() => setSelectedCustomer(null)}>✕</button>
             </div>
             
@@ -1191,8 +1319,11 @@ export default function EngaziaWhatsAppCRM() {
                 <input type="text" className="modal-edit-input" value={selectedCustomer.name} onChange={e => updateCustomerField(selectedCustomer.id, 'name', e.target.value)} />
               </div>
               <div className="modal-item">
-                <span className="modal-item-label">{t.phoneLabel}</span>
-                <input type="text" className="modal-edit-input input-ltr" style={{ borderColor: isPhoneValid(selectedCustomer.phone) ? '#cbd5e1' : '#dc2626' }} value={selectedCustomer.phone} onChange={e => updateCustomerField(selectedCustomer.id, 'phone', e.target.value)} />
+                <span className="modal-item-label">{t.countryCodeLabel} & {t.phoneLabel}</span>
+                <div style={{ display: 'flex', gap: '5px' }}>
+                  <input type="text" className="modal-edit-input input-ltr" style={{ width: '80px' }} value={selectedCustomer.countryCode || '+966'} onChange={e => updateCustomerField(selectedCustomer.id, 'countryCode', e.target.value)} />
+                  <input type="text" className="modal-edit-input input-ltr" value={selectedCustomer.phone} onChange={e => updateCustomerField(selectedCustomer.id, 'phone', e.target.value)} />
+                </div>
               </div>
               <div className="modal-item">
                 <span className="modal-item-label">{t.orderNumLabel}</span>
@@ -1231,12 +1362,12 @@ export default function EngaziaWhatsAppCRM() {
               </div>
               <div className="modal-item" style={{ gridColumn: '1 / -1' }}>
                 <span className="modal-item-label">{t.noteLabel}</span>
-                <input type="text" className="modal-edit-input" value={selectedCustomer.note || ''} onChange={e => updateCustomerField(selectedCustomer.id, 'note', e.target.value)} placeholder="أدخل ملاحظات العميل..." />
+                <input type="text" className="modal-edit-input" value={selectedCustomer.note || ''} onChange={e => updateCustomerField(selectedCustomer.id, 'note', e.target.value)} />
               </div>
             </div>
 
             <div className="timeline-box">
-              <div className="timeline-title">📜 أرشيف التواصل وسجل الملاحظات السابقة</div>
+              <div className="timeline-title">📜 الأرشيف وسجل الملاحظات</div>
               <div className="timeline-list">
                 {selectedCustomer.timeline && selectedCustomer.timeline.length > 0 ? (
                   selectedCustomer.timeline.map((log) => (
@@ -1250,14 +1381,14 @@ export default function EngaziaWhatsAppCRM() {
                 )}
               </div>
               <div style={{ display: 'flex', gap: '10px' }}>
-                <input type="text" className="modal-edit-input" placeholder="أضف ملاحظة جديدة للأرشيف..." value={newTimelineNote} onChange={e => setNewTimelineNote(e.target.value)} />
-                <button className="btn-main" style={{ padding: '8px 16px', whiteSpace: 'nowrap' }} onClick={() => addTimelineLogToCustomer(selectedCustomer.id)}>إضافة للأرشيف</button>
+                <input type="text" className="modal-edit-input" placeholder={t.newArchivePlaceholder} value={newTimelineNote} onChange={e => setNewTimelineNote(e.target.value)} />
+                <button className="btn-main" style={{ padding: '8px 16px', whiteSpace: 'nowrap' }} onClick={() => addTimelineLogToCustomer(selectedCustomer.id)}>{t.addToArchiveBtn}</button>
               </div>
             </div>
 
             <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
-              <button className="btn-wa" style={{ flex: 2 }} onClick={() => openWhatsAppDirect(selectedCustomer.phone, 'مرحباً بك', selectedCustomer.id)}>🟢 مراسلة عبر واتساب</button>
-              <button className="btn-sm btn-danger" style={{ padding: '0 20px', fontSize: '13px', fontWeight: 800 }} onClick={() => deleteContact(selectedCustomer.id)}>🗑️ حذف</button>
+              <button className="btn-wa" style={{ flex: 2 }} onClick={() => openWhatsAppDirect(selectedCustomer.countryCode || '+966', selectedCustomer.phone, 'مرحباً', selectedCustomer.id)}>{t.sendWaBtn}</button>
+              <button className="btn-sm btn-danger" style={{ padding: '0 20px', fontSize: '13px', fontWeight: 800 }} onClick={() => deleteContact(selectedCustomer.id)}>{t.deleteBtn}</button>
               <button className="btn-main" style={{ flex: 1, background: '#f1f5f9', color: '#1e293b' }} onClick={() => setSelectedCustomer(null)}>إغلاق</button>
             </div>
           </div>
@@ -1282,7 +1413,6 @@ export default function EngaziaWhatsAppCRM() {
           <button className={`tab-btn ${activeTab === 'tags' ? 'active' : ''}`} onClick={() => setActiveTab('tags')}>{t.tabTags}</button>
         </div>
 
-        {/* 1. Dashboard */}
         {activeTab === 'dashboard' && (
           <div>
             <div className="section-title">{t.perfIndicators}</div>
@@ -1316,7 +1446,7 @@ export default function EngaziaWhatsAppCRM() {
                     <th>{t.categoryLabel}</th>
                     <th>{t.statusLabel}</th>
                     <th>{t.responseStateLabel}</th>
-                    <th>آخر تواصل</th>
+                    <th>{t.lastContactHeader}</th>
                     <th>{t.actions}</th>
                   </tr>
                 </thead>
@@ -1332,7 +1462,7 @@ export default function EngaziaWhatsAppCRM() {
                         <td><span className="badge" style={{ background: matchedCat?.bg || '#eee', color: matchedCat?.color || '#000' }}>{c.category}</span></td>
                         <td><span className="badge" style={{ background: matchedSt?.bg || '#eee', color: matchedSt?.color || '#000' }}>{c.status}</span></td>
                         <td><span className="badge" style={{ background: matchedResp?.bg || '#fef3c7', color: matchedResp?.color || '#d97706' }}>{c.responseState}</span></td>
-                        <td style={{ color: '#4f46e5', fontSize: '11px', fontWeight: 700, direction: 'ltr', textAlign: 'left' }}>{c.lastContactDate || 'لم يتم'}</td>
+                        <td style={{ color: '#4f46e5', fontSize: '11px', fontWeight: 700, direction: 'ltr', textAlign: 'left' }}>{c.lastContactDate || t.neverContacted}</td>
                         <td>
                           <div style={{ display: 'flex', gap: '4px' }}>
                             <button className="btn-sm btn-success" onClick={() => routeToMessaging(c)}>💬</button>
@@ -1342,14 +1472,13 @@ export default function EngaziaWhatsAppCRM() {
                       </tr>
                     );
                   })}
-                  {contacts.length === 0 && <tr><td colSpan={7} style={{textAlign: 'center', padding: '30px', color: '#64748b'}}>لا يوجد عملاء مسجلين بعد.</td></tr>}
+                  {contacts.length === 0 && <tr><td colSpan={7} style={{textAlign: 'center', padding: '30px', color: '#64748b'}}>لا يوجد عملاء.</td></tr>}
                 </tbody>
               </table>
             </div>
           </div>
         )}
 
-        {/* 1.5 Advanced Analytics */}
         {activeTab === 'analytics' && (
           <div>
             <div className="section-title">{t.tabAnalytics}</div>
@@ -1398,7 +1527,6 @@ export default function EngaziaWhatsAppCRM() {
           </div>
         )}
 
-        {/* 2. CRM */}
         {activeTab === 'crm' && (
           <div>
             <div className="section-box">
@@ -1406,7 +1534,13 @@ export default function EngaziaWhatsAppCRM() {
               <form onSubmit={addContact}>
                 <div className="form-grid" style={{ marginBottom: '20px' }}>
                   <div className="form-group"><label>{t.nameLabel}</label><input type="text" className="form-control" value={newName} onChange={e => setNewName(e.target.value)} required /></div>
-                  <div className="form-group"><label>{t.phoneLabel}</label><input type="text" className="form-control input-ltr" value={newPhone} onChange={e => setNewPhone(toEnglishDigits(e.target.value))} required placeholder="05xxxxxxxx" /></div>
+                  <div className="form-group">
+                    <label>{t.countryCodeLabel} & {t.phoneLabel}</label>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <input type="text" className="form-control input-ltr" style={{ width: '90px' }} value={newCountryCode} onChange={e => setNewCountryCode(toEnglishDigits(e.target.value))} placeholder="+966" />
+                      <input type="text" className="form-control input-ltr" value={newPhone} onChange={e => setNewPhone(toEnglishDigits(e.target.value))} required placeholder="5xxxxxxxx" />
+                    </div>
+                  </div>
                   <div className="form-group"><label>{t.orderNumLabel}</label><input type="text" className="form-control input-ltr" value={newOrderNumber} onChange={e => setNewOrderNumber(toEnglishDigits(e.target.value))} /></div>
                   <div className="form-group">
                     <label>{t.categoryLabel}</label>
@@ -1472,14 +1606,14 @@ export default function EngaziaWhatsAppCRM() {
                 <thead>
                   <tr>
                     <th>{t.nameLabel}</th>
-                    <th>{t.phoneLabel}</th>
+                    <th>{t.countryCodeLabel} & {t.phoneLabel}</th>
                     <th>{t.orderNumLabel}</th>
                     <th>{t.categoryLabel}</th>
                     <th>{t.statusLabel}</th>
                     <th>{t.responseStateLabel}</th>
                     <th>{t.amountLabel}</th>
                     <th>{t.noteLabel}</th>
-                    <th>آخر تواصل</th>
+                    <th>{t.lastContactHeader}</th>
                     <th>{t.actions}</th>
                   </tr>
                 </thead>
@@ -1487,7 +1621,12 @@ export default function EngaziaWhatsAppCRM() {
                   {filteredContacts.map(c => (
                     <tr key={c.id}>
                       <td><span style={{ fontWeight: 800, color: '#4f46e5', cursor: 'pointer' }} onClick={() => setSelectedCustomer(c)}>{c.name}</span></td>
-                      <td><input type="text" className="cell-input input-ltr" value={c.phone} onChange={e => updateCustomerField(c.id, 'phone', e.target.value)} /></td>
+                      <td>
+                        <div style={{ display: 'flex', gap: '4px' }}>
+                          <input type="text" className="cell-input input-ltr" style={{ width: '55px' }} value={c.countryCode || '+966'} onChange={e => updateCustomerField(c.id, 'countryCode', e.target.value)} />
+                          <input type="text" className="cell-input input-ltr" value={c.phone} onChange={e => updateCustomerField(c.id, 'phone', e.target.value)} />
+                        </div>
+                      </td>
                       <td><input type="text" className="cell-input input-ltr" value={c.orderNumber} onChange={e => updateCustomerField(c.id, 'orderNumber', e.target.value)} /></td>
                       <td>
                         <select className="cell-input" value={c.category} onChange={e => updateCustomerField(c.id, 'category', e.target.value)}>
@@ -1515,24 +1654,23 @@ export default function EngaziaWhatsAppCRM() {
                       </td>
                       <td><input type="text" className="cell-input input-ltr" value={c.amount} onChange={e => updateCustomerField(c.id, 'amount', e.target.value)} /></td>
                       <td><input type="text" className="cell-input" value={c.note || ''} onChange={e => updateCustomerField(c.id, 'note', e.target.value)} /></td>
-                      <td style={{ direction: 'ltr', textAlign: 'left', color: '#4f46e5', fontSize: '10px' }}>{c.lastContactDate || 'لم يتم'}</td>
+                      <td style={{ direction: 'ltr', textAlign: 'left', color: '#4f46e5', fontSize: '10px' }}>{c.lastContactDate || t.neverContacted}</td>
                       <td>
                         <div style={{ display: 'flex', gap: '4px' }}>
                           <button className="btn-sm btn-success" onClick={() => routeToMessaging(c)}>💬</button>
                           <button className="btn-sm btn-edit" onClick={() => updateLastContact(c.id)}>🕒</button>
-                          <button className="btn-sm btn-danger" onClick={() => deleteContact(c.id)}>حذف</button>
+                          <button className="btn-sm btn-danger" onClick={() => deleteContact(c.id)}>✕</button>
                         </div>
                       </td>
                     </tr>
                   ))}
-                  {filteredContacts.length === 0 && <tr><td colSpan={10} style={{textAlign: 'center', padding: '30px', color: '#64748b'}}>لا يوجد عملاء يطابقون بحثك.</td></tr>}
+                  {filteredContacts.length === 0 && <tr><td colSpan={10} style={{textAlign: 'center', padding: '30px', color: '#64748b'}}>لا يوجد عملاء.</td></tr>}
                 </tbody>
               </table>
             </div>
           </div>
         )}
 
-        {/* 3. Messaging Engine */}
         {activeTab === 'messaging' && (
           <div>
             <div className="radio-group">
@@ -1551,21 +1689,27 @@ export default function EngaziaWhatsAppCRM() {
                       {showSuggestions && matchingCustomers.length > 0 && (
                         <div className="suggestions-box">
                           {matchingCustomers.map(cust => (
-                            <div key={cust.id} className="suggestion-item" onClick={() => { setCustomerName(cust.name); setCustomerPhone(cust.phone); setOrderNumber(cust.orderNumber); setShowSuggestions(false); }}>
+                            <div key={cust.id} className="suggestion-item" onClick={() => { setCustomerName(cust.name); setCustomerCountryCode(cust.countryCode || '+966'); setCustomerPhone(cust.phone); setOrderNumber(cust.orderNumber); setShowSuggestions(false); }}>
                               <span>{cust.name}</span>
-                              <span style={{ color: '#4f46e5', direction: 'ltr' }}>{cust.phone}</span>
+                              <span style={{ color: '#4f46e5', direction: 'ltr' }}>{cust.countryCode || '+966'} {cust.phone}</span>
                             </div>
                           ))}
                         </div>
                       )}
                     </div>
-                    <div className="form-group"><label>{t.phoneLabel}</label><input type="text" className="form-control input-ltr" value={customerPhone} onChange={e => setCustomerPhone(toEnglishDigits(e.target.value))} /></div>
+                    <div className="form-group">
+                      <label>{t.countryCodeLabel} & {t.phoneLabel}</label>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <input type="text" className="form-control input-ltr" style={{ width: '90px' }} value={customerCountryCode} onChange={e => setCustomerCountryCode(toEnglishDigits(e.target.value))} placeholder="+966" />
+                        <input type="text" className="form-control input-ltr" value={customerPhone} onChange={e => setCustomerPhone(toEnglishDigits(e.target.value))} placeholder="5xxxxxxxx" />
+                      </div>
+                    </div>
                     <div className="form-group"><label>{t.orderNumLabel}</label><input type="text" className="form-control input-ltr" value={orderNumber} onChange={e => setOrderNumber(toEnglishDigits(e.target.value))} /></div>
                   </div>
                 </>
               ) : (
                 <>
-                  <div className="section-title">1. Broadcast Target Segment</div>
+                  <div className="section-title">Broadcast Target Segment</div>
                   <div className="form-group" style={{ maxWidth: '400px' }}>
                     <label>Select Target Category:</label>
                     <select className="form-control" value={broadcastCat} onChange={e => setBroadcastCat(e.target.value)}>
@@ -1591,21 +1735,36 @@ export default function EngaziaWhatsAppCRM() {
                   );
                 })}
               </div>
+
+              <div style={{ display: 'flex', gap: '15px', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap' }}>
+                <div style={{ flex: 1, minWidth: '220px' }}>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 800, color: '#475569', marginBottom: '6px' }}>نص إضافي / رابط الدفع:</label>
+                  <input type="text" className="form-control input-ltr" value={extraInfo} onChange={e => setExtraInfo(e.target.value)} placeholder="https://..." />
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', paddingTop: '20px' }}>
+                  <input type="checkbox" id="discCheck" checked={includeDiscount} onChange={e => setIncludeDiscount(e.target.checked)} style={{ width: '18px', height: '18px', cursor: 'pointer' }} />
+                  <label htmlFor="discCheck" style={{ fontSize: '13px', fontWeight: 800, cursor: 'pointer' }}>{t.defaultDiscountLabel} ({defaultDiscountCode})</label>
+                </div>
+              </div>
+
               <button className="btn-main" style={{ width: '100%' }} onClick={handleGenerateMessage}>{t.generateMsgBtn}</button>
+
               {generatedMsg && (
                 <div style={{ background: '#fff', border: '2px dashed #cbd5e1', padding: '20px', borderRadius: '16px', marginTop: '20px' }}>
                   <div style={{ background: '#f8fafc', padding: '15px', borderRadius: '10px', fontSize: '14px', lineHeight: 1.7, whiteSpace: 'pre-wrap', marginBottom: '15px', color: '#1e293b' }}>{generatedMsg}</div>
-                  <button className="btn-wa" style={{ width: '100%' }} onClick={() => openWhatsAppDirect(customerPhone, generatedMsg)}>{t.sendWaBtn}</button>
+                  {messagingMode === 'single' ? (
+                    <button className="btn-wa" style={{ width: '100%' }} onClick={() => openWhatsAppDirect(customerCountryCode, customerPhone, generatedMsg)}>{t.sendWaBtn}</button>
+                  ) : (
+                    <button className="btn-wa" style={{ width: '100%', background: '#4f46e5' }} onClick={handleBroadcastQueueSend}>🚀 بدء إرسال الحملة الجماعية (الطابور التسلسلي)</button>
+                  )}
                 </div>
               )}
             </div>
           </div>
         )}
 
-        {/* 4. Settings */}
         {activeTab === 'tags' && (
           <div>
-            {/* تخصيص تصنيفات العملاء */}
             <div className="section-box">
               <div className="section-title">{t.customizeCatTitle}</div>
               <form onSubmit={addCategory} className="settings-creation-box">
@@ -1632,7 +1791,6 @@ export default function EngaziaWhatsAppCRM() {
               </div>
             </div>
 
-            {/* تخصيص حالات العميل */}
             <div className="section-box">
               <div className="section-title">{t.customizeStatusTitle}</div>
               <form onSubmit={addStatusOption} className="settings-creation-box">
@@ -1659,7 +1817,6 @@ export default function EngaziaWhatsAppCRM() {
               </div>
             </div>
 
-            {/* تخصيص حالات الرد */}
             <div className="section-box">
               <div className="section-title">{t.customizeRespTitle}</div>
               <form onSubmit={addResponseStateOption} className="settings-creation-box">
