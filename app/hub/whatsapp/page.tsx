@@ -411,7 +411,7 @@ export default function EngaziaWhatsAppCRM() {
     if (!cloudMasterKey.trim()) return showToast('⚠️ أدخل مفتاح Master Key السحابي.');
     try {
       showToast('☁️ جاري الحفظ في السحاب...');
-      const payload = { defaultDiscountCode, contacts, categories, statusOptions, responseStateOptions, version: '3.6' };
+      const payload = { defaultDiscountCode, contacts, categories, statusOptions, responseStateOptions, version: '3.7' };
       
       let endpoint = 'https://api.jsonbin.io/v3/b';
       let method = 'POST';
@@ -479,7 +479,7 @@ export default function EngaziaWhatsAppCRM() {
 
   const exportBackupJSON = () => {
     const backupData = {
-      defaultDiscountCode, contacts, categories, statusOptions, responseStateOptions, version: '3.6'
+      defaultDiscountCode, contacts, categories, statusOptions, responseStateOptions, version: '3.7'
     };
     const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
