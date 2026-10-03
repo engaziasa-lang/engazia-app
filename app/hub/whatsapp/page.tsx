@@ -471,7 +471,7 @@ const toolTranslations: { [key: string]: any } = {
     cloudMasterKeyLabel: 'Cloud Master Key',
     cloudBinIdLabel: 'Cloud Bin ID',
     cloudSaveSuccess: '☁️ Veriler buluta başarıyla kaydedildi!',
-    cloudLoadSuccess: '🔄 Veriler buluttان başarıyla yüklendi!',
+    cloudLoadSuccess: '🔄 Veriler buluttan başarıyla yüklendi!',
     errorPhone: '❌ Geçersiz telefon!',
     errorBackup: '❌ Geçersiz dosya.',
     cats: { newCustomer: 'Yeni Müşteri', abandonedCart: 'Terk Sepet', pendingPayment: 'Ödeme Bekleniyor', shipped: 'Kargolandı' },
@@ -620,7 +620,7 @@ const toolTranslations: { [key: string]: any } = {
     successToastRestore: '♻ Wiederhergestellt!',
     cloudMasterKeyLabel: 'Cloud Master Key',
     cloudBinIdLabel: 'Cloud Bin ID',
-    cloudSaveSuccess: '☁️️ Daten erfolgreich in der Cloud gespeichert!',
+    cloudSaveSuccess: '☁ Daten erfolgreich in der Cloud gespeichert!',
     cloudLoadSuccess: '🔄 Daten erfolgreich aus der Cloud geladen!',
     errorPhone: '❌ Ungültige Nummer!',
     errorBackup: '❌ Ungültige Datei.',
@@ -659,7 +659,7 @@ const toolTranslations: { [key: string]: any } = {
     backupBox: 'Cadangan Data & Cloud (JsonBin)',
     downloadBackup: 'Unduh Cadangan',
     restoreBackup: 'Pulihkan',
-    cloudSave: '☁️ Simpan ke Cloud',
+    cloudSave: '☁️️ Simpan ke Cloud',
     cloudLoad: '🔄 Muat dari Cloud',
     perfIndicators: 'Indikator Kinerja',
     latestCustomers: 'Pelanggan Terbaru',
@@ -741,7 +741,6 @@ export default function EngaziaWhatsAppCRM() {
 
   const [defaultDiscountCode, setDefaultDiscountCode] = useState('ENGAZIA10');
 
-  // إعدادات التخزين السحابي JsonBin
   const [cloudMasterKey, setCloudMasterKey] = useState('$2a$10$MjUOD019x6uuVhyrdjtfl.CBlGqmIXvW5b/tNrOZU6Ey8P.JOcyu');
   const [cloudBinId, setCloudBinId] = useState('');
 
@@ -757,7 +756,12 @@ export default function EngaziaWhatsAppCRM() {
   const [broadcastCat, setBroadcastCat] = useState('');
 
   const [activeTemplateId, setActiveTemplateId] = useState<number>(1);
-  const [templates, setTemplates] = useState<Template[]>([]);
+  const [templates, setTemplates] = useState<Template[]>([
+    { id: 1, icon: '✅', titleKey: 't1Title', fallbackTitle: 'Order Confirmation', textKey: 't1Text', fallbackText: 'Hello [الاسم]' },
+    { id: 2, icon: '🛒', titleKey: 't2Title', fallbackTitle: 'Abandoned Cart', textKey: 't2Text', fallbackText: 'Hi [الاسم]' },
+    { id: 3, icon: '📦', titleKey: 't3Title', fallbackTitle: 'Shipping Tracker', textKey: 't3Text', fallbackText: 'Hello [الاسم]' },
+    { id: 4, icon: '💳', titleKey: 't4Title', fallbackTitle: 'Payment Link', textKey: 't4Text', fallbackText: 'Hello [الاسم]' }
+  ]);
 
   const [categories, setCategories] = useState<TagConfig[]>([]);
   const [newCatName, setNewCatName] = useState('');
@@ -802,14 +806,6 @@ export default function EngaziaWhatsAppCRM() {
           { nameKey: 'pending', fallbackName: t.responseStates.pending, bg: '#fef3c7', color: '#d97706' },
           { nameKey: 'agreed', fallbackName: t.responseStates.agreed, bg: '#dcfce7', color: '#15803d' },
           { nameKey: 'closed', fallbackName: t.responseStates.closed, bg: '#fee2e2', color: '#dc2626' }
-        ]);
-      }
-      if (templates.length === 0) {
-        setTemplates([
-          { id: 1, icon: '✅', titleKey: 't1Title', fallbackTitle: t.tpls.t1Title, textKey: 't1Text', fallbackText: t.tpls.t1Text },
-          { id: 2, icon: '🛒', titleKey: 't2Title', fallbackTitle: t.tpls.t2Title, textKey: 't2Text', fallbackText: t.tpls.t2Text },
-          { id: 3, icon: '📦', titleKey: 't3Title', fallbackTitle: t.tpls.t3Title, textKey: 't3Text', fallbackText: t.tpls.t3Text },
-          { id: 4, icon: '💳', titleKey: 't4Title', fallbackTitle: t.tpls.t4Title, textKey: 't4Text', fallbackText: t.tpls.t4Text }
         ]);
       }
     }
@@ -875,7 +871,6 @@ export default function EngaziaWhatsAppCRM() {
     localStorage.setItem('engazia_whatsapp_response_states_v1', JSON.stringify(updated));
   };
 
-  // وظائف التخزين السحابي عبر JsonBin.io
   const saveToCloud = async () => {
     if (!cloudMasterKey.trim()) return showToast('⚠️ أدخل مفتاح Master Key السحابي.');
     try {
@@ -1831,7 +1826,6 @@ export default function EngaziaWhatsAppCRM() {
               </div>
             </div>
 
-            {/* قسم التخزين السحابي الجديد متوافق مع JsonBin.io */}
             <div className="section-box" style={{ background: '#f0fdf4', borderColor: '#bbf7d0' }}>
               <div className="section-title" style={{ color: '#166534' }}>{t.backupBox}</div>
               
