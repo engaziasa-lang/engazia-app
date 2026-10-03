@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 
 const getInitialConfig = () => {
@@ -8,7 +8,6 @@ const getInitialConfig = () => {
     return { lang: 'ar', currency: 'SAR', licenseKey: '', isActivated: false };
   }
   
-  // فرض اللغة العربية والريال السعودي حصرياً لهذا المسار مع تحديث الهوية
   localStorage.setItem('seerk_global_lang', 'ar');
   localStorage.setItem('seerk_global_currency', 'SAR');
 
@@ -26,8 +25,6 @@ interface ToolInfo {
   link: string;
 }
 
-// تم فرز وتحديد 24 أداة بدقة متناهية بناءً على احتياجات التاجر السعودي
-// من الأهم والأكثر تأثيراً (رقم 1) إلى الأقل (رقم 24)
 const saTools: ToolInfo[] = [
   { id: 'profit', title: 'حاسبة أرباح ونقاط التعادل (15% ضريبة)', desc: 'احسب صافي أرباحك بدقة بعد خصم التكاليف، رسوم الشحن، وضريبة القيمة المضافة.', icon: '📊', link: '/hub/sa/profit' },
   { id: 'fees', title: 'حاسبة رسوم بوابات الدفع (تابي، تمارا، مدى)', desc: 'احسب نسب بوابات الدفع المحلية وتأثيرها الفعلي على هوامش أرباح متجرك.', icon: '💳', link: '/hub/sa/fees' },
@@ -44,7 +41,7 @@ const saTools: ToolInfo[] = [
   { id: 'expenses', title: 'مدير النفقات والمصاريف التشغيلية', desc: 'تتبع مصاريف المتجر الثابتة والمتغيرة بالريال السعودي لضبط التدفق النقدي.', icon: '💸', link: '/hub/sa/expenses' },
   { id: 'legal', title: 'مولد السياسات (وزارة التجارة)', desc: 'أنشئ صفحات الاستبدال والاسترجاع وسياسة الخصوصية المتوافقة مع القوانين المحلية.', icon: '⚖', link: '/hub/sa/legal' },
   { id: 'jasmal', title: 'جاسمال (Jasmal) لاستخراج البيانات', desc: 'اسحب بيانات المنتجات والأسعار من المتاجر المنافسة ورتبها فوراً في ملفات إكسل.', icon: '🕷️', link: '/hub/sa/jasmal' },
-  { id: 'reviews', title: 'نظام طلب التقييمات الآلي', desc: 'أرسل رسائل تلقائية للعملاء عبر الواتساب بعد الاستلام لجمع التقييمات وبناء الموثوقية.', icon: '⭐', link: '/hub/sa/reviews' },
+  { id: 'reviews', title: 'نظام طلب التقييمات الآلي', desc: 'أرسل رسائل تلقائية للعملاء عبر واتساب بعد الاستلام لجمع التقييمات وبناء الموثوقية.', icon: '⭐', link: '/hub/sa/reviews' },
   { id: 'dropshipping', title: 'حاسبة أرباح الدروبشيبينغ', desc: 'احسب هوامش الربح للمنتجات المستوردة مع أخذ رسوم الجمارك والشحن الدولي في الحسبان.', icon: '🌍', link: '/hub/sa/dropshipping' },
   { id: 'copy', title: 'مولد نصوص الإكسبلور (باللهجة السعودية)', desc: 'اصنع سكربتات تيك توك وإعلانات جذابة باللهجة المحلية لزيادة معدل التحويل.', icon: '✍', link: '/hub/sa/copy' },
   { id: 'support', title: 'قوالب خدمة العملاء السريعة', desc: 'انسخ ردود احترافية جاهزة للرد على استفسارات العملاء المكررة عبر واتساب.', icon: '🎧', link: '/hub/sa/support' },
@@ -58,6 +55,7 @@ const saTools: ToolInfo[] = [
 export default function SeerkSaudiHub() {
   const [licenseKeyInput, setLicenseKeyInput] = useState<string>('');
   const [isActivated, setIsActivated] = useState<boolean>(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const LEMON_CHECKOUT_URL = 'https://seerk.lemonsqueezy.com/checkout/buy/80ff492a-01eb-4455-b1a8-96e12ab72562';
 
@@ -78,7 +76,7 @@ export default function SeerkSaudiHub() {
     const cleanKey = licenseKeyInput.trim();
     localStorage.setItem('merchant_license_key', cleanKey);
     setIsActivated(true);
-    alert('✨ تم تفعيل النظام والمزامنة السحابية بنجاح عبر كل أدوات منصة Seerk!');
+    alert('✨ تم تفعيل النظام بنجاح عبر كل أدوات منصة Seerk!');
   };
 
   const handleDeactivateLicense = () => {
@@ -86,6 +84,50 @@ export default function SeerkSaudiHub() {
     setLicenseKeyInput('');
     setIsActivated(false);
     alert('⚠️ تم إلغاء تفعيل الاشتراك.');
+  };
+
+  // تصدير كل بيانات المنصة دفعة واحدة في ملف JSON واحد
+  const handleExportAllData = () => {
+    try {
+      const allData: Record<string, string> = {};
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key) {
+          allData[key] = localStorage.getItem(key) || '';
+        }
+      }
+
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(allData, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `seerk_saudi_backup_${new Date().toISOString().slice(0, 10)}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+      alert('📥 تم تصدير وتحميل كافة بيانات أدوات المنصة بنجاح!');
+    } catch (error) {
+      alert('حدث خطأ أثناء تصدير البيانات.');
+    }
+  };
+
+  // استعادة البيانات من ملف JSON
+  const handleImportAllData = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const fileReader = new FileReader();
+    if (event.target.files && event.target.files[0]) {
+      fileReader.readAsText(event.target.files[0], "UTF-8");
+      fileReader.onload = (e) => {
+        try {
+          const parsedData = JSON.parse(e.target?.result as string);
+          Object.keys(parsedData).forEach((key) => {
+            localStorage.setItem(key, parsedData[key]);
+          });
+          alert('✨ تم استعادة جميع البيانات بنجاح! سيتم تحديث الصفحة الآن.');
+          window.location.reload();
+        } catch (error) {
+          alert('❌ ملف النسخة الاحتياطية غير صالح أو تالف.');
+        }
+      };
+    }
   };
 
   return (
@@ -99,19 +141,27 @@ export default function SeerkSaudiHub() {
         
         .hub-container { background-color: #f8fafc; min-height: 100vh; font-family: 'Tajawal', sans-serif; padding: 30px 20px 40px; }
         
-        .navbar { max-width: 1250px; margin: 0 auto 25px; padding: 12px 24px; background: #ffffff; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); border: 1px solid #cbd5e1; flex-wrap: nowrap; gap: 10px; }
+        .navbar { max-width: 1250px; margin: 0 auto 20px; padding: 12px 24px; background: #ffffff; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); border: 1px solid #cbd5e1; flex-wrap: wrap; gap: 15px; }
         .brand { font-size: 26px; font-weight: 900; color: #0f172a; white-space: nowrap; display: flex; align-items: center; gap: 8px; font-family: system-ui, -apple-system, sans-serif; letter-spacing: -0.5px; }
         .brand span { color: #4f46e5; }
         .sa-badge { background: #dcfce7; color: #166534; font-size: 12px; font-weight: 800; padding: 3px 8px; border-radius: 6px; font-family: 'Tajawal', sans-serif; letter-spacing: normal; }
         
-        .nav-controls { display: flex; align-items: center; gap: 12px; flex-wrap: nowrap; }
+        .nav-controls { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
         
         .license-box { display: flex; align-items: center; gap: 6px; background: #f8fafc; padding: 4px 8px; border-radius: 8px; border: 1px solid #cbd5e1; }
-        .license-input { border: 1px solid #cbd5e1; border-radius: 6px; padding: 4px 10px; font-size: 12px; outline: none; width: 170px; font-family: 'Tajawal', sans-serif; background: #fff; color: #0f172a; }
+        .license-input { border: 1px solid #cbd5e1; border-radius: 6px; padding: 4px 10px; font-size: 12px; outline: none; width: 150px; font-family: 'Tajawal', sans-serif; background: #fff; color: #0f172a; }
         .license-input:focus { border-color: #4f46e5; box-shadow: 0 0 0 2px rgba(79,70,229,0.1); }
         
+        .backup-action-btn { background: #0f172a; color: #fff; border: none; padding: 7px 12px; border-radius: 8px; font-weight: 800; font-size: 12px; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 5px; font-family: 'Tajawal', sans-serif; }
+        .backup-action-btn:hover { background: #1e293b; }
+
+        .restore-action-btn { background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; padding: 7px 12px; border-radius: 8px; font-weight: 800; font-size: 12px; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 5px; font-family: 'Tajawal', sans-serif; }
+        .restore-action-btn:hover { background: #e2e8f0; }
+
         .upgrade-btn { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: #fff !important; padding: 7px 14px; border-radius: 8px; font-weight: 800; font-size: 12px; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; box-shadow: 0 4px 10px rgba(79,70,229,0.2); white-space: nowrap; }
         
+        .backup-warning-bar { max-width: 1250px; margin: 0 auto 25px; background: #fffbeb; border: 1px solid #fde68a; color: #92400e; padding: 10px 18px; border-radius: 10px; font-size: 13px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+
         .promo-banner { max-width: 1250px; margin: 0 auto 35px; background: linear-gradient(135deg, #047857 0%, #065f46 100%); color: #fff; border-radius: 16px; padding: 22px 32px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; box-shadow: 0 12px 30px rgba(4,120,87,0.3); border: 1px solid rgba(255,255,255,0.25); position: relative; overflow: hidden; }
         .promo-banner::before { content: ''; position: absolute; top: -60px; right: -60px; width: 180px; height: 180px; background: rgba(255,255,255,0.12); border-radius: 50%; pointer-events: none; }
         .promo-content { display: flex; flex-direction: column; gap: 8px; z-index: 1; }
@@ -172,6 +222,22 @@ export default function SeerkSaudiHub() {
         </div>
 
         <div className="nav-controls">
+          {/* أزرار النسخ الاحتياطي والاستعادة لجميع بيانات الأدوات */}
+          <button onClick={handleExportAllData} className="backup-action-btn" title="حمل نسخة احتياطية لكل بيانات المنصة">
+            💾 تصدير البيانات
+          </button>
+
+          <button onClick={() => fileInputRef.current?.click()} className="restore-action-btn" title="استعد بياناتك من ملف سابق">
+            📂 استعادة البيانات
+          </button>
+          <input 
+            type="file" 
+            ref={fileInputRef} 
+            onChange={handleImportAllData} 
+            accept=".json" 
+            style={{ display: 'none' }} 
+          />
+
           <div className="license-box">
             <span style={{ fontSize: '11px', fontWeight: 800, color: '#475569' }}>🔑 ترخيص PRO:</span>
             {isActivated ? (
@@ -189,7 +255,7 @@ export default function SeerkSaudiHub() {
                 <input 
                   type="text" 
                   className="license-input"
-                  placeholder="أدخل مفتاح الترخيص..." 
+                  placeholder="مفتاح الترخيص..." 
                   value={licenseKeyInput} 
                   onChange={(e) => setLicenseKeyInput(e.target.value)}
                 />
@@ -205,10 +271,15 @@ export default function SeerkSaudiHub() {
 
           {!isActivated && (
             <a href={LEMON_CHECKOUT_URL} target="_blank" rel="noopener noreferrer" className="upgrade-btn">
-              ⚡ ترقية اشتراك (37.46 ر.س)
+              ⚡ ترقية (37.46 ر.س)
             </a>
           )}
         </div>
+      </div>
+
+      {/* شريط تنبيه حفظ البيانات لضمان عدم ضياعها */}
+      <div className="backup-warning-bar">
+        <span>⚠️ تنبيه مهم: بياناتك تُحفظ محلياً في متصفحك لضمان خصوصيتك. احرص على استخدام زر <b>"تصدير البيانات"</b> دورياً لحفظ نسختك الاحتياطية ونقلها لأي جهاز آخر بكل سهولة.</span>
       </div>
 
       {/* إعلان الترقية الخاص بالسوق السعودي */}
