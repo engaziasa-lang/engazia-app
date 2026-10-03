@@ -15,21 +15,18 @@ interface ProfitItem {
 }
 
 export default function ProfitCalculatorSA() {
-  // بيانات الإدخال للحاسبة الفورية
   const [productName, setProductName] = useState<string>('');
-  const [sellingPrice, setSellingPrice] = useState<number>(200);
-  const [productCost, setProductCost] = useState<number>(60);
-  const [shippingCost, setShippingCost] = useState<number>(25);
-  const [gatewayFeePercent, setGatewayFeePercent] = useState<number>(2.2);
+  const [sellingPrice, setSellingPrice] = useState<number | ''>('');
+  const [productCost, setProductCost] = useState<number | ''>('');
+  const [shippingCost, setShippingCost] = useState<number | ''>('');
+  const [gatewayFeePercent, setGatewayFeePercent] = useState<number | ''>(2.2);
 
-  // جدول المدخلات المحفوظة
   const [items, setItems] = useState<ProfitItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // تحميل البيانات من localStorage عند الفتح
   useEffect(() => {
     const saved = localStorage.getItem('seerk_profit_items');
     if (saved) {
@@ -37,53 +34,54 @@ export default function ProfitCalculatorSA() {
     }
   }, []);
 
-  // حفظ البيانات في localStorage
   const saveToLocalStorage = (newItems: ProfitItem[]) => {
     setItems(newItems);
     localStorage.setItem('seerk_profit_items', JSON.stringify(newItems));
   };
 
-  // التحقق من حالة الترخيص
   const isActivated = typeof window !== 'undefined' && !!localStorage.getItem('merchant_license_key');
 
-  // حساب النتائج للحاسبة الفورية
-  const vatAmount = sellingPrice - (sellingPrice / 1.15);
-  const gatewayFeeAmount = sellingPrice * (gatewayFeePercent / 100);
-  const totalCosts = productCost + shippingCost + vatAmount + gatewayFeeAmount;
-  const netProfit = sellingPrice - totalCosts;
-  const margin = sellingPrice > 0 ? (netProfit / sellingPrice) * 100 : 0;
+  // القيم الافتراضية للحسابات الفورية
+  const sPrice = typeof sellingPrice === 'number' ? sellingPrice : 0;
+  const pCost = typeof productCost === 'number' ? productCost : 0;
+  const sCost = typeof shippingCost === 'number' ? shippingCost : 0;
+  const gFee = typeof gatewayFeePercent === 'number' ? gatewayFeePercent : 0;
 
-  // مسح وتصفير حقول الإدخال
+  const vatAmount = sPrice - (sPrice / 1.15);
+  const gatewayFeeAmount = sPrice * (gFee / 100);
+  const totalCosts = pCost + sCost + vatAmount + gatewayFeeAmount;
+  const netProfit = sPrice - totalCosts;
+  const margin = sPrice > 0 ? (netProfit / sPrice) * 100 : 0;
+
+  // مسح وتصفير كافة حقول الإدخال
   const handleClearForm = () => {
     setProductName('');
-    setSellingPrice(200);
-    setProductCost(60);
-    setShippingCost(25);
+    setSellingPrice('');
+    setProductCost('');
+    setShippingCost('');
     setGatewayFeePercent(2.2);
     setEditingId(null);
   };
 
-  // إضافة أو تعديل منتج في الجدول السفلي مع تقييد التجريبي بـ 3 منتجات
   const handleSaveItem = (e: React.FormEvent) => {
     e.preventDefault();
     if (!isActivated && items.length >= 3 && !editingId) {
       alert('🔒 عذراً، لقد استهلكت الحد التجريبي (3 منتجات). يرجى ترقية حسابك لفتح السعة الكاملة بلا حدود!');
       return;
     }
-    if (!productName.trim() || sellingPrice <= 0) {
+    if (!productName.trim() || sPrice <= 0) {
       alert('الرجاء إدخال اسم المنتج وسعر بيع صحيح.');
       return;
     }
 
     if (editingId) {
-      // تحديث عنصر موجود
       const updated = items.map(item => item.id === editingId ? {
         ...item,
         name: productName,
-        sellingPrice,
-        productCost,
-        shippingCost,
-        gatewayFeePercent,
+        sellingPrice: sPrice,
+        productCost: pCost,
+        shippingCost: sCost,
+        gatewayFeePercent: gFee,
         netProfit: Number(netProfit.toFixed(2)),
         margin: Number(margin.toFixed(1))
       } : item);
@@ -91,14 +89,13 @@ export default function ProfitCalculatorSA() {
       setEditingId(null);
       alert('✨ تم تحديث بيانات المنتج بنجاح!');
     } else {
-      // إضافة عنصر جديد
       const newItem: ProfitItem = {
         id: Date.now().toString(),
         name: productName,
-        sellingPrice,
-        productCost,
-        shippingCost,
-        gatewayFeePercent,
+        sellingPrice: sPrice,
+        productCost: pCost,
+        shippingCost: sCost,
+        gatewayFeePercent: gFee,
         netProfit: Number(netProfit.toFixed(2)),
         margin: Number(margin.toFixed(1))
       };
@@ -106,11 +103,9 @@ export default function ProfitCalculatorSA() {
       alert('✅ تمت إضافة المنتج إلى جدول التحليل بنجاح!');
     }
 
-    // تصفير الحقول بعد الحفظ
     handleClearForm();
   };
 
-  // تعبئة الحقول للتعديل
   const handleEdit = (item: ProfitItem) => {
     setProductName(item.name);
     setSellingPrice(item.sellingPrice);
@@ -121,7 +116,6 @@ export default function ProfitCalculatorSA() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // حذف عنصر
   const handleDelete = (id: string) => {
     if (confirm('هل أنت متأكد من حذف هذا المنتج من الجدول؟')) {
       const filtered = items.filter(i => i.id !== id);
@@ -129,7 +123,6 @@ export default function ProfitCalculatorSA() {
     }
   };
 
-  // تصدير جدول البيانات إلى CSV
   const handleExportCsv = () => {
     if (items.length === 0) {
       alert('لا توجد بيانات لتصديرها.');
@@ -148,7 +141,6 @@ export default function ProfitCalculatorSA() {
     document.body.removeChild(link);
   };
 
-  // استيراد البيانات من ملف JSON
   const handleImportJson = (e: React.ChangeEvent<HTMLInputElement>) => {
     const reader = new FileReader();
     if (e.target.files && e.target.files[0]) {
@@ -167,7 +159,6 @@ export default function ProfitCalculatorSA() {
     }
   };
 
-  // تصفية العناصر حسب البحث
   const filteredItems = items.filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase()));
 
   return (
@@ -192,15 +183,15 @@ export default function ProfitCalculatorSA() {
         .card { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
         .card-title { font-size: 18px; font-weight: 800; color: #1e293b; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
         
-        .clear-form-btn { background: #f1f5f9; border: 1px solid #cbd5e1; color: #475569; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s; font-family: 'Tajawal', sans-serif; display: flex; align-items: center; gap: 5px; }
-        .clear-form-btn:hover { background: #e2e8f0; color: #0f172a; }
+        .clear-form-btn { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: 'Tajawal', sans-serif; display: flex; align-items: center; gap: 5px; }
+        .clear-form-btn:hover { background: #fecaca; }
 
         .input-group { margin-bottom: 15px; }
         .input-group label { display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 6px; }
         .input-wrapper { position: relative; display: flex; align-items: center; }
-        .input-wrapper input { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 15px; font-family: 'Tajawal', sans-serif; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; }
+        .input-wrapper input { width: 100%; padding: 10px 45px 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 15px; font-family: 'Tajawal', sans-serif; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; }
         .input-wrapper input:focus { border-color: #047857; background: #ffffff; }
-        .currency-tag { position: absolute; left: 15px; color: #94a3b8; font-weight: 700; font-size: 13px; }
+        .currency-tag { position: absolute; left: 14px; color: #64748b; font-weight: 800; font-size: 13px; pointer-events: none; }
         
         .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: 'Tajawal', sans-serif; margin-top: 10px; }
         .action-btn:hover { background: #065f46; }
@@ -243,7 +234,7 @@ export default function ProfitCalculatorSA() {
           <h2 className="card-title">
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <span>{editingId ? 'تعديل بيانات المنتج' : 'حساب منتج جديد'}</span>
-              <button type="button" className="clear-form-btn" onClick={handleClearForm} title="مسح الحقول لإدخال منتج جديد">
+              <button type="button" className="clear-form-btn" onClick={handleClearForm} title="مسح وتفريغ الحقول تماماً">
                 🧹 مسح الحقول
               </button>
             </div>
@@ -261,7 +252,7 @@ export default function ProfitCalculatorSA() {
             <div className="input-group">
               <label>سعر بيع المنتج للعميل</label>
               <div className="input-wrapper">
-                <input type="number" min="0" value={sellingPrice || ''} onChange={(e) => setSellingPrice(Number(e.target.value))} required />
+                <input type="number" min="0" value={sellingPrice === '' ? '' : sellingPrice} onChange={(e) => setSellingPrice(e.target.value === '' ? '' : Number(e.target.value))} placeholder="200" required />
                 <span className="currency-tag">ر.س</span>
               </div>
             </div>
@@ -269,7 +260,7 @@ export default function ProfitCalculatorSA() {
             <div className="input-group">
               <label>تكلفة المنتج الأساسية من المورد</label>
               <div className="input-wrapper">
-                <input type="number" min="0" value={productCost || ''} onChange={(e) => setProductCost(Number(e.target.value))} required />
+                <input type="number" min="0" value={productCost === '' ? '' : productCost} onChange={(e) => setProductCost(e.target.value === '' ? '' : Number(e.target.value))} placeholder="60" required />
                 <span className="currency-tag">ر.س</span>
               </div>
             </div>
@@ -277,7 +268,7 @@ export default function ProfitCalculatorSA() {
             <div className="input-group">
               <label>تكلفة التوصيل والشحن للطلب</label>
               <div className="input-wrapper">
-                <input type="number" min="0" value={shippingCost || ''} onChange={(e) => setShippingCost(Number(e.target.value))} />
+                <input type="number" min="0" value={shippingCost === '' ? '' : shippingCost} onChange={(e) => setShippingCost(e.target.value === '' ? '' : Number(e.target.value))} placeholder="25" />
                 <span className="currency-tag">ر.س</span>
               </div>
             </div>
@@ -285,7 +276,7 @@ export default function ProfitCalculatorSA() {
             <div className="input-group">
               <label>رسوم بوابة الدفع (%)</label>
               <div className="input-wrapper">
-                <input type="number" step="0.1" min="0" value={gatewayFeePercent || ''} onChange={(e) => setGatewayFeePercent(Number(e.target.value))} />
+                <input type="number" step="0.1" min="0" value={gatewayFeePercent === '' ? '' : gatewayFeePercent} onChange={(e) => setGatewayFeePercent(e.target.value === '' ? '' : Number(e.target.value))} placeholder="2.2" />
                 <span className="currency-tag">%</span>
               </div>
             </div>
