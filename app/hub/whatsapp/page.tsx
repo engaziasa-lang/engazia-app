@@ -467,7 +467,6 @@ export default function EngaziaWhatsAppCRM() {
   const suggestionsRef = useRef<HTMLDivElement>(null);
   const [showSuggestions, setShowSuggestions] = useState(false);
 
-  // نظام الـ Fallback الديناميكي الذكي لدعم أي لغة منصة غير معرفة صراحة (تعود للإنجليزية ثم العربية)
   const t = toolTranslations[currentLang] || toolTranslations['en'] || toolTranslations['ar'];
   const isRtl = currentLang === 'ar';
 
@@ -915,7 +914,7 @@ export default function EngaziaWhatsAppCRM() {
         .brand-title { font-size: 28px; font-weight: 900; color: #1e293b; letter-spacing: -0.5px; margin: 0; }
         .brand-title span { color: #4f46e5; }
         .brand-desc { color: #64748b; font-size: 14px; font-weight: 500; margin: 0; }
-        .nav-tabs { display: flex; gap: 10px; border-bottom: 2px solid #e2e8f0; padding-bottom: 15px; margin-bottom: 25px; overflow-x: auto; justify-content: center; }
+        .nav-tabs { display: flex; gap: 10px; border-bottom: 2px solid #e2e8f0; padding-bottom: 15px; margin-bottom: 25px; flex-wrap: wrap; justify-content: center; }
         .tab-btn { background: transparent; border: none; padding: 10px 20px; border-radius: 12px; font-weight: 800; font-size: 14px; color: #64748b; cursor: pointer; white-space: nowrap; }
         .tab-btn.active { background: #4f46e5; color: #fff; box-shadow: 0 4px 12px rgba(79,70,229,0.3); }
         .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 30px; }
