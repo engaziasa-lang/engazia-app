@@ -91,7 +91,6 @@ export default function EnjazyaSaudiHub() {
   const handleExportAllData = () => {
     try {
       const allData: Record<string, string> = {};
-      // الدوران على جميع المدخلات في الذاكرة وسحب بيانات الأدوات فقط
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
         if (key && (key.startsWith('seerk_') || key === 'merchant_license_key')) {
@@ -120,7 +119,6 @@ export default function EnjazyaSaudiHub() {
       fileReader.onload = (e) => {
         try {
           const parsedData = JSON.parse(e.target?.result as string);
-          // توزيع البيانات المدخلة وإرجاعها لكل أداة
           Object.keys(parsedData).forEach((key) => {
             localStorage.setItem(key, parsedData[key]);
           });
@@ -210,7 +208,7 @@ export default function EnjazyaSaudiHub() {
         .links-column h4 { color: #ffffff; font-size: 16px; font-weight: 800; margin-bottom: 20px; }
         .links-column ul { list-style: none; padding: 0; margin: 0; }
         .links-column ul li { margin-bottom: 12px; }
-        .links-column ul li a { color: #94a3b8 !important; font-size: 14px; font-weight: 500; }
+        .links-column ul li a { color: #94a3b8 !important; font-size: 14px; font-weight: 500; transition: color 0.2s; }
         .links-column ul li a:hover { color: #34d399 !important; }
         .footer-bottom { text-align: center; color: #64748b; font-size: 14px; font-weight: 500; }
 
@@ -218,7 +216,6 @@ export default function EnjazyaSaudiHub() {
         @media(max-width: 640px) { .cards-grid { grid-template-columns: 1fr; } .hero h1 { font-size: 28px; } .footer-links { flex-direction: column; gap: 30px; } .nav-controls { flex-direction: row; } }
       `}</style>
       
-      {/* شريط التحكم العلوي المطابق للصورة تماماً */}
       <div className="navbar">
         <div className="brand">
           إنجازيا <span className="sa-badge">السوق السعودي SA</span>
@@ -279,12 +276,10 @@ export default function EnjazyaSaudiHub() {
         </div>
       </div>
 
-      {/* شريط تنبيه حفظ البيانات لضمان عدم ضياعها */}
       <div className="backup-warning-bar">
         <span>⚠️ تنبيه مهم: بياناتك تُحفظ محلياً في متصفحك لضمان خصوصيتك. احرص على استخدام زر <b>"تصدير البيانات"</b> دورياً لحفظ جميع مدخلاتك للأدوات الـ 24 واستعادتها بأي وقت.</span>
       </div>
 
-      {/* إعلان الترقية الخاص بالسوق السعودي */}
       {!isActivated && (
         <div className="promo-banner">
           <div className="promo-content">
@@ -338,23 +333,23 @@ export default function EnjazyaSaudiHub() {
             <div className="links-column">
               <h4>المنصة</h4>
               <ul>
-                <li><a href="#">جميع الأدوات (24)</a></li>
-                <li><a href="#">التحديثات الجديدة</a></li>
-                <li><a href="#">أسعار الباقات</a></li>
+                <li><Link href="/hub/sa">جميع الأدوات (24)</Link></li>
+                <li><Link href="/updates">التحديثات الجديدة</Link></li>
+                <li><Link href="/pricing">أسعار الباقات</Link></li>
               </ul>
             </div>
             <div className="links-column">
               <h4>الدعم والمساعدة</h4>
               <ul>
-                <li><a href="#">الدعم الفني</a></li>
-                <li><a href="#">الأسئلة الشائعة</a></li>
+                <li><Link href="/support/contact">الدعم الفني</Link></li>
+                <li><Link href="/support/faq">الأسئلة الشائعة</Link></li>
               </ul>
             </div>
             <div className="links-column">
               <h4>الأنظمة والقوانين</h4>
               <ul>
-                <li><a href="#">شروط الاستخدام</a></li>
-                <li><a href="#">سياسة الخصوصية</a></li>
+                <li><Link href="/legal/terms">شروط الاستخدام</Link></li>
+                <li><Link href="/legal/privacy">سياسة الخصوصية</Link></li>
               </ul>
             </div>
           </div>
