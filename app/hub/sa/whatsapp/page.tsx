@@ -252,7 +252,6 @@ export default function WhatsappCrmSA() {
 
   const totalOrdersValue = filteredItems.reduce((acc, curr) => acc + (curr.orderValue || 0), 0);
   
-  // البحث بذكاء باستخدام الكلمات المفتاحية حتى لو قام التاجر بتعديل النص
   const abandonedCount = filteredItems.filter(i => (i.status || '').includes('متروكة')).length;
   const completedCount = filteredItems.filter(i => (i.status || '').includes('مكتمل')).length;
 
@@ -281,6 +280,10 @@ export default function WhatsappCrmSA() {
         
         .clear-form-btn { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: 'Tajawal', sans-serif; display: flex; align-items: center; gap: 5px; }
         .clear-form-btn:hover { background: #fecaca; }
+
+        /* كلاس ذكي لمنع تداخل الحقول في الجوال */
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        @media(max-width: 600px) { .form-row { grid-template-columns: 1fr; gap: 0; } }
 
         .input-group { margin-bottom: 15px; width: 100%; }
         .input-group label { display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 6px; }
@@ -344,7 +347,8 @@ export default function WhatsappCrmSA() {
           </h2>
 
           <form onSubmit={handleSaveItem}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+            {/* استخدام كلاس form-row لمنع التداخل في الجوال */}
+            <div className="form-row">
               <div className="input-group">
                 <label>اسم العميل</label>
                 <div className="input-wrapper">
@@ -359,9 +363,9 @@ export default function WhatsappCrmSA() {
               </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
-              <div className="input-group" style={{ background: '#f1f5f9', padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-                <label style={{ color: '#0f172a' }}>حالة العميل (اختر أو اكتب ما تريد)</label>
+            <div className="form-row">
+              <div className="input-group">
+                <label>حالة العميل (اختر أو اكتب ما تريد)</label>
                 <div className="input-wrapper" style={{ marginBottom: '8px' }}>
                   <select onChange={(e) => setStatus(e.target.value)} value={['سلة متروكة', 'بانتظار الدفع', 'طلب مكتمل', 'استفسار عام', 'عميل VIP', 'مسترجع'].includes(status) ? status : ''}>
                     <option value="سلة متروكة">سلة متروكة</option>
