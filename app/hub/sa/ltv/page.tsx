@@ -22,13 +22,23 @@ export default function LtvCalculatorSA() {
   const [items, setItems] = useState<LtvItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [editingId, setEditingId] = useState<string | null>(null);
+  
+  // حل مشكلة الـ Hydration في Next.js
+  const [isClient, setIsClient] = useState(false);
+  const [isActivated, setIsActivated] = useState(true);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    setIsClient(true);
+    setIsActivated(!!localStorage.getItem('merchant_license_key'));
+    
     const saved = localStorage.getItem('seerk_ltv_calculator_items');
     if (saved) {
-      try { setItems(JSON.parse(saved)); } catch (e) { }
+      try { 
+        const parsedData = JSON.parse(saved);
+        if (Array.isArray(parsedData)) setItems(parsedData);
+      } catch (e) { }
     }
   }, []);
 
@@ -37,13 +47,12 @@ export default function LtvCalculatorSA() {
     localStorage.setItem('seerk_ltv_calculator_items', JSON.stringify(newItems));
   };
 
-  const isActivated = typeof window !== 'undefined' && !!localStorage.getItem('merchant_license_key');
-
   const orderVal = typeof avgOrderValue === 'number' ? avgOrderValue : 0;
   const freq = typeof purchaseFrequency === 'number' ? purchaseFrequency : 0;
   const lifespan = typeof customerLifespan === 'number' ? customerLifespan : 0;
 
-  const ltvValue = orderVal * freq * lifespan;
+  // تأمين الحساب الرياضي من أخطاء الـ NaN
+  const ltvValue = (orderVal * freq * lifespan) || 0;
 
   const handleClearForm = () => {
     setSegmentName('العملاء الدائمين (VIP)');
@@ -114,7 +123,8 @@ export default function LtvCalculatorSA() {
     }
   };
 
-  const avgLtv = items.length > 0 ? items.reduce((acc, curr) => acc + curr.ltvValue, 0) / items.length : 0;
+  // تأمين دوال المصفوفات من التوقف
+  const avgLtv = items.length > 0 ? items.reduce((acc, curr) => acc + (Number(curr?.ltvValue) || 0), 0) / items.length : 0;
 
   const handleExportExcel = () => {
     if (items.length === 0) {
@@ -204,8 +214,9 @@ export default function LtvCalculatorSA() {
     }
   };
 
+  // تأمين الفلترة من التعطل بسبب بيانات مفقودة
   const filteredItems = items.filter(item => 
-    item.segmentName.toLowerCase().includes(searchQuery.toLowerCase())
+    (item?.segmentName || '').toLowerCase().includes((searchQuery || '').toLowerCase())
   );
 
   return (
@@ -289,13 +300,13 @@ export default function LtvCalculatorSA() {
         {/* قسم المدخلات */}
         <div className="card">
           <h2 className="card-title">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
               <span>{editingId ? 'تعديل السجل' : 'حساب قيمة LTV جديدة'}</span>
               <button type="button" className="clear-form-btn" onClick={handleClearForm} title="مسح الحقول">
                 🧹 مسح الحقول
               </button>
-            </div>
-            {!isActivated && <span className="trial-badge">تجريبي: {items.length}/3</span>}
+            </span>
+            {isClient && !isActivated && <span className="trial-badge">تجريبي: {items.length}/3</span>}
           </h2>
 
           <form onSubmit={handleSaveItem}>
