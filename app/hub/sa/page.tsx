@@ -48,7 +48,7 @@ const saTools: ToolInfo[] = [
   { id: 'support', title: 'قوالب خدمة العملاء السريعة', desc: 'انسخ ردود احترافية جاهزة للرد على استفسارات العملاء المكررة عبر واتساب.', icon: '🎧', link: '/hub/sa/support' },
   { id: 'promos', title: 'حاسبة جدوى أكواد الخصم والعروض', desc: 'تأكد من أن عروضك الترويجية (مثل 1+1 أو الشحن المجاني) لا تسبب لك خسائر مخفية.', icon: '🎟️', link: '/hub/sa/promos' },
   { id: 'ltv', title: 'حاسبة القيمة الدائمة للعميل (LTV)', desc: 'اعرف تكلفة الاستحواذ على العميل (CAC) وقيمته الفعلية لمتجرك على المدى الطويل.', icon: '🎯', link: '/hub/sa/ltv' },
-  { id: 'ab_test', title: 'حاسبة اختبارات الإعلانات (A/B)', desc: 'قارن بين حملتين إعلانيتين لتعرف أيهما يحقق أفضل عائد بأقل تكلفة للطلب.', icon: '⚖️️', link: '/hub/sa/ab-test' },
+  { id: 'ab_test', title: 'حاسبة اختبارات الإعلانات (A/B)', desc: 'قارن بين حملتين إعلانيتين لتعرف أيهما يحقق أفضل عائد بأقل تكلفة للطلب.', icon: '⚖️', link: '/hub/sa/ab-test' },
   { id: 'links', title: 'صانع روابط واتساب السريعة', desc: 'أنشئ روابط مخصصة برسائل جاهزة لبيو تيك توك أو تمريرها في حملات الانستقرام.', icon: '🔗', link: '/hub/sa/links' },
   { id: 'tips', title: 'أسرار نمو المتاجر السعودية', desc: 'مكتبة استراتيجيات حصرية لزيادة التحويل ورفع ولاء العملاء في السوق المحلي.', icon: '💡', link: '/hub/sa/tips' }
 ];
@@ -67,21 +67,6 @@ export default function EnjazyaSaudiHub() {
     setIsActivated(config.isActivated);
     if (typeof window !== 'undefined') {
       document.title = 'منصة إنجازيا | السوق السعودي 🇸🇦';
-
-      // استعادة مكان وقوف التاجر السابق تلقائياً
-      const savedScroll = sessionStorage.getItem('hub_scroll_position');
-      if (savedScroll) {
-        setTimeout(() => {
-          window.scrollTo({ top: parseInt(savedScroll, 10), behavior: 'smooth' });
-        }, 100);
-      }
-
-      // حفظ مكان التمرير عند مغادرة الصفحة أو النقر على أي أداة
-      const handleScroll = () => {
-        sessionStorage.setItem('hub_scroll_position', window.scrollY.toString());
-      };
-      window.addEventListener('scroll', handleScroll);
-      return () => window.removeEventListener('scroll', handleScroll);
     }
   }, []);
 
@@ -178,7 +163,6 @@ export default function EnjazyaSaudiHub() {
     <div className="hub-container" style={{ direction: 'rtl' }}>
       <style jsx global>{`
         a, .clean-link { text-decoration: none !important; color: inherit !important; }
-        html { scroll-behavior: smooth; }
       `}</style>
       
       <style jsx>{`
@@ -315,7 +299,7 @@ export default function EnjazyaSaudiHub() {
       </div>
 
       <div className="backup-warning-bar">
-        <span>⚠️ تنبيه مهم: بياناتك تُحفظ محلياً في متصفحك لضمان خصوصيتك. احرص على استخدام زر <b>"تصدير البيانات"</b> دورياً لحفظ جميع مدخلاتك للأدوات الـ 24 واستعادتها بأي وقت.</span>
+        <span>⚠️️ تنبيه مهم: بياناتك تُحفظ محلياً في متصفحك لضمان خصوصيتك. احرص على استخدام زر <b>"تصدير البيانات"</b> دورياً لحفظ جميع مدخلاتك للأدوات الـ 24 واستعادتها بأي وقت.</span>
       </div>
 
       {!isActivated && (
