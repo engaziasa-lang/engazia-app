@@ -70,7 +70,6 @@ export default function EnjazyaSaudiHub() {
     }
   }, []);
 
-  // دالة التحقق الفعلي من مفتاح الترخيص عبر Lemon السحابي
   const handleActivateLicense = async () => {
     const cleanKey = licenseKeyInput.trim();
     if (!cleanKey) {
@@ -78,7 +77,6 @@ export default function EnjazyaSaudiHub() {
       return;
     }
 
-    // منع المفاتيح الوهمية مثل 12345 أو النصوص القصيرة غير المطابقة لنمط Lemon Squeezy
     if (cleanKey.length < 10 || !cleanKey.includes('-')) {
       alert('❌ مفتاح الترخيص غير صالح! المفاتيح الصحيحة تُرسل لبريدك بعد إتمام الاشتراك فقط.');
       return;
@@ -86,7 +84,6 @@ export default function EnjazyaSaudiHub() {
 
     setIsLoading(true);
     try {
-      // الاتصال ببوابة Lemon Squeezy للتحقق من صحة المفتاح وسريانه
       const response = await fetch('https://api.lemonsqueezy.com/v1/licenses/validate', {
         method: 'POST',
         headers: {
@@ -108,7 +105,6 @@ export default function EnjazyaSaudiHub() {
         alert('❌ مفتاح الترخيص منتهي الصلاحية أو غير صحيح. تأكد من إدخال المفتاح المرسل لبريدك.');
       }
     } catch (error) {
-      // وضع احتياطي في حال حظر المتصفح لطلب الـ CORS الخارجي، يتم التحقق من نمط المفتاح بصرامة
       if (cleanKey.length >= 15 && cleanKey.includes('-')) {
         localStorage.setItem('merchant_license_key', cleanKey);
         setIsActivated(true);
@@ -119,13 +115,6 @@ export default function EnjazyaSaudiHub() {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleDeactivateLicense = () => {
-    localStorage.removeItem('merchant_license_key');
-    setLicenseKeyInput('');
-    setIsActivated(false);
-    alert('⚠️ تم إلغاء تفعيل الاشتراك.');
   };
 
   const handleExportAllData = () => {
@@ -280,15 +269,7 @@ export default function EnjazyaSaudiHub() {
           <div className="license-box">
             <span style={{ fontSize: '13px', fontWeight: 800, color: '#475569' }}>🔑 ترخيص PRO:</span>
             {isActivated ? (
-              <>
-                <span style={{ fontSize: '12px', fontWeight: 900, color: '#10b981' }}>المنصة مفعلة ✓</span>
-                <button 
-                  onClick={handleDeactivateLicense}
-                  style={{ background: '#fee2e2', color: '#dc2626', border: 'none', padding: '4px 8px', borderRadius: '4px', fontSize: '10px', fontWeight: 800, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif' }}
-                >
-                  إلغاء
-                </button>
-              </>
+              <span style={{ fontSize: '13px', fontWeight: 900, color: '#10b981', padding: '4px 8px' }}>المنصة مفعلة ✓</span>
             ) : (
               <>
                 <input 
@@ -318,7 +299,7 @@ export default function EnjazyaSaudiHub() {
       </div>
 
       <div className="backup-warning-bar">
-        <span>⚠️ تنبيه مهم: بياناتك تُحفظ محلياً في متصفحك لضمان خصوصيتك. احرص على استخدام زر <b>"تصدير البيانات"</b> دورياً لحفظ جميع مدخلاتك للأدوات الـ 24 واستعادتها بأي وقت.</span>
+        <span>⚠️️ تنبيه مهم: بياناتك تُحفظ محلياً في متصفحك لضمان خصوصيتك. احرص على استخدام زر <b>"تصدير البيانات"</b> دورياً لحفظ جميع مدخلاتك للأدوات الـ 24 واستعادتها بأي وقت.</span>
       </div>
 
       {!isActivated && (
