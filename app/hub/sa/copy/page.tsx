@@ -3,64 +3,59 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 
-interface CopywritingItem {
+interface ExplorScriptItem {
   id: string;
   productName: string;
-  copyStyle: string;
-  mainBenefit: string;
-  offerText: string;
-  generatedCopy: string;
+  hookStyle: string;
+  targetAudience: string;
+  generatedScript: string;
 }
 
-export default function CopywritingGeneratorSA() {
-  const [productName, setProductName] = useState<string>('عطر ليالي نجد');
-  const [copyStyle, setCopyStyle] = useState<string>('أفضل أسلوب الجذب السريع (Hook)');
-  const [mainBenefit, setMainBenefit] = useState<string>('ثبات يطول طوال اليوم وفواح بشكل خيالي');
-  const [offerText, setOfferText] = useState<string>('خصم 30% مع شحن مجاني لفترة محدودة');
+export default function ExplorGeneratorSA() {
+  const [productName, setProductName] = useState<string>('منتج مميز لمتجرنا');
+  const [hookStyle, setHookStyle] = useState<string>('طريقة "يا إلهي، كيف ما شفت هذا من زمان؟"');
+  const [targetAudience, setTargetAudience] = useState<string>('المتصفحين في إكسبلور تيك توك وسناب');
+  const [problemSolved, setProblemSolved] = useState<string>('يوفر الوقت والجهد ويفك عزلتي بالبيت');
 
-  const [items, setItems] = useState<CopywritingItem[]>([]);
+  const [items, setItems] = useState<ExplorScriptItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const saved = localStorage.getItem('seerk_copywriting_generator_items');
+    const saved = localStorage.getItem('seerk_explor_generator_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
   }, []);
 
-  const saveToLocalStorage = (newItems: CopywritingItem[]) => {
+  const saveToLocalStorage = (newItems: ExplorScriptItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_copywriting_generator_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_explor_generator_items', JSON.stringify(newItems));
   };
 
   const isActivated = typeof window !== 'undefined' && !!localStorage.getItem('merchant_license_key');
 
-  // توليد النص التسويقي بناءً على الأسلوب المختار
-  const generatedCopy = copyStyle.includes('Hook')
-    ? `🔥 يا أهلنا في السعودية! 🇸🇦\nدوركم على عطر فخم ومميز يثبت معك من الصباح لين الليل؟\n\nنقدم لكم (${productName || 'المنتج'}) - ${mainBenefit || 'جودة عالية تدوم طويلاً'}.\n\n✨ العرض الحالي: ${offerText || 'خصم لفترة محدودة'}\n\n🛒 اطلبه الحين من المتجر ولا تفوت الفرصة!`
-    : copyStyle.includes('Storytelling')
-    ? `📖 قصة نجاح يومية:\nكنت أدور دايم على ${productName || 'منتج مميز'} يعطيني النتيجة اللي أبيها بدون تعقيد.. لين طحت على هذا المنتج المعجزة!\n\nالمميز فيه إن ${mainBenefit || 'يحل المشكلة من أول استخدام'}.\n\n🎁 لا تفوت عرضنا: ${offerText || 'لفترة محدودة'}، اطلبه اليوم!`
-    : `⚡ تنبيه هام لكل عملاءنا الكرام في المملكة!\n\nباقي ساعات قليلة وينتهي عرض (${offerText || 'العرض الخاص'}) على ${productName || 'المنتج'} الأكثر طلباً.\n\nالمميزات: ${mainBenefit || 'أعلى جودة بأفضل سعر'}.\n\n⏳ اطلب الآن قبل نفاذ الكمية من المتجر!`;
+  // توليد سكربت الإكسبلور الاحترافي باللهجة السعودية
+  const generatedScript = `🎬 **سكربت فيديو إكسبلور (باللهجة السعودية)**:\n\n[الخطاف / الهووك - أول 3 ثواني]:\n"يا جماعة الخير، قسم بالله طحت على شي راح يفك عنا أزمة ويختصر عليكم نص مشاويركم! اسمعوني للأخير.." 🤯\n\n[المشكلة والصدمة]:\n"دايماً نواجه مشكلة إننا ${problemSolved || 'ندور على حل عملي وسريع وما نلقى شي يضبط معنا صح؟'}.. بس كل هذا تغير!"\n\n[الحل واستعراض المنتج]:\n"شوفوا معي ${productName || 'هذا المنتج الجبار'}.. تصميم فخم، جودة عالية، ومصمم خصيصاً لكل من يعاني من نفس السالفة في ${targetAudience || 'السوق السعودي'}."\n\n[الدعوة لاتخاذ إجراء - CTA]:\n"الكمية محدودة والطلب عالي جداً، الحق العرض واطلبها الحين من الرابط البايو أو المتجر قبل لا تخلص! 🛍️✨"`;
 
   const handleClearForm = () => {
     setProductName('');
-    setCopyStyle('أفضل أسلوب الجذب السريع (Hook)');
-    setMainBenefit('');
-    setOfferText('');
+    setHookStyle('طريقة "يا إلهي، كيف ما شفت هذا من زمان؟"');
+    setTargetAudience('');
+    setProblemSolved('');
     setEditingId(null);
   };
 
   const handleSaveItem = (e: React.FormEvent) => {
     e.preventDefault();
     if (!isActivated && items.length >= 3 && !editingId) {
-      alert('🔒 عذراً، لقد استهلكت الحد التجريبي (3 نصوص). يرجى ترقية حسابك لفتح السعة الكاملة بلا حدود!');
+      alert('🔒 عذراً، لقد استهلكت الحد التجريبي (3 سكربتات). يرجى ترقية حسابك لفتح السعة الكاملة بلا حدود!');
       return;
     }
     if (!productName.trim()) {
-      alert('الرجاء إدخال اسم المنتج أو الخدمة.');
+      alert('الرجاء إدخال اسم المنتج.');
       return;
     }
 
@@ -68,41 +63,38 @@ export default function CopywritingGeneratorSA() {
       const updated = items.map(item => item.id === editingId ? {
         ...item,
         productName,
-        copyStyle,
-        mainBenefit,
-        offerText,
-        generatedCopy,
+        hookStyle,
+        targetAudience: targetAudience || 'عام',
+        generatedScript,
       } : item);
       saveToLocalStorage(updated);
       setEditingId(null);
-      alert('✨ تم تحديث النص التسويقي بنجاح!');
+      alert('✨ تم تحديث السكربت بنجاح!');
     } else {
-      const newItem: CopywritingItem = {
+      const newItem: ExplorScriptItem = {
         id: Date.now().toString(),
         productName,
-        copyStyle,
-        mainBenefit: mainBenefit || 'جودة عالية',
-        offerText: offerText || 'عرض خاص',
-        generatedCopy,
+        hookStyle,
+        targetAudience: targetAudience || 'عام',
+        generatedScript,
       };
       saveToLocalStorage([...items, newItem]);
-      alert('✅ تمت إضافة النص التسويقي إلى السجل بنجاح!');
+      alert('✅ تمت إضافة السكربت إلى السجل بنجاح!');
     }
 
     handleClearForm();
   };
 
-  const handleEdit = (item: CopywritingItem) => {
+  const handleEdit = (item: ExplorScriptItem) => {
     setProductName(item.productName);
-    setCopyStyle(item.copyStyle);
-    setMainBenefit(item.mainBenefit);
-    setOfferText(item.offerText);
+    setHookStyle(item.hookStyle);
+    setTargetAudience(item.targetAudience);
     setEditingId(item.id);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleDelete = (id: string) => {
-    if (confirm('هل أنت متأكد من حذف هذا النص من السجل؟')) {
+    if (confirm('هل أنت متأكد من حذف هذا السكربت من السجل؟')) {
       const filtered = items.filter(i => i.id !== id);
       saveToLocalStorage(filtered);
     }
@@ -113,14 +105,14 @@ export default function CopywritingGeneratorSA() {
       alert('لا توجد بيانات لتصديرها.');
       return;
     }
-    let csv = "data:text/csv;charset=utf-8,ID,Product,Style,Benefit,Offer\n";
+    let csv = "data:text/csv;charset=utf-8,ID,Product,HookStyle,Audience\n";
     items.forEach((row, idx) => {
-      csv += `${idx + 1},${row.productName},${row.copyStyle},${row.mainBenefit},${row.offerText}\n`;
+      csv += `${idx + 1},${row.productName},${row.hookStyle},${row.targetAudience}\n`;
     });
     const encodedUri = encodeURI(csv);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "seerk_copywriting_generator.csv");
+    link.setAttribute("download", "seerk_explor_generator.csv");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -135,7 +127,7 @@ export default function CopywritingGeneratorSA() {
           const imported = JSON.parse(event.target?.result as string);
           if (Array.isArray(imported)) {
             saveToLocalStorage(imported);
-            alert('✨ تم استيراد النصوص بنجاح!');
+            alert('✨ تم استيراد السكربتات بنجاح!');
           }
         } catch (err) {
           alert('❌ ملف غير صالح.');
@@ -146,7 +138,7 @@ export default function CopywritingGeneratorSA() {
 
   const filteredItems = items.filter(item => 
     item.productName.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    item.copyStyle.toLowerCase().includes(searchQuery.toLowerCase())
+    item.hookStyle.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -200,8 +192,8 @@ export default function CopywritingGeneratorSA() {
 
       <div className="header">
         <div className="title-box">
-          <h1>مولد النصوص التسويقية الإبداعية ✍️</h1>
-          <p>اصنع نصوص إعلانية جذابة بأساليب (الجذب السريع، القصة، والإلحاح) لزيادة معدل التحويل والمبيعات</p>
+          <h1>مولد نصوص الإكسبلور (باللهجة السعودية) 🎬</h1>
+          <p>اصنع سكربتات تيك توك وإعلانات جذابة باللهجة المحلية لزيادة التفاعل ومعدل التحويل في متجرك</p>
         </div>
         <Link href="/hub/sa" className="back-btn">
           <span>←</span> عودة للمنصة
@@ -213,7 +205,7 @@ export default function CopywritingGeneratorSA() {
         <div className="card">
           <h2 className="card-title">
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <span>{editingId ? 'تعديل النص التسويقي' : 'إنشاء نص جديد'}</span>
+              <span>{editingId ? 'تعديل السكربت' : 'صناعة سكربت جديد'}</span>
               <button type="button" className="clear-form-btn" onClick={handleClearForm} title="مسح الحقول">
                 🧹 مسح الحقول
               </button>
@@ -223,48 +215,48 @@ export default function CopywritingGeneratorSA() {
 
           <form onSubmit={handleSaveItem}>
             <div className="input-group">
-              <label>اسم المنتج أو الخدمة</label>
+              <label>اسم المنتج أو الخدمة المعلن عنها</label>
               <div className="input-wrapper">
-                <input type="text" value={productName} onChange={(e) => setProductName(e.target.value)} placeholder="مثال: عطر ليالي نجد" required />
+                <input type="text" value={productName} onChange={(e) => setProductName(e.target.value)} placeholder="مثال: جهاز تنظيف لاسلكي" required />
               </div>
             </div>
 
             <div className="input-group">
-              <label>ألوب الإعلان والصياغة</label>
+              <label>نمط الخطاف (الهووك - أول 3 ثواني)</label>
               <div className="input-wrapper">
-                <select value={copyStyle} onChange={(e) => setCopyStyle(e.target.value)}>
-                  <option value="أفضل أسلوب الجذب السريع (Hook)">🔥 أسلوب الجذب السريع (Hook)</option>
-                  <option value="أسلوب القصة والتجربة (Storytelling)">📖 أسلوب القصة والتجربة (Storytelling)</option>
-                  <option value="أسلوب الإلحاح والعرض السريع (Urgency)">⚡ أسلوب الإلحاح والعرض السريع (Urgency)</option>
+                <select value={hookStyle} onChange={(e) => setHookStyle(e.target.value)}>
+                  <option value='طريقة "يا إلهي، كيف ما شفت هذا من زمان؟"'>طريقة "يا إلهي، كيف ما شفت هذا من زمان؟"</option>
+                  <option value='طريقة "تحدي أو صدمة بأسعار السوق"'>طريقة "تحدي أو صدمة بأسعار السوق"</option>
+                  <option value='طريقة "حل مشكلة يومية مزعجة"'>طريقة "حل مشكلة يومية مزعجة"</option>
                 </select>
               </div>
             </div>
 
             <div className="input-group">
-              <label>الميزة الكبرى أو فائدة المنتج</label>
+              <label>المشكلة التي يحلها المنتج</label>
               <div className="input-wrapper">
-                <input type="text" value={mainBenefit} onChange={(e) => setMainBenefit(e.target.value)} placeholder="مثال: ثبات يطول طوال اليوم وفواح بشكل خيالي" />
+                <input type="text" value={problemSolved} onChange={(e) => setProblemSolved(e.target.value)} placeholder="مثال: يوفر الوقت والجهد في التنظيف" />
               </div>
             </div>
 
             <div className="input-group">
-              <label>العرض أو الخصم الحالي</label>
+              <label>الفئة المستهدفة في السعودية</label>
               <div className="input-wrapper">
-                <input type="text" value={offerText} onChange={(e) => setOfferText(e.target.value)} placeholder="مثال: خصم 30% مع شحن مجاني لفترة محدودة" />
+                <input type="text" value={targetAudience} onChange={(e) => setTargetAudience(e.target.value)} placeholder="مثال: ربات البيوت والمهتمين بالترتيب" />
               </div>
             </div>
 
             <button type="submit" className="action-btn">
-              {editingId ? '💾 حفظ التعديلات' : '+ حفظ النص في السجل'}
+              {editingId ? '💾 حفظ التعديلات' : '+ حفظ السكربت في السجل'}
             </button>
           </form>
         </div>
 
         {/* قسم المعاينة الفورية */}
         <div className="card">
-          <h2 className="card-title">معاينة النص التسويقي المولد</h2>
+          <h2 className="card-title">معاينة السكربت المولد</h2>
           <div className="preview-box">
-            {generatedCopy}
+            {generatedScript}
           </div>
         </div>
       </div>
@@ -275,7 +267,7 @@ export default function CopywritingGeneratorSA() {
           <input 
             type="text" 
             className="search-input" 
-            placeholder="🔍 بحث باسم المنتج أو الأسلوب..." 
+            placeholder="🔍 بحث باسم المنتج أو النمط..." 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -292,17 +284,16 @@ export default function CopywritingGeneratorSA() {
               <tr>
                 <th>#</th>
                 <th>اسم المنتج</th>
-                <th>أسلوب الصياغة</th>
-                <th>الميزة الكبرى</th>
-                <th>العرض</th>
+                <th>نمط الخطاف (الهووك)</th>
+                <th>الفئة المستهدفة</th>
                 <th>الإجراءات</th>
               </tr>
             </thead>
             <tbody>
               {filteredItems.length === 0 ? (
                 <tr>
-                  <td colSpan={6} style={{ textAlign: 'center', color: '#94a3b8', padding: '30px 0' }}>
-                    لا توجد نصوص تسويقية مسجلة في السجل حالياً.
+                  <td colSpan={5} style={{ textAlign: 'center', color: '#94a3b8', padding: '30px 0' }}>
+                    لا توجد سكربتات مسجلة في السجل حالياً.
                   </td>
                 </tr>
               ) : (
@@ -310,9 +301,8 @@ export default function CopywritingGeneratorSA() {
                   <tr key={item.id}>
                     <td>{idx + 1}</td>
                     <td style={{ fontWeight: 800 }}>{item.productName}</td>
-                    <td>{item.copyStyle}</td>
-                    <td>{item.mainBenefit}</td>
-                    <td>{item.offerText}</td>
+                    <td>{item.hookStyle}</td>
+                    <td>{item.targetAudience}</td>
                     <td>
                       <div style={{ display: 'flex', gap: '8px' }}>
                         <button onClick={() => handleEdit(item)} style={{ background: '#e0f2fe', color: '#0369a1', border: 'none', padding: '5px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 800, cursor: 'pointer' }}>تعديل</button>
