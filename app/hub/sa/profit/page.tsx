@@ -127,22 +127,79 @@ export default function ProfitCalculatorSA() {
     }
   };
 
-  const handleExportCsv = () => {
+  // تصدير متوافق 100% مع الإكسل (يدعم اليمين لليسار واللغة العربية)
+  const handleExportExcel = () => {
     if (items.length === 0) {
       alert('لا توجد بيانات لتصديرها.');
       return;
     }
-    // إضافة ترميز BOM لدعم اللغة العربية في الإكسل
-    let csvContent = "ID,ProductName,SellingPrice,ProductCost,ShippingCost,NetProfit,Margin,Date\n";
+
+    const totalSellingPrice = items.reduce((acc, curr) => acc + curr.sellingPrice, 0);
+    const totalCostsValue = items.reduce((acc, curr) => acc + curr.productCost + curr.shippingCost, 0);
+    const totalNetProfitValue = items.reduce((acc, curr) => acc + curr.netProfit, 0);
+
+    let tableHtml = `
+      <html dir="rtl" lang="ar">
+        <head>
+          <meta charset="utf-8">
+          <style>
+            table { border-collapse: collapse; width: 100%; font-family: sans-serif; }
+            th, td { border: 1px solid #cbd5e1; padding: 8px; text-align: center; }
+            th { background-color: #f8fafc; font-weight: bold; color: #334155; }
+            .tfoot-row td { background-color: #f1f5f9; font-weight: bold; color: #0f172a; }
+          </style>
+        </head>
+        <body>
+          <table>
+            <thead>
+              <tr>
+                <th>م</th>
+                <th>اسم المنتج</th>
+                <th>التاريخ والوقت</th>
+                <th>سعر البيع</th>
+                <th>التكلفة والشحن</th>
+                <th>صافي الربح</th>
+                <th>هامش الربح</th>
+              </tr>
+            </thead>
+            <tbody>
+    `;
+
     items.forEach((row, idx) => {
-      csvContent += `${idx + 1},${row.name},${row.sellingPrice},${row.productCost},${row.shippingCost},${row.netProfit},${row.margin}%,${row.createdAt || ''}\n`;
+      tableHtml += `
+        <tr>
+          <td>${idx + 1}</td>
+          <td>${row.name}</td>
+          <td>${row.createdAt || '-'}</td>
+          <td>${row.sellingPrice}</td>
+          <td>${row.productCost + row.shippingCost}</td>
+          <td>${row.netProfit}</td>
+          <td>${row.margin}%</td>
+        </tr>
+      `;
     });
-    
-    const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+
+    tableHtml += `
+            </tbody>
+            <tfoot>
+              <tr class="tfoot-row">
+                <td colspan="3">الإجمالي الكلي</td>
+                <td>${totalSellingPrice.toFixed(2)}</td>
+                <td>${totalCostsValue.toFixed(2)}</td>
+                <td>${totalNetProfitValue.toFixed(2)}</td>
+                <td></td>
+              </tr>
+            </tfoot>
+          </table>
+        </body>
+      </html>
+    `;
+
+    const blob = new Blob([tableHtml], { type: 'application/vnd.ms-excel' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", "seerk_profit_analysis.csv");
+    link.setAttribute("download", "seerk_profit_analysis.xls");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -168,7 +225,7 @@ export default function ProfitCalculatorSA() {
 
   const filteredItems = items.filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase()));
 
-  // حساب المجاميع للجدول السفلي
+  // حساب المجاميع للجدول السفلي في الواجهة
   const totalSellingPrice = filteredItems.reduce((acc, curr) => acc + curr.sellingPrice, 0);
   const totalCostsValue = filteredItems.reduce((acc, curr) => acc + curr.productCost + curr.shippingCost, 0);
   const totalNetProfitValue = filteredItems.reduce((acc, curr) => acc + curr.netProfit, 0);
@@ -345,7 +402,7 @@ export default function ProfitCalculatorSA() {
             onChange={(e) => setSearchQuery(e.target.value)}
           />
           <div className="table-btns">
-            <button className="t-btn" onClick={handleExportCsv}>📥 تصدير CSV</button>
+            <button className="t-btn" onClick={handleExportExcel} title="تصدير بصيغة Excel لدعم اللغة العربية">📥 تصدير Excel</button>
             <button className="t-btn" onClick={() => fileInputRef.current?.click()}>📂 استيراد</button>
             <input type="file" ref={fileInputRef} onChange={handleImportJson} accept=".json" style={{ display: 'none' }} />
           </div>
