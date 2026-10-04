@@ -58,13 +58,13 @@ export default function ContactSupportPage() {
               <h2 style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', marginBottom: '15px' }}>قنوات التواصل السريعة</h2>
               <div style={{ marginBottom: '20px' }}>
                 <div style={{ fontSize: '13px', color: '#64748b', fontWeight: 700, marginBottom: '5px' }}>البريد الإلكتروني المباشر:</div>
-                <div style={{ fontSize: '16px', fontWeight: 800, color: '#0369a1' }}>support@enjazya.com</div>
+                <div style={{ fontSize: '16px', fontWeight: 800, color: '#0369a1' }}>engazia.sa@gmail.com</div>
               </div>
               <div style={{ marginBottom: '20px' }}>
                 <div style={{ fontSize: '13px', color: '#64748b', fontWeight: 700, marginBottom: '5px' }}>مواعيد العمل:</div>
                 <div style={{ fontSize: '15px', fontWeight: 700, color: '#334155' }}>من الأحد إلى الخميس<br/>(9:00 صباحاً - 5:00 مساءً)</div>
               </div>
-              <a href="https://wa.me/966500000000" target="_blank" rel="noopener noreferrer" style={{ display: 'block', background: '#22c55e', color: '#fff', textAlign: 'center', padding: '12px', borderRadius: '8px', textDecoration: 'none', fontWeight: 900, fontSize: '15px' }}>
+              <a href="https://wa.me/966541313564" target="_blank" rel="noopener noreferrer" style={{ display: 'block', background: '#22c55e', color: '#fff', textAlign: 'center', padding: '12px', borderRadius: '8px', textDecoration: 'none', fontWeight: 900, fontSize: '15px' }}>
                 تواصل عبر واتساب 💬
               </a>
             </div>
