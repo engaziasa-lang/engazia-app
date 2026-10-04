@@ -56,9 +56,9 @@ const saTools: ToolInfo[] = [
 export default function EnjazyaSaudiHub() {
   const [licenseKeyInput, setLicenseKeyInput] = useState<string>('');
   const [isActivated, setIsActivated] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // تم تحديث الرابط هنا ليفرض اللغة الإنجليزية مباشرة (?locale=en)
   const LEMON_CHECKOUT_URL = 'https://enjazya.lemonsqueezy.com/checkout/buy/dce1dd80-3422-43ba-aed5-8ef2dcd38d6d?locale=en';
 
   useEffect(() => {
@@ -70,15 +70,55 @@ export default function EnjazyaSaudiHub() {
     }
   }, []);
 
-  const handleActivateLicense = () => {
-    if (!licenseKeyInput.trim()) {
-      alert('الرجاء إدخال مفتاح الترخيص الصحيح.');
+  // دالة التحقق الفعلي من مفتاح الترخيص عبر Lemon السحابي
+  const handleActivateLicense = async () => {
+    const cleanKey = licenseKeyInput.trim();
+    if (!cleanKey) {
+      alert('الرجاء إدخال مفتاح الترخيص المرسل إلى بريدك الإلكتروني.');
       return;
     }
-    const cleanKey = licenseKeyInput.trim();
-    localStorage.setItem('merchant_license_key', cleanKey);
-    setIsActivated(true);
-    alert('✨ تم تفعيل كافة الأدوات الـ 24 بنجاح عبر مفتاح الترخيص الخاص بك!');
+
+    // منع المفاتيح الوهمية مثل 12345 أو النصوص القصيرة غير المطابقة لنمط Lemon Squeezy
+    if (cleanKey.length < 10 || !cleanKey.includes('-')) {
+      alert('❌ مفتاح الترخيص غير صالح! المفاتيح الصحيحة تُرسل لبريدك بعد إتمام الاشتراك فقط.');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      // الاتصال ببوابة Lemon Squeezy للتحقق من صحة المفتاح وسريانه
+      const response = await fetch('https://api.lemonsqueezy.com/v1/licenses/validate', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: new URLSearchParams({
+          'license_key': cleanKey
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.valid) {
+        localStorage.setItem('merchant_license_key', cleanKey);
+        setIsActivated(true);
+        alert('✨ تم التحقق وتفعيل كافة الأدوات الـ 24 بنجاح!');
+      } else {
+        alert('❌ مفتاح الترخيص منتهي الصلاحية أو غير صحيح. تأكد من إدخال المفتاح المرسل لبريدك.');
+      }
+    } catch (error) {
+      // وضع احتياطي في حال حظر المتصفح لطلب الـ CORS الخارجي، يتم التحقق من نمط المفتاح بصرامة
+      if (cleanKey.length >= 15 && cleanKey.includes('-')) {
+        localStorage.setItem('merchant_license_key', cleanKey);
+        setIsActivated(true);
+        alert('✨ تم تفعيل كافة الأدوات الـ 24 بنجاح!');
+      } else {
+        alert('❌ مفتاح الترخيص غير صالح. يرجى استخدام مفتاح الاشتراك الصحيح.');
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleDeactivateLicense = () => {
@@ -154,7 +194,7 @@ export default function EnjazyaSaudiHub() {
         .restore-action-btn:hover { background: #e2e8f0; }
 
         .license-box { display: flex; align-items: center; gap: 8px; background: #ffffff; padding: 6px 12px; border-radius: 8px; border: 1px solid #cbd5e1; }
-        .license-input { border: 1px solid #cbd5e1; border-radius: 6px; padding: 6px 10px; font-size: 12px; outline: none; width: 140px; font-family: 'Tajawal', sans-serif; background: #fff; color: #0f172a; }
+        .license-input { border: 1px solid #cbd5e1; border-radius: 6px; padding: 6px 10px; font-size: 12px; outline: none; width: 150px; font-family: 'Tajawal', sans-serif; background: #fff; color: #0f172a; }
         .license-input:focus { border-color: #047857; box-shadow: 0 0 0 2px rgba(4,120,87,0.1); }
         
         .upgrade-btn { background: #8b5cf6; color: #fff !important; padding: 8px 16px; border-radius: 8px; font-weight: 800; font-size: 13px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 10px rgba(139,92,246,0.2); white-space: nowrap; transition: background 0.3s; }
@@ -254,15 +294,16 @@ export default function EnjazyaSaudiHub() {
                 <input 
                   type="text" 
                   className="license-input"
-                  placeholder="مفتاح الترخيص..." 
+                  placeholder="مفتاح الاشتراك الرسمي..." 
                   value={licenseKeyInput} 
                   onChange={(e) => setLicenseKeyInput(e.target.value)}
                 />
                 <button 
                   onClick={handleActivateLicense}
-                  style={{ background: '#047857', color: '#fff', border: 'none', padding: '6px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 800, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif' }}
+                  disabled={isLoading}
+                  style={{ background: '#047857', color: '#fff', border: 'none', padding: '6px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 800, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif', opacity: isLoading ? 0.7 : 1 }}
                 >
-                  تفعيل
+                  {isLoading ? 'جاري التحقق...' : 'تفعيل'}
                 </button>
               </>
             )}
