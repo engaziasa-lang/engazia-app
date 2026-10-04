@@ -329,10 +329,10 @@ export default function EnjazyaSaudiHub() {
         <p>الترسانة السحابية المتكاملة بـ 24 أداة دقيقة، صُممت خصيصاً لتمكين وتطوير المتاجر الإلكترونية في المملكة العربية السعودية بالريال السعودي (ر.س) ومتوافقة مع متطلبات ضريبة القيمة المضافة.</p>
       </div>
 
-      {/* تم إضافة معرف هنا لكي ينتقل إليه الرابط بسلاسة */}
-      <div id="tools-section" className="cards-grid">
+      <div className="cards-grid">
         {saTools.map((tool, index) => (
-          <Link href={tool.link} key={tool.id} className="card clean-link">
+          // أضفنا id فريد لكل أداة (مثل tool-whatsapp) لكي يعود التاجر إليها بالضبط
+          <Link href={`${tool.link}#top`} key={tool.id} id={`tool-${tool.id}`} className="card clean-link">
             <div>
               <div className="card-top">
                 <div className="card-icon">{tool.icon}</div>
@@ -360,8 +360,7 @@ export default function EnjazyaSaudiHub() {
             <div className="links-column">
               <h4>المنصة</h4>
               <ul>
-                {/* تم تعديل هذا الرابط ليتحرك للأعلى عند الضغط عليه */}
-                <li><a href="#tools-section">جميع الأدوات (24)</a></li>
+                <li><a href="#tool-profit">جميع الأدوات (24)</a></li>
                 <li><Link href="/updates">التحديثات الجديدة</Link></li>
                 <li><Link href="/pricing">أسعار الباقات</Link></li>
               </ul>
