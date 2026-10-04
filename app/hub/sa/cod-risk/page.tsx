@@ -8,8 +8,8 @@ interface CodItem {
   shippingCompany: string;
   totalCodOrders: number;
   avgOrderValue: number;
-  codFeePerOrder: number; // رسوم خدمة الدفع عند الاستلام للطلب الواحد
-  returnRatePercent: number; // نسبة عدم الاستلام / الرفض (%)
+  codFeePerOrder: number;
+  returnRatePercent: number;
   totalCodFees: number;
   totalReturnLoss: number;
   grandTotalCost: number;
@@ -17,11 +17,12 @@ interface CodItem {
 }
 
 export default function CodAnalyzerSA() {
-  const [shippingCompany, setShippingCompany] = useState<string>('أرامكس (Aramex)');
+  const [shippingSelect, setShippingSelect] = useState<string>('أرامكس (Aramex)');
+  const [customShipping, setCustomShipping] = useState<string>('أرامكس (Aramex)');
   const [totalCodOrders, setTotalCodOrders] = useState<number | ''>('');
   const [avgOrderValue, setAvgOrderValue] = useState<number | ''>('');
-  const [codFeePerOrder, setCodFeePerOrder] = useState<number | ''>(12); // رسوم COD الافتراضية
-  const [returnRatePercent, setReturnRatePercent] = useState<number | ''>(15); // نسبة رفض افتراضية 15%
+  const [codFeePerOrder, setCodFeePerOrder] = useState<number | ''>(12);
+  const [returnRatePercent, setReturnRatePercent] = useState<number | ''>(15);
 
   const [items, setItems] = useState<CodItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -49,14 +50,25 @@ export default function CodAnalyzerSA() {
   const retRate = typeof returnRatePercent === 'number' ? returnRatePercent : 0;
 
   // الحسابات
-  const totalCodFees = orders * fee; // إجمالي رسوم الخدمة المدفوعة لشركة الشحن
-  const rejectedOrdersCount = orders * (retRate / 100); // عدد الطلبات المرفوضة
-  const shippingAndHandlingLossPerReject = 25; // تكلفة شحن ذهاب وعودة تقديرية للطلب المرفوض
+  const totalCodFees = orders * fee;
+  const rejectedOrdersCount = orders * (retRate / 100);
+  const shippingAndHandlingLossPerReject = 25;
   const totalReturnLoss = rejectedOrdersCount * shippingAndHandlingLossPerReject;
   const grandTotalCost = totalCodFees + totalReturnLoss;
 
+  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const val = e.target.value;
+    setShippingSelect(val);
+    if (val !== 'شركة أخرى (كتابة يدوية)') {
+      setCustomShipping(val);
+    } else {
+      setCustomShipping('');
+    }
+  };
+
   const handleClearForm = () => {
-    setShippingCompany('أرامكس (Aramex)');
+    setShippingSelect('أرامكس (Aramex)');
+    setCustomShipping('أرامكس (Aramex)');
     setTotalCodOrders('');
     setAvgOrderValue('');
     setCodFeePerOrder(12);
@@ -70,8 +82,9 @@ export default function CodAnalyzerSA() {
       alert('🔒 عذراً، لقد استهلكت الحد التجريبي (3 سجلات). يرجى ترقية حسابك لفتح السعة الكاملة بلا حدود!');
       return;
     }
-    if (!shippingCompany.trim() || orders <= 0 || orderVal <= 0) {
-      alert('الرجاء التأكد من تعبئة اسم شركة الشحن، عدد الطلبات، وقيمة الطلب بشكل صحيح.');
+    const finalCompany = shippingSelect === 'شركة أخرى (كتابة يدوية)' ? customShipping : shippingSelect;
+    if (!finalCompany.trim() || orders <= 0 || orderVal <= 0) {
+      alert('الرجاء التأكد من تحديد شركة الشحن، عدد الطلبات، وقيمة الطلب بشكل صحيح.');
       return;
     }
 
@@ -82,7 +95,7 @@ export default function CodAnalyzerSA() {
     if (editingId) {
       const updated = items.map(item => item.id === editingId ? {
         ...item,
-        shippingCompany,
+        shippingCompany: finalCompany,
         totalCodOrders: orders,
         avgOrderValue: orderVal,
         codFeePerOrder: fee,
@@ -98,7 +111,7 @@ export default function CodAnalyzerSA() {
     } else {
       const newItem: CodItem = {
         id: Date.now().toString(),
-        shippingCompany,
+        shippingCompany: finalCompany,
         totalCodOrders: orders,
         avgOrderValue: orderVal,
         codFeePerOrder: fee,
@@ -116,7 +129,14 @@ export default function CodAnalyzerSA() {
   };
 
   const handleEdit = (item: CodItem) => {
-    setShippingCompany(item.shippingCompany);
+    const standardCompanies = ['أرامكس (Aramex)', 'سمسا (SMSA)', 'دي إتش إل (DHL)', 'اليكسبرس (IMLEAP)', 'نايل إكسبرس (Naqel)'];
+    if (standardCompanies.includes(item.shippingCompany)) {
+      setShippingSelect(item.shippingCompany);
+      setCustomShipping(item.shippingCompany);
+    } else {
+      setShippingSelect('شركة أخرى (كتابة يدوية)');
+      setCustomShipping(item.shippingCompany);
+    }
     setTotalCodOrders(item.totalCodOrders);
     setAvgOrderValue(item.avgOrderValue);
     setCodFeePerOrder(item.codFeePerOrder);
@@ -327,10 +347,29 @@ export default function CodAnalyzerSA() {
 
           <form onSubmit={handleSaveItem}>
             <div className="input-group">
-              <label>شركة الشحن أو اسم الحملة</label>
-              <div className="input-wrapper">
-                <input type="text" value={shippingCompany} onChange={(e) => setShippingCompany(e.target.value)} placeholder="مثال: أرامكس (Aramex)" required />
+              <label>اختر شركة الشحن</label>
+              <div className="input-wrapper" style={{ marginBottom: '8px' }}>
+                <select value={shippingSelect} onChange={handleSelectChange}>
+                  <option value="أرامكس (Aramex)">أرامكس (Aramex)</option>
+                  <option value="سمسا (SMSA)">سمسا (SMSA)</option>
+                  <option value="دي إتش إل (DHL)">دي إتش إل (DHL)</option>
+                  <option value="اليكسبرس (IMLEAP)">اليكسبرس (IMLEAP)</option>
+                  <option value="نايل إكسبرس (Naqel)">نايل إكسبرس (Naqel)</option>
+                  <option value="شركة أخرى (كتابة يدوية)">➕ شركة أخرى (كتابة يدوية)</option>
+                </select>
               </div>
+
+              {shippingSelect === 'شركة أخرى (كتابة يدوية)' && (
+                <div className="input-wrapper">
+                  <input 
+                    type="text" 
+                    value={customShipping} 
+                    onChange={(e) => setCustomShipping(e.target.value)} 
+                    placeholder="اكتب اسم شركة الشحن هنا..." 
+                    required 
+                  />
+                </div>
+              )}
             </div>
 
             <div className="form-row">
