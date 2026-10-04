@@ -3,116 +3,246 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 
-interface ExplorScriptItem {
+interface CopyItem {
   id: string;
   productName: string;
-  hookStyle: string;
-  targetAudience: string;
+  contentType: string;
+  problemSolved: string;
+  offerText: string;
   generatedScript: string;
+  createdAt?: string;
 }
 
-export default function ExplorGeneratorSA() {
-  const [productName, setProductName] = useState<string>('منتج مميز لمتجرنا');
-  const [hookStyle, setHookStyle] = useState<string>('طريقة "يا إلهي، كيف ما شفت هذا من زمان؟"');
-  const [targetAudience, setTargetAudience] = useState<string>('المتصفحين في إكسبلور تيك توك وسناب');
-  const [problemSolved, setProblemSolved] = useState<string>('يوفر الوقت والجهد ويفك عزلتي بالبيت');
+export default function ExploredCopywritingSA() {
+  const [productName, setProductName] => useState<string>('عطر إنجازيا الفاخر');
+  const [contentSelect, setContentSelect] = useState<string>('إعلان فيديو تيك توك (حماسي)');
+  const [customContentType, setCustomContentType] = useState<string>('إعلان فيديو تيك توك (حماسي)');
+  const [problemSolved, setProblemSolved] = useState<string>('تبحث عن عطر فخم يثبت معك طوال اليوم وبسعر مناسب؟');
+  const [offerText, setOfferText] = useState<string>('خصم 30% + توصيل مجاني لأول 100 طلب');
+  const [generatedScript, setGeneratedScript] = useState<string>('');
 
-  const [items, setItems] = useState<ExplorScriptItem[]>([]);
+  const [items, setItems] = useState<CopyItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const saved = localStorage.getItem('seerk_explor_generator_items');
+    const saved = localStorage.getItem('seerk_copywriting_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
   }, []);
 
-  const saveToLocalStorage = (newItems: ExplorScriptItem[]) => {
+  const actualContentType = contentSelect === 'نوع آخر (كتابة يدوية)' ? customContentType : contentSelect;
+
+  // توليد السكريبت تلقائياً عند تغيير المدخلات
+  useEffect(() => {
+    const pName = productName.trim() || 'المنتج';
+    const prob = problemSolved.trim() || 'تبحث عن الأفضل دائماً؟';
+    const offer = offerText.trim() || 'عروض لفترة محدودة';
+
+    if (contentSelect.includes('تيك توك')) {
+      setGeneratedScript(
+        `🎬 **[سكريبت إعلان تيك توك - باللهجة السعودية]**\n\n` +
+        `🎵 *(موسيقى حماسية وترند في الخلفية)*\n\n` +
+        `🗣️ **المشهد الأول (الخطاف - أول 3 ثواني):**\n` +
+        `"يا جماعة الخير، إذا ${prob}.. اسمعوني للأخير لأن اللي أقوله بيفرق معكم كثير!"\n\n` +
+        `🗣️ **المشهد الثاني (المشكلة والحل):**\n` +
+        `"كثيراً ندور على الجودة والزين بس نلقى الأسعار فلكية.. لكن مع (${pName}) نسّونا الهم! المنتج فخم، عملي، ومصمم خصيصاً يريحك."\n\n` +
+        `🗣️ **المشهد الثالث (العرض والطلب من الإكسبلور):**\n` +
+        `"واللي جايين من الإكسبلور لهم علمٍ يطيب الخاطر: ${offer}!\n` +
+        `الكمية محدودة جداً، الحق اطلب قبل لا يخلص المخزون، الرابط تحت بالفيديو أو بالبايو! 🚀"`
+      );
+    } else if (contentSelect.includes('سناب شات')) {
+      setGeneratedScript(
+        `👻 **[سكريبت سناب شات - تفاعلي وعفوي]**\n\n` +
+        `🗣️ **سنابة 1 (جذب الانتباه):**\n` +
+        `"مساء الخير يا أهلنا.. وصلني اليوم (${pName}) اللي جنن الكل! تدري إن ${prob}"\n\n` +
+        `🗣️ **سنابة 2 (استعراض المنتج):**\n` +
+        `"شوفوا معي الجودة والتفاصيل كيف ما شاء الله. شي فاخر من الآخر ويهدئ البال."\n\n` +
+        `🗣️ **سنابة 3 (Call to Action):**\n` +
+        `"وعشان أنتم غالين علينا، وفرنا لكم: ${offer}.\n` +
+        `ارفع الشاشة لفوق 👆 وطلبك يوصلك لباب بيتك وين ما كنت بالمملكة!"`
+      );
+    } else {
+      setGeneratedScript(
+        `📢 **[بوست إعلاني جذاب - تسويقي]**\n\n` +
+        `🔥 يا هلا بكل متابع ومتابعـة!\n\n` +
+        `إذا كنت ${prob}، مالك إلا (${pName}).\n\n` +
+        `💎 **ليه تختارنا؟**\n` +
+        `- جودة عالية تبيض الوجه.\n` +
+        `- خدمة عملاء على مدار الساعة.\n` +
+        `- ${offer}.\n\n` +
+        `🛒 لا تفوت الفرصة واطلب الآن عبر المتجر قبل نفاد الكمية!`
+      );
+    }
+  }, [productName, contentSelect, customContentType, problemSolved, offerText]);
+
+  const saveToLocalStorage = (newItems: CopyItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_explor_generator_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_copywriting_items', JSON.stringify(newItems));
   };
 
   const isActivated = typeof window !== 'undefined' && !!localStorage.getItem('merchant_license_key');
 
-  // توليد سكربت الإكسبلور الاحترافي باللهجة السعودية
-  const generatedScript = `🎬 **سكربت فيديو إكسبلور (باللهجة السعودية)**:\n\n[الخطاف / الهووك - أول 3 ثواني]:\n"يا جماعة الخير، قسم بالله طحت على شي راح يفك عنا أزمة ويختصر عليكم نص مشاويركم! اسمعوني للأخير.." 🤯\n\n[المشكلة والصدمة]:\n"دايماً نواجه مشكلة إننا ${problemSolved || 'ندور على حل عملي وسريع وما نلقى شي يضبط معنا صح؟'}.. بس كل هذا تغير!"\n\n[الحل واستعراض المنتج]:\n"شوفوا معي ${productName || 'هذا المنتج الجبار'}.. تصميم فخم، جودة عالية، ومصمم خصيصاً لكل من يعاني من نفس السالفة في ${targetAudience || 'السوق السعودي'}."\n\n[الدعوة لاتخاذ إجراء - CTA]:\n"الكمية محدودة والطلب عالي جداً، الحق العرض واطلبها الحين من الرابط البايو أو المتجر قبل لا تخلص! 🛍️✨"`;
+  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const val = e.target.value;
+    setContentSelect(val);
+    if (val !== 'نوع آخر (كتابة يدوية)') {
+      setCustomContentType(val);
+    } else {
+      setCustomContentType('');
+    }
+  };
 
   const handleClearForm = () => {
-    setProductName('');
-    setHookStyle('طريقة "يا إلهي، كيف ما شفت هذا من زمان؟"');
-    setTargetAudience('');
-    setProblemSolved('');
+    setProductName('عطر إنجازيا الفاخر');
+    setContentSelect('إعلان فيديو تيك توك (حماسي)');
+    setCustomContentType('إعلان فيديو تيك توك (حماسي)');
+    setProblemSolved('تبحث عن عطر فخم يثبت معك طوال اليوم وبسعر مناسب؟');
+    setOfferText('خصم 30% + توصيل مجاني لأول 100 طلب');
     setEditingId(null);
   };
 
   const handleSaveItem = (e: React.FormEvent) => {
     e.preventDefault();
     if (!isActivated && items.length >= 3 && !editingId) {
-      alert('🔒 عذراً، لقد استهلكت الحد التجريبي (3 سكربتات). يرجى ترقية حسابك لفتح السعة الكاملة بلا حدود!');
+      alert('🔒 عذراً، لقد استهلكت الحد التجريبي (3 سكريبتات). يرجى ترقية حسابك لفتح السعة الكاملة بلا حدود!');
       return;
     }
-    if (!productName.trim()) {
-      alert('الرجاء إدخال اسم المنتج.');
+    const finalType = contentSelect === 'نوع آخر (كتابة يدوية)' ? customContentType : contentSelect;
+    if (!productName.trim() || !finalType.trim()) {
+      alert('الرجاء التأكد من تعبئة اسم المنتج ونوع المحتوى.');
       return;
     }
+
+    const now = new Date();
+    const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
+    const formattedDate = `${now.toLocaleDateString('ar-SA')} - ${now.toLocaleTimeString('ar-SA', timeOptions)}`;
 
     if (editingId) {
       const updated = items.map(item => item.id === editingId ? {
         ...item,
         productName,
-        hookStyle,
-        targetAudience: targetAudience || 'عام',
+        contentType: finalType,
+        problemSolved,
+        offerText,
         generatedScript,
+        createdAt: item.createdAt || formattedDate
       } : item);
       saveToLocalStorage(updated);
       setEditingId(null);
-      alert('✨ تم تحديث السكربت بنجاح!');
+      alert('✨ تم تحديث السكريبت بنجاح!');
     } else {
-      const newItem: ExplorScriptItem = {
+      const newItem: CopyItem = {
         id: Date.now().toString(),
         productName,
-        hookStyle,
-        targetAudience: targetAudience || 'عام',
+        contentType: finalType,
+        problemSolved,
+        offerText,
         generatedScript,
+        createdAt: formattedDate
       };
       saveToLocalStorage([...items, newItem]);
-      alert('✅ تمت إضافة السكربت إلى السجل بنجاح!');
+      alert('✅ تمت إضافة السكريبت إلى السجل بنجاح!');
     }
 
     handleClearForm();
   };
 
-  const handleEdit = (item: ExplorScriptItem) => {
+  const handleEdit = (item: CopyItem) => {
     setProductName(item.productName);
-    setHookStyle(item.hookStyle);
-    setTargetAudience(item.targetAudience);
+    const standardTypes = ['إعلان فيديو تيك توك (حماسي)', 'سكريبت سناب شات (تفاعلي)', 'بوست إعلاني جذاب'];
+    if (standardTypes.includes(item.contentType)) {
+      setContentSelect(item.contentType);
+      setCustomContentType(item.contentType);
+    } else {
+      setContentSelect('نوع آخر (كتابة يدوية)');
+      setCustomContentType(item.contentType);
+    }
+    setProblemSolved(item.problemSolved);
+    setOfferText(item.offerText);
+    setGeneratedScript(item.generatedScript);
     setEditingId(item.id);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleDelete = (id: string) => {
-    if (confirm('هل أنت متأكد من حذف هذا السكربت من السجل؟')) {
+    if (confirm('هل أنت متأكد من حذف هذا السكريبت؟')) {
       const filtered = items.filter(i => i.id !== id);
       saveToLocalStorage(filtered);
     }
   };
 
-  const handleExportCsv = () => {
+  const handleCopyText = () => {
+    navigator.clipboard.writeText(generatedScript);
+    alert('📋 تم نسخ السكريبت بنجاح! جاهز للاستخدام في إعلانك القادم.');
+  };
+
+  const handleExportExcel = () => {
     if (items.length === 0) {
       alert('لا توجد بيانات لتصديرها.');
       return;
     }
-    let csv = "data:text/csv;charset=utf-8,ID,Product,HookStyle,Audience\n";
+
+    let tableHtml = `
+      <html dir="rtl" lang="ar">
+        <head>
+          <meta charset="utf-8">
+          <style>
+            table { border-collapse: collapse; width: 100%; font-family: sans-serif; }
+            th, td { border: 1px solid #cbd5e1; padding: 8px; text-align: center; }
+            th { background-color: #f8fafc; font-weight: bold; color: #334155; }
+            .tfoot-row td { background-color: #f1f5f9; font-weight: bold; color: #0f172a; }
+          </style>
+        </head>
+        <body>
+          <table>
+            <thead>
+              <tr>
+                <th>م</th>
+                <th>اسم المنتج</th>
+                <th>نوع المحتوى</th>
+                <th>التاريخ والوقت</th>
+                <th>العرض التسويقي</th>
+                <th>النص الإعلاني</th>
+              </tr>
+            </thead>
+            <tbody>
+    `;
+
     items.forEach((row, idx) => {
-      csv += `${idx + 1},${row.productName},${row.hookStyle},${row.targetAudience}\n`;
+      tableHtml += `
+        <tr>
+          <td>${idx + 1}</td>
+          <td>${row.productName}</td>
+          <td>${row.contentType}</td>
+          <td>${row.createdAt || '-'}</td>
+          <td>${row.offerText}</td>
+          <td>${row.generatedScript.replace(/\n/g, '<br>')}</td>
+        </tr>
+      `;
     });
-    const encodedUri = encodeURI(csv);
+
+    tableHtml += `
+            </tbody>
+            <tfoot>
+              <tr class="tfoot-row">
+                <td colspan="5">إجمالي السكريبتات المسجلة</td>
+                <td>${items.length} سكريبت</td>
+              </tr>
+            </tfoot>
+          </table>
+        </body>
+      </html>
+    `;
+
+    const blob = new Blob([tableHtml], { type: 'application/vnd.ms-excel' });
+    const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "seerk_explor_generator.csv");
+    link.setAttribute("href", url);
+    link.setAttribute("download", "seerk_explore_copywriting.xls");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -127,7 +257,7 @@ export default function ExplorGeneratorSA() {
           const imported = JSON.parse(event.target?.result as string);
           if (Array.isArray(imported)) {
             saveToLocalStorage(imported);
-            alert('✨ تم استيراد السكربتات بنجاح!');
+            alert('✨ تم استيراد السكريبتات بنجاح!');
           }
         } catch (err) {
           alert('❌ ملف غير صالح.');
@@ -137,8 +267,8 @@ export default function ExplorGeneratorSA() {
   };
 
   const filteredItems = items.filter(item => 
-    item.productName.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    item.hookStyle.toLowerCase().includes(searchQuery.toLowerCase())
+    item.productName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.contentType.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -148,7 +278,8 @@ export default function ExplorGeneratorSA() {
         a { text-decoration: none; }
       `}</style>
       <style jsx>{`
-        .tool-container { direction: rtl; max-width: 1100px; margin: 40px auto; padding: 20px; }
+        .tool-container { direction: rtl; max-width: 1100px; margin: 20px auto; padding: 20px; }
+        @media(max-width: 768px) { .tool-container { padding: 10px; margin: 10px auto; } }
         
         .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; }
         .back-btn { background: #ffffff; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 8px; color: #475569; font-weight: 700; font-size: 14px; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
@@ -158,7 +289,7 @@ export default function ExplorGeneratorSA() {
         .title-box p { color: #64748b; margin: 0; font-size: 14px; }
         
         .grid-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 40px; }
-        @media(max-width: 768px) { .grid-layout { grid-template-columns: 1fr; } }
+        @media(max-width: 850px) { .grid-layout { grid-template-columns: 1fr; } }
         
         .card { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
         .card-title { font-size: 18px; font-weight: 800; color: #1e293b; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
@@ -166,34 +297,42 @@ export default function ExplorGeneratorSA() {
         .clear-form-btn { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: 'Tajawal', sans-serif; display: flex; align-items: center; gap: 5px; }
         .clear-form-btn:hover { background: #fecaca; }
 
-        .input-group { margin-bottom: 15px; }
+        .input-group { margin-bottom: 15px; width: 100%; }
         .input-group label { display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 6px; }
-        .input-wrapper input, .input-wrapper select { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 15px; font-family: 'Tajawal', sans-serif; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; }
-        .input-wrapper input:focus, .input-wrapper select:focus { border-color: #047857; background: #ffffff; }
+        .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
+        .input-wrapper input, .input-wrapper select, .input-wrapper textarea { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: 'Tajawal', sans-serif; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; }
+        .input-wrapper input:focus, .input-wrapper select:focus, .input-wrapper textarea:focus { border-color: #047857; background: #ffffff; }
         
-        .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: 'Tajawal', sans-serif; margin-top: 10px; }
+        .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: 'Tajawal', sans-serif; margin-top: 10px; box-sizing: border-box; }
         .action-btn:hover { background: #065f46; }
-
-        .preview-box { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; padding: 20px; font-size: 13.5px; color: #0f172a; line-height: 1.8; white-space: pre-wrap; font-weight: 500; max-height: 320px; overflow-y: auto; }
+        
+        .copy-btn { background: #0369a1; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: 'Tajawal', sans-serif; margin-top: 10px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .copy-btn:hover { background: #0284c7; }
 
         .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
-        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: 'Tajawal', sans-serif; font-size: 13px; outline: none; width: 250px; }
-        .table-btns { display: flex; gap: 10px; }
-        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: 'Tajawal', sans-serif; }
+        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: 'Tajawal', sans-serif; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; }
+        .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
+        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: 'Tajawal', sans-serif; display: flex; align-items: center; justify-content: center; }
         .t-btn:hover { background: #f1f5f9; }
 
-        .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
-        .data-table th { background: #f8fafc; padding: 12px; text-align: right; border-bottom: 2px solid #cbd5e1; font-weight: 800; color: #334155; }
-        .data-table td { padding: 12px; border-bottom: 1px solid #e2e8f0; color: #0f172a; font-weight: 600; }
+        .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 900px; }
+        .data-table th { background: #f8fafc; padding: 12px; text-align: right; border-bottom: 2px solid #cbd5e1; font-weight: 800; color: #334155; white-space: nowrap; }
+        .data-table td { padding: 12px; border-bottom: 1px solid #e2e8f0; color: #0f172a; font-weight: 600; vertical-align: middle; }
+        .data-table tfoot td { background: #f1f5f9; font-weight: 900; color: #0f172a; border-top: 2px solid #cbd5e1; }
         
         .trial-badge { background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 800; }
+        
+        .tb-action-btn { border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; font-family: 'Tajawal', sans-serif;}
+        .btn-edit { background: #e0f2fe; color: #0369a1; }
+        .btn-delete { background: #fee2e2; color: #991b1b; }
       `}</style>
 
       <div className="header">
         <div className="title-box">
-          <h1>مولد نصوص الإكسبلور (باللهجة السعودية) 🎬</h1>
-          <p>اصنع سكربتات تيك توك وإعلانات جذابة باللهجة المحلية لزيادة التفاعل ومعدل التحويل في متجرك</p>
+          <h1>مولد نصوص الإكسبلور باللهجة السعودية ✍️</h1>
+          <p>اصنع سكريبتات تيك توك وإعلانات جذابة باللهجة المحلية لزيادة تفاعل العملاء ومعدل التحويل</p>
         </div>
         <Link href="/hub/sa" className="back-btn">
           <span>←</span> عودة للمنصة
@@ -204,8 +343,8 @@ export default function ExplorGeneratorSA() {
         {/* قسم المدخلات */}
         <div className="card">
           <h2 className="card-title">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <span>{editingId ? 'تعديل السكربت' : 'صناعة سكربت جديد'}</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+              <span>{editingId ? 'تعديل السكريبت' : 'توليد سكريبت إعلاني جديد'}</span>
               <button type="button" className="clear-form-btn" onClick={handleClearForm} title="مسح الحقول">
                 🧹 مسح الحقول
               </button>
@@ -214,78 +353,104 @@ export default function ExplorGeneratorSA() {
           </h2>
 
           <form onSubmit={handleSaveItem}>
-            <div className="input-group">
-              <label>اسم المنتج أو الخدمة المعلن عنها</label>
-              <div className="input-wrapper">
-                <input type="text" value={productName} onChange={(e) => setProductName(e.target.value)} placeholder="مثال: جهاز تنظيف لاسلكي" required />
+            <div className="form-row">
+              <div className="input-group">
+                <label>اسم المنتج</label>
+                <div className="input-wrapper">
+                  <input type="text" value={productName} onChange={(e) => setProductName(e.target.value)} placeholder="مثال: عطر إنجازيا الفاخر" required />
+                </div>
+              </div>
+              <div className="input-group">
+                <label>نوع المحتوى الإعلاني</label>
+                <div className="input-wrapper" style={{ marginBottom: '8px' }}>
+                  <select value={contentSelect} onChange={handleSelectChange}>
+                    <option value="إعلان فيديو تيك توك (حماسي)">إعلان فيديو تيك توك (حماسي) 🎬</option>
+                    <option value="سكريبت سناب شات (تفاعلي)">سكريبت سناب شات (تفاعلي) 👻</option>
+                    <option value="بوست إعلاني جذاب">بوست إعلاني جذاب 📢</option>
+                    <option value="نوع آخر (كتابة يدوية)">➕ نوع آخر (كتابة يدوية)</option>
+                  </select>
+                </div>
+
+                {contentSelect === 'نوع آخر (كتابة يدوية)' && (
+                  <div className="input-wrapper">
+                    <input 
+                      type="text" 
+                      value={customContentType} 
+                      onChange={(e) => setCustomContentType(e.target.value)} 
+                      placeholder="اكتب نوع المحتوى هنا..." 
+                      required 
+                    />
+                  </div>
+                )}
               </div>
             </div>
 
             <div className="input-group">
-              <label>نمط الخطاف (الهووك - أول 3 ثواني)</label>
+              <label>المشكلة التي يحلها المنتج (اللهجة المحلية)</label>
               <div className="input-wrapper">
-                <select value={hookStyle} onChange={(e) => setHookStyle(e.target.value)}>
-                  <option value='طريقة "يا إلهي، كيف ما شفت هذا من زمان؟"'>طريقة "يا إلهي، كيف ما شفت هذا من زمان؟"</option>
-                  <option value='طريقة "تحدي أو صدمة بأسعار السوق"'>طريقة "تحدي أو صدمة بأسعار السوق"</option>
-                  <option value='طريقة "حل مشكلة يومية مزعجة"'>طريقة "حل مشكلة يومية مزعجة"</option>
-                </select>
+                <input type="text" value={problemSolved} onChange={(e) => setProblemSolved(e.target.value)} placeholder="تبحث عن عطر فخم يثبت معك طوال اليوم؟" required />
               </div>
             </div>
 
             <div className="input-group">
-              <label>المشكلة التي يحلها المنتج</label>
+              <label>العرض التسويقي الخاص بالمتجر</label>
               <div className="input-wrapper">
-                <input type="text" value={problemSolved} onChange={(e) => setProblemSolved(e.target.value)} placeholder="مثال: يوفر الوقت والجهد في التنظيف" />
-              </div>
-            </div>
-
-            <div className="input-group">
-              <label>الفئة المستهدفة في السعودية</label>
-              <div className="input-wrapper">
-                <input type="text" value={targetAudience} onChange={(e) => setTargetAudience(e.target.value)} placeholder="مثال: ربات البيوت والمهتمين بالترتيب" />
+                <input type="text" value={offerText} onChange={(e) => setOfferText(e.target.value)} placeholder="خصم 30% + توصيل مجاني لأول 100 طلب" required />
               </div>
             </div>
 
             <button type="submit" className="action-btn">
-              {editingId ? '💾 حفظ التعديلات' : '+ حفظ السكربت في السجل'}
+              {editingId ? '💾 حفظ التعديلات' : '+ حفظ السكريبت في السجل'}
             </button>
           </form>
         </div>
 
-        {/* قسم المعاينة الفورية */}
+        {/* قسم المعاينة والنسخ الفوري */}
         <div className="card">
-          <h2 className="card-title">معاينة السكربت المولد</h2>
-          <div className="preview-box">
-            {generatedScript}
+          <h2 className="card-title">معاينة النص الإعلاني ({actualContentType})</h2>
+
+          <div className="input-group" style={{ marginBottom: 0 }}>
+            <div className="input-wrapper">
+              <textarea 
+                rows={11} 
+                value={generatedScript} 
+                onChange={(e) => setGeneratedScript(e.target.value)} 
+                style={{ width: '100%', padding: '12px', border: '1px solid #cbd5e1', borderRadius: '8px', fontSize: '13.5px', fontFamily: 'Tajawal, sans-serif', outline: 'none', background: '#f8fafc', color: '#0f172a', resize: 'vertical', lineHeight: '1.6' }}
+              ></textarea>
+            </div>
           </div>
+
+          <button type="button" className="copy-btn" onClick={handleCopyText}>
+            📋 نسخ السكريبت للحافظة
+          </button>
         </div>
       </div>
 
-      {/* جدول إدارة السجلات السفلي */}
+      {/* جدول البيانات السفلي */}
       <div className="table-section">
         <div className="table-toolbar">
           <input 
             type="text" 
             className="search-input" 
-            placeholder="🔍 بحث باسم المنتج أو النمط..." 
+            placeholder="🔍 بحث باسم المنتج أو نوع المحتوى..." 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
           <div className="table-btns">
-            <button className="t-btn" onClick={handleExportCsv}>📥 تصدير CSV</button>
+            <button className="t-btn" onClick={handleExportExcel} title="تصدير بصيغة Excel لدعم اللغة العربية">📥 تصدير Excel</button>
             <button className="t-btn" onClick={() => fileInputRef.current?.click()}>📂 استيراد</button>
             <input type="file" ref={fileInputRef} onChange={handleImportJson} accept=".json" style={{ display: 'none' }} />
           </div>
         </div>
 
-        <div style={{ overflowX: 'auto' }}>
+        <div className="table-responsive">
           <table className="data-table">
             <thead>
               <tr>
                 <th>#</th>
-                <th>اسم المنتج</th>
-                <th>نمط الخطاف (الهووك)</th>
-                <th>الفئة المستهدفة</th>
+                <th>المنتج والتاريخ</th>
+                <th>نوع المحتوى</th>
+                <th>العرض التسويقي</th>
                 <th>الإجراءات</th>
               </tr>
             </thead>
@@ -293,26 +458,38 @@ export default function ExplorGeneratorSA() {
               {filteredItems.length === 0 ? (
                 <tr>
                   <td colSpan={5} style={{ textAlign: 'center', color: '#94a3b8', padding: '30px 0' }}>
-                    لا توجد سكربتات مسجلة في السجل حالياً.
+                    لا توجد سكريبتات مسجلة حالياً.
                   </td>
                 </tr>
               ) : (
                 filteredItems.map((item, idx) => (
                   <tr key={item.id}>
                     <td>{idx + 1}</td>
-                    <td style={{ fontWeight: 800 }}>{item.productName}</td>
-                    <td>{item.hookStyle}</td>
-                    <td>{item.targetAudience}</td>
                     <td>
-                      <div style={{ display: 'flex', gap: '8px' }}>
-                        <button onClick={() => handleEdit(item)} style={{ background: '#e0f2fe', color: '#0369a1', border: 'none', padding: '5px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 800, cursor: 'pointer' }}>تعديل</button>
-                        <button onClick={() => handleDelete(item.id)} style={{ background: '#fee2e2', color: '#991b1b', border: 'none', padding: '5px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 800, cursor: 'pointer' }}>حذف</button>
+                      <div style={{ fontWeight: 900, color: '#0f172a' }}>{item.productName}</div>
+                      {item.createdAt && <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', fontWeight: 600 }}>🕒 {item.createdAt}</div>}
+                    </td>
+                    <td><span style={{ fontWeight: 800, color: '#0369a1' }}>{item.contentType}</span></td>
+                    <td><span style={{ fontWeight: 700, color: '#047857' }}>{item.offerText}</span></td>
+                    <td>
+                      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                        <button className="tb-action-btn btn-wa" onClick={() => { navigator.clipboard.writeText(item.generatedScript); alert('📋 تم نسخ السكريبت!'); }} title="نسخ النص">📋 نسخ</button>
+                        <button className="tb-action-btn btn-edit" onClick={() => handleEdit(item)} title="تعديل">✏️</button>
+                        <button className="tb-action-btn btn-delete" onClick={() => handleDelete(item.id)} title="حذف">❌</button>
                       </div>
                     </td>
                   </tr>
                 ))
               )}
             </tbody>
+            {filteredItems.length > 0 && (
+              <tfoot>
+                <tr className="tfoot-row">
+                  <td colSpan={4} style={{ textAlign: 'center' }}>إجمالي السكريبتات المسجلة</td>
+                  <td>{items.length} سكريبت</td>
+                </tr>
+              </tfoot>
+            )}
           </table>
         </div>
       </div>
