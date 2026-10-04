@@ -15,11 +15,11 @@ interface PolicyItem {
 }
 
 export default function PoliciesGeneratorSA() {
-  const [storeName, setStoreName] = useState<string>('متجر إنجازيا');
+  const [storeName, setStoreName] = useState<string>('');
   const [policySelect, setPolicySelect] = useState<string>('سياسة الاستبدال والاسترجاع');
   const [customPolicyType, setCustomPolicyType] = useState<string>('سياسة الاستبدال والاسترجاع');
-  const [supportEmail, setSupportEmail] = useState<string>('support@store.com');
-  const [supportPhone, setSupportPhone] = useState<string>('966500000000');
+  const [supportEmail, setSupportEmail] = useState<string>('');
+  const [supportPhone, setSupportPhone] = useState<string>('');
   const [returnDays, setReturnDays] = useState<number | ''>(7);
   const [policyContent, setPolicyContent] = useState<string>('');
 
@@ -34,43 +34,49 @@ export default function PoliciesGeneratorSA() {
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
+    // جلب اسم المتجر الافتراضي إن وجد محفوظاً مسبقاً في المتصفح
+    const defaultStore = localStorage.getItem('seerk_default_store_name');
+    if (defaultStore) setStoreName(defaultStore);
   }, []);
 
   const actualPolicyType = policySelect === 'سياسة أخرى (كتابة يدوية)' ? customPolicyType : policySelect;
 
   // توليد النص تلقائياً عند تغيير الخيارات
   useEffect(() => {
+    const currentStore = storeName.trim() || 'المتجر';
+    const currentEmail = supportEmail.trim() || 'support@yourstore.com';
+    const currentPhone = supportPhone.trim() || '9665XXXXXXXX';
+
     if (policySelect === 'سياسة الاستبدال والاسترجاع') {
       setPolicyContent(
-        `أهلاً بكم في ${storeName}. حرصاً منا على خدمتكم بأفضل شكل، فإن سياسة الاستبدال والاسترجاع تخضع للشروط والضوابط التالية:\n\n` +
+        `أهلاً بكم في ${currentStore}. حرصاً منا على خدمتكم بأفضل شكل، فإن سياسة الاستبدال والاسترجاع تخضع للشروط والضوابط التالية:\n\n` +
         `1. مدة الاستبدال والاسترجاع هي خلال (${returnDays || 7}) أيام من تاريخ استلام الطلب.\n` +
         `2. يجب أن يكون المنتج بحالته الأصلية، وفي غلافه الأصلي، ولم يتم فتحه أو استخدامُه، مع إرفاق فاتورة الشراء.\n` +
         `3. تتحمل تكاليف الشحن العكسي في حال كان الاسترجاع بسبب رغبة العميل، بينما يتحمل المتجر التكاليف في حال وجود عيب مصنعي أو خطأ في الطلب.\n` +
-        `4. للاستفسار أو تقديم طلب استرجاع، يرجى التواصل معنا عبر البريد: ${supportEmail} أو الواتساب: ${supportPhone}.`
+        `4. للاستفسار أو تقديم طلب استرجاع، يرجى التواصل معنا عبر البريد: ${currentEmail} أو الواتساب: ${currentPhone}.`
       );
     } else if (policySelect === 'سياسة الخصوصية') {
       setPolicyContent(
-        `في ${storeName}، نلتزم بحماية خصوصية بياناتكم الشخصية. توضح هذه السياسة كيف نقوم بجمع واستخدام وحماية معلوماتكم:\n\n` +
+        `في ${currentStore}، نلتزم بحماية خصوصية بياناتكم الشخصية. توضح هذه السياسة كيف نقوم بجمع واستخدام وحماية معلوماتكم:\n\n` +
         `1. البيانات التي نجمعها: الاسم، رقم الجوال، عنوان الشحن، البريد الإلكتروني لتنفيذ طلباتكم فقط.\n` +
         `2. حماية البيانات: نستخدم أحدث أساليب التشفير والأمان لضمان عدم تسريب أي معلومة.\n` +
         `3. لا نقوم نهائياً ببيع أو مشاركة بياناتك مع أي طرف ثالث لأغراض تسويقية.\n` +
-        `4. لأي استفسار بخصوص الخصوصية، يرجى التواصل معنا على: ${supportEmail}.`
+        `4. لأي استفسار بخصوص الخصوصية، يرجى التواصل معنا على: ${currentEmail}.`
       );
     } else if (policySelect === 'الشروط والأحكام') {
       setPolicyContent(
-        `الشروط والأحكام الخاصة بـ ${storeName}:\n\n` +
+        `الشروط والأحكام الخاصة بـ ${currentStore}:\n\n` +
         `1. استخدامك للمتجر يعني موافقتك التامة على كافة الشروط والسياسات المعلنة.\n` +
         `2. الأسعار معروضة بالريال السعودي شاملة ضريبة القيمة المضافة (15%).\n` +
         `3. يحق للمتجر إلغاء الطلب في حال نفاد الكمية أو عدم إتمام عملية الدفع خلال المدة المحددة، مع إرجاع المبلغ كاملاً للعميل.\n` +
-        `4. للتواصل والدعم الفني: ${supportEmail} - هاتف: ${supportPhone}.`
+        `4. للتواصل والدعم الفني: ${currentEmail} - هاتف: ${currentPhone}.`
       );
     } else {
-      // إذا اختار سياسة مخصصة جديدة
       if (!editingId || !policyContent) {
         setPolicyContent(
-          `نص ${customPolicyType || 'السياسة'} الخاص بـ ${storeName}:\n\n` +
+          `نص ${customPolicyType || 'السياسة'} الخاص بـ ${currentStore}:\n\n` +
           `1. يلتزم المتجر بتقديم أفضل الخدمات وفقاً لهذه السياسة.\n` +
-          `2. لأي استفسارات أو تفاصيل إضافية، يرجى التواصل معنا عبر البريد: ${supportEmail} أو عبر الواتساب: ${supportPhone}.`
+          `2. لأي استفسارات أو تفاصيل إضافية، يرجى التواصل معنا عبر البريد: ${currentEmail} أو عبر الواتساب: ${currentPhone}.`
         );
       }
     }
@@ -96,11 +102,11 @@ export default function PoliciesGeneratorSA() {
   };
 
   const handleClearForm = () => {
-    setStoreName('متجر إنجازيا');
+    setStoreName('');
     setPolicySelect('سياسة الاستبدال والاسترجاع');
     setCustomPolicyType('سياسة الاستبدال والاسترجاع');
-    setSupportEmail('support@store.com');
-    setSupportPhone('966500000000');
+    setSupportEmail('');
+    setSupportPhone('');
     setReturnDays(7);
     setEditingId(null);
   };
@@ -363,7 +369,7 @@ export default function PoliciesGeneratorSA() {
               <div className="input-group">
                 <label>اسم المتجر</label>
                 <div className="input-wrapper">
-                  <input type="text" value={storeName} onChange={(e) => setStoreName(e.target.value)} placeholder="متجر إنجازيا" required />
+                  <input type="text" value={storeName} onChange={(e) => setStoreName(e.target.value)} placeholder="مثال: متجر سديم" required />
                 </div>
               </div>
               <div className="input-group">
@@ -395,13 +401,13 @@ export default function PoliciesGeneratorSA() {
               <div className="input-group">
                 <label>البريد الإلكتروني للدعم</label>
                 <div className="input-wrapper">
-                  <input type="email" value={supportEmail} onChange={(e) => setSupportEmail(e.target.value)} placeholder="support@store.com" required />
+                  <input type="email" value={supportEmail} onChange={(e) => setSupportEmail(e.target.value)} placeholder="support@yourstore.com" required />
                 </div>
               </div>
               <div className="input-group">
                 <label>رقم واتساب الدعم</label>
                 <div className="input-wrapper">
-                  <input type="text" value={supportPhone} onChange={(e) => setSupportPhone(e.target.value)} placeholder="966500000000" required />
+                  <input type="text" value={supportPhone} onChange={(e) => setSupportPhone(e.target.value)} placeholder="9665XXXXXXXX" required />
                 </div>
               </div>
             </div>
