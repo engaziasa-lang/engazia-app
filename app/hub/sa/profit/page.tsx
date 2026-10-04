@@ -127,7 +127,6 @@ export default function ProfitCalculatorSA() {
     }
   };
 
-  // تصدير متوافق 100% مع الإكسل (يدعم اليمين لليسار واللغة العربية)
   const handleExportExcel = () => {
     if (items.length === 0) {
       alert('لا توجد بيانات لتصديرها.');
@@ -137,6 +136,7 @@ export default function ProfitCalculatorSA() {
     const totalSellingPrice = items.reduce((acc, curr) => acc + curr.sellingPrice, 0);
     const totalCostsValue = items.reduce((acc, curr) => acc + curr.productCost + curr.shippingCost, 0);
     const totalNetProfitValue = items.reduce((acc, curr) => acc + curr.netProfit, 0);
+    const overallMargin = totalSellingPrice > 0 ? (totalNetProfitValue / totalSellingPrice) * 100 : 0;
 
     let tableHtml = `
       <html dir="rtl" lang="ar">
@@ -183,11 +183,11 @@ export default function ProfitCalculatorSA() {
             </tbody>
             <tfoot>
               <tr class="tfoot-row">
-                <td colspan="3">الإجمالي الكلي</td>
+                <td colspan="3">الإجمالي الكلي / المتوسط</td>
                 <td>${totalSellingPrice.toFixed(2)}</td>
                 <td>${totalCostsValue.toFixed(2)}</td>
                 <td>${totalNetProfitValue.toFixed(2)}</td>
-                <td></td>
+                <td>${overallMargin.toFixed(1)}%</td>
               </tr>
             </tfoot>
           </table>
@@ -229,6 +229,7 @@ export default function ProfitCalculatorSA() {
   const totalSellingPrice = filteredItems.reduce((acc, curr) => acc + curr.sellingPrice, 0);
   const totalCostsValue = filteredItems.reduce((acc, curr) => acc + curr.productCost + curr.shippingCost, 0);
   const totalNetProfitValue = filteredItems.reduce((acc, curr) => acc + curr.netProfit, 0);
+  const overallMargin = totalSellingPrice > 0 ? (totalNetProfitValue / totalSellingPrice) * 100 : 0;
 
   return (
     <div className="tool-container">
@@ -237,7 +238,8 @@ export default function ProfitCalculatorSA() {
         a { text-decoration: none; }
       `}</style>
       <style jsx>{`
-        .tool-container { direction: rtl; max-width: 1100px; margin: 40px auto; padding: 20px; }
+        .tool-container { direction: rtl; max-width: 1100px; margin: 20px auto; padding: 20px; }
+        @media(max-width: 768px) { .tool-container { padding: 10px; margin: 10px auto; } }
         
         .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; }
         .back-btn { background: #ffffff; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 8px; color: #475569; font-weight: 700; font-size: 14px; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
@@ -255,17 +257,17 @@ export default function ProfitCalculatorSA() {
         .clear-form-btn { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: 'Tajawal', sans-serif; display: flex; align-items: center; gap: 5px; }
         .clear-form-btn:hover { background: #fecaca; }
 
-        .input-group { margin-bottom: 15px; }
+        .input-group { margin-bottom: 15px; width: 100%; }
         .input-group label { display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 6px; }
-        .input-wrapper { position: relative; display: flex; align-items: center; }
-        .input-wrapper input { width: 100%; padding: 10px 45px 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 15px; font-family: 'Tajawal', sans-serif; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; }
+        .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
+        .input-wrapper input { width: 100%; padding: 10px 45px 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 15px; font-family: 'Tajawal', sans-serif; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; }
         .input-wrapper input:focus { border-color: #047857; background: #ffffff; }
         .currency-tag { position: absolute; left: 14px; color: #64748b; font-weight: 800; font-size: 13px; pointer-events: none; }
         
-        .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: 'Tajawal', sans-serif; margin-top: 10px; }
+        .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: 'Tajawal', sans-serif; margin-top: 10px; box-sizing: border-box; }
         .action-btn:hover { background: #065f46; }
 
-        .result-box { background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; }
+        .result-box { background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px; }
         .result-box.primary { background: linear-gradient(135deg, #047857 0%, #065f46 100%); color: #fff; border: none; padding: 20px; }
         .result-box.danger { background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); color: #fff; border: none; padding: 20px; }
         .result-label { font-size: 13px; font-weight: 700; color: #64748b; }
@@ -275,12 +277,12 @@ export default function ProfitCalculatorSA() {
 
         .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
-        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: 'Tajawal', sans-serif; font-size: 13px; outline: none; width: 100%; max-width: 300px; }
+        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: 'Tajawal', sans-serif; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; }
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
         .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: 'Tajawal', sans-serif; display: flex; align-items: center; justify-content: center; }
         .t-btn:hover { background: #f1f5f9; }
 
-        .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 700px; }
         .data-table th { background: #f8fafc; padding: 12px; text-align: right; border-bottom: 2px solid #cbd5e1; font-weight: 800; color: #334155; white-space: nowrap; }
         .data-table td { padding: 12px; border-bottom: 1px solid #e2e8f0; color: #0f172a; font-weight: 600; vertical-align: middle; }
@@ -303,7 +305,7 @@ export default function ProfitCalculatorSA() {
         {/* قسم المدخلات */}
         <div className="card">
           <h2 className="card-title">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
               <span>{editingId ? 'تعديل بيانات المنتج' : 'حساب منتج جديد'}</span>
               <button type="button" className="clear-form-btn" onClick={handleClearForm} title="مسح وتفريغ الحقول تماماً">
                 🧹 مسح الحقول
@@ -441,7 +443,7 @@ export default function ProfitCalculatorSA() {
                     <td style={{ color: item.netProfit > 0 ? '#047857' : '#dc2626', fontWeight: 900 }}>{item.netProfit} ر.س</td>
                     <td>{item.margin}%</td>
                     <td>
-                      <div style={{ display: 'flex', gap: '8px' }}>
+                      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                         <button onClick={() => handleEdit(item)} style={{ background: '#e0f2fe', color: '#0369a1', border: 'none', padding: '6px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 800, cursor: 'pointer' }}>تعديل</button>
                         <button onClick={() => handleDelete(item.id)} style={{ background: '#fee2e2', color: '#991b1b', border: 'none', padding: '6px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 800, cursor: 'pointer' }}>حذف</button>
                       </div>
@@ -450,15 +452,15 @@ export default function ProfitCalculatorSA() {
                 ))
               )}
             </tbody>
-            {/* شريط الإجماليات يظهر فقط إذا كان هناك بيانات */}
             {filteredItems.length > 0 && (
               <tfoot>
-                <tr>
-                  <td colSpan={2} style={{ textAlign: 'center' }}>الإجمالي الكلي</td>
+                <tr className="tfoot-row">
+                  <td colSpan={2} style={{ textAlign: 'center' }}>الإجمالي الكلي / المتوسط</td>
                   <td>{totalSellingPrice.toFixed(2)} ر.س</td>
                   <td>{totalCostsValue.toFixed(2)} ر.س</td>
                   <td style={{ color: totalNetProfitValue > 0 ? '#047857' : '#dc2626' }}>{totalNetProfitValue.toFixed(2)} ر.س</td>
-                  <td colSpan={2}></td>
+                  <td style={{ color: overallMargin > 0 ? '#047857' : '#dc2626' }}>{overallMargin.toFixed(1)}%</td>
+                  <td></td>
                 </tr>
               </tfoot>
             )}
