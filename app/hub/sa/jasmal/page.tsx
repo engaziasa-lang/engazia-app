@@ -19,8 +19,12 @@ export default function JasmalScraperSA() {
   const [productName, setProductName] = useState<string>('');
   const [productPrice, setProductPrice] = useState<number | ''>('');
   const [productUrl, setProductUrl] = useState<string>('');
-  const [category, setCategory] = useState<string>('ساعات رجالية');
-  const [notes, setNotes] = useState<string>('منتج منافس قوي');
+  
+  // الخيارات الذكية للتصنيف
+  const [categorySelect, setCategorySelect] = useState<string>('منتجات إلكترونية وتكنولوجية');
+  const [customCategory, setCustomCategory] = useState<string>('منتجات إلكترونية وتكنولوجية');
+  
+  const [notes, setNotes] = useState<string>('منتج منافس قوي في السوق');
 
   const [items, setItems] = useState<JasmalItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -43,14 +47,26 @@ export default function JasmalScraperSA() {
   const isActivated = typeof window !== 'undefined' && !!localStorage.getItem('merchant_license_key');
 
   const price = typeof productPrice === 'number' ? productPrice : 0;
+  const finalCategory = categorySelect === 'تصنيف آخر (كتابة يدوية)' ? customCategory : categorySelect;
+
+  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const val = e.target.value;
+    setCategorySelect(val);
+    if (val !== 'تصنيف آخر (كتابة يدوية)') {
+      setCustomCategory(val);
+    } else {
+      setCustomCategory('');
+    }
+  };
 
   const handleClearForm = () => {
     setCompetitorName('');
     setProductName('');
     setProductPrice('');
     setProductUrl('');
-    setCategory('ساعات رجالية');
-    setNotes('منتج منافس قوي');
+    setCategorySelect('منتجات إلكترونية وتكنولوجية');
+    setCustomCategory('منتجات إلكترونية وتكنولوجية');
+    setNotes('منتج منافس قوي في السوق');
     setEditingId(null);
   };
 
@@ -60,8 +76,8 @@ export default function JasmalScraperSA() {
       alert('🔒 عذراً، لقد استهلكت الحد التجريبي (3 منتجات مستخرجة). يرجى ترقية حسابك لفتح السعة الكاملة بلا حدود!');
       return;
     }
-    if (!competitorName.trim() || !productName.trim() || price <= 0) {
-      alert('الرجاء التأكد من تعبئة اسم المنافس، اسم المنتج، وسعر صحيح.');
+    if (!competitorName.trim() || !productName.trim() || price <= 0 || !finalCategory.trim()) {
+      alert('الرجاء التأكد من تعبئة اسم المنافس، اسم المنتج، التصنيف، وسعر صحيح.');
       return;
     }
 
@@ -76,7 +92,7 @@ export default function JasmalScraperSA() {
         productName,
         productPrice: price,
         productUrl,
-        category,
+        category: finalCategory,
         notes,
         createdAt: item.createdAt || formattedDate
       } : item);
@@ -90,7 +106,7 @@ export default function JasmalScraperSA() {
         productName,
         productPrice: price,
         productUrl,
-        category,
+        category: finalCategory,
         notes,
         createdAt: formattedDate
       };
@@ -106,7 +122,15 @@ export default function JasmalScraperSA() {
     setProductName(item.productName);
     setProductPrice(item.productPrice);
     setProductUrl(item.productUrl);
-    setCategory(item.category);
+    
+    const standardCategories = ['منتجات إلكترونية وتكنولوجية', 'أزياء وملابس رجالية/نسائية', 'عطور وبخور وعناية شخصية', 'أكسسوارات وساعات'];
+    if (standardCategories.includes(item.category)) {
+      setCategorySelect(item.category);
+      setCustomCategory(item.category);
+    } else {
+      setCategorySelect('تصنيف آخر (كتابة يدوية)');
+      setCustomCategory(item.category);
+    }
     setNotes(item.notes);
     setEditingId(item.id);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -146,7 +170,7 @@ export default function JasmalScraperSA() {
                 <th>المتجر المنافس</th>
                 <th>اسم المنتج</th>
                 <th>التاريخ والوقت</th>
-                <th>الفئة</th>
+                <th>التصنيف</th>
                 <th>السعر (ر.س)</th>
                 <th>رابط المنتج</th>
                 <th>ملاحظات</th>
@@ -331,11 +355,30 @@ export default function JasmalScraperSA() {
                   <span className="currency-tag">ر.س</span>
                 </div>
               </div>
+              
               <div className="input-group">
-                <label>الفئة أو التصنيف</label>
-                <div className="input-wrapper">
-                  <input type="text" value={category} onChange={(e) => setCategory(e.target.value)} placeholder="ساعات وإكسسوارات" required />
+                <label>التصنيف</label>
+                <div className="input-wrapper" style={{ marginBottom: '8px' }}>
+                  <select value={categorySelect} onChange={handleSelectChange}>
+                    <option value="منتجات إلكترونية وتكنولوجية">منتجات إلكترونية وتكنولوجية 💻</option>
+                    <option value="أزياء وملابس رجالية/نسائية">أزياء وملابس رجالية/نسائية 👕</option>
+                    <option value="عطور وبخور وعناية شخصية">عطور وبخور وعناية شخصية 🌸</option>
+                    <option value="أكسسوارات وساعات">أكسسوارات وساعات ⌚</option>
+                    <option value="تصنيف آخر (كتابة يدوية)">➕ تصنيف آخر (كتابة يدوية)</option>
+                  </select>
                 </div>
+
+                {categorySelect === 'تصنيف آخر (كتابة يدوية)' && (
+                  <div className="input-wrapper">
+                    <input 
+                      type="text" 
+                      value={customCategory} 
+                      onChange={(e) => setCustomCategory(e.target.value)} 
+                      placeholder="اكتب التصنيف المخصص هنا..." 
+                      required 
+                    />
+                  </div>
+                )}
               </div>
             </div>
 
@@ -408,7 +451,7 @@ export default function JasmalScraperSA() {
               <tr>
                 <th>#</th>
                 <th>المتجر والتاريخ</th>
-                <th>اسم المنتج والفئة</th>
+                <th>اسم المنتج والتصنيف</th>
                 <th>السعر المنافس</th>
                 <th>الرابط والملاحظات</th>
                 <th>الإجراءات</th>
