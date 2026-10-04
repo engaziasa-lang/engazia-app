@@ -48,7 +48,7 @@ const saTools: ToolInfo[] = [
   { id: 'support', title: 'قوالب خدمة العملاء السريعة', desc: 'انسخ ردود احترافية جاهزة للرد على استفسارات العملاء المكررة عبر واتساب.', icon: '🎧', link: '/hub/sa/support' },
   { id: 'promos', title: 'حاسبة جدوى أكواد الخصم والعروض', desc: 'تأكد من أن عروضك الترويجية (مثل 1+1 أو الشحن المجاني) لا تسبب لك خسائر مخفية.', icon: '🎟️', link: '/hub/sa/promos' },
   { id: 'ltv', title: 'حاسبة القيمة الدائمة للعميل (LTV)', desc: 'اعرف تكلفة الاستحواذ على العميل (CAC) وقيمته الفعلية لمتجرك على المدى الطويل.', icon: '🎯', link: '/hub/sa/ltv' },
-  { id: 'ab_test', title: 'حاسبة اختبارات الإعلانات (A/B)', desc: 'قارن بين حملتين إعلانيتين لتعرف أيهما يحقق أفضل عائد بأقل تكلفة للطلب.', icon: '⚖️', link: '/hub/sa/ab-test' },
+  { id: 'ab_test', title: 'حاسبة اختبارات الإعلانات (A/B)', desc: 'قارن بين حملتين إعلانيتين لتعرف أيهما يحقق أفضل عائد بأقل تكلفة للطلب.', icon: '⚖️️', link: '/hub/sa/ab-test' },
   { id: 'links', title: 'صانع روابط واتساب السريعة', desc: 'أنشئ روابط مخصصة برسائل جاهزة لبيو تيك توك أو تمريرها في حملات الانستقرام.', icon: '🔗', link: '/hub/sa/links' },
   { id: 'tips', title: 'أسرار نمو المتاجر السعودية', desc: 'مكتبة استراتيجيات حصرية لزيادة التحويل ورفع ولاء العملاء في السوق المحلي.', icon: '💡', link: '/hub/sa/tips' }
 ];
@@ -67,6 +67,21 @@ export default function EnjazyaSaudiHub() {
     setIsActivated(config.isActivated);
     if (typeof window !== 'undefined') {
       document.title = 'منصة إنجازيا | السوق السعودي 🇸🇦';
+
+      // استعادة مكان وقوف التاجر السابق تلقائياً
+      const savedScroll = sessionStorage.getItem('hub_scroll_position');
+      if (savedScroll) {
+        setTimeout(() => {
+          window.scrollTo({ top: parseInt(savedScroll, 10), behavior: 'smooth' });
+        }, 100);
+      }
+
+      // حفظ مكان التمرير عند مغادرة الصفحة أو النقر على أي أداة
+      const handleScroll = () => {
+        sessionStorage.setItem('hub_scroll_position', window.scrollY.toString());
+      };
+      window.addEventListener('scroll', handleScroll);
+      return () => window.removeEventListener('scroll', handleScroll);
     }
   }, []);
 
@@ -331,8 +346,7 @@ export default function EnjazyaSaudiHub() {
 
       <div className="cards-grid">
         {saTools.map((tool, index) => (
-          // أضفنا id فريد لكل أداة (مثل tool-whatsapp) لكي يعود التاجر إليها بالضبط
-          <Link href={`${tool.link}#top`} key={tool.id} id={`tool-${tool.id}`} className="card clean-link">
+          <Link href={tool.link} key={tool.id} className="card clean-link">
             <div>
               <div className="card-top">
                 <div className="card-icon">{tool.icon}</div>
@@ -360,7 +374,7 @@ export default function EnjazyaSaudiHub() {
             <div className="links-column">
               <h4>المنصة</h4>
               <ul>
-                <li><a href="#tool-profit">جميع الأدوات (24)</a></li>
+                <li><Link href="/hub/sa">جميع الأدوات (24)</Link></li>
                 <li><Link href="/updates">التحديثات الجديدة</Link></li>
                 <li><Link href="/pricing">أسعار الباقات</Link></li>
               </ul>
