@@ -14,7 +14,7 @@ interface CopyItem {
 }
 
 export default function ExploredCopywritingSA() {
-  const [productName, setProductName] => useState<string>('عطر إنجازيا الفاخر');
+  const [productName, setProductName] = useState<string>('عطر إنجازيا الفاخر');
   const [contentSelect, setContentSelect] = useState<string>('إعلان فيديو تيك توك (حماسي)');
   const [customContentType, setCustomContentType] = useState<string>('إعلان فيديو تيك توك (حماسي)');
   const [problemSolved, setProblemSolved] = useState<string>('تبحث عن عطر فخم يثبت معك طوال اليوم وبسعر مناسب؟');
@@ -61,7 +61,7 @@ export default function ExploredCopywritingSA() {
         `"مساء الخير يا أهلنا.. وصلني اليوم (${pName}) اللي جنن الكل! تدري إن ${prob}"\n\n` +
         `🗣️ **سنابة 2 (استعراض المنتج):**\n` +
         `"شوفوا معي الجودة والتفاصيل كيف ما شاء الله. شي فاخر من الآخر ويهدئ البال."\n\n` +
-        `🗣️ **سنابة 3 (Call to Action):**\n` +
+        `🗣️️ **سنابة 3 (Call to Action):**\n` +
         `"وعشان أنتم غالين علينا، وفرنا لكم: ${offer}.\n` +
         `ارفع الشاشة لفوق 👆 وطلبك يوصلك لباب بيتك وين ما كنت بالمملكة!"`
       );
@@ -296,6 +296,9 @@ export default function ExploredCopywritingSA() {
         
         .clear-form-btn { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: 'Tajawal', sans-serif; display: flex; align-items: center; gap: 5px; }
         .clear-form-btn:hover { background: #fecaca; }
+
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        @media(max-width: 600px) { .form-row { grid-template-columns: 1fr; gap: 0; } }
 
         .input-group { margin-bottom: 15px; width: 100%; }
         .input-group label { display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 6px; }
