@@ -14,10 +14,11 @@ interface LtvItem {
 }
 
 export default function LtvCalculatorSA() {
-  const [segmentName, setSegmentName] = useState<string>('العملاء الدائمين (VIP)');
-  const [avgOrderValue, setAvgOrderValue] = useState<number | ''>(300);
-  const [purchaseFrequency, setPurchaseFrequency] = useState<number | ''>(3);
-  const [customerLifespan, setCustomerLifespan] = useState<number | ''>(2);
+  // جعل جميع الحقول تبدأ فارغة تماماً
+  const [segmentName, setSegmentName] = useState<string>('');
+  const [avgOrderValue, setAvgOrderValue] = useState<number | ''>('');
+  const [purchaseFrequency, setPurchaseFrequency] = useState<number | ''>('');
+  const [customerLifespan, setCustomerLifespan] = useState<number | ''>('');
 
   const [items, setItems] = useState<LtvItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -54,11 +55,12 @@ export default function LtvCalculatorSA() {
   // تأمين الحساب الرياضي من أخطاء الـ NaN
   const ltvValue = (orderVal * freq * lifespan) || 0;
 
+  // تفريغ الحقول بالكامل لتصبح بيضاء وجاهزة للإدخال
   const handleClearForm = () => {
-    setSegmentName('العملاء الدائمين (VIP)');
-    setAvgOrderValue(300);
-    setPurchaseFrequency(3);
-    setCustomerLifespan(2);
+    setSegmentName('');
+    setAvgOrderValue('');
+    setPurchaseFrequency('');
+    setCustomerLifespan('');
     setEditingId(null);
   };
 
@@ -123,7 +125,6 @@ export default function LtvCalculatorSA() {
     }
   };
 
-  // تأمين دوال المصفوفات من التوقف
   const avgLtv = items.length > 0 ? items.reduce((acc, curr) => acc + (Number(curr?.ltvValue) || 0), 0) / items.length : 0;
 
   const handleExportExcel = () => {
@@ -214,7 +215,6 @@ export default function LtvCalculatorSA() {
     }
   };
 
-  // تأمين الفلترة من التعطل بسبب بيانات مفقودة
   const filteredItems = items.filter(item => 
     (item?.segmentName || '').toLowerCase().includes((searchQuery || '').toLowerCase())
   );
@@ -302,7 +302,7 @@ export default function LtvCalculatorSA() {
           <h2 className="card-title">
             <span style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
               <span>{editingId ? 'تعديل السجل' : 'حساب قيمة LTV جديدة'}</span>
-              <button type="button" className="clear-form-btn" onClick={handleClearForm} title="مسح الحقول">
+              <button type="button" className="clear-form-btn" onClick={handleClearForm} title="مسح الحقول لتصبح فارغة تماماً">
                 🧹 مسح الحقول
               </button>
             </span>
