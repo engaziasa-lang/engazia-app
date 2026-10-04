@@ -7,14 +7,43 @@ export default function ContactSupportPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if(name && email && message) {
-      alert('✅ تم استلام رسالتك بنجاح! سيقوم فريق الدعم بالتواصل معك خلال 24 ساعة عبر البريد الإلكتروني.');
-      setName('');
-      setEmail('');
-      setMessage('');
+    if (name && email && message) {
+      setIsSubmitting(true);
+      
+      try {
+        // إرسال البيانات فعلياً إلى الإيميل باستخدام FormSubmit API
+        const response = await fetch("https://formsubmit.co/ajax/engazia.sa@gmail.com", {
+          method: "POST",
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({
+            "الاسم": name,
+            "البريد الإلكتروني للعميل": email,
+            "تفاصيل المشكلة": message,
+            _subject: "🔥 تذكرة دعم فني جديدة - منصة إنجازيا", // عنوان الإيميل الذي سيصلك
+            _template: "table" // تنسيق الإيميل ليكون مرتباً في جدول
+          })
+        });
+
+        if (response.ok) {
+          alert('✅ تم إرسال رسالتك بنجاح! سيقوم فريق الدعم بالتواصل معك قريباً.');
+          setName('');
+          setEmail('');
+          setMessage('');
+        } else {
+          alert('❌ عذراً، حدث خطأ في الإرسال. يرجى المحاولة لاحقاً أو التواصل عبر الواتساب.');
+        }
+      } catch (error) {
+        alert('❌ عذراً، حدث خطأ في الاتصال. يرجى التأكد من اتصالك بالإنترنت.');
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
 
@@ -32,7 +61,7 @@ export default function ContactSupportPage() {
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '30px' }}>
           
-          {/* نموذج المراسلة */}
+          {/* نموذج المراسلة المربوط بالإيميل الحقيقي */}
           <div style={{ background: '#fff', padding: '30px', borderRadius: '16px', boxShadow: '0 4px 10px rgba(0,0,0,0.02)', border: '1px solid #e2e8f0' }}>
             <h2 style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', marginBottom: '20px' }}>أرسل رسالة للدعم</h2>
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
@@ -48,7 +77,13 @@ export default function ContactSupportPage() {
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: '#475569', marginBottom: '6px' }}>تفاصيل الاستفسار أو المشكلة</label>
                 <textarea required rows={5} value={message} onChange={e => setMessage(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', outline: 'none', fontFamily: 'Tajawal', resize: 'vertical', boxSizing: 'border-box' }}></textarea>
               </div>
-              <button type="submit" style={{ background: '#047857', color: '#fff', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: 900, cursor: 'pointer', fontSize: '15px', fontFamily: 'Tajawal' }}>إرسال التذكرة 📤</button>
+              <button 
+                type="submit" 
+                disabled={isSubmitting}
+                style={{ background: isSubmitting ? '#94a3b8' : '#047857', color: '#fff', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: 900, cursor: isSubmitting ? 'not-allowed' : 'pointer', fontSize: '15px', fontFamily: 'Tajawal', transition: 'background 0.3s' }}
+              >
+                {isSubmitting ? 'جاري الإرسال ⏳...' : 'إرسال التذكرة 📤'}
+              </button>
             </form>
           </div>
 
