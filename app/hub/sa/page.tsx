@@ -163,6 +163,7 @@ export default function EnjazyaSaudiHub() {
     <div className="hub-container" style={{ direction: 'rtl' }}>
       <style jsx global>{`
         a, .clean-link { text-decoration: none !important; color: inherit !important; }
+        html { scroll-behavior: smooth; }
       `}</style>
       
       <style jsx>{`
@@ -299,7 +300,7 @@ export default function EnjazyaSaudiHub() {
       </div>
 
       <div className="backup-warning-bar">
-        <span>⚠️️ تنبيه مهم: بياناتك تُحفظ محلياً في متصفحك لضمان خصوصيتك. احرص على استخدام زر <b>"تصدير البيانات"</b> دورياً لحفظ جميع مدخلاتك للأدوات الـ 24 واستعادتها بأي وقت.</span>
+        <span>⚠️ تنبيه مهم: بياناتك تُحفظ محلياً في متصفحك لضمان خصوصيتك. احرص على استخدام زر <b>"تصدير البيانات"</b> دورياً لحفظ جميع مدخلاتك للأدوات الـ 24 واستعادتها بأي وقت.</span>
       </div>
 
       {!isActivated && (
@@ -328,7 +329,8 @@ export default function EnjazyaSaudiHub() {
         <p>الترسانة السحابية المتكاملة بـ 24 أداة دقيقة، صُممت خصيصاً لتمكين وتطوير المتاجر الإلكترونية في المملكة العربية السعودية بالريال السعودي (ر.س) ومتوافقة مع متطلبات ضريبة القيمة المضافة.</p>
       </div>
 
-      <div className="cards-grid">
+      {/* تم إضافة معرف هنا لكي ينتقل إليه الرابط بسلاسة */}
+      <div id="tools-section" className="cards-grid">
         {saTools.map((tool, index) => (
           <Link href={tool.link} key={tool.id} className="card clean-link">
             <div>
@@ -358,7 +360,8 @@ export default function EnjazyaSaudiHub() {
             <div className="links-column">
               <h4>المنصة</h4>
               <ul>
-                <li><Link href="/hub/sa">جميع الأدوات (24)</Link></li>
+                {/* تم تعديل هذا الرابط ليتحرك للأعلى عند الضغط عليه */}
+                <li><a href="#tools-section">جميع الأدوات (24)</a></li>
                 <li><Link href="/updates">التحديثات الجديدة</Link></li>
                 <li><Link href="/pricing">أسعار الباقات</Link></li>
               </ul>
