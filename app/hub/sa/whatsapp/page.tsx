@@ -44,7 +44,7 @@ export default function WhatsappCrmSA() {
 
   const val = typeof orderValue === 'number' ? orderValue : 0;
 
-  const handlePresetChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handlePresetMessageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selected = e.target.value;
     if (selected === 'abandoned') {
       setMessageTemplate('مرحباً {name}، لاحظنا أنك تركت منتجات رائعة في سلتك 🛒. تفضل رابط الدفع المباشر لإكمال طلبك بأسرع وقت: {link}');
@@ -73,8 +73,8 @@ export default function WhatsappCrmSA() {
       alert('🔒 عذراً، لقد استهلكت الحد التجريبي (3 عملاء). يرجى ترقية حسابك لفتح السعة الكاملة بلا حدود!');
       return;
     }
-    if (!customerName.trim() || !phoneNumber.trim()) {
-      alert('الرجاء إدخال اسم العميل ورقم الجوال بشكل صحيح.');
+    if (!customerName.trim() || !phoneNumber.trim() || !status.trim()) {
+      alert('الرجاء التأكد من إدخال اسم العميل ورقم الجوال وحالة الطلب.');
       return;
     }
 
@@ -133,7 +133,6 @@ export default function WhatsappCrmSA() {
   };
 
   const handleSendWhatsapp = (item: CustomerItem) => {
-    // حماية إضافية للبيانات
     const safePhone = item.phoneNumber || '';
     const safeName = item.customerName || 'عميلنا العزيز';
     const safeAmount = (item.orderValue || 0).toString();
@@ -245,15 +244,17 @@ export default function WhatsappCrmSA() {
     }
   };
 
-  // إضافة حماية || '' لمنع انهيار الصفحة بسبب بيانات قديمة فارغة
   const filteredItems = items.filter(item => 
     (item.customerName || '').toLowerCase().includes(searchQuery.toLowerCase()) || 
-    (item.phoneNumber || '').includes(searchQuery)
+    (item.phoneNumber || '').includes(searchQuery) ||
+    (item.status || '').toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const totalOrdersValue = filteredItems.reduce((acc, curr) => acc + (curr.orderValue || 0), 0);
-  const abandonedCount = filteredItems.filter(i => i.status === 'سلة متروكة').length;
-  const completedCount = filteredItems.filter(i => i.status === 'طلب مكتمل').length;
+  
+  // البحث بذكاء باستخدام الكلمات المفتاحية حتى لو قام التاجر بتعديل النص
+  const abandonedCount = filteredItems.filter(i => (i.status || '').includes('متروكة')).length;
+  const completedCount = filteredItems.filter(i => (i.status || '').includes('مكتمل')).length;
 
   return (
     <div className="tool-container">
@@ -359,17 +360,24 @@ export default function WhatsappCrmSA() {
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
-              <div className="input-group">
-                <label>حالة العميل / الطلب</label>
-                <div className="input-wrapper">
-                  <select value={status} onChange={(e) => setStatus(e.target.value)}>
-                    <option value="سلة متروكة">سلة متروكة (لم يكمل الدفع)</option>
-                    <option value="بانتظار الدفع">بانتظار الدفع (تحويل بنكي)</option>
-                    <option value="طلب مكتمل">طلب مكتمل (تأكيد الشحن)</option>
+              <div className="input-group" style={{ background: '#f1f5f9', padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                <label style={{ color: '#0f172a' }}>حالة العميل (اختر أو اكتب ما تريد)</label>
+                <div className="input-wrapper" style={{ marginBottom: '8px' }}>
+                  <select onChange={(e) => setStatus(e.target.value)} value={['سلة متروكة', 'بانتظار الدفع', 'طلب مكتمل', 'استفسار عام', 'عميل VIP', 'مسترجع'].includes(status) ? status : ''}>
+                    <option value="سلة متروكة">سلة متروكة</option>
+                    <option value="بانتظار الدفع">بانتظار الدفع</option>
+                    <option value="طلب مكتمل">طلب مكتمل</option>
                     <option value="استفسار عام">استفسار عام</option>
+                    <option value="عميل VIP">عميل VIP</option>
+                    <option value="مسترجع">طلب مسترجع</option>
+                    <option value="" disabled style={{ display: 'none' }}>حالة مخصصة...</option>
                   </select>
                 </div>
+                <div className="input-wrapper">
+                  <input type="text" value={status} onChange={(e) => setStatus(e.target.value)} placeholder="أو اكتب الحالة هنا..." required />
+                </div>
               </div>
+
               <div className="input-group">
                 <label>قيمة السلة أو الطلب (ر.س)</label>
                 <div className="input-wrapper">
@@ -390,7 +398,7 @@ export default function WhatsappCrmSA() {
               <div className="input-group">
                 <label style={{ color: '#0f172a' }}>اختر نموذج الرسالة (لتعبئة المربع أدناه)</label>
                 <div className="input-wrapper">
-                  <select onChange={handlePresetChange} defaultValue="abandoned">
+                  <select onChange={handlePresetMessageChange} defaultValue="abandoned">
                     <option value="abandoned">سلة متروكة (تذكير بالدفع)</option>
                     <option value="pending">بانتظار الدفع (تأكيد الطلب)</option>
                     <option value="completed">طلب مكتمل (رسالة شكر وتتبع)</option>
@@ -457,7 +465,7 @@ export default function WhatsappCrmSA() {
           <input 
             type="text" 
             className="search-input" 
-            placeholder="🔍 بحث باسم العميل أو رقم الجوال..." 
+            placeholder="🔍 بحث باسم العميل أو الحالة..." 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -489,10 +497,12 @@ export default function WhatsappCrmSA() {
                 </tr>
               ) : (
                 filteredItems.map((item, idx) => {
-                  let statusColor = '#475569';
-                  if (item.status === 'سلة متروكة') statusColor = '#d97706';
-                  if (item.status === 'طلب مكتمل') statusColor = '#047857';
-                  if (item.status === 'بانتظار الدفع') statusColor = '#0369a1';
+                  let statusColor = '#475569'; // افتراضي للرمادي
+                  const st = (item.status || '').toLowerCase();
+                  if (st.includes('متروكة')) statusColor = '#d97706';
+                  if (st.includes('مكتمل') || st.includes('vip')) statusColor = '#047857';
+                  if (st.includes('بانتظار')) statusColor = '#0369a1';
+                  if (st.includes('مسترجع') || st.includes('إلغاء')) statusColor = '#dc2626';
 
                   return (
                     <tr key={item.id}>
@@ -504,7 +514,7 @@ export default function WhatsappCrmSA() {
                       <td style={{ fontWeight: 800, color: '#334155', direction: 'ltr', textAlign: 'right' }}>{item.phoneNumber}</td>
                       <td>
                         <span style={{ color: statusColor, background: `${statusColor}15`, padding: '4px 8px', borderRadius: '6px', fontSize: '12px', fontWeight: 800 }}>
-                          {item.status}
+                          {item.status || 'غير محدد'}
                         </span>
                       </td>
                       <td style={{ fontWeight: 900 }}>{item.orderValue} ر.س</td>
