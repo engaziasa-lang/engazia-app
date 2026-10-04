@@ -58,7 +58,8 @@ export default function EnjazyaSaudiHub() {
   const [isActivated, setIsActivated] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const LEMON_CHECKOUT_URL = 'https://enjazya.lemonsqueezy.com/checkout/buy/dce1dd80-3422-43ba-aed5-8ef2dcd38d6d';
+  // تم تحديث الرابط هنا ليفرض اللغة الإنجليزية مباشرة (?locale=en)
+  const LEMON_CHECKOUT_URL = 'https://enjazya.lemonsqueezy.com/checkout/buy/dce1dd80-3422-43ba-aed5-8ef2dcd38d6d?locale=en';
 
   useEffect(() => {
     const config = getInitialConfig();
