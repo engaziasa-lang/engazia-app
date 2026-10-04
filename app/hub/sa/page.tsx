@@ -329,6 +329,8 @@ export default function EnjazyaSaudiHub() {
             <h3>إنجازيا <span>السعودية</span></h3>
             <p>المنصة السحابية الأولى المخصصة لتمكين تجار التجارة الإلكترونية في المملكة العربية السعودية. أدوات دقيقة، حسابات ضريبية متوافقة مع زاتكا، وأرباح مضاعفة.</p>
           </div>
+          
+          {/* قسم روابط الفوتر المحدث والمدمج */}
           <div className="footer-links">
             <div className="links-column">
               <h4>المنصة</h4>
@@ -353,6 +355,7 @@ export default function EnjazyaSaudiHub() {
               </ul>
             </div>
           </div>
+          
         </div>
         <div className="footer-bottom">
           <p>جميع الحقوق محفوظة © 2026 منصة إنجازيا لتمكين التجارة الإلكترونية في المملكة العربية السعودية</p>
