@@ -18,7 +18,10 @@ export default function AutomatedReviewsSA() {
   const [phoneNumber, setPhoneNumber] = useState<string>('');
   const [orderNumber, setOrderNumber] = useState<string>('');
   const [productName, setProductName] = useState<string>('');
-  const [reviewStatus, setReviewStatus] = useState<string>('في انتظار الإرسال 🕒');
+  
+  // الخيارات الذكية لحالة التقييم مع الكتابة اليدوية
+  const [statusSelect, setStatusSelect] = useState<string>('في انتظار الإرسال 🕒');
+  const [customStatus, setCustomStatus] = useState<string>('في انتظار الإرسال 🕒');
 
   const [items, setItems] = useState<ReviewItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -40,12 +43,25 @@ export default function AutomatedReviewsSA() {
 
   const isActivated = typeof window !== 'undefined' && !!localStorage.getItem('merchant_license_key');
 
+  const finalReviewStatus = statusSelect === 'حالة أخرى (كتابة يدوية)' ? customStatus : statusSelect;
+
+  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const val = e.target.value;
+    setStatusSelect(val);
+    if (val !== 'حالة أخرى (كتابة يدوية)') {
+      setCustomStatus(val);
+    } else {
+      setCustomStatus('');
+    }
+  };
+
   const handleClearForm = () => {
     setCustomerName('');
     setPhoneNumber('');
     setOrderNumber('');
     setProductName('');
-    setReviewStatus('في انتظار الإرسال 🕒');
+    setStatusSelect('في انتظار الإرسال 🕒');
+    setCustomStatus('في انتظار الإرسال 🕒');
     setEditingId(null);
   };
 
@@ -55,8 +71,8 @@ export default function AutomatedReviewsSA() {
       alert('🔒 عذراً، لقد استهلكت الحد التجريبي (3 عملاء). يرجى ترقية حسابك لفتح السعة الكاملة بلا حدود!');
       return;
     }
-    if (!customerName.trim() || !phoneNumber.trim() || !orderNumber.trim()) {
-      alert('الرجاء التأكد من تعبئة اسم العميل، رقم الجوال، ورقم الطلب.');
+    if (!customerName.trim() || !phoneNumber.trim() || !orderNumber.trim() || !finalReviewStatus.trim()) {
+      alert('الرجاء التأكد من تعبئة اسم العميل، رقم الجوال، رقم الطلب، وحالة التقييم.');
       return;
     }
 
@@ -71,7 +87,7 @@ export default function AutomatedReviewsSA() {
         phoneNumber,
         orderNumber,
         productName,
-        reviewStatus,
+        reviewStatus: finalReviewStatus,
         createdAt: item.createdAt || formattedDate
       } : item);
       saveToLocalStorage(updated);
@@ -84,7 +100,7 @@ export default function AutomatedReviewsSA() {
         phoneNumber,
         orderNumber,
         productName,
-        reviewStatus,
+        reviewStatus: finalReviewStatus,
         createdAt: formattedDate
       };
       saveToLocalStorage([...items, newItem]);
@@ -99,7 +115,15 @@ export default function AutomatedReviewsSA() {
     setPhoneNumber(item.phoneNumber);
     setOrderNumber(item.orderNumber);
     setProductName(item.productName);
-    setReviewStatus(item.reviewStatus);
+    
+    const standardStatuses = ['في انتظار الإرسال 🕒', 'تم إرسال الطلب 📤', 'تم التقييم بنجاح ⭐', 'لم يستجب ❌'];
+    if (standardStatuses.includes(item.reviewStatus)) {
+      setStatusSelect(item.reviewStatus);
+      setCustomStatus(item.reviewStatus);
+    } else {
+      setStatusSelect('حالة أخرى (كتابة يدوية)');
+      setCustomStatus(item.reviewStatus);
+    }
     setEditingId(item.id);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -341,14 +365,27 @@ export default function AutomatedReviewsSA() {
 
             <div className="input-group">
               <label>حالة التقييم</label>
-              <div className="input-wrapper">
-                <select value={reviewStatus} onChange={(e) => setReviewStatus(e.target.value)}>
+              <div className="input-wrapper" style={{ marginBottom: '8px' }}>
+                <select value={statusSelect} onChange={handleSelectChange}>
                   <option value="في انتظار الإرسال 🕒">في انتظار الإرسال 🕒</option>
                   <option value="تم إرسال الطلب 📤">تم إرسال الطلب 📤</option>
                   <option value="تم التقييم بنجاح ⭐">تم التقييم بنجاح ⭐</option>
                   <option value="لم يستجب ❌">لم يستجب ❌</option>
+                  <option value="حالة أخرى (كتابة يدوية)">➕ حالة أخرى (كتابة يدوية)</option>
                 </select>
               </div>
+
+              {statusSelect === 'حالة أخرى (كتابة يدوية)' && (
+                <div className="input-wrapper">
+                  <input 
+                    type="text" 
+                    value={customStatus} 
+                    onChange={(e) => setCustomStatus(e.target.value)} 
+                    placeholder="اكتب حالة التقييم المخصصة هنا..." 
+                    required 
+                  />
+                </div>
+              )}
             </div>
 
             <button type="submit" className="action-btn">
