@@ -11,7 +11,7 @@ interface CustomerItem {
   orderValue: number;
   paymentLink: string;
   messageTemplate: string;
-  isPaid?: boolean; // الخاصية الجديدة لفصل المبالغ المحصلة
+  isPaid?: boolean;
   createdAt?: string;
 }
 
@@ -22,7 +22,7 @@ export default function WhatsappCrmSA() {
   const [orderValue, setOrderValue] = useState<number | ''>('');
   const [paymentLink, setPaymentLink] = useState<string>('');
   const [messageTemplate, setMessageTemplate] = useState<string>('مرحباً {name}، لاحظنا أنك تركت منتجات رائعة في سلتك 🛒. تفضل رابط الدفع المباشر لإكمال طلبك بأسرع وقت: {link}');
-  const [isPaid, setIsPaid] = useState<boolean>(false); // حالة الدفع
+  const [isPaid, setIsPaid] = useState<boolean>(false);
 
   const [items, setItems] = useState<CustomerItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -127,7 +127,6 @@ export default function WhatsappCrmSA() {
     setPaymentLink(item.paymentLink || '');
     setMessageTemplate(item.messageTemplate || '');
     
-    // توافقية مع البيانات القديمة
     const currentPaidStatus = item.isPaid !== undefined ? item.isPaid : (item.status || '').includes('مكتمل');
     setIsPaid(currentPaidStatus);
     
@@ -142,7 +141,6 @@ export default function WhatsappCrmSA() {
     }
   };
 
-  // الزر السريع لتحويل حالة الدفع من الجدول مباشرة
   const handleTogglePaidStatus = (id: string) => {
     const updated = items.map(item => {
       if (item.id === id) {
@@ -180,6 +178,10 @@ export default function WhatsappCrmSA() {
       alert('لا توجد بيانات لتصديرها.');
       return;
     }
+
+    const filteredItemsForExport = items;
+    const collectedRevenueExp = filteredItemsForExport.filter(i => i.isPaid !== undefined ? i.isPaid : (i.status || '').includes('مكتمل')).reduce((acc, curr) => acc + (curr.orderValue || 0), 0);
+    const pendingRevenueExp = filteredItemsForExport.filter(i => !(i.isPaid !== undefined ? i.isPaid : (i.status || '').includes('مكتمل'))).reduce((acc, curr) => acc + (curr.orderValue || 0), 0);
 
     let tableHtml = `
       <html dir="rtl" lang="ar">
@@ -227,6 +229,18 @@ export default function WhatsappCrmSA() {
 
     tableHtml += `
             </tbody>
+            <tfoot>
+              <tr class="tfoot-row">
+                <td colspan="5">إجمالي المبالغ المحصلة (مكتملة)</td>
+                <td>${collectedRevenueExp.toFixed(2)}</td>
+                <td colspan="2"></td>
+              </tr>
+              <tr class="tfoot-row" style="background-color: #fffbeb;">
+                <td colspan="5" style="color: #d97706;">إجمالي المبالغ المحتملة (متروكة / بانتظار)</td>
+                <td style="color: #d97706;">${pendingRevenueExp.toFixed(2)}</td>
+                <td colspan="2"></td>
+              </tr>
+            </tfoot>
           </table>
         </body>
       </html>
@@ -266,7 +280,6 @@ export default function WhatsappCrmSA() {
     (item.status || '').toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // حساب المجاميع بناءً على زر الدفع الجديد
   const collectedRevenue = filteredItems.filter(i => {
     return i.isPaid !== undefined ? i.isPaid : (i.status || '').includes('مكتمل');
   }).reduce((acc, curr) => acc + (curr.orderValue || 0), 0);
@@ -350,10 +363,10 @@ export default function WhatsappCrmSA() {
         .btn-paid { background: #047857; color: #ffffff; }
         .btn-unpaid { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
 
-        /* ستايل مربع التحصيل */
+        /* ستايل مربع التحصيل المحدث (نظيف وبدون إيموجي) */
         .checkbox-wrapper { display: flex; align-items: center; gap: 8px; background: #ecfdf5; padding: 12px; border-radius: 8px; border: 1px solid #a7f3d0; margin-top: 15px; cursor: pointer; }
-        .checkbox-wrapper input { width: 18px; height: 18px; cursor: pointer; accent-color: #047857; }
-        .checkbox-wrapper label { font-size: 14px; font-weight: 800; color: #065f46; cursor: pointer; margin: 0; }
+        .checkbox-wrapper input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; accent-color: #047857; margin: 0; }
+        .checkbox-wrapper label { font-size: 14px; font-weight: 800; color: #065f46; cursor: pointer; margin: 0; user-select: none; }
       `}</style>
 
       <div className="header">
@@ -420,10 +433,14 @@ export default function WhatsappCrmSA() {
                   <span className="currency-tag">ر.س</span>
                 </div>
 
-                {/* خيار الدفع الجديد */}
-                <div className="checkbox-wrapper" onClick={() => setIsPaid(!isPaid)}>
-                  <input type="checkbox" checked={isPaid} onChange={() => {}} />
-                  <label>☑️ تم تحصيل المبلغ (يُحسب ضمن المبيعات)</label>
+                <div className="checkbox-wrapper">
+                  <input 
+                    type="checkbox" 
+                    id="paidStatusCheck"
+                    checked={isPaid} 
+                    onChange={(e) => setIsPaid(e.target.checked)} 
+                  />
+                  <label htmlFor="paidStatusCheck">تم تحصيل المبلغ (يُحسب ضمن المبيعات)</label>
                 </div>
 
               </div>
@@ -550,7 +567,7 @@ export default function WhatsappCrmSA() {
                 </tr>
               ) : (
                 filteredItems.map((item, idx) => {
-                  let statusColor = '#475569'; // افتراضي
+                  let statusColor = '#475569';
                   const st = (item.status || '').toLowerCase();
                   if (st.includes('متروكة') || st.includes('انتظار')) statusColor = '#d97706';
                   if (st.includes('مكتمل') || st.includes('vip')) statusColor = '#047857';
@@ -582,7 +599,6 @@ export default function WhatsappCrmSA() {
                         <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                           <button className="tb-action-btn btn-wa" onClick={() => handleSendWhatsapp(item)} title="فتح محادثة واتساب وإرسال الرسالة المجهزة">💬 واتساب</button>
                           
-                          {/* زر التحصيل السريع من الجدول المباشر */}
                           <button 
                             className={`tb-action-btn ${itemIsPaid ? 'btn-unpaid' : 'btn-paid'}`} 
                             onClick={() => handleTogglePaidStatus(item.id)} 
