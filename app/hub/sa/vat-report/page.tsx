@@ -6,16 +6,18 @@ import Link from 'next/link';
 interface TaxItem {
   id: string;
   periodName: string;
-  transactionType: 'مبيعات خاضعة للنسبة الأساسية (15%)' | 'مشتريات ومصاريف خاضعة للضريبة';
-  amountInclusive: number; // المبلغ الشامل للضريبة
-  vatAmount: number;       // قيمة الضريبة 15%
-  netAmount: number;       // المبلغ بدون ضريبة
+  transactionType: 'مبيعات' | 'مشتريات';
+  customDescription: string; // بند مفتوح للتعديل
+  amountInclusive: number;
+  vatAmount: number;
+  netAmount: number;
   createdAt?: string;
 }
 
 export default function TaxReturnPrepSA() {
+  const [activeTab, setActiveTab] = useState<'مبيعات' | 'مشتريات'>('مبيعات');
   const [periodName, setPeriodName] = useState<string>('الربع الثالث 2026');
-  const [transactionType, setTransactionType] = useState<'مبيعات خاضعة للنسبة الأساسية (15%)' | 'مشتريات ومصاريف خاضعة للضريبة'>('مبيعات خاضعة للنسبة الأساسية (15%)');
+  const [customDescription, setCustomDescription] = useState<string>('مبيعات متجر سديم الإلكتروني');
   const [amountInclusive, setAmountInclusive] = useState<number | ''>('');
 
   const [items, setItems] = useState<TaxItem[]>([]);
@@ -42,6 +44,13 @@ export default function TaxReturnPrepSA() {
   const netAmt = totalInc / 1.15;
   const vatAmt = totalInc - netAmt;
 
+  const handleTabSwitch = (tab: 'مبيعات' | 'مشتريات') => {
+    setActiveTab(tab);
+    if (!editingId) {
+      setCustomDescription(tab === 'مبيعات' ? 'مبيعات متجر إلكتروني' : 'مشتريات بضاعة ومصاريف');
+    }
+  };
+
   const handleClearForm = () => {
     setAmountInclusive('');
     setEditingId(null);
@@ -53,8 +62,8 @@ export default function TaxReturnPrepSA() {
       alert('🔒 عذراً، لقد استهلكت الحد التجريبي (3 سجلات). يرجى ترقية حسابك لفتح السعة الكاملة بلا حدود!');
       return;
     }
-    if (totalInc <= 0 || !periodName.trim()) {
-      alert('الرجاء إدخال اسم الفترة ومبلغ صحيح.');
+    if (totalInc <= 0 || !periodName.trim() || !customDescription.trim()) {
+      alert('الرجاء التأكد من تعبئة الفترة، وصف البند، ومبلغ صحيح.');
       return;
     }
 
@@ -66,7 +75,8 @@ export default function TaxReturnPrepSA() {
       const updated = items.map(item => item.id === editingId ? {
         ...item,
         periodName,
-        transactionType,
+        transactionType: activeTab,
+        customDescription,
         amountInclusive: totalInc,
         netAmount: Number(netAmt.toFixed(2)),
         vatAmount: Number(vatAmt.toFixed(2)),
@@ -74,27 +84,29 @@ export default function TaxReturnPrepSA() {
       } : item);
       saveToLocalStorage(updated);
       setEditingId(null);
-      alert('✨ تم تحديث السجل الضريبي بنجاح!');
+      alert('✨ تم تحديث السجل بنجاح!');
     } else {
       const newItem: TaxItem = {
         id: Date.now().toString(),
         periodName,
-        transactionType,
+        transactionType: activeTab,
+        customDescription,
         amountInclusive: totalInc,
         netAmount: Number(netAmt.toFixed(2)),
         vatAmount: Number(vatAmt.toFixed(2)),
         createdAt: formattedDate
       };
       saveToLocalStorage([...items, newItem]);
-      alert('✅ تمت إضافة السجل إلى قائمة الإقرار بنجاح!');
+      alert('✅ تمت إضافة البند إلى سجل الإقرار بنجاح!');
     }
 
     handleClearForm();
   };
 
   const handleEdit = (item: TaxItem) => {
+    setActiveTab(item.transactionType);
     setPeriodName(item.periodName);
-    setTransactionType(item.transactionType);
+    setCustomDescription(item.customDescription || (item.transactionType === 'مبيعات' ? 'مبيعات متجر' : 'مشتريات'));
     setAmountInclusive(item.amountInclusive);
     setEditingId(item.id);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -107,12 +119,11 @@ export default function TaxReturnPrepSA() {
     }
   };
 
-  // مجاميع المبيعات والمشتريات
-  const totalSalesInclusive = items.filter(i => i.transactionType.includes('مبيعات')).reduce((acc, curr) => acc + curr.amountInclusive, 0);
-  const totalSalesVat = items.filter(i => i.transactionType.includes('مبيعات')).reduce((acc, curr) => acc + curr.vatAmount, 0);
+  const totalSalesInclusive = items.filter(i => i.transactionType === 'مبيعات').reduce((acc, curr) => acc + curr.amountInclusive, 0);
+  const totalSalesVat = items.filter(i => i.transactionType === 'مبيعات').reduce((acc, curr) => acc + curr.vatAmount, 0);
 
-  const totalPurchasesInclusive = items.filter(i => i.transactionType.includes('مشتريات')).reduce((acc, curr) => acc + curr.amountInclusive, 0);
-  const totalPurchasesVat = items.filter(i => i.transactionType.includes('مشتريات')).reduce((acc, curr) => acc + curr.vatAmount, 0);
+  const totalPurchasesInclusive = items.filter(i => i.transactionType === 'مشتريات').reduce((acc, curr) => acc + curr.amountInclusive, 0);
+  const totalPurchasesVat = items.filter(i => i.transactionType === 'مشتريات').reduce((acc, curr) => acc + curr.vatAmount, 0);
 
   const netVatPayable = totalSalesVat - totalPurchasesVat;
 
@@ -140,7 +151,8 @@ export default function TaxReturnPrepSA() {
                 <th>م</th>
                 <th>الفترة الضريبية</th>
                 <th>التاريخ والوقت</th>
-                <th>نوع المعاملة</th>
+                <th>القسم</th>
+                <th>وصف المعاملة (البند)</th>
                 <th>المبلغ بدون ضريبة</th>
                 <th>قيمة الضريبة (15%)</th>
                 <th>المبلغ الشامل</th>
@@ -156,6 +168,7 @@ export default function TaxReturnPrepSA() {
           <td>${row.periodName}</td>
           <td>${row.createdAt || '-'}</td>
           <td>${row.transactionType}</td>
+          <td>${row.customDescription}</td>
           <td>${row.netAmount}</td>
           <td>${row.vatAmount}</td>
           <td>${row.amountInclusive}</td>
@@ -167,21 +180,20 @@ export default function TaxReturnPrepSA() {
             </tbody>
             <tfoot>
               <tr class="tfoot-row">
-                <td colspan="4">إجمالي مبيعات الفترة</td>
+                <td colspan="5">إجمالي مبيعات الفترة</td>
                 <td></td>
                 <td>${totalSalesVat.toFixed(2)}</td>
                 <td>${totalSalesInclusive.toFixed(2)}</td>
               </tr>
               <tr class="tfoot-row">
-                <td colspan="4">إجمالي مشتريات الفترة</td>
+                <td colspan="5">إجمالي مشتريات ومصاريف الفترة</td>
                 <td></td>
                 <td>${totalPurchasesVat.toFixed(2)}</td>
                 <td>${totalPurchasesInclusive.toFixed(2)}</td>
               </tr>
               <tr class="tfoot-row" style="background-color: #ecfdf5; color: #047857;">
-                <td colspan="4">صافي الضريبة الواجب سدادها لهيئة الزكاة</td>
-                <td colspan="2"></td>
-                <td>${netVatPayable.toFixed(2)} ر.س</td>
+                <td colspan="5">صافي الضريبة الواجب سدادها لهيئة الزكاة</td>
+                <td colspan="3">${netVatPayable.toFixed(2)} ر.س</td>
               </tr>
             </tfoot>
           </table>
@@ -219,6 +231,7 @@ export default function TaxReturnPrepSA() {
 
   const filteredItems = items.filter(item => 
     item.periodName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.customDescription.toLowerCase().includes(searchQuery.toLowerCase()) ||
     item.transactionType.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -248,16 +261,23 @@ export default function TaxReturnPrepSA() {
         .clear-form-btn { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: 'Tajawal', sans-serif; display: flex; align-items: center; gap: 5px; }
         .clear-form-btn:hover { background: #fecaca; }
 
+        /* أزرار التبديل السريعة (Tabs) */
+        .tabs-container { display: flex; gap: 10px; margin-bottom: 20px; }
+        .tab-btn { flex: 1; padding: 10px; border-radius: 8px; font-weight: 800; font-size: 14px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #475569; font-family: 'Tajawal', sans-serif; transition: 0.2s; }
+        .tab-btn.active-sales { background: #047857; color: white; border-color: #047857; }
+        .tab-btn.active-purchases { background: #0369a1; color: white; border-color: #0369a1; }
+
         .input-group { margin-bottom: 15px; width: 100%; }
         .input-group label { display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 6px; }
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
-        .input-wrapper input, .input-wrapper select { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: 'Tajawal', sans-serif; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; }
+        .input-wrapper input { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: 'Tajawal', sans-serif; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; }
         .input-wrapper input.with-currency { padding-left: 45px; }
-        .input-wrapper input:focus, .input-wrapper select:focus { border-color: #047857; background: #ffffff; }
+        .input-wrapper input:focus { border-color: #047857; background: #ffffff; }
         .currency-tag { position: absolute; left: 14px; color: #64748b; font-weight: 800; font-size: 13px; pointer-events: none; }
         
         .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: 'Tajawal', sans-serif; margin-top: 10px; box-sizing: border-box; }
-        .action-btn:hover { background: #065f46; }
+        .action-btn.btn-purchases { background: #0369a1; }
+        .action-btn:hover { opacity: 0.9; }
 
         .result-box { background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px; }
         .result-box.primary { background: linear-gradient(135deg, #047857 0%, #065f46 100%); color: #fff; border: none; padding: 20px; }
@@ -274,7 +294,7 @@ export default function TaxReturnPrepSA() {
         .t-btn:hover { background: #f1f5f9; }
 
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
-        .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 850px; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 900px; }
         .data-table th { background: #f8fafc; padding: 12px; text-align: right; border-bottom: 2px solid #cbd5e1; font-weight: 800; color: #334155; white-space: nowrap; }
         .data-table td { padding: 12px; border-bottom: 1px solid #e2e8f0; color: #0f172a; font-weight: 600; vertical-align: middle; }
         .data-table tfoot td { background: #f1f5f9; font-weight: 900; color: #0f172a; border-top: 2px solid #cbd5e1; }
@@ -309,6 +329,24 @@ export default function TaxReturnPrepSA() {
             {!isActivated && <span className="trial-badge">تجريبي: {items.length}/3</span>}
           </h2>
 
+          {/* أزرار التبديل السريعة (مبيعات أو مشتريات) */}
+          <div className="tabs-container">
+            <button 
+              type="button" 
+              className={`tab-btn ${activeTab === 'مبيعات' ? 'active-sales' : ''}`}
+              onClick={() => handleTabSwitch('مبيعات')}
+            >
+              📈 تسجيل مبيعات (15%)
+            </button>
+            <button 
+              type="button" 
+              className={`tab-btn ${activeTab === 'مشتريات' ? 'active-purchases' : ''}`}
+              onClick={() => handleTabSwitch('مشتريات')}
+            >
+              📉 تسجيل مشتريات ومصاريف
+            </button>
+          </div>
+
           <form onSubmit={handleSaveItem}>
             <div className="input-group">
               <label>الفترة الضريبية (أو اسم الشهر / الربع)</label>
@@ -318,12 +356,9 @@ export default function TaxReturnPrepSA() {
             </div>
 
             <div className="input-group">
-              <label>نوع المعاملة الضريبية</label>
+              <label>وصف المعاملة أو البند (قابل للتعديل بحرية)</label>
               <div className="input-wrapper">
-                <select value={transactionType} onChange={(e: any) => setTransactionType(e.target.value)}>
-                  <option value="مبيعات خاضعة للنسبة الأساسية (15%)">مبيعات خاضعة للنسبة الأساسية (15%)</option>
-                  <option value="مشتريات ومصاريف خاضعة للضريبة">مشتريات ومصاريف خاضعة للضريبة</option>
-                </select>
+                <input type="text" value={customDescription} onChange={(e) => setCustomDescription(e.target.value)} placeholder="مثال: مبيعات متجر سديم / مصاريف إعلانات" required />
               </div>
             </div>
 
@@ -335,17 +370,17 @@ export default function TaxReturnPrepSA() {
               </div>
             </div>
 
-            <button type="submit" className="action-btn">
-              {editingId ? '💾 حفظ التعديلات' : '+ حفظ وإضافة البند للسجل'}
+            <button type="submit" className={`action-btn ${activeTab === 'مشتريات' ? 'btn-purchases' : ''}`}>
+              {editingId ? '💾 حفظ التعديلات' : `+ حفظ بند ${activeTab} للسجل`}
             </button>
           </form>
         </div>
 
         {/* قسم المعاينة الفورية */}
         <div className="card">
-          <h2 className="card-title">معاينة الاحتساب الضريبي الفوري</h2>
+          <h2 className="card-title">معاينة الاحتساب الضريبي الفوري ({activeTab})</h2>
 
-          <div className="result-box primary">
+          <div className="result-box primary" style={{ background: activeTab === 'مشتريات' ? 'linear-gradient(135deg, #0369a1 0%, #0c4a6e 100%)' : undefined }}>
             <div>
               <div className="result-label">قيمة ضريبة القيمة المضافة (15%)</div>
               <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '2px' }}>القدر المستقطع من المبلغ الإجمالي</div>
@@ -362,7 +397,7 @@ export default function TaxReturnPrepSA() {
 
           <div className="result-box" style={{ background: '#f8fafc' }}>
             <span className="result-label">المبلغ الإجمالي المدخل</span>
-            <span className="result-value" style={{ color: '#047857' }}>{totalInc.toFixed(2)} ر.س</span>
+            <span className="result-value" style={{ color: activeTab === 'مبيعات' ? '#047857' : '#0369a1' }}>{totalInc.toFixed(2)} ر.س</span>
           </div>
         </div>
       </div>
@@ -373,7 +408,7 @@ export default function TaxReturnPrepSA() {
           <input 
             type="text" 
             className="search-input" 
-            placeholder="🔍 بحث بالفترة أو نوع المعاملة..." 
+            placeholder="🔍 بحث بالفترة أو الوصف..." 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -390,7 +425,8 @@ export default function TaxReturnPrepSA() {
               <tr>
                 <th>#</th>
                 <th>الفترة والتاريخ</th>
-                <th>نوع المعاملة</th>
+                <th>القسم</th>
+                <th>وصف المعاملة</th>
                 <th>المبلغ بدون ضريبة</th>
                 <th>الضريبة (15%)</th>
                 <th>المبلغ الشامل</th>
@@ -400,7 +436,7 @@ export default function TaxReturnPrepSA() {
             <tbody>
               {filteredItems.length === 0 ? (
                 <tr>
-                  <td colSpan={7} style={{ textAlign: 'center', color: '#94a3b8', padding: '30px 0' }}>
+                  <td colSpan={8} style={{ textAlign: 'center', color: '#94a3b8', padding: '30px 0' }}>
                     لا توجد بنود ضريبية مسجلة. ابدأ بإضافة مبيعاتك ومشترياتك.
                   </td>
                 </tr>
@@ -413,12 +449,13 @@ export default function TaxReturnPrepSA() {
                       {item.createdAt && <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', fontWeight: 600 }}>🕒 {item.createdAt}</div>}
                     </td>
                     <td>
-                      <span style={{ color: item.transactionType.includes('مبيعات') ? '#047857' : '#0369a1', fontWeight: 800 }}>
+                      <span style={{ color: item.transactionType === 'مبيعات' ? '#047857' : '#0369a1', background: item.transactionType === 'مبيعات' ? '#ecfdf5' : '#e0f2fe', padding: '4px 8px', borderRadius: '6px', fontWeight: 800, fontSize: '12px' }}>
                         {item.transactionType}
                       </span>
                     </td>
+                    <td style={{ fontWeight: 800 }}>{item.customDescription}</td>
                     <td>{item.netAmount} ر.س</td>
-                    <td style={{ color: '#047857', fontWeight: 900 }}>{item.vatAmount} ر.س</td>
+                    <td style={{ color: item.transactionType === 'مبيعات' ? '#047857' : '#0369a1', fontWeight: 900 }}>{item.vatAmount} ر.س</td>
                     <td style={{ fontWeight: 900 }}>{item.amountInclusive} ر.س</td>
                     <td>
                       <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
@@ -433,21 +470,21 @@ export default function TaxReturnPrepSA() {
             {filteredItems.length > 0 && (
               <tfoot>
                 <tr className="tfoot-row">
-                  <td colSpan={3} style={{ textAlign: 'center' }}>إجمالي المبيعات الخاضعة للضريبة</td>
+                  <td colSpan={4} style={{ textAlign: 'center' }}>إجمالي المبيعات الخاضعة للضريبة</td>
                   <td>-</td>
                   <td style={{ color: '#047857' }}>{totalSalesVat.toFixed(2)} ر.س</td>
                   <td>{totalSalesInclusive.toFixed(2)} ر.س</td>
                   <td></td>
                 </tr>
                 <tr className="tfoot-row">
-                  <td colSpan={3} style={{ textAlign: 'center' }}>إجمالي المشتريات والمصاريف</td>
+                  <td colSpan={4} style={{ textAlign: 'center' }}>إجمالي المشتريات والمصاريف</td>
                   <td>-</td>
                   <td style={{ color: '#0369a1' }}>{totalPurchasesVat.toFixed(2)} ر.س</td>
                   <td>{totalPurchasesInclusive.toFixed(2)} ر.س</td>
                   <td></td>
                 </tr>
                 <tr className="tfoot-row" style={{ backgroundColor: '#ecfdf5' }}>
-                  <td colSpan={4} style={{ textAlign: 'center', color: '#047857' }}>صافي ضريبة القيمة المضافة الواجب سدادها للهيئة</td>
+                  <td colSpan={5} style={{ textAlign: 'center', color: '#047857' }}>صافي ضريبة القيمة المضافة الواجب سدادها للهيئة</td>
                   <td colSpan={2} style={{ color: '#047857', fontSize: '16px' }}>{netVatPayable.toFixed(2)} ر.س</td>
                   <td></td>
                 </tr>
