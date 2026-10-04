@@ -5,18 +5,21 @@ import Link from 'next/link';
 
 interface PlatformItem {
   id: string;
+  storeName: string;
   platformName: string;
-  monthlySubscription: number;
-  expectedMonthlySales: number;
-  transactionFeePercent: number;
-  totalMonthlyCost: number;
+  packageName: string;
+  monthlyFee: number;
+  expectedMonthlyOrders: number;
+  costPerOrder: number;
+  createdAt?: string;
 }
 
 export default function PlatformFeesCalculatorSA() {
-  const [platformName, setPlatformName] = useState<string>('منصة سلة (باقة برو)');
-  const [monthlySubscription, setMonthlySubscription] = useState<number | ''>(299);
-  const [expectedMonthlySales, setExpectedMonthlySales] = useState<number | ''>(50000);
-  const [transactionFeePercent, setTransactionFeePercent] = useState<number | ''>(1.0);
+  const [storeName, setStoreName] = useState<string>('متجر إنجازيا');
+  const [platformType, setPlatformType] = useState<'سلة (Salla)' | 'زد (Zid)' | 'منصة مخصصة'>('سلة (Salla)');
+  const [packageName, setPackageName] = useState<string>('الباقة الاحترافية (Pro)');
+  const [monthlyFee, setMonthlyFee] = useState<number | ''>(299);
+  const [expectedMonthlyOrders, setExpectedMonthlyOrders] = useState<number | ''>(300);
 
   const [items, setItems] = useState<PlatformItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -25,7 +28,7 @@ export default function PlatformFeesCalculatorSA() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const saved = localStorage.getItem('seerk_platforms_fees_items');
+    const saved = localStorage.getItem('seerk_platform_fees_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
@@ -33,46 +36,65 @@ export default function PlatformFeesCalculatorSA() {
 
   const saveToLocalStorage = (newItems: PlatformItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_platforms_fees_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_platform_fees_items', JSON.stringify(newItems));
   };
 
   const isActivated = typeof window !== 'undefined' && !!localStorage.getItem('merchant_license_key');
 
-  const sub = typeof monthlySubscription === 'number' ? monthlySubscription : 0;
-  const sales = typeof expectedMonthlySales === 'number' ? expectedMonthlySales : 0;
-  const feePct = typeof transactionFeePercent === 'number' ? transactionFeePercent : 0;
+  const fee = typeof monthlyFee === 'number' ? monthlyFee : 0;
+  const orders = typeof expectedMonthlyOrders === 'number' ? expectedMonthlyOrders : 0;
 
-  // إجمالي التكلفة الشهرية للمنصة (الاشتراك الشهري + نسبة عمولة المعاملات على المبيعات)
-  const transactionFeeAmount = sales * (feePct / 100);
-  const totalMonthlyCost = sub + transactionFeeAmount;
+  // الحساب الفعلي: تكلفة اشتراك المنصة محملة على الطلب الواحد شهرياً
+  const costPerOrder = orders > 0 ? fee / orders : 0;
+
+  const handlePlatformChange = (p: 'سلة (Salla)' | 'زد (Zid)' | 'منصة مخصصة') => {
+    setPlatformType(p);
+    if (p === 'سلة (Salla)') {
+      setPackageName('باقة سلة الاحترافية');
+      setMonthlyFee(299);
+    } else if (p === 'زد (Zid)') {
+      setPackageName('باقة زد النموذجية');
+      setMonthlyFee(299);
+    } else {
+      setPackageName('باقة مخصصة');
+      setMonthlyFee(199);
+    }
+  };
 
   const handleClearForm = () => {
-    setPlatformName('');
-    setMonthlySubscription('');
-    setExpectedMonthlySales('');
-    setTransactionFeePercent('');
+    setStoreName('متجر إنجازيا');
+    setPlatformType('سلة (Salla)');
+    setPackageName('الباقة الاحترافية');
+    setMonthlyFee(299);
+    setExpectedMonthlyOrders(300);
     setEditingId(null);
   };
 
   const handleSaveItem = (e: React.FormEvent) => {
     e.preventDefault();
     if (!isActivated && items.length >= 3 && !editingId) {
-      alert('🔒 عذراً، لقد استهلكت الحد التجريبي (3 منصات). يرجى ترقية حسابك لفتح السعة الكاملة بلا حدود!');
+      alert('🔒 عذراً، لقد استهلكت الحد التجريبي (3 سجلات). يرجى ترقية حسابك لفتح السعة الكاملة بلا حدود!');
       return;
     }
-    if (!platformName.trim()) {
-      alert('الرجاء إدخال اسم المنصة.');
+    if (fee < 0 || orders <= 0 || !storeName.trim() || !packageName.trim()) {
+      alert('الرجاء التأكد من تعبئة اسم المتجر، الباقة، وعدد طلبات شهري صحيح.');
       return;
     }
+
+    const now = new Date();
+    const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
+    const formattedDate = `${now.toLocaleDateString('ar-SA')} - ${now.toLocaleTimeString('ar-SA', timeOptions)}`;
 
     if (editingId) {
       const updated = items.map(item => item.id === editingId ? {
         ...item,
-        platformName,
-        monthlySubscription: sub,
-        expectedMonthlySales: sales,
-        transactionFeePercent: feePct,
-        totalMonthlyCost: Number(totalMonthlyCost.toFixed(2)),
+        storeName,
+        platformName: platformType,
+        packageName,
+        monthlyFee: fee,
+        expectedMonthlyOrders: orders,
+        costPerOrder: Number(costPerOrder.toFixed(2)),
+        createdAt: item.createdAt || formattedDate
       } : item);
       saveToLocalStorage(updated);
       setEditingId(null);
@@ -80,24 +102,27 @@ export default function PlatformFeesCalculatorSA() {
     } else {
       const newItem: PlatformItem = {
         id: Date.now().toString(),
-        platformName,
-        monthlySubscription: sub,
-        expectedMonthlySales: sales,
-        transactionFeePercent: feePct,
-        totalMonthlyCost: Number(totalMonthlyCost.toFixed(2)),
+        storeName,
+        platformName: platformType,
+        packageName,
+        monthlyFee: fee,
+        expectedMonthlyOrders: orders,
+        costPerOrder: Number(costPerOrder.toFixed(2)),
+        createdAt: formattedDate
       };
       saveToLocalStorage([...items, newItem]);
-      alert('✅ تمت إضافة المقارنة إلى السجل بنجاح!');
+      alert('✅ تمت إضافة السجل إلى قائمة رسوم المنصات بنجاح!');
     }
 
     handleClearForm();
   };
 
   const handleEdit = (item: PlatformItem) => {
-    setPlatformName(item.platformName);
-    setMonthlySubscription(item.monthlySubscription);
-    setExpectedMonthlySales(item.expectedMonthlySales);
-    setTransactionFeePercent(item.transactionFeePercent);
+    setStoreName(item.storeName);
+    setPlatformType(item.platformName as any);
+    setPackageName(item.packageName);
+    setMonthlyFee(item.monthlyFee);
+    setExpectedMonthlyOrders(item.expectedMonthlyOrders);
     setEditingId(item.id);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -109,19 +134,79 @@ export default function PlatformFeesCalculatorSA() {
     }
   };
 
-  const handleExportCsv = () => {
+  const totalMonthlyFees = items.reduce((acc, curr) => acc + curr.monthlyFee, 0);
+  const totalMonthlyOrders = items.reduce((acc, curr) => acc + curr.expectedMonthlyOrders, 0);
+  const avgCostPerOrder = totalMonthlyOrders > 0 ? totalMonthlyFees / totalMonthlyOrders : 0;
+
+  const handleExportExcel = () => {
     if (items.length === 0) {
       alert('لا توجد بيانات لتصديرها.');
       return;
     }
-    let csv = "data:text/csv;charset=utf-8,ID,Platform,Subscription,Sales,FeePct,TotalCost\n";
+
+    let tableHtml = `
+      <html dir="rtl" lang="ar">
+        <head>
+          <meta charset="utf-8">
+          <style>
+            table { border-collapse: collapse; width: 100%; font-family: sans-serif; }
+            th, td { border: 1px solid #cbd5e1; padding: 8px; text-align: center; }
+            th { background-color: #f8fafc; font-weight: bold; color: #334155; }
+            .tfoot-row td { background-color: #f1f5f9; font-weight: bold; color: #0f172a; }
+          </style>
+        </head>
+        <body>
+          <table>
+            <thead>
+              <tr>
+                <th>م</th>
+                <th>اسم المتجر</th>
+                <th>التاريخ والوقت</th>
+                <th>المنصة</th>
+                <th>الباقة</th>
+                <th>الاشتراك الشهري</th>
+                <th>الطلبات المتوقعة شهرياً</th>
+                <th>تكلفة المنصة للطلب الواحد</th>
+              </tr>
+            </thead>
+            <tbody>
+    `;
+
     items.forEach((row, idx) => {
-      csv += `${idx + 1},${row.platformName},${row.monthlySubscription},${row.expectedMonthlySales},${row.transactionFeePercent},${row.totalMonthlyCost}\n`;
+      tableHtml += `
+        <tr>
+          <td>${idx + 1}</td>
+          <td>${row.storeName}</td>
+          <td>${row.createdAt || '-'}</td>
+          <td>${row.platformName}</td>
+          <td>${row.packageName}</td>
+          <td>${row.monthlyFee}</td>
+          <td>${row.expectedMonthlyOrders}</td>
+          <td>${row.costPerOrder}</td>
+        </tr>
+      `;
     });
-    const encodedUri = encodeURI(csv);
+
+    tableHtml += `
+            </tbody>
+            <tfoot>
+              <tr class="tfoot-row">
+                <td colspan="5">الإجمالي الكلي / المتوسط</td>
+                <td>${totalMonthlyFees.toFixed(2)}</td>
+                <td>${totalMonthlyOrders}</td>
+                <td>${avgCostPerOrder.toFixed(2)} ر.س</td>
+              </tr>
+            </tfoot>
+          </table>
+        </body>
+      </html>
+    `;
+
+    const blob = new Blob([tableHtml], { type: 'application/vnd.ms-excel' });
+    const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "seerk_platforms_fees.csv");
+    link.setAttribute("href", url);
+    link.setAttribute("download", "seerk_platform_fees.xls");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -136,7 +221,7 @@ export default function PlatformFeesCalculatorSA() {
           const imported = JSON.parse(event.target?.result as string);
           if (Array.isArray(imported)) {
             saveToLocalStorage(imported);
-            alert('✨ تم استيراد البيانات بنجاح!');
+            alert('✨ تم استيراد بيانات رسوم المنصات بنجاح!');
           }
         } catch (err) {
           alert('❌ ملف غير صالح.');
@@ -145,7 +230,11 @@ export default function PlatformFeesCalculatorSA() {
     }
   };
 
-  const filteredItems = items.filter(item => item.platformName.toLowerCase().includes(searchQuery.toLowerCase()));
+  const filteredItems = items.filter(item => 
+    item.storeName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.platformName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.packageName.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div className="tool-container">
@@ -154,7 +243,8 @@ export default function PlatformFeesCalculatorSA() {
         a { text-decoration: none; }
       `}</style>
       <style jsx>{`
-        .tool-container { direction: rtl; max-width: 1100px; margin: 40px auto; padding: 20px; }
+        .tool-container { direction: rtl; max-width: 1100px; margin: 20px auto; padding: 20px; }
+        @media(max-width: 768px) { .tool-container { padding: 10px; margin: 10px auto; } }
         
         .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; }
         .back-btn { background: #ffffff; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 8px; color: #475569; font-weight: 700; font-size: 14px; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
@@ -164,7 +254,7 @@ export default function PlatformFeesCalculatorSA() {
         .title-box p { color: #64748b; margin: 0; font-size: 14px; }
         
         .grid-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 40px; }
-        @media(max-width: 768px) { .grid-layout { grid-template-columns: 1fr; } }
+        @media(max-width: 850px) { .grid-layout { grid-template-columns: 1fr; } }
         
         .card { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
         .card-title { font-size: 18px; font-weight: 800; color: #1e293b; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
@@ -172,17 +262,26 @@ export default function PlatformFeesCalculatorSA() {
         .clear-form-btn { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: 'Tajawal', sans-serif; display: flex; align-items: center; gap: 5px; }
         .clear-form-btn:hover { background: #fecaca; }
 
-        .input-group { margin-bottom: 15px; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        @media(max-width: 600px) { .form-row { grid-template-columns: 1fr; gap: 0; } }
+
+        .radio-group-container { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 15px; }
+        .radio-box { border: 2px solid #cbd5e1; border-radius: 8px; padding: 10px 5px; text-align: center; cursor: pointer; background: #f8fafc; font-weight: 800; font-size: 13px; color: #475569; transition: all 0.2s; display: flex; align-items: center; justify-content: center; user-select: none; }
+        .radio-box.active { border-color: #047857; background: #ecfdf5; color: #047857; }
+        .radio-box input { display: none; }
+
+        .input-group { margin-bottom: 15px; width: 100%; }
         .input-group label { display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 6px; }
-        .input-wrapper { position: relative; display: flex; align-items: center; }
-        .input-wrapper input { width: 100%; padding: 10px 45px 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 15px; font-family: 'Tajawal', sans-serif; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; }
+        .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
+        .input-wrapper input { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: 'Tajawal', sans-serif; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; }
+        .input-wrapper input.with-currency { padding-left: 45px; }
         .input-wrapper input:focus { border-color: #047857; background: #ffffff; }
         .currency-tag { position: absolute; left: 14px; color: #64748b; font-weight: 800; font-size: 13px; pointer-events: none; }
         
-        .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: 'Tajawal', sans-serif; margin-top: 10px; }
+        .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: 'Tajawal', sans-serif; margin-top: 10px; box-sizing: border-box; }
         .action-btn:hover { background: #065f46; }
 
-        .result-box { background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; }
+        .result-box { background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px; }
         .result-box.primary { background: linear-gradient(135deg, #047857 0%, #065f46 100%); color: #fff; border: none; padding: 20px; }
         .result-label { font-size: 13px; font-weight: 700; color: #64748b; }
         .primary .result-label { color: #ffffff; opacity: 0.9; }
@@ -191,22 +290,28 @@ export default function PlatformFeesCalculatorSA() {
 
         .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
-        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: 'Tajawal', sans-serif; font-size: 13px; outline: none; width: 250px; }
-        .table-btns { display: flex; gap: 10px; }
-        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: 'Tajawal', sans-serif; }
+        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: 'Tajawal', sans-serif; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; }
+        .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
+        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: 'Tajawal', sans-serif; display: flex; align-items: center; justify-content: center; }
         .t-btn:hover { background: #f1f5f9; }
 
-        .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
-        .data-table th { background: #f8fafc; padding: 12px; text-align: right; border-bottom: 2px solid #cbd5e1; font-weight: 800; color: #334155; }
-        .data-table td { padding: 12px; border-bottom: 1px solid #e2e8f0; color: #0f172a; font-weight: 600; }
+        .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 900px; }
+        .data-table th { background: #f8fafc; padding: 12px; text-align: right; border-bottom: 2px solid #cbd5e1; font-weight: 800; color: #334155; white-space: nowrap; }
+        .data-table td { padding: 12px; border-bottom: 1px solid #e2e8f0; color: #0f172a; font-weight: 600; vertical-align: middle; }
+        .data-table tfoot td { background: #f1f5f9; font-weight: 900; color: #0f172a; border-top: 2px solid #cbd5e1; }
         
         .trial-badge { background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 800; }
+        
+        .tb-action-btn { border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; font-family: 'Tajawal', sans-serif;}
+        .btn-edit { background: #e0f2fe; color: #0369a1; }
+        .btn-delete { background: #fee2e2; color: #991b1b; }
       `}</style>
 
       <div className="header">
         <div className="title-box">
           <h1>حاسبة رسوم واشتراكات المنصات (سلة، زد) 🛒</h1>
-          <p>احسب التكاليف الخفية واشتراكات المنصات المحلية لضمان تسعير منتجاتك بشكل صحيح وتحقيق أعلى هامش ربح</p>
+          <p>احسب التكاليف الخفية واشتراكات المنصات المحلية لضمان تسعير منتجاتك بشكل صحيح وعادل</p>
         </div>
         <Link href="/hub/sa" className="back-btn">
           <span>←</span> عودة للمنصة
@@ -217,8 +322,8 @@ export default function PlatformFeesCalculatorSA() {
         {/* قسم المدخلات */}
         <div className="card">
           <h2 className="card-title">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <span>{editingId ? 'تعديل المنصة' : 'مقارنة منصة جديدة'}</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+              <span>{editingId ? 'تعديل السجل' : 'حساب رسوم منصة جديدة'}</span>
               <button type="button" className="clear-form-btn" onClick={handleClearForm} title="مسح الحقول">
                 🧹 مسح الحقول
               </button>
@@ -228,95 +333,113 @@ export default function PlatformFeesCalculatorSA() {
 
           <form onSubmit={handleSaveItem}>
             <div className="input-group">
-              <label>اسم المنصة أو الباقة</label>
-              <div className="input-wrapper">
-                <input type="text" value={platformName} onChange={(e) => setPlatformName(e.target.value)} placeholder="مثال: سلة (باقة برو)" required />
+              <label>اختر المنصة</label>
+              <div className="radio-group-container">
+                <label className={`radio-box ${platformType === 'سلة (Salla)' ? 'active' : ''}`}>
+                  <input type="radio" name="plt" checked={platformType === 'سلة (Salla)'} onChange={() => handlePlatformChange('سلة (Salla)')} />
+                  سلة (Salla)
+                </label>
+                <label className={`radio-box ${platformType === 'زد (Zid)' ? 'active' : ''}`}>
+                  <input type="radio" name="plt" checked={platformType === 'زد (Zid)'} onChange={() => handlePlatformChange('زد (Zid)')} />
+                  زد (Zid)
+                </label>
+                <label className={`radio-box ${platformType === 'منصة مخصصة' ? 'active' : ''}`}>
+                  <input type="radio" name="plt" checked={platformType === 'منصة مخصصة'} onChange={() => handlePlatformChange('منصة مخصصة')} />
+                  منصة أخرى
+                </label>
               </div>
             </div>
 
-            <div className="input-group">
-              <label>الاشتراك الشهري الثابت للمنصة (ر.س)</label>
-              <div className="input-wrapper">
-                <input type="number" min="0" value={monthlySubscription === '' ? '' : monthlySubscription} onChange={(e) => setMonthlySubscription(e.target.value === '' ? '' : Number(e.target.value))} placeholder="299" required />
-                <span className="currency-tag">ر.س</span>
+            <div className="form-row">
+              <div className="input-group">
+                <label>اسم المتجر</label>
+                <div className="input-wrapper">
+                  <input type="text" value={storeName} onChange={(e) => setStoreName(e.target.value)} placeholder="متجر إنجازيا" required />
+                </div>
+              </div>
+              <div className="input-group">
+                <label>اسم الباقة (قابل للتعديل)</label>
+                <div className="input-wrapper">
+                  <input type="text" value={packageName} onChange={(e) => setPackageName(e.target.value)} placeholder="الباقة الاحترافية" required />
+                </div>
               </div>
             </div>
 
-            <div className="input-group">
-              <label>المبيعات الشهرية المتوقعة في المتجر (ر.س)</label>
-              <div className="input-wrapper">
-                <input type="number" min="0" value={expectedMonthlySales === '' ? '' : expectedMonthlySales} onChange={(e) => setExpectedMonthlySales(e.target.value === '' ? '' : Number(e.target.value))} placeholder="50000" required />
-                <span className="currency-tag">ر.س</span>
+            <div className="form-row">
+              <div className="input-group">
+                <label>اشتراك المنصة الشهري (ر.س)</label>
+                <div className="input-wrapper">
+                  <input className="with-currency" type="number" step="0.01" min="0" value={monthlyFee === '' ? '' : monthlyFee} onChange={(e) => setMonthlyFee(e.target.value === '' ? '' : Number(e.target.value))} placeholder="299" required />
+                  <span className="currency-tag">ر.س</span>
+                </div>
               </div>
-            </div>
-
-            <div className="input-group">
-              <label>نسبة عمولة المنصة على المبيعات (%)</label>
-              <div className="input-wrapper">
-                <input type="number" step="0.1" min="0" value={transactionFeePercent === '' ? '' : transactionFeePercent} onChange={(e) => setTransactionFeePercent(e.target.value === '' ? '' : Number(e.target.value))} placeholder="1.0" />
-                <span className="currency-tag">%</span>
+              <div className="input-group">
+                <label>عدد الطلبات المتوقعة شهرياً</label>
+                <div className="input-wrapper">
+                  <input type="number" min="1" value={expectedMonthlyOrders === '' ? '' : expectedMonthlyOrders} onChange={(e) => setExpectedMonthlyOrders(e.target.value === '' ? '' : Number(e.target.value))} placeholder="300" required />
+                </div>
               </div>
             </div>
 
             <button type="submit" className="action-btn">
-              {editingId ? '💾 حفظ التعديلات' : '+ حفظ المقارنة في السجل'}
+              {editingId ? '💾 حفظ التعديلات' : '+ حفظ الحساب في السجل'}
             </button>
           </form>
         </div>
 
         {/* قسم النتائج الفورية */}
         <div className="card">
-          <h2 className="card-title">تحليل التكاليف الشهرية</h2>
+          <h2 className="card-title">تحليل تكلفة المنصة الفوري</h2>
 
           <div className="result-box primary">
             <div>
-              <div className="result-label">إجمالي التكلفة الشهرية للمنصة</div>
-              <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '2px' }}>الاشتراك الثابت + عمولة العمليات على المبيعات</div>
+              <div className="result-label">تكلفة اشتراك المنصة محملة على الطلب الواحد</div>
+              <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '2px' }}>الخصم الفعلي من كل عملية بيع نظير المنصة</div>
             </div>
             <div className="result-value">
-              {totalMonthlyCost.toFixed(2)} ر.س
+              {costPerOrder.toFixed(2)} ر.س
             </div>
           </div>
 
           <div className="result-box">
-            <span className="result-label">مبلغ عمولة المنصة على المبيعات</span>
-            <span className="result-value" style={{ color: '#dc2626' }}>{transactionFeeAmount.toFixed(2)} ر.س</span>
+            <span className="result-label">الاشتراك الشهري المدفوع</span>
+            <span className="result-value" style={{ color: '#047857' }}>{fee.toFixed(2)} ر.س</span>
           </div>
 
-          <div className="result-box">
-            <span className="result-label">النسبة الفعلية المقتطعة من إجمالي المبيعات</span>
-            <span className="result-value" style={{ color: '#d97706' }}>{sales > 0 ? ((totalMonthlyCost / sales) * 100).toFixed(2) : 0}%</span>
+          <div className="result-box" style={{ background: '#f8fafc' }}>
+            <span className="result-label">إجمالي الطلبات الشهرية المتوقعة</span>
+            <span className="result-value" style={{ color: '#0f172a' }}>{orders} طلب</span>
           </div>
         </div>
       </div>
 
-      {/* جدول إدارة السجلات السفلي */}
+      {/* جدول البيانات السفلي */}
       <div className="table-section">
         <div className="table-toolbar">
           <input 
             type="text" 
             className="search-input" 
-            placeholder="🔍 بحث باسم المنصة أو الباقة..." 
+            placeholder="🔍 بحث بالمتجر أو المنصة أو الباقة..." 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
           <div className="table-btns">
-            <button className="t-btn" onClick={handleExportCsv}>📥 تصدير CSV</button>
+            <button className="t-btn" onClick={handleExportExcel} title="تصدير بصيغة Excel لدعم اللغة العربية">📥 تصدير Excel</button>
             <button className="t-btn" onClick={() => fileInputRef.current?.click()}>📂 استيراد</button>
             <input type="file" ref={fileInputRef} onChange={handleImportJson} accept=".json" style={{ display: 'none' }} />
           </div>
         </div>
 
-        <div style={{ overflowX: 'auto' }}>
+        <div className="table-responsive">
           <table className="data-table">
             <thead>
               <tr>
                 <th>#</th>
-                <th>اسم المنصة / الباقة</th>
+                <th>المتجر والتاريخ</th>
+                <th>المنصة والباقة</th>
                 <th>الاشتراك الشهري</th>
-                <th>المبيعات المتوقعة</th>
-                <th>عمولة المبيعات</th>
-                <th>إجمالي التكلفة الشهرية</th>
+                <th>الطلبات المتوقعة</th>
+                <th>تكلفة المنصة / طلب</th>
                 <th>الإجراءات</th>
               </tr>
             </thead>
@@ -324,28 +447,45 @@ export default function PlatformFeesCalculatorSA() {
               {filteredItems.length === 0 ? (
                 <tr>
                   <td colSpan={7} style={{ textAlign: 'center', color: '#94a3b8', padding: '30px 0' }}>
-                    لا توجد مقارنات منصات مسجلة حالياً.
+                    لا توجد سجلات رسوم منصات مسجلة حالياً.
                   </td>
                 </tr>
               ) : (
                 filteredItems.map((item, idx) => (
                   <tr key={item.id}>
                     <td>{idx + 1}</td>
-                    <td style={{ fontWeight: 800 }}>{item.platformName}</td>
-                    <td>{item.monthlySubscription} ر.س</td>
-                    <td>{item.expectedMonthlySales} ر.س</td>
-                    <td>{item.transactionFeePercent}%</td>
-                    <td style={{ color: '#047857', fontWeight: 900 }}>{item.totalMonthlyCost} ر.س</td>
                     <td>
-                      <div style={{ display: 'flex', gap: '8px' }}>
-                        <button onClick={() => handleEdit(item)} style={{ background: '#e0f2fe', color: '#0369a1', border: 'none', padding: '5px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 800, cursor: 'pointer' }}>تعديل</button>
-                        <button onClick={() => handleDelete(item.id)} style={{ background: '#fee2e2', color: '#991b1b', border: 'none', padding: '5px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 800, cursor: 'pointer' }}>حذف</button>
+                      <div style={{ fontWeight: 900, color: '#0f172a' }}>{item.storeName}</div>
+                      {item.createdAt && <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', fontWeight: 600 }}>🕒 {item.createdAt}</div>}
+                    </td>
+                    <td>
+                      <div style={{ fontWeight: 800, color: '#047857' }}>{item.platformName}</div>
+                      <div style={{ fontSize: '11.5px', color: '#64748b' }}>{item.packageName}</div>
+                    </td>
+                    <td>{item.monthlyFee} ر.س</td>
+                    <td>{item.expectedMonthlyOrders} طلب</td>
+                    <td style={{ fontWeight: 900, color: '#d97706' }}>{item.costPerOrder} ر.س</td>
+                    <td>
+                      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                        <button className="tb-action-btn btn-edit" onClick={() => handleEdit(item)} title="تعديل">✏️</button>
+                        <button className="tb-action-btn btn-delete" onClick={() => handleDelete(item.id)} title="حذف">❌</button>
                       </div>
                     </td>
                   </tr>
                 ))
               )}
             </tbody>
+            {filteredItems.length > 0 && (
+              <tfoot>
+                <tr className="tfoot-row">
+                  <td colSpan={3} style={{ textAlign: 'center' }}>الإجمالي الكلي / المتوسط</td>
+                  <td>{totalMonthlyFees.toFixed(2)} ر.س</td>
+                  <td>{totalMonthlyOrders} طلب</td>
+                  <td style={{ color: '#d97706' }}>{avgCostPerOrder.toFixed(2)} ر.س</td>
+                  <td></td>
+                </tr>
+              </tfoot>
+            )}
           </table>
         </div>
       </div>
