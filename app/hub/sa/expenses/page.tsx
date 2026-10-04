@@ -6,7 +6,8 @@ import Link from 'next/link';
 interface ExpenseItem {
   id: string;
   expenseName: string;
-  expenseType: string; // ثابتة أو متغيرة
+  expenseType: string;
+  recurrence: string; // تكرار المصروف (شهري، سنوي، مرة واحدة)
   amount: number;
   periodOrNote: string;
   createdAt?: string;
@@ -16,8 +17,9 @@ export default function ExpensesManagerSA() {
   const [expenseName, setExpenseName] = useState<string>('');
   const [typeSelect, setTypeSelect] = useState<string>('مصاريف ثابتة');
   const [customType, setCustomType] = useState<string>('مصاريف ثابتة');
+  const [recurrence, setRecurrence] = useState<string>('شهري (Monthly)'); // الميزة الجديدة
   const [amount, setAmount] = useState<number | ''>('');
-  const [periodOrNote, setPeriodOrNote] = useState<string>('شهر October 2026');
+  const [periodOrNote, setPeriodOrNote] = useState<string>('أكتوبر 2026');
 
   const [items, setItems] = useState<ExpenseItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -55,8 +57,9 @@ export default function ExpensesManagerSA() {
     setExpenseName('');
     setTypeSelect('مصاريف ثابتة');
     setCustomType('مصاريف ثابتة');
+    setRecurrence('شهري (Monthly)');
     setAmount('');
-    setPeriodOrNote('شهر October 2026');
+    setPeriodOrNote('أكتوبر 2026');
     setEditingId(null);
   };
 
@@ -81,6 +84,7 @@ export default function ExpensesManagerSA() {
         ...item,
         expenseName,
         expenseType: finalType,
+        recurrence,
         amount: expAmount,
         periodOrNote,
         createdAt: item.createdAt || formattedDate
@@ -93,6 +97,7 @@ export default function ExpensesManagerSA() {
         id: Date.now().toString(),
         expenseName,
         expenseType: finalType,
+        recurrence,
         amount: expAmount,
         periodOrNote,
         createdAt: formattedDate
@@ -114,6 +119,7 @@ export default function ExpensesManagerSA() {
       setTypeSelect('نوع آخر (كتابة يدوية)');
       setCustomType(item.expenseType);
     }
+    setRecurrence(item.recurrence || 'شهري (Monthly)');
     setAmount(item.amount);
     setPeriodOrNote(item.periodOrNote);
     setEditingId(item.id);
@@ -156,6 +162,7 @@ export default function ExpensesManagerSA() {
                 <th>اسم المصروف البند</th>
                 <th>التاريخ والوقت</th>
                 <th>نوع المصروف</th>
+                <th>تكرار المصروف</th>
                 <th>الفترة أو الملاحظة</th>
                 <th>المبلغ (ر.س)</th>
               </tr>
@@ -170,6 +177,7 @@ export default function ExpensesManagerSA() {
           <td>${row.expenseName}</td>
           <td>${row.createdAt || '-'}</td>
           <td>${row.expenseType}</td>
+          <td>${row.recurrence || 'شهري (Monthly)'}</td>
           <td>${row.periodOrNote}</td>
           <td>${row.amount}</td>
         </tr>
@@ -180,7 +188,7 @@ export default function ExpensesManagerSA() {
             </tbody>
             <tfoot>
               <tr class="tfoot-row">
-                <td colspan="5">إجمالي المصاريف التشغيلية</td>
+                <td colspan="6">إجمالي المصاريف التشغيلية</td>
                 <td>${grandTotalExpenses.toFixed(2)} ر.س</td>
               </tr>
             </tfoot>
@@ -220,6 +228,7 @@ export default function ExpensesManagerSA() {
   const filteredItems = items.filter(item => 
     item.expenseName.toLowerCase().includes(searchQuery.toLowerCase()) ||
     item.expenseType.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (item.recurrence || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
     item.periodOrNote.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -293,7 +302,7 @@ export default function ExpensesManagerSA() {
       <div className="header">
         <div className="title-box">
           <h1>مدير النفقات والمصاريف التشغيلية 💸</h1>
-          <p>تتبع مصاريف المتجر الثابتة والمتغيرة بالريال السعودي لضبط التدفق النقدي وصافي الأرباح</p>
+          <p>تتبع مصاريف المتجر الثابتة والمتغيرة، وتكرار المصروف (شهري، سنوي، مرة واحدة) لضبط التدفق النقدي</p>
         </div>
         <Link href="/hub/sa" className="back-btn">
           <span>←</span> عودة للمنصة
@@ -321,21 +330,37 @@ export default function ExpensesManagerSA() {
               </div>
             </div>
 
-            <div className="input-group">
-              <label>نوع المصروف</label>
-              <div className="input-wrapper" style={{ marginBottom: '8px' }}>
-                <select value={typeSelect} onChange={handleSelectChange}>
-                  <option value="مصاريف ثابتة">مصاريف ثابتة 🏢</option>
-                  <option value="مصاريف متغيرة">مصاريف متغيرة 📦</option>
-                  <option value="إعلانات تسويقية">إعلانات تسويقية 📢</option>
-                  <option value="رواتب وأجور">رواتب وأجور 👤</option>
-                  <option value="تغليف وشحن">تغليف وشحن 📦</option>
-                  <option value="اشتراكات برمجية">اشتراكات برمجية 💻</option>
-                  <option value="نوع آخر (كتابة يدوية)">➕ نوع آخر (كتابة يدوية)</option>
-                </select>
+            <div className="form-row">
+              <div className="input-group">
+                <label>نوع المصروف</label>
+                <div className="input-wrapper">
+                  <select value={typeSelect} onChange={handleSelectChange}>
+                    <option value="مصاريف ثابتة">مصاريف ثابتة 🏢</option>
+                    <option value="مصاريف متغيرة">مصاريف متغيرة 📦</option>
+                    <option value="إعلانات تسويقية">إعلانات تسويقية 📢</option>
+                    <option value="رواتب وأجور">رواتب وأجور 👤</option>
+                    <option value="تغليف وشحن">تغليف وشحن 📦</option>
+                    <option value="اشتراكات برمجية">اشتراكات برمجية 💻</option>
+                    <option value="نوع آخر (كتابة يدوية)">➕ نوع آخر (كتابة يدوية)</option>
+                  </select>
+                </div>
               </div>
 
-              {typeSelect === 'نوع آخر (كتابة يدوية)' && (
+              <div className="input-group">
+                <label>تكرار المصروف</label>
+                <div className="input-wrapper">
+                  <select value={recurrence} onChange={(e) => setRecurrence(e.target.value)}>
+                    <option value="شهري (Monthly)">شهري (Monthly)</option>
+                    <option value="سنوي (Yearly)">سنوي (Yearly)</option>
+                    <option value="مرة واحدة (One-time)">مرة واحدة (One-time)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {typeSelect === 'نوع آخر (كتابة يدوية)' && (
+              <div className="input-group">
+                <label>اكتب نوع المصروف المخصص</label>
                 <div className="input-wrapper">
                   <input 
                     type="text" 
@@ -345,8 +370,8 @@ export default function ExpensesManagerSA() {
                     required 
                   />
                 </div>
-              )}
-            </div>
+              </div>
+            )}
 
             <div className="form-row">
               <div className="input-group">
@@ -359,7 +384,7 @@ export default function ExpensesManagerSA() {
               <div className="input-group">
                 <label>الفترة أو ملاحظة</label>
                 <div className="input-wrapper">
-                  <input type="text" value={periodOrNote} onChange={(e) => setPeriodOrNote(e.target.value)} placeholder="شهر أكتوبر 2026" required />
+                  <input type="text" value={periodOrNote} onChange={(e) => setPeriodOrNote(e.target.value)} placeholder="أكتوبر 2026" required />
                 </div>
               </div>
             </div>
@@ -402,7 +427,7 @@ export default function ExpensesManagerSA() {
           <input 
             type="text" 
             className="search-input" 
-            placeholder="🔍 بحث باسم المصروف أو النوع..." 
+            placeholder="🔍 بحث باسم المصروف أو التكرار..." 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -420,7 +445,8 @@ export default function ExpensesManagerSA() {
                 <th>#</th>
                 <th>البند والتاريخ</th>
                 <th>نوع المصروف</th>
-                <th>الفترة أو الملاحظة</th>
+                <th>تكرار المصروف</th>
+                <th>الفترة / ملاحظة</th>
                 <th>المبلغ</th>
                 <th>الإجراءات</th>
               </tr>
@@ -428,7 +454,7 @@ export default function ExpensesManagerSA() {
             <tbody>
               {filteredItems.length === 0 ? (
                 <tr>
-                  <td colSpan={6} style={{ textAlign: 'center', color: '#94a3b8', padding: '30px 0' }}>
+                  <td colSpan={7} style={{ textAlign: 'center', color: '#94a3b8', padding: '30px 0' }}>
                     لا توجد مصاريف تشغيلية مسجلة حالياً.
                   </td>
                 </tr>
@@ -441,6 +467,11 @@ export default function ExpensesManagerSA() {
                       {item.createdAt && <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', fontWeight: 600 }}>🕒 {item.createdAt}</div>}
                     </td>
                     <td><span style={{ fontWeight: 800, color: '#0369a1' }}>{item.expenseType}</span></td>
+                    <td>
+                      <span style={{ fontWeight: 800, color: item.recurrence?.includes('شهري') ? '#047857' : item.recurrence?.includes('سنوي') ? '#d97706' : '#475569', background: '#f8fafc', padding: '3px 8px', borderRadius: '6px', fontSize: '12px' }}>
+                        {item.recurrence || 'شهري (Monthly)'}
+                      </span>
+                    </td>
                     <td>{item.periodOrNote}</td>
                     <td style={{ fontWeight: 900, color: '#dc2626' }}>{item.amount} ر.س</td>
                     <td>
@@ -456,7 +487,7 @@ export default function ExpensesManagerSA() {
             {filteredItems.length > 0 && (
               <tfoot>
                 <tr className="tfoot-row">
-                  <td colSpan={4} style={{ textAlign: 'center' }}>الإجمالي الكلي للمصاريف</td>
+                  <td colSpan={5} style={{ textAlign: 'center' }}>الإجمالي الكلي للمصاريف</td>
                   <td style={{ color: '#dc2626' }}>{grandTotalExpenses.toFixed(2)} ر.س</td>
                   <td></td>
                 </tr>
