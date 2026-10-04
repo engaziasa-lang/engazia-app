@@ -40,7 +40,7 @@ export default function SupportTemplatesSA() {
     : inquiryType.includes('الدفع')
     ? `مرحباً بك يا ${customerName || 'عزيزنا العميل'} ✨\nنعم، نتيح الدفع عبر تابي (Tabby) وتمارا (Tamara) مقسمة على 4 دفعات بدون فوائد، بالإضافة لمدى، أبل باي، والبطاقات الائتمانية. يسعدنا اختيارك لنا! 💳`
     : inquiryType.includes('الاستبدال')
-    ? `أهلاً بك يا ${customerName || 'عزيزنا العميل'} 🤝\nيحق لك استبدال أو استرجاع المنتج خلال 7 أيام من الاستلام بشرط أن يكون بحالته الأصلية. لبدء الطلب، تواصل معنا برقم الطلب وسنخدمك فوراً! 🔄`
+    ? `أهلاً بك يا ${customerName || 'عزيزنا العميل'} 🤝\nيحق لك استبدال أو استرجاع المنتج خلال 7 أيام من الاستلاستلام بشرط أن يكون بحالته الأصلية. لبدء الطلب، تواصل معنا برقم الطلب وسنخدمك فوراً! 🔄`
     : `أهلاً ومرحباً بك يا ${customerName || 'عزيزنا العميل'} في متجرنا 👋\nنحن هنا لخدمتك والإجابة عن أي استفسار على مدار الساعة. كيف يمكننا مساعدتك اليوم؟ 🌟`;
 
   const handleClearForm = () => {
@@ -293,7 +293,7 @@ export default function SupportTemplatesSA() {
                   </td>
                 </tr>
               ) : (
-                filteredItems.itemMap ? null : filteredItems.map((item, idx) => (
+                filteredItems.map((item, idx) => (
                   <tr key={item.id}>
                     <td>{idx + 1}</td>
                     <td style={{ fontWeight: 800 }}>{item.inquiryType}</td>
