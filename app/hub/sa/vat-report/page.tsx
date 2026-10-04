@@ -259,12 +259,19 @@ export default function TaxReturnPrepSA() {
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         @media(max-width: 600px) { .form-row { grid-template-columns: 1fr; gap: 0; } }
 
+        /* مربعات الاختيار البارزة (Radio Boxes) */
+        .radio-group-container { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+        .radio-box { border: 2px solid #cbd5e1; border-radius: 10px; padding: 12px; text-align: center; cursor: pointer; background: #f8fafc; font-weight: 800; font-size: 14px; color: #475569; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; user-select: none; }
+        .radio-box.active-sales { border-color: #047857; background: #ecfdf5; color: #047857; }
+        .radio-box.active-purchases { border-color: #0369a1; background: #e0f2fe; color: #0369a1; }
+        .radio-box input { display: none; }
+
         .input-group { margin-bottom: 15px; width: 100%; }
         .input-group label { display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 6px; }
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
-        .input-wrapper input, .input-wrapper select { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: 'Tajawal', sans-serif; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; }
+        .input-wrapper input { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: 'Tajawal', sans-serif; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; }
         .input-wrapper input.with-currency { padding-left: 45px; }
-        .input-wrapper input:focus, .input-wrapper select:focus { border-color: #047857; background: #ffffff; }
+        .input-wrapper input:focus { border-color: #047857; background: #ffffff; }
         .currency-tag { position: absolute; left: 14px; color: #64748b; font-weight: 800; font-size: 13px; pointer-events: none; }
         
         .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: 'Tajawal', sans-serif; margin-top: 10px; box-sizing: border-box; }
@@ -300,7 +307,7 @@ export default function TaxReturnPrepSA() {
       <div className="header">
         <div className="title-box">
           <h1>مجهز بيانات الإقرار الضريبي (ZATCA) 📋</h1>
-          <p>أدخل مبيعاتك ومشترياتك في حقل موحد وسهل، وتابع صافي الضريبة المستحقة بدقة</p>
+          <p>أدخل مبيعاتك ومشترياتك في مربعات اختيار سريعة، واحسب صافي ضريبة القيمة المضافة بدقة</p>
         </div>
         <Link href="/hub/sa" className="back-btn">
           <span>←</span> عودة للمنصة
@@ -308,7 +315,7 @@ export default function TaxReturnPrepSA() {
       </div>
 
       <div className="grid-layout">
-        {/* قسم الإدخال الموحد */}
+        {/* قسم الإدخال بمربعات تفاعلية */}
         <div className="card">
           <h2 className="card-title">
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
@@ -321,6 +328,33 @@ export default function TaxReturnPrepSA() {
           </h2>
 
           <form onSubmit={handleSaveItem}>
+            <div className="input-group">
+              <label>نوع المعاملة (اختر المربع المناسب)</label>
+              <div className="radio-group-container">
+                <label className={`radio-box ${transactionType === 'مبيعات' ? 'active-sales' : ''}`}>
+                  <input 
+                    type="radio" 
+                    name="txnType" 
+                    value="مبيعات" 
+                    checked={transactionType === 'مبيعات'} 
+                    onChange={() => setTransactionType('مبيعات')} 
+                  />
+                  📈 مبيعات خاضعة (15%)
+                </label>
+
+                <label className={`radio-box ${transactionType === 'مشتريات' ? 'active-purchases' : ''}`}>
+                  <input 
+                    type="radio" 
+                    name="txnType" 
+                    value="مشتريات" 
+                    checked={transactionType === 'مشتريات'} 
+                    onChange={() => setTransactionType('مشتريات')} 
+                  />
+                  📉 مشتريات ومصاريف
+                </label>
+              </div>
+            </div>
+
             <div className="form-row">
               <div className="input-group">
                 <label>الفترة الضريبية</label>
@@ -329,20 +363,10 @@ export default function TaxReturnPrepSA() {
                 </div>
               </div>
               <div className="input-group">
-                <label>نوع المعاملة</label>
+                <label>وصف المعاملة (البند)</label>
                 <div className="input-wrapper">
-                  <select value={transactionType} onChange={(e: any) => setTransactionType(e.target.value)}>
-                    <option value="مبيعات">📈 مبيعات خاضعة (15%)</option>
-                    <option value="مشتريات">📉 مشتريات ومصاريف</option>
-                  </select>
+                  <input type="text" value={customDescription} onChange={(e) => setCustomDescription(e.target.value)} placeholder="مثال: مبيعات المتجر" required />
                 </div>
-              </div>
-            </div>
-
-            <div className="input-group">
-              <label>وصف المعاملة أو البند (قابل للتعديل)</label>
-              <div className="input-wrapper">
-                <input type="text" value={customDescription} onChange={(e) => setCustomDescription(e.target.value)} placeholder="مثال: مبيعات متجر سديم / مصاريف شحن" required />
               </div>
             </div>
 
@@ -354,8 +378,8 @@ export default function TaxReturnPrepSA() {
               </div>
             </div>
 
-            <button type="submit" className="action-btn">
-              {editingId ? '💾 حفظ التعديلات' : '+ حفظ وإضافة القيد للسجل'}
+            <button type="submit" className="action-btn" style={{ background: transactionType === 'مبيعات' ? '#047857' : '#0369a1' }}>
+              {editingId ? '💾 حفظ التعديلات' : `+ حفظ وإضافة بند ${transactionType} للسجل`}
             </button>
           </form>
         </div>
