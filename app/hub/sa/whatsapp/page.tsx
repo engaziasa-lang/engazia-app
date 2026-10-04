@@ -3,23 +3,26 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 
-interface WhatsAppClientItem {
+interface CustomerItem {
   id: string;
-  clientName: string;
+  customerName: string;
   phoneNumber: string;
-  orderStatus: string;
+  status: string;
   orderValue: number;
-  notes: string;
+  paymentLink: string;
+  messageTemplate: string;
+  createdAt?: string;
 }
 
-export default function WhatsAppCrmManagerSA() {
-  const [clientName, setClientName] = useState<string>('');
+export default function WhatsappCrmSA() {
+  const [customerName, setCustomerName] = useState<string>('');
   const [phoneNumber, setPhoneNumber] = useState<string>('');
-  const [orderStatus, setOrderStatus] = useState<string>('سلة متروكة (Abandoned Cart)');
+  const [status, setStatus] = useState<string>('سلة متروكة');
   const [orderValue, setOrderValue] = useState<number | ''>('');
-  const [notes, setNotes] = useState<string>('');
+  const [paymentLink, setPaymentLink] = useState<string>('');
+  const [messageTemplate, setMessageTemplate] = useState<string>('مرحباً {name}، لاحظنا أنك تركت منتجات رائعة في سلتك 🛒. تفضل رابط الدفع المباشر لإكمال طلبك بأسرع وقت: {link}');
 
-  const [items, setItems] = useState<WhatsAppClientItem[]>([]);
+  const [items, setItems] = useState<CustomerItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [editingId, setEditingId] = useState<string | null>(null);
 
@@ -32,31 +35,36 @@ export default function WhatsAppCrmManagerSA() {
     }
   }, []);
 
-  const saveToLocalStorage = (newItems: WhatsAppClientItem[]) => {
+  const saveToLocalStorage = (newItems: CustomerItem[]) => {
     setItems(newItems);
     localStorage.setItem('seerk_whatsapp_crm_items', JSON.stringify(newItems));
   };
 
   const isActivated = typeof window !== 'undefined' && !!localStorage.getItem('merchant_license_key');
 
-  // تنسيق رقم الجوال لرابط واتساب الدولي (السعودية 966)
-  let cleanPhone = phoneNumber.replace(/\D/g, '');
-  if (cleanPhone.startsWith('05')) {
-    cleanPhone = '966' + cleanPhone.slice(1);
-  } else if (!cleanPhone.startsWith('966') && cleanPhone.length === 9) {
-    cleanPhone = '966' + cleanPhone;
-  }
+  const val = typeof orderValue === 'number' ? orderValue : 0;
 
-  const defaultMsg = `أهلاً بك يا أستاذ/ة ${clientName || 'عزيزنا العميل'} 👋\nلاحظنا عدم إتمامك للطلب في متجرنا بقيمة ${orderValue || 0} ر.س. هل تواجه مشكلة في الدفع أو تحتاج مساعدة؟ تفضل وهذا رابط مباشر لإتمام طلبك بكل سهولة ✨`;
-  const encodedMsg = encodeURIComponent(defaultMsg);
-  const whatsappDirectUrl = cleanPhone ? `https://wa.me/${cleanPhone}?text=${encodedMsg}` : '#';
+  // تغيير القالب بناءً على القائمة المنسدلة (مع ترك حرية التعديل للتاجر)
+  const handlePresetChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selected = e.target.value;
+    if (selected === 'abandoned') {
+      setMessageTemplate('مرحباً {name}، لاحظنا أنك تركت منتجات رائعة في سلتك 🛒. تفضل رابط الدفع المباشر لإكمال طلبك بأسرع وقت: {link}');
+    } else if (selected === 'pending') {
+      setMessageTemplate('أهلاً بك {name}، طلبك بقيمة {amount} ر.س بانتظار الدفع 💳. لإتمام الطلب وتأكيده يرجى زيارة الرابط: {link}');
+    } else if (selected === 'completed') {
+      setMessageTemplate('شكراً لك {name} لثقتك بمتجرنا 🎉. تم تأكيد طلبك بقيمة {amount} ر.س، وسيتم تجهيزه وشحنه قريباً. لتتبع الطلب: {link}');
+    } else if (selected === 'custom') {
+      setMessageTemplate('');
+    }
+  };
 
   const handleClearForm = () => {
-    setClientName('');
+    setCustomerName('');
     setPhoneNumber('');
-    setOrderStatus('سلة متروكة (Abandoned Cart)');
+    setStatus('سلة متروكة');
     setOrderValue('');
-    setNotes('');
+    setPaymentLink('');
+    setMessageTemplate('مرحباً {name}، لاحظنا أنك تركت منتجات رائعة في سلتك 🛒. تفضل رابط الدفع المباشر لإكمال طلبك بأسرع وقت: {link}');
     setEditingId(null);
   };
 
@@ -66,45 +74,54 @@ export default function WhatsAppCrmManagerSA() {
       alert('🔒 عذراً، لقد استهلكت الحد التجريبي (3 عملاء). يرجى ترقية حسابك لفتح السعة الكاملة بلا حدود!');
       return;
     }
-    if (!clientName.trim() || !phoneNumber.trim()) {
-      alert('الرجاء إدخال اسم العميل ورقم الجوال.');
+    if (!customerName.trim() || !phoneNumber.trim()) {
+      alert('الرجاء إدخال اسم العميل ورقم الجوال بشكل صحيح.');
       return;
     }
+
+    const now = new Date();
+    const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
+    const formattedDate = `${now.toLocaleDateString('ar-SA')} - ${now.toLocaleTimeString('ar-SA', timeOptions)}`;
 
     if (editingId) {
       const updated = items.map(item => item.id === editingId ? {
         ...item,
-        clientName,
+        customerName,
         phoneNumber,
-        orderStatus,
-        orderValue: typeof orderValue === 'number' ? orderValue : 0,
-        notes,
+        status,
+        orderValue: val,
+        paymentLink,
+        messageTemplate,
+        createdAt: item.createdAt || formattedDate
       } : item);
       saveToLocalStorage(updated);
       setEditingId(null);
       alert('✨ تم تحديث بيانات العميل بنجاح!');
     } else {
-      const newItem: WhatsAppClientItem = {
+      const newItem: CustomerItem = {
         id: Date.now().toString(),
-        clientName,
+        customerName,
         phoneNumber,
-        orderStatus,
-        orderValue: typeof orderValue === 'number' ? orderValue : 0,
-        notes,
+        status,
+        orderValue: val,
+        paymentLink,
+        messageTemplate,
+        createdAt: formattedDate
       };
       saveToLocalStorage([...items, newItem]);
-      alert('✅ تمت إضافة العميل إلى سجل CRM بنجاح!');
+      alert('✅ تم حفظ بيانات العميل في السجل!');
     }
 
     handleClearForm();
   };
 
-  const handleEdit = (item: WhatsAppClientItem) => {
-    setClientName(item.clientName);
+  const handleEdit = (item: CustomerItem) => {
+    setCustomerName(item.customerName);
     setPhoneNumber(item.phoneNumber);
-    setOrderStatus(item.orderStatus);
+    setStatus(item.status);
     setOrderValue(item.orderValue);
-    setNotes(item.notes);
+    setPaymentLink(item.paymentLink || '');
+    setMessageTemplate(item.messageTemplate || '');
     setEditingId(item.id);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -116,19 +133,92 @@ export default function WhatsAppCrmManagerSA() {
     }
   };
 
-  const handleExportCsv = () => {
+  // دالة ذكية لإرسال الواتساب
+  const handleSendWhatsapp = (item: CustomerItem) => {
+    // تنظيف رقم الجوال (تحويل 05 الى 9665)
+    let phone = item.phoneNumber.replace(/\D/g, '');
+    if (phone.startsWith('05')) {
+      phone = '966' + phone.substring(1);
+    }
+    
+    // استبدال المتغيرات في الرسالة
+    let text = item.messageTemplate
+      .replace(/{name}/g, item.customerName)
+      .replace(/{amount}/g, item.orderValue.toString())
+      .replace(/{link}/g, item.paymentLink || '');
+
+    const url = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
+    window.open(url, '_blank');
+  };
+
+  const handleExportExcel = () => {
     if (items.length === 0) {
       alert('لا توجد بيانات لتصديرها.');
       return;
     }
-    let csv = "data:text/csv;charset=utf-8,ID,ClientName,Phone,Status,OrderValue,Notes\n";
+
+    const totalOrdersValue = items.reduce((acc, curr) => acc + curr.orderValue, 0);
+
+    let tableHtml = `
+      <html dir="rtl" lang="ar">
+        <head>
+          <meta charset="utf-8">
+          <style>
+            table { border-collapse: collapse; width: 100%; font-family: sans-serif; }
+            th, td { border: 1px solid #cbd5e1; padding: 8px; text-align: center; }
+            th { background-color: #f8fafc; font-weight: bold; color: #334155; }
+            .tfoot-row td { background-color: #f1f5f9; font-weight: bold; color: #0f172a; }
+          </style>
+        </head>
+        <body>
+          <table>
+            <thead>
+              <tr>
+                <th>م</th>
+                <th>اسم العميل</th>
+                <th>التاريخ والوقت</th>
+                <th>رقم الجوال</th>
+                <th>حالة العميل</th>
+                <th>قيمة السلة/الطلب</th>
+                <th>الرابط المرفق</th>
+              </tr>
+            </thead>
+            <tbody>
+    `;
+
     items.forEach((row, idx) => {
-      csv += `${idx + 1},${row.clientName},${row.phoneNumber},${row.orderStatus},${row.orderValue},${row.notes}\n`;
+      tableHtml += `
+        <tr>
+          <td>${idx + 1}</td>
+          <td>${row.customerName}</td>
+          <td>${row.createdAt || '-'}</td>
+          <td>${row.phoneNumber}</td>
+          <td>${row.status}</td>
+          <td>${row.orderValue}</td>
+          <td>${row.paymentLink}</td>
+        </tr>
+      `;
     });
-    const encodedUri = encodeURI(csv);
+
+    tableHtml += `
+            </tbody>
+            <tfoot>
+              <tr class="tfoot-row">
+                <td colspan="5">الإجمالي الكلي</td>
+                <td>${totalOrdersValue.toFixed(2)}</td>
+                <td></td>
+              </tr>
+            </tfoot>
+          </table>
+        </body>
+      </html>
+    `;
+
+    const blob = new Blob([tableHtml], { type: 'application/vnd.ms-excel' });
+    const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "seerk_whatsapp_crm.csv");
+    link.setAttribute("href", url);
+    link.setAttribute("download", "seerk_whatsapp_crm.xls");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -143,7 +233,7 @@ export default function WhatsAppCrmManagerSA() {
           const imported = JSON.parse(event.target?.result as string);
           if (Array.isArray(imported)) {
             saveToLocalStorage(imported);
-            alert('✨ تم استيراد عملاء واتساب بنجاح!');
+            alert('✨ تم استيراد بيانات العملاء بنجاح!');
           }
         } catch (err) {
           alert('❌ ملف غير صالح.');
@@ -153,9 +243,13 @@ export default function WhatsAppCrmManagerSA() {
   };
 
   const filteredItems = items.filter(item => 
-    item.clientName.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    item.customerName.toLowerCase().includes(searchQuery.toLowerCase()) || 
     item.phoneNumber.includes(searchQuery)
   );
+
+  const totalOrdersValue = filteredItems.reduce((acc, curr) => acc + curr.orderValue, 0);
+  const abandonedCount = filteredItems.filter(i => i.status === 'سلة متروكة').length;
+  const completedCount = filteredItems.filter(i => i.status === 'طلب مكتمل').length;
 
   return (
     <div className="tool-container">
@@ -164,7 +258,8 @@ export default function WhatsAppCrmManagerSA() {
         a { text-decoration: none; }
       `}</style>
       <style jsx>{`
-        .tool-container { direction: rtl; max-width: 1100px; margin: 40px auto; padding: 20px; }
+        .tool-container { direction: rtl; max-width: 1100px; margin: 20px auto; padding: 20px; }
+        @media(max-width: 768px) { .tool-container { padding: 10px; margin: 10px auto; } }
         
         .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; }
         .back-btn { background: #ffffff; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 8px; color: #475569; font-weight: 700; font-size: 14px; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
@@ -173,8 +268,8 @@ export default function WhatsAppCrmManagerSA() {
         .title-box h1 { font-size: 24px; font-weight: 900; color: #0f172a; margin: 0 0 5px 0; }
         .title-box p { color: #64748b; margin: 0; font-size: 14px; }
         
-        .grid-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 40px; }
-        @media(max-width: 768px) { .grid-layout { grid-template-columns: 1fr; } }
+        .grid-layout { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 30px; margin-bottom: 40px; }
+        @media(max-width: 850px) { .grid-layout { grid-template-columns: 1fr; } }
         
         .card { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
         .card-title { font-size: 18px; font-weight: 800; color: #1e293b; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
@@ -182,37 +277,49 @@ export default function WhatsAppCrmManagerSA() {
         .clear-form-btn { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: 'Tajawal', sans-serif; display: flex; align-items: center; gap: 5px; }
         .clear-form-btn:hover { background: #fecaca; }
 
-        .input-group { margin-bottom: 15px; }
+        .input-group { margin-bottom: 15px; width: 100%; }
         .input-group label { display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 6px; }
-        .input-wrapper { position: relative; display: flex; align-items: center; }
-        .input-wrapper input, .input-wrapper select, .input-wrapper textarea { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 15px; font-family: 'Tajawal', sans-serif; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; }
-        .input-wrapper input:focus, .input-wrapper select:focus, .input-wrapper textarea:focus { border-color: #25d366; background: #ffffff; }
-        .input-wrapper textarea { height: 80px; resize: vertical; }
+        .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
+        .input-wrapper input, .input-wrapper select, .input-wrapper textarea { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: 'Tajawal', sans-serif; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; }
+        .input-wrapper input.with-currency { padding-left: 45px; }
+        .input-wrapper input:focus, .input-wrapper select:focus, .input-wrapper textarea:focus { border-color: #047857; background: #ffffff; }
+        .currency-tag { position: absolute; left: 14px; color: #64748b; font-weight: 800; font-size: 13px; pointer-events: none; }
         
-        .action-btn { background: #25d366; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: 'Tajawal', sans-serif; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .action-btn:hover { background: #20ba5a; }
+        .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: 'Tajawal', sans-serif; margin-top: 10px; box-sizing: border-box; }
+        .action-btn:hover { background: #065f46; }
 
-        .preview-box { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 20px; font-size: 14px; color: #166534; font-weight: 600; }
-        .preview-box h3 { font-size: 16px; font-weight: 900; margin-top: 0; margin-bottom: 12px; color: #14532d; }
+        .result-box { background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px; }
+        .result-box.primary { background: linear-gradient(135deg, #0369a1 0%, #0c4a6e 100%); color: #fff; border: none; padding: 20px; }
+        .result-label { font-size: 13px; font-weight: 700; color: #64748b; }
+        .primary .result-label { color: #ffffff; opacity: 0.9; }
+        .result-value { font-size: 18px; font-weight: 900; color: #0f172a; }
+        .primary .result-value { font-size: 26px; color: #ffffff; }
 
         .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
-        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: 'Tajawal', sans-serif; font-size: 13px; outline: none; width: 250px; }
-        .table-btns { display: flex; gap: 10px; }
-        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: 'Tajawal', sans-serif; }
+        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: 'Tajawal', sans-serif; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; }
+        .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
+        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: 'Tajawal', sans-serif; display: flex; align-items: center; justify-content: center; }
         .t-btn:hover { background: #f1f5f9; }
 
-        .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
-        .data-table th { background: #f8fafc; padding: 12px; text-align: right; border-bottom: 2px solid #cbd5e1; font-weight: 800; color: #334155; }
-        .data-table td { padding: 12px; border-bottom: 1px solid #e2e8f0; color: #0f172a; font-weight: 600; }
+        .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 900px; }
+        .data-table th { background: #f8fafc; padding: 12px; text-align: right; border-bottom: 2px solid #cbd5e1; font-weight: 800; color: #334155; white-space: nowrap; }
+        .data-table td { padding: 12px; border-bottom: 1px solid #e2e8f0; color: #0f172a; font-weight: 600; vertical-align: middle; }
+        .data-table tfoot td { background: #f1f5f9; font-weight: 900; color: #0f172a; border-top: 2px solid #cbd5e1; }
         
         .trial-badge { background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 800; }
+        
+        .tb-action-btn { border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; font-family: 'Tajawal', sans-serif;}
+        .btn-edit { background: #e0f2fe; color: #0369a1; }
+        .btn-delete { background: #fee2e2; color: #991b1b; }
+        .btn-wa { background: #22c55e; color: #ffffff; }
       `}</style>
 
       <div className="header">
         <div className="title-box">
           <h1>إدارة عملاء واتساب (Seerk Pro Max) 💬</h1>
-          <p>إدارة السلال المتروكة، إرسال روابط الدفع السريعة، وتصنيف عملاء المتجر الفاعلين بكل إحترافية</p>
+          <p>إدارة السلال المتروكة، إرسال روابط الدفع السريعة، وتصنيف عملاء المتجر الفاعلين</p>
         </div>
         <Link href="/hub/sa" className="back-btn">
           <span>←</span> عودة للمنصة
@@ -220,11 +327,11 @@ export default function WhatsAppCrmManagerSA() {
       </div>
 
       <div className="grid-layout">
-        {/* قسم المدخلات */}
+        {/* قسم إدخال بيانات العميل */}
         <div className="card">
           <h2 className="card-title">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <span>{editingId ? 'تعديل العميل' : 'إضافة عميل جديد'}</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+              <span>{editingId ? 'تعديل بيانات العميل' : 'إضافة عميل / سلة جديدة'}</span>
               <button type="button" className="clear-form-btn" onClick={handleClearForm} title="مسح الحقول">
                 🧹 مسح الحقول
               </button>
@@ -233,43 +340,77 @@ export default function WhatsAppCrmManagerSA() {
           </h2>
 
           <form onSubmit={handleSaveItem}>
-            <div className="input-group">
-              <label>اسم العميل</label>
-              <div className="input-wrapper">
-                <input type="text" value={clientName} onChange={(e) => setClientName(e.target.value)} placeholder="مثال: أحمد العتيبي" required />
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+              <div className="input-group">
+                <label>اسم العميل</label>
+                <div className="input-wrapper">
+                  <input type="text" value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="مثال: أحمد الدوسري" required />
+                </div>
+              </div>
+              <div className="input-group">
+                <label>رقم الجوال</label>
+                <div className="input-wrapper">
+                  <input type="text" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} placeholder="05XXXXXXXX" required />
+                </div>
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+              <div className="input-group">
+                <label>حالة العميل / الطلب</label>
+                <div className="input-wrapper">
+                  <select value={status} onChange={(e) => setStatus(e.target.value)}>
+                    <option value="سلة متروكة">سلة متروكة (لم يكمل الدفع)</option>
+                    <option value="بانتظار الدفع">بانتظار الدفع (تحويل بنكي)</option>
+                    <option value="طلب مكتمل">طلب مكتمل (تأكيد الشحن)</option>
+                    <option value="استفسار عام">استفسار عام</option>
+                  </select>
+                </div>
+              </div>
+              <div className="input-group">
+                <label>قيمة السلة أو الطلب (ر.س)</label>
+                <div className="input-wrapper">
+                  <input className="with-currency" type="number" min="0" value={orderValue === '' ? '' : orderValue} onChange={(e) => setOrderValue(e.target.value === '' ? '' : Number(e.target.value))} placeholder="250" />
+                  <span className="currency-tag">ر.س</span>
+                </div>
               </div>
             </div>
 
             <div className="input-group">
-              <label>رقم الجوال (يبدأ بـ 05 أو 966)</label>
+              <label>رابط الدفع السريع (أو رابط تتبع الشحنة)</label>
               <div className="input-wrapper">
-                <input type="text" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} placeholder="05xxxxxxxx" required />
+                <input type="url" value={paymentLink} onChange={(e) => setPaymentLink(e.target.value)} placeholder="https://..." />
               </div>
             </div>
 
-            <div className="input-group">
-              <label>حالة الطلب أو العميل</label>
-              <div className="input-wrapper">
-                <select value={orderStatus} onChange={(e) => setOrderStatus(e.target.value)}>
-                  <option value="سلة متروكة (Abandoned Cart)">سلة متروكة (Abandoned Cart)</option>
-                  <option value="بانتظار الدفع (Pending Payment)">بانتظار الدفع (Pending Payment)</option>
-                  <option value="عميل متكرر ومميز (VIP)">عميل متكرر ومميز (VIP)</option>
-                  <option value="استفسار عن منتج">استفسار عن منتج</option>
-                </select>
+            {/* قسم القالب القابل للتعديل للتاجر */}
+            <div style={{ background: '#f8fafc', padding: '15px', borderRadius: '8px', marginTop: '20px', border: '1px solid #e2e8f0' }}>
+              <div className="input-group">
+                <label style={{ color: '#0f172a' }}>اختر نموذج الرسالة (لتعبئة المربع أدناه)</label>
+                <div className="input-wrapper">
+                  <select onChange={handlePresetChange} defaultValue="abandoned">
+                    <option value="abandoned">سلة متروكة (تذكير بالدفع)</option>
+                    <option value="pending">بانتظار الدفع (تأكيد الطلب)</option>
+                    <option value="completed">طلب مكتمل (رسالة شكر وتتبع)</option>
+                    <option value="custom">كتابة رسالة فارغة جديدة</option>
+                  </select>
+                </div>
               </div>
-            </div>
 
-            <div className="input-group">
-              <label>قيمة السلة أو الطلب (ر.س)</label>
-              <div className="input-wrapper">
-                <input type="number" min="0" value={orderValue === '' ? '' : orderValue} onChange={(e) => setOrderValue(e.target.value === '' ? '' : Number(e.target.value))} placeholder="0.00" />
-              </div>
-            </div>
-
-            <div className="input-group">
-              <label>ملاحظات إضافية</label>
-              <div className="input-wrapper">
-                <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="ملاحظات حول تواصلك مع العميل..."></textarea>
+              <div className="input-group" style={{ marginBottom: 0 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                  <label style={{ color: '#0f172a', margin: 0 }}>قالب الرسالة (قابل للتعديل بحرية)</label>
+                  <span style={{ fontSize: '11px', color: '#64748b' }}>المتغيرات: {`{name}`} - {`{amount}`} - {`{link}`}</span>
+                </div>
+                <div className="input-wrapper">
+                  <textarea 
+                    rows={4} 
+                    value={messageTemplate} 
+                    onChange={(e) => setMessageTemplate(e.target.value)} 
+                    placeholder="اكتب رسالتك المخصصة هنا..."
+                    style={{ resize: 'vertical' }}
+                  ></textarea>
+                </div>
               </div>
             </div>
 
@@ -279,21 +420,33 @@ export default function WhatsAppCrmManagerSA() {
           </form>
         </div>
 
-        {/* قسم المعاينة ورابط واتساب المباشر */}
+        {/* قسم الإحصائيات الفورية */}
         <div className="card">
-          <h2 className="card-title">معاينة الرسالة ورابط واتساب المباشر</h2>
+          <h2 className="card-title">مؤشرات قاعدة العملاء</h2>
 
-          <div className="preview-box">
-            <h3>💬 معاينة رسالة المتابعة:</h3>
-            <div style={{ whiteSpace: 'pre-wrap', lineHeight: '1.6', marginBottom: '20px', background: '#fff', padding: '12px', borderRadius: '8px', border: '1px solid #bbf7d0' }}>
-              {defaultMsg}
+          <div className="result-box primary">
+            <div>
+              <div className="result-label">إجمالي قيمة السلال والطلبات المحفوظة</div>
+              <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '2px' }}>مجموع الإيرادات المحتملة والمحققة</div>
             </div>
+            <div className="result-value">
+              {totalOrdersValue.toFixed(2)} ر.س
+            </div>
+          </div>
 
-            <a href={whatsappDirectUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => { if (!cleanPhone) { e.preventDefault(); alert('الرجاء إدخال رقم جوال صحيح أولاً.'); } }}>
-              <button type="button" className="action-btn" style={{ width: '100%', marginTop: '0' }}>
-                🚀 فتح محادثة واتساب فوراً
-              </button>
-            </a>
+          <div className="result-box">
+            <span className="result-label">إجمالي العملاء في السجل</span>
+            <span className="result-value" style={{ color: '#0369a1' }}>{items.length} عميل</span>
+          </div>
+
+          <div className="result-box">
+            <span className="result-label">السلال المتروكة (فرص بيع)</span>
+            <span className="result-value" style={{ color: '#d97706' }}>{abandonedCount}</span>
+          </div>
+
+          <div className="result-box">
+            <span className="result-label">الطلبات المكتملة</span>
+            <span className="result-value" style={{ color: '#047857' }}>{completedCount}</span>
           </div>
         </div>
       </div>
@@ -304,56 +457,78 @@ export default function WhatsAppCrmManagerSA() {
           <input 
             type="text" 
             className="search-input" 
-            placeholder="🔍 بحث باسم العميل أو الجوال..." 
+            placeholder="🔍 بحث باسم العميل أو رقم الجوال..." 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
           <div className="table-btns">
-            <button className="t-btn" onClick={handleExportCsv}>📥 تصدير CSV</button>
+            <button className="t-btn" onClick={handleExportExcel} title="تصدير بصيغة Excel لدعم اللغة العربية">📥 تصدير Excel</button>
             <button className="t-btn" onClick={() => fileInputRef.current?.click()}>📂 استيراد</button>
             <input type="file" ref={fileInputRef} onChange={handleImportJson} accept=".json" style={{ display: 'none' }} />
           </div>
         </div>
 
-        <div style={{ overflowX: 'auto' }}>
+        <div className="table-responsive">
           <table className="data-table">
             <thead>
               <tr>
                 <th>#</th>
-                <th>اسم العميل</th>
+                <th>العميل والتاريخ</th>
                 <th>رقم الجوال</th>
                 <th>الحالة</th>
-                <th>قيمة السلة</th>
-                <th>الملاحظات</th>
+                <th>قيمة السلة/الطلب</th>
                 <th>الإجراءات</th>
               </tr>
             </thead>
             <tbody>
               {filteredItems.length === 0 ? (
                 <tr>
-                  <td colSpan={7} style={{ textAlign: 'center', color: '#94a3b8', padding: '30px 0' }}>
-                    لا توجد جهات اتصال مسجلة في السجل حالياً.
+                  <td colSpan={6} style={{ textAlign: 'center', color: '#94a3b8', padding: '30px 0' }}>
+                    لا يوجد عملاء مسجلين حالياً. ابدأ بإضافة سلال متروكة لاسترجاعها.
                   </td>
                 </tr>
               ) : (
-                filteredItems.map((item, idx) => (
-                  <tr key={item.id}>
-                    <td>{idx + 1}</td>
-                    <td style={{ fontWeight: 800 }}>{item.clientName}</td>
-                    <td>{item.phoneNumber}</td>
-                    <td><span style={{ background: '#ecfdf5', color: '#047857', padding: '3px 8px', borderRadius: '6px', fontSize: '12px', fontWeight: 800 }}>{item.orderStatus}</span></td>
-                    <td>{item.orderValue} ر.س</td>
-                    <td style={{ color: '#64748b' }}>{item.notes}</td>
-                    <td>
-                      <div style={{ display: 'flex', gap: '8px' }}>
-                        <button onClick={() => handleEdit(item)} style={{ background: '#e0f2fe', color: '#0369a1', border: 'none', padding: '5px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 800, cursor: 'pointer' }}>تعديل</button>
-                        <button onClick={() => handleDelete(item.id)} style={{ background: '#fee2e2', color: '#991b1b', border: 'none', padding: '5px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 800, cursor: 'pointer' }}>حذف</button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
+                filteredItems.map((item, idx) => {
+                  let statusColor = '#475569';
+                  if (item.status === 'سلة متروكة') statusColor = '#d97706';
+                  if (item.status === 'طلب مكتمل') statusColor = '#047857';
+                  if (item.status === 'بانتظار الدفع') statusColor = '#0369a1';
+
+                  return (
+                    <tr key={item.id}>
+                      <td>{idx + 1}</td>
+                      <td>
+                        <div style={{ fontWeight: 900, color: '#0f172a' }}>{item.customerName}</div>
+                        {item.createdAt && <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', fontWeight: 600 }}>🕒 {item.createdAt}</div>}
+                      </td>
+                      <td style={{ fontWeight: 800, color: '#334155', direction: 'ltr', textAlign: 'right' }}>{item.phoneNumber}</td>
+                      <td>
+                        <span style={{ color: statusColor, background: `${statusColor}15`, padding: '4px 8px', borderRadius: '6px', fontSize: '12px', fontWeight: 800 }}>
+                          {item.status}
+                        </span>
+                      </td>
+                      <td style={{ fontWeight: 900 }}>{item.orderValue} ر.س</td>
+                      <td>
+                        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                          <button className="tb-action-btn btn-wa" onClick={() => handleSendWhatsapp(item)} title="فتح محادثة واتساب وإرسال الرسالة المجهزة">💬 واتساب</button>
+                          <button className="tb-action-btn btn-edit" onClick={() => handleEdit(item)} title="تعديل">✏️</button>
+                          <button className="tb-action-btn btn-delete" onClick={() => handleDelete(item.id)} title="حذف">❌</button>
+                        </div>
+                      </td>
+                    </tr>
+                  )
+                })
               )}
             </tbody>
+            {filteredItems.length > 0 && (
+              <tfoot>
+                <tr className="tfoot-row">
+                  <td colSpan={4} style={{ textAlign: 'center' }}>الإجمالي الكلي</td>
+                  <td>{totalOrdersValue.toFixed(2)} ر.س</td>
+                  <td></td>
+                </tr>
+              </tfoot>
+            )}
           </table>
         </div>
       </div>
