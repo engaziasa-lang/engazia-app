@@ -86,6 +86,15 @@ export default function ZatcaInvoiceGeneratorSA() {
     setProdQty(1);
   };
 
+  // دالة تعديل منتج داخل سلة الفاتورة
+  const handleEditProduct = (prod: InvoiceProduct) => {
+    setProdName(prod.name);
+    setProdPrice(prod.price);
+    setProdQty(prod.qty);
+    // إزالة المنتج من القائمة مؤقتاً حتى يقوم المستخدم بحفظه من جديد
+    setCurrentProducts(currentProducts.filter(p => p.id !== prod.id));
+  };
+
   const handleRemoveProduct = (pid: string) => {
     setCurrentProducts(currentProducts.filter(p => p.id !== pid));
   };
@@ -158,7 +167,6 @@ export default function ZatcaInvoiceGeneratorSA() {
     setInvoiceNumber(item.invoiceNumber);
     setCustomerName(item.customerName);
     
-    // توافقية مع النسخ القديمة التي لم يكن بها مصفوفة منتجات
     if (item.products && item.products.length > 0) {
       setCurrentProducts(item.products);
     } else {
@@ -179,7 +187,6 @@ export default function ZatcaInvoiceGeneratorSA() {
   const handlePrintInvoice = (item: InvoiceItem | null) => {
     let dataToPrint: InvoiceItem;
     if (item) {
-       // توافقية للإصدار القديم أثناء الطباعة
        const printProducts = (item.products && item.products.length > 0) 
           ? item.products 
           : [{ id: 'old', name: (item as any).orderDescription || 'منتجات متنوعة', price: item.totalAmount, qty: 1 }];
@@ -351,7 +358,6 @@ export default function ZatcaInvoiceGeneratorSA() {
     `;
 
     items.forEach((row, idx) => {
-      // تجهيز نص المنتجات للتصدير
       const prodsText = row.products 
         ? row.products.map(p => `${p.name} (عدد ${p.qty})`).join('، ')
         : (row as any).orderDescription || '';
@@ -449,7 +455,9 @@ export default function ZatcaInvoiceGeneratorSA() {
         .input-group label { display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 6px; }
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
         .input-wrapper input { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 15px; font-family: 'Tajawal', sans-serif; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; }
+        .input-wrapper input.with-currency { padding-left: 45px; }
         .input-wrapper input:focus { border-color: #047857; background: #ffffff; }
+        .currency-tag { position: absolute; left: 14px; color: #64748b; font-weight: 800; font-size: 13px; pointer-events: none; }
         
         .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: 'Tajawal', sans-serif; margin-top: 10px; box-sizing: border-box; }
         .action-btn:hover { background: #065f46; }
@@ -458,8 +466,10 @@ export default function ZatcaInvoiceGeneratorSA() {
         .mini-btn { background: #0f172a; color: white; padding: 8px 15px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-family: 'Tajawal'; }
         
         .products-list { margin-top: 15px; }
-        .prod-item { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0; margin-bottom: 8px; font-size: 14px; font-weight: 600; }
+        .prod-item { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0; margin-bottom: 8px; font-size: 14px; font-weight: 600; flex-wrap: wrap; gap: 10px; }
+        
         .remove-btn { color: #dc2626; cursor: pointer; font-weight: bold; background: #fee2e2; border: none; padding: 4px 8px; border-radius: 4px; font-size: 12px; }
+        .edit-prod-btn { color: #0369a1; cursor: pointer; font-weight: bold; background: #e0f2fe; border: none; padding: 4px 8px; border-radius: 4px; font-size: 12px; }
 
         .invoice-preview { background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 12px; padding: 20px; text-align: center; }
         .invoice-header-text { font-weight: 900; font-size: 18px; color: #0f172a; margin-bottom: 5px; }
@@ -563,6 +573,7 @@ export default function ZatcaInvoiceGeneratorSA() {
                       <span>{i+1}. {p.name} (عدد: {p.qty})</span>
                       <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                         <span style={{ color: '#047857' }}>{p.price * p.qty} ر.س</span>
+                        <button type="button" className="edit-prod-btn" onClick={() => handleEditProduct(p)}>تعديل</button>
                         <button type="button" className="remove-btn" onClick={() => handleRemoveProduct(p.id)}>حذف</button>
                       </div>
                     </div>
