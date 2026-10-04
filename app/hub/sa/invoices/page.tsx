@@ -3,25 +3,39 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 
+interface InvoiceProduct {
+  id: string;
+  name: string;
+  price: number;
+  qty: number;
+}
+
 interface InvoiceItem {
   id: string;
   invoiceNumber: string;
   customerName: string;
-  orderDescription: string;
   storeName: string;
   vatNumber: string;
+  products: InvoiceProduct[];
   totalAmount: number;
   vatAmount: number;
   createdAt?: string;
 }
 
 export default function ZatcaInvoiceGeneratorSA() {
+  // البيانات الثابتة
   const [storeName, setStoreName] = useState<string>('متجر إنجازيا');
   const [vatNumber, setVatNumber] = useState<string>('300000000000003');
+  
+  // بيانات الفاتورة
   const [invoiceNumber, setInvoiceNumber] = useState<string>('INV-2026-001');
-  const [customerName, setCustomerName] = useState<string>('محمد القحطاني');
-  const [orderDescription, setOrderDescription] = useState<string>('عطر فاخر + تغليف هدية');
-  const [totalAmount, setTotalAmount] = useState<number | ''>(575);
+  const [customerName, setCustomerName] = useState<string>('');
+  
+  // نظام سلة المنتجات للفاتورة الحالية
+  const [currentProducts, setCurrentProducts] = useState<InvoiceProduct[]>([]);
+  const [prodName, setProdName] = useState<string>('');
+  const [prodPrice, setProdPrice] = useState<number | ''>('');
+  const [prodQty, setProdQty] = useState<number>(1);
 
   const [items, setItems] = useState<InvoiceItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -43,24 +57,46 @@ export default function ZatcaInvoiceGeneratorSA() {
 
   const isActivated = typeof window !== 'undefined' && !!localStorage.getItem('merchant_license_key');
 
-  const amt = typeof totalAmount === 'number' ? totalAmount : 0;
-  const vatAmt = amt - (amt / 1.15); // استخراج ضريبة 15% الشاملة
+  // حساب الإجمالي والضريبة بناءً على المنتجات المضافة
+  const amt = currentProducts.reduce((acc, curr) => acc + (curr.price * curr.qty), 0);
+  const vatAmt = amt - (amt / 1.15); 
 
-  // توليد التاريخ للفاتورة المعروضة
   const nowDisplay = new Date();
   const timeOptionsDisplay: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
   const currentFormattedDate = `${nowDisplay.toLocaleDateString('ar-SA')} - ${nowDisplay.toLocaleTimeString('ar-SA', timeOptionsDisplay)}`;
 
-  // محاكاة رابط QR Code المعتمد لزاتكا
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(
     `المتجر: ${storeName} | الرقم الضريبي: ${vatNumber} \vert{} التاريخ: ${currentFormattedDate} | الإجمالي: ${amt} ر.س \vert{} الضريبة: ${vatAmt.toFixed(2)} ر.س`
   )}`;
 
+  const handleAddProduct = () => {
+    if (!prodName.trim() || typeof prodPrice !== 'number' || prodPrice <= 0 || prodQty <= 0) {
+      alert('الرجاء إدخال اسم المنتج وسعره والكمية بشكل صحيح.');
+      return;
+    }
+    const newProd: InvoiceProduct = {
+      id: Date.now().toString(),
+      name: prodName,
+      price: prodPrice,
+      qty: prodQty
+    };
+    setCurrentProducts([...currentProducts, newProd]);
+    setProdName('');
+    setProdPrice('');
+    setProdQty(1);
+  };
+
+  const handleRemoveProduct = (pid: string) => {
+    setCurrentProducts(currentProducts.filter(p => p.id !== pid));
+  };
+
   const handleClearForm = () => {
     setInvoiceNumber(`INV-2026-00${items.length + 2}`);
     setCustomerName('');
-    setOrderDescription('');
-    setTotalAmount('');
+    setCurrentProducts([]);
+    setProdName('');
+    setProdPrice('');
+    setProdQty(1);
     setEditingId(null);
   };
 
@@ -70,23 +106,26 @@ export default function ZatcaInvoiceGeneratorSA() {
       alert('🔒 عذراً، لقد استهلكت الحد التجريبي (3 فواتير). يرجى ترقية حسابك لفتح السعة الكاملة بلا حدود!');
       return;
     }
-    if (!invoiceNumber.trim() || amt <= 0 || !storeName.trim() || !vatNumber.trim()) {
-      alert('الرجاء التأكد من تعبئة رقم الفاتورة، المبلغ الإجمالي، وبيانات المتجر بشكل صحيح.');
+    if (!invoiceNumber.trim() || !storeName.trim() || !vatNumber.trim()) {
+      alert('الرجاء التأكد من تعبئة رقم الفاتورة وبيانات المتجر بشكل صحيح.');
+      return;
+    }
+    if (currentProducts.length === 0) {
+      alert('الرجاء إضافة منتج واحد على الأقل للفاتورة.');
       return;
     }
 
     const now = new Date();
-    const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const formattedDate = `${now.toLocaleDateString('ar-SA')} - ${now.toLocaleTimeString('ar-SA', timeOptions)}`;
+    const formattedDate = `${now.toLocaleDateString('ar-SA')} - ${now.toLocaleTimeString('ar-SA', timeOptionsDisplay)}`;
 
     if (editingId) {
       const updated = items.map(item => item.id === editingId ? {
         ...item,
         invoiceNumber,
         customerName: customerName.trim() || 'عميل نقدي',
-        orderDescription: orderDescription.trim() || 'منتجات متنوعة',
         storeName,
         vatNumber,
+        products: currentProducts,
         totalAmount: amt,
         vatAmount: Number(vatAmt.toFixed(2)),
         createdAt: item.createdAt || formattedDate,
@@ -99,9 +138,9 @@ export default function ZatcaInvoiceGeneratorSA() {
         id: Date.now().toString(),
         invoiceNumber,
         customerName: customerName.trim() || 'عميل نقدي',
-        orderDescription: orderDescription.trim() || 'منتجات متنوعة',
         storeName,
         vatNumber,
+        products: currentProducts,
         totalAmount: amt,
         vatAmount: Number(vatAmt.toFixed(2)),
         createdAt: formattedDate,
@@ -118,8 +157,14 @@ export default function ZatcaInvoiceGeneratorSA() {
     setVatNumber(item.vatNumber);
     setInvoiceNumber(item.invoiceNumber);
     setCustomerName(item.customerName);
-    setOrderDescription(item.orderDescription || '');
-    setTotalAmount(item.totalAmount);
+    
+    // توافقية مع النسخ القديمة التي لم يكن بها مصفوفة منتجات
+    if (item.products && item.products.length > 0) {
+      setCurrentProducts(item.products);
+    } else {
+      setCurrentProducts([{ id: 'old1', name: (item as any).orderDescription || 'منتجات متنوعة', price: item.totalAmount, qty: 1 }]);
+    }
+    
     setEditingId(item.id);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -131,19 +176,31 @@ export default function ZatcaInvoiceGeneratorSA() {
     }
   };
 
-  // دالة لطباعة أي فاتورة (من المعاينة أو من الجدول)
   const handlePrintInvoice = (item: InvoiceItem | null) => {
-    const dataToPrint = item || {
-      id: 'preview',
-      storeName,
-      vatNumber,
-      invoiceNumber,
-      customerName: customerName || 'عميل نقدي',
-      orderDescription: orderDescription || 'منتجات متنوعة',
-      totalAmount: amt,
-      vatAmount: vatAmt,
-      createdAt: currentFormattedDate
-    };
+    let dataToPrint: InvoiceItem;
+    if (item) {
+       // توافقية للإصدار القديم أثناء الطباعة
+       const printProducts = (item.products && item.products.length > 0) 
+          ? item.products 
+          : [{ id: 'old', name: (item as any).orderDescription || 'منتجات متنوعة', price: item.totalAmount, qty: 1 }];
+          
+       dataToPrint = { ...item, products: printProducts };
+    } else {
+       if (currentProducts.length === 0) {
+         alert('لا توجد منتجات لطباعتها في المعاينة.'); return;
+       }
+       dataToPrint = {
+        id: 'preview',
+        storeName,
+        vatNumber,
+        invoiceNumber,
+        customerName: customerName || 'عميل نقدي',
+        products: currentProducts,
+        totalAmount: amt,
+        vatAmount: vatAmt,
+        createdAt: currentFormattedDate
+      };
+    }
 
     const printWindow = window.open('', '_blank');
     if (!printWindow) return;
@@ -152,22 +209,45 @@ export default function ZatcaInvoiceGeneratorSA() {
       `المتجر: ${dataToPrint.storeName} | الرقم الضريبي: ${dataToPrint.vatNumber} \vert{} التاريخ: ${dataToPrint.createdAt} | الإجمالي: ${dataToPrint.totalAmount} ر.س \vert{} الضريبة: ${dataToPrint.vatAmount.toFixed(2)} ر.س`
     )}`;
 
+    let productsRows = '';
+    dataToPrint.products.forEach((p, idx) => {
+      productsRows += `
+        <tr>
+          <td>${idx + 1}</td>
+          <td style="text-align: right;">${p.name}</td>
+          <td>${p.qty}</td>
+          <td>${p.price}</td>
+          <td>${(p.price * p.qty).toFixed(2)}</td>
+        </tr>
+      `;
+    });
+
     const html = `
       <html dir="rtl" lang="ar">
       <head>
         <title>فاتورة ضريبية مبسطة - ${dataToPrint.invoiceNumber}</title>
         <style>
-          body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 40px; text-align: center; color: #0f172a; }
-          .invoice-box { max-width: 400px; margin: auto; padding: 30px; border: 1px dashed #cbd5e1; border-radius: 12px; }
-          .store-name { font-size: 24px; font-weight: 900; margin-bottom: 5px; }
-          .vat-num { font-size: 14px; color: #64748b; margin-bottom: 20px; }
-          .inv-title { font-weight: bold; margin-bottom: 20px; font-size: 16px; background: #f8fafc; padding: 10px; border-radius: 8px;}
-          .details { text-align: right; margin-bottom: 20px; font-size: 14px; line-height: 1.8; }
-          .details strong { color: #475569; }
-          .qr { margin: 20px 0; }
-          .totals { display: flex; justify-content: space-between; font-weight: bold; margin-top: 10px; padding: 12px; border-radius: 8px; }
-          .bg-light { background: #f8fafc; border: 1px solid #e2e8f0; }
-          .bg-dark { background: #047857; color: white; font-size: 18px; }
+          body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 40px; text-align: center; color: #0f172a; background: #f1f5f9; }
+          .invoice-box { max-width: 600px; margin: auto; padding: 40px; background: #fff; border: 1px solid #cbd5e1; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+          .store-name { font-size: 28px; font-weight: 900; margin-bottom: 5px; color: #0f172a; }
+          .vat-num { font-size: 14px; color: #64748b; margin-bottom: 30px; }
+          .inv-title { font-weight: 900; margin-bottom: 20px; font-size: 18px; background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; }
+          .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; text-align: right; margin-bottom: 30px; font-size: 14px; }
+          .details-box { background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; }
+          .details-box strong { display: block; color: #64748b; font-size: 12px; margin-bottom: 5px; }
+          
+          .products-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; font-size: 14px; }
+          .products-table th { background: #f1f5f9; color: #334155; padding: 10px; border-bottom: 2px solid #cbd5e1; text-align: center; }
+          .products-table td { padding: 10px; border-bottom: 1px solid #e2e8f0; text-align: center; }
+          
+          .totals-container { display: flex; justify-content: space-between; align-items: flex-end; }
+          .qr-section img { border-radius: 8px; border: 1px solid #e2e8f0; padding: 5px; }
+          
+          .totals-calc { width: 60%; text-align: left; }
+          .totals-row { display: flex; justify-content: space-between; padding: 10px; font-size: 14px; font-weight: bold; border-bottom: 1px solid #e2e8f0; }
+          .totals-row.grand { background: #047857; color: white; border-radius: 8px; font-size: 16px; margin-top: 10px; border: none; }
+          
+          @media print { body { background: #fff; padding: 0; } .invoice-box { box-shadow: none; border: none; max-width: 100%; } }
         </style>
       </head>
       <body onload="window.print();">
@@ -176,23 +256,55 @@ export default function ZatcaInvoiceGeneratorSA() {
           <div class="vat-num">الرقم الضريبي: ${dataToPrint.vatNumber}</div>
           <div class="inv-title">فاتورة ضريبية مبسطة - #${dataToPrint.invoiceNumber}</div>
           
-          <div class="details">
-            <div><strong>تاريخ الإصدار:</strong> ${dataToPrint.createdAt}</div>
-            <div><strong>اسم العميل:</strong> ${dataToPrint.customerName}</div>
-            <div><strong>تفاصيل الطلب:</strong> ${dataToPrint.orderDescription}</div>
+          <div class="details-grid">
+            <div class="details-box">
+              <strong>تاريخ وإصدار الفاتورة</strong>
+              ${dataToPrint.createdAt}
+            </div>
+            <div class="details-box">
+              <strong>فاتورة إلى العميل</strong>
+              ${dataToPrint.customerName}
+            </div>
+          </div>
+
+          <table class="products-table">
+            <thead>
+              <tr>
+                <th style="width: 5%;">#</th>
+                <th style="text-align: right; width: 45%;">وصف المنتج / الخدمة</th>
+                <th style="width: 15%;">الكمية</th>
+                <th style="width: 15%;">سعر الوحدة</th>
+                <th style="width: 20%;">المجموع</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${productsRows}
+            </tbody>
+          </table>
+          
+          <div class="totals-container">
+            <div class="qr-section">
+              <img src="${qrPrintUrl}" width="120" height="120" />
+            </div>
+            <div class="totals-calc">
+              <div class="totals-row">
+                <span>الإجمالي (غير شامل الضريبة)</span>
+                <span>${(dataToPrint.totalAmount - dataToPrint.vatAmount).toFixed(2)} ر.س</span>
+              </div>
+              <div class="totals-row">
+                <span>ضريبة القيمة المضافة (15%)</span>
+                <span>${dataToPrint.vatAmount.toFixed(2)} ر.س</span>
+              </div>
+              <div class="totals-row grand">
+                <span>المبلغ الإجمالي الشامل</span>
+                <span>${dataToPrint.totalAmount.toFixed(2)} ر.س</span>
+              </div>
+            </div>
           </div>
           
-          <div class="qr"><img src="${qrPrintUrl}" width="140" height="140" /></div>
-          
-          <div class="totals bg-light">
-            <span>ضريبة القيمة المضافة (15%):</span>
-            <span>${dataToPrint.vatAmount.toFixed(2)} ر.س</span>
+          <div style="margin-top: 40px; font-size: 13px; color: #94a3b8; border-top: 1px dashed #cbd5e1; padding-top: 20px;">
+            شكراً لتسوقكم معنا في ${dataToPrint.storeName}
           </div>
-          <div class="totals bg-dark">
-            <span>المبلغ الإجمالي الشامل:</span>
-            <span>${dataToPrint.totalAmount.toFixed(2)} ر.س</span>
-          </div>
-          <div style="margin-top: 20px; font-size: 12px; color: #94a3b8;">شكراً لتسوقكم معنا!</div>
         </div>
       </body>
       </html>
@@ -230,7 +342,7 @@ export default function ZatcaInvoiceGeneratorSA() {
                 <th>رقم الفاتورة</th>
                 <th>التاريخ والوقت</th>
                 <th>اسم العميل</th>
-                <th>تفاصيل الطلب</th>
+                <th>المنتجات المشتراة</th>
                 <th>الإجمالي الشامل</th>
                 <th>الضريبة المستقطعة (15%)</th>
               </tr>
@@ -239,13 +351,18 @@ export default function ZatcaInvoiceGeneratorSA() {
     `;
 
     items.forEach((row, idx) => {
+      // تجهيز نص المنتجات للتصدير
+      const prodsText = row.products 
+        ? row.products.map(p => `${p.name} (عدد ${p.qty})`).join('، ')
+        : (row as any).orderDescription || '';
+
       tableHtml += `
         <tr>
           <td>${idx + 1}</td>
           <td>${row.invoiceNumber}</td>
           <td>${row.createdAt || '-'}</td>
           <td>${row.customerName}</td>
-          <td>${row.orderDescription}</td>
+          <td>${prodsText}</td>
           <td>${row.totalAmount}</td>
           <td>${row.vatAmount}</td>
         </tr>
@@ -332,12 +449,17 @@ export default function ZatcaInvoiceGeneratorSA() {
         .input-group label { display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 6px; }
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
         .input-wrapper input { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 15px; font-family: 'Tajawal', sans-serif; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; }
-        .input-wrapper input.with-currency { padding-left: 45px; }
         .input-wrapper input:focus { border-color: #047857; background: #ffffff; }
-        .currency-tag { position: absolute; left: 14px; color: #64748b; font-weight: 800; font-size: 13px; pointer-events: none; }
         
         .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: 'Tajawal', sans-serif; margin-top: 10px; box-sizing: border-box; }
         .action-btn:hover { background: #065f46; }
+
+        .add-prod-box { background: #f1f5f9; padding: 15px; border-radius: 8px; border: 1px dashed #cbd5e1; margin-bottom: 20px; }
+        .mini-btn { background: #0f172a; color: white; padding: 8px 15px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-family: 'Tajawal'; }
+        
+        .products-list { margin-top: 15px; }
+        .prod-item { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0; margin-bottom: 8px; font-size: 14px; font-weight: 600; }
+        .remove-btn { color: #dc2626; cursor: pointer; font-weight: bold; background: #fee2e2; border: none; padding: 4px 8px; border-radius: 4px; font-size: 12px; }
 
         .invoice-preview { background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 12px; padding: 20px; text-align: center; }
         .invoice-header-text { font-weight: 900; font-size: 18px; color: #0f172a; margin-bottom: 5px; }
@@ -363,8 +485,7 @@ export default function ZatcaInvoiceGeneratorSA() {
         
         .trial-badge { background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 800; }
         
-        /* أزرار الجدول */
-        .tb-action-btn { border: none; padding: 6px 10px; borderRadius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; border-radius: 6px; display: flex; align-items: center; gap: 4px; font-family: 'Tajawal', sans-serif;}
+        .tb-action-btn { border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; font-family: 'Tajawal', sans-serif;}
         .btn-edit { background: #e0f2fe; color: #0369a1; }
         .btn-delete { background: #fee2e2; color: #991b1b; }
         .btn-print-tb { background: #fef08a; color: #854d0e; }
@@ -372,8 +493,8 @@ export default function ZatcaInvoiceGeneratorSA() {
 
       <div className="header">
         <div className="title-box">
-          <h1>مولد الفواتير الإلكترونية (متوافق مع زاتكا) 🧾</h1>
-          <p>أنشئ فواتير مبسطة برمز الاستجابة السريعة (QR Code) مع إمكانية طباعتها فوراً</p>
+          <h1>مولد الفواتير الإلكترونية (نظام الكاشير المصغر) 🧾</h1>
+          <p>أنشئ فواتير مبسطة برمز الاستجابة السريعة (QR Code) مع جدول تفصيلي لمنتجات العميل</p>
         </div>
         <Link href="/hub/sa" className="back-btn">
           <span>←</span> عودة للمنصة
@@ -387,15 +508,15 @@ export default function ZatcaInvoiceGeneratorSA() {
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
               <span>{editingId ? 'تعديل الفاتورة' : 'إصدار فاتورة جديدة'}</span>
               <button type="button" className="clear-form-btn" onClick={handleClearForm} title="مسح الحقول">
-                🧹 مسح الحقول
+                🧹 مسح الفاتورة
               </button>
             </div>
             {!isActivated && <span className="trial-badge">تجريبي: {items.length}/3</span>}
           </h2>
 
           <form onSubmit={handleSaveItem}>
-            {/* بيانات المتجر (قابلة للتعديل دائماً) */}
-            <div style={{ background: '#f1f5f9', padding: '15px', borderRadius: '8px', marginBottom: '15px', border: '1px solid #e2e8f0' }}>
+            {/* بيانات المتجر الثابتة */}
+            <div style={{ background: '#f8fafc', padding: '15px', borderRadius: '8px', marginBottom: '15px', border: '1px solid #e2e8f0' }}>
               <div className="input-group">
                 <label style={{ color: '#0f172a' }}>اسم المتجر</label>
                 <div className="input-wrapper">
@@ -403,7 +524,7 @@ export default function ZatcaInvoiceGeneratorSA() {
                 </div>
               </div>
               <div className="input-group" style={{ marginBottom: 0 }}>
-                <label style={{ color: '#0f172a' }}>الرقم الضريبي للمتجر (15 رقماً)</label>
+                <label style={{ color: '#0f172a' }}>الرقم الضريبي (15 رقماً)</label>
                 <div className="input-wrapper">
                   <input type="text" value={vatNumber} onChange={(e) => setVatNumber(e.target.value)} required />
                 </div>
@@ -411,7 +532,7 @@ export default function ZatcaInvoiceGeneratorSA() {
             </div>
 
             <div className="input-group">
-              <label>رقم الفاتورة المرجعي</label>
+              <label>رقم الفاتورة</label>
               <div className="input-wrapper">
                 <input type="text" value={invoiceNumber} onChange={(e) => setInvoiceNumber(e.target.value)} required />
               </div>
@@ -424,28 +545,39 @@ export default function ZatcaInvoiceGeneratorSA() {
               </div>
             </div>
 
-            <div className="input-group">
-              <label>تفاصيل الطلب / المنتجات المشتراة</label>
-              <div className="input-wrapper">
-                <input type="text" value={orderDescription} onChange={(e) => setOrderDescription(e.target.value)} placeholder="مثال: عطر فاخر، شحن مجاني" />
+            {/* نظام إضافة المنتجات (سلة الفاتورة) */}
+            <div className="add-prod-box">
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: 800, marginBottom: '10px', color: '#0f172a' }}>سلة منتجات الفاتورة</label>
+              
+              <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: '8px', marginBottom: '10px' }}>
+                <input type="text" value={prodName} onChange={(e)=>setProdName(e.target.value)} placeholder="اسم المنتج" style={{ padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontFamily: 'Tajawal' }} />
+                <input type="number" value={prodPrice} onChange={(e)=>setProdPrice(e.target.value === '' ? '' : Number(e.target.value))} placeholder="السعر" style={{ padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontFamily: 'Tajawal' }} />
+                <input type="number" min="1" value={prodQty} onChange={(e)=>setProdQty(Number(e.target.value))} placeholder="الكمية" style={{ padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontFamily: 'Tajawal' }} />
               </div>
-            </div>
+              <button type="button" className="mini-btn" onClick={handleAddProduct} style={{ width: '100%' }}>➕ إضافة المنتج للفاتورة</button>
 
-            <div className="input-group">
-              <label>المبلغ الإجمالي الشامل للضريبة (ر.س)</label>
-              <div className="input-wrapper">
-                <input className="with-currency" type="number" min="0" value={totalAmount === '' ? '' : totalAmount} onChange={(e) => setTotalAmount(e.target.value === '' ? '' : Number(e.target.value))} placeholder="575" required />
-                <span className="currency-tag">ر.س</span>
-              </div>
+              {currentProducts.length > 0 && (
+                <div className="products-list">
+                  {currentProducts.map((p, i) => (
+                    <div className="prod-item" key={p.id}>
+                      <span>{i+1}. {p.name} (عدد: {p.qty})</span>
+                      <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                        <span style={{ color: '#047857' }}>{p.price * p.qty} ر.س</span>
+                        <button type="button" className="remove-btn" onClick={() => handleRemoveProduct(p.id)}>حذف</button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             <button type="submit" className="action-btn">
-              {editingId ? '💾 حفظ التعديلات' : '+ حفظ وإضافة الفاتورة للسجل'}
+              {editingId ? '💾 تحديث وحفظ الفاتورة' : '+ حفظ وإصدار الفاتورة'}
             </button>
           </form>
         </div>
 
-        {/* قسم المعاينة ورمز QR والطباعة */}
+        {/* قسم المعاينة والطباعة */}
         <div className="card">
           <h2 className="card-title">معاينة الفاتورة والطباعة</h2>
 
@@ -459,7 +591,7 @@ export default function ZatcaInvoiceGeneratorSA() {
 
             <div style={{ textAlign: 'right', fontSize: '13px', margin: '15px 0', lineHeight: '1.6' }}>
               <div><strong style={{ color: '#475569' }}>العميل:</strong> {customerName || 'عميل نقدي'}</div>
-              <div><strong style={{ color: '#475569' }}>الوصف:</strong> {orderDescription || 'منتجات متنوعة'}</div>
+              <div><strong style={{ color: '#475569' }}>عدد الأصناف:</strong> {currentProducts.length} منتجات</div>
             </div>
 
             <div className="qr-box">
@@ -477,7 +609,7 @@ export default function ZatcaInvoiceGeneratorSA() {
             </div>
           </div>
 
-          <button onClick={() => handlePrintInvoice(null)} className="print-btn" title="طباعة الفاتورة الحالية في المعاينة">
+          <button onClick={() => handlePrintInvoice(null)} className="print-btn" title="طباعة الفاتورة الحالية بجدول التفاصيل">
              🖨️ طباعة الفاتورة الحالية
           </button>
         </div>
@@ -506,7 +638,7 @@ export default function ZatcaInvoiceGeneratorSA() {
               <tr>
                 <th>#</th>
                 <th>الفاتورة والتاريخ</th>
-                <th>العميل والطلب</th>
+                <th>العميل والأصناف</th>
                 <th>الإجمالي الشامل</th>
                 <th>الضريبة (15%)</th>
                 <th>الإجراءات</th>
@@ -520,28 +652,33 @@ export default function ZatcaInvoiceGeneratorSA() {
                   </td>
                 </tr>
               ) : (
-                filteredItems.map((item, idx) => (
-                  <tr key={item.id}>
-                    <td>{idx + 1}</td>
-                    <td>
-                      <div style={{ fontWeight: 900, color: '#0f172a' }}>{item.invoiceNumber}</div>
-                      {item.createdAt && <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', fontWeight: 600 }}>🕒 {item.createdAt}</div>}
-                    </td>
-                    <td>
-                      <div style={{ fontWeight: 800, color: '#1e293b' }}>{item.customerName}</div>
-                      <div style={{ fontSize: '11.5px', color: '#64748b', marginTop: '3px' }}>{item.orderDescription}</div>
-                    </td>
-                    <td style={{ fontWeight: 900 }}>{item.totalAmount} ر.س</td>
-                    <td style={{ color: '#047857' }}>{item.vatAmount} ر.س</td>
-                    <td>
-                      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                        <button className="tb-action-btn btn-print-tb" onClick={() => handlePrintInvoice(item)} title="طباعة">🖨️ طباعة</button>
-                        <button className="tb-action-btn btn-edit" onClick={() => handleEdit(item)} title="تعديل">✏️</button>
-                        <button className="tb-action-btn btn-delete" onClick={() => handleDelete(item.id)} title="حذف">❌</button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
+                filteredItems.map((item, idx) => {
+                  const hasProducts = item.products && item.products.length > 0;
+                  return (
+                    <tr key={item.id}>
+                      <td>{idx + 1}</td>
+                      <td>
+                        <div style={{ fontWeight: 900, color: '#0f172a' }}>{item.invoiceNumber}</div>
+                        {item.createdAt && <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', fontWeight: 600 }}>🕒 {item.createdAt}</div>}
+                      </td>
+                      <td>
+                        <div style={{ fontWeight: 800, color: '#1e293b' }}>{item.customerName}</div>
+                        <div style={{ fontSize: '11.5px', color: '#64748b', marginTop: '3px' }}>
+                           {hasProducts ? `${item.products.length} أصناف مسجلة` : (item as any).orderDescription}
+                        </div>
+                      </td>
+                      <td style={{ fontWeight: 900 }}>{item.totalAmount} ر.س</td>
+                      <td style={{ color: '#047857' }}>{item.vatAmount} ر.س</td>
+                      <td>
+                        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                          <button className="tb-action-btn btn-print-tb" onClick={() => handlePrintInvoice(item)} title="طباعة بجدول مفصل">🖨️ طباعة</button>
+                          <button className="tb-action-btn btn-edit" onClick={() => handleEdit(item)} title="تعديل">✏️</button>
+                          <button className="tb-action-btn btn-delete" onClick={() => handleDelete(item.id)} title="حذف">❌</button>
+                        </div>
+                      </td>
+                    </tr>
+                  )
+                })
               )}
             </tbody>
             {filteredItems.length > 0 && (
