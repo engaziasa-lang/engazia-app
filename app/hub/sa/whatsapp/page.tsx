@@ -11,6 +11,7 @@ interface CustomerItem {
   orderValue: number;
   paymentLink: string;
   messageTemplate: string;
+  isPaid?: boolean; // الخاصية الجديدة لفصل المبالغ المحصلة
   createdAt?: string;
 }
 
@@ -21,6 +22,7 @@ export default function WhatsappCrmSA() {
   const [orderValue, setOrderValue] = useState<number | ''>('');
   const [paymentLink, setPaymentLink] = useState<string>('');
   const [messageTemplate, setMessageTemplate] = useState<string>('مرحباً {name}، لاحظنا أنك تركت منتجات رائعة في سلتك 🛒. تفضل رابط الدفع المباشر لإكمال طلبك بأسرع وقت: {link}');
+  const [isPaid, setIsPaid] = useState<boolean>(false); // حالة الدفع
 
   const [items, setItems] = useState<CustomerItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -64,6 +66,7 @@ export default function WhatsappCrmSA() {
     setOrderValue('');
     setPaymentLink('');
     setMessageTemplate('مرحباً {name}، لاحظنا أنك تركت منتجات رائعة في سلتك 🛒. تفضل رابط الدفع المباشر لإكمال طلبك بأسرع وقت: {link}');
+    setIsPaid(false);
     setEditingId(null);
   };
 
@@ -91,6 +94,7 @@ export default function WhatsappCrmSA() {
         orderValue: val,
         paymentLink,
         messageTemplate,
+        isPaid,
         createdAt: item.createdAt || formattedDate
       } : item);
       saveToLocalStorage(updated);
@@ -105,6 +109,7 @@ export default function WhatsappCrmSA() {
         orderValue: val,
         paymentLink,
         messageTemplate,
+        isPaid,
         createdAt: formattedDate
       };
       saveToLocalStorage([...items, newItem]);
@@ -121,6 +126,11 @@ export default function WhatsappCrmSA() {
     setOrderValue(item.orderValue || 0);
     setPaymentLink(item.paymentLink || '');
     setMessageTemplate(item.messageTemplate || '');
+    
+    // توافقية مع البيانات القديمة
+    const currentPaidStatus = item.isPaid !== undefined ? item.isPaid : (item.status || '').includes('مكتمل');
+    setIsPaid(currentPaidStatus);
+    
     setEditingId(item.id);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -130,6 +140,18 @@ export default function WhatsappCrmSA() {
       const filtered = items.filter(i => i.id !== id);
       saveToLocalStorage(filtered);
     }
+  };
+
+  // الزر السريع لتحويل حالة الدفع من الجدول مباشرة
+  const handleTogglePaidStatus = (id: string) => {
+    const updated = items.map(item => {
+      if (item.id === id) {
+        const currentPaidStatus = item.isPaid !== undefined ? item.isPaid : (item.status || '').includes('مكتمل');
+        return { ...item, isPaid: !currentPaidStatus };
+      }
+      return item;
+    });
+    saveToLocalStorage(updated);
   };
 
   const handleSendWhatsapp = (item: CustomerItem) => {
@@ -159,8 +181,6 @@ export default function WhatsappCrmSA() {
       return;
     }
 
-    const totalOrdersValue = items.reduce((acc, curr) => acc + (curr.orderValue || 0), 0);
-
     let tableHtml = `
       <html dir="rtl" lang="ar">
         <head>
@@ -183,12 +203,14 @@ export default function WhatsappCrmSA() {
                 <th>حالة العميل</th>
                 <th>قيمة السلة/الطلب</th>
                 <th>الرابط المرفق</th>
+                <th>حالة التحصيل المالي</th>
               </tr>
             </thead>
             <tbody>
     `;
 
     items.forEach((row, idx) => {
+      const isPaidFlag = row.isPaid !== undefined ? row.isPaid : (row.status || '').includes('مكتمل');
       tableHtml += `
         <tr>
           <td>${idx + 1}</td>
@@ -198,19 +220,13 @@ export default function WhatsappCrmSA() {
           <td>${row.status || ''}</td>
           <td>${row.orderValue || 0}</td>
           <td>${row.paymentLink || ''}</td>
+          <td>${isPaidFlag ? 'تم التحصيل' : 'غير محصل (معلق)'}</td>
         </tr>
       `;
     });
 
     tableHtml += `
             </tbody>
-            <tfoot>
-              <tr class="tfoot-row">
-                <td colspan="5">الإجمالي الكلي</td>
-                <td>${totalOrdersValue.toFixed(2)}</td>
-                <td></td>
-              </tr>
-            </tfoot>
           </table>
         </body>
       </html>
@@ -250,10 +266,19 @@ export default function WhatsappCrmSA() {
     (item.status || '').toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const totalOrdersValue = filteredItems.reduce((acc, curr) => acc + (curr.orderValue || 0), 0);
-  
+  // حساب المجاميع بناءً على زر الدفع الجديد
+  const collectedRevenue = filteredItems.filter(i => {
+    return i.isPaid !== undefined ? i.isPaid : (i.status || '').includes('مكتمل');
+  }).reduce((acc, curr) => acc + (curr.orderValue || 0), 0);
+
+  const pendingRevenue = filteredItems.filter(i => {
+    return !(i.isPaid !== undefined ? i.isPaid : (i.status || '').includes('مكتمل'));
+  }).reduce((acc, curr) => acc + (curr.orderValue || 0), 0);
+
   const abandonedCount = filteredItems.filter(i => (i.status || '').includes('متروكة')).length;
-  const completedCount = filteredItems.filter(i => (i.status || '').includes('مكتمل')).length;
+  const completedCount = filteredItems.filter(i => {
+    return i.isPaid !== undefined ? i.isPaid : (i.status || '').includes('مكتمل');
+  }).length;
 
   return (
     <div className="tool-container">
@@ -281,7 +306,6 @@ export default function WhatsappCrmSA() {
         .clear-form-btn { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: 'Tajawal', sans-serif; display: flex; align-items: center; gap: 5px; }
         .clear-form-btn:hover { background: #fecaca; }
 
-        /* كلاس ذكي لمنع تداخل الحقول في الجوال */
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         @media(max-width: 600px) { .form-row { grid-template-columns: 1fr; gap: 0; } }
 
@@ -298,10 +322,11 @@ export default function WhatsappCrmSA() {
 
         .result-box { background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px; }
         .result-box.primary { background: linear-gradient(135deg, #0369a1 0%, #0c4a6e 100%); color: #fff; border: none; padding: 20px; }
+        .result-box.warning { background: linear-gradient(135deg, #d97706 0%, #b45309 100%); color: #fff; border: none; padding: 20px; }
         .result-label { font-size: 13px; font-weight: 700; color: #64748b; }
-        .primary .result-label { color: #ffffff; opacity: 0.9; }
+        .primary .result-label, .warning .result-label { color: #ffffff; opacity: 0.9; }
         .result-value { font-size: 18px; font-weight: 900; color: #0f172a; }
-        .primary .result-value { font-size: 26px; color: #ffffff; }
+        .primary .result-value, .warning .result-value { font-size: 26px; color: #ffffff; }
 
         .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
@@ -311,7 +336,7 @@ export default function WhatsappCrmSA() {
         .t-btn:hover { background: #f1f5f9; }
 
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
-        .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 900px; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 1000px; }
         .data-table th { background: #f8fafc; padding: 12px; text-align: right; border-bottom: 2px solid #cbd5e1; font-weight: 800; color: #334155; white-space: nowrap; }
         .data-table td { padding: 12px; border-bottom: 1px solid #e2e8f0; color: #0f172a; font-weight: 600; vertical-align: middle; }
         .data-table tfoot td { background: #f1f5f9; font-weight: 900; color: #0f172a; border-top: 2px solid #cbd5e1; }
@@ -322,6 +347,13 @@ export default function WhatsappCrmSA() {
         .btn-edit { background: #e0f2fe; color: #0369a1; }
         .btn-delete { background: #fee2e2; color: #991b1b; }
         .btn-wa { background: #22c55e; color: #ffffff; }
+        .btn-paid { background: #047857; color: #ffffff; }
+        .btn-unpaid { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+
+        /* ستايل مربع التحصيل */
+        .checkbox-wrapper { display: flex; align-items: center; gap: 8px; background: #ecfdf5; padding: 12px; border-radius: 8px; border: 1px solid #a7f3d0; margin-top: 15px; cursor: pointer; }
+        .checkbox-wrapper input { width: 18px; height: 18px; cursor: pointer; accent-color: #047857; }
+        .checkbox-wrapper label { font-size: 14px; font-weight: 800; color: #065f46; cursor: pointer; margin: 0; }
       `}</style>
 
       <div className="header">
@@ -347,7 +379,6 @@ export default function WhatsappCrmSA() {
           </h2>
 
           <form onSubmit={handleSaveItem}>
-            {/* استخدام كلاس form-row لمنع التداخل في الجوال */}
             <div className="form-row">
               <div className="input-group">
                 <label>اسم العميل</label>
@@ -388,6 +419,13 @@ export default function WhatsappCrmSA() {
                   <input className="with-currency" type="number" min="0" value={orderValue === '' ? '' : orderValue} onChange={(e) => setOrderValue(e.target.value === '' ? '' : Number(e.target.value))} placeholder="250" />
                   <span className="currency-tag">ر.س</span>
                 </div>
+
+                {/* خيار الدفع الجديد */}
+                <div className="checkbox-wrapper" onClick={() => setIsPaid(!isPaid)}>
+                  <input type="checkbox" checked={isPaid} onChange={() => {}} />
+                  <label>☑️ تم تحصيل المبلغ (يُحسب ضمن المبيعات)</label>
+                </div>
+
               </div>
             </div>
 
@@ -439,27 +477,38 @@ export default function WhatsappCrmSA() {
 
           <div className="result-box primary">
             <div>
-              <div className="result-label">إجمالي قيمة السلال والطلبات المحفوظة</div>
-              <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '2px' }}>مجموع الإيرادات المحتملة والمحققة</div>
+              <div className="result-label">إجمالي الإيرادات المحصلة (المبيعات)</div>
+              <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '2px' }}>تم دفعها واستلامها بالفعل</div>
             </div>
             <div className="result-value">
-              {totalOrdersValue.toFixed(2)} ر.س
+              {collectedRevenue.toFixed(2)} ر.س
+            </div>
+          </div>
+
+          <div className="result-box warning">
+            <div>
+              <div className="result-label">المبالغ المحتملة (قيد الانتظار)</div>
+              <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '2px' }}>سلال متروكة وبانتظار التحويل</div>
+            </div>
+            <div className="result-value">
+              {pendingRevenue.toFixed(2)} ر.س
             </div>
           </div>
 
           <div className="result-box">
-            <span className="result-label">إجمالي العملاء في السجل</span>
+            <span className="result-label">إجمالي العملاء المسجلين</span>
             <span className="result-value" style={{ color: '#0369a1' }}>{items.length} عميل</span>
           </div>
 
-          <div className="result-box">
-            <span className="result-label">السلال المتروكة (فرص بيع)</span>
-            <span className="result-value" style={{ color: '#d97706' }}>{abandonedCount}</span>
-          </div>
-
-          <div className="result-box">
-            <span className="result-label">الطلبات المكتملة</span>
-            <span className="result-value" style={{ color: '#047857' }}>{completedCount}</span>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+             <div className="result-box" style={{ flexDirection: 'column', alignItems: 'flex-start', marginBottom: 0 }}>
+               <span className="result-label" style={{ fontSize: '12px' }}>الطلبات المحصلة</span>
+               <span className="result-value" style={{ color: '#047857' }}>{completedCount}</span>
+             </div>
+             <div className="result-box" style={{ flexDirection: 'column', alignItems: 'flex-start', marginBottom: 0 }}>
+               <span className="result-label" style={{ fontSize: '12px' }}>السلال المتروكة</span>
+               <span className="result-value" style={{ color: '#d97706' }}>{abandonedCount}</span>
+             </div>
           </div>
         </div>
       </div>
@@ -501,12 +550,13 @@ export default function WhatsappCrmSA() {
                 </tr>
               ) : (
                 filteredItems.map((item, idx) => {
-                  let statusColor = '#475569'; // افتراضي للرمادي
+                  let statusColor = '#475569'; // افتراضي
                   const st = (item.status || '').toLowerCase();
-                  if (st.includes('متروكة')) statusColor = '#d97706';
+                  if (st.includes('متروكة') || st.includes('انتظار')) statusColor = '#d97706';
                   if (st.includes('مكتمل') || st.includes('vip')) statusColor = '#047857';
-                  if (st.includes('بانتظار')) statusColor = '#0369a1';
                   if (st.includes('مسترجع') || st.includes('إلغاء')) statusColor = '#dc2626';
+
+                  const itemIsPaid = item.isPaid !== undefined ? item.isPaid : st.includes('مكتمل');
 
                   return (
                     <tr key={item.id}>
@@ -521,11 +571,27 @@ export default function WhatsappCrmSA() {
                           {item.status || 'غير محدد'}
                         </span>
                       </td>
-                      <td style={{ fontWeight: 900 }}>{item.orderValue} ر.س</td>
+                      <td style={{ fontWeight: 900 }}>
+                        <div style={{ marginBottom: '4px' }}>{item.orderValue} ر.س</div>
+                        {itemIsPaid ? 
+                          <span style={{ fontSize: '10px', background: '#dcfce7', color: '#166534', padding: '2px 6px', borderRadius: '4px', fontWeight: 800 }}>✅ محصل</span> : 
+                          <span style={{ fontSize: '10px', background: '#fef3c7', color: '#b45309', padding: '2px 6px', borderRadius: '4px', fontWeight: 800 }}>⏳ بانتظار الدفع</span>
+                        }
+                      </td>
                       <td>
                         <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                           <button className="tb-action-btn btn-wa" onClick={() => handleSendWhatsapp(item)} title="فتح محادثة واتساب وإرسال الرسالة المجهزة">💬 واتساب</button>
-                          <button className="tb-action-btn btn-edit" onClick={() => handleEdit(item)} title="تعديل">✏️</button>
+                          
+                          {/* زر التحصيل السريع من الجدول المباشر */}
+                          <button 
+                            className={`tb-action-btn ${itemIsPaid ? 'btn-unpaid' : 'btn-paid'}`} 
+                            onClick={() => handleTogglePaidStatus(item.id)} 
+                            title={itemIsPaid ? "تغيير الحالة إلى غير محصل" : "تأكيد تحصيل المبلغ كإيرادات"}
+                          >
+                            {itemIsPaid ? '↩️ إلغاء التحصيل' : '💰 تحصيل سريع'}
+                          </button>
+
+                          <button className="tb-action-btn btn-edit" onClick={() => handleEdit(item)} title="تعديل البيانات">✏️</button>
                           <button className="tb-action-btn btn-delete" onClick={() => handleDelete(item.id)} title="حذف">❌</button>
                         </div>
                       </td>
@@ -537,8 +603,13 @@ export default function WhatsappCrmSA() {
             {filteredItems.length > 0 && (
               <tfoot>
                 <tr className="tfoot-row">
-                  <td colSpan={4} style={{ textAlign: 'center' }}>الإجمالي الكلي</td>
-                  <td>{totalOrdersValue.toFixed(2)} ر.س</td>
+                  <td colSpan={4} style={{ textAlign: 'center' }}>إجمالي المبالغ المحصلة المكتملة (مبيعات)</td>
+                  <td style={{ color: '#047857' }}>{collectedRevenue.toFixed(2)} ر.س</td>
+                  <td></td>
+                </tr>
+                <tr className="tfoot-row" style={{ backgroundColor: '#fffbeb' }}>
+                  <td colSpan={4} style={{ textAlign: 'center', color: '#d97706' }}>إجمالي المبالغ المحتملة (سلال متروكة وبانتظار الدفع)</td>
+                  <td style={{ color: '#d97706' }}>{pendingRevenue.toFixed(2)} ر.س</td>
                   <td></td>
                 </tr>
               </tfoot>
