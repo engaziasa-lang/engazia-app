@@ -13,7 +13,7 @@ interface WhatsAppLinkItem {
 
 export default function WhatsappLinksGeneratorSA() {
   const [linkTitle, setLinkTitle] = useState<string>('استفسار عن منتجات المتجر');
-  const [phoneNumber, setPhoneNumber] = useState<string>('966500000000');
+  const [phoneNumber, setPhoneNumber] = useState<string>('');
   const [defaultMessage, setDefaultMessage] = useState<string>('مرحباً، أرغب بالاستفسار عن المنتجات وعروض المتجر الحالية 🛍️');
 
   const [items, setItems] = useState<WhatsAppLinkItem[]>([]);
@@ -38,11 +38,11 @@ export default function WhatsappLinksGeneratorSA() {
 
   // توليد رابط الواتساب المباشر مع الرسالة المشفرة
   const encodedMsg = encodeURIComponent(defaultMessage);
-  const generatedUrl = `https://wa.me/${phoneNumber || '966500000000'}?text=${encodedMsg}`;
+  const generatedUrl = phoneNumber.trim() ? `https://wa.me/${phoneNumber}?text=${encodedMsg}` : 'أدخل رقم الجوال لإنشاء الرابط';
 
   const handleClearForm = () => {
     setLinkTitle('');
-    setPhoneNumber('966500000000');
+    setPhoneNumber('');
     setDefaultMessage('');
     setEditingId(null);
   };
@@ -223,7 +223,7 @@ export default function WhatsappLinksGeneratorSA() {
             <div className="input-group">
               <label>رقم الجوال التجاري (يبدأ بـ 05 أو 966)</label>
               <div className="input-wrapper">
-                <input type="text" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} placeholder="966500000000" required />
+                <input type="text" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} placeholder="مثال: 9665xxxxxxxx" required />
               </div>
             </div>
 
@@ -259,15 +259,17 @@ export default function WhatsappLinksGeneratorSA() {
             >
               📋 نسخ الرابط
             </button>
-            <a 
-              href={generatedUrl} 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="action-btn" 
-              style={{ background: '#047857', margin: 0, textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-            >
-              🚀 اختبار الرابط الآن
-            </a>
+            {phoneNumber.trim() && (
+              <a 
+                href={generatedUrl} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="action-btn" 
+                style={{ background: '#047857', margin: 0, textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              >
+                🚀 اختبار الرابط الآن
+              </a>
+            )}
           </div>
         </div>
       </div>
