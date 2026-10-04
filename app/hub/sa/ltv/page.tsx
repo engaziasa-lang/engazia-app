@@ -7,8 +7,8 @@ interface LtvItem {
   id: string;
   segmentName: string;
   avgOrderValue: number;
-  purchaseFrequency: number; // عدد مرات الشراء سنوياً
-  customerLifespan: number;  // عمر العميل بالسنوات
+  purchaseFrequency: number;
+  customerLifespan: number;
   ltvValue: number;
   createdAt?: string;
 }
@@ -16,8 +16,8 @@ interface LtvItem {
 export default function LtvCalculatorSA() {
   const [segmentName, setSegmentName] = useState<string>('العملاء الدائمين (VIP)');
   const [avgOrderValue, setAvgOrderValue] = useState<number | ''>(300);
-  const [purchaseFrequency, setPurchaseFrequency] = useState<number | ''>(3); // 3 مرات بالسنة
-  const [customerLifespan, setCustomerLifespan] = useState<number | ''>(2);  // سنتين
+  const [purchaseFrequency, setPurchaseFrequency] = useState<number | ''>(3);
+  const [customerLifespan, setCustomerLifespan] = useState<number | ''>(2);
 
   const [items, setItems] = useState<LtvItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -43,7 +43,6 @@ export default function LtvCalculatorSA() {
   const freq = typeof purchaseFrequency === 'number' ? purchaseFrequency : 0;
   const lifespan = typeof customerLifespan === 'number' ? customerLifespan : 0;
 
-  // معادلة القيمة الدائمة للعميل (LTV = متوسط قيمة الطلب × معدل التكرار السنوي × عمر العميل بالسنوات)
   const ltvValue = orderVal * freq * lifespan;
 
   const handleClearForm = () => {
@@ -405,7 +404,7 @@ export default function LtvCalculatorSA() {
                     <td>{idx + 1}</td>
                     <td>
                       <div style={{ fontWeight: 900, color: '#0f172a' }}>{item.segmentName}</div>
-                      {item.createdAt && <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', fontWeight: 600 }}>🕒 {item.createdAt}</div>}
+                      {item.createdAt && <div style={{ fontSize: '11.5px', color: '#64748b', marginTop: '4px', fontWeight: 600 }}>🕒 {item.createdAt}</div>}
                     </td>
                     <td>{item.avgOrderValue} ر.س</td>
                     <td>{item.purchaseFrequency} مرات</td>
