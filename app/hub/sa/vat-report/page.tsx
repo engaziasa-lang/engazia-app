@@ -7,7 +7,7 @@ interface TaxItem {
   id: string;
   periodName: string;
   transactionType: 'مبيعات' | 'مشتريات';
-  customDescription: string; // بند مفتوح للتعديل
+  customDescription: string;
   amountInclusive: number;
   vatAmount: number;
   netAmount: number;
@@ -15,9 +15,9 @@ interface TaxItem {
 }
 
 export default function TaxReturnPrepSA() {
-  const [activeTab, setActiveTab] = useState<'مبيعات' | 'مشتريات'>('مبيعات');
   const [periodName, setPeriodName] = useState<string>('الربع الثالث 2026');
-  const [customDescription, setCustomDescription] = useState<string>('مبيعات متجر سديم الإلكتروني');
+  const [transactionType, setTransactionType] = useState<'مبيعات' | 'مشتريات'>('مبيعات');
+  const [customDescription, setCustomDescription] = useState<string>('مبيعات المتجر الإلكتروني');
   const [amountInclusive, setAmountInclusive] = useState<number | ''>('');
 
   const [items, setItems] = useState<TaxItem[]>([]);
@@ -44,15 +44,10 @@ export default function TaxReturnPrepSA() {
   const netAmt = totalInc / 1.15;
   const vatAmt = totalInc - netAmt;
 
-  const handleTabSwitch = (tab: 'مبيعات' | 'مشتريات') => {
-    setActiveTab(tab);
-    if (!editingId) {
-      setCustomDescription(tab === 'مبيعات' ? 'مبيعات متجر إلكتروني' : 'مشتريات بضاعة ومصاريف');
-    }
-  };
-
   const handleClearForm = () => {
     setAmountInclusive('');
+    setCustomDescription('مبيعات المتجر الإلكتروني');
+    setTransactionType('مبيعات');
     setEditingId(null);
   };
 
@@ -63,7 +58,7 @@ export default function TaxReturnPrepSA() {
       return;
     }
     if (totalInc <= 0 || !periodName.trim() || !customDescription.trim()) {
-      alert('الرجاء التأكد من تعبئة الفترة، وصف البند، ومبلغ صحيح.');
+      alert('الرجاء التأكد من تعبئة الفترة، الوصف، ومبلغ صحيح.');
       return;
     }
 
@@ -75,7 +70,7 @@ export default function TaxReturnPrepSA() {
       const updated = items.map(item => item.id === editingId ? {
         ...item,
         periodName,
-        transactionType: activeTab,
+        transactionType,
         customDescription,
         amountInclusive: totalInc,
         netAmount: Number(netAmt.toFixed(2)),
@@ -89,7 +84,7 @@ export default function TaxReturnPrepSA() {
       const newItem: TaxItem = {
         id: Date.now().toString(),
         periodName,
-        transactionType: activeTab,
+        transactionType,
         customDescription,
         amountInclusive: totalInc,
         netAmount: Number(netAmt.toFixed(2)),
@@ -104,9 +99,9 @@ export default function TaxReturnPrepSA() {
   };
 
   const handleEdit = (item: TaxItem) => {
-    setActiveTab(item.transactionType);
     setPeriodName(item.periodName);
-    setCustomDescription(item.customDescription || (item.transactionType === 'مبيعات' ? 'مبيعات متجر' : 'مشتريات'));
+    setTransactionType(item.transactionType);
+    setCustomDescription(item.customDescription || (item.transactionType === 'مبيعات' ? 'مبيعات' : 'مشتريات'));
     setAmountInclusive(item.amountInclusive);
     setEditingId(item.id);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -151,7 +146,7 @@ export default function TaxReturnPrepSA() {
                 <th>م</th>
                 <th>الفترة الضريبية</th>
                 <th>التاريخ والوقت</th>
-                <th>القسم</th>
+                <th>نوع المعاملة</th>
                 <th>وصف المعاملة (البند)</th>
                 <th>المبلغ بدون ضريبة</th>
                 <th>قيمة الضريبة (15%)</th>
@@ -261,22 +256,18 @@ export default function TaxReturnPrepSA() {
         .clear-form-btn { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: 'Tajawal', sans-serif; display: flex; align-items: center; gap: 5px; }
         .clear-form-btn:hover { background: #fecaca; }
 
-        /* أزرار التبديل السريعة (Tabs) */
-        .tabs-container { display: flex; gap: 10px; margin-bottom: 20px; }
-        .tab-btn { flex: 1; padding: 10px; border-radius: 8px; font-weight: 800; font-size: 14px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #475569; font-family: 'Tajawal', sans-serif; transition: 0.2s; }
-        .tab-btn.active-sales { background: #047857; color: white; border-color: #047857; }
-        .tab-btn.active-purchases { background: #0369a1; color: white; border-color: #0369a1; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        @media(max-width: 600px) { .form-row { grid-template-columns: 1fr; gap: 0; } }
 
         .input-group { margin-bottom: 15px; width: 100%; }
         .input-group label { display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 6px; }
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
-        .input-wrapper input { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: 'Tajawal', sans-serif; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; }
+        .input-wrapper input, .input-wrapper select { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: 'Tajawal', sans-serif; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; }
         .input-wrapper input.with-currency { padding-left: 45px; }
-        .input-wrapper input:focus { border-color: #047857; background: #ffffff; }
+        .input-wrapper input:focus, .input-wrapper select:focus { border-color: #047857; background: #ffffff; }
         .currency-tag { position: absolute; left: 14px; color: #64748b; font-weight: 800; font-size: 13px; pointer-events: none; }
         
         .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: 'Tajawal', sans-serif; margin-top: 10px; box-sizing: border-box; }
-        .action-btn.btn-purchases { background: #0369a1; }
         .action-btn:hover { opacity: 0.9; }
 
         .result-box { background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px; }
@@ -309,7 +300,7 @@ export default function TaxReturnPrepSA() {
       <div className="header">
         <div className="title-box">
           <h1>مجهز بيانات الإقرار الضريبي (ZATCA) 📋</h1>
-          <p>جمع وترتيب بيانات مبيعاتك ومشترياتك لتسهيل رفع الإقرار الضريبي لهيئة الزكاة بدون أخطاء</p>
+          <p>أدخل مبيعاتك ومشترياتك في حقل موحد وسهل، وتابع صافي الضريبة المستحقة بدقة</p>
         </div>
         <Link href="/hub/sa" className="back-btn">
           <span>←</span> عودة للمنصة
@@ -317,11 +308,11 @@ export default function TaxReturnPrepSA() {
       </div>
 
       <div className="grid-layout">
-        {/* قسم المدخلات */}
+        {/* قسم الإدخال الموحد */}
         <div className="card">
           <h2 className="card-title">
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-              <span>{editingId ? 'تعديل السجل' : 'إضافة بند ضريبي جديد'}</span>
+              <span>{editingId ? 'تعديل السجل الضريبي' : 'إضافة قيد ضريبي جديد'}</span>
               <button type="button" className="clear-form-btn" onClick={handleClearForm} title="مسح الحقول">
                 🧹 مسح الحقول
               </button>
@@ -329,36 +320,29 @@ export default function TaxReturnPrepSA() {
             {!isActivated && <span className="trial-badge">تجريبي: {items.length}/3</span>}
           </h2>
 
-          {/* أزرار التبديل السريعة (مبيعات أو مشتريات) */}
-          <div className="tabs-container">
-            <button 
-              type="button" 
-              className={`tab-btn ${activeTab === 'مبيعات' ? 'active-sales' : ''}`}
-              onClick={() => handleTabSwitch('مبيعات')}
-            >
-              📈 تسجيل مبيعات (15%)
-            </button>
-            <button 
-              type="button" 
-              className={`tab-btn ${activeTab === 'مشتريات' ? 'active-purchases' : ''}`}
-              onClick={() => handleTabSwitch('مشتريات')}
-            >
-              📉 تسجيل مشتريات ومصاريف
-            </button>
-          </div>
-
           <form onSubmit={handleSaveItem}>
-            <div className="input-group">
-              <label>الفترة الضريبية (أو اسم الشهر / الربع)</label>
-              <div className="input-wrapper">
-                <input type="text" value={periodName} onChange={(e) => setPeriodName(e.target.value)} placeholder="مثال: الربع الثالث 2026" required />
+            <div className="form-row">
+              <div className="input-group">
+                <label>الفترة الضريبية</label>
+                <div className="input-wrapper">
+                  <input type="text" value={periodName} onChange={(e) => setPeriodName(e.target.value)} placeholder="مثال: الربع الثالث 2026" required />
+                </div>
+              </div>
+              <div className="input-group">
+                <label>نوع المعاملة</label>
+                <div className="input-wrapper">
+                  <select value={transactionType} onChange={(e: any) => setTransactionType(e.target.value)}>
+                    <option value="مبيعات">📈 مبيعات خاضعة (15%)</option>
+                    <option value="مشتريات">📉 مشتريات ومصاريف</option>
+                  </select>
+                </div>
               </div>
             </div>
 
             <div className="input-group">
-              <label>وصف المعاملة أو البند (قابل للتعديل بحرية)</label>
+              <label>وصف المعاملة أو البند (قابل للتعديل)</label>
               <div className="input-wrapper">
-                <input type="text" value={customDescription} onChange={(e) => setCustomDescription(e.target.value)} placeholder="مثال: مبيعات متجر سديم / مصاريف إعلانات" required />
+                <input type="text" value={customDescription} onChange={(e) => setCustomDescription(e.target.value)} placeholder="مثال: مبيعات متجر سديم / مصاريف شحن" required />
               </div>
             </div>
 
@@ -370,17 +354,17 @@ export default function TaxReturnPrepSA() {
               </div>
             </div>
 
-            <button type="submit" className={`action-btn ${activeTab === 'مشتريات' ? 'btn-purchases' : ''}`}>
-              {editingId ? '💾 حفظ التعديلات' : `+ حفظ بند ${activeTab} للسجل`}
+            <button type="submit" className="action-btn">
+              {editingId ? '💾 حفظ التعديلات' : '+ حفظ وإضافة القيد للسجل'}
             </button>
           </form>
         </div>
 
         {/* قسم المعاينة الفورية */}
         <div className="card">
-          <h2 className="card-title">معاينة الاحتساب الضريبي الفوري ({activeTab})</h2>
+          <h2 className="card-title">معاينة الاحتساب الفوري ({transactionType})</h2>
 
-          <div className="result-box primary" style={{ background: activeTab === 'مشتريات' ? 'linear-gradient(135deg, #0369a1 0%, #0c4a6e 100%)' : undefined }}>
+          <div className="result-box primary" style={{ background: transactionType === 'مشتريات' ? 'linear-gradient(135deg, #0369a1 0%, #0c4a6e 100%)' : undefined }}>
             <div>
               <div className="result-label">قيمة ضريبة القيمة المضافة (15%)</div>
               <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '2px' }}>القدر المستقطع من المبلغ الإجمالي</div>
@@ -397,7 +381,7 @@ export default function TaxReturnPrepSA() {
 
           <div className="result-box" style={{ background: '#f8fafc' }}>
             <span className="result-label">المبلغ الإجمالي المدخل</span>
-            <span className="result-value" style={{ color: activeTab === 'مبيعات' ? '#047857' : '#0369a1' }}>{totalInc.toFixed(2)} ر.س</span>
+            <span className="result-value" style={{ color: transactionType === 'مبيعات' ? '#047857' : '#0369a1' }}>{totalInc.toFixed(2)} ر.س</span>
           </div>
         </div>
       </div>
@@ -425,7 +409,7 @@ export default function TaxReturnPrepSA() {
               <tr>
                 <th>#</th>
                 <th>الفترة والتاريخ</th>
-                <th>القسم</th>
+                <th>النوع</th>
                 <th>وصف المعاملة</th>
                 <th>المبلغ بدون ضريبة</th>
                 <th>الضريبة (15%)</th>
@@ -437,7 +421,7 @@ export default function TaxReturnPrepSA() {
               {filteredItems.length === 0 ? (
                 <tr>
                   <td colSpan={8} style={{ textAlign: 'center', color: '#94a3b8', padding: '30px 0' }}>
-                    لا توجد بنود ضريبية مسجلة. ابدأ بإضافة مبيعاتك ومشترياتك.
+                    لا توجد بنود ضريبية مسجلة حالياً.
                   </td>
                 </tr>
               ) : (
