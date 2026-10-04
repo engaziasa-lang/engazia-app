@@ -58,7 +58,8 @@ export default function EnjazyaSaudiHub() {
   const [isActivated, setIsActivated] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const LEMON_CHECKOUT_URL = 'https://seerk.lemonsqueezy.com/checkout/buy/80ff492a-01eb-4455-b1a8-96e12ab72562';
+  // تم تحديث رابط الدفع الجديد الخاص بك هنا
+  const LEMON_CHECKOUT_URL = 'https://enjazya.lemonsqueezy.com/checkout/buy/dce1dd80-3422-43ba-aed5-8ef2dcd38d6d';
 
   useEffect(() => {
     const config = getInitialConfig();
@@ -71,13 +72,13 @@ export default function EnjazyaSaudiHub() {
 
   const handleActivateLicense = () => {
     if (!licenseKeyInput.trim()) {
-      alert('الرجاء إدخال مفتاح الاشتراك الصحيح.');
+      alert('الرجاء إدخال مفتاح الترخيص الصحيح.');
       return;
     }
     const cleanKey = licenseKeyInput.trim();
     localStorage.setItem('merchant_license_key', cleanKey);
     setIsActivated(true);
-    alert('✨ تم تفعيل النظام بنجاح عبر كل أدوات منصة إنجازيا!');
+    alert('✨ تم تفعيل كافة الأدوات الـ 24 بنجاح عبر مفتاح الترخيص الخاص بك!');
   };
 
   const handleDeactivateLicense = () => {
@@ -87,7 +88,6 @@ export default function EnjazyaSaudiHub() {
     alert('⚠️ تم إلغاء تفعيل الاشتراك.');
   };
 
-  // تصدير كل بيانات المنصة والأدوات الـ 24 دفعة واحدة
   const handleExportAllData = () => {
     try {
       const allData: Record<string, string> = {};
@@ -111,7 +111,6 @@ export default function EnjazyaSaudiHub() {
     }
   };
 
-  // استعادة وإدخال البيانات لجميع الأدوات الـ 24
   const handleImportAllData = (event: React.ChangeEvent<HTMLInputElement>) => {
     const fileReader = new FileReader();
     if (event.target.files && event.target.files[0]) {
@@ -270,7 +269,7 @@ export default function EnjazyaSaudiHub() {
 
           {!isActivated && (
             <a href={LEMON_CHECKOUT_URL} target="_blank" rel="noopener noreferrer" className="upgrade-btn">
-              ⚡ ترقية (37.46 ر.س)
+              ⚡ ترقية (49.99 ر.س)
             </a>
           )}
         </div>
@@ -283,17 +282,16 @@ export default function EnjazyaSaudiHub() {
       {!isActivated && (
         <div className="promo-banner">
           <div className="promo-content">
-            <div className="promo-heading">🔥 عرض خاص لتجار المملكة - احصل على النسخة الشاملة بالريال السعودي!</div>
+            <div className="promo-heading">🔥 عرض خاص لتجار المملكة - احصل على الوصول الكامل لجميع الأدوات الـ 24!</div>
             <div className="promo-text">
               <span>اشترك اليوم مقابل</span>
-              <span className="price-tag-new">37.46 ر.س</span>
-              <span>شهرياً</span>
-              <span className="price-tag-old">(بدلاً من 108.75 ر.س)</span>
+              <span className="price-tag-new">49.99 ر.س</span>
+              <span>شهرياً (شامل الضريبة)</span>
             </div>
           </div>
           <a href={LEMON_CHECKOUT_URL} target="_blank" rel="noopener noreferrer">
             <button className="promo-btn">
-              🚀 ترقية حسابك الآن بخصم 65%
+              🚀 ترقية حسابك الآن وفتح كل الأدوات
             </button>
           </a>
         </div>
@@ -330,7 +328,6 @@ export default function EnjazyaSaudiHub() {
             <p>المنصة السحابية الأولى المخصصة لتمكين تجار التجارة الإلكترونية في المملكة العربية السعودية. أدوات دقيقة، حسابات ضريبية متوافقة مع زاتكا، وأرباح مضاعفة.</p>
           </div>
           
-          {/* قسم روابط الفوتر المحدث والمدمج */}
           <div className="footer-links">
             <div className="links-column">
               <h4>المنصة</h4>
