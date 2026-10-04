@@ -58,7 +58,6 @@ export default function EnjazyaSaudiHub() {
   const [isActivated, setIsActivated] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // تم تحديث رابط الدفع الجديد الخاص بك هنا
   const LEMON_CHECKOUT_URL = 'https://enjazya.lemonsqueezy.com/checkout/buy/dce1dd80-3422-43ba-aed5-8ef2dcd38d6d';
 
   useEffect(() => {
@@ -165,10 +164,11 @@ export default function EnjazyaSaudiHub() {
         .promo-banner { max-width: 1250px; margin: 0 auto 35px; background: linear-gradient(135deg, #047857 0%, #065f46 100%); color: #fff; border-radius: 16px; padding: 22px 32px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; box-shadow: 0 12px 30px rgba(4,120,87,0.3); border: 1px solid rgba(255,255,255,0.25); position: relative; overflow: hidden; }
         .promo-banner::before { content: ''; position: absolute; top: -60px; right: -60px; width: 180px; height: 180px; background: rgba(255,255,255,0.12); border-radius: 50%; pointer-events: none; }
         .promo-content { display: flex; flex-direction: column; gap: 8px; z-index: 1; }
-        .promo-heading { font-size: 18px; font-weight: 900; display: flex; align-items: center; gap: 8px; }
+        .promo-heading { font-size: 17px; font-weight: 900; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
         .promo-text { font-size: 14px; font-weight: 700; opacity: 0.98; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
         .price-tag-new { background: #f59e0b; color: #fff; padding: 3px 10px; border-radius: 8px; font-weight: 900; font-size: 15px; }
-        .price-tag-old { text-decoration: line-through; opacity: 0.75; font-size: 12.5px; font-weight: 800; }
+        .price-tag-old { text-decoration: line-through; opacity: 0.75; font-size: 13px; font-weight: 800; }
+        .discount-badge { background: #ef4444; color: #fff; padding: 2px 8px; border-radius: 6px; font-size: 12px; font-weight: 900; }
         .promo-btn { background: #fff; color: #065f46; border: none; padding: 12px 26px; border-radius: 12px; font-weight: 900; font-size: 14px; cursor: pointer; transition: all 0.25s ease; box-shadow: 0 6px 15px rgba(0,0,0,0.15); z-index: 1; }
         .promo-btn:hover { background: #f8fafc; transform: translateY(-3px); }
 
@@ -282,11 +282,14 @@ export default function EnjazyaSaudiHub() {
       {!isActivated && (
         <div className="promo-banner">
           <div className="promo-content">
-            <div className="promo-heading">🔥 عرض خاص لتجار المملكة - احصل على الوصول الكامل لجميع الأدوات الـ 24!</div>
+            <div className="promo-heading">
+              🔥 عرض لفترة محدودة: احصل على الوصول الكامل لجميع الأدوات الـ 24!
+            </div>
             <div className="promo-text">
-              <span>اشترك اليوم مقابل</span>
+              <span>كان بـ <span className="price-tag-old">299 ر.س</span> شهرياً، والآن فقط</span>
               <span className="price-tag-new">49.99 ر.س</span>
-              <span>شهرياً (شامل الضريبة)</span>
+              <span>شهرياً!</span>
+              <span className="discount-badge">تخفيض 83% 🏷️</span>
             </div>
           </div>
           <a href={LEMON_CHECKOUT_URL} target="_blank" rel="noopener noreferrer">
