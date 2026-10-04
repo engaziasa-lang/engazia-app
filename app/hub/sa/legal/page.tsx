@@ -3,53 +3,82 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 
-interface LegalItem {
+interface PolicyItem {
   id: string;
   storeName: string;
   policyType: string;
+  supportEmail: string;
+  supportPhone: string;
   returnDays: number;
-  contactEmail: string;
-  generatedText: string;
+  policyContent: string;
+  createdAt?: string;
 }
 
-export default function LegalPolicyGeneratorSA() {
+export default function PoliciesGeneratorSA() {
   const [storeName, setStoreName] = useState<string>('متجر إنجازيا');
   const [policyType, setPolicyType] = useState<string>('سياسة الاستبدال والاسترجاع');
+  const [supportEmail, setSupportEmail] = useState<string>('support@store.com');
+  const [supportPhone, setSupportPhone] = useState<string>('966500000000');
   const [returnDays, setReturnDays] = useState<number | ''>(7);
-  const [contactEmail, setContactEmail] = useState<string>('support@store.com');
+  const [policyContent, setPolicyContent] = useState<string>('');
 
-  const [items, setItems] = useState<LegalItem[]>([]);
+  const [items, setItems] = useState<PolicyItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const saved = localStorage.getItem('seerk_legal_policies_items');
+    const saved = localStorage.getItem('seerk_policies_generator_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
   }, []);
 
-  const saveToLocalStorage = (newItems: LegalItem[]) => {
+  // توليد النص تلقائياً عند تغيير الخيارات
+  useEffect(() => {
+    if (policyType === 'سياسة الاستبدال والاسترجاع') {
+      setPolicyContent(
+        `أهلاً بكم في ${storeName}. حرصاً منا على خدمتكم بأفضل شكل، فإن سياسة الاستبدال والاسترجاع تخضع للشروط والضوابط التالية:\n\n` +
+        `1. مدة الاستبدال والاسترجاع هي خلال (${returnDays || 7}) أيام من تاريخ استلام الطلب.\n` +
+        `2. يجب أن يكون المنتج بحالته الأصلية، وفي غلافه الأصلي، ولم يتم فتحه أو استخدامُه، مع إرفاق فاتورة الشراء.\n` +
+        `3. تتحمل تكاليف الشحن العكسي في حال كان الاسترجاع بسبب رغبة العميل، بينما يتحمل المتجر التكاليف في حال وجود عيب مصنعي أو خطأ في الطلب.\n` +
+        `4. للاستفسار أو تقديم طلب استرجاع، يرجى التواصل معنا عبر البريد: ${supportEmail} أو الواتساب: ${supportPhone}.`
+      );
+    } else if (policyType === 'سياسة الخصوصية') {
+      setPolicyContent(
+        `في ${storeName}، نلتزم بحماية خصوصية بياناتكم الشخصية. توضح هذه السياسة كيف نقوم بجمع واستخدام وحماية معلوماتكم:\n\n` +
+        `1. البيانات التي نجمعها: الاسم، رقم الجوال، عنوان الشحن، البريد الإلكتروني لتنفيذ طلباتكم فقط.\n` +
+        `2. حماية البيانات: نستخدم أحدث أساليب التشفير والأمان لضمان عدم تسريب أي معلومة.\n` +
+        `3. لا نقوم نهائياً ببيع أو مشاركة بياناتك مع أي طرف ثالث لأغراض تسويقية.\n` +
+        `4. لأي استفسار بخصوص الخصوصية، يرجى التواصل معنا على: ${supportEmail}.`
+      );
+    } else {
+      setPolicyContent(
+        `الشروط والأحكام الخاصة بـ ${storeName}:\n\n` +
+        `1. استخدامك للمتجر يعني موافقتك التامة على كافة الشروط والسياسات المعلنة.\n` +
+        `2. الأسعار معروضة بالريال السعودي شاملة ضريبة القيمة المضافة (15%).\n` +
+        `3. يحق للمتجر إلغاء الطلب في حال نفاد الكمية أو عدم إتمام عملية الدفع خلال المدة المحددة، مع إرجاع المبلغ كاملاً للعميل.\n` +
+        `4. للتواصل والدعم الفني: ${supportEmail} - هاتف: ${supportPhone}.`
+      );
+    }
+  }, [storeName, policyType, returnDays, supportEmail, supportPhone]);
+
+  const saveToLocalStorage = (newItems: PolicyItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_legal_policies_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_policies_generator_items', JSON.stringify(newItems));
   };
 
   const isActivated = typeof window !== 'undefined' && !!localStorage.getItem('merchant_license_key');
 
   const days = typeof returnDays === 'number' ? returnDays : 7;
 
-  // توليد النص القانوني المتوافق مع نظام وزارة التجارة السعودي
-  const generatedText = policyType.includes('الاستبدال') 
-    ? `سياسة الاستبدال والاسترجاع لمتجر ${storeName || 'المتجر'}:\n\n1. يحق للعميل استرجاع أو استبدال المنتجات خلال (${days}) أيام من تاريخ استلام الطلب.\n2. يشترط أن يكون المنتج بحالته الأصلية، غير المستخدم، وبغلافه الأصلي.\n3. يتحمل العميل رسوم الشحن العكسي في حال لم يكن هناك عيب مصنعي.\n4. للبدء بإجراءات الاسترجاع، يرجى التواصل معنا عبر البريد: ${contactEmail || 'support@store.com'}.`
-    : `سياسة الخصوصية وحماية البيانات لمتجر ${storeName || 'المتجر'}:\n\n1. نلتزم بحماية خصوصية بياناتك الشخصية ومعلومات الدفع وفقاً لنظام حماية البيانات الشخصية في المملكة.\n2. لا يتم مشاركة بيانات العملاء مع أي طرف ثالث إلا لأغراض الشحن والتوصيل فقط.\n3. نستخدم تقنيات تشفير عالية الأمان لضمان تسوق آمن وموثوق.\n4. لأي استفسارات تتعلق بالخصوصية، تواصل معنا عبر: ${contactEmail || 'support@store.com'}.`;
-
   const handleClearForm = () => {
-    setStoreName('');
+    setStoreName('متجر إنجازيا');
     setPolicyType('سياسة الاستبدال والاسترجاع');
+    setSupportEmail('support@store.com');
+    setSupportPhone('966500000000');
     setReturnDays(7);
-    setContactEmail('');
     setEditingId(null);
   };
 
@@ -59,31 +88,39 @@ export default function LegalPolicyGeneratorSA() {
       alert('🔒 عذراً، لقد استهلكت الحد التجريبي (3 سياسات). يرجى ترقية حسابك لفتح السعة الكاملة بلا حدود!');
       return;
     }
-    if (!storeName.trim() || !contactEmail.trim()) {
-      alert('الرجاء إدخال اسم المتجر وبريد التواصل.');
+    if (!storeName.trim() || !supportEmail.trim()) {
+      alert('الرجاء التأكد من تعبئة اسم المتجر والبريد الإلكتروني.');
       return;
     }
+
+    const now = new Date();
+    const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
+    const formattedDate = `${now.toLocaleDateString('ar-SA')} - ${now.toLocaleTimeString('ar-SA', timeOptions)}`;
 
     if (editingId) {
       const updated = items.map(item => item.id === editingId ? {
         ...item,
         storeName,
         policyType,
+        supportEmail,
+        supportPhone,
         returnDays: days,
-        contactEmail,
-        generatedText,
+        policyContent,
+        createdAt: item.createdAt || formattedDate
       } : item);
       saveToLocalStorage(updated);
       setEditingId(null);
       alert('✨ تم تحديث السياسة بنجاح!');
     } else {
-      const newItem: LegalItem = {
+      const newItem: PolicyItem = {
         id: Date.now().toString(),
         storeName,
         policyType,
+        supportEmail,
+        supportPhone,
         returnDays: days,
-        contactEmail,
-        generatedText,
+        policyContent,
+        createdAt: formattedDate
       };
       saveToLocalStorage([...items, newItem]);
       alert('✅ تمت إضافة السياسة إلى السجل بنجاح!');
@@ -92,35 +129,92 @@ export default function LegalPolicyGeneratorSA() {
     handleClearForm();
   };
 
-  const handleEdit = (item: LegalItem) => {
+  const handleEdit = (item: PolicyItem) => {
     setStoreName(item.storeName);
     setPolicyType(item.policyType);
+    setSupportEmail(item.supportEmail);
+    setSupportPhone(item.supportPhone);
     setReturnDays(item.returnDays);
-    setContactEmail(item.contactEmail);
+    setPolicyContent(item.policyContent);
     setEditingId(item.id);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleDelete = (id: string) => {
-    if (confirm('هل أنت متأكد من حذف هذه السياسة من السجل؟')) {
+    if (confirm('هل أنت متأكد من حذف هذه السياسة؟')) {
       const filtered = items.filter(i => i.id !== id);
       saveToLocalStorage(filtered);
     }
   };
 
-  const handleExportCsv = () => {
+  const handleCopyText = () => {
+    navigator.clipboard.writeText(policyContent);
+    alert('📋 تم نسخ نص السياسة بنجاح! يمكنك لصقه مباشرة في صفحة المتجر.');
+  };
+
+  const handleExportExcel = () => {
     if (items.length === 0) {
       alert('لا توجد بيانات لتصديرها.');
       return;
     }
-    let csv = "data:text/csv;charset=utf-8,ID,StoreName,PolicyType,Days,Email\n";
+
+    let tableHtml = `
+      <html dir="rtl" lang="ar">
+        <head>
+          <meta charset="utf-8">
+          <style>
+            table { border-collapse: collapse; width: 100%; font-family: sans-serif; }
+            th, td { border: 1px solid #cbd5e1; padding: 8px; text-align: center; }
+            th { background-color: #f8fafc; font-weight: bold; color: #334155; }
+            .tfoot-row td { background-color: #f1f5f9; font-weight: bold; color: #0f172a; }
+          </style>
+        </head>
+        <body>
+          <table>
+            <thead>
+              <tr>
+                <th>م</th>
+                <th>اسم المتجر</th>
+                <th>التاريخ والوقت</th>
+                <th>نوع السياسة</th>
+                <th>البريد والدعم</th>
+                <th>نص السياسة</th>
+              </tr>
+            </thead>
+            <tbody>
+    `;
+
     items.forEach((row, idx) => {
-      csv += `${idx + 1},${row.storeName},${row.policyType},${row.returnDays},${row.contactEmail}\n`;
+      tableHtml += `
+        <tr>
+          <td>${idx + 1}</td>
+          <td>${row.storeName}</td>
+          <td>${row.createdAt || '-'}</td>
+          <td>${row.policyType}</td>
+          <td>${row.supportEmail}</td>
+          <td>${row.policyContent.replace(/\n/g, '<br>')}</td>
+        </tr>
+      `;
     });
-    const encodedUri = encodeURI(csv);
+
+    tableHtml += `
+            </tbody>
+            <tfoot>
+              <tr class="tfoot-row">
+                <td colspan="5">إجمالي السياسات المسجلة</td>
+                <td>${items.length} سياسات</td>
+              </tr>
+            </tfoot>
+          </table>
+        </body>
+      </html>
+    `;
+
+    const blob = new Blob([tableHtml], { type: 'application/vnd.ms-excel' });
+    const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "seerk_legal_policies.csv");
+    link.setAttribute("href", url);
+    link.setAttribute("download", "seerk_policies_generator.xls");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -145,7 +239,7 @@ export default function LegalPolicyGeneratorSA() {
   };
 
   const filteredItems = items.filter(item => 
-    item.storeName.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    item.storeName.toLowerCase().includes(searchQuery.toLowerCase()) ||
     item.policyType.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -156,7 +250,8 @@ export default function LegalPolicyGeneratorSA() {
         a { text-decoration: none; }
       `}</style>
       <style jsx>{`
-        .tool-container { direction: rtl; max-width: 1100px; margin: 40px auto; padding: 20px; }
+        .tool-container { direction: rtl; max-width: 1100px; margin: 20px auto; padding: 20px; }
+        @media(max-width: 768px) { .tool-container { padding: 10px; margin: 10px auto; } }
         
         .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; }
         .back-btn { background: #ffffff; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 8px; color: #475569; font-weight: 700; font-size: 14px; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
@@ -166,7 +261,7 @@ export default function LegalPolicyGeneratorSA() {
         .title-box p { color: #64748b; margin: 0; font-size: 14px; }
         
         .grid-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 40px; }
-        @media(max-width: 768px) { .grid-layout { grid-template-columns: 1fr; } }
+        @media(max-width: 850px) { .grid-layout { grid-template-columns: 1fr; } }
         
         .card { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
         .card-title { font-size: 18px; font-weight: 800; color: #1e293b; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
@@ -174,34 +269,45 @@ export default function LegalPolicyGeneratorSA() {
         .clear-form-btn { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: 'Tajawal', sans-serif; display: flex; align-items: center; gap: 5px; }
         .clear-form-btn:hover { background: #fecaca; }
 
-        .input-group { margin-bottom: 15px; }
-        .input-group label { display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 6px; }
-        .input-wrapper input, .input-wrapper select { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 15px; font-family: 'Tajawal', sans-serif; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; }
-        .input-wrapper input:focus, .input-wrapper select:focus { border-color: #047857; background: #ffffff; }
-        
-        .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: 'Tajawal', sans-serif; margin-top: 10px; }
-        .action-btn:hover { background: #065f46; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        @media(max-width: 600px) { .form-row { grid-template-columns: 1fr; gap: 0; } }
 
-        .preview-box { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; padding: 20px; font-size: 13.5px; color: #0f172a; line-height: 1.8; white-space: pre-wrap; font-weight: 500; max-height: 400px; overflow-y: auto; }
+        .input-group { margin-bottom: 15px; width: 100%; }
+        .input-group label { display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 6px; }
+        .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
+        .input-wrapper input, .input-wrapper select, .input-wrapper textarea { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: 'Tajawal', sans-serif; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; }
+        .input-wrapper input:focus, .input-wrapper select:focus, .input-wrapper textarea:focus { border-color: #047857; background: #ffffff; }
+        
+        .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: 'Tajawal', sans-serif; margin-top: 10px; box-sizing: border-box; }
+        .action-btn:hover { background: #065f46; }
+        
+        .copy-btn { background: #0369a1; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: 'Tajawal', sans-serif; margin-top: 10px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .copy-btn:hover { background: #0284c7; }
 
         .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
-        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: 'Tajawal', sans-serif; font-size: 13px; outline: none; width: 250px; }
-        .table-btns { display: flex; gap: 10px; }
-        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: 'Tajawal', sans-serif; }
+        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: 'Tajawal', sans-serif; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; }
+        .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
+        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: 'Tajawal', sans-serif; display: flex; align-items: center; justify-content: center; }
         .t-btn:hover { background: #f1f5f9; }
 
-        .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
-        .data-table th { background: #f8fafc; padding: 12px; text-align: right; border-bottom: 2px solid #cbd5e1; font-weight: 800; color: #334155; }
-        .data-table td { padding: 12px; border-bottom: 1px solid #e2e8f0; color: #0f172a; font-weight: 600; }
+        .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 900px; }
+        .data-table th { background: #f8fafc; padding: 12px; text-align: right; border-bottom: 2px solid #cbd5e1; font-weight: 800; color: #334155; white-space: nowrap; }
+        .data-table td { padding: 12px; border-bottom: 1px solid #e2e8f0; color: #0f172a; font-weight: 600; vertical-align: middle; }
+        .data-table tfoot td { background: #f1f5f9; font-weight: 900; color: #0f172a; border-top: 2px solid #cbd5e1; }
         
         .trial-badge { background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 800; }
+        
+        .tb-action-btn { border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; font-family: 'Tajawal', sans-serif;}
+        .btn-edit { background: #e0f2fe; color: #0369a1; }
+        .btn-delete { background: #fee2e2; color: #991b1b; }
       `}</style>
 
       <div className="header">
         <div className="title-box">
-          <h1>مولد السياسات القانونية (وزارة التجارة) ⚖</h1>
-          <p>أنشئ صفحات الاستبدال والاسترجاع وسياسة الخصوصية المتوافقة تماماً مع القوانين التجارية في المملكة</p>
+          <h1>مولد السياسات وقوانين وزارة التجارة ⚖️</h1>
+          <p>أنشئ صفحات الاستبدال والاسترجاع، سياسة الخصوصية، والشروط والأحكام المتوافقة مع الأنظمة السعودية</p>
         </div>
         <Link href="/hub/sa" className="back-btn">
           <span>←</span> عودة للمنصة
@@ -212,8 +318,8 @@ export default function LegalPolicyGeneratorSA() {
         {/* قسم المدخلات */}
         <div className="card">
           <h2 className="card-title">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <span>{editingId ? 'تعديل السياسة' : 'إنشاء سياسة جديدة'}</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+              <span>{editingId ? 'تعديل السياسة' : 'توليد سياسة جديدة'}</span>
               <button type="button" className="clear-form-btn" onClick={handleClearForm} title="مسح الحقول">
                 🧹 مسح الحقول
               </button>
@@ -222,39 +328,48 @@ export default function LegalPolicyGeneratorSA() {
           </h2>
 
           <form onSubmit={handleSaveItem}>
-            <div className="input-group">
-              <label>اسم المتجر</label>
-              <div className="input-wrapper">
-                <input type="text" value={storeName} onChange={(e) => setStoreName(e.target.value)} placeholder="مثال: متجر إنجازيا" required />
+            <div className="form-row">
+              <div className="input-group">
+                <label>اسم المتجر</label>
+                <div className="input-wrapper">
+                  <input type="text" value={storeName} onChange={(e) => setStoreName(e.target.value)} placeholder="متجر إنجازيا" required />
+                </div>
+              </div>
+              <div className="input-group">
+                <label>نوع السياسة المطلوبة</label>
+                <div className="input-wrapper">
+                  <select value={policyType} onChange={(e) => setPolicyType(e.target.value)}>
+                    <option value="سياسة الاستبدال والاسترجاع">سياسة الاستبدال والاسترجاع 🔄</option>
+                    <option value="سياسة الخصوصية">سياسة الخصوصية 🔒</option>
+                    <option value="الشروط والأحكام">الشروط والأحكام 📜</option>
+                  </select>
+                </div>
               </div>
             </div>
 
-            <div className="input-group">
-              <label>نوع السياسة القانونية</label>
-              <div className="input-wrapper">
-                <select value={policyType} onChange={(e) => setPolicyType(e.target.value)}>
-                  <option value="سياسة الاستبدال والاسترجاع">سياسة الاستبدال والاسترجاع</option>
-                  <option value="سياسة الخصوصية وحماية البيانات">سياسة الخصوصية وحماية البيانات</option>
-                  <option value="الشروط والأحكام العامة">الشروط والأحكام العامة</option>
-                </select>
+            <div className="form-row">
+              <div className="input-group">
+                <label>البريد الإلكتروني للدعم</label>
+                <div className="input-wrapper">
+                  <input type="email" value={supportEmail} onChange={(e) => setSupportEmail(e.target.value)} placeholder="support@store.com" required />
+                </div>
+              </div>
+              <div className="input-group">
+                <label>رقم واتساب الدعم</label>
+                <div className="input-wrapper">
+                  <input type="text" value={supportPhone} onChange={(e) => setSupportPhone(e.target.value)} placeholder="966500000000" required />
+                </div>
               </div>
             </div>
 
-            {policyType.includes('الاستبدال') && (
+            {policyType === 'سياسة الاستبدال والاسترجاع' && (
               <div className="input-group">
                 <label>مدة الاستبدال والاسترجاع (بالأيام)</label>
                 <div className="input-wrapper">
-                  <input type="number" min="1" value={returnDays === '' ? '' : returnDays} onChange={(e) => setReturnDays(e.target.value === '' ? '' : Number(e.target.value))} placeholder="7" required />
+                  <input type="number" min="1" max="30" value={returnDays === '' ? '' : returnDays} onChange={(e) => setReturnDays(e.target.value === '' ? '' : Number(e.target.value))} placeholder="7" required />
                 </div>
               </div>
             )}
-
-            <div className="input-group">
-              <label>البريد الإلكتروني المعتمد للتواصل</label>
-              <div className="input-wrapper">
-                <input type="email" value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} placeholder="support@store.com" required />
-              </div>
-            </div>
 
             <button type="submit" className="action-btn">
               {editingId ? '💾 حفظ التعديلات' : '+ حفظ السياسة في السجل'}
@@ -262,16 +377,28 @@ export default function LegalPolicyGeneratorSA() {
           </form>
         </div>
 
-        {/* قسم المعاينة الفورية */}
+        {/* قسم المعاينة والنسخ الفوري */}
         <div className="card">
-          <h2 className="card-title">معاينة النص القانوني المولد</h2>
-          <div className="preview-box">
-            {generatedText}
+          <h2 className="card-title">معاينة نص السياسة (قابل للتعديل)</h2>
+
+          <div className="input-group" style={{ marginBottom: 0 }}>
+            <div className="input-wrapper">
+              <textarea 
+                rows={10} 
+                value={policyContent} 
+                onChange={(e) => setPolicyContent(e.target.value)} 
+                style={{ width: '100%', padding: '12px', border: '1px solid #cbd5e1', borderRadius: '8px', fontSize: '13.5px', fontFamily: 'Tajawal, sans-serif', outline: 'none', background: '#f8fafc', color: '#0f172a', resize: 'vertical', lineHeight: '1.6' }}
+              ></textarea>
+            </div>
           </div>
+
+          <button type="button" className="copy-btn" onClick={handleCopyText}>
+            📋 نسخ نص السياسة للحافظة
+          </button>
         </div>
       </div>
 
-      {/* جدول إدارة السجلات السفلي */}
+      {/* جدول البيانات السفلي */}
       <div className="table-section">
         <div className="table-toolbar">
           <input 
@@ -282,49 +409,62 @@ export default function LegalPolicyGeneratorSA() {
             onChange={(e) => setSearchQuery(e.target.value)}
           />
           <div className="table-btns">
-            <button className="t-btn" onClick={handleExportCsv}>📥 تصدير CSV</button>
+            <button className="t-btn" onClick={handleExportExcel} title="تصدير بصيغة Excel لدعم اللغة العربية">📥 تصدير Excel</button>
             <button className="t-btn" onClick={() => fileInputRef.current?.click()}>📂 استيراد</button>
             <input type="file" ref={fileInputRef} onChange={handleImportJson} accept=".json" style={{ display: 'none' }} />
           </div>
         </div>
 
-        <div style={{ overflowX: 'auto' }}>
+        <div className="table-responsive">
           <table className="data-table">
             <thead>
               <tr>
                 <th>#</th>
-                <th>اسم المتجر</th>
+                <th>المتجر والتاريخ</th>
                 <th>نوع السياسة</th>
-                <th>المدة (أيام)</th>
-                <th>البريد الإلكتروني</th>
+                <th>البريد والهاتف</th>
                 <th>الإجراءات</th>
               </tr>
             </thead>
             <tbody>
               {filteredItems.length === 0 ? (
                 <tr>
-                  <td colSpan={6} style={{ textAlign: 'center', color: '#94a3b8', padding: '30px 0' }}>
-                    لا توجد سياسات مسجلة في السجل حالياً.
+                  <td colSpan={5} style={{ textAlign: 'center', color: '#94a3b8', padding: '30px 0' }}>
+                    لا توجد سياسات مسجلة حالياً.
                   </td>
                 </tr>
               ) : (
                 filteredItems.map((item, idx) => (
                   <tr key={item.id}>
                     <td>{idx + 1}</td>
-                    <td style={{ fontWeight: 800 }}>{item.storeName}</td>
-                    <td>{item.policyType}</td>
-                    <td>{item.returnDays} أيام</td>
-                    <td style={{ color: '#047857' }}>{item.contactEmail}</td>
                     <td>
-                      <div style={{ display: 'flex', gap: '8px' }}>
-                        <button onClick={() => handleEdit(item)} style={{ background: '#e0f2fe', color: '#0369a1', border: 'none', padding: '5px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 800, cursor: 'pointer' }}>تعديل</button>
-                        <button onClick={() => handleDelete(item.id)} style={{ background: '#fee2e2', color: '#991b1b', border: 'none', padding: '5px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 800, cursor: 'pointer' }}>حذف</button>
+                      <div style={{ fontWeight: 900, color: '#0f172a' }}>{item.storeName}</div>
+                      {item.createdAt && <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', fontWeight: 600 }}>🕒 {item.createdAt}</div>}
+                    </td>
+                    <td><span style={{ fontWeight: 800, color: '#047857' }}>{item.policyType}</span></td>
+                    <td>
+                      <div style={{ fontSize: '12.5px', color: '#334155' }}>{item.supportEmail}</div>
+                      <div style={{ fontSize: '11.5px', color: '#64748b' }}>{item.supportPhone}</div>
+                    </td>
+                    <td>
+                      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                        <button className="tb-action-btn btn-wa" onClick={() => { navigator.clipboard.writeText(item.policyContent); alert('📋 تم نسخ نص السياسة!'); }} title="نسخ النص">📋 نسخ</button>
+                        <button className="tb-action-btn btn-edit" onClick={() => handleEdit(item)} title="تعديل">✏️</button>
+                        <button className="tb-action-btn btn-delete" onClick={() => handleDelete(item.id)} title="حذف">❌</button>
                       </div>
                     </td>
                   </tr>
                 ))
               )}
             </tbody>
+            {filteredItems.length > 0 && (
+              <tfoot>
+                <tr className="tfoot-row">
+                  <td colSpan={4} style={{ textAlign: 'center' }}>إجمالي السياسات المسجلة</td>
+                  <td>{items.length} سياسات</td>
+                </tr>
+              </tfoot>
+            )}
           </table>
         </div>
       </div>
