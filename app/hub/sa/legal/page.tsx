@@ -16,7 +16,8 @@ interface PolicyItem {
 
 export default function PoliciesGeneratorSA() {
   const [storeName, setStoreName] = useState<string>('متجر إنجازيا');
-  const [policyType, setPolicyType] = useState<string>('سياسة الاستبدال والاسترجاع');
+  const [policySelect, setPolicySelect] = useState<string>('سياسة الاستبدال والاسترجاع');
+  const [customPolicyType, setCustomPolicyType] = useState<string>('سياسة الاستبدال والاسترجاع');
   const [supportEmail, setSupportEmail] = useState<string>('support@store.com');
   const [supportPhone, setSupportPhone] = useState<string>('966500000000');
   const [returnDays, setReturnDays] = useState<number | ''>(7);
@@ -35,9 +36,11 @@ export default function PoliciesGeneratorSA() {
     }
   }, []);
 
+  const actualPolicyType = policySelect === 'سياسة أخرى (كتابة يدوية)' ? customPolicyType : policySelect;
+
   // توليد النص تلقائياً عند تغيير الخيارات
   useEffect(() => {
-    if (policyType === 'سياسة الاستبدال والاسترجاع') {
+    if (policySelect === 'سياسة الاستبدال والاسترجاع') {
       setPolicyContent(
         `أهلاً بكم في ${storeName}. حرصاً منا على خدمتكم بأفضل شكل، فإن سياسة الاستبدال والاسترجاع تخضع للشروط والضوابط التالية:\n\n` +
         `1. مدة الاستبدال والاسترجاع هي خلال (${returnDays || 7}) أيام من تاريخ استلام الطلب.\n` +
@@ -45,7 +48,7 @@ export default function PoliciesGeneratorSA() {
         `3. تتحمل تكاليف الشحن العكسي في حال كان الاسترجاع بسبب رغبة العميل، بينما يتحمل المتجر التكاليف في حال وجود عيب مصنعي أو خطأ في الطلب.\n` +
         `4. للاستفسار أو تقديم طلب استرجاع، يرجى التواصل معنا عبر البريد: ${supportEmail} أو الواتساب: ${supportPhone}.`
       );
-    } else if (policyType === 'سياسة الخصوصية') {
+    } else if (policySelect === 'سياسة الخصوصية') {
       setPolicyContent(
         `في ${storeName}، نلتزم بحماية خصوصية بياناتكم الشخصية. توضح هذه السياسة كيف نقوم بجمع واستخدام وحماية معلوماتكم:\n\n` +
         `1. البيانات التي نجمعها: الاسم، رقم الجوال، عنوان الشحن، البريد الإلكتروني لتنفيذ طلباتكم فقط.\n` +
@@ -53,7 +56,7 @@ export default function PoliciesGeneratorSA() {
         `3. لا نقوم نهائياً ببيع أو مشاركة بياناتك مع أي طرف ثالث لأغراض تسويقية.\n` +
         `4. لأي استفسار بخصوص الخصوصية، يرجى التواصل معنا على: ${supportEmail}.`
       );
-    } else {
+    } else if (policySelect === 'الشروط والأحكام') {
       setPolicyContent(
         `الشروط والأحكام الخاصة بـ ${storeName}:\n\n` +
         `1. استخدامك للمتجر يعني موافقتك التامة على كافة الشروط والسياسات المعلنة.\n` +
@@ -61,8 +64,17 @@ export default function PoliciesGeneratorSA() {
         `3. يحق للمتجر إلغاء الطلب في حال نفاد الكمية أو عدم إتمام عملية الدفع خلال المدة المحددة، مع إرجاع المبلغ كاملاً للعميل.\n` +
         `4. للتواصل والدعم الفني: ${supportEmail} - هاتف: ${supportPhone}.`
       );
+    } else {
+      // إذا اختار سياسة مخصصة جديدة
+      if (!editingId || !policyContent) {
+        setPolicyContent(
+          `نص ${customPolicyType || 'السياسة'} الخاص بـ ${storeName}:\n\n` +
+          `1. يلتزم المتجر بتقديم أفضل الخدمات وفقاً لهذه السياسة.\n` +
+          `2. لأي استفسارات أو تفاصيل إضافية، يرجى التواصل معنا عبر البريد: ${supportEmail} أو عبر الواتساب: ${supportPhone}.`
+        );
+      }
     }
-  }, [storeName, policyType, returnDays, supportEmail, supportPhone]);
+  }, [storeName, policySelect, customPolicyType, returnDays, supportEmail, supportPhone]);
 
   const saveToLocalStorage = (newItems: PolicyItem[]) => {
     setItems(newItems);
@@ -73,9 +85,20 @@ export default function PoliciesGeneratorSA() {
 
   const days = typeof returnDays === 'number' ? returnDays : 7;
 
+  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const val = e.target.value;
+    setPolicySelect(val);
+    if (val !== 'سياسة أخرى (كتابة يدوية)') {
+      setCustomPolicyType(val);
+    } else {
+      setCustomPolicyType('');
+    }
+  };
+
   const handleClearForm = () => {
     setStoreName('متجر إنجازيا');
-    setPolicyType('سياسة الاستبدال والاسترجاع');
+    setPolicySelect('سياسة الاستبدال والاسترجاع');
+    setCustomPolicyType('سياسة الاستبدال والاسترجاع');
     setSupportEmail('support@store.com');
     setSupportPhone('966500000000');
     setReturnDays(7);
@@ -88,8 +111,9 @@ export default function PoliciesGeneratorSA() {
       alert('🔒 عذراً، لقد استهلكت الحد التجريبي (3 سياسات). يرجى ترقية حسابك لفتح السعة الكاملة بلا حدود!');
       return;
     }
-    if (!storeName.trim() || !supportEmail.trim()) {
-      alert('الرجاء التأكد من تعبئة اسم المتجر والبريد الإلكتروني.');
+    const finalPolicyName = policySelect === 'سياسة أخرى (كتابة يدوية)' ? customPolicyType : policySelect;
+    if (!storeName.trim() || !finalPolicyName.trim() || !supportEmail.trim()) {
+      alert('الرجاء التأكد من تعبئة اسم المتجر ومسمى السياسة والبريد الإلكتروني.');
       return;
     }
 
@@ -101,7 +125,7 @@ export default function PoliciesGeneratorSA() {
       const updated = items.map(item => item.id === editingId ? {
         ...item,
         storeName,
-        policyType,
+        policyType: finalPolicyName,
         supportEmail,
         supportPhone,
         returnDays: days,
@@ -115,7 +139,7 @@ export default function PoliciesGeneratorSA() {
       const newItem: PolicyItem = {
         id: Date.now().toString(),
         storeName,
-        policyType,
+        policyType: finalPolicyName,
         supportEmail,
         supportPhone,
         returnDays: days,
@@ -131,7 +155,14 @@ export default function PoliciesGeneratorSA() {
 
   const handleEdit = (item: PolicyItem) => {
     setStoreName(item.storeName);
-    setPolicyType(item.policyType);
+    const standardPolicies = ['سياسة الاستبدال والاسترجاع', 'سياسة الخصوصية', 'الشروط والأحكام'];
+    if (standardPolicies.includes(item.policyType)) {
+      setPolicySelect(item.policyType);
+      setCustomPolicyType(item.policyType);
+    } else {
+      setPolicySelect('سياسة أخرى (كتابة يدوية)');
+      setCustomPolicyType(item.policyType);
+    }
     setSupportEmail(item.supportEmail);
     setSupportPhone(item.supportPhone);
     setReturnDays(item.returnDays);
@@ -307,7 +338,7 @@ export default function PoliciesGeneratorSA() {
       <div className="header">
         <div className="title-box">
           <h1>مولد السياسات وقوانين وزارة التجارة ⚖️</h1>
-          <p>أنشئ صفحات الاستبدال والاسترجاع، سياسة الخصوصية، والشروط والأحكام المتوافقة مع الأنظمة السعودية</p>
+          <p>أنشئ صفحات الاستبدال والاسترجاع، سياسة الخصوصية، أو أي سياسة أخرى مخصصة لمتجرك</p>
         </div>
         <Link href="/hub/sa" className="back-btn">
           <span>←</span> عودة للمنصة
@@ -337,13 +368,26 @@ export default function PoliciesGeneratorSA() {
               </div>
               <div className="input-group">
                 <label>نوع السياسة المطلوبة</label>
-                <div className="input-wrapper">
-                  <select value={policyType} onChange={(e) => setPolicyType(e.target.value)}>
+                <div className="input-wrapper" style={{ marginBottom: '8px' }}>
+                  <select value={policySelect} onChange={handleSelectChange}>
                     <option value="سياسة الاستبدال والاسترجاع">سياسة الاستبدال والاسترجاع 🔄</option>
                     <option value="سياسة الخصوصية">سياسة الخصوصية 🔒</option>
                     <option value="الشروط والأحكام">الشروط والأحكام 📜</option>
+                    <option value="سياسة أخرى (كتابة يدوية)">➕ سياسة أخرى (كتابة يدوية)</option>
                   </select>
                 </div>
+
+                {policySelect === 'سياسة أخرى (كتابة يدوية)' && (
+                  <div className="input-wrapper">
+                    <input 
+                      type="text" 
+                      value={customPolicyType} 
+                      onChange={(e) => setCustomPolicyType(e.target.value)} 
+                      placeholder="اكتب مسمى السياسة هنا (مثال: سياسة الشحن)..." 
+                      required 
+                    />
+                  </div>
+                )}
               </div>
             </div>
 
@@ -362,7 +406,7 @@ export default function PoliciesGeneratorSA() {
               </div>
             </div>
 
-            {policyType === 'سياسة الاستبدال والاسترجاع' && (
+            {policySelect === 'سياسة الاستبدال والاسترجاع' && (
               <div className="input-group">
                 <label>مدة الاستبدال والاسترجاع (بالأيام)</label>
                 <div className="input-wrapper">
@@ -379,7 +423,7 @@ export default function PoliciesGeneratorSA() {
 
         {/* قسم المعاينة والنسخ الفوري */}
         <div className="card">
-          <h2 className="card-title">معاينة نص السياسة (قابل للتعديل)</h2>
+          <h2 className="card-title">معاينة نص السياسة ({actualPolicyType})</h2>
 
           <div className="input-group" style={{ marginBottom: 0 }}>
             <div className="input-wrapper">
