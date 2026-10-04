@@ -44,7 +44,6 @@ export default function WhatsappCrmSA() {
 
   const val = typeof orderValue === 'number' ? orderValue : 0;
 
-  // تغيير القالب بناءً على القائمة المنسدلة (مع ترك حرية التعديل للتاجر)
   const handlePresetChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selected = e.target.value;
     if (selected === 'abandoned') {
@@ -116,10 +115,10 @@ export default function WhatsappCrmSA() {
   };
 
   const handleEdit = (item: CustomerItem) => {
-    setCustomerName(item.customerName);
-    setPhoneNumber(item.phoneNumber);
-    setStatus(item.status);
-    setOrderValue(item.orderValue);
+    setCustomerName(item.customerName || '');
+    setPhoneNumber(item.phoneNumber || '');
+    setStatus(item.status || 'سلة متروكة');
+    setOrderValue(item.orderValue || 0);
     setPaymentLink(item.paymentLink || '');
     setMessageTemplate(item.messageTemplate || '');
     setEditingId(item.id);
@@ -133,19 +132,23 @@ export default function WhatsappCrmSA() {
     }
   };
 
-  // دالة ذكية لإرسال الواتساب
   const handleSendWhatsapp = (item: CustomerItem) => {
-    // تنظيف رقم الجوال (تحويل 05 الى 9665)
-    let phone = item.phoneNumber.replace(/\D/g, '');
+    // حماية إضافية للبيانات
+    const safePhone = item.phoneNumber || '';
+    const safeName = item.customerName || 'عميلنا العزيز';
+    const safeAmount = (item.orderValue || 0).toString();
+    const safeLink = item.paymentLink || '';
+    const safeTemplate = item.messageTemplate || '';
+
+    let phone = safePhone.replace(/\D/g, '');
     if (phone.startsWith('05')) {
       phone = '966' + phone.substring(1);
     }
     
-    // استبدال المتغيرات في الرسالة
-    let text = item.messageTemplate
-      .replace(/{name}/g, item.customerName)
-      .replace(/{amount}/g, item.orderValue.toString())
-      .replace(/{link}/g, item.paymentLink || '');
+    let text = safeTemplate
+      .replace(/{name}/g, safeName)
+      .replace(/{amount}/g, safeAmount)
+      .replace(/{link}/g, safeLink);
 
     const url = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
     window.open(url, '_blank');
@@ -157,7 +160,7 @@ export default function WhatsappCrmSA() {
       return;
     }
 
-    const totalOrdersValue = items.reduce((acc, curr) => acc + curr.orderValue, 0);
+    const totalOrdersValue = items.reduce((acc, curr) => acc + (curr.orderValue || 0), 0);
 
     let tableHtml = `
       <html dir="rtl" lang="ar">
@@ -190,12 +193,12 @@ export default function WhatsappCrmSA() {
       tableHtml += `
         <tr>
           <td>${idx + 1}</td>
-          <td>${row.customerName}</td>
+          <td>${row.customerName || ''}</td>
           <td>${row.createdAt || '-'}</td>
-          <td>${row.phoneNumber}</td>
-          <td>${row.status}</td>
-          <td>${row.orderValue}</td>
-          <td>${row.paymentLink}</td>
+          <td>${row.phoneNumber || ''}</td>
+          <td>${row.status || ''}</td>
+          <td>${row.orderValue || 0}</td>
+          <td>${row.paymentLink || ''}</td>
         </tr>
       `;
     });
@@ -242,12 +245,13 @@ export default function WhatsappCrmSA() {
     }
   };
 
+  // إضافة حماية || '' لمنع انهيار الصفحة بسبب بيانات قديمة فارغة
   const filteredItems = items.filter(item => 
-    item.customerName.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    item.phoneNumber.includes(searchQuery)
+    (item.customerName || '').toLowerCase().includes(searchQuery.toLowerCase()) || 
+    (item.phoneNumber || '').includes(searchQuery)
   );
 
-  const totalOrdersValue = filteredItems.reduce((acc, curr) => acc + curr.orderValue, 0);
+  const totalOrdersValue = filteredItems.reduce((acc, curr) => acc + (curr.orderValue || 0), 0);
   const abandonedCount = filteredItems.filter(i => i.status === 'سلة متروكة').length;
   const completedCount = filteredItems.filter(i => i.status === 'طلب مكتمل').length;
 
@@ -327,7 +331,6 @@ export default function WhatsappCrmSA() {
       </div>
 
       <div className="grid-layout">
-        {/* قسم إدخال بيانات العميل */}
         <div className="card">
           <h2 className="card-title">
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
@@ -383,7 +386,6 @@ export default function WhatsappCrmSA() {
               </div>
             </div>
 
-            {/* قسم القالب القابل للتعديل للتاجر */}
             <div style={{ background: '#f8fafc', padding: '15px', borderRadius: '8px', marginTop: '20px', border: '1px solid #e2e8f0' }}>
               <div className="input-group">
                 <label style={{ color: '#0f172a' }}>اختر نموذج الرسالة (لتعبئة المربع أدناه)</label>
@@ -420,7 +422,6 @@ export default function WhatsappCrmSA() {
           </form>
         </div>
 
-        {/* قسم الإحصائيات الفورية */}
         <div className="card">
           <h2 className="card-title">مؤشرات قاعدة العملاء</h2>
 
@@ -451,7 +452,6 @@ export default function WhatsappCrmSA() {
         </div>
       </div>
 
-      {/* جدول إدارة العملاء السفلي */}
       <div className="table-section">
         <div className="table-toolbar">
           <input 
