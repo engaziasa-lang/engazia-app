@@ -43,26 +43,26 @@ export default async function ProgrammaticSeoPage({ params }: PageProps) {
           <h2 style={{ fontSize: '28px', color: '#0f172a', fontWeight: '800', borderBottom: '2px solid #f1f5f9', paddingBottom: '16px', marginBottom: '24px' }}>
             {pageData.article.h1}
           </h2>
-          <p style={{ fontSize: '18px', marginBottom: '32px' }}>{pageData.article.intro}</p>
+          <p style={{ fontSize: '18px', marginBottom: '32px', textAlign: 'justify' }}>{pageData.article.intro}</p>
 
           <h3 style={{ fontSize: '24px', color: '#047857', fontWeight: '700', marginBottom: '16px' }}>{pageData.article.h2_1}</h3>
-          <p style={{ fontSize: '18px', marginBottom: '32px' }}>{pageData.article.p_1}</p>
+          <p style={{ fontSize: '18px', marginBottom: '32px', textAlign: 'justify' }}>{pageData.article.p_1}</p>
 
           <h3 style={{ fontSize: '24px', color: '#047857', fontWeight: '700', marginBottom: '16px' }}>{pageData.article.h2_2}</h3>
-          <p style={{ fontSize: '18px', marginBottom: '32px' }}>{pageData.article.p_2}</p>
+          <p style={{ fontSize: '18px', marginBottom: '32px', textAlign: 'justify' }}>{pageData.article.p_2}</p>
 
           <h3 style={{ fontSize: '24px', color: '#047857', fontWeight: '700', marginBottom: '16px' }}>{pageData.article.h2_3}</h3>
-          <p style={{ fontSize: '18px', marginBottom: '0' }}>{pageData.article.p_3}</p>
+          <p style={{ fontSize: '18px', marginBottom: '0', textAlign: 'justify' }}>{pageData.article.p_3}</p>
         </article>
 
         {/* الأسئلة الشائعة */}
         <section style={{ backgroundColor: '#ffffff', padding: '48px', borderRadius: '24px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)' }}>
-          <h2 style={{ fontSize: '28px', color: '#0f172a', fontWeight: '800', marginBottom: '32px' }}>الأسئلة الشائعة</h2>
+          <h2 style={{ fontSize: '28px', color: '#0f172a', fontWeight: '800', marginBottom: '32px' }}>الأسئلة الشائعة والاستشارات</h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             {pageData.faqs.map((faq, index) => (
               <div key={index} style={{ borderBottom: index !== pageData.faqs.length - 1 ? '1px solid #f1f5f9' : 'none', paddingBottom: index !== pageData.faqs.length - 1 ? '24px' : '0' }}>
                 <h4 style={{ fontSize: '20px', color: '#1e293b', fontWeight: '700', margin: '0 0 12px 0' }}>{faq.q}</h4>
-                <p style={{ fontSize: '18px', color: '#475569', margin: '0', lineHeight: '1.8' }}>{faq.a}</p>
+                <p style={{ fontSize: '18px', color: '#475569', margin: '0', lineHeight: '1.9' }}>{faq.a}</p>
               </div>
             ))}
           </div>
