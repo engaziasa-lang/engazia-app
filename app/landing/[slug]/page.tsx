@@ -1,10 +1,7 @@
-'use client';
-
 import React from 'react';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
 
-// قاعدة بيانات أدوات منصة إنجازيا الـ 24 الرئيسية للاستهداف
+// 1. تعريف القوائم الضخمة التي تولد عشرات الآلاف من التداخلات الفريدة
 const platformTools = [
   { id: 'profit-calculator', name: 'حاسبة أرباح ونقاط التعادل وضريبة 15%', category: 'الإدارة المالية' },
   { id: 'whatsapp-crm', name: 'إدارة عملاء واتساب والسلال المتروكة', category: 'زيادة المبيعات' },
@@ -21,7 +18,11 @@ const citiesList = [
   { id: 'makkah', name: 'مكة المكرمة' },
   { id: 'hafar-albatin', name: 'حفر الباطن' },
   { id: 'qassim', name: 'بريدة والقصيم' },
-  { id: 'abha', name: 'أبها وعسير' }
+  { id: 'abha', name: 'أبها وعسير' },
+  { id: 'tabuk', name: 'تبوك' },
+  { id: 'khobar', name: 'الخبر' },
+  { id: 'taif', name: 'الطائف' },
+  { id: 'khamis-mushait', name: 'خميس مشيط' }
 ];
 
 const ecommercePlatforms = [
@@ -29,11 +30,32 @@ const ecommercePlatforms = [
   { id: 'zid', name: 'متجر زد (Zid)' }
 ];
 
-export default function EnjazyaHubProgrammaticLanding() {
-  const params = useParams();
-  const slug = (params?.slug as string) || '';
+// 2. دالة generateStaticParams لتوليد مسارات عشرات الآلاف من الصفحات لـ Next.js
+export async function generateStaticParams() {
+  const paths: { slug: string }[] = [];
 
-  // مطابقة الـ Slug لاستخراج الأداة، المدينة، والمنصة التجارية بدقة فريدة
+  platformTools.forEach((tool) => {
+    citiesList.forEach((city) => {
+      ecommercePlatforms.forEach((ecom) => {
+        paths.push({
+          slug: `${tool.id}-${city.id}-${ecom.id}`,
+        });
+      });
+    });
+  });
+
+  return paths;
+}
+
+interface PageProps {
+  params: Promise<{ slug: string }>;
+}
+
+export default async function EnjazyaHubProgrammaticLanding({ params }: PageProps) {
+  const resolvedParams = await params;
+  const slug = resolvedParams?.slug || '';
+
+  // استخراج المتغيرات ديناميكياً من الـ Slug
   const currentTool = platformTools.find((t) => slug.includes(t.id)) || platformTools[0];
   const currentCity = citiesList.find((c) => slug.includes(c.id)) || citiesList[0];
   const currentEcom = ecommercePlatforms.find((e) => slug.includes(e.id)) || ecommercePlatforms[0];
