@@ -1,71 +1,129 @@
-// lib/toolsData.ts
+// @ts-nocheck
 
-export interface ToolData {
-  slug: string;
-  title: string;
-  subtitle: string;
-  badge: string;
-  description: string;
-  imagePath: string;
-  actionUrl: string;
-  features: string[];
-  articleTitle: string;
-  articleText1: string;
-  articleText2: string;
-  faqs: { question: string; answer: string }[];
-}
+import { getToolBySlug, toolsData } from '@/lib/toolsData';
+import Link from 'next/link';
 
-export const toolsData: Record<string, ToolData> = {
-  "breakeven-calculator": {
-    slug: "breakeven-calculator",
-    title: "حاسبة أرباح ونقطة التعادل للمتاجر الإلكترونية في السعودية",
-    subtitle: "الدليل الشامل لحساب وتتبع الأرباح الصافية، تكاليف الشحن، بوابات الدفع، وضريبة 15%.",
-    badge: "أداة رقمية متقدمة وحصرية",
-    description: "تعتبر هذه الأداة الحل الأمثل والعمود الفقري لأي تاجر على منصات سلة (Salla) أو زد (Zid)؛ حيث تمنع بيع أي منتج بخسارة خفية عبر تحديد حجم المبيعات اللازم لتغطية التكاليف.",
-    imagePath: "/images/tools/tool-1.png",
-    actionUrl: "https://engazia-app.vercel.app/hub/sa/profit",
-    features: [
-      "حساب دقيق لهامش الربح الفعلي للقطعة الواحدة بالريال السعودي",
-      "متوافق تماماً مع متطلبات ضريبة القيمة المضافة 15% المعتمدة",
-      "تحليل فوري وشامل لتكاليف المنصة، التغليف، وعمولة التحصيل"
-    ],
-    articleTitle: "الدليل الشامل: كيف تحسب نقطة التعادل وتضاعف أرباح متجرك الإلكتروني في السوق السعودي؟",
-    articleText1: "تشهد التجارة الإلكترونية في المملكة العربية السعودية نموهاً متسارعاً مدعومة برؤية 2030 والتحول الرقمي. ومع دخول آلاف التجار إلى منصات مثل 'سلة' و'زد'، يبرز تحدي حساب التكاليف الحقيقية لكل طلب. يفاجأ الكثير من التجار بنهاية الشهر بمبيعات ضخمة وأرباح صافية شبه معدومة بسبب تجاهل المصاريف الخفية مثل رسوم بوابات الدفع (مدى، تابي، تمارا)، تكاليف الشحن العكسي، وعمولات المنصات.",
-    articleText2: "يختلف السوق السعودي في سلوك المستهلك وتكاليفه التشغيلية؛ حيث يتوقع المستهلك سرعة التوصيل وخيارات دفع متعددة وسياسة استرجاع مرنة. فعند تسعير المنتج، لا يكفي طرح سعر الشراء من البيع، بل يجب تضمين اشتراك المنصة، الإعلانات الممولة، ورسوم الشحن. يتم دمج ضريبة القيمة المضافة 15% آلياً لضمان عدم تأثر أرباح التاجر الصافية والاستدامة.",
-    faqs: [
-      { question: "كيف تحمي هذه الحاسبة متجري من الخسارة؟", answer: "توضح لك بدقة الحد الأدنى لسعر البيع بحيث لا تتآكل أرباحك بسبب المصاريف التشغيلية الخفية وضريبة 15%." }
-    ]
-  }
-};
+export default function LandingPage({ params }: any) {
+  const slug = params?.slug || 'breakeven-calculator';
+  const tool = getToolBySlug(slug);
 
-export function getToolBySlug(slug: string): ToolData {
-  const cleanSlug = slug || "breakeven-calculator";
-  
-  if (toolsData[cleanSlug]) {
-    return toolsData[cleanSlug];
-  }
+  const relatedTools = Object.keys(toolsData)
+    .filter((k) => k !== slug)
+    .slice(0, 4)
+    .map((k) => ({
+      slug: toolsData[k].slug,
+      title: toolsData[k].title
+    }));
 
-  // هذا المولد الذكي سيصنع صفحات الهبوط الـ 27 الباقية أوتوماتيكياً وبدون أي خطأ في البناء
-  const formattedName = cleanSlug.replace(/-/g, ' ');
-  return {
-    slug: cleanSlug,
-    title: `أداة ${formattedName} المتقدمة للمتاجر الإلكترونية في السعودية`,
-    subtitle: `حلول رقمية مبتكرة ومخصصة لرفع كفاءة ومبيعات المتاجر الرقمية في المملكة.`,
-    badge: "أداة رقمية متقدمة وحصرية",
-    description: `تتيح لك هذه الأداة الاستفادة من أحدث خوارزميات وأساليب الأتمتة والتحليل المعتمدة في السوق السعودي لتطوير عملك الرقمي بكل سهولة واحترافية عالية.`,
-    imagePath: "/images/tools/tool-1.png",
-    actionUrl: `https://engazia-app.vercel.app/hub/sa`,
-    features: [
-      "أداء سريع ودقيق وموثوق للمتاجر",
-      "متوافقة تماماً مع منصات التجارة في السعودية",
-      "تحليلات وتقارير فورية للبيانات والأداء"
-    ],
-    articleTitle: `الدليل الشامل لاستخدام أداة ${formattedName} في تطوير المتاجر الرقمية بالسعودية`,
-    articleText1: `تتطلب إدارة المتجر الإلكتروني الحديث أدوات دقيقة ومتطورة لمواكبة تطلعات المستهلك السعودي وضمان التفوق على المنافسين في السوق المحلي عبر اتخاذ قرارات مبنية على بيانات واضحة وشاملة. يساعدك هذا النظام المتقدم على أتمتة العمليات اليومية ورفع كفاءة الأداء المالي والتسويقي بكل سهولة واستدامة.`,
-    articleText2: `من خلال دمج التقنية الحديثة بالاستراتيجيات التسويقية الموثوقة، يستطيع رائد الأعمال تحقيق نمو مستدام ومضاعفة أرباح مشروعه الرقمي بكل ثقة تامة ومواكبة معايير السوق السعودي المتسارعة نحو التحول الرقمي الشامل.`,
-    faqs: [
-      { question: "كيف تساعدك هذه الأداة في متجرك؟", answer: "تقدم تقارير وأدوات فورية ومبسطة لرفع كفاءة ومبيعات متجرك الرقمي بكل سهولة." },
-      { question: "هل الأداة مصممة للسوق السعودي؟", answer: "نعم، مجهزة بالكامل لتلائم طبيعة ومميزات المتاجر الإلكترونية في المملكة." }
-    ]
-  };
+  return (
+    <div style={{ width: '100%', backgroundColor: '#f8fafc', padding: '40px 16px', direction: 'rtl', boxSizing: 'border-box' }}>
+      <div style={{ maxWidth: '1050px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '32px' }}>
+        
+        {/* الهيدر */}
+        <div style={{ backgroundColor: '#ffffff', borderRadius: '24px', padding: '32px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '32px' }}>
+          
+          <div style={{ flex: '1 1 500px', display: 'flex', flexDirection: 'column', gap: '16px', textAlign: 'right' }}>
+            <span style={{ display: 'inline-block', backgroundColor: '#ecfdf5', color: '#065f46', fontSize: '12px', fontWeight: 'bold', padding: '6px 14px', borderRadius: '9999px', border: '1px solid #a7f3d0', width: 'fit-content' }}>
+              {tool.badge}
+            </span>
+            
+            <h1 style={{ fontSize: '28px', fontWeight: '900', color: '#0f172a', lineHeight: '1.4', margin: 0 }}>
+              {tool.title}
+            </h1>
+
+            <p style={{ fontSize: '15px', fontWeight: '600', color: '#059669', margin: 0 }}>
+              {tool.subtitle}
+            </p>
+            
+            <p style={{ fontSize: '15px', color: '#475569', lineHeight: '1.7', margin: 0 }}>
+              {tool.description}
+            </p>
+            
+            <ul style={{ listStyle: 'none', padding: 0, margin: '8px 0', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {tool.features.map((feature, index) => (
+                <li key={index} style={{ display: 'flex', alignItems: 'center', color: '#334155', fontSize: '14px', fontWeight: '500' }}>
+                  <span style={{ width: '20px', height: '20px', backgroundColor: '#d1fae5', color: '#047857', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: '12px', flexShrink: 0, fontSize: '12px', fontWeight: 'bold' }}>
+                    ✓
+                  </span>
+                  <span>{feature}</span>
+                </li>
+              ))}
+            </ul>
+
+            <div style={{ paddingTop: '12px' }}>
+              <a 
+                href={tool.actionUrl} 
+                style={{ display: 'inline-block', backgroundColor: '#059669', color: '#ffffff', fontWeight: 'bold', padding: '14px 28px', borderRadius: '14px', textDecoration: 'none', boxShadow: '0 10px 15px -3px rgba(5, 150, 105, 0.3)', textAlign: 'center' }}
+              >
+                تشغيل الأداة والبدء بالحساب فوراً ←
+              </a>
+            </div>
+          </div>
+
+          <div style={{ flex: '1 1 350px', backgroundColor: '#0f172a', borderRadius: '16px', padding: '12px', border: '1px solid #334155', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <img 
+              src={tool.imagePath} 
+              alt={tool.title} 
+              style={{ width: '100%', height: 'auto', maxHeight: '300px', objectFit: 'contain', borderRadius: '12px' }}
+            />
+          </div>
+
+        </div>
+
+        {/* محتوى السيو */}
+        <div style={{ backgroundColor: '#ffffff', borderRadius: '24px', padding: '36px', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0,0,0,0.02)', display: 'flex', flexDirection: 'column', gap: '16px', textAlign: 'right' }}>
+          <h2 style={{ fontSize: '22px', fontWeight: '900', color: '#047857', margin: 0 }}>
+            {tool.articleTitle}
+          </h2>
+          <p style={{ fontSize: '15px', color: '#475569', lineHeight: '1.9', margin: 0, textAlign: 'justify' }}>
+            {tool.articleText1}
+          </p>
+          <p style={{ fontSize: '15px', color: '#475569', lineHeight: '1.9', margin: 0, textAlign: 'justify' }}>
+            {tool.articleText2}
+          </p>
+        </div>
+
+        {/* الأسئلة الشائعة */}
+        <div style={{ backgroundColor: '#ffffff', borderRadius: '24px', padding: '32px', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0,0,0,0.02)', textAlign: 'right' }}>
+          <h2 style={{ fontSize: '20px', fontWeight: 'bold', color: '#0f172a', marginBottom: '20px' }}>الأسئلة الشائعة حول هذه الأداة</h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {tool.faqs.map((faq, idx) => (
+              <div key={idx} style={{ borderBottom: '1px solid #f1f5f9', paddingBottom: '12px' }}>
+                <h3 style={{ fontSize: '16px', fontWeight: 'bold', color: '#1e293b', margin: '0 0 6px 0' }}>{faq.question}</h3>
+                <p style={{ fontSize: '14px', color: '#64748b', margin: 0, lineHeight: '1.6' }}>{faq.answer}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* أدوات أخرى */}
+        {relatedTools.length > 0 && (
+          <div style={{ backgroundColor: '#0f172a', color: '#ffffff', borderRadius: '24px', padding: '32px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <div>
+              <h2 style={{ fontSize: '20px', fontWeight: 'bold', margin: '0 0 6px 0', textAlign: 'right' }}>استكشف المزيد من أدوات منصة إنجازيا</h2>
+              <p style={{ fontSize: '14px', color: '#94a3b8', margin: 0, textAlign: 'right' }}>منظومة متكاملة من الآلات الحاسبة وأدوات الأتمتة.</p>
+            </div>
+            
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', paddingTop: '8px' }}>
+              {relatedTools.map((rt, idx) => (
+                <Link 
+                  key={idx} 
+                  href={`/landing/${rt.slug}`}
+                  style={{ backgroundColor: '#1e293b', border: '1px solid #334155', padding: '16px', borderRadius: '12px', textDecoration: 'none', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
+                >
+                  <span style={{ fontSize: '14px', fontWeight: 'bold', color: '#e2e8f0', lineHeight: '1.4', textAlign: 'right' }}>
+                    {rt.title}
+                  </span>
+                  <span style={{ fontSize: '12px', color: '#34d399', marginTop: '16px', display: 'flex', alignItems: 'center' }}>
+                    استخدم الأداة <span style={{ marginRight: '4px' }}>←</span>
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
+      </div>
+    </div>
+  );
 }
