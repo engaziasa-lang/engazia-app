@@ -44,15 +44,16 @@ const citiesMap: Record<string, string> = {
   duba: 'ضباء', umluj: 'املج', haql: 'حقل'
 };
 
+const categoriesList = ['salla', 'zid', 'perfumes', 'dates', 'fashion', 'gifts'];
+
 export async function generateStaticParams() {
   const paths: { slug: string }[] = [];
   const tools = Object.keys(toolsMap);
   const cities = Object.keys(citiesMap);
-  const categories = ['salla', 'zid', 'perfumes', 'dates', 'fashion', 'gifts'];
 
   tools.forEach((t) => {
     cities.forEach((c) => {
-      categories.forEach((cat) => {
+      categoriesList.forEach((cat) => {
         paths.push({ slug: `${t}-${c}-${cat}` });
       });
     });
@@ -75,11 +76,16 @@ export default async function ProgrammaticLanding({ params }: PageProps) {
   const toolName = toolsMap[matchedToolKey];
   const cityName = citiesMap[matchedCityKey];
 
+  // استخراج المدن الأخرى لعمل روابط داخلية حية
+  const otherCities = Object.keys(citiesMap).filter((c) => c !== matchedCityKey).slice(0, 10);
+
   return (
     <div style={{ direction: 'rtl', fontFamily: 'Tajawal, sans-serif', backgroundColor: '#f8fafc', minHeight: '100vh', padding: '40px 20px' }}>
       <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet" />
       
       <div style={{ maxWidth: '950px', margin: '0 auto' }}>
+        
+        {/* شريط التنظيم العلوي */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px', flexWrap: 'wrap', gap: '10px' }}>
           <span style={{ background: '#dcfce7', color: '#166534', padding: '6px 12px', borderRadius: '6px', fontWeight: 800, fontSize: '13px' }}>
             📍 مخصص لمدينة {cityName}
@@ -89,6 +95,7 @@ export default async function ProgrammaticLanding({ params }: PageProps) {
           </Link>
         </div>
 
+        {/* صندوق الهبوط الرئيسي */}
         <div style={{ background: '#ffffff', borderRadius: '20px', border: '2px solid #e2e8f0', padding: '40px', boxShadow: '0 10px 25px rgba(0,0,0,0.03)', marginBottom: '35px', textAlign: 'center' }}>
           <h1 style={{ fontSize: '32px', fontWeight: 900, color: '#0f172a', marginBottom: '20px', lineHeight: '1.4' }}>
             {toolName} في {cityName} | منصة إنجازيا
@@ -100,6 +107,23 @@ export default async function ProgrammaticLanding({ params }: PageProps) {
             ⚡ تفعيل كافة الأدوات الـ 24 الآن (49.99 ر.س) 🚀
           </Link>
         </div>
+
+        {/* شبكة الربط الداخلي الذكي بين الصفحات (لضمان الزحف والأرشفة) */}
+        <div style={{ background: '#ffffff', borderRadius: '16px', padding: '25px', border: '1px solid #e2e8f0' }}>
+          <h4 style={{ fontSize: '15px', fontWeight: 900, color: '#0f172a', marginBottom: '12px' }}>🔗 تصفح نفس الخدمة في المدن السعودية الأخرى:</h4>
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            {otherCities.map((cKey) => (
+              <Link 
+                key={cKey} 
+                href={`/landing/${matchedToolKey}-${cKey}-salla`} 
+                style={{ background: '#f1f5f9', color: '#334155', padding: '6px 12px', borderRadius: '6px', fontSize: '13px', fontWeight: 700, textDecoration: 'none' }}
+              >
+                {toolName} في {citiesMap[cKey]}
+              </Link>
+            ))}
+          </div>
+        </div>
+
       </div>
     </div>
   );
