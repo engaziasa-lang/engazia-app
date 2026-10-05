@@ -4,7 +4,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://engazia-app.vercel.app';
 
   const tools = ['profit-calculator', 'whatsapp-crm', 'vat-system', 'fees-analyzer', 'competitor-jasmal'];
-  const cities = ['riyadh', 'jeddah', 'dammam', 'madinah', 'makkah', 'hafar-albatin', 'qassim', 'abha'];
+  const cities = ['riyadh', 'jeddah', 'dammam', 'madinah', 'makkah', 'hafar-albatin', 'qassim', 'abha', 'tabuk', 'khobar', 'taif', 'khamis-mushait'];
   const ecom = ['salla', 'zid'];
 
   const landingPages: MetadataRoute.Sitemap = [];
