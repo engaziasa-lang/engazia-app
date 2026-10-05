@@ -4,85 +4,112 @@ import React from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 
-// قاعدة بيانات المتغيرات الذكية (تولد آلاف التداخلات الفريدة بدون تكرار)
-const cities = [
-  { name: 'الرياض', slug: 'riyadh', desc: 'عاصمة التجارة والأعمال الرقمية، حيث تنشط مئات المتاجر على سلة وزد.' },
-  { name: 'جدة', slug: 'jeddah', desc: 'بوابة التجارة واللوجستيات الكبرى، ومقر لكبرى مشاريع الدروبشيبينغ والاستيراد.' },
-  { name: 'مكة المكرمة', slug: 'makkah', desc: 'سوق واعد للمتاجر الموسمية وخدمات ضيوف الرحمن والتجارة الإلكترونية.' },
-  { name: 'المدينة المنورة', slug: 'madinah', desc: 'موطن رواد الأعمال الطموحين ومشاريع تمور راكان والخدمات الرقمية المتطورة.' },
-  { name: 'الدمام والمنطقة الشرقية', slug: 'dammam', desc: 'مركز الصناعات اللوجستية والتجارة الخليجية المجاورة.' },
-  { name: 'بريدة وقسيم التجارة', slug: 'qassim', desc: 'عاصمة التوزيع الزراعي والتجاري الرقمي وس سلاسل الإمداد.' },
-  { name: 'أبها وسراة عسير', slug: 'abha', desc: 'محبوبة السياحة والمتاجر المحلية المتنامية في قطاع التجزئة.' }
+// قاعدة بيانات أدوات منصة إنجازيا الـ 24 الرئيسية للاستهداف
+const platformTools = [
+  { id: 'profit-calculator', name: 'حاسبة أرباح ونقاط التعادل وضريبة 15%', category: 'الإدارة المالية' },
+  { id: 'whatsapp-crm', name: 'إدارة عملاء واتساب والسلال المتروكة', category: 'زيادة المبيعات' },
+  { id: 'vat-system', name: 'مجهز بيانات الإقرار الضريبي لزاتكا', category: 'الزكاة والضريبة' },
+  { id: 'fees-analyzer', name: 'حاسبة رسوم بوابات الدفع (تابي، تمارا، مدى)', category: 'التكاليف الخفية' },
+  { id: 'competitor-jasmal', name: 'جاسمال لاستخراج بيانات المنافسين وإكسل', category: 'ذكاء الأعمال' }
 ];
 
-const toolsList = [
-  { id: 'profit', name: 'حاسبة أرباح ونقاط التعادل', keyword: 'حساب أرباح المتجر الإلكتروني وضريبة 15%' },
-  { id: 'fees', name: 'حاسبة رسوم بوابات الدفع تابي وتمارا', keyword: 'حساب نسب بوابات الدفع وتقليل التكاليف' },
-  { id: 'whatsapp', name: 'إدارة عملاء واتساب السلال المتروكة', keyword: 'استعادة السلال المتروكة عبر واتساب تلقائياً' },
-  { id: 'vat', name: 'مجهز بيانات الإقرار الضريبي زاتكا', keyword: 'إعداد ملفات ضريبة القيمة المضافة لزاتكا بسهولة' },
-  { id: 'jasmal', name: 'جاسمال لاستخراج بيانات المنافسين', keyword: 'سحب أسعار ومنتجات المنافسين في السوق السعودي' }
+const citiesList = [
+  { id: 'riyadh', name: 'الرياض' },
+  { id: 'jeddah', name: 'جدة' },
+  { id: 'dammam', name: 'الدمام والمنطقة الشرقية' },
+  { id: 'madinah', name: 'المدينة المنورة' },
+  { id: 'makkah', name: 'مكة المكرمة' },
+  { id: 'hafar-albatin', name: 'حفر الباطن' },
+  { id: 'qassim', name: 'بريدة والقصيم' },
+  { id: 'abha', name: 'أبها وعسير' }
 ];
 
-export default function ProgrammaticLandingPage() {
+const ecommercePlatforms = [
+  { id: 'salla', name: 'متجر سلة (Salla)' },
+  { id: 'zid', name: 'متجر زد (Zid)' }
+];
+
+export default function EnjazyaHubProgrammaticLanding() {
   const params = useParams();
-  const slug = params?.slug as string || '';
+  const slug = (params?.slug as string) || '';
 
-  // تحليل الـ Slug لاستخراج المدينة والأداة بشكل ديناميكي فريد
-  const parts = slug.split('-');
-  const matchedCity = cities.find(c => slug.includes(c.slug)) || cities[0];
-  const matchedTool = toolsList.find(t => slug.includes(t.id)) || toolsList[0];
+  // مطابقة الـ Slug لاستخراج الأداة، المدينة، والمنصة التجارية بدقة فريدة
+  const currentTool = platformTools.find((t) => slug.includes(t.id)) || platformTools[0];
+  const currentCity = citiesList.find((c) => slug.includes(c.id)) || citiesList[0];
+  const currentEcom = ecommercePlatforms.find((e) => slug.includes(e.id)) || ecommercePlatforms[0];
 
-  const pageTitle = `${matchedTool.name} في ${matchedCity.name} | أدوات إنجازيا للمتاجر السعودية`;
-  const pageDescription = `اكتشف أفضل طريقة لـ ${matchedTool.keyword} ${matchedCity.name}. ${matchedCity.desc} احصل على وصول شامل لأدوات إنجازيا الاحترافية.`;
+  const pageTitle = `${currentTool.name} في ${currentCity.name} لتجار ${currentEcom.name} | منصة إنجازيا`;
+  const pageDescription = `اكتشف كيف تساعد ${currentTool.name} أصحاب المتاجر على ${currentEcom.name} في ${currentCity.name} على مضاعفة الأرباح وضبط الحسابات بدقة تامة.`;
 
   return (
     <div style={{ direction: 'rtl', fontFamily: 'Tajawal, sans-serif', backgroundColor: '#f8fafc', minHeight: '100vh', padding: '40px 20px' }}>
       <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet" />
       
-      <div style={{ maxWidth: '900px', margin: '0 auto' }}>
+      <div style={{ maxWidth: '950px', margin: '0 auto' }}>
         
-        {/* شبار التنظيم العلوي */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
-          <span style={{ background: '#dcfce7', color: '#166534', padding: '6px 14px', borderRadius: '8px', fontWeight: 800, fontSize: '13px' }}>
-            🇸🇦 موجه لتجار {matchedCity.name}
-          </span>
+        {/* شريط التنظيم العلوي */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px', flexWrap: 'wrap', gap: '10px' }}>
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            <span style={{ background: '#dcfce7', color: '#166534', padding: '6px 12px', borderRadius: '6px', fontWeight: 800, fontSize: '13px' }}>
+              🚀 منصة إنجازيا (24 أداة سحابية)
+            </span>
+            <span style={{ background: '#e0e7ff', color: '#3730a3', padding: '6px 12px', borderRadius: '6px', fontWeight: 800, fontSize: '13px' }}>
+              📍 {currentCity.name}
+            </span>
+            <span style={{ background: '#fef3c7', color: '#92400e', padding: '6px 12px', borderRadius: '6px', fontWeight: 800, fontSize: '13px' }}>
+              🛒 {currentEcom.name}
+            </span>
+          </div>
           <Link href="/hub/sa" style={{ background: '#0f172a', color: '#fff', padding: '8px 16px', borderRadius: '8px', textDecoration: 'none', fontWeight: 800, fontSize: '13px' }}>
-            ← الانتقال للمنصة الرئيسية (24 أداة)
+            ← الدخول للترسانة الكاملة
           </Link>
         </div>
 
-        {/* صندوق الهبوط الرئيسي */}
-        <div style={{ background: '#ffffff', borderRadius: '20px', border: '2px solid #e2e8f0', padding: '40px', boxShadow: '0 10px 25px rgba(0,0,0,0.03)', marginBottom: '40px' }}>
-          <h1 style={{ fontSize: '30px', fontWeight: 900, color: '#0f172a', marginBottom: '15px', lineHeight: '1.4' }}>
-            {pageTitle}
-          </h1>
-          <p style={{ color: '#475569', fontSize: '16px', lineHeight: '1.8', marginBottom: '30px', fontWeight: 500 }}>
-            {pageDescription} إذا كنت تدير متجراً على سلة أو زد في <b>{matchedCity.name}</b> وتبحث عن حلول دقيقة لنمو المبيعات وضبط الحسابات المالية بعيداً عن التعقيد، فإن منصة إنجازيا توفر لك الترسانة الأقوى مصممة خصيصاً للسوق السعودي.
-          </p>
-
-          <div style={{ background: '#ecfdf5', border: '1px solid #a7f3d0', padding: '25px', borderRadius: '12px', marginBottom: '30px' }}>
-            <h3 style={{ color: '#065f46', fontSize: '18px', fontWeight: 900, marginBottom: '10px' }}>لماذا يعتمد تجار {matchedCity.name} على إنجازيا؟</h3>
-            <ul style={{ margin: 0, paddingRight: '20px', color: '#047857', fontSize: '15px', fontWeight: 700, lineHeight: '2' }}>
-              <li>توافق تام مع متطلبات ضريبة القيمة المضافة وهيئة الزكاة (ZATCA).</li>
-              <li>حسابات دقيقة بالريال السعودي تشمل رسوم بوابات الدفع (تابي، تمارا، مدى).</li>
-              <li>أمان تام: تعمل البيانات محلياً داخل متصفحك لضمان السرية المطلقة.</li>
-            </ul>
+        {/* صندوق الهبوط الرئيسي للمنصة */}
+        <div style={{ background: '#ffffff', borderRadius: '20px', border: '2px solid #e2e8f0', padding: '40px', boxShadow: '0 10px 25px rgba(0,0,0,0.03)', marginBottom: '35px', textAlign: 'center' }}>
+          
+          <div style={{ display: 'inline-block', background: '#ecfdf5', color: '#047857', padding: '6px 16px', borderRadius: '20px', fontSize: '13px', fontWeight: 900, marginBottom: '20px' }}>
+            الترسانة السحابية الأولى لتمكين تجار {currentEcom.name} في {currentCity.name}
           </div>
 
-          <div style={{ textAlign: 'center' }}>
-            <Link href="/hub/sa" style={{ display: 'inline-block', background: '#047857', color: '#fff', padding: '16px 35px', borderRadius: '12px', fontSize: '16px', fontWeight: 900, textDecoration: 'none', boxShadow: '0 6px 15px rgba(4,120,87,0.3)' }}>
-              🚀 تفعيل جميع الأدوات الـ 24 الآن (عرض خاص بـ 49.99 ر.س)
+          <h1 style={{ fontSize: '32px', fontWeight: 900, color: '#0f172a', marginBottom: '20px', lineHeight: '1.4' }}>
+            {pageTitle}
+          </h1>
+          
+          <p style={{ color: '#475569', fontSize: '16px', lineHeight: '1.8', marginBottom: '35px', fontWeight: 500, maxWidth: '800px', margin: '0 auto 35px' }}>
+            {pageDescription} إذا كنت تدير متجراً عبر {currentEcom.name} وتسعى لتطوير عملياتك في {currentCity.name}، فإن إنجازيا توفر لك حلولاً متكاملة تتوافق مع القوانين السعودية وضريبة القيمة المضافة.
+          </p>
+
+          <div style={{ marginBottom: '25px' }}>
+            <Link href="/hub/sa" style={{ display: 'inline-block', background: '#047857', color: '#fff', padding: '16px 40px', borderRadius: '14px', fontSize: '17px', fontWeight: 900, textDecoration: 'none', boxShadow: '0 8px 20px rgba(4,120,87,0.3)' }}>
+              ⚡ فتح جميع أدوات المنصة الـ 24 الآن (49.99 ر.س) 🚀
             </Link>
+          </div>
+
+          <div style={{ color: '#64748b', fontSize: '13px', fontWeight: 700 }}>
+            🔒 حماية تامة للبيانات محلياً • متوافق مع زاتكا • دعم كامل بالريال السعودي
           </div>
         </div>
 
-        {/* شبكة الربط الداخلي الذكي (لإجبار عناكب جوجل على أرشفة كافة الصفحات) */}
-        <div style={{ background: '#ffffff', borderRadius: '16px', padding: '30px', border: '1px solid #e2e8f0' }}>
-          <h4 style={{ fontSize: '16px', fontWeight: 900, color: '#0f172a', marginBottom: '15px' }}>🔗 استكشف خدمات إنجازيا في مناطق أخرى:</h4>
-          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-            {cities.map((c) => (
-              <Link key={c.slug} href={`/landing/${c.slug}-${matchedTool.id}`} style={{ background: '#f1f5f9', color: '#334155', padding: '6px 12px', borderRadius: '6px', fontSize: '13px', fontWeight: 700, textDecoration: 'none' }}>
-                {matchedTool.name} في {c.name}
+        {/* فوائد ومميزات أدوات إنجازيا */}
+        <div style={{ background: '#ffffff', borderRadius: '16px', padding: '30px', border: '1px solid #e2e8f0', marginBottom: '30px' }}>
+          <h3 style={{ fontSize: '18px', fontWeight: 900, color: '#0f172a', marginBottom: '15px' }}>
+            لماذا يعتمد رواد الأعمال في {currentCity.name} على أدوات إنجازيا؟
+          </h3>
+          <ul style={{ margin: 0, paddingRight: '20px', color: '#334155', fontSize: '15px', fontWeight: 700, lineHeight: '2' }}>
+            <li>حسابات مالية دقيقة ومخصصة لنموذج عمل المتاجر على {currentEcom.name}.</li>
+            <li>توفير آلاف الريالات عبر إدارة التكاليف الخفية ورسوم بوابات الدفع المحلية.</li>
+            <li>سرعة إنجاز المهام والإقرار الضريبي لخدمة تجار {currentCity.name} بكل احترافية.</li>
+          </ul>
+        </div>
+
+        {/* شبكة الربط الداخلي الذكي لأرشفة آلاف الصفحات */}
+        <div style={{ background: '#ffffff', borderRadius: '16px', padding: '25px', border: '1px solid #e2e8f0' }}>
+          <h4 style={{ fontSize: '15px', fontWeight: 900, color: '#0f172a', marginBottom: '12px' }}>🔗 تصفح أدوات إنجازيا في مناطق المنصة الأخرى:</h4>
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            {citiesList.slice(0, 6).map((c) => (
+              <Link key={c.id} href={`/landing/${currentTool.id}-${c.id}-${currentEcom.id}`} style={{ background: '#f1f5f9', color: '#334155', padding: '6px 12px', borderRadius: '6px', fontSize: '13px', fontWeight: 700, textDecoration: 'none' }}>
+                {currentTool.name} في {c.name}
               </Link>
             ))}
           </div>
