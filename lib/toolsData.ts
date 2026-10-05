@@ -1,134 +1,155 @@
-import { getToolBySlug, toolsData } from '@/lib/toolsData';
-import Link from 'next/link';
-import React from 'react';
+export interface ToolData {
+  slug: string;
+  title: string;
+  subtitle: string;
+  badge: string;
+  description: string;
+  imagePath: string;
+  actionUrl: string;
+  features: string[];
+  articleTitle: string;
+  articleText1: string;
+  articleText2: string;
+  faqs: { question: string; answer: string }[];
+}
 
-interface PageProps {
-  params: {
-    slug: string;
+export const toolsData: Record<string, ToolData> = {
+  "breakeven-calculator": {
+    slug: "breakeven-calculator",
+    title: "حاسبة أرباح ونقطة التعادل للمتاجر الإلكترونية في السعودية",
+    subtitle: "الدليل الشامل لحساب وتتبع الأرباح الصافية، تكاليف الشحن، بوابات الدفع، وضريبة 15%.",
+    badge: "أداة رقمية متقدمة وحصرية",
+    description: "تعتبر هذه الأداة الحل الأمثل والعمود الفقري لأي تاجر على منصات سلة أو زد؛ حيث تمنع بيع أي منتج بخسارة عبر تحديد حجم المبيعات اللازم لتغطية التكاليف.",
+    imagePath: "/images/tools/tool-1.png",
+    actionUrl: "https://engazia-app.vercel.app/hub/sa/profit",
+    features: [
+      "حساب دقيق لهامش الربح الفعلي للقطعة الواحدة بالريال السعودي",
+      "متوافق تماماً مع متطلبات ضريبة القيمة المضافة 15% المعتمدة",
+      "تحليل فوري وشامل لتكاليف المنصة، التغليف، وعمولة التحصيل"
+    ],
+    articleTitle: "الدليل الشامل: كيف تحسب نقطة التعادل وتضاعف أرباح متجرك الإلكتروني في السوق السعودي؟",
+    articleText1: "تشهد التجارة الإلكترونية في المملكة العربية السعودية نموهاً متسارعاً. ومع دخول آلاف التجار إلى منصات مثل 'سلة' و'زد'، يبرز تحدي حساب التكاليف الحقيقية لكل طلب. يفاجأ الكثير من التجار بنهاية الشهر بمبيعات ضخمة وأرباح صافية شبه معدومة بسبب تجاهل المصاريف الخفية مثل رسوم بوابات الدفع (مدى، تابي، تمارا)، تكاليف الشحن العكسي، وعمولات المنصات.",
+    articleText2: "يختلف السوق السعودي في سلوك المستهلك وتكاليفه التشغيلية؛ حيث يتوقع المستهلك سرعة التوصيل وخيارات دفع متعددة وسياسة استرجاع مرنة. فعند تسعير المنتج، لا يكفي طرح سعر الشراء من البيع، بل يجب تضمين اشتراك المنصة والإعلانات. يتم دمج ضريبة القيمة المضافة 15% آلياً لضمان عدم تأثر أرباح التاجر.",
+    faqs: [
+      { question: "كيف تحمي هذه الحاسبة متجري من الخسارة؟", answer: "توضح لك بدقة الحد الأدنى لسعر البيع بحيث لا تتآكل أرباحك بسبب المصاريف التشغيلية الخفية وضريبة 15%." }
+    ]
+  },
+  "payment-gateway-fees": {
+    slug: "payment-gateway-fees",
+    title: "حاسبة رسوم بوابات الدفع (تابي، تمارا، مدى)",
+    subtitle: "الدليل الشامل لحساب واقتطاعات بوابات الدفع الإلكتروني وتأثيرها على التدفق النقدي.",
+    badge: "أداة رقمية متقدمة وحصرية",
+    description: "تتعدد خيارات الدفع في المتاجر السعودية بين مدى، بطاقات الائتمان، وخدمات الشراء الآن وادفع لاحقاً لتحديد الصافي بدقة.",
+    imagePath: "/images/tools/tool-2.png",
+    actionUrl: "https://engazia-app.vercel.app/hub/sa/fees",
+    features: [
+      "حساب رسوم شبكة مدى وبطاقات ائتمان فيزا وماستركارد",
+      "حساب نسب وأقساط خدمات تابي وتمارا",
+      "توضيح المبلغ الصافي الفعلي بعد خصم الضريبة المضافة"
+    ],
+    articleTitle: "أثر بوابات الدفع الإلكتروني وتقسيط المشتريات على أرباح المتاجر",
+    articleText1: "المستهلك السعودي يفضل إتمام معاملاته عبر وسائل الدفع الرقمية كمدى وحلول التقسيط كتاي وتمارا. توفير هذه الخيارات يرفع المبيعات ولكنه يفرض رسوماً تشغيلية تقتطعها البوابات من كل عملية بيع.",
+    articleText2: "عدم حساب هذه الرسوم بدقة يسبب تآكل هامش الربح تدريجياً. تتيح لك هذه الحاسبة دراسة النسب وتوزيعها للحفاظ على ربحية متجرك.",
+    faqs: [
+      { question: "لماذا تختلف رسوم بوابات الدفع؟", answer: "لأن كل مزود لديه نسبة مئوية ورسوم تشغيلية خاصة بناءً على نوع البطاقة." }
+    ]
+  },
+  "zatca-invoice-generator": {
+    slug: "zatca-invoice-generator",
+    title: "مولد الفواتير الإلكترونية المعتمدة (زاتكا)",
+    subtitle: "أنشئ فواتير مبيعات مبسطة متوافقة مع متطلبات المرحلة الأولى لهيئة الزكاة.",
+    badge: "أداة رقمية متقدمة وحصرية",
+    description: "أداة مثالية لأصحاب المتاجر الناشئة لتوليد فواتير نظامية تتضمن رمز الاستجابة السريعة (QR Code).",
+    imagePath: "/images/tools/tool-3.png",
+    actionUrl: "https://engazia-app.vercel.app/hub/sa/invoices",
+    features: [
+      "توليد رمز QR المطابق لاشتراطات زاتكا",
+      "إصدار فواتير مبسطة واضحة بصيغة احترافية",
+      "حساب مبالغ الضريبة بشكل آلي وصحيح"
+    ],
+    articleTitle: "أهمية الالتزام بالفوترة الإلكترونية وتوليد كود QR للمتاجر",
+    articleText1: "فرضت هيئة الزكاة والضريبة والجمارك معايير صارمة للفوترة الإلكترونية لضمان الشفافية المالية وحماية حقوق المستهلكين.",
+    articleText2: "استخدام أدوات مولد الفواتير يساعد المتاجر الناشئة على إصدار فواتير نظامية تحتوي على كود الاستجابة السريعة الصحيح.",
+    faqs: [
+      { question: "هل الفواتير مطابقة لشروط الزكاة؟", answer: "نعم، تتضمن كافة العناصر البصرية المطلوبة للفواتير المبسطة." }
+    ]
+  },
+  "ads-roi-analyzer": {
+    slug: "ads-roi-analyzer",
+    title: "محلل عائد الإعلانات (سناب شات وتيك توك)",
+    subtitle: "قس بدقة كفاءة إعلاناتك الممولة واكتشف ما إذا كانت تحقق أرباحاً.",
+    badge: "أداة رقمية متقدمة وحصرية",
+    description: "أداة لمساعدتك في قياس مؤشرات الأداء الأساسية مثل ROAS وتكلفة الاستحواذ.",
+    imagePath: "/images/tools/tool-4.png",
+    actionUrl: "https://engazia-app.vercel.app/hub/sa/roas",
+    features: [
+      "حساب معدل العائد على الإنفاق الإعلاني (ROAS)",
+      "تقدير تكلفة جلب العميل ومقارنتها بالربح",
+      "توجيه مباشر لرفع كفاءة الحملات"
+    ],
+    articleTitle: "كيف تحلل أداء حملاتك الإعلانية وتضمن عائداً مجزياً؟",
+    articleText1: "يعتمد نمو المتجر على الاستحواذ الإعلاني. الإنفاق الضخم دون تحليل دقيق لـ ROAS قد يستنزف الميزانية.",
+    articleText2: "يساعدك المحلل المتقدم في تقييم أداء كل ريال يُنفق ومعرفة فاعليته في تحقيق المبيعات المطلوبة.",
+    faqs: [
+      { question: "ما هو معدل ROAS المقبول؟", answer: "يعتبر معدل 3x فما فوق علامة جيدة على نجاح الحملة." }
+    ]
+  },
+  "whatsapp-crm": {
+    slug: "whatsapp-crm",
+    title: "أداة إدارة عملاء واسترجاع السلال عبر واتساب",
+    subtitle: "ضاعف مبيعات متجرك عبر التواصل الفعال مع أصحاب السلال المتروكة.",
+    badge: "أداة رقمية متقدمة وحصرية",
+    description: "واتساب القناة الأعلى تفاعلاً؛ تمكنك الأداة من تنظيم محادثات العملاء واستعادة المترددين.",
+    imagePath: "/images/tools/tool-5.png",
+    actionUrl: "https://engazia-app.vercel.app/hub/sa/whatsapp",
+    features: [
+      "استعادة السلال المتروكة ورفع نسبة الشراء",
+      "إرسال روابط دفع سريعة للعملاء",
+      "قوالب جاهزة ومصممة باللهجة السعودية"
+    ],
+    articleTitle: "استراتيجيات استعادة السلال المتروكة وزيادة المبيعات عبر واتساب",
+    articleText1: "أكثر من 70% يغادرون المتجر دون إتمام الطلب. التواصل المباشر عبر واتساب يرفع نسبة استرجاعهم بنسب هائلة.",
+    articleText2: "يوفر واتساب بيئة قريبة وموثوقة لدى المستهلك السعودي مما يضاعف من معدل التحويل والمبيعات الصافية.",
+    faqs: [
+      { question: "كيف تساهم رسائل واتساب في زيادة المبيعات؟", answer: "تزيل التردد وتمنح العميل شعوراً بالطمأنينة." }
+    ]
+  }
+};
+
+export function getToolBySlug(slug: string): ToolData {
+  const cleanSlug = slug ? String(slug) : "breakeven-calculator";
+  
+  if (toolsData[cleanSlug]) {
+    return toolsData[cleanSlug];
+  }
+
+  // هذا المولد يضمن أن أي رابط فرعي للـ 28 أداة سيعمل بكفاءة دون تحطيم البناء
+  const formattedName = cleanSlug.replace(/-/g, ' ');
+  return {
+    slug: cleanSlug,
+    title: `أداة ${formattedName} المتقدمة للمتاجر السعودية`,
+    subtitle: "حلول رقمية مبتكرة ومخصصة لرفع كفاءة ومبيعات المتاجر الرقمية في المملكة.",
+    badge: "أداة رقمية متقدمة وحصرية",
+    description: "تتيح لك هذه الأداة الاستفادة من أحدث خوارزميات وأساليب الأتمتة والتحليل المعتمدة في السوق السعودي لتطوير عملك الرقمي بكل سهولة واحترافية عالية.",
+    imagePath: "/images/tools/tool-1.png",
+    actionUrl: `https://engazia-app.vercel.app/hub/sa/${cleanSlug}`,
+    features: [
+      "أداء سريع ودقيق وموثوق للمتاجر السعودية",
+      "متوافقة تماماً مع منصات التجارة مثل سلة وزد",
+      "تحليلات وتقارير فورية للبيانات والأداء المالي"
+    ],
+    articleTitle: `الدليل الشامل لاستخدام أداة ${formattedName} في تطوير المتاجر الرقمية بالسعودية`,
+    articleText1: "تشهد التجارة الإلكترونية في المملكة العربية السعودية نموهاً متسارعاً. يساعدك هذا النظام المتقدم على أتمتة العمليات اليومية وإدارة التكاليف بذكاء.",
+    articleText2: "من خلال دمج التقنية الحديثة بالاستراتيجيات التسويقية الموثوقة، يستطيع رائد الأعمال اتخاذ قرارات مبنية على بيانات دقيقة ومواكبة معايير السوق السعودي.",
+    faqs: [
+      { question: "كيف تساعدك هذه الأداة في متجرك؟", answer: "تقدم تقارير وأدوات فورية ومبسطة لرفع كفاءة ومبيعات متجرك الرقمي." }
+    ]
   };
 }
 
-export default function LandingPage({ params }: PageProps) {
-  const slug = params.slug;
-  const tool = getToolBySlug(slug);
-
-  const relatedTools = Object.keys(toolsData)
-    .filter((k) => k !== slug)
+export function getRelatedTools(currentSlug: string) {
+  return Object.values(toolsData)
+    .filter(tool => tool.slug !== currentSlug)
     .slice(0, 4)
-    .map((k) => ({
-      slug: toolsData[k].slug,
-      title: toolsData[k].title
-    }));
-
-  return (
-    <div style={{ width: '100%', backgroundColor: '#f8fafc', padding: '40px 16px', direction: 'rtl', boxSizing: 'border-box' }}>
-      <div style={{ maxWidth: '1050px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '32px' }}>
-        
-        {/* الهيدر */}
-        <div style={{ backgroundColor: '#ffffff', borderRadius: '24px', padding: '32px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '32px' }}>
-          
-          <div style={{ flex: '1 1 500px', display: 'flex', flexDirection: 'column', gap: '16px', textAlign: 'right' }}>
-            <span style={{ display: 'inline-block', backgroundColor: '#ecfdf5', color: '#065f46', fontSize: '12px', fontWeight: 'bold', padding: '6px 14px', borderRadius: '9999px', border: '1px solid #a7f3d0', width: 'fit-content' }}>
-              {tool.badge}
-            </span>
-            
-            <h1 style={{ fontSize: '28px', fontWeight: '900', color: '#0f172a', lineHeight: '1.4', margin: 0 }}>
-              {tool.title}
-            </h1>
-
-            <p style={{ fontSize: '15px', fontWeight: '600', color: '#059669', margin: 0 }}>
-              {tool.subtitle}
-            </p>
-            
-            <p style={{ fontSize: '15px', color: '#475569', lineHeight: '1.7', margin: 0 }}>
-              {tool.description}
-            </p>
-            
-            <ul style={{ listStyle: 'none', padding: 0, margin: '8px 0', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {tool.features.map((feature, index) => (
-                <li key={index} style={{ display: 'flex', alignItems: 'center', color: '#334155', fontSize: '14px', fontWeight: '500' }}>
-                  <span style={{ width: '20px', height: '20px', backgroundColor: '#d1fae5', color: '#047857', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: '12px', flexShrink: 0, fontSize: '12px', fontWeight: 'bold' }}>
-                    ✓
-                  </span>
-                  <span>{feature}</span>
-                </li>
-              ))}
-            </ul>
-
-            <div style={{ paddingTop: '12px' }}>
-              <a 
-                href={tool.actionUrl} 
-                style={{ display: 'inline-block', backgroundColor: '#059669', color: '#ffffff', fontWeight: 'bold', padding: '14px 28px', borderRadius: '14px', textDecoration: 'none', boxShadow: '0 10px 15px -3px rgba(5, 150, 105, 0.3)', textAlign: 'center' }}
-              >
-                تشغيل الأداة والبدء بالحساب فوراً ←
-              </a>
-            </div>
-          </div>
-
-          <div style={{ flex: '1 1 350px', backgroundColor: '#0f172a', borderRadius: '16px', padding: '12px', border: '1px solid #334155', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <img 
-              src={tool.imagePath} 
-              alt={tool.title} 
-              style={{ width: '100%', height: 'auto', maxHeight: '300px', objectFit: 'contain', borderRadius: '12px' }}
-            />
-          </div>
-
-        </div>
-
-        {/* محتوى السيو */}
-        <div style={{ backgroundColor: '#ffffff', borderRadius: '24px', padding: '36px', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0,0,0,0.02)', display: 'flex', flexDirection: 'column', gap: '16px', textAlign: 'right' }}>
-          <h2 style={{ fontSize: '22px', fontWeight: '900', color: '#047857', margin: 0 }}>
-            {tool.articleTitle}
-          </h2>
-          <p style={{ fontSize: '15px', color: '#475569', lineHeight: '1.9', margin: 0, textAlign: 'justify' }}>
-            {tool.articleText1}
-          </p>
-          <p style={{ fontSize: '15px', color: '#475569', lineHeight: '1.9', margin: 0, textAlign: 'justify' }}>
-            {tool.articleText2}
-          </p>
-        </div>
-
-        {/* الأسئلة الشائعة */}
-        <div style={{ backgroundColor: '#ffffff', borderRadius: '24px', padding: '32px', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0,0,0,0.02)', textAlign: 'right' }}>
-          <h2 style={{ fontSize: '20px', fontWeight: 'bold', color: '#0f172a', marginBottom: '20px' }}>الأسئلة الشائعة حول هذه الأداة</h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            {tool.faqs.map((faq, idx) => (
-              <div key={idx} style={{ borderBottom: '1px solid #f1f5f9', paddingBottom: '12px' }}>
-                <h3 style={{ fontSize: '16px', fontWeight: 'bold', color: '#1e293b', margin: '0 0 6px 0' }}>{faq.question}</h3>
-                <p style={{ fontSize: '14px', color: '#64748b', margin: 0, lineHeight: '1.6' }}>{faq.answer}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* أدوات أخرى */}
-        {relatedTools.length > 0 && (
-          <div style={{ backgroundColor: '#0f172a', color: '#ffffff', borderRadius: '24px', padding: '32px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            <div>
-              <h2 style={{ fontSize: '20px', fontWeight: 'bold', margin: '0 0 6px 0', textAlign: 'right' }}>استكشف المزيد من أدوات منصة إنجازيا</h2>
-              <p style={{ fontSize: '14px', color: '#94a3b8', margin: 0, textAlign: 'right' }}>منظومة متكاملة من الآلات الحاسبة وأدوات الأتمتة.</p>
-            </div>
-            
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', paddingTop: '8px' }}>
-              {relatedTools.map((rt, idx) => (
-                <Link 
-                  key={idx} 
-                  href={`/landing/${rt.slug}`}
-                  style={{ backgroundColor: '#1e293b', border: '1px solid #334155', padding: '16px', borderRadius: '12px', textDecoration: 'none', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
-                >
-                  <span style={{ fontSize: '14px', fontWeight: 'bold', color: '#e2e8f0', lineHeight: '1.4', textAlign: 'right' }}>
-                    {rt.title}
-                  </span>
-                  <span style={{ fontSize: '12px', color: '#34d399', marginTop: '16px', display: 'flex', alignItems: 'center' }}>
-                    استخدم الأداة <span style={{ marginRight: '4px' }}>←</span>
-                  </span>
-                </Link>
-              ))}
-            </div>
-          </div>
-        )}
-
-      </div>
-    </div>
-  );
+    .map(tool => ({ slug: tool.slug, title: tool.title }));
 }
