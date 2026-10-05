@@ -123,7 +123,6 @@ export function getToolBySlug(slug: string): ToolData {
     return toolsData[cleanSlug];
   }
 
-  // هذا المولد يضمن أن أي رابط فرعي للـ 28 أداة سيعمل بكفاءة دون تحطيم البناء
   const formattedName = cleanSlug.replace(/-/g, ' ');
   return {
     slug: cleanSlug,
