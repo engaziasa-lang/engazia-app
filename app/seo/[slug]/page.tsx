@@ -1,19 +1,25 @@
 /* eslint-disable @next/next/no-img-element */
 import React from 'react';
+import Link from 'next/link';
 import { generateSeoContent } from '@/lib/seoEngine';
 
-// الطريقة الرسمية في Next.js 15 لضمان نجاح البناء (Promise params)
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
 export default async function ProgrammaticSeoPage({ params }: PageProps) {
-  // 1. انتظار الـ Promise بأمان
   const resolvedParams = await params;
   const slug = resolvedParams.slug;
   
-  // 2. توليد محتوى الصفحة الضخم
   const pageData = generateSeoContent(slug);
+
+  // مصفوفة توليد روابط ربط داخلي ذكية ومتنوعة لتقوية السيو
+  const relatedLinks = [
+    { title: "حاسبة أرباح متاجر العطور على سلة", href: "/seo/breakeven-salla-perfumes-riyadh" },
+    { title: "حاسبة رسوم بوابات الدفع لمتاجر العبايات", href: "/seo/fees-zid-abaya-jeddah" },
+    { title: "أداة استرجاع السلال لمتاجر القهوة المختصة", href: "/seo/whatsapp-shopify-coffee-dammam" },
+    { title: "محلل الإعلانات لمتاجر التمور", href: "/seo/roas-salla-dates-riyadh" },
+  ];
 
   return (
     <div style={{ backgroundColor: '#f8fafc', padding: '40px 16px', direction: 'rtl', minHeight: '100vh', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
@@ -62,8 +68,32 @@ export default async function ProgrammaticSeoPage({ params }: PageProps) {
             {pageData.faqs.map((faq, index) => (
               <div key={index} style={{ borderBottom: index !== pageData.faqs.length - 1 ? '1px solid #f1f5f9' : 'none', paddingBottom: index !== pageData.faqs.length - 1 ? '24px' : '0' }}>
                 <h4 style={{ fontSize: '20px', color: '#1e293b', fontWeight: '700', margin: '0 0 12px 0' }}>{faq.q}</h4>
-                <p style={{ fontSize: '18px', color: '#475569', margin: '0', lineHeight: '1.9' }}>{faq.a}</p>
+                <p style={{ fontSize: '18px', color: '#64748b', margin: '0', lineHeight: '1.9' }}>{faq.a}</p>
               </div>
+            ))}
+          </div>
+        </section>
+
+        {/* شبكة الربط الداخلي (Internal Linking Network) */}
+        <section style={{ backgroundColor: '#0f172a', color: '#ffffff', padding: '40px', borderRadius: '24px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }}>
+          <h3 style={{ fontSize: '22px', fontWeight: 'bold', marginBottom: '16px', textAlign: 'right' }}>
+            أدوات وحلول سيو مخصصة للمتاجر السعودية
+          </h3>
+          <p style={{ fontSize: '15px', color: '#94a3b8', marginBottom: '24px', textAlign: 'right' }}>
+            استكشف المزيد من الحلول الرقمية والآلات الحاسبة المصممة لرفع كفاءة ومبيعات المتاجر الرقمية.
+          </p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
+            {relatedLinks.map((link, idx) => (
+              <Link 
+                key={idx} 
+                href={link.href}
+                style={{ backgroundColor: '#1e293b', border: '1px solid #334155', padding: '16px', borderRadius: '12px', textDecoration: 'none', color: '#e2e8f0', fontSize: '14px', fontWeight: 'bold', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: '12px' }}
+              >
+                <span>{link.title}</span>
+                <span style={{ color: '#34d399', fontSize: '12px', display: 'flex', alignItems: 'center' }}>
+                  تصفح الصفحة ←
+                </span>
+              </Link>
             ))}
           </div>
         </section>
