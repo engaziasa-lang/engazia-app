@@ -1,11 +1,15 @@
-/* eslint-disable @next/next/no-img-element */
+"use client";
+
+import React from 'react';
+import { useParams } from 'next/navigation';
 import { getToolBySlug, getRelatedTools } from '@/lib/toolsData';
 import Link from 'next/link';
 
-export default async function LandingPage({ params }: { params: any }) {
-  // التوافق مع إصدارات Next.js الحديثة حيث params تعتبر Promise
-  const resolvedParams = await params;
-  const slug = resolvedParams?.slug || 'breakeven-calculator';
+export default function LandingPage() {
+  // استخدام useParams يتخطى مشاكل الخادم في Vercel تماماً
+  const params = useParams();
+  const rawSlug = params?.slug;
+  const slug = Array.isArray(rawSlug) ? rawSlug[0] : (rawSlug || 'breakeven-calculator');
   
   const tool = getToolBySlug(slug);
   const relatedTools = getRelatedTools(slug);
@@ -56,6 +60,7 @@ export default async function LandingPage({ params }: { params: any }) {
           </div>
 
           <div style={{ flex: '1 1 350px', backgroundColor: '#0f172a', borderRadius: '16px', padding: '12px', border: '1px solid #334155', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            {/* استخدام img العادي بشكل آمن */}
             <img 
               src={tool.imagePath} 
               alt={tool.title} 
