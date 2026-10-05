@@ -193,7 +193,6 @@ export function generateSeoContent(slug: string): SeoPageData {
     }
   };
 
-  // ربط الأدوات بالمسارات الحقيقية المطابقة تماماً لروابطك الفعلية
   const toolDetails: Record<string, { name: string, path: string, focus: string, benefit: string, deepDesc: string }> = {
     platforms: { name: "مقارن ومنظومة منصات التجارة الإلكترونية", path: "platforms", focus: "مقارنة منصات سلة وصد وشوبيفاي", benefit: "اختيار المنصة الأنسب لنشاطك التجاري بدقة" },
     "vat-report": { name: "مُحضر تقارير ضريبة القيمة المضافة", path: "vat-report", focus: "تجهيز بيانات الإقرار الضريبي", benefit: "تجنب الأخطاء المحاسبية وتقديم الإقرار بكل سلاسة" },
@@ -216,7 +215,7 @@ export function generateSeoContent(slug: string): SeoPageData {
     expenses: { name: "متتبع المصاريف والنفقات التشغيلية", path: "expenses", focus: "مراقبة المصروفات الثابتة والمتغيرة", benefit: "منع استنزاف السيولة ومعرفة أين تذهب أموال المتجر" },
     inventory: { name: "نظام التحكم الذكي بالمخزون", path: "inventory", focus: "تتبع حركة البضائع وتنبيهات النقص", benefit: "منع تكدس المخزون وتجميد السيولة النقدية" },
     shipping: { name: "مقارن ومتبع شركات الشحن", path: "shipping", focus: "اختيار أفضل خيارات التوصيل", benefit: "تقليل تكاليف الشحن على المتجر والعميل نهائياً" },
-    "cod-risk": { name: "مقيم مخاطر الدفع عند الاستلام (COD)", path: "cod-risk", focus: "تقليل نسبة المرتجعات للطلبات النقدية",, benefit: "حماية المتجر من تكاليف الطلبات غير المؤكدة" },
+    "cod-risk": { name: "مقيم مخاطر الدفع عند الاستلام (COD)", path: "cod-risk", focus: "تقليل نسبة المرتجعات للطلبات النقدية", benefit: "حماية المتجر من تكاليف الطلبات غير المؤكدة" },
     influencer: { name: "محلل حملات المشاهير والتسويق بالعمولة", path: "influencer", focus: "قياس أداء الإعلانات المؤثرة", benefit: "معرفة العائد الحقيقي من التعاون مع مشاهير السوشيال ميديا" }
   };
 
@@ -230,7 +229,6 @@ export function generateSeoContent(slug: string): SeoPageData {
     title: `${currentTool.name} الأصلية لتجار ${currentNiche.title} على ${currentPlatform} في ${currentCity} 2026`,
     subtitle: `الدليل الشامل والمفصل: احسب ${currentNiche.keywordIntent} بكل دقة. ${currentTool.benefit} لتجار ${currentCity} عبر ${currentPlatform}.`,
     badge: `مرجع معتمد: ${currentNiche.title} (${currentCity})`,
-    // توجيه زر اتخاذ القرار مباشرة إلى الرابط الصحيح 100% بناءً على مساراتك الفعلية
     actionUrl: `https://engazia-app.vercel.app/hub/sa/${currentTool.path}`,
     imagePath: "/images/tools/tool-1.png",
     article: {
