@@ -9,6 +9,9 @@ interface PageProps {
   };
 }
 
+// إزالة توليد 6000+ صفحة وقت الـ Build لمنع خطأ الـ Vercel Timeout نهائياً
+export const dynamicParams = true;
+
 export default async function LandingPage({ params }: PageProps) {
   const { slug } = params;
   const tool = getToolBySlug(slug);
