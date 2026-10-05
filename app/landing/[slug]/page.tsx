@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { getToolBySlug, toolsData } from '@/lib/toolsData';
+import { getToolBySlug, getAllSlugs, toolsData } from '@/lib/toolsData';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -10,7 +10,8 @@ interface PageProps {
 }
 
 export async function generateStaticParams() {
-  return Object.keys(toolsData).map((slug) => ({
+  const slugs = getAllSlugs();
+  return slugs.map((slug) => ({
     slug,
   }));
 }
@@ -23,10 +24,16 @@ export default async function LandingPage({ params }: PageProps) {
     notFound();
   }
 
-  // شبكة الربط الداخلي (Internal Links) لاختيار أدوات أخرى عشوائياً لضمان فهرسة جميع الـ 6000+ صفحة بواسطة جوجل
-  const relatedTools = Object.values(toolsData)
-    .filter((t) => t.slug !== slug)
-    .slice(0, 4);
+  const relatedSlugs = getAllSlugs();
+  // اختيار روابط داخلية فريدة وعشوائية لكل صفحة لضمان قوة الربط الداخلي
+  const relatedTools = [1, 2, 3, 4].map((i) => {
+    const randomSlug = relatedSlugs[(slug.length * i) % relatedSlugs.length];
+    const tData = getToolBySlug(randomSlug);
+    return {
+      slug: randomSlug,
+      title: tData ? tData.title : "أداة إنجازيا المتقدمة"
+    };
+  });
 
   return (
     <main className="min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8" dir="rtl">
@@ -77,7 +84,7 @@ export default async function LandingPage({ params }: PageProps) {
 
         </div>
 
-        {/* قسم الأسئلة الشائعة (FAQ) لمنع المحتوى المكرر وظهور الصفحات في نتائج بحث جوجل المتقدمة */}
+        {/* قسم الأسئلة الشائعة (FAQ) لمنع المحتوى المكرر */}
         {tool.faqs && tool.faqs.length > 0 && (
           <div className="bg-white p-8 sm:p-10 rounded-3xl shadow-sm border border-slate-100">
             <h2 className="text-2xl font-black text-slate-900 mb-6">الأسئلة الشائعة حول هذه الأداة</h2>
@@ -92,7 +99,7 @@ export default async function LandingPage({ params }: PageProps) {
           </div>
         )}
 
-        {/* شبكة الربط الداخلي القوي (Internal Linking) لفهرسة آلاف الصفحات بسرعة من قبل عناكب جوجل */}
+        {/* شبكة الربط الداخلي القوي (Internal Linking) */}
         <div className="bg-slate-900 text-white p-8 sm:p-12 rounded-3xl space-y-6">
           <div className="max-w-2xl">
             <h2 className="text-2xl font-black tracking-tight">استكشف المزيد من أدوات منصة إنجازيا السعودية</h2>
@@ -100,9 +107,9 @@ export default async function LandingPage({ params }: PageProps) {
           </div>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-4">
-            {relatedTools.map((rt) => (
+            {relatedTools.map((rt, idx) => (
               <Link 
-                key={rt.slug} 
+                key={idx} 
                 href={`/landing/${rt.slug}`}
                 className="bg-slate-800 hover:bg-emerald-600/20 border border-slate-700 hover:border-emerald-500 p-5 rounded-2xl transition duration-200 flex flex-col justify-between group"
               >
