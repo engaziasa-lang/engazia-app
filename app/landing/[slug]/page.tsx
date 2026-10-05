@@ -1,6 +1,6 @@
+/* eslint-disable @next/next/no-img-element */
 import { getToolBySlug, toolsData } from '@/lib/toolsData';
 import Link from 'next/link';
-import React from 'react';
 
 interface PageProps {
   params: {
@@ -9,7 +9,7 @@ interface PageProps {
 }
 
 export default function LandingPage({ params }: PageProps) {
-  const slug = params.slug;
+  const slug = params.slug || 'breakeven-calculator';
   const tool = getToolBySlug(slug);
 
   const relatedTools = Object.keys(toolsData)
@@ -24,7 +24,7 @@ export default function LandingPage({ params }: PageProps) {
     <div style={{ width: '100%', backgroundColor: '#f8fafc', padding: '40px 16px', direction: 'rtl', boxSizing: 'border-box' }}>
       <div style={{ maxWidth: '1050px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '32px' }}>
         
-        {/* الهيدر */}
+        {/* قسم الهيدر الرئيسي */}
         <div style={{ backgroundColor: '#ffffff', borderRadius: '24px', padding: '32px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '32px' }}>
           
           <div style={{ flex: '1 1 500px', display: 'flex', flexDirection: 'column', gap: '16px', textAlign: 'right' }}>
@@ -75,7 +75,7 @@ export default function LandingPage({ params }: PageProps) {
 
         </div>
 
-        {/* محتوى السيو */}
+        {/* قسم المحتوى المقالي الشامل لأرشفة قوية (SEO Content) */}
         <div style={{ backgroundColor: '#ffffff', borderRadius: '24px', padding: '36px', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0,0,0,0.02)', display: 'flex', flexDirection: 'column', gap: '16px', textAlign: 'right' }}>
           <h2 style={{ fontSize: '22px', fontWeight: '900', color: '#047857', margin: 0 }}>
             {tool.articleTitle}
@@ -88,7 +88,7 @@ export default function LandingPage({ params }: PageProps) {
           </p>
         </div>
 
-        {/* الأسئلة الشائعة */}
+        {/* قسم الأسئلة الشائعة */}
         <div style={{ backgroundColor: '#ffffff', borderRadius: '24px', padding: '32px', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0,0,0,0.02)', textAlign: 'right' }}>
           <h2 style={{ fontSize: '20px', fontWeight: 'bold', color: '#0f172a', marginBottom: '20px' }}>الأسئلة الشائعة حول هذه الأداة</h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -101,7 +101,7 @@ export default function LandingPage({ params }: PageProps) {
           </div>
         </div>
 
-        {/* أدوات أخرى */}
+        {/* شبكة الربط الداخلي */}
         {relatedTools.length > 0 && (
           <div style={{ backgroundColor: '#0f172a', color: '#ffffff', borderRadius: '24px', padding: '32px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <div>
