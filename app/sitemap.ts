@@ -1,48 +1,30 @@
 import { MetadataRoute } from 'next';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = 'https://engazia-app.vercel.app';
+  const baseUrl = 'https://engazia-app.vercel.app/seo'; // استبدله برابط موقعك الفعلي عند اللزوم
+  
+  const tools = ['breakeven', 'fees', 'zatca', 'whatsapp', 'roas', 'returns', 'policy'];
+  const platforms = ['salla', 'zid', 'shopify'];
+  const niches = ['perfume', 'abaya', 'dates', 'coffee', 'electronics', 'fashion'];
+  const cities = ['riyadh', 'jeddah', 'dammam', 'medina'];
 
-  // 1. الأدوات الـ 24 كاملة
-  const tools = [
-    'profit', 'fees', 'invoices', 'roas', 'whatsapp', 'returns', 'vat-report', 'platforms',
-    'influencer', 'cod-risk', 'shipping', 'inventory', 'expenses', 'legal', 'jasmal',
-    'reviews', 'dropshipping', 'copy', 'support', 'promos', 'ltv', 'ab-test', 'links', 'tips'
-  ];
+  const urls: MetadataRoute.Sitemap = [];
 
-  // 2. المدن والمحافظات السعودية
-  const cities = [
-    'riyadh', 'jeddah', 'makkah', 'madinah', 'dammam', 'khobar', 'dhahran', 'al-ahsa',
-    'jubail', 'qatif', 'buraydah', 'unaizah', 'al-rass', 'abha', 'khamis-mushait', 'tabuk',
-    'hail', 'najran', 'jazan', 'al-baha', 'arar', 'sakaka', 'hafar-albatin', 'taif',
-    'yanbu', 'al-ula', 'khafji', 'bisha', 'qurayyat', 'ras-tanura', 'al-majmaah',
-    'wadi-al-dawasir', 'al-kharj', 'diriyah', 'shaqra', 'zulfi', 'abu-arish', 'samtah',
-    'baish', 'ahad-rufaidah', 'baljurashi', 'sabya', 'tanomah', 'namas', 'al-wajh',
-    'duba', 'umluj', 'haql'
-  ];
-
-  // 3. فئات ومنصات التجارة الإلكترونية
-  const categoriesList = ['salla', 'zid', 'perfumes', 'dates', 'fashion', 'gifts'];
-
-  const landingPages: MetadataRoute.Sitemap = [];
-
-  tools.forEach((t) => {
-    cities.forEach((c) => {
-      categoriesList.forEach((cat) => {
-        landingPages.push({
-          url: `${baseUrl}/landing/${t}-${c}-${cat}`,
-          lastModified: new Date(),
-          changeFrequency: 'weekly',
-          priority: 0.8,
+  // توليد مصفوفة الروابط البرمجية (Programmatic Matrix)
+  tools.forEach(tool => {
+    platforms.forEach(platform => {
+      niches.forEach(niche => {
+        cities.forEach(city => {
+          urls.push({
+            url: `${baseUrl}/${tool}-${platform}-${niche}-${city}`,
+            lastModified: new Date(),
+            changeFrequency: 'weekly',
+            priority: 0.8,
+          });
         });
       });
     });
   });
 
-  const corePages: MetadataRoute.Sitemap = [
-    { url: baseUrl, lastModified: new Date(), changeFrequency: 'daily', priority: 1.0 },
-    { url: `${baseUrl}/hub/sa`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.9 },
-  ];
-
-  return [...corePages, ...landingPages];
+  return urls;
 }
