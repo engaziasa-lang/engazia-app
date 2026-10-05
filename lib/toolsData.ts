@@ -1,170 +1,106 @@
 // @ts-nocheck
 /* eslint-disable */
+import React from 'react';
+import { getToolBySlug } from '@/lib/toolsData';
 
-export interface SeoSection {
-  heading: string;
-  text1: string;
-  text2: string;
-}
-
-export interface ToolData {
-  id?: number;
-  slug: string;
-  title: string;
-  subtitle: string;
-  badge: string;
-  description: string;
-  imagePath: string;
-  actionUrl: string;
-  features: string[];
-  articleTitle?: string;
-  articleText1?: string;
-  articleText2?: string;
-  sections?: SeoSection[];
-  faqs: { question: string; answer: string }[];
-}
-
-// 1. إعادة الأدوات الـ 5 الأصلية لحماية باقي ملفات مشروعك من الانهيار (هذا ما سيحل الـ Error 12s)
-export const toolsData: Record<string, ToolData> = {
-  "breakeven-calculator": {
-    id: 1,
-    slug: "breakeven-calculator",
-    title: "حاسبة أرباح ونقطة التعادل للمتاجر الإلكترونية",
-    subtitle: "الدليل الشامل لحساب الأرباح الصافية.",
-    badge: "أداة حصرية",
-    description: "تعتبر هذه الأداة الحل الأمثل لحساب التكاليف.",
-    imagePath: "/images/tools/tool-1.png",
-    actionUrl: "https://engazia-app.vercel.app/hub/sa/profit",
-    features: ["حساب دقيق لهامش الربح", "متوافق مع ضريبة القيمة المضافة 15%"],
-    faqs: []
-  },
-  "payment-gateway-fees": {
-    id: 2,
-    slug: "payment-gateway-fees",
-    title: "حاسبة رسوم بوابات الدفع (تابي، تمارا، مدى)",
-    subtitle: "الدليل الشامل لاقتطاعات بوابات الدفع.",
-    badge: "أداة حصرية",
-    description: "حدد المبلغ الصافي بعد رسوم البوابات.",
-    imagePath: "/images/tools/tool-2.png",
-    actionUrl: "https://engazia-app.vercel.app/hub/sa/fees",
-    features: ["حساب رسوم تابي وتمارا", "حساب رسوم مدى والبطاقات"],
-    faqs: []
-  },
-  "zatca-invoice-generator": {
-    id: 3,
-    slug: "zatca-invoice-generator",
-    title: "مولد الفواتير الإلكترونية المعتمدة (زاتكا)",
-    subtitle: "أنشئ فواتير متوافقة مع زاتكا.",
-    badge: "أداة حصرية",
-    description: "أداة لإنشاء فواتير مع QR Code.",
-    imagePath: "/images/tools/tool-3.png",
-    actionUrl: "https://engazia-app.vercel.app/hub/sa/invoices",
-    features: ["توليد QR كود", "فواتير مبسطة"],
-    faqs: []
-  },
-  "ads-roi-analyzer": {
-    id: 4,
-    slug: "ads-roi-analyzer",
-    title: "محلل عائد الإعلانات (سناب وتيك توك)",
-    subtitle: "قس كفاءة إعلاناتك.",
-    badge: "أداة حصرية",
-    description: "قياس مؤشرات الأداء ROAS.",
-    imagePath: "/images/tools/tool-4.png",
-    actionUrl: "https://engazia-app.vercel.app/hub/sa/roas",
-    features: ["حساب ROAS", "تقدير تكلفة الاستحواذ"],
-    faqs: []
-  },
-  "whatsapp-crm": {
-    id: 5,
-    slug: "whatsapp-crm",
-    title: "أداة إدارة عملاء واتساب",
-    subtitle: "استرجع السلال المتروكة.",
-    badge: "أداة حصرية",
-    description: "تنظيم محادثات العملاء عبر واتساب.",
-    imagePath: "/images/tools/tool-5.png",
-    actionUrl: "https://engazia-app.vercel.app/hub/sa/whatsapp",
-    features: ["استعادة السلال", "قوالب ردود جاهزة"],
-    faqs: []
-  }
-};
-
-// 2. المحرك الديناميكي الجبار الذي سيولد الـ 30 ألف صفحة
-export function getToolBySlug(rawSlug: any): ToolData {
-  const safeSlug = String(rawSlug || "profit-salla-perfumes").toLowerCase();
+export default async function ProgrammaticLandingPage(props: any) {
+  // التوافق التام والآمن مع Next.js (سواء كان params عبارة عن Promise أو Object)
+  const params = await props.params;
+  const slug = params?.slug || 'profit-salla-perfumes';
   
-  // استخراج المتغيرات من الرابط
-  let toolName = "المنظومة المالية وحاسبة الأرباح";
-  let platformName = "التجارة الإلكترونية";
-  let nicheName = "المنتجات";
-  let actionPath = "profit";
-  let imgIndex = 1;
+  // توليد المحتوى الضخم بناءً على الرابط
+  const pageData = getToolBySlug(slug);
 
-  // استخراج المنصة
-  if (safeSlug.includes('salla') || safeSlug.includes('سلة')) platformName = "منصة سلة";
-  else if (safeSlug.includes('zid') || safeSlug.includes('زد')) platformName = "منصة زد";
-  else if (safeSlug.includes('shopify')) platformName = "شوبيفاي";
+  return (
+    <div style={{ width: '100%', backgroundColor: '#f8fafc', padding: '40px 16px', direction: 'rtl', boxSizing: 'border-box', fontFamily: 'system-ui, sans-serif' }}>
+      <div style={{ maxWidth: '1050px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '32px' }}>
+        
+        {/* قسم الهيدر الديناميكي المولد آلياً */}
+        <div style={{ backgroundColor: '#ffffff', borderRadius: '24px', padding: '40px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '32px' }}>
+          
+          <div style={{ flex: '1 1 500px', display: 'flex', flexDirection: 'column', gap: '20px', textAlign: 'right' }}>
+            <span style={{ display: 'inline-block', backgroundColor: '#ecfdf5', color: '#065f46', fontSize: '14px', fontWeight: 'bold', padding: '8px 16px', borderRadius: '9999px', border: '1px solid #a7f3d0', width: 'fit-content' }}>
+              {pageData.badge}
+            </span>
+            
+            <h1 style={{ fontSize: '36px', fontWeight: '900', color: '#0f172a', lineHeight: '1.4', margin: 0 }}>
+              {pageData.title}
+            </h1>
 
-  // استخراج النيتش (المجال)
-  if (safeSlug.includes('perfume')) nicheName = "العطور";
-  else if (safeSlug.includes('abaya')) nicheName = "العبايات";
-  else if (safeSlug.includes('dates')) nicheName = "التمور";
-  else if (safeSlug.includes('coffee')) nicheName = "القهوة المختصة";
-  else if (safeSlug.includes('fashion')) nicheName = "الأزياء";
+            <p style={{ fontSize: '18px', fontWeight: '700', color: '#059669', margin: 0, lineHeight: '1.6' }}>
+              {pageData.subtitle}
+            </p>
+            
+            <p style={{ fontSize: '16px', color: '#475569', lineHeight: '1.8', margin: 0 }}>
+              {pageData.description}
+            </p>
 
-  // استخراج نوع الأداة
-  if (safeSlug.includes('fees') || safeSlug.includes('payment')) {
-    toolName = "حاسبة رسوم بوابات الدفع (تابي وتمارا)";
-    actionPath = "fees";
-    imgIndex = 2;
-  } else if (safeSlug.includes('whatsapp') || safeSlug.includes('crm')) {
-    toolName = "أداة استرجاع السلال وإدارة العملاء";
-    actionPath = "whatsapp";
-    imgIndex = 5;
-  } else if (safeSlug.includes('roas') || safeSlug.includes('ads')) {
-    toolName = "محلل العائد على الإنفاق الإعلاني (ROAS)";
-    actionPath = "roas";
-    imgIndex = 4;
-  }
+            <ul style={{ listStyle: 'none', padding: 0, margin: '8px 0', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {pageData.features?.map((feature: string, index: number) => (
+                <li key={index} style={{ display: 'flex', alignItems: 'center', color: '#334155', fontSize: '15px', fontWeight: '600' }}>
+                  <span style={{ width: '24px', height: '24px', backgroundColor: '#d1fae5', color: '#047857', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: '12px', flexShrink: 0, fontSize: '14px', fontWeight: 'bold' }}>
+                    ✓
+                  </span>
+                  <span>{feature}</span>
+                </li>
+              ))}
+            </ul>
 
-  // توليد محتوى ضخم (2500 كلمة مستهدفة للسيو)
-  return {
-    slug: safeSlug,
-    title: `${toolName} لزيادة أرباح متاجر ${nicheName} على ${platformName} في السعودية`,
-    subtitle: `الدليل الشامل والتفصيلي لخفض التكاليف التشغيلية، حساب ضريبة القيمة المضافة 15%، ومضاعفة مبيعات ${nicheName} عبر ${platformName}.`,
-    badge: `أداة حصرية لمتاجر ${nicheName} السعودية`,
-    description: `إذا كنت تدير متجراً متخصصاً في بيع ${nicheName} عبر ${platformName}، فإن هذه الأداة تعتبر العمود الفقري لنجاحك المالي والتسويقي، حيث تحميك من الخسائر الخفية وتبني لك استراتيجية تسعير لا تقهر.`,
-    imagePath: `/images/tools/tool-${imgIndex}.png`,
-    actionUrl: `https://engazia-app.vercel.app/hub/sa/${actionPath}`,
-    features: [
-      `تحليل مالي فوري مخصص لهامش ربح قطاع ${nicheName}`,
-      `توافق تام مع هياكل الرسوم والاشتراكات في ${platformName}`,
-      `حساب آلي لضريبة القيمة المضافة 15% ورسوم الدفع الإلكتروني`,
-      `تقارير توجيهية لرفع معدل التحويل وتقليل المرتجعات`
-    ],
-    articleTitle: `الدليل الاستراتيجي الشامل: كيف تكتسح سوق ${nicheName} في السعودية عبر ${platformName}؟`,
-    articleText1: `يشهد قطاع التجارة الإلكترونية في المملكة العربية السعودية، وتحديداً في مجال بيع ${nicheName}، طفرة تاريخية غير مسبوقة تماشياً مع أهداف رؤية المملكة 2030 لتعزيز الاقتصاد الرقمي. ومع التسهيلات الكبيرة التي تقدمها ${platformName}، تهافت آلاف رواد الأعمال لتأسيس متاجرهم. لكن، خلف هذه الواجهة اللامعة، يقبع تحدي "الإدارة المالية الدقيقة". الكثير من المتاجر التي تبيع ${nicheName} تحقق أرقام مبيعات خيالية على الشاشة، ليتفاجأ التاجر بنهاية الشهر أن السيولة النقدية شبه معدومة!`,
-    articleText2: `أين تذهب الأموال؟ تتبخر الأرباح في تفاصيل لا يلقي لها التاجر المبتدئ بالاً: عمولات بوابات الدفع (مثل شبكة مدى، بطاقات الائتمان)، الرسوم المقتطعة من خدمات "اشتر الآن وادفع لاحقاً" (تابي وتمارا)، تكلفة التغليف الخاص بـ ${nicheName}، مصاريف الشحن العكسي للطلبات المرفوضة، وتكلفة الاستحواذ على العميل (CAC) عبر إعلانات تيك توك وسناب شات. وهنا يبرز دور ${toolName} كدرع واقٍ يحمي رأس مالك، ويقدم لك خريطة طريق واضحة تسعر من خلالها منتجاتك بذكاء يضمن لك الربح الصافي.`,
-    sections: [
-      {
-        heading: `التسعير الذكي: سر الاستدامة لمتاجر ${nicheName} على ${platformName}`,
-        text1: `عملية تسعير ${nicheName} لا تعتمد أبداً على التخمين أو تقليد المنافسين. إن اتباع سياسة "حرق الأسعار" في ${platformName} بهدف الاستحواذ على حصة سوقية هو انتحار تجاري بطيء. المستهلك السعودي يبحث عن القيمة، الجودة، وسرعة التوصيل، وهو مستعد للدفع مقابل خدمة استثنائية. من خلال استخدام أدواتنا، ستتمكن من إدخال سعر التكلفة الأصلي، وإضافة تكاليف التشغيل الثابتة والمتغيرة، لتقوم الخوارزمية بحساب "نقطة التعادل".`,
-        text2: `نقطة التعادل هي اللحظة التي يغطي فيها متجرك كافة مصاريفه ويبدأ في جني الأرباح الحقيقية بالريال السعودي. تخيل أنك تطلق حملة تسويقية لمنتجات ${nicheName}؛ بدون هذه الأداة، قد تبيع آلاف القطع وأنت في الواقع تخسر 5 ريالات في كل طلب دون أن تشعر! المنظومة الرقمية التي نقدمها لك تصحح هذا المسار فوراً وتمنحك الثقة الكاملة في كل قرار تسويقي تتخذه.`
-      },
-      {
-        heading: `كيف تتعامل مع رسوم الدفع وخدمات التقسيط في ${platformName}؟`,
-        text1: `لنتحدث بلغة الأرقام. تفعيل خيارات الدفع مثل تابي وتمارا في متجرك على ${platformName} هو قرار حتمي لا مفر منه، حيث تشير الإحصائيات في السوق السعودي إلى أن هذه الخدمات ترفع معدل التحويل (Conversion Rate) بنسبة تزيد عن 30% وتضاعف متوسط قيمة الطلب (AOV) لمنتجات ${nicheName}. لكن، هذه الخدمات تقتطع نسبة مئوية ورسوماً ثابتة من كل عملية بيع!`,
-        text2: `إذا قمت بتسعير منتجات ${nicheName} بهامش ربح ضعيف (مثلاً 10%)، وقامت بوابة الدفع باقتطاع 7%، فإن ربحك الصافي ينهار. هذه الأداة تحلل هيكل الرسوم الخاص بـ ${platformName} بدقة، وتخبرك تماماً بالرقم الصافي الذي سيتم إيداعه في حسابك البنكي بعد كل عملية تسوية، لتتمكن من رفع أسعارك بهامش مدروس يستوعب هذه العمولات.`
-      }
-    ],
-    faqs: [
-      {
-        question: `كيف تختلف هذه الأداة عن الحسابات اليدوية (الإكسل)؟`,
-        answer: `الجداول اليدوية عرضة للخطأ البشري وتحتاج لتحديث مستمر للنسب الضريبية ورسوم ${platformName}. أداتنا مؤتمتة بالكامل، ومحدثة بآخر سياسات التجارة الإلكترونية في السعودية، وتوفر لك الوقت والجهد لتحليل بيانات ${nicheName} بضغطة زر.`
-      },
-      {
-        question: `هل يمكنني استخدام هذه الخوارزميات إذا كنت في مرحلة التأسيس؟`,
-        answer: `بالتأكيد! التخطيط المالي المسبق لمتجر ${nicheName} يجنبك مفاجآت التدفق النقدي السلبي. الأداة ترسم لك سيناريوهات المبيعات المطلوبة للنجاح على ${platformName} قبل أن تنفق ريالاً واحداً في المخزون أو الإعلانات.`
-      }
-    ]
-  };
+            <div style={{ paddingTop: '16px' }}>
+              <a 
+                href={pageData.actionUrl} 
+                style={{ display: 'inline-block', backgroundColor: '#059669', color: '#ffffff', fontSize: '18px', fontWeight: 'bold', padding: '16px 36px', borderRadius: '14px', textDecoration: 'none', boxShadow: '0 10px 20px -3px rgba(5, 150, 105, 0.4)', textAlign: 'center', transition: 'all 0.3s ease' }}
+              >
+                تفعيل الأداة لمتجرك الآن ←
+              </a>
+            </div>
+          </div>
+        </div>
+
+        {/* قسم المحتوى الطويل جداً لأرشفة جوجل (SEO Content) */}
+        <div style={{ backgroundColor: '#ffffff', borderRadius: '24px', padding: '48px', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0,0,0,0.02)', display: 'flex', flexDirection: 'column', gap: '24px', textAlign: 'right' }}>
+          <h2 style={{ fontSize: '26px', fontWeight: '900', color: '#047857', margin: 0, borderBottom: '2px solid #f1f5f9', paddingBottom: '16px' }}>
+            {pageData.articleTitle}
+          </h2>
+          <p style={{ fontSize: '17px', color: '#334155', lineHeight: '2.1', margin: 0, textAlign: 'justify' }}>
+            {pageData.articleText1}
+          </p>
+          <p style={{ fontSize: '17px', color: '#334155', lineHeight: '2.1', margin: 0, textAlign: 'justify' }}>
+            {pageData.articleText2}
+          </p>
+          
+          {/* الفقرات الديناميكية الإضافية لرفع عدد الكلمات */}
+          {pageData.sections?.map((sec: any, idx: number) => (
+            <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '24px' }}>
+              <h3 style={{ fontSize: '22px', fontWeight: 'bold', color: '#0f172a', margin: 0 }}>
+                {sec.heading}
+              </h3>
+              <p style={{ fontSize: '17px', color: '#334155', lineHeight: '2.1', margin: 0, textAlign: 'justify' }}>
+                {sec.text1}
+              </p>
+              <p style={{ fontSize: '17px', color: '#334155', lineHeight: '2.1', margin: 0, textAlign: 'justify' }}>
+                {sec.text2}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        {/* قسم الأسئلة الشائعة (FAQ Schema) */}
+        <div style={{ backgroundColor: '#ffffff', borderRadius: '24px', padding: '48px', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0,0,0,0.02)', textAlign: 'right' }}>
+          <h2 style={{ fontSize: '26px', fontWeight: 'bold', color: '#0f172a', marginBottom: '32px' }}>
+            أسئلة شائعة تهم رواد الأعمال
+          </h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            {pageData.faqs?.map((faq: any, idx: number) => (
+              <div key={idx} style={{ borderBottom: '1px solid #f8fafc', paddingBottom: '20px' }}>
+                <h3 style={{ fontSize: '19px', fontWeight: 'bold', color: '#1e293b', margin: '0 0 12px 0' }}>{faq.question}</h3>
+                <p style={{ fontSize: '16px', color: '#64748b', margin: 0, lineHeight: '1.9' }}>{faq.answer}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
 }
