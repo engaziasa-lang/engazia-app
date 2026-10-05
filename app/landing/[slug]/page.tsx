@@ -20,30 +20,30 @@ export default async function LandingPage({ params }: PageProps) {
     }));
 
   return (
-    <div className="w-full bg-slate-100 py-12 px-4 sm:px-6 lg:px-8" dir="rtl">
-      <div className="max-w-5xl mx-auto space-y-8">
+    <div style={{ width: '100%', backgroundColor: '#f8fafc', padding: '40px 16px', direction: 'rtl', boxSizing: 'border-box' }}>
+      <div style={{ maxWidth: '1050px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '32px' }}>
         
-        {/* قسم الهيدر الرئيسي بمعمارية مرنة ومستقلة */}
-        <div className="bg-white rounded-3xl shadow-lg border border-slate-200 p-6 sm:p-10 flex flex-col lg:flex-row items-center gap-8">
+        {/* قسم الهيدر الرئيسي مصمم بـ Inline Styles و Tailwind لضمان تجاوز أي تعارض عام */}
+        <div style={{ backgroundColor: '#ffffff', borderRadius: '24px', padding: '32px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '32px' }}>
           
           {/* النصوص والوصف */}
-          <div className="w-full lg:w-7/12 space-y-5 text-right">
-            <span className="inline-block bg-emerald-50 text-emerald-800 text-xs font-bold px-3.5 py-1.5 rounded-full border border-emerald-200">
+          <div style={{ flex: '1 1 500px', display: 'flex', flexDirection: 'column', gap: '16px', textAlign: 'right' }}>
+            <span style={{ display: 'inline-block', backgroundColor: '#ecfdf5', color: '#065f46', fontSize: '12px', fontWeight: 'bold', padding: '6px 12px', borderRadius: '9999px', border: '1px solid #a7f3d0', width: 'fit-content' }}>
               أداة معتمدة للمتاجر الإلكترونية في السعودية
             </span>
             
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 leading-snug">
+            <h1 style={{ fontSize: '28px', fontWeight: '900', color: '#0f172a', lineHeight: '1.4', margin: 0 }}>
               {tool.title}
             </h1>
             
-            <p className="text-slate-600 text-base sm:text-lg leading-relaxed">
+            <p style={{ fontSize: '16px', color: '#475569', lineHeight: '1.6', margin: 0 }}>
               {tool.description}
             </p>
             
-            <ul className="space-y-2.5 pt-1">
+            <ul style={{ listStyle: 'none', padding: 0, margin: '8px 0', display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {tool.features && tool.features.map((feature, index) => (
-                <li key={index} className="flex items-center text-slate-700 font-medium text-sm sm:text-base">
-                  <span className="w-5 h-5 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center ml-3 flex-shrink-0 text-xs font-bold">
+                <li key={index} style={{ display: 'flex', alignItems: 'center', color: '#334155', fontSize: '15px', fontWeight: '500' }}>
+                  <span style={{ width: '20px', height: '20px', backgroundColor: '#d1fae5', color: '#047857', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: '12px', flexShrink: 0, fontSize: '12px', fontWeight: 'bold' }}>
                     ✓
                   </span>
                   <span>{feature}</span>
@@ -51,43 +51,47 @@ export default async function LandingPage({ params }: PageProps) {
               ))}
             </ul>
 
-            <div className="pt-4">
-              <button className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 px-8 rounded-xl shadow-lg shadow-emerald-600/20 transition text-center text-base">
-                تشغيل الأداة واستخدامها فوراً ←
-              </button>
+            <div style={{ paddingTop: '12px' }}>
+              {/* زر ينقل المستخدم مباشرة إلى المنصة أو الواجهة الرئيسية */}
+              <a 
+                href="/" 
+                style={{ display: 'inline-block', backgroundColor: '#059669', color: '#ffffff', fontWeight: 'bold', padding: '14px 28px', borderRadius: '14px', textDecoration: 'none', boxShadow: '0 10px 15px -3px rgba(5, 150, 105, 0.3)', textAlign: 'center', transition: 'background-color 0.2s' }}
+              >
+                تشغيل الأداة والانتقال للمنصة فوراً ←
+              </a>
             </div>
           </div>
 
           {/* صورة الأداة */}
-          <div className="w-full lg:w-5/12 bg-slate-900 rounded-2xl p-3 shadow-inner border border-slate-800 flex items-center justify-center">
+          <div style={{ flex: '1 1 350px', backgroundColor: '#0f172a', borderRadius: '16px', padding: '12px', border: '1px solid #334155', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <img 
               src={tool.imagePath} 
               alt={tool.title} 
-              className="w-full h-auto max-h-[300px] object-contain rounded-xl"
+              style={{ width: '100%', height: 'auto', maxHeight: '300px', objectFit: 'contain', borderRadius: '12px' }}
             />
           </div>
 
         </div>
 
         {/* شبكة الربط الداخلي */}
-        <div className="bg-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-xl space-y-5">
+        <div style={{ backgroundColor: '#0f172a', color: '#ffffff', borderRadius: '24px', padding: '32px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', display: 'flex', flexDirection: 'column', gap: '20px' }}>
           <div>
-            <h2 className="text-xl sm:text-2xl font-bold">استكشف المزيد من أدوات منصة إنجازيا السعودية</h2>
-            <p className="text-slate-400 text-sm mt-1">منظومة متكاملة من الآلات الحاسبة وأدوات الأتمتة لمضاعفة أرباح متجرك.</p>
+            <h2 style={{ fontSize: '20px', fontWeight: 'bold', margin: '0 0 6px 0' }}>استكشف المزيد من أدوات منصة إنجازيا السعودية</h2>
+            <p style={{ fontSize: '14px', color: '#94a3b8', margin: 0 }}>منظومة متكاملة من الآلات الحاسبة وأدوات الأتمتة لمضاعفة أرباح متجرك.</p>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-2">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', paddingTop: '8px' }}>
             {relatedTools.map((rt, idx) => (
               <Link 
                 key={idx} 
                 href={`/landing/${rt.slug}`}
-                className="bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-emerald-500 p-4 rounded-xl transition flex flex-col justify-between group"
+                style={{ backgroundColor: '#1e293b', border: '1px solid #334155', padding: '16px', borderRadius: '12px', textDecoration: 'none', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', transition: 'border-color 0.2s' }}
               >
-                <span className="text-sm font-bold text-slate-200 group-hover:text-emerald-400 line-clamp-2">
+                <span style={{ fontSize: '14px', fontWeight: 'bold', color: '#e2e8f0', lineHeight: '1.4' }}>
                   {rt.title}
                 </span>
-                <span className="text-xs text-emerald-400 mt-3 flex items-center">
-                  استخدم الأداة <span className="mr-1">←</span>
+                <span style={{ fontSize: '12px', color: '#34d399', marginTop: '16px', display: 'flex', alignItems: 'center' }}>
+                  استخدم الأداة <span style={{ marginRight: '4px' }}>←</span>
                 </span>
               </Link>
             ))}
