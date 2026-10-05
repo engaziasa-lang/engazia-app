@@ -27,8 +27,8 @@ export default async function LandingPage({ params }: PageProps) {
         <div style={{ backgroundColor: '#ffffff', borderRadius: '24px', padding: '32px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '32px' }}>
           
           <div style={{ flex: '1 1 500px', display: 'flex', flexDirection: 'column', gap: '16px', textAlign: 'right' }}>
-            <span style={{ display: 'inline-block', backgroundColor: '#ecfdf5', color: '#065f46', fontSize: '12px', fontWeight: 'bold', padding: '6px 12px', borderRadius: '9999px', border: '1px solid #a7f3d0', width: 'fit-content' }}>
-              أداة معتمدة للمتاجر الإلكترونية في السعودية
+            <span style={{ display: 'inline-block', backgroundColor: '#ecfdf5', color: '#065f46', fontSize: '12px', fontWeight: 'bold', padding: '6px 14px', borderRadius: '9999px', border: '1px solid #a7f3d0', width: 'fit-content' }}>
+              {tool.badge || "أداة رقمية متقدمة وحصرية"}
             </span>
             
             <h1 style={{ fontSize: '28px', fontWeight: '900', color: '#0f172a', lineHeight: '1.4', margin: 0 }}>
@@ -73,6 +73,25 @@ export default async function LandingPage({ params }: PageProps) {
           </div>
 
         </div>
+
+        {/* قسم الدليل الشامل والمحتوى الغني لتعزيز السيو (SEO Content Section) */}
+        {tool.seoGuide && tool.seoGuide.length > 0 && (
+          <div style={{ backgroundColor: '#ffffff', borderRadius: '24px', padding: '36px', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0,0,0,0.02)', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            <h2 style={{ fontSize: '22px', fontWeight: '900', color: '#0f172a', margin: 0 }}>
+              دليل شامل: كيف تساعدك هذه الأداة في مضاعفة أرباح متجرك بالسعودية؟
+            </h2>
+            {tool.seoGuide.map((guide, idx) => (
+              <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <h3 style={{ fontSize: '17px', fontWeight: 'bold', color: '#047857', margin: 0 }}>
+                  {guide.heading}
+                </h3>
+                <p style={{ fontSize: '15px', color: '#475569', lineHeight: '1.8', margin: 0 }}>
+                  {guide.text}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* قسم الأسئلة الشائعة */}
         {tool.faqs && tool.faqs.length > 0 && (
