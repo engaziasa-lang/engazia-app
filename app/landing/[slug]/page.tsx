@@ -23,7 +23,7 @@ export default async function LandingPage({ params }: PageProps) {
     <main className="min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8" dir="rtl">
       <div className="max-w-7xl mx-auto space-y-16">
         
-        {/* قسم الهيدر الرئيسي مع احتواء الصورة بشكل احترافي وثابت */}
+        {/* قسم الهيدر الرئيسي مع تصحيح أبعاد الأيقونات واتجاه النصوص */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center bg-white p-8 sm:p-12 rounded-3xl shadow-sm border border-slate-100">
           
           <div className="space-y-6">
@@ -40,7 +40,8 @@ export default async function LandingPage({ params }: PageProps) {
             <ul className="space-y-3.5 pt-2">
               {tool.features.map((feature, index) => (
                 <li key={index} className="flex items-start text-slate-700 font-medium">
-                  <svg className="h-6 w-6 text-emerald-600 ml-2.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  {/* تحديد أبعاد SVG بدقة لمنع تمددها */}
+                  <svg className="w-5 h-5 text-emerald-600 ml-2.5 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
                   </svg>
                   <span>{feature}</span>
@@ -49,25 +50,25 @@ export default async function LandingPage({ params }: PageProps) {
             </ul>
 
             <div className="pt-6">
-              <button className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold py-4 px-10 rounded-2xl shadow-lg shadow-emerald-600/20 transition duration-200 text-center">
+              <button className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold py-4 px-10 rounded-2xl shadow-lg shadow-emerald-600/25 transition duration-200 text-center">
                 تشغيل الأداة واستخدامها فوراً ←
               </button>
             </div>
           </div>
 
-          {/* استخدام وسم HTML العادي لضمان عرض الصورة بأبعادها الطبيعية وبدون تمدد */}
+          {/* حاوية الصورة مع تقييد الأبعاد بدقة */}
           <div className="w-full bg-slate-900 rounded-2xl p-3 shadow-xl border border-slate-200 flex items-center justify-center overflow-hidden">
             <img 
               src={tool.imagePath} 
               alt={tool.title} 
-              className="w-full h-auto max-h-[450px] object-contain rounded-xl"
+              className="w-full h-auto max-h-[420px] object-contain rounded-xl"
             />
           </div>
 
         </div>
 
         {/* شبكة الربط الداخلي */}
-        <div className="bg-slate-900 text-white p-8 sm:p-12 rounded-3xl space-y-6">
+        <div className="bg-slate-900 text-white p-8 sm:p-12 rounded-3xl space-y-6 shadow-xl">
           <div className="max-w-2xl">
             <h2 className="text-2xl font-black tracking-tight">استكشف المزيد من أدوات منصة إنجازيا السعودية</h2>
             <p className="text-slate-400 mt-2">منظومة متكاملة من الآلات الحاسبة وأدوات الأتمتة لمضاعفة أرباح متجرك.</p>
