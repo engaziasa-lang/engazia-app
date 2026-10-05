@@ -1,5 +1,4 @@
 import { getToolBySlug, toolsData } from '@/lib/toolsData';
-import Image from 'next/image';
 import Link from 'next/link';
 
 interface PageProps {
@@ -24,7 +23,7 @@ export default async function LandingPage({ params }: PageProps) {
     <main className="min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8" dir="rtl">
       <div className="max-w-7xl mx-auto space-y-16">
         
-        {/* قسم الهيدر الرئيسي مع احتواء الصورة بشكل ممتاز وضبط أبعادها */}
+        {/* قسم الهيدر الرئيسي مع احتواء الصورة بشكل احترافي وثابت */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center bg-white p-8 sm:p-12 rounded-3xl shadow-sm border border-slate-100">
           
           <div className="space-y-6">
@@ -56,15 +55,12 @@ export default async function LandingPage({ params }: PageProps) {
             </div>
           </div>
 
-          {/* حاوية الصور المقيدة بالأبعاد السليمة لمنع التمدد الخاطئ */}
-          <div className="relative w-full aspect-[4/3] rounded-2xl shadow-lg overflow-hidden border border-slate-200 bg-slate-900">
-            <Image 
+          {/* استخدام وسم HTML العادي لضمان عرض الصورة بأبعادها الطبيعية وبدون تمدد */}
+          <div className="w-full bg-slate-900 rounded-2xl p-3 shadow-xl border border-slate-200 flex items-center justify-center overflow-hidden">
+            <img 
               src={tool.imagePath} 
               alt={tool.title} 
-              fill
-              sizes="(max-width: 768px) 100vw, 50vw"
-              className="object-contain p-2"
-              priority
+              className="w-full h-auto max-h-[450px] object-contain rounded-xl"
             />
           </div>
 
