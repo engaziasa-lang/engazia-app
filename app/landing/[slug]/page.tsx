@@ -74,17 +74,17 @@ export default async function LandingPage({ params }: PageProps) {
 
         </div>
 
-        {/* قسم الدليل الشامل لتعزيز السيو */}
-        {tool.seoGuideHeading && (
-          <div style={{ backgroundColor: '#ffffff', borderRadius: '24px', padding: '36px', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0,0,0,0.02)', display: 'flex', flexDirection: 'column', gap: '12px', textAlign: 'right' }}>
+        {/* قسم المحتوى الشامل والطويل لأرشفة قوية (SEO Content) */}
+        {tool.contentSections && tool.contentSections.map((sec, idx) => (
+          <div key={idx} style={{ backgroundColor: '#ffffff', borderRadius: '24px', padding: '36px', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0,0,0,0.02)', display: 'flex', flexDirection: 'column', gap: '12px', textAlign: 'right' }}>
             <h2 style={{ fontSize: '20px', fontWeight: '900', color: '#047857', margin: 0 }}>
-              {tool.seoGuideHeading}
+              {sec.title}
             </h2>
-            <p style={{ fontSize: '15px', color: '#475569', lineHeight: '1.8', margin: 0 }}>
-              {tool.seoGuideText}
+            <p style={{ fontSize: '15px', color: '#475569', lineHeight: '1.9', margin: 0, textAlign: 'justify' }}>
+              {sec.text}
             </p>
           </div>
-        )}
+        ))}
 
         {/* قسم الأسئلة الشائعة */}
         {tool.faqs && tool.faqs.length > 0 && (
