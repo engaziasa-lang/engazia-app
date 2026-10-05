@@ -14,9 +14,9 @@ export const toolsData: Record<string, ToolData> = {
     id: 1,
     slug: "breakeven-calculator",
     title: "حاسبة أرباح ونقطة التعادل (15% ضريبة)",
-    description: "احسب صافي أرباحك بدقة بعد خصم التكاليف، رسوم الشحن، وضريبة القيمة المضافة.",
+    description: "احسب صافي أرباحك بدقة بعد خصم التكاليف، رسوم الشحن، وضريبة القيمة المضافة في المملكة.",
     imagePath: "/images/tools/tool-1.png",
-    features: ["حساب دقيق لهامش الربح", "متوافق مع ضريبة القيمة المضافة 15%", "تحليل فوري للتكاليف والشحن"]
+    features: ["حساب دقيق لهامش الربح", "متوافق مع ضريبة 15% المعتمدة", "تحليل فوري للتكاليف والشحن"]
   },
   "payment-gateway-fees": {
     id: 2,
@@ -56,11 +56,12 @@ export function getToolBySlug(slug: string): ToolData {
   if (toolsData[slug]) {
     return toolsData[slug];
   }
-  // إرجاع الأداة الأولى كقيمة افتراضية لمنع أي خطأ 404 أو توقف
+  // إذا طلب المستخدم رابطاً فرعياً أو مخصصاً، نعيد الأداة الأولى كقاعدة أساسية لكي لا تظهر صفحة 404 أبداً
   const firstKey = Object.keys(toolsData)[0];
+  const base = toolsData[firstKey];
   return {
-    ...toolsData[firstKey],
+    ...base,
     slug,
-    title: `أداة مخصصة - ${slug}`
+    title: `${base.title} - مخصص للمتاجر السعودية`,
   };
 }
