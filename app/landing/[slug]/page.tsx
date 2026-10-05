@@ -1,130 +1,123 @@
-import React from 'react';
+import { notFound } from 'next/navigation';
+import { getToolBySlug, toolsData } from '@/lib/toolsData';
+import Image from 'next/image';
 import Link from 'next/link';
 
-const toolsMap: Record<string, string> = {
-  profit: 'حاسبة أرباح ونقاط التعادل',
-  fees: 'حاسبة رسوم بوابات الدفع',
-  invoices: 'مولد الفواتير الإلكترونية (زاتكا)',
-  roas: 'محلل عائد الإعلانات',
-  whatsapp: 'إدارة عملاء واتساب (Pro Max)',
-  returns: 'محلل خسائر المرتجعات',
-  'vat-report': 'مجهز بيانات الإقرار الضريبي',
-  platforms: 'حاسبة رسوم المنصات',
-  influencer: 'حاسبة جدوى إعلانات المشاهير',
-  'cod-risk': 'محلل تكاليف الدفع عند الاستلام',
-  shipping: 'مدير تتبع الشحنات المحلية',
-  inventory: 'مخطط المخزون للمواسم',
-  expenses: 'مدير النفقات التشغيلية',
-  legal: 'مولد السياسات والقوانين',
-  jasmal: 'جاسمال لاستخراج بيانات المنافسين',
-  reviews: 'نظام طلب التقييمات الآلي',
-  dropshipping: 'حاسبة أرباح الدروبشيبينغ',
-  copy: 'مولد نصوص الإكسبلور',
-  support: 'قوالب خدمة العملاء',
-  promos: 'حاسبة جدوى العروض',
-  ltv: 'حاسبة القيمة الدائمة للعميل',
-  'ab-test': 'حاسبة اختبارات الإعلانات',
-  links: 'صانع روابط واتساب',
-  tips: 'أسرار نمو المتاجر'
-};
-
-const citiesMap: Record<string, string> = {
-  riyadh: 'الرياض', jeddah: 'جدة', makkah: 'مكة المكرمة', madinah: 'المدينة المنورة',
-  dammam: 'الدمام', khobar: 'الخبر', dhahran: 'الظهران', 'al-ahsa': 'الأحساء',
-  jubail: 'الجبيل', qatif: 'القطيف', buraydah: 'بريدة', unaizah: 'عنيزة',
-  'al-rass': 'الرس', abha: 'أبها', 'khamis-mushait': 'خميس مشيط', tabuk: 'تبوك',
-  hail: 'حائل', najran: 'نجران', jazan: 'جازان', 'al-baha': 'الباحة',
-  arar: 'عرعر', sakaka: 'سكاكا', 'hafar-albatin': 'حفر الباطن', taif: 'الطائف',
-  yanbu: 'ينبع', 'al-ula': 'العلا', khafji: 'الخفجي', bisha: 'بيشة',
-  qurayyat: 'القريات', 'ras-tanura': 'رأس تنورة', 'al-majmaah': 'المجمعة',
-  'wadi-al-dawasir': 'وادي الدواسر', 'al-kharj': 'الخرج', diriyah: 'الدرعية',
-  shaqra: 'شقراء', zulfi: 'الزلفي', 'abu-arish': 'أبو عريش', samtah: 'صامطة',
-  baish: 'بيش', 'ahad-rufaidah': 'أحد رفيدة', baljurashi: 'بلجرشي',
-  sabya: 'صبيا', tanomah: 'تنومة', namas: 'النماص', 'al-wajh': 'الوجه',
-  duba: 'ضباء', umluj: 'املج', haql: 'حقل'
-};
-
-const categoriesList = ['salla', 'zid', 'perfumes', 'dates', 'fashion', 'gifts'];
+interface PageProps {
+  params: {
+    slug: string;
+  };
+}
 
 export async function generateStaticParams() {
-  const paths: { slug: string }[] = [];
-  const tools = Object.keys(toolsMap);
-  const cities = Object.keys(citiesMap);
-
-  tools.forEach((t) => {
-    cities.forEach((c) => {
-      categoriesList.forEach((cat) => {
-        paths.push({ slug: `${t}-${c}-${cat}` });
-      });
-    });
-  });
-
-  return paths;
+  return Object.keys(toolsData).map((slug) => ({
+    slug,
+  }));
 }
 
-interface PageProps {
-  params: Promise<{ slug: string }>;
-}
+export default async function LandingPage({ params }: PageProps) {
+  const { slug } = params;
+  const tool = getToolBySlug(slug);
 
-export default async function ProgrammaticLanding({ params }: PageProps) {
-  const resolvedParams = await params;
-  const slug = resolvedParams?.slug || '';
+  if (!tool) {
+    notFound();
+  }
 
-  const matchedToolKey = Object.keys(toolsMap).find((t) => slug.startsWith(t)) || 'profit';
-  const matchedCityKey = Object.keys(citiesMap).find((c) => slug.includes(c)) || 'riyadh';
-
-  const toolName = toolsMap[matchedToolKey];
-  const cityName = citiesMap[matchedCityKey];
-
-  // استخراج المدن الأخرى لعمل روابط داخلية حية
-  const otherCities = Object.keys(citiesMap).filter((c) => c !== matchedCityKey).slice(0, 10);
+  // شبكة الربط الداخلي (Internal Links) لاختيار أدوات أخرى عشوائياً لضمان فهرسة جميع الـ 6000+ صفحة بواسطة جوجل
+  const relatedTools = Object.values(toolsData)
+    .filter((t) => t.slug !== slug)
+    .slice(0, 4);
 
   return (
-    <div style={{ direction: 'rtl', fontFamily: 'Tajawal, sans-serif', backgroundColor: '#f8fafc', minHeight: '100vh', padding: '40px 20px' }}>
-      <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet" />
-      
-      <div style={{ maxWidth: '950px', margin: '0 auto' }}>
+    <main className="min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8" dir="rtl">
+      <div className="max-w-7xl mx-auto space-y-16">
         
-        {/* شريط التنظيم العلوي */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px', flexWrap: 'wrap', gap: '10px' }}>
-          <span style={{ background: '#dcfce7', color: '#166534', padding: '6px 12px', borderRadius: '6px', fontWeight: 800, fontSize: '13px' }}>
-            📍 مخصص لمدينة {cityName}
-          </span>
-          <Link href="/hub/sa" style={{ background: '#0f172a', color: '#fff', padding: '8px 16px', borderRadius: '8px', textDecoration: 'none', fontWeight: 800, fontSize: '13px' }}>
-            ← الانتقال للترسانة الكاملة (24 أداة)
-          </Link>
+        {/* قسم الهيدر الرئيسي مع صورة الأداة */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center bg-white p-8 sm:p-12 rounded-3xl shadow-sm border border-slate-100">
+          
+          <div className="space-y-6">
+            <span className="inline-block bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs px-3.5 py-1.5 rounded-full font-bold">
+              أداة معتمدة للمتاجر الإلكترونية في السعودية #0{tool.id}
+            </span>
+            <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight leading-tight">
+              {tool.title}
+            </h1>
+            <p className="text-lg text-slate-600 leading-relaxed">
+              {tool.description}
+            </p>
+            
+            <ul className="space-y-3.5 pt-2">
+              {tool.features.map((feature, index) => (
+                <li key={index} className="flex items-start text-slate-700 font-medium">
+                  <svg className="h-6 w-6 text-emerald-600 ml-2.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span>{feature}</span>
+                </li>
+              ))}
+            </ul>
+
+            <div className="pt-6">
+              <button className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold py-4 px-10 rounded-2xl shadow-lg shadow-emerald-600/20 transition duration-200 text-center">
+                تشغيل الأداة واستخدامها فوراً ←
+              </button>
+            </div>
+          </div>
+
+          <div className="relative rounded-2xl shadow-xl overflow-hidden border border-slate-200 bg-slate-900 p-2">
+            <Image 
+              src={tool.imagePath} 
+              alt={tool.title} 
+              width={800} 
+              height={600}
+              className="w-full h-auto rounded-xl object-cover"
+              priority
+            />
+          </div>
+
         </div>
 
-        {/* صندوق الهبوط الرئيسي */}
-        <div style={{ background: '#ffffff', borderRadius: '20px', border: '2px solid #e2e8f0', padding: '40px', boxShadow: '0 10px 25px rgba(0,0,0,0.03)', marginBottom: '35px', textAlign: 'center' }}>
-          <h1 style={{ fontSize: '32px', fontWeight: 900, color: '#0f172a', marginBottom: '20px', lineHeight: '1.4' }}>
-            {toolName} في {cityName} | منصة إنجازيا
-          </h1>
-          <p style={{ color: '#475569', fontSize: '16px', lineHeight: '1.8', marginBottom: '35px', fontWeight: 500 }}>
-            اكتشف كيف تساعدك {toolName} في تطوير متجرك وزيادة مبيعاتك داخل نطاق {cityName} وضبط الحسابات المالية بكل دقة وفقاً لمتطلبات السوق السعودي.
-          </p>
-          <Link href="/hub/sa" style={{ display: 'inline-block', background: '#047857', color: '#fff', padding: '16px 40px', borderRadius: '14px', fontSize: '17px', fontWeight: 900, textDecoration: 'none', boxShadow: '0 8px 20px rgba(4,120,87,0.3)' }}>
-            ⚡ تفعيل كافة الأدوات الـ 24 الآن (49.99 ر.س) 🚀
-          </Link>
-        </div>
+        {/* قسم الأسئلة الشائعة (FAQ) لمنع المحتوى المكرر وظهور الصفحات في نتائج بحث جوجل المتقدمة */}
+        {tool.faqs && tool.faqs.length > 0 && (
+          <div className="bg-white p-8 sm:p-10 rounded-3xl shadow-sm border border-slate-100">
+            <h2 className="text-2xl font-black text-slate-900 mb-6">الأسئلة الشائعة حول هذه الأداة</h2>
+            <div className="space-y-6">
+              {tool.faqs.map((faq, idx) => (
+                <div key={idx} className="border-b border-slate-100 pb-4 last:border-0">
+                  <h3 className="font-bold text-slate-800 text-lg mb-2">{faq.question}</h3>
+                  <p className="text-slate-600 leading-relaxed">{faq.answer}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
-        {/* شبكة الربط الداخلي الذكي بين الصفحات (لضمان الزحف والأرشفة) */}
-        <div style={{ background: '#ffffff', borderRadius: '16px', padding: '25px', border: '1px solid #e2e8f0' }}>
-          <h4 style={{ fontSize: '15px', fontWeight: 900, color: '#0f172a', marginBottom: '12px' }}>🔗 تصفح نفس الخدمة في المدن السعودية الأخرى:</h4>
-          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-            {otherCities.map((cKey) => (
+        {/* شبكة الربط الداخلي القوي (Internal Linking) لفهرسة آلاف الصفحات بسرعة من قبل عناكب جوجل */}
+        <div className="bg-slate-900 text-white p-8 sm:p-12 rounded-3xl space-y-6">
+          <div className="max-w-2xl">
+            <h2 className="text-2xl font-black tracking-tight">استكشف المزيد من أدوات منصة إنجازيا السعودية</h2>
+            <p className="text-slate-400 mt-2">منظومة متكاملة من الآلات الحاسبة وأدوات الأتمتة المصممة خصيصاً لمضاعفة أرباح متجرك الإلكتروني.</p>
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-4">
+            {relatedTools.map((rt) => (
               <Link 
-                key={cKey} 
-                href={`/landing/${matchedToolKey}-${cKey}-salla`} 
-                style={{ background: '#f1f5f9', color: '#334155', padding: '6px 12px', borderRadius: '6px', fontSize: '13px', fontWeight: 700, textDecoration: 'none' }}
+                key={rt.slug} 
+                href={`/landing/${rt.slug}`}
+                className="bg-slate-800 hover:bg-emerald-600/20 border border-slate-700 hover:border-emerald-500 p-5 rounded-2xl transition duration-200 flex flex-col justify-between group"
               >
-                {toolName} في {citiesMap[cKey]}
+                <span className="text-sm font-bold text-slate-200 group-hover:text-emerald-400 line-clamp-2">
+                  {rt.title}
+                </span>
+                <span className="text-xs text-slate-400 mt-4 flex items-center">
+                  استخدم الأداة <span className="mr-1">←</span>
+                </span>
               </Link>
             ))}
           </div>
         </div>
 
       </div>
-    </div>
+    </main>
   );
 }
