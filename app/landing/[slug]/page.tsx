@@ -23,7 +23,7 @@ export default async function LandingPage({ params }: PageProps) {
     <div className="min-h-screen bg-gray-50 py-10 px-4 sm:px-6 lg:px-8" dir="rtl">
       <div className="max-w-6xl mx-auto space-y-10">
         
-        {/* قسم الهيدر الرئيسي بنظام تباين Flex لضمان عدم حدوث مشاكل في التخطيط */}
+        {/* قسم الهيدر الرئيسي */}
         <div className="bg-white rounded-3xl shadow-md border border-gray-100 p-6 sm:p-10 flex flex-col lg:flex-row items-center gap-8">
           
           {/* النصوص والوصف */}
@@ -81,7 +81,7 @@ export default async function LandingPage({ params }: PageProps) {
               <Link 
                 key={idx} 
                 href={`/landing/${rt.slug}`}
-                className="bg-gray-800 hover:bg-gray-750 border border-gray-700 hover:border-emerald-500 p-4 rounded-xl transition flex flex-col justify-between group"
+                className="bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-emerald-500 p-4 rounded-xl transition flex flex-col justify-between group"
               >
                 <span className="text-sm font-bold text-gray-200 group-hover:text-emerald-400 line-clamp-2">
                   {rt.title}
@@ -94,7 +94,7 @@ export default async function LandingPage({ params }: PageProps) {
           </div>
         </div>
 
-      </main>
+      </div>
     </div>
   );
 }
