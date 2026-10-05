@@ -1,5 +1,4 @@
-import { notFound } from 'next/navigation';
-import { getToolBySlug, getAllSlugs, toolsData } from '@/lib/toolsData';
+import { getToolBySlug, toolsData } from '@/lib/toolsData';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -9,26 +8,17 @@ interface PageProps {
   };
 }
 
-// إزالة توليد 6000+ صفحة وقت الـ Build لمنع خطأ الـ Vercel Timeout نهائياً
-export const dynamicParams = true;
-
 export default async function LandingPage({ params }: PageProps) {
   const { slug } = params;
   const tool = getToolBySlug(slug);
 
-  if (!tool) {
-    notFound();
-  }
-
-  const relatedSlugs = getAllSlugs();
-  const relatedTools = [1, 2, 3, 4].map((i) => {
-    const randomSlug = relatedSlugs[(slug.length * i) % relatedSlugs.length];
-    const tData = getToolBySlug(randomSlug);
-    return {
-      slug: randomSlug,
-      title: tData ? tData.title : "أداة إنجازيا المتقدمة"
-    };
-  });
+  const relatedTools = Object.keys(toolsData)
+    .filter((k) => k !== slug)
+    .slice(0, 4)
+    .map((k) => ({
+      slug: k,
+      title: toolsData[k].title
+    }));
 
   return (
     <main className="min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8" dir="rtl">
@@ -39,7 +29,7 @@ export default async function LandingPage({ params }: PageProps) {
           
           <div className="space-y-6">
             <span className="inline-block bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs px-3.5 py-1.5 rounded-full font-bold">
-              أداة معتمدة للمتاجر الإلكترونية في السعودية #0{tool.id}
+              أداة معتمدة للمتاجر الإلكترونية في السعودية
             </span>
             <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight leading-tight">
               {tool.title}
@@ -79,26 +69,11 @@ export default async function LandingPage({ params }: PageProps) {
 
         </div>
 
-        {/* قسم الأسئلة الشائعة (FAQ) */}
-        {tool.faqs && tool.faqs.length > 0 && (
-          <div className="bg-white p-8 sm:p-10 rounded-3xl shadow-sm border border-slate-100">
-            <h2 className="text-2xl font-black text-slate-900 mb-6">الأسئلة الشائعة حول هذه الأداة</h2>
-            <div className="space-y-6">
-              {tool.faqs.map((faq, idx) => (
-                <div key={idx} className="border-b border-slate-100 pb-4 last:border-0">
-                  <h3 className="font-bold text-slate-800 text-lg mb-2">{faq.question}</h3>
-                  <p className="text-slate-600 leading-relaxed">{faq.answer}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* شبكة الربط الداخلي القوي */}
+        {/* شبكة الربط الداخلي الآمنة */}
         <div className="bg-slate-900 text-white p-8 sm:p-12 rounded-3xl space-y-6">
           <div className="max-w-2xl">
             <h2 className="text-2xl font-black tracking-tight">استكشف المزيد من أدوات منصة إنجازيا السعودية</h2>
-            <p className="text-slate-400 mt-2">منظومة متكاملة من الآلات الحاسبة وأدوات الأتمتة المصممة خصيصاً لمضاعفة أرباح متجرك الإلكتروني.</p>
+            <p className="text-slate-400 mt-2">منظومة متكاملة من الآلات الحاسبة وأدوات الأتمتة لمضاعفة أرباح متجرك.</p>
           </div>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-4">
