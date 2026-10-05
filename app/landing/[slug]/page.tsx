@@ -1,10 +1,15 @@
-// @ts-nocheck
-
 import { getToolBySlug, toolsData } from '@/lib/toolsData';
 import Link from 'next/link';
+import React from 'react';
 
-export default function LandingPage({ params }: any) {
-  const slug = params?.slug || 'breakeven-calculator';
+interface PageProps {
+  params: {
+    slug: string;
+  };
+}
+
+export default function LandingPage({ params }: PageProps) {
+  const slug = params.slug;
   const tool = getToolBySlug(slug);
 
   const relatedTools = Object.keys(toolsData)
