@@ -23,7 +23,7 @@ export default async function LandingPage({ params }: PageProps) {
     <div style={{ width: '100%', backgroundColor: '#f8fafc', padding: '40px 16px', direction: 'rtl', boxSizing: 'border-box' }}>
       <div style={{ maxWidth: '1050px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '32px' }}>
         
-        {/* قسم الهيدر الرئيسي مع المحتوى الفريد ورابط التحويل الفعلي */}
+        {/* قسم الهيدر الرئيسي */}
         <div style={{ backgroundColor: '#ffffff', borderRadius: '24px', padding: '32px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '32px' }}>
           
           <div style={{ flex: '1 1 500px', display: 'flex', flexDirection: 'column', gap: '16px', textAlign: 'right' }}>
@@ -55,7 +55,6 @@ export default async function LandingPage({ params }: PageProps) {
             </ul>
 
             <div style={{ paddingTop: '12px' }}>
-              {/* زر ينقل المستخدم مباشرة للأداة الفعلية داخل المنصة */}
               <a 
                 href={tool.actionUrl} 
                 style={{ display: 'inline-block', backgroundColor: '#059669', color: '#ffffff', fontWeight: 'bold', padding: '14px 28px', borderRadius: '14px', textDecoration: 'none', boxShadow: '0 10px 15px -3px rgba(5, 150, 105, 0.3)', textAlign: 'center' }}
@@ -75,7 +74,7 @@ export default async function LandingPage({ params }: PageProps) {
 
         </div>
 
-        {/* قسم الأسئلة الشائعة الفريد للأداة */}
+        {/* قسم الأسئلة الشائعة */}
         {tool.faqs && tool.faqs.length > 0 && (
           <div style={{ backgroundColor: '#ffffff', borderRadius: '24px', padding: '32px', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
             <h2 style={{ fontSize: '20px', fontWeight: 'bold', color: '#0f172a', marginBottom: '20px' }}>الأسئلة الشائعة حول هذه الأداة</h2>
