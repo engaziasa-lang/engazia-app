@@ -1,10 +1,29 @@
-// @ts-nocheck
-/* eslint-disable */
+// lib/seoEngine.ts
 
-export function generateSeoPage(slug) {
+export interface SeoSection {
+  heading: string;
+  text: string;
+}
+
+export interface SeoFaq {
+  question: string;
+  answer: string;
+}
+
+export interface SeoPageData {
+  slug: string;
+  title: string;
+  subtitle: string;
+  badge: string;
+  actionUrl: string;
+  sections: SeoSection[];
+  faqs: SeoFaq[];
+}
+
+// أضفنا (slug: string) لكي لا يعترض TypeScript نهائياً
+export function generateSeoPage(slug: string): SeoPageData {
   const safeSlug = slug ? String(slug) : "profit-calculator-salla";
   
-  // 1. استخراج المتغيرات من الرابط
   let toolName = "حاسبة الأرباح ونقطة التعادل";
   let platformName = "المتاجر الإلكترونية";
   let nicheName = "المنتجات";
@@ -33,7 +52,6 @@ export function generateSeoPage(slug) {
     actionPath = "roas";
   }
 
-  // 2. توليد المحتوى الديناميكي
   return {
     slug: safeSlug,
     title: `${toolName} لمتاجر ${nicheName} على ${platformName} في السعودية`,
