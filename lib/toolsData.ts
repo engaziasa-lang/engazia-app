@@ -15,17 +15,6 @@ export interface ToolData {
   faqs: FAQItem[];
 }
 
-// قائمة المدن السعودية ومنصات التجارة لتوليد آلاف الروابط الديناميكية بسلاسة
-const saudiCities = [
-  "riyadh", "jeddah", "mecca", "medina", "dammam", 
-  "khobar", "tabuk", "qassim", "khamis-mushait", "abha"
-];
-
-const commerceCategories = [
-  "fashion", "electronics", "perfumes", "dates", 
-  "furniture", "cosmetics", "general-store", "dropshipping"
-];
-
 // قاعدة بيانات الأدوات الأساسية الـ 24
 const baseTools: Record<string, Omit<ToolData, 'slug'>> = {
   "breakeven-calculator": {
@@ -292,7 +281,7 @@ const baseTools: Record<string, Omit<ToolData, 'slug'>> = {
       "توحيد نبرة الردود الاحترافية لتعكس صورة راقية عن متجرك"
     ],
     faqs: [
-      { question: "كيف تؤثر سرعة الرد على مبيعات المتجر؟", answer: "العميل الذي يجد رداً سريعاً وفورياً على استفساره ترتفع لديه احتمالية إتمام الشراء بنسبة كبيرة." }
+      { question: "كيف تؤثر سرعة الرد على مبيعات المتجر؟", answer: "العميل الذي يجد رداً سريعاً الفورياً على استفساره ترتفع لديه احتمالية إتمام الشراء بنسبة كبيرة." }
     ]
   },
   "discount-coupon-calculator": {
@@ -367,14 +356,11 @@ const baseTools: Record<string, Omit<ToolData, 'slug'>> = {
   }
 };
 
-// نظام توليد آلاف الروابط الديناميكية (Slug Combinations) لتعمل الـ 6000+ صفحة بدون أخطاء 404
 export function getToolBySlug(slug: string): ToolData | undefined {
-  // 1. التحقق المباشر إذا كان الـ slug مطابقاً للأداة الأساسية
   if (baseTools[slug]) {
     return { ...baseTools[slug], slug };
   }
 
-  // 2. تحليل الـ slug المركب (مثال: profit-riyadh-fashion أو ما شابه) لتوليد محتوى فريد وغير مكرر
   const toolKeys = Object.keys(baseTools);
   const matchedToolKey = toolKeys.find((key) => slug.includes(key) || slug.startsWith(key.split('-')[0]));
   
@@ -388,7 +374,6 @@ export function getToolBySlug(slug: string): ToolData | undefined {
     };
   }
 
-  // 3. خيار افتراضي ذكي لأي slug ديناميكي آخر لضمان عدم ظهور 404 نهائياً
   const defaultKey = toolKeys[0];
   return {
     ...baseTools[defaultKey],
@@ -396,21 +381,7 @@ export function getToolBySlug(slug: string): ToolData | undefined {
   };
 }
 
-// دالة لتوليد جميع الـ params (تغطي الـ 6000+ تركيبة الممكنة لفهرسة جوجل)
+// دالة مبسطة وخفيفة جداً لمنع أي ضغط على الذاكرة وقت الـ Build
 export function getAllSlugs(): string[] {
-  const slugs: string[] = [];
-  
-  Object.keys(baseTools).forEach((toolKey) => {
-    slugs.push(toolKey); // الأدوات الأساسية
-    
-    // دمج الأدوات مع المدن والتصنيفات لتوليد الآلاف من الروابط الفريدة
-    saudiCities.forEach((city) => {
-      commerceCategories.forEach((cat) => {
-        slugs.push(`${toolKey}-${city}-${cat}`);
-        slugs.push(`${toolKey}-${cat}-${city}`);
-      });
-    });
-  });
-
-  return slugs;
+  return Object.keys(baseTools);
 }
