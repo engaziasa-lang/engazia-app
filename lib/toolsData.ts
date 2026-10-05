@@ -4,235 +4,99 @@ export interface ToolData {
   id: number;
   slug: string;
   title: string;
+  subtitle: string;
   description: string;
   imagePath: string;
+  actionUrl: string;
   features: string[];
+  faqs: { question: string; answer: string }[];
 }
 
 export const toolsData: Record<string, ToolData> = {
   "breakeven-calculator": {
     id: 1,
     slug: "breakeven-calculator",
-    title: "حاسبة أرباح ونقطة التعادل",
-    description: "احسب صافي أرباحك بدقة بعد خصم التكاليف، رسوم الشحن، وضريبة القيمة المضافة.",
+    title: "حاسبة أرباح ونقطة التعادل للمتاجر الإلكترونية",
+    subtitle: "احسب صافي أرباحك بدقة متناهية بعد خصم تكلفة المنتج، الشحن، وبوابة الدفع، وضريبة 15%.",
+    description: "تعتبر هذه الأداة العمود الفقري لأي تاجر على منصات سلة أو زد؛ حيث تمنع بيع أي منتج بخسارة عبر تحديد حجم المبيعات اللازم لتغطية كافة التكاليف.",
     imagePath: "/images/tools/tool-1.png",
-    features: ["حساب دقيق لهامش الربح", "متوافق مع ضريبة 15%", "تحليل فوري للتكاليف"]
+    actionUrl: "https://engazia-app.vercel.app/hub/sa/profit",
+    features: [
+      "حساب دقيق لهامش الربح الفعلي للقطعة الواحدة",
+      "متوافق تماماً مع متطلبات ضريبة القيمة المضافة 15%",
+      "تحليل فوري لتكاليف المنصة، التغليف، وعمولة التحصيل"
+    ],
+    faqs: [
+      { question: "كيف تحمي هذه الحاسبة متجري من الخسارة؟", answer: "توضح لك بدقة الحد الأدنى لسعر البيع بحيث لا تتآكل أرباحك بسبب المصاريف التشغيلية الخفية." }
+    ]
   },
   "payment-gateway-fees": {
     id: 2,
     slug: "payment-gateway-fees",
-    title: "حاسبة رسوم بوابات الدفع",
-    description: "احسب نسب بوابات الدفع المحلية وتأثيرها الفعلي على هوامش أرباح متجرك.",
+    title: "حاسبة رسوم بوابات الدفع (تابي، تمارا، مدى)",
+    subtitle: "اعرف كم تخصم بوابات الدفع الإلكتروني من أرباحك في كل طلب تسويه في متجرك.",
+    description: "تتعدد خيارات الدفع في المتاجر السعودية بين مدى، بطاقات الائتمان، وخدمات الشراء الآن وادفع لاحقاً مثل تابي وتمارا لتحديد المبلغ الصافي الداخل لحسابك.",
     imagePath: "/images/tools/tool-2.png",
-    features: ["دعم لجميع البوابات", "حساب الرسوم الثابتة والمتغيرة", "معرفة المبلغ الصافي"]
+    actionUrl: "https://engazia-app.vercel.app/hub/sa/fees",
+    features: [
+      "حساب رسوم شبكة مدى وبطاقات ائتمان فيزا وماستركارد",
+      "حساب نسب وأقساط خدمات تابي (Tabby) وتمارا (Tamara)",
+      "توضيح المبلغ الصافي الفعلي بعد خصم الضريبة المضافة"
+    ],
+    faqs: [
+      { question: "لماذا تختلف رسوم بوابات الدفع؟", answer: "لأن كل مزود خدمة لديه نسبة مئوية ورسوم تشغيلية خاصة تقتطع من قيمة المبيعات." }
+    ]
   },
   "zatca-invoice-generator": {
     id: 3,
     slug: "zatca-invoice-generator",
-    title: "مولد الفواتير الإلكترونية (زاتكا)",
-    description: "أنشئ فواتير مبيعات نظامية مبسطة (QR Code) متوافقة مع متطلبات هيئة الزكاة.",
+    title: "مولد الفواتير الإلكترونية المعتمدة (زاتكا)",
+    subtitle: "أنشئ فواتير مبيعات مبسطة متوافقة مع متطلبات المرحلة الأولى لهيئة الزكاة والضريبة والجمارك.",
+    description: "أداة مثالية لأصحاب المتاجر الناشئة لتوليد فواتير نظامية تتضمن رمز الاستجابة السريعة (QR Code) وبيانات المنشأة الضريبية.",
     imagePath: "/images/tools/tool-3.png",
-    features: ["متوافق مع زاتكا", "توليد QR Code", "إصدار فواتير مبسطة"]
+    actionUrl: "https://engazia-app.vercel.app/hub/sa/invoices",
+    features: [
+      "توليد رمز الاستجابة السريعة QR Code المطابق لاشتراطات زاتكا",
+      "إصدار فواتير مبسطة واضحة للعملاء بصيغة احترافية",
+      "حساب مبالغ الضريبة والخصومات بشكل آلي وصحيح"
+    ],
+    faqs: [
+      { question: "هل الفواتير المنشأة مطابقة لشروط هيئة الزكاة؟", answer: "نعم، تتضمن كافة العناصر البصرية والتنظيمية المطلوبة للفواتير المبسطة." }
+    ]
   },
   "ads-roi-analyzer": {
     id: 4,
     slug: "ads-roi-analyzer",
-    title: "محلل عائد الإعلانات",
-    description: "قس بدقة أداء إعلاناتك وهل تحقق عوائد مجزية في السوق السعودي.",
+    title: "محلل عائد الإعلانات (سناب شات وتيك توك)",
+    subtitle: "قس بدقة كفاءة إعلاناتك الممولة واكتشف ما إذا كانت تحقق أرباحاً حقيقية أم تستنزف ميزانيتك.",
+    description: "صُممت هذه الأداة لمساعدتك في قياس مؤشرات الأداء الأساسية مثل ROAS وتكلفة الاستحواذ على العميل لتتخذ قراراً واثقاً.",
     imagePath: "/images/tools/tool-4.png",
-    features: ["قياس دقيق لـ ROAS", "تتبع حملات سناب وتيك توك", "تنبيهات فورية للأداء"]
+    actionUrl: "https://engazia-app.vercel.app/hub/sa/roas",
+    features: [
+      "حساب معدل العائد على الإنفاق الإعلاني (ROAS) فورياً",
+      "تقدير تكلفة جلب العميل الواحد ومقارنتها بهامش ربح المنتج",
+      "توجيهك المباشر لرفع كفاءة الحملات في السوق السعودي"
+    ],
+    faqs: [
+      { question: "ما هو معدل ROAS المقبول للمتاجر الإلكترونية؟", answer: "عادة ما يُعتبر معدل 3x فما فوق علامة جيدة على نجاح الحملة الإعلانية." }
+    ]
   },
   "whatsapp-crm": {
     id: 5,
     slug: "whatsapp-crm",
-    title: "إدارة عملاء واتساب",
-    description: "إدارة السلال المتروكة، إرسال روابط الدفع السريعة، وتصنيف العملاء.",
+    title: "أداة إدارة عملاء واسترجاع السلال عبر واتساب",
+    subtitle: "ضاعف مبيعات متجرك عبر التواصل الفعال مع أصحاب السلال المتروكة وإرسال روابط الدفع.",
+    description: "يُعد واتساب قناة التواصل الأعلى تفاعلاً في المملكة لتنظيم محادثات العملاء ورفع معدل إتمام الطلبات بكل سهولة.",
     imagePath: "/images/tools/tool-5.png",
-    features: ["استرجاع السلال المتروكة", "روابط دفع سريعة", "تنظيم العملاء"]
-  },
-  "returns-loss-analyzer": {
-    id: 6,
-    slug: "returns-loss-analyzer",
-    title: "محلل خسائر المرتجعات",
-    description: "قس تأثير الاسترجاع والاستبدال على صافي أرباحك الشهرية.",
-    imagePath: "/images/tools/tool-6.png",
-    features: ["حساب خسائر الشحن العكسي", "تتبع التدفق النقدي", "تقليل نسبة المرتجعات"]
-  },
-  "tax-return-prep": {
-    id: 7,
-    slug: "tax-return-prep",
-    title: "مجهز بيانات الإقرار الضريبي",
-    description: "اجمع ورتب بيانات مبيعاتك ومشترواتك لتسهيل رفع الإقرار الضريبي.",
-    imagePath: "/images/tools/tool-7.png",
-    features: ["فصل مبيعات الضريبة", "تصدير بيانات جاهزة", "منع الأخطاء الحسابية"]
-  },
-  "platform-fees-calculator": {
-    id: 8,
-    slug: "platform-fees-calculator",
-    title: "حاسبة رسوم المنصات",
-    description: "احسب التكاليف الخفية واشتراكات المنصات لضمان تسعير منتجاتك.",
-    imagePath: "/images/tools/tool-8.png",
-    features: ["توزيع الاشتراك على الطلبات", "حساب عمولة المنصات", "ضمان هامش ربح عادل"]
-  },
-  "influencer-ads-roi": {
-    id: 9,
-    slug: "influencer-ads-roi",
-    title: "حاسبة جدوى إعلانات المشاهير",
-    description: "حلل العائد المتوقع من إعلانات المؤثرين قبل دفع مبالغ الحملة.",
-    imagePath: "/images/tools/tool-9.png",
-    features: ["توقع الطلبات والأرباح", "قرار دقيق للإعلان", "حساب نقطة التعادل"]
-  },
-  "cod-cost-analyzer": {
-    id: 10,
-    slug: "cod-cost-analyzer",
-    title: "محلل تكاليف الدفع عند الاستلام",
-    description: "احسب نسبة المخاطرة، رسوم الشحن، وخسائر عدم الاستلام.",
-    imagePath: "/images/tools/tool-10.png",
-    features: ["حساب رسوم التحصيل", "تقدير خسائر الطلبات المرفوضة", "معرفة التكلفة الخفية"]
-  },
-  "local-shipping-tracker": {
-    id: 11,
-    slug: "local-shipping-tracker",
-    title: "مدير تتبع الشحنات المحلية",
-    description: "تابع حالات الشحنات وحل استفسارات تأخر التوصيل عبر واتساب.",
-    imagePath: "/images/tools/tool-11.png",
-    features: ["متابعة الشحنات فورياً", "تحديد الشحنات المتأخرة", "قوالب خدمة عملاء جاهزة"]
-  },
-  "seasonal-inventory-planner": {
-    id: 12,
-    slug: "seasonal-inventory-planner",
-    title: "مخطط المخزون للمواسم",
-    description: "توقع الكميات المطلوبة لمواسم السعودية لتجنب نفاد المخزون.",
-    imagePath: "/images/tools/tool-12.png",
-    features: ["حساب الكمية لتغطية الموسم", "توقع نمو الطلب", "حماية المتجر من نفاد البضاعة"]
-  },
-  "operating-expenses-manager": {
-    id: 13,
-    slug: "operating-expenses-manager",
-    title: "مدير النفقات التشغيلية",
-    description: "تتبع مصاريف المتجر الثابتة والمتغيرة لضبط التدفق النقدي.",
-    imagePath: "/images/tools/tool-13.png",
-    features: ["فصل المصاريف الثابتة", "تتبع الاشتراكات والرواتب", "مؤشرات التدفق النقدي"]
-  },
-  "policy-generator": {
-    id: 14,
-    slug: "policy-generator",
-    title: "مولد السياسات وقوانين التجارة",
-    description: "أنشئ صفحات الاستبدال والاسترجاع وسياسة الخصوصية المتوافقة نظامياً.",
-    imagePath: "/images/tools/tool-14.png",
-    features: ["سياسات متوافقة نظامياً", "توليد تلقائي بالبيانات", "حماية قانونية للمتجر"]
-  },
-  "jasmal-data-extractor": {
-    id: 15,
-    slug: "jasmal-data-extractor",
-    title: "جاسمال لاستخراج البيانات",
-    description: "اسحب بيانات المنتجات والأسعار من المنافسين ورتبها في إكسل.",
-    imagePath: "/images/tools/tool-15.png",
-    features: ["استخراج أسعار المنافسين", "تصدير لملفات إكسل", "مراقبة السوق والتسعير"]
-  },
-  "auto-review-request": {
-    id: 16,
-    slug: "auto-review-request",
-    title: "نظام طلب التقييمات الآلي",
-    description: "أرسل رسائل تلقائية للعملاء بعد الاستلام لجمع التقييمات وبناء الموثوقية.",
-    imagePath: "/images/tools/tool-16.png",
-    features: ["أتمتة طلب التقييم", "رفع معدل الموثوقية", "متابعة استجابة العملاء"]
-  },
-  "dropshipping-profit-calculator": {
-    id: 17,
-    slug: "dropshipping-profit-calculator",
-    title: "حاسبة أرباح الدروبشيبينغ",
-    description: "احسب هوامش الربح للمنتجات المستوردة مع رسوم الجمارك والشحن.",
-    imagePath: "/images/tools/tool-17.png",
-    features: ["حساب تكلفة الشحن الدولي", "تحديد صافي الربح الفعلي", "تحليل ربحية الموردين"]
-  },
-  "explore-text-generator": {
-    id: 18,
-    slug: "explore-text-generator",
-    title: "مولد نصوص الإكسبلور",
-    description: "اصنع سكريبتات تيك توك وإعلانات جذابة باللهجة المحلية.",
-    imagePath: "/images/tools/tool-18.png",
-    features: ["سكريبتات إعلانية سعودية", "هيكل إعلاني احترافي", "زيادة التفاعل والمبيعات"]
-  },
-  "quick-customer-service": {
-    id: 19,
-    slug: "quick-customer-service",
-    title: "قوالب خدمة العملاء السريعة",
-    description: "انسخ ردود احترافية جاهزة للرد على الاستفسارات المكررة.",
-    imagePath: "/images/tools/tool-19.png",
-    features: ["قوالب رد فورية", "توفير وقت الدعم", "توحيد نبرة الردود"]
-  },
-  "discount-coupon-calculator": {
-    id: 20,
-    slug: "discount-coupon-calculator",
-    title: "حاسبة جدوى أكواد الخصم",
-    description: "تأكد من أن عروضك الترويجية لا تسبب لك خسائر مخفية.",
-    imagePath: "/images/tools/tool-20.png",
-    features: ["حساب الربح بعد الخصم", "التحقق من حالة العرض", "حماية الأرباح الكبرى"]
-  },
-  "ltv-calculator": {
-    id: 21,
-    slug: "ltv-calculator",
-    title: "حاسبة القيمة الدائمة للعميل",
-    description: "احسب القيمة الإجمالية للعميل طوال فترة تعامله لضبط الإعلانات.",
-    imagePath: "/images/tools/tool-21.png",
-    features: ["معرفة الإنفاق السنوي", "قياس الاحتفاظ بالعملاء", "مقارنة القيمة بالتكلفة"]
-  },
-  "ab-testing-calculator": {
-    id: 22,
-    slug: "ab-testing-calculator",
-    title: "حاسبة اختبارات الإعلانات",
-    description: "قارن بين حملتين إعلانيتين لتعرف أيهما يحقق أفضل عائد.",
-    imagePath: "/images/tools/tool-22.png",
-    features: ["مقارنة تكلفة الطلب CPA", "تحديد الحملة الرابحة", "تحسين الميزانية الإعلانية"]
-  },
-  "whatsapp-link-generator": {
-    id: 23,
-    slug: "whatsapp-link-generator",
-    title: "صانع روابط واتساب السريعة",
-    description: "أنشئ روابط مخصصة برسائل جاهزة لبيو تيك توك أو انستغرام.",
-    imagePath: "/images/tools/tool-23.png",
-    features: ["توليد روابط برسائل جاهزة", "تنظيم تتبع الحملات", "معاينة الرابط فوراً"]
-  },
-  "saudi-store-growth-secrets": {
-    id: 24,
-    slug: "saudi-store-growth-secrets",
-    title: "أسرار نمو المتاجر السعودية",
-    description: "مكتبة استراتيجيات حصرية لزيادة معدل التحويل وولاء العملاء.",
-    imagePath: "/images/tools/tool-24.png",
-    features: ["استراتيجيات رفع التحويل", "برامج ولاء العملاء", "خطوات عملية للتطوير"]
-  },
-  "tool-25": {
-    id: 25,
-    slug: "tool-25",
-    title: "أداة إنجازيا المتقدمة 25",
-    description: "أداة تحليل متطورة لمضاعفة المبيعات وكفاءة التشغيل.",
-    imagePath: "/images/tools/tool-25.png",
-    features: ["أداء سريع ودقيق", "متوافقة مع المنصات", "تحليلات فورية"]
-  },
-  "tool-26": {
-    id: 26,
-    slug: "tool-26",
-    title: "أداة إنجازيا المتقدمة 26",
-    description: "نظام أتمتة مخصص لرفع كفاءة التسويق الرقمي وإدارة العملاء.",
-    imagePath: "/images/tools/tool-26.png",
-    features: ["أتمتة العمليات", "واجهة ميسرة", "دعم وتحديثات مستمرة"]
-  },
-  "tool-27": {
-    id: 27,
-    slug: "tool-27",
-    title: "أداة إنجازيا المتقدمة 27",
-    description: "مساعد رقمي لضبط الحسابات المالية وإدارة التدفقات النقدية.",
-    imagePath: "/images/tools/tool-27.png",
-    features: ["ضبط الحسابات والتدفقات", "تقارير مالية دورية", "سهولة القراءة"]
-  },
-  "tool-28": {
-    id: 28,
-    slug: "tool-28",
-    title: "أداة إنجازيا المتقدمة 28",
-    description: "الحل الشامل لتعزيز تجربة التسوق ورفع معدلات التحويل.",
-    imagePath: "/images/tools/tool-28.png",
-    features: ["تحسين تجربة المستخدم", "زيادة نسبة المبيعات", "حلول مبتكرة للتجار"]
+    actionUrl: "https://engazia-app.vercel.app/hub/sa/whatsapp",
+    features: [
+      "استعادة السلال المتروكة ورفع نسبة إتمام العمليات الشرائية",
+      "إرسال روابط دفع سريعة ومباشرة للعملاء المهتمين",
+      "قوالب رسائل جاهزة ومصممة باللهجة السعودية المناسبة"
+    ],
+    faqs: [
+      { question: "كيف تساهم رسائل واتساب في زيادة المبيعات؟", answer: "تزيل التردد لدى العميل وتمنحه شعوراً بالطمأنينة وسرعة إتمام الطلب." }
+    ]
   }
 };
 
@@ -240,11 +104,16 @@ export function getToolBySlug(slug: string): ToolData {
   if (toolsData[slug]) {
     return toolsData[slug];
   }
-  const firstKey = Object.keys(toolsData)[0];
-  const base = toolsData[firstKey];
+  const baseKeys = Object.keys(toolsData);
+  const fallbackKey = baseKeys[0];
+  const base = toolsData[fallbackKey];
+
   return {
     ...base,
     slug,
-    title: `${base.title} (مخصص للمتاجر السعودية)`,
+    title: `أداة متقدمة للمتاجر الإلكترونية في السعودية`,
+    subtitle: `حلول رقمية مبتكرة ومخصصة لرفع كفاءة ومبيعات المتاجر الرقمية.`,
+    description: `تتيح لك هذه الأداة الاستفادة من أحدث خوارزميات وأساليب الأتمتة والتحليل المعتمدة في السوق السعودي لتطوير عملك بكل احترافية.`,
+    actionUrl: "https://engazia-app.vercel.app/hub/sa"
   };
 }
