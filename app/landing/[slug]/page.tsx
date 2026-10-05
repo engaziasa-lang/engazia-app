@@ -9,13 +9,6 @@ interface PageProps {
   };
 }
 
-export async function generateStaticParams() {
-  const slugs = getAllSlugs();
-  return slugs.map((slug) => ({
-    slug,
-  }));
-}
-
 export default async function LandingPage({ params }: PageProps) {
   const { slug } = params;
   const tool = getToolBySlug(slug);
@@ -25,7 +18,6 @@ export default async function LandingPage({ params }: PageProps) {
   }
 
   const relatedSlugs = getAllSlugs();
-  // اختيار روابط داخلية فريدة وعشوائية لكل صفحة لضمان قوة الربط الداخلي
   const relatedTools = [1, 2, 3, 4].map((i) => {
     const randomSlug = relatedSlugs[(slug.length * i) % relatedSlugs.length];
     const tData = getToolBySlug(randomSlug);
@@ -84,7 +76,7 @@ export default async function LandingPage({ params }: PageProps) {
 
         </div>
 
-        {/* قسم الأسئلة الشائعة (FAQ) لمنع المحتوى المكرر */}
+        {/* قسم الأسئلة الشائعة (FAQ) */}
         {tool.faqs && tool.faqs.length > 0 && (
           <div className="bg-white p-8 sm:p-10 rounded-3xl shadow-sm border border-slate-100">
             <h2 className="text-2xl font-black text-slate-900 mb-6">الأسئلة الشائعة حول هذه الأداة</h2>
@@ -99,7 +91,7 @@ export default async function LandingPage({ params }: PageProps) {
           </div>
         )}
 
-        {/* شبكة الربط الداخلي القوي (Internal Linking) */}
+        {/* شبكة الربط الداخلي القوي */}
         <div className="bg-slate-900 text-white p-8 sm:p-12 rounded-3xl space-y-6">
           <div className="max-w-2xl">
             <h2 className="text-2xl font-black tracking-tight">استكشف المزيد من أدوات منصة إنجازيا السعودية</h2>
