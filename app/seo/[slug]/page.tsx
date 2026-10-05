@@ -38,12 +38,25 @@ export default async function ProgrammaticSeoPage({ params }: PageProps) {
           <p style={{ fontSize: '18px', color: '#047857', fontWeight: '600', marginBottom: '32px' }}>
             {pageData.subtitle}
           </p>
-          <a 
-            href={pageData.actionUrl} 
-            style={{ display: 'inline-block', backgroundColor: '#059669', color: '#fff', padding: '16px 32px', borderRadius: '12px', fontWeight: 'bold', textDecoration: 'none', fontSize: '18px', transition: 'background-color 0.3s' }}
-          >
-            تفعيل الأداة لمتجرك الآن ←
-          </a>
+
+          {/* أزرار اتخاذ القرار المزدوجة (Dual CTA Buttons) */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', alignItems: 'center' }}>
+            {/* الزر الرئيسي لتفعيل الأداة الحالية */}
+            <a 
+              href={pageData.actionUrl} 
+              style={{ display: 'inline-block', backgroundColor: '#059669', color: '#fff', padding: '16px 32px', borderRadius: '12px', fontWeight: 'bold', textDecoration: 'none', fontSize: '18px', transition: 'background-color 0.3s', boxShadow: '0 4px 12px rgba(5, 150, 105, 0.2)' }}
+            >
+              تفعيل الأداة لمتجرك الآن ←
+            </a>
+
+            {/* الزر الثانوي المحدث لتوجه الزائر لرابط المنصة الرئيسي للاشتراك واستكشاف باقي الأدوات */}
+            <a 
+              href="https://engazia-app.vercel.app/hub/sa" 
+              style={{ display: 'inline-block', backgroundColor: '#ffffff', color: '#0f172a', border: '2px solid #cbd5e1', padding: '15px 28px', borderRadius: '12px', fontWeight: 'bold', textDecoration: 'none', fontSize: '16px', transition: 'all 0.3s' }}
+            >
+              استكشف منصة إنجازيا واشترك الآن 💡
+            </a>
+          </div>
         </header>
 
         {/* المقال التفصيلي (SEO Content) */}
@@ -79,7 +92,7 @@ export default async function ProgrammaticSeoPage({ params }: PageProps) {
           </div>
         </section>
 
-        {/* شبكة الربط الداخلي (Internal Linking Network) - تم تحديثها لتعرض 6 روابط */}
+        {/* شبكة الربط الداخلي (6 روابط متنوعة) */}
         <section style={{ backgroundColor: '#0f172a', color: '#ffffff', padding: '40px', borderRadius: '24px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }}>
           <h3 style={{ fontSize: '22px', fontWeight: 'bold', marginBottom: '16px', textAlign: 'right' }}>
             أدوات وحلول سيو مخصصة للمتاجر السعودية
