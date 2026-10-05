@@ -28,7 +28,7 @@ export default async function LandingPage({ params }: PageProps) {
           
           <div style={{ flex: '1 1 500px', display: 'flex', flexDirection: 'column', gap: '16px', textAlign: 'right' }}>
             <span style={{ display: 'inline-block', backgroundColor: '#ecfdf5', color: '#065f46', fontSize: '12px', fontWeight: 'bold', padding: '6px 14px', borderRadius: '9999px', border: '1px solid #a7f3d0', width: 'fit-content' }}>
-              {tool.badge || "أداة رقمية متقدمة وحصرية"}
+              {tool.badge}
             </span>
             
             <h1 style={{ fontSize: '28px', fontWeight: '900', color: '#0f172a', lineHeight: '1.4', margin: 0 }}>
@@ -74,28 +74,21 @@ export default async function LandingPage({ params }: PageProps) {
 
         </div>
 
-        {/* قسم الدليل الشامل والمحتوى الغني لتعزيز السيو (SEO Content Section) */}
-        {tool.seoGuide && tool.seoGuide.length > 0 && (
-          <div style={{ backgroundColor: '#ffffff', borderRadius: '24px', padding: '36px', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0,0,0,0.02)', display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            <h2 style={{ fontSize: '22px', fontWeight: '900', color: '#0f172a', margin: 0 }}>
-              دليل شامل: كيف تساعدك هذه الأداة في مضاعفة أرباح متجرك بالسعودية؟
+        {/* قسم الدليل الشامل لتعزيز السيو */}
+        {tool.seoGuideHeading && (
+          <div style={{ backgroundColor: '#ffffff', borderRadius: '24px', padding: '36px', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0,0,0,0.02)', display: 'flex', flexDirection: 'column', gap: '12px', textAlign: 'right' }}>
+            <h2 style={{ fontSize: '20px', fontWeight: '900', color: '#047857', margin: 0 }}>
+              {tool.seoGuideHeading}
             </h2>
-            {tool.seoGuide.map((guide, idx) => (
-              <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <h3 style={{ fontSize: '17px', fontWeight: 'bold', color: '#047857', margin: 0 }}>
-                  {guide.heading}
-                </h3>
-                <p style={{ fontSize: '15px', color: '#475569', lineHeight: '1.8', margin: 0 }}>
-                  {guide.text}
-                </p>
-              </div>
-            ))}
+            <p style={{ fontSize: '15px', color: '#475569', lineHeight: '1.8', margin: 0 }}>
+              {tool.seoGuideText}
+            </p>
           </div>
         )}
 
         {/* قسم الأسئلة الشائعة */}
         {tool.faqs && tool.faqs.length > 0 && (
-          <div style={{ backgroundColor: '#ffffff', borderRadius: '24px', padding: '32px', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
+          <div style={{ backgroundColor: '#ffffff', borderRadius: '24px', padding: '32px', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0,0,0,0.02)', textAlign: 'right' }}>
             <h2 style={{ fontSize: '20px', fontWeight: 'bold', color: '#0f172a', marginBottom: '20px' }}>الأسئلة الشائعة حول هذه الأداة</h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               {tool.faqs.map((faq, idx) => (
@@ -111,8 +104,8 @@ export default async function LandingPage({ params }: PageProps) {
         {/* شبكة الربط الداخلي */}
         <div style={{ backgroundColor: '#0f172a', color: '#ffffff', borderRadius: '24px', padding: '32px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', display: 'flex', flexDirection: 'column', gap: '20px' }}>
           <div>
-            <h2 style={{ fontSize: '20px', fontWeight: 'bold', margin: '0 0 6px 0' }}>استكشف المزيد من أدوات منصة إنجازيا السعودية</h2>
-            <p style={{ fontSize: '14px', color: '#94a3b8', margin: 0 }}>منظومة متكاملة من الآلات الحاسبة وأدوات الأتمتة لمضاعفة أرباح متجرك.</p>
+            <h2 style={{ fontSize: '20px', fontWeight: 'bold', margin: '0 0 6px 0', textAlign: 'right' }}>استكشف المزيد من أدوات منصة إنجازيا السعودية</h2>
+            <p style={{ fontSize: '14px', color: '#94a3b8', margin: 0, textAlign: 'right' }}>منظومة متكاملة من الآلات الحاسبة وأدوات الأتمتة لمضاعفة أرباح متجرك.</p>
           </div>
           
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', paddingTop: '8px' }}>
@@ -122,7 +115,7 @@ export default async function LandingPage({ params }: PageProps) {
                 href={`/landing/${rt.slug}`}
                 style={{ backgroundColor: '#1e293b', border: '1px solid #334155', padding: '16px', borderRadius: '12px', textDecoration: 'none', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
               >
-                <span style={{ fontSize: '14px', fontWeight: 'bold', color: '#e2e8f0', lineHeight: '1.4' }}>
+                <span style={{ fontSize: '14px', fontWeight: 'bold', color: '#e2e8f0', lineHeight: '1.4', textAlign: 'right' }}>
                   {rt.title}
                 </span>
                 <span style={{ fontSize: '12px', color: '#34d399', marginTop: '16px', display: 'flex', alignItems: 'center' }}>
