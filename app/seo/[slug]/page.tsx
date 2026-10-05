@@ -13,12 +13,14 @@ export default async function ProgrammaticSeoPage({ params }: PageProps) {
   
   const pageData = generateSeoContent(slug);
 
-  // مصفوفة توليد روابط ربط داخلي ذكية ومتنوعة لتقوية السيو
+  // مصفوفة توليد 6 روابط ربط داخلي ذكية ومتنوعة لتقوية السيو
   const relatedLinks = [
-    { title: "حاسبة أرباح متاجر العطور على سلة", href: "/seo/breakeven-salla-perfumes-riyadh" },
+    { title: "حاسبة أرباح متاجر العطور على سلة", href: "/seo/profit-salla-perfumes-riyadh" },
     { title: "حاسبة رسوم بوابات الدفع لمتاجر العبايات", href: "/seo/fees-zid-abaya-jeddah" },
     { title: "أداة استرجاع السلال لمتاجر القهوة المختصة", href: "/seo/whatsapp-shopify-coffee-dammam" },
     { title: "محلل الإعلانات لمتاجر التمور", href: "/seo/roas-salla-dates-riyadh" },
+    { title: "منشئ الفواتير الإلكترونية لمتاجر الإلكترونيات", href: "/seo/invoices-salla-electronics-khobar" },
+    { title: "مدير سياسة المرتجعات لمتاجر الأثاث", href: "/seo/returns-zid-furniture-tabuk" },
   ];
 
   return (
@@ -58,7 +60,10 @@ export default async function ProgrammaticSeoPage({ params }: PageProps) {
           <p style={{ fontSize: '18px', marginBottom: '32px', textAlign: 'justify' }}>{pageData.article.p_2}</p>
 
           <h3 style={{ fontSize: '24px', color: '#047857', fontWeight: '700', marginBottom: '16px' }}>{pageData.article.h2_3}</h3>
-          <p style={{ fontSize: '18px', marginBottom: '0', textAlign: 'justify' }}>{pageData.article.p_3}</p>
+          <p style={{ fontSize: '18px', marginBottom: '32px', textAlign: 'justify' }}>{pageData.article.p_3}</p>
+
+          <h3 style={{ fontSize: '24px', color: '#047857', fontWeight: '700', marginBottom: '16px' }}>{pageData.article.h2_4}</h3>
+          <p style={{ fontSize: '18px', marginBottom: '0', textAlign: 'justify' }}>{pageData.article.p_4}</p>
         </article>
 
         {/* الأسئلة الشائعة */}
@@ -74,7 +79,7 @@ export default async function ProgrammaticSeoPage({ params }: PageProps) {
           </div>
         </section>
 
-        {/* شبكة الربط الداخلي (Internal Linking Network) */}
+        {/* شبكة الربط الداخلي (Internal Linking Network) - تم تحديثها لتعرض 6 روابط */}
         <section style={{ backgroundColor: '#0f172a', color: '#ffffff', padding: '40px', borderRadius: '24px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }}>
           <h3 style={{ fontSize: '22px', fontWeight: 'bold', marginBottom: '16px', textAlign: 'right' }}>
             أدوات وحلول سيو مخصصة للمتاجر السعودية
@@ -82,7 +87,7 @@ export default async function ProgrammaticSeoPage({ params }: PageProps) {
           <p style={{ fontSize: '15px', color: '#94a3b8', marginBottom: '24px', textAlign: 'right' }}>
             استكشف المزيد من الحلول الرقمية والآلات الحاسبة المصممة لرفع كفاءة ومبيعات المتاجر الرقمية.
           </p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
             {relatedLinks.map((link, idx) => (
               <Link 
                 key={idx} 
