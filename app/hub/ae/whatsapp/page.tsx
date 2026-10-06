@@ -31,8 +31,7 @@ export default function WhatsappCrmAE() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    // تم تغيير مفتاح التخزين لفصل البيانات للإمارات
-    const saved = localStorage.getItem('seerk_ae_whatsapp_crm_items');
+    const saved = localStorage.getItem('enjazya_ae_whatsapp_crm_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
@@ -40,7 +39,7 @@ export default function WhatsappCrmAE() {
 
   const saveToLocalStorage = (newItems: CustomerItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_ae_whatsapp_crm_items', JSON.stringify(newItems));
+    localStorage.setItem('enjazya_ae_whatsapp_crm_items', JSON.stringify(newItems));
   };
 
   const isActivated = typeof window !== 'undefined' && !!localStorage.getItem('merchant_license_key');
@@ -84,7 +83,6 @@ export default function WhatsappCrmAE() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    // تعديل التوقيت ليطابق الإمارات
     const formattedDate = `${now.toLocaleDateString('ar-AE')} - ${now.toLocaleTimeString('ar-AE', timeOptions)}`;
 
     if (editingId) {
@@ -154,7 +152,6 @@ export default function WhatsappCrmAE() {
     saveToLocalStorage(updated);
   };
 
-  // دالة إرسال واتساب للعميل الإماراتي
   const handleSendWhatsapp = (item: CustomerItem) => {
     const safePhone = item.phoneNumber || '';
     const safeName = item.customerName || 'عميلنا العزيز';
@@ -255,7 +252,7 @@ export default function WhatsappCrmAE() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", "seerk_ae_whatsapp_crm.xls");
+    link.setAttribute("download", "enjazya_pro_max_crm_ae.xls");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -376,7 +373,7 @@ export default function WhatsappCrmAE() {
 
       <div className="header">
         <div className="title-box">
-          <h1>إدارة عملاء واتساب (Seerk Pro Max) 💬</h1>
+          <h1>إدارة عملاء واتساب (إنجازيا برو ماكس) 💬</h1>
           <p>إدارة السلال المتروكة، إرسال روابط الدفع السريعة، وتصنيف عملاء متجرك الإماراتي</p>
         </div>
         <Link href="/hub/ae" className="back-btn">
