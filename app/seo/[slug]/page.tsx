@@ -13,7 +13,6 @@ export default async function ProgrammaticSeoPage({ params }: PageProps) {
   
   const pageData = generateSeoContent(slug);
 
-  // مصفوفة توليد 6 روابط ربط داخلي ذكية ومتنوعة لتقوية السيو
   const relatedLinks = [
     { title: "حاسبة أرباح متاجر العطور على سلة", href: "/seo/profit-salla-perfumes-riyadh" },
     { title: "حاسبة رسوم بوابات الدفع لمتاجر العبايات", href: "/seo/fees-zid-abaya-jeddah" },
@@ -39,17 +38,13 @@ export default async function ProgrammaticSeoPage({ params }: PageProps) {
             {pageData.subtitle}
           </p>
 
-          {/* أزرار اتخاذ القرار المزدوجة (Dual CTA Buttons) */}
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', alignItems: 'center' }}>
-            {/* الزر الرئيسي لتفعيل الأداة الحالية */}
             <a 
               href={pageData.actionUrl} 
               style={{ display: 'inline-block', backgroundColor: '#059669', color: '#fff', padding: '16px 32px', borderRadius: '12px', fontWeight: 'bold', textDecoration: 'none', fontSize: '18px', transition: 'background-color 0.3s', boxShadow: '0 4px 12px rgba(5, 150, 105, 0.2)' }}
             >
               تفعيل الأداة لمتجرك الآن ←
             </a>
-
-            {/* الزر الثانوي المحدث لتوجه الزائر لرابط المنصة الرئيسي للاشتراك واستكشاف باقي الأدوات */}
             <a 
               href="https://engazia-app.vercel.app/hub/sa" 
               style={{ display: 'inline-block', backgroundColor: '#ffffff', color: '#0f172a', border: '2px solid #cbd5e1', padding: '15px 28px', borderRadius: '12px', fontWeight: 'bold', textDecoration: 'none', fontSize: '16px', transition: 'all 0.3s' }}
@@ -58,6 +53,26 @@ export default async function ProgrammaticSeoPage({ params }: PageProps) {
             </a>
           </div>
         </header>
+
+        {/* --- قسم صورة الأداة (العرض الديناميكي والحجم المثالي) --- */}
+        <div style={{ width: '100%', textAlign: 'center', margin: '0 auto' }}>
+          <img 
+            src={pageData.imagePath} 
+            alt={pageData.title} 
+            style={{ 
+              maxWidth: '100%', 
+              height: 'auto', 
+              maxHeight: '450px', // يمنع الصورة من أن تصبح عملاقة على الشاشات الكبيرة
+              borderRadius: '24px', 
+              boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)', 
+              border: '1px solid #e2e8f0',
+              objectFit: 'cover', // يحافظ على تناسق الأبعاد
+              display: 'block',
+              margin: '0 auto'
+            }} 
+            loading="lazy" 
+          />
+        </div>
 
         {/* المقال التفصيلي (SEO Content) */}
         <article style={{ backgroundColor: '#ffffff', padding: '48px', borderRadius: '24px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)', color: '#334155', lineHeight: '2.2' }}>
@@ -92,7 +107,7 @@ export default async function ProgrammaticSeoPage({ params }: PageProps) {
           </div>
         </section>
 
-        {/* شبكة الربط الداخلي (6 روابط متنوعة) */}
+        {/* شبكة الربط الداخلي */}
         <section style={{ backgroundColor: '#0f172a', color: '#ffffff', padding: '40px', borderRadius: '24px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }}>
           <h3 style={{ fontSize: '22px', fontWeight: 'bold', marginBottom: '16px', textAlign: 'right' }}>
             أدوات وحلول سيو مخصصة للمتاجر السعودية
