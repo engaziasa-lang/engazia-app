@@ -14,7 +14,7 @@ interface JasmalItem {
   createdAt?: string;
 }
 
-export default function JasmalScraperSA() {
+export default function JasmalScraperAE() {
   const [competitorName, setCompetitorName] = useState<string>('');
   const [productName, setProductName] = useState<string>('');
   const [productPrice, setProductPrice] = useState<number | ''>('');
@@ -33,7 +33,8 @@ export default function JasmalScraperSA() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const saved = localStorage.getItem('seerk_jasmal_scraper_items');
+    // تم تغيير مفتاح التخزين لفصل البيانات للإمارات
+    const saved = localStorage.getItem('seerk_ae_jasmal_scraper_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
@@ -41,7 +42,7 @@ export default function JasmalScraperSA() {
 
   const saveToLocalStorage = (newItems: JasmalItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_jasmal_scraper_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_ae_jasmal_scraper_items', JSON.stringify(newItems));
   };
 
   const isActivated = typeof window !== 'undefined' && !!localStorage.getItem('merchant_license_key');
@@ -83,7 +84,8 @@ export default function JasmalScraperSA() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const formattedDate = `${now.toLocaleDateString('ar-SA')} - ${now.toLocaleTimeString('ar-SA', timeOptions)}`;
+    // تعديل التوقيت ليطابق الإمارات
+    const formattedDate = `${now.toLocaleDateString('ar-AE')} - ${now.toLocaleTimeString('ar-AE', timeOptions)}`;
 
     if (editingId) {
       const updated = items.map(item => item.id === editingId ? {
@@ -171,7 +173,7 @@ export default function JasmalScraperSA() {
                 <th>اسم المنتج</th>
                 <th>التاريخ والوقت</th>
                 <th>التصنيف</th>
-                <th>السعر (ر.س)</th>
+                <th>السعر (د.إ)</th>
                 <th>رابط المنتج</th>
                 <th>ملاحظات</th>
               </tr>
@@ -199,7 +201,7 @@ export default function JasmalScraperSA() {
             <tfoot>
               <tr class="tfoot-row">
                 <td colspan="5">متوسط أسعار المنافسين</td>
-                <td colspan="3">${avgCompetitorPrice.toFixed(2)} ر.س</td>
+                <td colspan="3">${avgCompetitorPrice.toFixed(2)} د.إ</td>
               </tr>
             </tfoot>
           </table>
@@ -211,7 +213,7 @@ export default function JasmalScraperSA() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", "seerk_jasmal_extracted_data.xls");
+    link.setAttribute("download", "seerk_ae_jasmal_extracted_data.xls");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -313,7 +315,7 @@ export default function JasmalScraperSA() {
           <h1>جاسمال (Jasmal) لاستخراج البيانات 🕷️</h1>
           <p>اسحب بيانات المنتجات والأسعار من المتاجر المنافسة ورتبها فوراً في ملفات إكسل</p>
         </div>
-        <Link href="/hub/sa" className="back-btn">
+        <Link href="/hub/ae" className="back-btn">
           <span>←</span> عودة للمنصة
         </Link>
       </div>
@@ -336,7 +338,7 @@ export default function JasmalScraperSA() {
               <div className="input-group">
                 <label>اسم المتجر المنافس</label>
                 <div className="input-wrapper">
-                  <input type="text" value={competitorName} onChange={(e) => setCompetitorName(e.target.value)} placeholder="مثال: متجر نون / زليج" required />
+                  <input type="text" value={competitorName} onChange={(e) => setCompetitorName(e.target.value)} placeholder="مثال: متجر نون / أمازون الإمارات" required />
                 </div>
               </div>
               <div className="input-group">
@@ -349,10 +351,10 @@ export default function JasmalScraperSA() {
 
             <div className="form-row">
               <div className="input-group">
-                <label>سعر المنتج المنافس (ر.س)</label>
+                <label>سعر المنتج المنافس (د.إ)</label>
                 <div className="input-wrapper">
                   <input className="with-currency" type="number" step="0.01" min="0" value={productPrice === '' ? '' : productPrice} onChange={(e) => setProductPrice(e.target.value === '' ? '' : Number(e.target.value))} placeholder="299" required />
-                  <span className="currency-tag">ر.س</span>
+                  <span className="currency-tag">د.إ</span>
                 </div>
               </div>
               
@@ -385,7 +387,7 @@ export default function JasmalScraperSA() {
             <div className="input-group">
               <label>رابط المنتج المنافس (اختياري)</label>
               <div className="input-wrapper">
-                <input type="url" value={productUrl} onChange={(e) => setProductUrl(e.target.value)} placeholder="https://competitor.com/product/123" />
+                <input type="url" value={productUrl} onChange={(e) => setProductUrl(e.target.value)} placeholder="https://competitor.ae/product/123" />
               </div>
             </div>
 
@@ -418,7 +420,7 @@ export default function JasmalScraperSA() {
 
           <div className="result-box">
             <span className="result-label">متوسط أسعار المنافسين</span>
-            <span className="result-value" style={{ color: '#047857' }}>{avgCompetitorPrice.toFixed(2)} ر.س</span>
+            <span className="result-value" style={{ color: '#047857' }}>{avgCompetitorPrice.toFixed(2)} د.إ</span>
           </div>
 
           <div className="result-box" style={{ background: '#f8fafc' }}>
@@ -476,7 +478,7 @@ export default function JasmalScraperSA() {
                       <div style={{ fontWeight: 800, color: '#0369a1' }}>{item.productName}</div>
                       <div style={{ fontSize: '12px', color: '#64748b' }}>{item.category}</div>
                     </td>
-                    <td style={{ fontWeight: 900, color: '#047857' }}>{item.productPrice} ر.س</td>
+                    <td style={{ fontWeight: 900, color: '#047857' }}>{item.productPrice} د.إ</td>
                     <td>
                       {item.productUrl ? (
                         <a href={item.productUrl} target="_blank" rel="noopener noreferrer" style={{ color: '#2563eb', textDecoration: 'underline', fontWeight: 700, display: 'block', fontSize: '12.5px' }}>
@@ -499,7 +501,7 @@ export default function JasmalScraperSA() {
               <tfoot>
                 <tr className="tfoot-row">
                   <td colSpan={3} style={{ textAlign: 'center' }}>متوسط أسعار المنافسين الإجمالي</td>
-                  <td style={{ color: '#047857' }}>{avgCompetitorPrice.toFixed(2)} ر.س</td>
+                  <td style={{ color: '#047857' }}>{avgCompetitorPrice.toFixed(2)} د.إ</td>
                   <td colSpan={2}></td>
                 </tr>
               </tfoot>
