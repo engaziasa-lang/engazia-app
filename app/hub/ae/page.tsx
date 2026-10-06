@@ -173,8 +173,8 @@ export default function EnjazyaUaeHub() {
         .brand { font-size: 26px; font-weight: 900; color: #0f172a; white-space: nowrap; display: flex; align-items: center; gap: 12px; letter-spacing: -0.5px; }
         .ae-badge { background: #dcfce7; color: #166534; font-size: 12px; font-weight: 800; padding: 5px 10px; border-radius: 6px; letter-spacing: normal; display: inline-flex; align-items: center; }
         .nav-controls { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; flex-direction: row-reverse; }
-        .action-btn-primary { background: #8b5cf6; color: #fff; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; box-shadow: 0 4px 10px rgba(139,92,246,0.2); }
-        .action-btn-primary:hover { background: #7c3aed; color: #fff; }
+        .action-btn-primary { background: #0f172a; color: #f8fafc; border: 1px solid #334155; padding: 8px 16px; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; box-shadow: 0 4px 10px rgba(15,23,42,0.15); }
+        .action-btn-primary:hover { background: #1e293b; color: #fff; }
         .backup-action-btn { background: #0f172a; color: #fff; border: none; padding: 8px 14px; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; }
         .backup-action-btn:hover { background: #1e293b; }
         .restore-action-btn { background: #f8fafc; color: #334155; border: 1px solid #cbd5e1; padding: 8px 14px; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; }
@@ -236,7 +236,7 @@ export default function EnjazyaUaeHub() {
 
         <div className="nav-controls">
           <a href={LEMON_CHECKOUT_URL} target="_blank" rel="noopener noreferrer" className="action-btn-primary" title="ترقية الحساب">
-            ⚡ ترقية (49.99 د.إ)
+            👑 ترقية الملكية (49.99 د.إ)
           </a>
 
           <button onClick={handleExportAllData} className="backup-action-btn" title="تصدير كافة مدخلات الأدوات الـ 24">
