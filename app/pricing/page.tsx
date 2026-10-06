@@ -1,55 +1,85 @@
-'use client';
-
 import React from 'react';
-import Link from 'next/link';
 
-export default function PricingPage() {
-  const LEMON_CHECKOUT_URL = 'https://enjazya.lemonsqueezy.com/checkout/buy/dce1dd80-3422-43ba-aed5-8ef2dcd38d6d';
+export default function PricingCard() {
+  // مصفوفة تشمل الميزات الأساسية + كافة الـ 24 أداة بترتيب منسق وجذاب
+  const allFeatures = [
+    "تفعيل فوري لكافة الأدوات الـ 24 🚀",
+    "أداة جسمل (مقارنة وتحليل الأسعار مع المنافسين) ⚖️",
+    "إدارة عملاء واتساب الشاملة (إنجازيا Pro Max) 📱",
+    "حسابات ضريبية متوافقة مع هيئة الزكاة (ZATCA) 🏛️",
+    "حاسبة الأرباح والتكاليف التشغيلية الشاملة 📊",
+    "حاسبة رسوم بوابات الدفع (تابي، تمارا، مدى) 💳",
+    "أداة استرجاع السلال المتروكة آلياً 🛒",
+    "محلل عائد الإنفاق الإعلاني الدقيق (ROAS) 📈",
+    "مدير سياسة المرتجعات والشحن العكسي 🔄",
+    "منشئ الفواتير الإلكترونية المعتمدة 🧾",
+    "مقارن ومتبع أسعار شركات الشحن 🚚",
+    "مستشار الذكاء الاصطناعي لنمو المتاجر 💡",
+    "مقارن منصات التجارة الإلكترونية 🛍️",
+    "محلل تجارب الأداء وتحسين التحويل (A/B Test) 🧪",
+    "حاسبة القيمة الدائمة للعملاء (LTV) 💎",
+    "مخطط العروض الترويجية والخصومات 🎁",
+    "مركز الدعم الذكي وإدارة التذاكر 🎧",
+    "مولد النصوص التسويقية والإعلانية ✍️",
+    "محلل ومخطط أعمال الدروبشيبينغ 📦",
+    "مجمع تقييمات العملاء لزيادة الموثوقية ⭐",
+    "منشئ السياسات القانونية والشروط 📜",
+    "متتبع المصاريف والنفقات المتغيرة 📉",
+    "نظام إدارة وتتبع حركة المخزون 📋",
+    "مقيم مخاطر الدفع عند الاستلام (COD) ⚠️",
+    "محلل أداء حملات المشاهير (Influencers) 🌟",
+    "إمكانية التفعيل على أجهزة متعددة للموظفين 💻",
+    "نسخ احتياطي وتصدير كامل للبيانات بصيغة JSON 💾"
+  ];
 
   return (
-    <div style={{ direction: 'rtl', fontFamily: 'Tajawal, sans-serif', backgroundColor: '#f8fafc', minHeight: '100vh', padding: '40px 20px' }}>
-      <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet" />
+    <div style={{ backgroundColor: '#f8fafc', padding: '40px 16px', direction: 'rtl', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
       
-      <div style={{ maxWidth: '900px', margin: '0 auto' }}>
+      {/* بطاقة الباقة الشاملة */}
+      <div style={{ border: '2px solid #059669', borderRadius: '16px', padding: '40px', backgroundColor: '#ffffff', maxWidth: '900px', margin: '0 auto', boxShadow: '0 10px 25px -5px rgba(5, 150, 105, 0.15)' }}>
         
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px', flexWrap: 'wrap', gap: '15px' }}>
-          <div>
-            <h1 style={{ fontSize: '32px', fontWeight: 900, color: '#0f172a', margin: '0 0 10px 0' }}>باقات الأسعار 💎</h1>
-            <p style={{ color: '#64748b', fontSize: '15px', margin: 0 }}>استثمر في نمو متجرك الإلكتروني بأدوات احترافية وبأسعار تنافسية</p>
-          </div>
-          <Link href="/hub/sa" style={{ background: '#ffffff', border: '1px solid #cbd5e1', color: '#334155', padding: '10px 20px', borderRadius: '8px', textDecoration: 'none', fontWeight: 700, fontSize: '14px', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>← عودة للمنصة</Link>
+        {/* عنوان الباقة */}
+        <h2 style={{ textAlign: 'center', fontSize: '32px', fontWeight: '900', color: '#0f172a', marginBottom: '12px' }}>
+          الباقة الشاملة (PRO ULTRA)
+        </h2>
+        <p style={{ textAlign: 'center', color: '#64748b', fontSize: '18px', marginBottom: '32px' }}>
+          وصول غير محدود لجميع الأدوات الـ 24 والتحديثات المستقبلية وميزات التصدير والاستيراد.
+        </p>
+
+        {/* السعر */}
+        <div style={{ textAlign: 'center', marginBottom: '40px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '16px' }}>
+          <span style={{ fontSize: '56px', fontWeight: '900', color: '#059669', lineHeight: '1' }}>
+            49.99 <span style={{ fontSize: '24px', fontWeight: '700' }}>ر.س</span>
+          </span>
+          <span style={{ fontSize: '24px', fontWeight: 'bold', color: '#94a3b8', textDecoration: 'line-through' }}>
+            299 ر.س
+          </span>
+          <span style={{ fontSize: '18px', color: '#64748b', alignSelf: 'flex-end', paddingBottom: '10px' }}>
+            / شهرياً
+          </span>
         </div>
 
-        <div style={{ background: '#ffffff', borderRadius: '20px', border: '2px solid #047857', padding: '40px', boxShadow: '0 20px 40px rgba(4,120,87,0.1)', position: 'relative', overflow: 'hidden' }}>
-          <div style={{ position: 'absolute', top: 0, left: 0, background: '#ef4444', color: '#fff', padding: '8px 30px', fontWeight: 900, fontSize: '13px', borderBottomRightRadius: '12px' }}>
-            خصم لفترة محدودة 83% 🔥
-          </div>
-
-          <div style={{ textAlign: 'center', maxWidth: '600px', margin: '0 auto' }}>
-            <h2 style={{ fontSize: '26px', fontWeight: 900, color: '#0f172a', marginBottom: '10px' }}>الباقة الشاملة (PRO ULTRA)</h2>
-            <p style={{ color: '#64748b', fontSize: '15px', marginBottom: '30px' }}>وصول غير محدود لجميع الأدوات الـ 24 والتحديثات المستقبلية وميزات التصدير والاستيراد.</p>
-
-            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'baseline', gap: '15px', marginBottom: '20px' }}>
-              <span style={{ textDecoration: 'line-through', color: '#94a3b8', fontSize: '22px', fontWeight: 800 }}>299 ر.س</span>
-              <span style={{ fontSize: '48px', fontWeight: 900, color: '#047857' }}>49.99 ر.س</span>
-              <span style={{ color: '#64748b', fontWeight: 700, fontSize: '16px' }}>/ شهرياً</span>
+        {/* شبكة الأدوات (مقسمة لعمودين لتوفير المساحة وإعطاء مظهر ضخم وجذاب) */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '16px', marginBottom: '40px' }}>
+          {allFeatures.map((feature, idx) => (
+            <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '12px', justifyContent: 'flex-start' }}>
+              {/* أيقونة الصح الخضراء המربعة المطابقة لتصميمك */}
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
+                <rect width="24" height="24" rx="4" fill="#059669"/>
+                <path d="M7 12.5L10.5 16L17 8" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              <span style={{ fontSize: '16px', color: '#1e293b', fontWeight: '700' }}>
+                {feature}
+              </span>
             </div>
+          ))}
+        </div>
 
-            <ul style={{ textAlign: 'right', listStyle: 'none', padding: 0, margin: '0 auto 35px', display: 'inline-block', color: '#334155', fontSize: '15px', fontWeight: 700, lineHeight: '2.2' }}>
-              <li>✅ تفعيل فوري لكافة الأدوات الـ 24</li>
-              <li>✅ حسابات ضريبية متوافقة مع زاتكا (ZATCA)</li>
-              <li>✅ إدارة عملاء واتساب (إنجازيا Pro Max)</li>
-              <li>✅ أداة استخراج بيانات المنافسين (جاسمال)</li>
-              <li>✅ إمكانية التفعيل على أجهزة متعددة للموظفين</li>
-              <li>✅ نسخ احتياطي وتصدير كامل للبيانات بصيغة JSON</li>
-            </ul>
-
-            <div>
-              <a href={LEMON_CHECKOUT_URL} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-block', background: '#047857', color: '#fff', padding: '16px 40px', borderRadius: '12px', fontSize: '18px', fontWeight: 900, textDecoration: 'none', boxShadow: '0 8px 20px rgba(4,120,87,0.3)', transition: 'transform 0.2s' }}>
-                🚀 اشترك الآن وفتح جميع الأدوات
-              </a>
-            </div>
-          </div>
+        {/* زر الاشتراك */}
+        <div style={{ textAlign: 'center' }}>
+          <button style={{ backgroundColor: '#059669', color: '#ffffff', border: 'none', padding: '18px 48px', fontSize: '22px', fontWeight: 'bold', borderRadius: '12px', cursor: 'pointer', width: '100%', maxWidth: '450px', boxShadow: '0 4px 12px rgba(5, 150, 105, 0.3)', transition: 'transform 0.2s, backgroundColor 0.2s' }}>
+            اشترك الآن وافتح جميع الأدوات 🚀
+          </button>
         </div>
 
       </div>
