@@ -14,11 +14,11 @@ interface FeeItem {
   createdAt?: string;
 }
 
-export default function GatewayFeesCalculatorSA() {
+export default function GatewayFeesCalculatorAE() {
   // الحقول أصبحت كلها قابلة للتعديل
   const [orderAmount, setOrderAmount] = useState<number | ''>(350);
-  const [gatewayName, setGatewayName] = useState<string>('مدى (Mada)');
-  const [feePercent, setFeePercent] = useState<number | ''>(1.0);
+  const [gatewayName, setGatewayName] = useState<string>('Stripe');
+  const [feePercent, setFeePercent] = useState<number | ''>(2.9);
   const [feeFixed, setFeeFixed] = useState<number | ''>(1.0);
 
   const [items, setItems] = useState<FeeItem[]>([]);
@@ -28,7 +28,8 @@ export default function GatewayFeesCalculatorSA() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const saved = localStorage.getItem('seerk_gateway_fees_items');
+    // تم تغيير مفتاح التخزين لفصل البيانات للإمارات
+    const saved = localStorage.getItem('seerk_ae_gateway_fees_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
@@ -36,26 +37,26 @@ export default function GatewayFeesCalculatorSA() {
 
   const saveToLocalStorage = (newItems: FeeItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_gateway_fees_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_ae_gateway_fees_items', JSON.stringify(newItems));
   };
 
   const isActivated = typeof window !== 'undefined' && !!localStorage.getItem('merchant_license_key');
 
-  // تحديث الحقول بناءً على القائمة المنسدلة (لتسريع الإدخال مع السماح بالتعديل اليدوي)
+  // تحديث الحقول بناءً على القائمة المنسدلة لبوابات الإمارات
   const handlePresetChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const val = e.target.value;
-    if (val === 'mada') {
-      setGatewayName('مدى (Mada)');
-      setFeePercent(1.0);
+    if (val === 'stripe') {
+      setGatewayName('Stripe');
+      setFeePercent(2.9);
       setFeeFixed(1.0);
-    } else if (val === 'visa') {
-      setGatewayName('فيزا / ماستركارد (Visa/Master)');
-      setFeePercent(2.2);
+    } else if (val === 'payfort') {
+      setGatewayName('Payfort (Amazon)');
+      setFeePercent(2.8);
       setFeeFixed(1.0);
-    } else if (val === 'tabby') {
-      setGatewayName('التقسيط (تابي / تمارا)');
+    } else if (val === 'tabby_tamara') {
+      setGatewayName('التقسيط (تابي / تابي / تمارا)');
       setFeePercent(2.5);
-      setFeeFixed(2.0);
+      setFeeFixed(2.0); // تعتمد على الاتفاقيات
     } else if (val === 'custom') {
       setGatewayName('بوابة مخصصة');
       setFeePercent('');
@@ -67,15 +68,15 @@ export default function GatewayFeesCalculatorSA() {
   const pct = typeof feePercent === 'number' ? feePercent : 0;
   const fxd = typeof feeFixed === 'number' ? feeFixed : 0;
 
-  // الحساب الفعلي: (المبلغ * النسب%) + المبلغ الثابت + ضريبة القيمة المضافة 15% على العمولة
+  // الحساب الفعلي: (المبلغ * النسب%) + المبلغ الثابت + ضريبة القيمة المضافة 5% في الإمارات
   const baseFee = (amt * (pct / 100)) + fxd;
-  const totalFeeWithVat = baseFee > 0 ? baseFee * 1.15 : 0; // إضافة ضريبة 15% على رسوم البوابة
+  const totalFeeWithVat = baseFee > 0 ? baseFee * 1.05 : 0; // تم تعديل الضريبة إلى 5%
   const netReceived = Math.max(0, amt - totalFeeWithVat);
 
   const handleClearForm = () => {
     setOrderAmount('');
-    setGatewayName('مدى (Mada)');
-    setFeePercent(1.0);
+    setGatewayName('Stripe');
+    setFeePercent(2.9);
     setFeeFixed(1.0);
     setEditingId(null);
   };
@@ -93,7 +94,7 @@ export default function GatewayFeesCalculatorSA() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const formattedDate = `${now.toLocaleDateString('ar-SA')} - ${now.toLocaleTimeString('ar-SA', timeOptions)}`;
+    const formattedDate = `${now.toLocaleDateString('ar-AE')} - ${now.toLocaleTimeString('ar-AE', timeOptions)}`;
 
     if (editingId) {
       const updated = items.map(item => item.id === editingId ? {
@@ -172,10 +173,10 @@ export default function GatewayFeesCalculatorSA() {
                 <th>م</th>
                 <th>بوابة الدفع</th>
                 <th>التاريخ والوقت</th>
-                <th>قيمة الطلب</th>
-                <th>الرسوم (شاملة الضريبة)</th>
+                <th>قيمة الطلب (د.إ)</th>
+                <th>الرسوم شاملة ضريبة 5% (د.إ)</th>
                 <th>نسبة الاستقطاع الفعلي</th>
-                <th>المبلغ الصافي</th>
+                <th>المبلغ الصافي (د.إ)</th>
               </tr>
             </thead>
             <tbody>
@@ -216,7 +217,7 @@ export default function GatewayFeesCalculatorSA() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", "seerk_gateway_fees.xls");
+    link.setAttribute("download", "seerk_ae_gateway_fees.xls");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -310,10 +311,10 @@ export default function GatewayFeesCalculatorSA() {
 
       <div className="header">
         <div className="title-box">
-          <h1>حاسبة رسوم بوابات الدفع (تابي، تمارا، مدى) 💳</h1>
-          <p>احسب بدقة عمولات وبوابات الدفع المحلية مع رسوم الضريبة (15%) على العمولة وتأثيرها على حسابك</p>
+          <h1>حاسبة رسوم بوابات الدفع (Stripe، Payfort، تابي) 💳</h1>
+          <p>احسب بدقة عمولات بوابات الدفع المحلية والعالمية مع رسوم الضريبة (5%) على العمولة وتأثيرها على حسابك</p>
         </div>
-        <Link href="/hub/sa" className="back-btn">
+        <Link href="/hub/ae" className="back-btn">
           <span>←</span> عودة للمنصة
         </Link>
       </div>
@@ -336,17 +337,17 @@ export default function GatewayFeesCalculatorSA() {
               <label>قيمة طلب العميل الإجمالية</label>
               <div className="input-wrapper">
                 <input type="number" min="0" value={orderAmount === '' ? '' : orderAmount} onChange={(e) => setOrderAmount(e.target.value === '' ? '' : Number(e.target.value))} placeholder="350" required />
-                <span className="currency-tag">ر.س</span>
+                <span className="currency-tag">د.إ</span>
               </div>
             </div>
 
             <div className="input-group">
               <label>اختيار البوابة لملء البيانات التلقائي (اختياري)</label>
               <div className="input-wrapper">
-                <select onChange={handlePresetChange} defaultValue="mada">
-                  <option value="mada">مدى (Mada) - (1% + 1 ريال)</option>
-                  <option value="visa">فيزا / ماستركارد (Visa/Master) - (2.2% + 1 ريال)</option>
-                  <option value="tabby">التقسيط (تابي / تمارا) - (2.5% + 2 ريال)</option>
+                <select onChange={handlePresetChange} defaultValue="stripe">
+                  <option value="stripe">Stripe - (2.9% + 1 درهم)</option>
+                  <option value="payfort">Payfort (Amazon) - (2.8% + 1 درهم)</option>
+                  <option value="tabby_tamara">التقسيط (تابي / تمارا) - (2.5% + 2 درهم)</option>
                   <option value="custom">تفريغ الحقول (إدخال يدوي بالكامل)</option>
                 </select>
               </div>
@@ -368,10 +369,10 @@ export default function GatewayFeesCalculatorSA() {
                   </div>
                 </div>
                 <div>
-                  <label style={{ color: '#0f172a' }}>رسوم ثابتة (ر.س)</label>
+                  <label style={{ color: '#0f172a' }}>رسوم ثابتة (د.إ)</label>
                   <div className="input-wrapper">
                     <input type="number" step="0.01" min="0" value={feeFixed === '' ? '' : feeFixed} onChange={(e) => setFeeFixed(e.target.value === '' ? '' : Number(e.target.value))} required />
-                    <span className="currency-tag">ر.س</span>
+                    <span className="currency-tag">د.إ</span>
                   </div>
                 </div>
               </div>
@@ -390,16 +391,16 @@ export default function GatewayFeesCalculatorSA() {
           <div className="result-box primary">
             <div>
               <div className="result-label">المبلغ الصافي الذي يدخل لحسابك البنكي</div>
-              <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '2px' }}>بعد خصم عمولة البوابة وضريبة 15% عليها</div>
+              <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '2px' }}>بعد خصم عمولة البوابة وضريبة 5% عليها</div>
             </div>
             <div className="result-value">
-              {netReceived.toFixed(2)} ر.س
+              {netReceived.toFixed(2)} د.إ
             </div>
           </div>
 
           <div className="result-box">
             <span className="result-label">إجمالي الرسوم المقتطعة (شاملة الضريبة)</span>
-            <span className="result-value" style={{ color: '#dc2626' }}>{totalFeeWithVat.toFixed(2)} ر.س</span>
+            <span className="result-value" style={{ color: '#dc2626' }}>{totalFeeWithVat.toFixed(2)} د.إ</span>
           </div>
 
           <div className="result-box">
@@ -456,10 +457,10 @@ export default function GatewayFeesCalculatorSA() {
                         <div style={{ fontWeight: 900, color: '#0f172a' }}>{item.gatewayName}</div>
                         {item.createdAt && <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', fontWeight: 600 }}>🕒 {item.createdAt}</div>}
                       </td>
-                      <td>{item.orderAmount} ر.س</td>
-                      <td style={{ color: '#dc2626' }}>{item.totalFee} ر.س</td>
+                      <td>{item.orderAmount} د.إ</td>
+                      <td style={{ color: '#dc2626' }}>{item.totalFee} د.إ</td>
                       <td style={{ color: '#d97706' }}>{feePct.toFixed(2)}%</td>
-                      <td style={{ color: '#047857', fontWeight: 900 }}>{item.netReceived} ر.س</td>
+                      <td style={{ color: '#047857', fontWeight: 900 }}>{item.netReceived} د.إ</td>
                       <td>
                         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                           <button onClick={() => handleEdit(item)} style={{ background: '#e0f2fe', color: '#0369a1', border: 'none', padding: '6px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 800, cursor: 'pointer' }}>تعديل</button>
@@ -475,10 +476,10 @@ export default function GatewayFeesCalculatorSA() {
               <tfoot>
                 <tr className="tfoot-row">
                   <td colSpan={2} style={{ textAlign: 'center' }}>الإجمالي الكلي / المتوسط</td>
-                  <td>{totalOrderAmount.toFixed(2)} ر.س</td>
-                  <td style={{ color: '#dc2626' }}>{totalFees.toFixed(2)} ر.س</td>
+                  <td>{totalOrderAmount.toFixed(2)} د.إ</td>
+                  <td style={{ color: '#dc2626' }}>{totalFees.toFixed(2)} د.إ</td>
                   <td style={{ color: '#d97706' }}>{overallFeePercent.toFixed(2)}%</td>
-                  <td style={{ color: '#047857' }}>{totalNetReceived.toFixed(2)} ر.س</td>
+                  <td style={{ color: '#047857' }}>{totalNetReceived.toFixed(2)} د.إ</td>
                   <td></td>
                 </tr>
               </tfoot>
