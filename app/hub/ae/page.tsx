@@ -233,4 +233,157 @@ export default function EnjazyaUaeHub() {
         .footer-brand h3 { font-size: 24px; font-weight: 900; margin-bottom: 15px; color: #ffffff; font-family: system-ui, -apple-system, sans-serif; letter-spacing: -0.5px; }
         .footer-brand h3 span { color: #34d399; font-family: 'Tajawal', sans-serif; letter-spacing: normal; }
         .footer-brand p { color: #94a3b8; font-size: 14px; line-height: 1.8; font-weight: 500; }
-        .footer-links { display: flex; gap: 6
+        .footer-links { display: flex; gap: 60px; }
+        .links-column h4 { color: #ffffff; font-size: 16px; font-weight: 800; margin-bottom: 20px; }
+        .links-column ul { list-style: none; padding: 0; margin: 0; }
+        .links-column ul li { margin-bottom: 12px; }
+        .links-column ul li a { color: #94a3b8 !important; font-size: 14px; font-weight: 500; transition: color 0.2s; }
+        .links-column ul li a:hover { color: #34d399 !important; }
+        .footer-bottom { text-align: center; color: #64748b; font-size: 14px; font-weight: 500; }
+
+        @media(max-width: 1024px) { .cards-grid { grid-template-columns: repeat(2, 1fr); } .footer-content { flex-direction: column; } }
+        @media(max-width: 640px) { .cards-grid { grid-template-columns: 1fr; } .hero h1 { font-size: 28px; } .footer-links { flex-direction: column; gap: 30px; } .nav-controls { flex-direction: row; } }
+      `}</style>
+      
+      <div className="navbar">
+        <div className="brand">
+          إنجازيا <span className="ae-badge">السوق الإماراتي AE</span>
+        </div>
+
+        <div className="nav-controls">
+          <button onClick={handleExportAllData} className="backup-action-btn" title="تصدير كافة مدخلات الأدوات الـ 24">
+            تصدير البيانات 💾
+          </button>
+
+          <button onClick={() => fileInputRef.current?.click()} className="restore-action-btn" title="استيراد وتوزيع البيانات على الأدوات">
+            استعادة البيانات 📂
+          </button>
+          <input 
+            type="file" 
+            ref={fileInputRef} 
+            onChange={handleImportAllData} 
+            accept=".json" 
+            style={{ display: 'none' }} 
+          />
+
+          <div className="license-box">
+            <span style={{ fontSize: '13px', fontWeight: 800, color: '#475569' }}>🔑 ترخيص PRO:</span>
+            {isActivated ? (
+              <span style={{ fontSize: '13px', fontWeight: 900, color: '#10b981', padding: '4px 8px' }}>المنصة مفعلة ✓</span>
+            ) : (
+              <>
+                <input 
+                  type="text" 
+                  className="license-input"
+                  placeholder="مفتاح الاشتراك الرسمي..." 
+                  value={licenseKeyInput} 
+                  onChange={(e) => setLicenseKeyInput(e.target.value)}
+                />
+                <button 
+                  onClick={handleActivateLicense}
+                  disabled={isLoading}
+                  style={{ background: '#047857', color: '#fff', border: 'none', padding: '6px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 800, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif', opacity: isLoading ? 0.7 : 1 }}
+                >
+                  {isLoading ? 'جاري التحقق...' : 'تفعيل'}
+                </button>
+              </>
+            )}
+          </div>
+
+          {!isActivated && (
+            <a href={LEMON_CHECKOUT_URL} target="_blank" rel="noopener noreferrer" className="upgrade-btn">
+              ⚡ ترقية (49.99 د.إ)
+            </a>
+          )}
+        </div>
+      </div>
+
+      <div className="backup-warning-bar">
+        <span>⚠ تنبيه مهم: بياناتك تُحفظ محلياً في متصفحك لضمان خصوصيتك. احرص على استخدام زر <b>"تصدير البيانات"</b> دورياً لحفظ جميع مدخلاتك للأدوات الـ 24 واستعادتها بأي وقت.</span>
+      </div>
+
+      {!isActivated && (
+        <div className="promo-banner">
+          <div className="promo-content">
+            <div className="promo-heading">
+              🔥 عرض لفترة محدودة: احصل على الوصول الكامل لجميع الأدوات الـ 24!
+            </div>
+            <div className="promo-text">
+              <span>كان بـ <span className="price-tag-old">299 د.إ</span> شهرياً، والآن فقط</span>
+              <span className="price-tag-new">49.99 د.إ</span>
+              <span>شهرياً!</span>
+              <span className="discount-badge">تخفيض 83% 🏷</span>
+            </div>
+          </div>
+          <a href={LEMON_CHECKOUT_URL} target="_blank" rel="noopener noreferrer">
+            <button className="promo-btn">
+              🚀 ترقية حسابك الآن وفتح كل الأدوات
+            </button>
+          </a>
+        </div>
+      )}
+
+      <div className="hero">
+        <h1>منصة إنجازيا <span>ULTRA MAX للسوق الإماراتي</span></h1>
+        <p>الترسانة السحابية المتكاملة بـ 24 أداة دقيقة، صُممت خصيصاً لتمكين وتطوير المتاجر الإلكترونية في الإمارات العربية المتحدة بالدرهم الإماراتي (د.إ) ومتوافقة مع متطلبات ضريبة القيمة المضافة.</p>
+      </div>
+
+      <div className="cards-grid">
+        {aeTools.map((tool, index) => (
+          <Link href={tool.link} key={tool.id} className="card clean-link">
+            <div>
+              <div className="card-top">
+                <div className="card-icon">{tool.icon}</div>
+                <span className="card-badge">#{index + 1}</span>
+              </div>
+              <h3>{tool.title}</h3>
+              <p>{tool.desc}</p>
+            </div>
+            <div className="card-btn">
+              <span>تشغيل الأداة</span>
+              <span>←</span>
+            </div>
+          </Link>
+        ))}
+      </div>
+
+      <footer className="footer">
+        <div className="footer-content">
+          <div className="footer-brand">
+            <h3>إنجازيا <span>الإمارات</span></h3>
+            <p>المنصة السحابية الأولى المخصصة لتمكين تجار التجارة الإلكترونية في الإمارات العربية المتحدة. أدوات دقيقة، حسابات ضريبية متوافقة مع الهيئة الاتحادية للضرائب، وأرباح مضاعفة.</p>
+          </div>
+          
+          <div className="footer-links">
+            <div className="links-column">
+              <h4>المنصة</h4>
+              <ul>
+                <li><Link href="/hub/ae">جميع الأدوات (24)</Link></li>
+                <li><Link href="/updates">التحديثات الجديدة</Link></li>
+                <li><Link href="/pricing">أسعار الباقات</Link></li>
+              </ul>
+            </div>
+            <div className="links-column">
+              <h4>الدعم والمساعدة</h4>
+              <ul>
+                <li><Link href="/support/contact">الدعم الفني</Link></li>
+                <li><Link href="/support/faq">الأسئلة الشائعة</Link></li>
+              </ul>
+            </div>
+            <div className="links-column">
+              <h4>الأنظمة والقوانين</h4>
+              <ul>
+                <li><Link href="/legal/terms">شروط الاستخدام</Link></li>
+                <li><Link href="/legal/privacy">سياسة الخصوصية</Link></li>
+              </ul>
+            </div>
+          </div>
+          
+        </div>
+        <div className="footer-bottom">
+          <p>جميع الحقوق محفوظة © 2026 منصة إنجازيا لتمكين التجارة الإلكترونية في الإمارات العربية المتحدة</p>
+        </div>
+      </footer>
+    </div>
+  );
+}
