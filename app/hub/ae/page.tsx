@@ -1,20 +1,17 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import Link from 'next/link';
 
 const getInitialConfig = () => {
   if (typeof window === 'undefined') {
-    return { lang: 'ar', currency: 'AED', licenseKey: '', isActivated: false };
+    return { lang: 'ar', currency: 'AED' };
   }
   
   localStorage.setItem('seerk_global_lang', 'ar');
   localStorage.setItem('seerk_global_currency', 'AED');
 
-  const licenseKey = localStorage.getItem('merchant_license_key') || '';
-  const isActivated = !!licenseKey;
-
-  return { lang: 'ar', currency: 'AED', licenseKey, isActivated };
+  return { lang: 'ar', currency: 'AED' };
 };
 
 interface ToolInfo {
@@ -54,75 +51,21 @@ const aeTools: ToolInfo[] = [
 ];
 
 export default function EnjazyaUaeHub() {
-  const [licenseKeyInput, setLicenseKeyInput] = useState<string>('');
-  const [isActivated, setIsActivated] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const LEMON_CHECKOUT_URL = 'https://enjazya.lemonsqueezy.com/checkout/buy/dce1dd80-3422-43ba-aed5-8ef2dcd38d6d?locale=en';
-
   useEffect(() => {
-    const config = getInitialConfig();
-    setLicenseKeyInput(config.licenseKey);
-    setIsActivated(config.isActivated);
+    getInitialConfig();
     if (typeof window !== 'undefined') {
       document.title = 'منصة إنجازيا | السوق الإماراتي 🇦🇪';
     }
   }, []);
-
-  const handleActivateLicense = async () => {
-    const cleanKey = licenseKeyInput.trim();
-    if (!cleanKey) {
-      alert('الرجاء إدخال مفتاح الترخيص المرسل إلى بريدك الإلكتروني.');
-      return;
-    }
-
-    if (cleanKey.length < 10 || !cleanKey.includes('-')) {
-      alert('❌ مفتاح الترخيص غير صالح! المفاتيح الصحيحة تُرسل لبريدك بعد إتمام الاشتراك فقط.');
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      const response = await fetch('https://api.lemonsqueezy.com/v1/licenses/validate', {
-        method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: new URLSearchParams({
-          'license_key': cleanKey
-        })
-      });
-
-      const data = await response.json();
-
-      if (data.valid) {
-        localStorage.setItem('merchant_license_key', cleanKey);
-        setIsActivated(true);
-        alert('✨ تم التحقق وتفعيل كافة الأدوات الـ 24 بنجاح!');
-      } else {
-        alert('❌ مفتاح الترخيص منتهي الصلاحية أو غير صحيح. تأكد من إدخال المفتاح المرسل لبريدك.');
-      }
-    } catch (error) {
-      if (cleanKey.length >= 15 && cleanKey.includes('-')) {
-        localStorage.setItem('merchant_license_key', cleanKey);
-        setIsActivated(true);
-        alert('✨ تم تفعيل كافة الأدوات الـ 24 بنجاح!');
-      } else {
-        alert('❌ مفتاح الترخيص غير صالح. يرجى استخدام مفتاح الاشتراك الصحيح.');
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const handleExportAllData = () => {
     try {
       const allData: Record<string, string> = {};
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key && (key.startsWith('seerk_') || key === 'merchant_license_key')) {
+        if (key && (key.startsWith('seerk_ae_') || key.startsWith('enjazya_ae_'))) {
           allData[key] = localStorage.getItem(key) || '';
         }
       }
@@ -134,7 +77,7 @@ export default function EnjazyaUaeHub() {
       document.body.appendChild(downloadAnchor);
       downloadAnchor.click();
       downloadAnchor.remove();
-      alert('📥 تم سحب وتصدير كافة بيانات مدخلات الأدوات الـ 24 بنجاح!');
+      alert('📥 تم سحب وتصدير كافة بيانات مدخلات الأدوات الـ 24 للإمارات بنجاح!');
     } catch (error) {
       alert('حدث خطأ أثناء تصدير البيانات.');
     }
@@ -182,25 +125,7 @@ export default function EnjazyaUaeHub() {
         .restore-action-btn { background: #f8fafc; color: #334155; border: 1px solid #cbd5e1; padding: 8px 14px; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; font-family: 'Tajawal', sans-serif; }
         .restore-action-btn:hover { background: #e2e8f0; }
 
-        .license-box { display: flex; align-items: center; gap: 8px; background: #ffffff; padding: 6px 12px; border-radius: 8px; border: 1px solid #cbd5e1; }
-        .license-input { border: 1px solid #cbd5e1; border-radius: 6px; padding: 6px 10px; font-size: 12px; outline: none; width: 150px; font-family: 'Tajawal', sans-serif; background: #fff; color: #0f172a; }
-        .license-input:focus { border-color: #047857; box-shadow: 0 0 0 2px rgba(4,120,87,0.1); }
-        
-        .upgrade-btn { background: #8b5cf6; color: #fff !important; padding: 8px 16px; border-radius: 8px; font-weight: 800; font-size: 13px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 10px rgba(139,92,246,0.2); white-space: nowrap; transition: background 0.3s; }
-        .upgrade-btn:hover { background: #7c3aed; }
-        
         .backup-warning-bar { max-width: 1250px; margin: 0 auto 25px; background: #fffbeb; border: 1px solid #fde68a; color: #92400e; padding: 10px 18px; border-radius: 10px; font-size: 13px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
-
-        .promo-banner { max-width: 1250px; margin: 0 auto 35px; background: linear-gradient(135deg, #047857 0%, #065f46 100%); color: #fff; border-radius: 16px; padding: 22px 32px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; box-shadow: 0 12px 30px rgba(4,120,87,0.3); border: 1px solid rgba(255,255,255,0.25); position: relative; overflow: hidden; }
-        .promo-banner::before { content: ''; position: absolute; top: -60px; right: -60px; width: 180px; height: 180px; background: rgba(255,255,255,0.12); border-radius: 50%; pointer-events: none; }
-        .promo-content { display: flex; flex-direction: column; gap: 8px; z-index: 1; }
-        .promo-heading { font-size: 17px; font-weight: 900; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-        .promo-text { font-size: 14px; font-weight: 700; opacity: 0.98; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-        .price-tag-new { background: #f59e0b; color: #fff; padding: 3px 10px; border-radius: 8px; font-weight: 900; font-size: 15px; }
-        .price-tag-old { text-decoration: line-through; opacity: 0.75; font-size: 13px; font-weight: 800; }
-        .discount-badge { background: #ef4444; color: #fff; padding: 2px 8px; border-radius: 6px; font-size: 12px; font-weight: 900; }
-        .promo-btn { background: #fff; color: #065f46; border: none; padding: 12px 26px; border-radius: 12px; font-weight: 900; font-size: 14px; cursor: pointer; transition: all 0.25s ease; box-shadow: 0 6px 15px rgba(0,0,0,0.15); z-index: 1; }
-        .promo-btn:hover { background: #f8fafc; transform: translateY(-3px); }
 
         .hero { text-align: center; max-width: 800px; margin: 0 auto 50px; }
         .hero h1 { font-size: 36px; font-weight: 900; color: #0f172a; margin-bottom: 15px; letter-spacing: -0.5px; }
@@ -265,63 +190,12 @@ export default function EnjazyaUaeHub() {
             accept=".json" 
             style={{ display: 'none' }} 
           />
-
-          <div className="license-box">
-            <span style={{ fontSize: '13px', fontWeight: 800, color: '#475569' }}>🔑 ترخيص PRO:</span>
-            {isActivated ? (
-              <span style={{ fontSize: '13px', fontWeight: 900, color: '#10b981', padding: '4px 8px' }}>المنصة مفعلة ✓</span>
-            ) : (
-              <>
-                <input 
-                  type="text" 
-                  className="license-input"
-                  placeholder="مفتاح الاشتراك الرسمي..." 
-                  value={licenseKeyInput} 
-                  onChange={(e) => setLicenseKeyInput(e.target.value)}
-                />
-                <button 
-                  onClick={handleActivateLicense}
-                  disabled={isLoading}
-                  style={{ background: '#047857', color: '#fff', border: 'none', padding: '6px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 800, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif', opacity: isLoading ? 0.7 : 1 }}
-                >
-                  {isLoading ? 'جاري التحقق...' : 'تفعيل'}
-                </button>
-              </>
-            )}
-          </div>
-
-          {!isActivated && (
-            <a href={LEMON_CHECKOUT_URL} target="_blank" rel="noopener noreferrer" className="upgrade-btn">
-              ⚡ ترقية (49.99 د.إ)
-            </a>
-          )}
         </div>
       </div>
 
       <div className="backup-warning-bar">
         <span>⚠ تنبيه مهم: بياناتك تُحفظ محلياً في متصفحك لضمان خصوصيتك. احرص على استخدام زر <b>"تصدير البيانات"</b> دورياً لحفظ جميع مدخلاتك للأدوات الـ 24 واستعادتها بأي وقت.</span>
       </div>
-
-      {!isActivated && (
-        <div className="promo-banner">
-          <div className="promo-content">
-            <div className="promo-heading">
-              🔥 عرض لفترة محدودة: احصل على الوصول الكامل لجميع الأدوات الـ 24!
-            </div>
-            <div className="promo-text">
-              <span>كان بـ <span className="price-tag-old">299 د.إ</span> شهرياً، والآن فقط</span>
-              <span className="price-tag-new">49.99 د.إ</span>
-              <span>شهرياً!</span>
-              <span className="discount-badge">تخفيض 83% 🏷️️</span>
-            </div>
-          </div>
-          <a href={LEMON_CHECKOUT_URL} target="_blank" rel="noopener noreferrer">
-            <button className="promo-btn">
-              🚀 ترقية حسابك الآن وفتح كل الأدوات
-            </button>
-          </a>
-        </div>
-      )}
 
       <div className="hero">
         <h1>منصة إنجازيا <span>ULTRA MAX للسوق الإماراتي</span></h1>
