@@ -16,7 +16,7 @@ interface DropshipItem {
   createdAt?: string;
 }
 
-export default function DropshippingCalculatorSA() {
+export default function DropshippingCalculatorAE() {
   const [productName, setProductName] = useState<string>('');
   const [supplierName, setSupplierName] = useState<string>('AliExpress / مورد خارجي');
   const [productCost, setProductCost] = useState<number | ''>('');
@@ -31,7 +31,8 @@ export default function DropshippingCalculatorSA() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const saved = localStorage.getItem('seerk_dropshipping_items');
+    // تم تغيير مفتاح التخزين لفصل بيانات الإمارات عن السعودية
+    const saved = localStorage.getItem('seerk_ae_dropshipping_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
@@ -39,7 +40,7 @@ export default function DropshippingCalculatorSA() {
 
   const saveToLocalStorage = (newItems: DropshipItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_dropshipping_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_ae_dropshipping_items', JSON.stringify(newItems));
   };
 
   const isActivated = typeof window !== 'undefined' && !!localStorage.getItem('merchant_license_key');
@@ -77,7 +78,8 @@ export default function DropshippingCalculatorSA() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const formattedDate = `${now.toLocaleDateString('ar-SA')} - ${now.toLocaleTimeString('ar-SA', timeOptions)}`;
+    // تعديل التوقيت ليطابق الإمارات
+    const formattedDate = `${now.toLocaleDateString('ar-AE')} - ${now.toLocaleTimeString('ar-AE', timeOptions)}`;
 
     if (editingId) {
       const updated = items.map(item => item.id === editingId ? {
@@ -162,11 +164,11 @@ export default function DropshippingCalculatorSA() {
                 <th>اسم المنتج</th>
                 <th>المورد</th>
                 <th>التاريخ والوقت</th>
-                <th>تكلفة الشراء</th>
-                <th>الشحن الدولي</th>
-                <th>الجمارك والضريبة</th>
-                <th>سعر البيع</th>
-                <th>صافي الربح</th>
+                <th>تكلفة الشراء (د.إ)</th>
+                <th>الشحن الدولي (د.إ)</th>
+                <th>الجمارك والضريبة (د.إ)</th>
+                <th>سعر البيع (د.إ)</th>
+                <th>صافي الربح (د.إ)</th>
                 <th>هامش الربح (%)</th>
               </tr>
             </thead>
@@ -195,7 +197,7 @@ export default function DropshippingCalculatorSA() {
             <tfoot>
               <tr class="tfoot-row">
                 <td colspan="8">الإجمالي / المتوسط</td>
-                <td>${totalProfitSum.toFixed(2)} ر.س</td>
+                <td>${totalProfitSum.toFixed(2)} د.إ</td>
                 <td>${avgMargin.toFixed(2)}%</td>
               </tr>
             </tfoot>
@@ -208,7 +210,7 @@ export default function DropshippingCalculatorSA() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", "seerk_dropshipping_profits.xls");
+    link.setAttribute("download", "seerk_ae_dropshipping_profits.xls");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -309,7 +311,7 @@ export default function DropshippingCalculatorSA() {
           <h1>حاسبة أرباح الدروبشيبينغ 🌍</h1>
           <p>احسب هوامش الربح للمنتجات المستوردة مع أخذ رسوم الجمارك والشحن الدولي في الحسبان</p>
         </div>
-        <Link href="/hub/sa" className="back-btn">
+        <Link href="/hub/ae" className="back-btn">
           <span>←</span> عودة للمنصة
         </Link>
       </div>
@@ -345,34 +347,34 @@ export default function DropshippingCalculatorSA() {
 
             <div className="form-row">
               <div className="input-group">
-                <label>تكلفة شراء المنتج (ر.س)</label>
+                <label>تكلفة شراء المنتج (د.إ)</label>
                 <div className="input-wrapper">
                   <input className="with-currency" type="number" step="0.01" min="0" value={productCost === '' ? '' : productCost} onChange={(e) => setProductCost(e.target.value === '' ? '' : Number(e.target.value))} placeholder="45" required />
-                  <span className="currency-tag">ر.س</span>
+                  <span className="currency-tag">د.إ</span>
                 </div>
               </div>
               <div className="input-group">
-                <label>تكلفة الشحن الدولي (ر.س)</label>
+                <label>تكلفة الشحن الدولي (د.إ)</label>
                 <div className="input-wrapper">
                   <input className="with-currency" type="number" step="0.01" min="0" value={shippingCost === '' ? '' : shippingCost} onChange={(e) => setShippingCost(e.target.value === '' ? '' : Number(e.target.value))} placeholder="20" required />
-                  <span className="currency-tag">ر.س</span>
+                  <span className="currency-tag">د.إ</span>
                 </div>
               </div>
             </div>
 
             <div className="form-row">
               <div className="input-group">
-                <label>الجمارك والضريبة التقديرية (ر.س)</label>
+                <label>الجمارك والضريبة التقديرية (د.إ)</label>
                 <div className="input-wrapper">
                   <input className="with-currency" type="number" step="0.01" min="0" value={customsAndVat === '' ? '' : customsAndVat} onChange={(e) => setCustomsAndVat(e.target.value === '' ? '' : Number(e.target.value))} placeholder="10" required />
-                  <span className="currency-tag">ر.س</span>
+                  <span className="currency-tag">د.إ</span>
                 </div>
               </div>
               <div className="input-group">
-                <label>سعر البيع المستهدف في متجرك (ر.س)</label>
+                <label>سعر البيع المستهدف في متجرك (د.إ)</label>
                 <div className="input-wrapper">
                   <input className="with-currency" type="number" step="0.01" min="0" value={sellingPrice === '' ? '' : sellingPrice} onChange={(e) => setSellingPrice(e.target.value === '' ? '' : Number(e.target.value))} placeholder="199" required />
-                  <span className="currency-tag">ر.س</span>
+                  <span className="currency-tag">د.إ</span>
                 </div>
               </div>
             </div>
@@ -393,7 +395,7 @@ export default function DropshippingCalculatorSA() {
               <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '2px' }}>الربح الصافي بعد خصم الشحن والجمارك</div>
             </div>
             <div className="result-value">
-              {netProfit.toFixed(2)} ر.س
+              {netProfit.toFixed(2)} د.إ
             </div>
           </div>
 
@@ -404,7 +406,7 @@ export default function DropshippingCalculatorSA() {
 
           <div className="result-box" style={{ background: '#f8fafc' }}>
             <span className="result-label">إجمالي التكاليف (شراء + شحن + جمارك)</span>
-            <span className="result-value" style={{ color: '#0f172a' }}>{totalCost.toFixed(2)} ر.س</span>
+            <span className="result-value" style={{ color: '#0f172a' }}>{totalCost.toFixed(2)} د.إ</span>
           </div>
         </div>
       </div>
@@ -456,11 +458,11 @@ export default function DropshippingCalculatorSA() {
                       <div style={{ fontSize: '12px', color: '#0369a1', fontWeight: 700 }}>{item.supplierName}</div>
                       {item.createdAt && <div style={{ fontSize: '11px', color: '#64748b', marginTop: '3px', fontWeight: 600 }}>🕒 {item.createdAt}</div>}
                     </td>
-                    <td>{item.productCost} ر.س</td>
-                    <td>{(item.shippingCost + item.customsAndVat).toFixed(2)} ر.س</td>
-                    <td style={{ fontWeight: 800 }}>{item.sellingPrice} ر.س</td>
+                    <td>{item.productCost} د.إ</td>
+                    <td>{(item.shippingCost + item.customsAndVat).toFixed(2)} د.إ</td>
+                    <td style={{ fontWeight: 800 }}>{item.sellingPrice} د.إ</td>
                     <td style={{ fontWeight: 900, color: item.netProfit > 0 ? '#047857' : '#dc2626' }}>
-                      {item.netProfit} ر.س
+                      {item.netProfit} د.إ
                     </td>
                     <td>
                       <span style={{ color: item.profitMarginPercent > 0 ? '#047857' : '#dc2626', fontWeight: 900 }}>
@@ -481,7 +483,7 @@ export default function DropshippingCalculatorSA() {
               <tfoot>
                 <tr className="tfoot-row">
                   <td colSpan={5} style={{ textAlign: 'center' }}>الإجمالي / متوسط هامش الربح</td>
-                  <td style={{ color: '#047857' }}>{totalProfitSum.toFixed(2)} ر.س</td>
+                  <td style={{ color: '#047857' }}>{totalProfitSum.toFixed(2)} د.إ</td>
                   <td style={{ color: '#047857' }}>{avgMargin.toFixed(2)}%</td>
                   <td></td>
                 </tr>
