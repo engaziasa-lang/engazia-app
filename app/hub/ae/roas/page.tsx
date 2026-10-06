@@ -16,7 +16,7 @@ interface RoasItem {
   createdAt?: string;
 }
 
-export default function RoasCalculatorSA() {
+export default function RoasCalculatorAE() {
   const [campaignName, setCampaignName] = useState<string>('');
   const [platformInput, setPlatformInput] = useState<string>('تيك توك (TikTok Ads)');
   const [adSpend, setAdSpend] = useState<number | ''>('');
@@ -30,7 +30,8 @@ export default function RoasCalculatorSA() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const saved = localStorage.getItem('seerk_roas_calculator_items');
+    // تم تغيير مفتاح التخزين لفصل بيانات الإمارات عن السعودية
+    const saved = localStorage.getItem('seerk_ae_roas_calculator_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
@@ -38,7 +39,7 @@ export default function RoasCalculatorSA() {
 
   const saveToLocalStorage = (newItems: RoasItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_roas_calculator_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_ae_roas_calculator_items', JSON.stringify(newItems));
   };
 
   const isActivated = typeof window !== 'undefined' && !!localStorage.getItem('merchant_license_key');
@@ -87,7 +88,8 @@ export default function RoasCalculatorSA() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const formattedDate = `${now.toLocaleDateString('ar-SA')} - ${now.toLocaleTimeString('ar-SA', timeOptions)}`;
+    // تعديل التوقيت ليطابق الإمارات
+    const formattedDate = `${now.toLocaleDateString('ar-AE')} - ${now.toLocaleTimeString('ar-AE', timeOptions)}`;
 
     if (editingId) {
       const updated = items.map(item => item.id === editingId ? {
@@ -173,10 +175,10 @@ export default function RoasCalculatorSA() {
                 <th>اسم الحملة</th>
                 <th>التاريخ والوقت</th>
                 <th>المنصة الإعلانية</th>
-                <th>الميزانية (الإنفاق)</th>
+                <th>الميزانية (الإنفاق) (د.إ)</th>
                 <th>عدد الطلبات</th>
-                <th>إجمالي العائد</th>
-                <th>تكلفة الاستحواذ (CAC)</th>
+                <th>إجمالي العائد (د.إ)</th>
+                <th>تكلفة الاستحواذ (CAC) (د.إ)</th>
                 <th>مؤشر العائد (ROAS)</th>
               </tr>
             </thead>
@@ -220,7 +222,7 @@ export default function RoasCalculatorSA() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", "seerk_roas_analysis.xls");
+    link.setAttribute("download", "seerk_ae_roas_analysis.xls");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -323,9 +325,9 @@ export default function RoasCalculatorSA() {
       <div className="header">
         <div className="title-box">
           <h1>محلل عائد الإعلانات (ROAS) 📈</h1>
-          <p>قس بدقة أداء إعلاناتك وهل تحقق عوائد مجزية أم تستنزف ميزانيتك</p>
+          <p>قس بدقة أداء إعلاناتك وهل تحقق عوائد مجزية أم تستنزف ميزانيتك في متجرك الإماراتي</p>
         </div>
-        <Link href="/hub/sa" className="back-btn">
+        <Link href="/hub/ae" className="back-btn">
           <span>←</span> عودة للمنصة
         </Link>
       </div>
@@ -347,7 +349,7 @@ export default function RoasCalculatorSA() {
             <div className="input-group">
               <label>اسم الحملة الإعلانية</label>
               <div className="input-wrapper">
-                <input type="text" value={campaignName} onChange={(e) => setCampaignName(e.target.value)} placeholder="مثال: حملة إكسبلور العيد" required />
+                <input type="text" value={campaignName} onChange={(e) => setCampaignName(e.target.value)} placeholder="مثال: حملة دبي للتسوق" required />
               </div>
             </div>
 
@@ -369,8 +371,8 @@ export default function RoasCalculatorSA() {
             <div className="input-group">
               <label>الميزانية المنفقة على الحملة (Ad Spend)</label>
               <div className="input-wrapper">
-                <input type="number" min="0" value={adSpend === '' ? '' : adSpend} onChange={(e) => setAdSpend(e.target.value === '' ? '' : Number(e.target.value))} placeholder="6000" required />
-                <span className="currency-tag">ر.س</span>
+                <input className="with-currency" type="number" min="0" value={adSpend === '' ? '' : adSpend} onChange={(e) => setAdSpend(e.target.value === '' ? '' : Number(e.target.value))} placeholder="6000" required />
+                <span className="currency-tag">د.إ</span>
               </div>
             </div>
 
@@ -384,8 +386,8 @@ export default function RoasCalculatorSA() {
             <div className="input-group">
               <label>إجمالي العائد المحقق (Revenue)</label>
               <div className="input-wrapper">
-                <input type="number" min="0" value={revenueGenerated === '' ? '' : revenueGenerated} onChange={(e) => setRevenueGenerated(e.target.value === '' ? '' : Number(e.target.value))} placeholder="24000" required />
-                <span className="currency-tag">ر.س</span>
+                <input className="with-currency" type="number" min="0" value={revenueGenerated === '' ? '' : revenueGenerated} onChange={(e) => setRevenueGenerated(e.target.value === '' ? '' : Number(e.target.value))} placeholder="24000" required />
+                <span className="currency-tag">د.إ</span>
               </div>
             </div>
 
@@ -402,7 +404,7 @@ export default function RoasCalculatorSA() {
           <div className={`result-box ${roas >= 3 ? 'primary' : roas >= 1.5 ? 'warning' : 'danger'}`}>
             <div>
               <div className="result-label">مؤشر العائد على الإنفاق (ROAS)</div>
-              <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '2px' }}>كل ريال تم إنفاقه كم حقق إيرادات</div>
+              <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '2px' }}>كل درهم تم إنفاقه كم حقق إيرادات</div>
             </div>
             <div className="result-value">
               {roas.toFixed(2)}x
@@ -411,12 +413,12 @@ export default function RoasCalculatorSA() {
 
           <div className="result-box">
             <span className="result-label">تكلفة الاستحواذ على العميل (CAC)</span>
-            <span className="result-value" style={{ color: '#047857' }}>{cac.toFixed(2)} ر.س</span>
+            <span className="result-value" style={{ color: '#047857' }}>{cac.toFixed(2)} د.إ</span>
           </div>
 
           <div className="result-box" style={{ background: '#f8fafc' }}>
             <span className="result-label">إجمالي العائد (Revenue)</span>
-            <span className="result-value">{rev.toFixed(2)} ر.س</span>
+            <span className="result-value">{rev.toFixed(2)} د.إ</span>
           </div>
 
           <div style={{ marginTop: '20px', padding: '15px', borderRadius: '8px', background: roas >= 3 ? '#ecfdf5' : roas >= 1.5 ? '#fffbeb' : '#fef2f2', border: `1px solid ${roas >= 3 ? '#a7f3d0' : roas >= 1.5 ? '#fde68a' : '#fecaca'}`, textAlign: 'center' }}>
@@ -472,12 +474,12 @@ export default function RoasCalculatorSA() {
                       <div style={{ fontSize: '11px', color: '#0369a1', marginTop: '2px', fontWeight: 800 }}>{item.platform}</div>
                       {item.createdAt && <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', fontWeight: 600 }}>🕒 {item.createdAt}</div>}
                     </td>
-                    <td style={{ color: '#dc2626' }}>{item.adSpend} ر.س</td>
+                    <td style={{ color: '#dc2626' }}>{item.adSpend} د.إ</td>
                     <td>
                       <div style={{ fontWeight: 800 }}>{item.ordersGenerated} طلب</div>
-                      <div style={{ fontSize: '11px', color: '#64748b' }}>CAC: {item.cac} ر.س</div>
+                      <div style={{ fontSize: '11px', color: '#64748b' }}>CAC: {item.cac} د.إ</div>
                     </td>
-                    <td style={{ fontWeight: 900 }}>{item.revenueGenerated} ر.س</td>
+                    <td style={{ fontWeight: 900 }}>{item.revenueGenerated} د.إ</td>
                     <td>
                       <span style={{ background: item.roas >= 3 ? '#ecfdf5' : item.roas >= 1.5 ? '#fffbeb' : '#fef2f2', color: item.roas >= 3 ? '#047857' : item.roas >= 1.5 ? '#d97706' : '#dc2626', padding: '4px 8px', borderRadius: '6px', fontWeight: 900, fontSize: '14px' }}>
                         {item.roas}x
@@ -497,12 +499,12 @@ export default function RoasCalculatorSA() {
               <tfoot>
                 <tr className="tfoot-row">
                   <td colSpan={2} style={{ textAlign: 'center' }}>الإجمالي الكلي / المتوسط</td>
-                  <td style={{ color: '#dc2626' }}>{totalAdSpend.toFixed(2)} ر.س</td>
+                  <td style={{ color: '#dc2626' }}>{totalAdSpend.toFixed(2)} د.إ</td>
                   <td>
                     <div>{totalOrders} طلب</div>
-                    <div style={{ fontSize: '11px', color: '#64748b' }}>CAC: {overallCac.toFixed(2)} ر.س</div>
+                    <div style={{ fontSize: '11px', color: '#64748b' }}>CAC: {overallCac.toFixed(2)} د.إ</div>
                   </td>
-                  <td>{totalRevenue.toFixed(2)} ر.س</td>
+                  <td>{totalRevenue.toFixed(2)} د.إ</td>
                   <td style={{ color: overallRoas >= 3 ? '#047857' : overallRoas >= 1.5 ? '#d97706' : '#dc2626' }}>{overallRoas.toFixed(2)}x</td>
                   <td></td>
                 </tr>
