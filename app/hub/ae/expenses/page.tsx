@@ -13,7 +13,7 @@ interface ExpenseItem {
   createdAt?: string;
 }
 
-export default function ExpensesManagerSA() {
+export default function ExpensesManagerAE() {
   const [expenseName, setExpenseName] = useState<string>('');
   const [typeSelect, setTypeSelect] = useState<string>('مصاريف ثابتة');
   const [customType, setCustomType] = useState<string>('مصاريف ثابتة');
@@ -28,7 +28,8 @@ export default function ExpensesManagerSA() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const saved = localStorage.getItem('seerk_expenses_manager_items');
+    // تم تغيير مفتاح التخزين لفصل بيانات الإمارات عن السعودية
+    const saved = localStorage.getItem('seerk_ae_expenses_manager_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
@@ -36,7 +37,7 @@ export default function ExpensesManagerSA() {
 
   const saveToLocalStorage = (newItems: ExpenseItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_expenses_manager_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_ae_expenses_manager_items', JSON.stringify(newItems));
   };
 
   const isActivated = typeof window !== 'undefined' && !!localStorage.getItem('merchant_license_key');
@@ -77,7 +78,8 @@ export default function ExpensesManagerSA() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const formattedDate = `${now.toLocaleDateString('ar-SA')} - ${now.toLocaleTimeString('ar-SA', timeOptions)}`;
+    // تعديل التوقيت ليطابق الإمارات
+    const formattedDate = `${now.toLocaleDateString('ar-AE')} - ${now.toLocaleTimeString('ar-AE', timeOptions)}`;
 
     if (editingId) {
       const updated = items.map(item => item.id === editingId ? {
@@ -164,7 +166,7 @@ export default function ExpensesManagerSA() {
                 <th>نوع المصروف</th>
                 <th>تكرار المصروف</th>
                 <th>الفترة أو الملاحظة</th>
-                <th>المبلغ (ر.س)</th>
+                <th>المبلغ (د.إ)</th>
               </tr>
             </thead>
             <tbody>
@@ -189,7 +191,7 @@ export default function ExpensesManagerSA() {
             <tfoot>
               <tr class="tfoot-row">
                 <td colspan="6">إجمالي المصاريف التشغيلية</td>
-                <td>${grandTotalExpenses.toFixed(2)} ر.س</td>
+                <td>${grandTotalExpenses.toFixed(2)} د.إ</td>
               </tr>
             </tfoot>
           </table>
@@ -201,7 +203,7 @@ export default function ExpensesManagerSA() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", "seerk_expenses_manager.xls");
+    link.setAttribute("download", "seerk_ae_expenses_manager.xls");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -304,7 +306,7 @@ export default function ExpensesManagerSA() {
           <h1>مدير النفقات والمصاريف التشغيلية 💸</h1>
           <p>تتبع مصاريف المتجر الثابتة والمتغيرة، وتكرار المصروف (شهري، سنوي، مرة واحدة) لضبط التدفق النقدي</p>
         </div>
-        <Link href="/hub/sa" className="back-btn">
+        <Link href="/hub/ae" className="back-btn">
           <span>←</span> عودة للمنصة
         </Link>
       </div>
@@ -326,7 +328,7 @@ export default function ExpensesManagerSA() {
             <div className="input-group">
               <label>اسم المصروف أو البند</label>
               <div className="input-wrapper">
-                <input type="text" value={expenseName} onChange={(e) => setExpenseName(e.target.value)} placeholder="مثال: اشتراك منصة سلة / رواتب الموظفين" required />
+                <input type="text" value={expenseName} onChange={(e) => setExpenseName(e.target.value)} placeholder="مثال: اشتراك منصة شوبيفاي / رواتب الموظفين" required />
               </div>
             </div>
 
@@ -375,10 +377,10 @@ export default function ExpensesManagerSA() {
 
             <div className="form-row">
               <div className="input-group">
-                <label>مبلغ المصروف (ر.س)</label>
+                <label>مبلغ المصروف (د.إ)</label>
                 <div className="input-wrapper">
                   <input className="with-currency" type="number" step="0.01" min="0" value={amount === '' ? '' : amount} onChange={(e) => setAmount(e.target.value === '' ? '' : Number(e.target.value))} placeholder="1500" required />
-                  <span className="currency-tag">ر.س</span>
+                  <span className="currency-tag">د.إ</span>
                 </div>
               </div>
               <div className="input-group">
@@ -405,18 +407,18 @@ export default function ExpensesManagerSA() {
               <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '2px' }}>مجموع النفقات الخارجة من المتجر</div>
             </div>
             <div className="result-value">
-              {grandTotalExpenses.toFixed(2)} ر.س
+              {grandTotalExpenses.toFixed(2)} د.إ
             </div>
           </div>
 
           <div className="result-box">
             <span className="result-label">المصاريف الثابتة والرواتب</span>
-            <span className="result-value" style={{ color: '#0369a1' }}>{totalFixedExpenses.toFixed(2)} ر.س</span>
+            <span className="result-value" style={{ color: '#0369a1' }}>{totalFixedExpenses.toFixed(2)} د.إ</span>
           </div>
 
           <div className="result-box" style={{ background: '#f8fafc' }}>
             <span className="result-label">المصاريف المتغيرة والإعلانات</span>
-            <span className="result-value" style={{ color: '#d97706' }}>{totalVariableExpenses.toFixed(2)} ر.س</span>
+            <span className="result-value" style={{ color: '#d97706' }}>{totalVariableExpenses.toFixed(2)} د.إ</span>
           </div>
         </div>
       </div>
@@ -473,7 +475,7 @@ export default function ExpensesManagerSA() {
                       </span>
                     </td>
                     <td>{item.periodOrNote}</td>
-                    <td style={{ fontWeight: 900, color: '#dc2626' }}>{item.amount} ر.س</td>
+                    <td style={{ fontWeight: 900, color: '#dc2626' }}>{item.amount} د.إ</td>
                     <td>
                       <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                         <button className="tb-action-btn btn-edit" onClick={() => handleEdit(item)} title="تعديل">✏️</button>
@@ -488,7 +490,7 @@ export default function ExpensesManagerSA() {
               <tfoot>
                 <tr className="tfoot-row">
                   <td colSpan={5} style={{ textAlign: 'center' }}>الإجمالي الكلي للمصاريف</td>
-                  <td style={{ color: '#dc2626' }}>{grandTotalExpenses.toFixed(2)} ر.س</td>
+                  <td style={{ color: '#dc2626' }}>{grandTotalExpenses.toFixed(2)} د.إ</td>
                   <td></td>
                 </tr>
               </tfoot>
