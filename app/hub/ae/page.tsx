@@ -169,60 +169,58 @@ export default function EnjazyaUaeHub() {
       <style jsx>{`
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
         .hub-container { background-color: #f8fafc; min-height: 100vh; font-family: 'Tajawal', sans-serif; padding: 30px 20px 40px; }
-        .navbar { max-width: 1250px; margin: 0 auto 20px; padding: 12px 24px; background: #ffffff; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); border: 1px solid #cbd5e1; flex-wrap: wrap; gap: 15px; }
-        .brand { font-size: 26px; font-weight: 900; color: #0f172a; white-space: nowrap; display: flex; align-items: center; gap: 12px; letter-spacing: -0.5px; }
-        .ae-badge { background: #dcfce7; color: #166534; font-size: 12px; font-weight: 800; padding: 5px 10px; border-radius: 6px; letter-spacing: normal; display: inline-flex; align-items: center; }
+        .navbar { max-width: 1250px; margin: 0 auto 20px; padding: 12px 24px; background: #ffffff; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); border: 1px solid #cbd5e1; flex-wrap: wrap; gap: 15px; border-top: 4px solid #009639; position: relative; }
+        .brand { font-size: 26px; font-weight: 900; color: #000000; white-space: nowrap; display: flex; align-items: center; gap: 12px; letter-spacing: -0.5px; }
+        .ae-badge { background: #e5efeb; color: #009639; font-size: 12px; font-weight: 800; padding: 5px 10px; border-radius: 6px; letter-spacing: normal; display: inline-flex; align-items: center; border: 1px solid #c8e6c9; }
         .nav-controls { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; flex-direction: row-reverse; }
-        .action-btn-primary { background: #0f172a; color: #f8fafc; border: 1px solid #334155; padding: 8px 16px; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; box-shadow: 0 4px 10px rgba(15,23,42,0.15); }
-        .action-btn-primary:hover { background: #1e293b; color: #fff; }
-        .backup-action-btn { background: #0f172a; color: #fff; border: none; padding: 8px 14px; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; }
-        .backup-action-btn:hover { background: #1e293b; }
+        .action-btn-primary { background: linear-gradient(135deg, #ce1126 0%, #900d1a 100%); color: #fff; border: none; padding: 9px 18px; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; box-shadow: 0 4px 12px rgba(206,17,38,0.25); }
+        .action-btn-primary:hover { background: linear-gradient(135deg, #b50f21 0%, #750914 100%); color: #fff; }
+        .backup-action-btn { background: #000000; color: #fff; border: none; padding: 8px 14px; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; }
+        .backup-action-btn:hover { background: #1c1c1c; }
         .restore-action-btn { background: #f8fafc; color: #334155; border: 1px solid #cbd5e1; padding: 8px 14px; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; }
         .restore-action-btn:hover { background: #e2e8f0; }
         .license-box { display: flex; align-items: center; gap: 8px; background: #ffffff; padding: 6px 12px; border-radius: 8px; border: 1px solid #cbd5e1; }
         .license-input { border: 1px solid #cbd5e1; border-radius: 6px; padding: 6px 10px; font-size: 12px; outline: none; width: 150px; background: #fff; color: #0f172a; }
-        .license-input:focus { border-color: #047857; box-shadow: 0 0 0 2px rgba(4,120,87,0.1); }
-        .upgrade-btn { background: #8b5cf6; color: #fff !important; padding: 8px 16px; border-radius: 8px; font-weight: 800; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 10px rgba(139,92,246,0.2); white-space: nowrap; transition: background 0.3s; }
-        .upgrade-btn:hover { background: #7c3aed; }
+        .license-input:focus { border-color: #009639; box-shadow: 0 0 0 2px rgba(0,150,57,0.1); }
         .backup-warning-bar { max-width: 1250px; margin: 0 auto 25px; background: #fffbeb; border: 1px solid #fde68a; color: #92400e; padding: 10px 18px; border-radius: 10px; font-size: 13px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
-        .promo-banner { max-width: 1250px; margin: 0 auto 35px; background: linear-gradient(135deg, #047857 0%, #065f46 100%); color: #fff; border-radius: 16px; padding: 22px 32px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; box-shadow: 0 12px 30px rgba(4,120,87,0.3); border: 1px solid rgba(255,255,255,0.25); position: relative; overflow: hidden; }
+        .promo-banner { max-width: 1250px; margin: 0 auto 35px; background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%); color: #fff; border-radius: 16px; padding: 22px 32px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; box-shadow: 0 12px 30px rgba(0,0,0,0.25); border: 2px solid #009639; position: relative; overflow: hidden; }
         .promo-content { display: flex; flex-direction: column; gap: 8px; z-index: 1; }
-        .promo-heading { font-size: 17px; font-weight: 900; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .promo-heading { font-size: 17px; font-weight: 900; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; color: #ffffff; }
         .promo-text { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-        .price-tag-new { background: #f59e0b; color: #fff; padding: 3px 10px; border-radius: 8px; font-weight: 900; font-size: 15px; }
+        .price-tag-new { background: #009639; color: #fff; padding: 3px 10px; border-radius: 8px; font-weight: 900; font-size: 15px; }
         .price-tag-old { text-decoration: line-through; opacity: 0.75; font-size: 13px; font-weight: 800; }
-        .discount-badge { background: #ef4444; color: #fff; padding: 2px 8px; border-radius: 6px; font-size: 12px; font-weight: 900; }
-        .promo-btn { background: #fff; color: #065f46; border: none; padding: 12px 26px; border-radius: 12px; font-weight: 900; font-size: 14px; cursor: pointer; transition: all 0.25s ease; box-shadow: 0 6px 15px rgba(0,0,0,0.15); z-index: 1; }
-        .promo-btn:hover { background: #f8fafc; transform: translateY(-3px); }
+        .discount-badge { background: #ce1126; color: #fff; padding: 2px 8px; border-radius: 6px; font-size: 12px; font-weight: 900; }
+        .promo-btn { background: #ce1126; color: #fff; border: none; padding: 12px 26px; border-radius: 12px; font-weight: 900; font-size: 14px; cursor: pointer; transition: all 0.25s ease; box-shadow: 0 6px 15px rgba(206,17,38,0.3); z-index: 1; }
+        .promo-btn:hover { background: #b00f20; transform: translateY(-3px); }
         .hero { text-align: center; max-width: 800px; margin: 0 auto 50px; }
-        .hero h1 { font-size: 36px; font-weight: 900; color: #0f172a; margin-bottom: 15px; letter-spacing: -0.5px; }
-        .hero h1 span { color: #047857; }
+        .hero h1 { font-size: 36px; font-weight: 900; color: #000000; margin-bottom: 15px; letter-spacing: -0.5px; }
+        .hero h1 span { color: #ce1126; }
         .hero p { color: #475569; font-size: 16px; line-height: 1.7; font-weight: 500; }
         .cards-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; max-width: 1250px; margin: 0 auto 60px; }
         .card { background: #ffffff; border-radius: 12px; padding: 24px; border: 2px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.3s ease; display: flex; flex-direction: column; justify-content: space-between; text-align: start; }
-        .card:hover { transform: translateY(-5px); border-color: #047857; box-shadow: 0 15px 30px -5px rgba(4,120,87,0.15); }
+        .card:hover { transform: translateY(-5px); border-color: #009639; box-shadow: 0 15px 30px -5px rgba(0,150,57,0.15); }
         .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
         .card-icon { font-size: 28px; background: #f1f5f9; width: 55px; height: 55px; display: flex; align-items: center; justify-content: center; border-radius: 10px; }
-        .card:hover .card-icon { background: #ecfdf5; }
+        .card:hover .card-icon { background: #e5efeb; }
         .card-badge { background: #f1f5f9; color: #475569; font-size: 14px; font-weight: 900; padding: 6px 14px; border-radius: 8px; }
-        .card:hover .card-badge { color: #047857; background: #ecfdf5; }
+        .card:hover .card-badge { color: #009639; background: #e5efeb; }
         .card h3 { font-size: 18px; font-weight: 900; color: #0f172a; margin-bottom: 10px; line-height: 1.4; transition: color 0.3s ease; }
-        .card:hover h3 { color: #047857; }
+        .card:hover h3 { color: #009639; }
         .card p { color: #64748b; font-size: 13.5px; line-height: 1.6; font-weight: 500; margin-bottom: 24px; min-height: 50px; }
-        .card-btn { background: #ecfdf5; color: #047857; text-align: center; padding: 14px; border-radius: 8px; font-weight: 800; font-size: 14px; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .card:hover .card-btn { background: #047857; color: #ffffff; box-shadow: 0 4px 12px rgba(4,120,87,0.25); }
-        .footer { max-width: 1250px; margin: 0 auto; background: #0f172a; border-radius: 16px; padding: 40px; color: #f8fafc; border: 1px solid #1e293b; text-align: start; }
-        .footer-content { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 30px; margin-bottom: 30px; border-bottom: 1px solid #334155; padding-bottom: 30px; }
+        .card-btn { background: #e5efeb; color: #009639; text-align: center; padding: 14px; border-radius: 8px; font-weight: 800; font-size: 14px; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .card:hover .card-btn { background: #009639; color: #ffffff; box-shadow: 0 4px 12px rgba(0,150,57,0.25); }
+        .footer { max-width: 1250px; margin: 0 auto; background: #000000; border-radius: 16px; padding: 40px; color: #f8fafc; border: 2px solid #009639; text-align: start; }
+        .footer-content { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 30px; margin-bottom: 30px; border-bottom: 1px solid #262626; padding-bottom: 30px; }
         .footer-brand { max-width: 400px; }
         .footer-brand h3 { font-size: 24px; font-weight: 900; margin-bottom: 15px; color: #ffffff; letter-spacing: -0.5px; }
-        .footer-brand h3 span { color: #34d399; letter-spacing: normal; }
+        .footer-brand h3 span { color: #009639; letter-spacing: normal; }
         .footer-brand p { color: #94a3b8; font-size: 14px; line-height: 1.8; font-weight: 500; }
         .footer-links { display: flex; gap: 60px; }
-        .links-column h4 { color: #ffffff; font-size: 16px; font-weight: 800; margin-bottom: 20px; }
+        .links-column h4 { color: #ffffff; font-size: 16px; font-weight: 800; margin-bottom: 20px; border-right: 3px solid #ce1126; padding-right: 8px; }
         .links-column ul { list-style: none; padding: 0; margin: 0; }
         .links-column ul li { margin-bottom: 12px; }
         .links-column ul li a { color: #94a3b8 !important; font-size: 14px; font-weight: 500; transition: color 0.2s; }
-        .links-column ul li a:hover { color: #34d399 !important; }
+        .links-column ul li a:hover { color: #009639 !important; }
         .footer-bottom { text-align: center; color: #64748b; font-size: 14px; font-weight: 500; }
 
         @media(max-width: 1024px) { .cards-grid { grid-template-columns: repeat(2, 1fr); } .footer-content { flex-direction: column; } }
@@ -231,7 +229,7 @@ export default function EnjazyaUaeHub() {
       
       <div className="navbar">
         <div className="brand">
-          إنجازيا <span className="ae-badge">السوق الإماراتي AE</span>
+          إنجازيا <span className="ae-badge">السوق الإماراتي AE 🇦🇪</span>
         </div>
 
         <div className="nav-controls">
@@ -258,7 +256,7 @@ export default function EnjazyaUaeHub() {
             <span style={{ fontSize: '13px', fontWeight: 800, color: '#475569' }}>🔑 ترخيص PRO:</span>
             {isActivated ? (
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '13px', fontWeight: 900, color: '#10b981', padding: '4px 8px' }}>المنصة مفعلة ✓</span>
+                <span style={{ fontSize: '13px', fontWeight: 900, color: '#009639', padding: '4px 8px' }}>المنصة مفعلة ✓</span>
                 <button 
                   onClick={handleDeactivate}
                   style={{ background: '#fee2e2', color: '#991b1b', border: '1px solid #fca5a5', padding: '4px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: 800, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif' }}
@@ -279,7 +277,7 @@ export default function EnjazyaUaeHub() {
                 <button 
                   onClick={handleActivateLicense}
                   disabled={isLoading}
-                  style={{ background: '#047857', color: '#fff', border: 'none', padding: '6px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 800, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif', opacity: isLoading ? 0.7 : 1 }}
+                  style={{ background: '#009639', color: '#fff', border: 'none', padding: '6px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 800, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif', opacity: isLoading ? 0.7 : 1 }}
                 >
                   {isLoading ? 'جاري التحقق...' : 'تفعيل'}
                 </button>
@@ -341,7 +339,7 @@ export default function EnjazyaUaeHub() {
       <footer className="footer">
         <div className="footer-content">
           <div className="footer-brand">
-            <h3>إنجازيا <span>الإمارات</span></h3>
+            <h3>إنجازيا <span>الإمارات 🇦🇪</span></h3>
             <p>المنصة السحابية الأولى المخصصة لتمكين تجار التجارة الإلكترونية في الإمارات العربية المتحدة. أدوات دقيقة، حسابات ضريبية متوافقة مع الهيئة الاتحادية للضرائب، وأرباح مضاعفة.</p>
           </div>
           
