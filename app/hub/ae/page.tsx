@@ -25,6 +25,7 @@ interface ToolInfo {
   link: string;
 }
 
+// قائمة بجميع أدوات إنجازيا الـ 24 المخصصة للسوق الإماراتي
 const aeTools: ToolInfo[] = [
   { id: 'profit', title: 'حاسبة أرباح ونقاط التعادل (5% ضريبة)', desc: 'احسب صافي أرباحك بدقة بعد خصم التكاليف، رسوم الشحن، وضريبة القيمة المضافة.', icon: '📊', link: '/hub/ae/profit' },
   { id: 'fees', title: 'حاسبة رسوم بوابات الدفع (تابي، Stripe، Payfort)', desc: 'احسب نسب بوابات الدفع المحلية وتأثيرها الفعلي على هوامش أرباح متجرك.', icon: '💳', link: '/hub/ae/fees' },
@@ -357,21 +358,21 @@ export default function EnjazyaUaeHub() {
               <ul>
                 <li><Link href="/hub/ae">جميع الأدوات (24)</Link></li>
                 <li><Link href="/ae/pricing">أسعار الباقات</Link></li>
-                <li><Link href="/updates">التحديثات الجديدة</Link></li>
+                <li><Link href="/ae/updates">التحديثات الجديدة</Link></li>
               </ul>
             </div>
             <div className="links-column">
               <h4>الدعم والمساعدة</h4>
               <ul>
-                <li><Link href="/support/contact">الدعم الفني</Link></li>
-                <li><Link href="/support/faq">الأسئلة الشائعة</Link></li>
+                <li><Link href="/ae/support/contact">الدعم الفني</Link></li>
+                <li><Link href="/ae/support/faq">الأسئلة الشائعة</Link></li>
               </ul>
             </div>
             <div className="links-column">
               <h4>الأنظمة والقوانين</h4>
               <ul>
-                <li><Link href="/legal/terms">شروط الاستخدام</Link></li>
-                <li><Link href="/legal/privacy">سياسة الخصوصية</Link></li>
+                <li><Link href="/ae/legal/terms">شروط الاستخدام</Link></li>
+                <li><Link href="/ae/legal/privacy">سياسة الخصوصية</Link></li>
               </ul>
             </div>
           </div>
