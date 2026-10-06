@@ -13,7 +13,7 @@ interface SupportItem {
   createdAt?: string;
 }
 
-export default function SupportTemplatesSA() {
+export default function SupportTemplatesAE() {
   const [customerName, setCustomerName] = useState<string>('خالد');
   const [inquirySelect, setInquirySelect] = useState<string>('استفسار عن تأخر الشحنة');
   const [customInquiryType, setCustomInquiryType] = useState<string>('استفسار عن تأخر الشحنة');
@@ -28,10 +28,14 @@ export default function SupportTemplatesSA() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const saved = localStorage.getItem('seerk_support_templates_items');
+    // تم تغيير مفتاح التخزين لفصل البيانات للإمارات
+    const saved = localStorage.getItem('seerk_ae_support_templates_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
+    // جلب اسم المتجر الإماراتي إن وجد محفوظاً
+    const aeStoreName = localStorage.getItem('seerk_ae_store_name');
+    if (aeStoreName) setStoreName(aeStoreName);
   }, []);
 
   const actualInquiryType = inquirySelect === 'استفسار آخر (كتابة يدوية)' ? customInquiryType : inquirySelect;
@@ -67,7 +71,7 @@ export default function SupportTemplatesSA() {
 
   const saveToLocalStorage = (newItems: SupportItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_support_templates_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_ae_support_templates_items', JSON.stringify(newItems));
   };
 
   const isActivated = typeof window !== 'undefined' && !!localStorage.getItem('merchant_license_key');
@@ -105,7 +109,8 @@ export default function SupportTemplatesSA() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const formattedDate = `${now.toLocaleDateString('ar-SA')} - ${now.toLocaleTimeString('ar-SA', timeOptions)}`;
+    // تعديل التوقيت ليطابق الإمارات
+    const formattedDate = `${now.toLocaleDateString('ar-AE')} - ${now.toLocaleTimeString('ar-AE', timeOptions)}`;
 
     if (editingId) {
       const updated = items.map(item => item.id === editingId ? {
@@ -228,7 +233,7 @@ export default function SupportTemplatesSA() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", "seerk_support_templates.xls");
+    link.setAttribute("download", "seerk_ae_support_templates.xls");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -290,8 +295,8 @@ export default function SupportTemplatesSA() {
         .input-group { margin-bottom: 15px; width: 100%; }
         .input-group label { display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 6px; }
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
-        .input-wrapper input, .input-wrapper select, .input-wrapper textarea { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: 'Tajawal', sans-serif; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; }
-        .input-wrapper input:focus, .input-wrapper select:focus, .input-wrapper textarea:focus { border-color: #047857; background: #ffffff; }
+        .input-wrapper input, .input-wrapper select { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: 'Tajawal', sans-serif; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; }
+        .input-wrapper input:focus, .input-wrapper select:focus { border-color: #047857; background: #ffffff; }
         
         .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: 'Tajawal', sans-serif; margin-top: 10px; box-sizing: border-box; }
         .action-btn:hover { background: #065f46; }
@@ -317,14 +322,15 @@ export default function SupportTemplatesSA() {
         .tb-action-btn { border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; font-family: 'Tajawal', sans-serif;}
         .btn-edit { background: #e0f2fe; color: #0369a1; }
         .btn-delete { background: #fee2e2; color: #991b1b; }
+        .btn-wa { background: #22c55e; color: #ffffff; }
       `}</style>
 
       <div className="header">
         <div className="title-box">
           <h1>قوالب خدمة العملاء السريعة 🎧</h1>
-          <p>انسخ ردود احترافية جاهزة للرد على استفسارات العملاء المكررة عبر واتساب</p>
+          <p>انسخ ردود احترافية جاهزة للرد على استفسارات العملاء المكررة عبر واتساب لمتجرك الإماراتي</p>
         </div>
-        <Link href="/hub/sa" className="back-btn">
+        <Link href="/hub/ae" className="back-btn">
           <span>←</span> عودة للمنصة
         </Link>
       </div>
