@@ -5,16 +5,16 @@ import Link from 'next/link';
 
 const getInitialConfig = () => {
   if (typeof window === 'undefined') {
-    return { lang: 'ar', currency: 'SAR', licenseKey: '', isActivated: false };
+    return { lang: 'ar', currency: 'AED', licenseKey: '', isActivated: false };
   }
   
   localStorage.setItem('seerk_global_lang', 'ar');
-  localStorage.setItem('seerk_global_currency', 'SAR');
+  localStorage.setItem('seerk_global_currency', 'AED');
 
   const licenseKey = localStorage.getItem('merchant_license_key') || '';
   const isActivated = !!licenseKey;
 
-  return { lang: 'ar', currency: 'SAR', licenseKey, isActivated };
+  return { lang: 'ar', currency: 'AED', licenseKey, isActivated };
 };
 
 interface ToolInfo {
@@ -25,35 +25,35 @@ interface ToolInfo {
   link: string;
 }
 
-// قائمة بجميع أدوات إنجازيا الـ 24
-const saTools: ToolInfo[] = [
-  { id: 'profit', title: 'حاسبة أرباح ونقاط التعادل (15% ضريبة)', desc: 'احسب صافي أرباحك بدقة بعد خصم التكاليف، رسوم الشحن، وضريبة القيمة المضافة.', icon: '📊', link: '/hub/sa/profit' },
-  { id: 'fees', title: 'حاسبة رسوم بوابات الدفع (تابي، تمارا، مدى)', desc: 'احسب نسب بوابات الدفع المحلية وتأثيرها الفعلي على هوامش أرباح متجرك.', icon: '💳', link: '/hub/sa/fees' },
-  { id: 'invoices', title: 'مولد الفواتير الإلكترونية (زاتكا)', desc: 'أنشئ فواتير مبيعات نظامية مبسطة (QR Code) متوافقة مع متطلبات هيئة الزكاة والضريبة.', icon: '🧾', link: '/hub/sa/invoices' },
-  { id: 'roas', title: 'محلل عائد الإعلانات (سناب وتيك توك)', desc: 'قس بدقة أداء إعلاناتك وهل تحقق عوائد مجزية في السوق السعودي أم تستنزف ميزانيتك.', icon: '📈', link: '/hub/sa/roas' },
-  { id: 'whatsapp', title: 'إدارة عملاء واتساب (إنجازيا Pro Max)', desc: 'إدارة السلال المتروكة، إرسال روابط الدفع السريعة، وتصنيف عملاء المتجر الفاعلين.', icon: '💬', link: '/hub/sa/whatsapp' },
-  { id: 'returns', title: 'محلل خسائر المرتجعات والشحن العكسي', desc: 'قس تأثير الاسترجاع والاستبدال على صافي أرباحك الشهرية وتدفقك النقدي.', icon: '🔄', link: '/hub/sa/returns' },
-  { id: 'vat_report', title: 'مجهز بيانات الإقرار الضريبي', desc: 'اجمع ورتب بيانات مبيعاتك ومشترياتك لتسهيل رفع الإقرار الضريبي لزاتكا بدون أخطاء.', icon: '📑', link: '/hub/sa/vat-report' },
-  { id: 'platforms', title: 'حاسبة رسوم المنصات (سلة، زد)', desc: 'احسب التكاليف الخفية واشتراكات المنصات المحلية لضمان تسعير منتجاتك بشكل صحيح.', icon: '🛒', link: '/hub/sa/platforms' },
-  { id: 'influencer', title: 'حاسبة جدوى إعلانات المشاهير', desc: 'حلل العائد المتوقع (ROI) من إعلانات المؤثرين قبل دفع مبالغ الحملة التسويقية.', icon: '🤳', link: '/hub/sa/influencer' },
-  { id: 'cod_risk', title: 'محلل تكاليف الدفع عند الاستلام', desc: 'احسب نسبة المخاطرة والرسوم الإضافية لطلبات الدفع عند الاستلام وتأثيرها على الربح.', icon: '🚚', link: '/hub/sa/cod-risk' },
-  { id: 'shipping', title: 'مدير تتبع الشحنات المحلية', desc: 'تابع حالات الشحنات (سمسا، أرامكس، ريدبوكس) وحل استفسارات تأخر التوصيل.', icon: '📦', link: '/hub/sa/shipping' },
-  { id: 'inventory', title: 'مخطط المخزون للمواسم السعودية', desc: 'توقع الكميات المطلوبة لمواسم (رمضان، العيد، اليوم الوطني) لتجنب نفاذ الكمية.', icon: '📅', link: '/hub/sa/inventory' },
-  { id: 'expenses', title: 'مدير النفقات والمصاريف التشغيلية', desc: 'تتبع مصاريف المتجر الثابتة والمتغيرة بالريال السعودي لضبط التدفق النقدي.', icon: '💸', link: '/hub/sa/expenses' },
-  { id: 'legal', title: 'مولد السياسات (وزارة التجارة)', desc: 'أنشئ صفحات الاستبدال والاسترجاع وسياسة الخصوصية المتوافقة مع القوانين المحلية.', icon: '⚖', link: '/hub/sa/legal' },
-  { id: 'jasmal', title: 'جاسمال (Jasmal) لاستخراج البيانات', desc: 'اسحب بيانات المنتجات والأسعار من المتاجر المنافسة ورتبها فوراً في ملفات إكسل.', icon: '🕷️', link: '/hub/sa/jasmal' },
-  { id: 'reviews', title: 'نظام طلب التقييمات الآلي', desc: 'أرسل رسائل تلقائية للعملاء عبر واتساب بعد الاستلام لجمع التقييمات وبناء الموثوقية.', icon: '⭐', link: '/hub/sa/reviews' },
-  { id: 'dropshipping', title: 'حاسبة أرباح الدروبشيبينغ', desc: 'احسب هوامش الربح للمنتجات المستوردة مع أخذ رسوم الجمارك والشحن الدولي في الحسبان.', icon: '🌍', link: '/hub/sa/dropshipping' },
-  { id: 'copy', title: 'مولد نصوص الإكسبلور (باللهجة السعودية)', desc: 'اصنع سكربتات تيك توك وإعلانات جذابة باللهجة المحلية لزيادة معدل التحويل.', icon: '✍', link: '/hub/sa/copy' },
-  { id: 'support', title: 'قوالب خدمة العملاء السريعة', desc: 'انسخ ردود احترافية جاهزة للرد على استفسارات العملاء المكررة عبر واتساب.', icon: '🎧', link: '/hub/sa/support' },
-  { id: 'promos', title: 'حاسبة جدوى أكواد الخصم والعروض', desc: 'تأكد من أن عروضك الترويجية (مثل 1+1 أو الشحن المجاني) لا تسبب لك خسائر مخفية.', icon: '🎟️', link: '/hub/sa/promos' },
-  { id: 'ltv', title: 'حاسبة القيمة الدائمة للعميل (LTV)', desc: 'اعرف تكلفة الاستحواذ على العميل (CAC) وقيمته الفعلية لمتجرك على المدى الطويل.', icon: '🎯', link: '/hub/sa/ltv' },
-  { id: 'ab_test', title: 'حاسبة اختبارات الإعلانات (A/B)', desc: 'قارن بين حملتين إعلانيتين لتعرف أيهما يحقق أفضل عائد بأقل تكلفة للطلب.', icon: '⚖️', link: '/hub/sa/ab-test' },
-  { id: 'links', title: 'صانع روابط واتساب السريعة', desc: 'أنشئ روابط مخصصة برسائل جاهزة لبيو تيك توك أو تمريرها في حملات الانستقرام.', icon: '🔗', link: '/hub/sa/links' },
-  { id: 'tips', title: 'أسرار نمو المتاجر السعودية', desc: 'مكتبة استراتيجيات حصرية لزيادة التحويل ورفع ولاء العملاء في السوق المحلي.', icon: '💡', link: '/hub/sa/tips' }
+// قائمة بجميع أدوات إنجازيا الـ 24 المخصصة للسوق الإماراتي
+const aeTools: ToolInfo[] = [
+  { id: 'profit', title: 'حاسبة أرباح ونقاط التعادل (5% ضريبة)', desc: 'احسب صافي أرباحك بدقة بعد خصم التكاليف، رسوم الشحن، وضريبة القيمة المضافة.', icon: '📊', link: '/hub/ae/profit' },
+  { id: 'fees', title: 'حاسبة رسوم بوابات الدفع (تابي، Stripe، Payfort)', desc: 'احسب نسب بوابات الدفع المحلية وتأثيرها الفعلي على هوامش أرباح متجرك.', icon: '💳', link: '/hub/ae/fees' },
+  { id: 'invoices', title: 'مولد الفواتير الإلكترونية (FTA)', desc: 'أنشئ فواتير مبيعات نظامية متوافقة مع متطلبات الهيئة الاتحادية للضرائب في الإمارات.', icon: '🧾', link: '/hub/ae/invoices' },
+  { id: 'roas', title: 'محلل عائد الإعلانات (سناب وتيك توك)', desc: 'قس بدقة أداء إعلاناتك وهل تحقق عوائد مجزية في السوق الإماراتي أم تستنزف ميزانيتك.', icon: '📈', link: '/hub/ae/roas' },
+  { id: 'whatsapp', title: 'إدارة عملاء واتساب (إنجازيا Pro Max)', desc: 'إدارة السلال المتروكة، إرسال روابط الدفع السريعة، وتصنيف عملاء المتجر الفاعلين.', icon: '💬', link: '/hub/ae/whatsapp' },
+  { id: 'returns', title: 'محلل خسائر المرتجعات والشحن العكسي', desc: 'قس تأثير الاسترجاع والاستبدال على صافي أرباحك الشهرية وتدفقك النقدي.', icon: '🔄', link: '/hub/ae/returns' },
+  { id: 'vat_report', title: 'مجهز بيانات الإقرار الضريبي', desc: 'اجمع ورتب بيانات مبيعاتك ومشترياتك لتسهيل رفع الإقرار الضريبي للهيئة الاتحادية بدون أخطاء.', icon: '📑', link: '/hub/ae/vat-report' },
+  { id: 'platforms', title: 'حاسبة رسوم المنصات (شوبيفاي، ووكومرس)', desc: 'احسب التكاليف الخفية واشتراكات المنصات العالمية لضمان تسعير منتجاتك بشكل صحيح.', icon: '🛒', link: '/hub/ae/platforms' },
+  { id: 'influencer', title: 'حاسبة جدوى إعلانات المشاهير', desc: 'حلل العائد المتوقع (ROI) من إعلانات المؤثرين قبل دفع مبالغ الحملة التسويقية.', icon: '🤳', link: '/hub/ae/influencer' },
+  { id: 'cod_risk', title: 'محلل تكاليف الدفع عند الاستلام', desc: 'احسب نسبة المخاطرة والرسوم الإضافية لطلبات الدفع عند الاستلام وتأثيرها على الربح.', icon: '🚚', link: '/hub/ae/cod-risk' },
+  { id: 'shipping', title: 'مدير تتبع الشحنات المحلية', desc: 'تابع حالات الشحنات (أرامكس، فيتشر، بريد الإمارات) وحل استفسارات تأخر التوصيل.', icon: '📦', link: '/hub/ae/shipping' },
+  { id: 'inventory', title: 'مخطط المخزون للمواسم الإماراتية', desc: 'توقع الكميات المطلوبة لمواسم (مفاجآت صيف دبي، العيد، اليوم الوطني) لتجنب نفاذ الكمية.', icon: '📅', link: '/hub/ae/inventory' },
+  { id: 'expenses', title: 'مدير النفقات والمصاريف التشغيلية', desc: 'تتبع مصاريف المتجر الثابتة والمتغيرة بالدرهم الإماراتي لضبط التدفق النقدي.', icon: '💸', link: '/hub/ae/expenses' },
+  { id: 'legal', title: 'مولد السياسات (اقتصادية دبي)', desc: 'أنشئ صفحات الاستبدال والاسترجاع وسياسة الخصوصية المتوافقة مع قوانين حماية المستهلك الإماراتي.', icon: '⚖', link: '/hub/ae/legal' },
+  { id: 'jasmal', title: 'جاسمال (Jasmal) لتحليل المنافسين', desc: 'قارن أسعار المنتجات في السوق الإماراتي واسحب بيانات المتاجر المنافسة لملفات إكسل.', icon: '🕷️', link: '/hub/ae/jasmal' },
+  { id: 'reviews', title: 'نظام طلب التقييمات الآلي', desc: 'أرسل رسائل تلقائية للعملاء عبر واتساب بعد الاستلام لجمع التقييمات وبناء الموثوقية.', icon: '⭐', link: '/hub/ae/reviews' },
+  { id: 'dropshipping', title: 'حاسبة أرباح الدروبشيبينغ', desc: 'احسب هوامش الربح للمنتجات المستوردة مع أخذ رسوم الجمارك والشحن الدولي في الحسبان.', icon: '🌍', link: '/hub/ae/dropshipping' },
+  { id: 'copy', title: 'مولد نصوص الإكسبلور (باللهجة الإماراتية)', desc: 'اصنع سكربتات تيك توك وإعلانات جذابة باللهجة المحلية لزيادة معدل التحويل.', icon: '✍', link: '/hub/ae/copy' },
+  { id: 'support', title: 'قوالب خدمة العملاء السريعة', desc: 'انسخ ردود احترافية جاهزة للرد على استفسارات العملاء المكررة عبر واتساب.', icon: '🎧', link: '/hub/ae/support' },
+  { id: 'promos', title: 'حاسبة جدوى أكواد الخصم والعروض', desc: 'تأكد من أن عروضك الترويجية (مثل 1+1 أو الشحن المجاني) لا تسبب لك خسائر مخفية.', icon: '🎟️', link: '/hub/ae/promos' },
+  { id: 'ltv', title: 'حاسبة القيمة الدائمة للعميل (LTV)', desc: 'اعرف تكلفة الاستحواذ على العميل (CAC) وقيمته الفعلية لمتجرك على المدى الطويل.', icon: '🎯', link: '/hub/ae/ltv' },
+  { id: 'ab_test', title: 'حاسبة اختبارات الإعلانات (A/B)', desc: 'قارن بين حملتين إعلانيتين لتعرف أيهما يحقق أفضل عائد بأقل تكلفة للطلب.', icon: '⚖️', link: '/hub/ae/ab-test' },
+  { id: 'links', title: 'صانع روابط واتساب السريعة', desc: 'أنشئ روابط مخصصة برسائل جاهزة لبيو تيك توك أو تمريرها في حملات الانستقرام.', icon: '🔗', link: '/hub/ae/links' },
+  { id: 'tips', title: 'أسرار نمو المتاجر الإماراتية', desc: 'مكتبة استراتيجيات حصرية لزيادة التحويل ورفع ولاء العملاء في السوق المحلي.', icon: '💡', link: '/hub/ae/tips' }
 ];
 
-export default function EnjazyaSaudiHub() {
+export default function EnjazyaUaeHub() {
   const [licenseKeyInput, setLicenseKeyInput] = useState<string>('');
   const [isActivated, setIsActivated] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -66,7 +66,7 @@ export default function EnjazyaSaudiHub() {
     setLicenseKeyInput(config.licenseKey);
     setIsActivated(config.isActivated);
     if (typeof window !== 'undefined') {
-      document.title = 'منصة إنجازيا | السوق السعودي 🇸🇦';
+      document.title = 'منصة إنجازيا | السوق الإماراتي 🇦🇪';
     }
   }, []);
 
@@ -130,7 +130,7 @@ export default function EnjazyaSaudiHub() {
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(allData, null, 2));
       const downloadAnchor = document.createElement('a');
       downloadAnchor.setAttribute("href", dataStr);
-      downloadAnchor.setAttribute("download", `enjazya_all_tools_backup_${new Date().toISOString().slice(0, 10)}.json`);
+      downloadAnchor.setAttribute("download", `enjazya_uae_all_tools_backup_${new Date().toISOString().slice(0, 10)}.json`);
       document.body.appendChild(downloadAnchor);
       downloadAnchor.click();
       downloadAnchor.remove();
@@ -172,7 +172,7 @@ export default function EnjazyaSaudiHub() {
         
         .navbar { max-width: 1250px; margin: 0 auto 20px; padding: 12px 24px; background: #ffffff; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); border: 1px solid #cbd5e1; flex-wrap: wrap; gap: 15px; }
         .brand { font-size: 26px; font-weight: 900; color: #0f172a; white-space: nowrap; display: flex; align-items: center; gap: 12px; font-family: system-ui, -apple-system, sans-serif; letter-spacing: -0.5px; }
-        .sa-badge { background: #dcfce7; color: #166534; font-size: 12px; font-weight: 800; padding: 5px 10px; border-radius: 6px; font-family: 'Tajawal', sans-serif; letter-spacing: normal; display: inline-flex; align-items: center; }
+        .ae-badge { background: #dcfce7; color: #166534; font-size: 12px; font-weight: 800; padding: 5px 10px; border-radius: 6px; font-family: 'Tajawal', sans-serif; letter-spacing: normal; display: inline-flex; align-items: center; }
         
         .nav-controls { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; flex-direction: row-reverse; }
         
@@ -247,7 +247,7 @@ export default function EnjazyaSaudiHub() {
       
       <div className="navbar">
         <div className="brand">
-          إنجازيا <span className="sa-badge">السوق السعودي SA</span>
+          إنجازيا <span className="ae-badge">السوق الإماراتي AE</span>
         </div>
 
         <div className="nav-controls">
@@ -292,14 +292,14 @@ export default function EnjazyaSaudiHub() {
 
           {!isActivated && (
             <a href={LEMON_CHECKOUT_URL} target="_blank" rel="noopener noreferrer" className="upgrade-btn">
-              ⚡ ترقية (49.99 ر.س)
+              ⚡ ترقية (49.99 د.إ)
             </a>
           )}
         </div>
       </div>
 
       <div className="backup-warning-bar">
-        <span>⚠️️ تنبيه مهم: بياناتك تُحفظ محلياً في متصفحك لضمان خصوصيتك. احرص على استخدام زر <b>"تصدير البيانات"</b> دورياً لحفظ جميع مدخلاتك للأدوات الـ 24 واستعادتها بأي وقت.</span>
+        <span>⚠ تنبيه مهم: بياناتك تُحفظ محلياً في متصفحك لضمان خصوصيتك. احرص على استخدام زر <b>"تصدير البيانات"</b> دورياً لحفظ جميع مدخلاتك للأدوات الـ 24 واستعادتها بأي وقت.</span>
       </div>
 
       {!isActivated && (
@@ -309,10 +309,10 @@ export default function EnjazyaSaudiHub() {
               🔥 عرض لفترة محدودة: احصل على الوصول الكامل لجميع الأدوات الـ 24!
             </div>
             <div className="promo-text">
-              <span>كان بـ <span className="price-tag-old">299 ر.س</span> شهرياً، والآن فقط</span>
-              <span className="price-tag-new">49.99 ر.س</span>
+              <span>كان بـ <span className="price-tag-old">299 د.إ</span> شهرياً، والآن فقط</span>
+              <span className="price-tag-new">49.99 د.إ</span>
               <span>شهرياً!</span>
-              <span className="discount-badge">تخفيض 83% 🏷️</span>
+              <span className="discount-badge">تخفيض 83% 🏷️️</span>
             </div>
           </div>
           <a href={LEMON_CHECKOUT_URL} target="_blank" rel="noopener noreferrer">
@@ -324,12 +324,12 @@ export default function EnjazyaSaudiHub() {
       )}
 
       <div className="hero">
-        <h1>منصة إنجازيا <span>ULTRA MAX للسوق السعودي</span></h1>
-        <p>الترسانة السحابية المتكاملة بـ 24 أداة دقيقة، صُممت خصيصاً لتمكين وتطوير المتاجر الإلكترونية في المملكة العربية السعودية بالريال السعودي (ر.س) ومتوافقة مع متطلبات ضريبة القيمة المضافة.</p>
+        <h1>منصة إنجازيا <span>ULTRA MAX للسوق الإماراتي</span></h1>
+        <p>الترسانة السحابية المتكاملة بـ 24 أداة دقيقة، صُممت خصيصاً لتمكين وتطوير المتاجر الإلكترونية في الإمارات العربية المتحدة بالدرهم الإماراتي (د.إ) ومتوافقة مع متطلبات ضريبة القيمة المضافة.</p>
       </div>
 
       <div className="cards-grid">
-        {saTools.map((tool, index) => (
+        {aeTools.map((tool, index) => (
           <Link href={tool.link} key={tool.id} className="card clean-link">
             <div>
               <div className="card-top">
@@ -350,15 +350,15 @@ export default function EnjazyaSaudiHub() {
       <footer className="footer">
         <div className="footer-content">
           <div className="footer-brand">
-            <h3>إنجازيا <span>السعودية</span></h3>
-            <p>المنصة السحابية الأولى المخصصة لتمكين تجار التجارة الإلكترونية في المملكة العربية السعودية. أدوات دقيقة، حسابات ضريبية متوافقة مع زاتكا، وأرباح مضاعفة.</p>
+            <h3>إنجازيا <span>الإمارات</span></h3>
+            <p>المنصة السحابية الأولى المخصصة لتمكين تجار التجارة الإلكترونية في الإمارات العربية المتحدة. أدوات دقيقة، حسابات ضريبية متوافقة مع الهيئة الاتحادية للضرائب، وأرباح مضاعفة.</p>
           </div>
           
           <div className="footer-links">
             <div className="links-column">
               <h4>المنصة</h4>
               <ul>
-                <li><Link href="/hub/sa">جميع الأدوات (24)</Link></li>
+                <li><Link href="/hub/ae">جميع الأدوات (24)</Link></li>
                 <li><Link href="/updates">التحديثات الجديدة</Link></li>
                 <li><Link href="/pricing">أسعار الباقات</Link></li>
               </ul>
@@ -381,7 +381,7 @@ export default function EnjazyaSaudiHub() {
           
         </div>
         <div className="footer-bottom">
-          <p>جميع الحقوق محفوظة © 2026 منصة إنجازيا لتمكين التجارة الإلكترونية في المملكة العربية السعودية</p>
+          <p>جميع الحقوق محفوظة © 2026 منصة إنجازيا لتمكين التجارة الإلكترونية في الإمارات العربية المتحدة</p>
         </div>
       </footer>
     </div>
