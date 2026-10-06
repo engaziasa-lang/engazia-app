@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 
-export default function FAQPageAE() {
+export default function FAQPage() {
   const LEMON_CHECKOUT_URL = 'https://enjazya.lemonsqueezy.com/checkout/buy/dce1dd80-3422-43ba-aed5-8ef2dcd38d6d';
 
   const faqs = [
@@ -30,8 +30,7 @@ export default function FAQPageAE() {
       <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet" />
       
       <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-        
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin-bottom: '40px', flexWrap: 'wrap', gap: '15px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px', flexWrap: 'wrap', gap: '15px' }}>
           <div>
             <h1 style={{ fontSize: '32px', fontWeight: 900, color: '#0f172a', margin: '0 0 10px 0' }}>الأسئلة الشائعة 💡</h1>
             <p style={{ color: '#64748b', fontSize: '15px', margin: 0 }}>إجابات وافية عن كل ما تحتاج لمعرفته حول منصة إنجازيا (الإمارات)</p>
@@ -56,7 +55,6 @@ export default function FAQPageAE() {
             <a href={LEMON_CHECKOUT_URL} target="_blank" rel="noopener noreferrer" style={{ background: '#8b5cf6', color: '#fff', padding: '12px 24px', borderRadius: '8px', textDecoration: 'none', fontWeight: 900, fontSize: '14px' }}>اشترك بـ 49.99 د.إ ⚡</a>
           </div>
         </div>
-
       </div>
     </div>
   );
