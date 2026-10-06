@@ -610,12 +610,12 @@ export default function FtaInvoiceGeneratorAE() {
               <img src={qrCodeUrl} alt="FTA QR Code" />
             </div>
 
-            <div style={{ display: 'flex', justify-content: 'space-between', fontSize: '13px', fontWeight: 700, padding: '8px 10px', background: '#fff', borderRadius: '6px', border: '1px solid #e2e8f0', marginTop: '10px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: 700, padding: '8px 10px', background: '#fff', borderRadius: '6px', border: '1px solid #e2e8f0', marginTop: '10px' }}>
               <span>الضريبة (5%):</span>
               <span style={{ color: '#047857' }}>{vatAmt.toFixed(2)} د.إ</span>
             </div>
 
-            <div style={{ display: 'flex', justify-content: 'space-between', fontSize: '15px', fontWeight: 900, padding: '10px', background: '#047857', color: '#fff', borderRadius: '6px', marginTop: '8px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '15px', fontWeight: 900, padding: '10px', background: '#047857', color: '#fff', borderRadius: '6px', marginTop: '8px' }}>
               <span>الإجمالي الشامل:</span>
               <span>{amt} د.إ</span>
             </div>
