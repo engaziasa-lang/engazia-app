@@ -13,10 +13,10 @@ interface SeasonItem {
   createdAt?: string;
 }
 
-export default function SeasonalInventoryPlannerSA() {
+export default function SeasonalInventoryPlannerAE() {
   const [productName, setProductName] = useState<string>('');
-  const [seasonSelect, setSeasonSelect] = useState<string>('موسم رمضان والعيد');
-  const [customSeason, setCustomSeason] = useState<string>('موسم رمضان والعيد');
+  const [seasonSelect, setSeasonSelect] = useState<string>('مفاجآت صيف دبي (DSS)');
+  const [customSeason, setCustomSeason] = useState<string>('مفاجآت صيف دبي (DSS)');
   const [normalMonthlySales, setNormalMonthlySales] = useState<number | ''>('');
   const [growthRatePercent, setGrowthRatePercent] = useState<number | ''>(150); // نسبة نمو افتراضية 150%
 
@@ -27,7 +27,8 @@ export default function SeasonalInventoryPlannerSA() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const saved = localStorage.getItem('seerk_seasonal_inventory_items');
+    // تم تغيير مفتاح التخزين لفصل البيانات للإمارات
+    const saved = localStorage.getItem('seerk_ae_seasonal_inventory_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
@@ -35,7 +36,7 @@ export default function SeasonalInventoryPlannerSA() {
 
   const saveToLocalStorage = (newItems: SeasonItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_seasonal_inventory_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_ae_seasonal_inventory_items', JSON.stringify(newItems));
   };
 
   const isActivated = typeof window !== 'undefined' && !!localStorage.getItem('merchant_license_key');
@@ -58,8 +59,8 @@ export default function SeasonalInventoryPlannerSA() {
 
   const handleClearForm = () => {
     setProductName('');
-    setSeasonSelect('موسم رمضان والعيد');
-    setCustomSeason('موسم رمضان والعيد');
+    setSeasonSelect('مفاجآت صيف دبي (DSS)');
+    setCustomSeason('مفاجآت صيف دبي (DSS)');
     setNormalMonthlySales('');
     setGrowthRatePercent(150);
     setEditingId(null);
@@ -79,7 +80,8 @@ export default function SeasonalInventoryPlannerSA() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const formattedDate = `${now.toLocaleDateString('ar-SA')} - ${now.toLocaleTimeString('ar-SA', timeOptions)}`;
+    // تعديل التوقيت ليطابق الإمارات
+    const formattedDate = `${now.toLocaleDateString('ar-AE')} - ${now.toLocaleTimeString('ar-AE', timeOptions)}`;
 
     if (editingId) {
       const updated = items.map(item => item.id === editingId ? {
@@ -113,7 +115,7 @@ export default function SeasonalInventoryPlannerSA() {
 
   const handleEdit = (item: SeasonItem) => {
     setProductName(item.productName);
-    const standardSeasons = ['موسم رمضان والعيد', 'اليوم الوطني السعودي', 'الجمعة البيضاء / السوداء', 'موسم العودة للمدارس', 'رأس السنة / العروض الكبرى'];
+    const standardSeasons = ['مفاجآت صيف دبي (DSS)', 'اليوم الوطني الإماراتي', 'مهرجان دبي للتسوق (DSF)', 'الجمعة البيضاء / السوداء', 'موسم رمضان والعيد'];
     if (standardSeasons.includes(item.seasonName)) {
       setSeasonSelect(item.seasonName);
       setCustomSeason(item.seasonName);
@@ -203,7 +205,7 @@ export default function SeasonalInventoryPlannerSA() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", "seerk_seasonal_inventory.xls");
+    link.setAttribute("download", "seerk_ae_seasonal_inventory.xls");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -266,6 +268,7 @@ export default function SeasonalInventoryPlannerSA() {
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
         .input-wrapper input, .input-wrapper select { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: 'Tajawal', sans-serif; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; }
         .input-wrapper input:focus, .input-wrapper select:focus { border-color: #047857; background: #ffffff; }
+        .currency-tag { position: absolute; left: 14px; color: #64748b; font-weight: 800; font-size: 13px; pointer-events: none; }
         
         .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: 'Tajawal', sans-serif; margin-top: 10px; box-sizing: border-box; }
         .action-btn:hover { background: #065f46; }
@@ -299,10 +302,10 @@ export default function SeasonalInventoryPlannerSA() {
 
       <div className="header">
         <div className="title-box">
-          <h1>مخطط المخزون للمواسم السعودية 📅</h1>
-          <p>توقع الكميات المطلوبة لمواسم السعودية (رمضان، العيد، اليوم الوطني) لتجنب نفاد المخزون</p>
+          <h1>مخطط المخزون للمواسم الإماراتية 📅</h1>
+          <p>توقع الكميات المطلوبة لمواسم الإمارات (مفاجآت صيف دبي، العيد، اليوم الوطني) لتجنب نفاد المخزون</p>
         </div>
-        <Link href="/hub/sa" className="back-btn">
+        <Link href="/hub/ae" className="back-btn">
           <span>←</span> عودة للمنصة
         </Link>
       </div>
@@ -332,11 +335,11 @@ export default function SeasonalInventoryPlannerSA() {
               <label>اختر الموسم المستهدف</label>
               <div className="input-wrapper" style={{ marginBottom: '8px' }}>
                 <select value={seasonSelect} onChange={handleSelectChange}>
-                  <option value="موسم رمضان والعيد">موسم رمضان والعيد 🌙</option>
-                  <option value="اليوم الوطني السعودي">اليوم الوطني السعودي 🇸🇦</option>
+                  <option value="مفاجآت صيف دبي (DSS)">مفاجآت صيف دبي (DSS) 🛍️</option>
+                  <option value="اليوم الوطني الإماراتي">اليوم الوطني الإماراتي 🇦🇪</option>
+                  <option value="مهرجان دبي للتسوق (DSF)">مهرجان دبي للتسوق (DSF) ⭐</option>
                   <option value="الجمعة البيضاء / السوداء">الجمعة البيضاء / السوداء 🏷️</option>
-                  <option value="موسم العودة للمدارس">موسم العودة للمدارس 📚</option>
-                  <option value="رأس السنة / العروض الكبرى">رأس السنة / العروض الكبرى ⭐</option>
+                  <option value="موسم رمضان والعيد">موسم رمضان والعيد 🌙</option>
                   <option value="موسم آخر (كتابة يدوية)">➕ موسم آخر (كتابة يدوية)</option>
                 </select>
               </div>
