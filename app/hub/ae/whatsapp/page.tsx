@@ -15,7 +15,7 @@ interface CustomerItem {
   createdAt?: string;
 }
 
-export default function WhatsappCrmSA() {
+export default function WhatsappCrmAE() {
   const [customerName, setCustomerName] = useState<string>('');
   const [phoneNumber, setPhoneNumber] = useState<string>('');
   const [status, setStatus] = useState<string>('سلة متروكة');
@@ -31,7 +31,8 @@ export default function WhatsappCrmSA() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const saved = localStorage.getItem('seerk_whatsapp_crm_items');
+    // تم تغيير مفتاح التخزين لفصل البيانات للإمارات
+    const saved = localStorage.getItem('seerk_ae_whatsapp_crm_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
@@ -39,7 +40,7 @@ export default function WhatsappCrmSA() {
 
   const saveToLocalStorage = (newItems: CustomerItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_whatsapp_crm_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_ae_whatsapp_crm_items', JSON.stringify(newItems));
   };
 
   const isActivated = typeof window !== 'undefined' && !!localStorage.getItem('merchant_license_key');
@@ -51,9 +52,9 @@ export default function WhatsappCrmSA() {
     if (selected === 'abandoned') {
       setMessageTemplate('مرحباً {name}، لاحظنا أنك تركت منتجات رائعة في سلتك 🛒. تفضل رابط الدفع المباشر لإكمال طلبك بأسرع وقت: {link}');
     } else if (selected === 'pending') {
-      setMessageTemplate('أهلاً بك {name}، طلبك بقيمة {amount} ر.س بانتظار الدفع 💳. لإتمام الطلب وتأكيده يرجى زيارة الرابط: {link}');
+      setMessageTemplate('أهلاً بك {name}، طلبك بقيمة {amount} د.إ بانتظار الدفع 💳. لإتمام الطلب وتأكيده يرجى زيارة الرابط: {link}');
     } else if (selected === 'completed') {
-      setMessageTemplate('شكراً لك {name} لثقتك بمتجرنا 🎉. تم تأكيد طلبك بقيمة {amount} ر.س، وسيتم تجهيزه وشحنه قريباً. لتتبع الطلب: {link}');
+      setMessageTemplate('شكراً لك {name} لثقتك بمتجرنا 🎉. تم تأكيد طلبك بقيمة {amount} د.إ، وسيتم تجهيزه وشحنه قريباً. لتتبع الطلب: {link}');
     } else if (selected === 'custom') {
       setMessageTemplate('');
     }
@@ -83,7 +84,8 @@ export default function WhatsappCrmSA() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const formattedDate = `${now.toLocaleDateString('ar-SA')} - ${now.toLocaleTimeString('ar-SA', timeOptions)}`;
+    // تعديل التوقيت ليطابق الإمارات
+    const formattedDate = `${now.toLocaleDateString('ar-AE')} - ${now.toLocaleTimeString('ar-AE', timeOptions)}`;
 
     if (editingId) {
       const updated = items.map(item => item.id === editingId ? {
@@ -152,6 +154,7 @@ export default function WhatsappCrmSA() {
     saveToLocalStorage(updated);
   };
 
+  // دالة إرسال واتساب للعميل الإماراتي
   const handleSendWhatsapp = (item: CustomerItem) => {
     const safePhone = item.phoneNumber || '';
     const safeName = item.customerName || 'عميلنا العزيز';
@@ -161,7 +164,9 @@ export default function WhatsappCrmSA() {
 
     let phone = safePhone.replace(/\D/g, '');
     if (phone.startsWith('05')) {
-      phone = '966' + phone.substring(1);
+      phone = '971' + phone.substring(1);
+    } else if (phone.startsWith('5') && phone.length === 9) {
+      phone = '971' + phone;
     }
     
     let text = safeTemplate
@@ -203,7 +208,7 @@ export default function WhatsappCrmSA() {
                 <th>التاريخ والوقت</th>
                 <th>رقم الجوال</th>
                 <th>حالة العميل</th>
-                <th>قيمة السلة/الطلب</th>
+                <th>قيمة السلة/الطلب (د.إ)</th>
                 <th>الرابط المرفق</th>
                 <th>حالة التحصيل المالي</th>
               </tr>
@@ -250,7 +255,7 @@ export default function WhatsappCrmSA() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", "seerk_whatsapp_crm.xls");
+    link.setAttribute("download", "seerk_ae_whatsapp_crm.xls");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -363,7 +368,7 @@ export default function WhatsappCrmSA() {
         .btn-paid { background: #047857; color: #ffffff; }
         .btn-unpaid { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
 
-        /* ستايل مربع التحصيل المحدث (نظيف وبدون إيموجي) */
+        /* ستايل مربع التحصيل المحدث */
         .checkbox-wrapper { display: flex; align-items: center; gap: 8px; background: #ecfdf5; padding: 12px; border-radius: 8px; border: 1px solid #a7f3d0; margin-top: 15px; cursor: pointer; }
         .checkbox-wrapper input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; accent-color: #047857; margin: 0; }
         .checkbox-wrapper label { font-size: 14px; font-weight: 800; color: #065f46; cursor: pointer; margin: 0; user-select: none; }
@@ -372,9 +377,9 @@ export default function WhatsappCrmSA() {
       <div className="header">
         <div className="title-box">
           <h1>إدارة عملاء واتساب (Seerk Pro Max) 💬</h1>
-          <p>إدارة السلال المتروكة، إرسال روابط الدفع السريعة، وتصنيف عملاء المتجر الفاعلين</p>
+          <p>إدارة السلال المتروكة، إرسال روابط الدفع السريعة، وتصنيف عملاء متجرك الإماراتي</p>
         </div>
-        <Link href="/hub/sa" className="back-btn">
+        <Link href="/hub/ae" className="back-btn">
           <span>←</span> عودة للمنصة
         </Link>
       </div>
@@ -396,11 +401,11 @@ export default function WhatsappCrmSA() {
               <div className="input-group">
                 <label>اسم العميل</label>
                 <div className="input-wrapper">
-                  <input type="text" value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="مثال: أحمد الدوسري" required />
+                  <input type="text" value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="مثال: أحمد المنصوري" required />
                 </div>
               </div>
               <div className="input-group">
-                <label>رقم الجوال</label>
+                <label>رقم الجوال (الإماراتي)</label>
                 <div className="input-wrapper">
                   <input type="text" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} placeholder="05XXXXXXXX" required />
                 </div>
@@ -427,10 +432,10 @@ export default function WhatsappCrmSA() {
               </div>
 
               <div className="input-group">
-                <label>قيمة السلة أو الطلب (ر.س)</label>
+                <label>قيمة السلة أو الطلب (د.إ)</label>
                 <div className="input-wrapper">
                   <input className="with-currency" type="number" min="0" value={orderValue === '' ? '' : orderValue} onChange={(e) => setOrderValue(e.target.value === '' ? '' : Number(e.target.value))} placeholder="250" />
-                  <span className="currency-tag">ر.س</span>
+                  <span className="currency-tag">د.إ</span>
                 </div>
 
                 <div className="checkbox-wrapper">
@@ -498,7 +503,7 @@ export default function WhatsappCrmSA() {
               <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '2px' }}>تم دفعها واستلامها بالفعل</div>
             </div>
             <div className="result-value">
-              {collectedRevenue.toFixed(2)} ر.س
+              {collectedRevenue.toFixed(2)} د.إ
             </div>
           </div>
 
@@ -508,7 +513,7 @@ export default function WhatsappCrmSA() {
               <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '2px' }}>سلال متروكة وبانتظار التحويل</div>
             </div>
             <div className="result-value">
-              {pendingRevenue.toFixed(2)} ر.س
+              {pendingRevenue.toFixed(2)} د.إ
             </div>
           </div>
 
@@ -589,7 +594,7 @@ export default function WhatsappCrmSA() {
                         </span>
                       </td>
                       <td style={{ fontWeight: 900 }}>
-                        <div style={{ marginBottom: '4px' }}>{item.orderValue} ر.س</div>
+                        <div style={{ marginBottom: '4px' }}>{item.orderValue} د.إ</div>
                         {itemIsPaid ? 
                           <span style={{ fontSize: '10px', background: '#dcfce7', color: '#166534', padding: '2px 6px', borderRadius: '4px', fontWeight: 800 }}>✅ محصل</span> : 
                           <span style={{ fontSize: '10px', background: '#fef3c7', color: '#b45309', padding: '2px 6px', borderRadius: '4px', fontWeight: 800 }}>⏳ بانتظار الدفع</span>
@@ -620,12 +625,12 @@ export default function WhatsappCrmSA() {
               <tfoot>
                 <tr className="tfoot-row">
                   <td colSpan={4} style={{ textAlign: 'center' }}>إجمالي المبالغ المحصلة المكتملة (مبيعات)</td>
-                  <td style={{ color: '#047857' }}>{collectedRevenue.toFixed(2)} ر.س</td>
+                  <td style={{ color: '#047857' }}>{collectedRevenue.toFixed(2)} د.إ</td>
                   <td></td>
                 </tr>
                 <tr className="tfoot-row" style={{ backgroundColor: '#fffbeb' }}>
                   <td colSpan={4} style={{ textAlign: 'center', color: '#d97706' }}>إجمالي المبالغ المحتملة (سلال متروكة وبانتظار الدفع)</td>
-                  <td style={{ color: '#d97706' }}>{pendingRevenue.toFixed(2)} ر.س</td>
+                  <td style={{ color: '#d97706' }}>{pendingRevenue.toFixed(2)} د.إ</td>
                   <td></td>
                 </tr>
               </tfoot>
