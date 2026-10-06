@@ -17,7 +17,7 @@ interface DiscountItem {
   createdAt?: string;
 }
 
-export default function DiscountCalculatorSA() {
+export default function DiscountCalculatorAE() {
   const [offerName, setOfferName] = useState<string>('كود خصم (SAVE20)');
   const [typeSelect, setTypeSelect] = useState<string>('خصم نسبة مئوية (%)');
   const [customOfferType, setCustomOfferType] = useState<string>('خصم نسبة مئوية (%)');
@@ -32,7 +32,8 @@ export default function DiscountCalculatorSA() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const saved = localStorage.getItem('seerk_discount_calculator_items');
+    // تم تغيير مفتاح التخزين لفصل البيانات للإمارات
+    const saved = localStorage.getItem('seerk_ae_discount_calculator_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
@@ -40,7 +41,7 @@ export default function DiscountCalculatorSA() {
 
   const saveToLocalStorage = (newItems: DiscountItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_discount_calculator_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_ae_discount_calculator_items', JSON.stringify(newItems));
   };
 
   const isActivated = typeof window !== 'undefined' && !!localStorage.getItem('merchant_license_key');
@@ -105,7 +106,8 @@ export default function DiscountCalculatorSA() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const formattedDate = `${now.toLocaleDateString('ar-SA')} - ${now.toLocaleTimeString('ar-SA', timeOptions)}`;
+    // تعديل التوقيت ليطابق الإمارات
+    const formattedDate = `${now.toLocaleDateString('ar-AE')} - ${now.toLocaleTimeString('ar-AE', timeOptions)}`;
 
     if (editingId) {
       const updated = items.map(item => item.id === editingId ? {
@@ -147,7 +149,7 @@ export default function DiscountCalculatorSA() {
 
   const handleEdit = (item: DiscountItem) => {
     setOfferName(item.offerName);
-    const standardTypes = ['خصم نسبة مئوية (%)', 'خصم مبلغ ثابت (ر.س)', 'عرض 1+1 مجاناً'];
+    const standardTypes = ['خصم نسبة مئوية (%)', 'خصم مبلغ ثابت (د.إ)', 'عرض 1+1 مجاناً'];
     if (standardTypes.includes(item.offerType)) {
       setTypeSelect(item.offerType);
       setCustomOfferType(item.offerType);
@@ -196,10 +198,10 @@ export default function DiscountCalculatorSA() {
                 <th>اسم العرض أو الكود</th>
                 <th>نوع العرض</th>
                 <th>التاريخ والوقت</th>
-                <th>السعر الأصلي</th>
-                <th>التكلفة</th>
-                <th>سعر البيع بعد العرض</th>
-                <th>صافي الربح</th>
+                <th>السعر الأصلي (د.إ)</th>
+                <th>التكلفة (د.إ)</th>
+                <th>سعر البيع بعد العرض (د.إ)</th>
+                <th>صافي الربح (د.إ)</th>
                 <th>هامش الربح (%)</th>
                 <th>الحالة</th>
               </tr>
@@ -229,7 +231,7 @@ export default function DiscountCalculatorSA() {
             <tfoot>
               <tr class="tfoot-row">
                 <td colspan="7">إجمالي الأرباح المتوقعة</td>
-                <td colspan="3">${totalProfitSum.toFixed(2)} ر.س</td>
+                <td colspan="3">${totalProfitSum.toFixed(2)} د.إ</td>
               </tr>
             </tfoot>
           </table>
@@ -241,7 +243,7 @@ export default function DiscountCalculatorSA() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", "seerk_discount_feasibility.xls");
+    link.setAttribute("download", "seerk_ae_discount_feasibility.xls");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -340,9 +342,9 @@ export default function DiscountCalculatorSA() {
       <div className="header">
         <div className="title-box">
           <h1>حاسبة جدوى أكواد الخصم والعروض 🎟️</h1>
-          <p>تأكد من أن عروضك الترويجية (مثل 1+1 أو الشحن المجاني) لا تسبب لك خسائر مالية مخفية</p>
+          <p>تأكد من أن عروضك الترويجية (مثل 1+1 أو الشحن المجاني) لا تسبب لك خسائر مالية مخفية في متجرك الإماراتي</p>
         </div>
-        <Link href="/hub/sa" className="back-btn">
+        <Link href="/hub/ae" className="back-btn">
           <span>←</span> عودة للمنصة
         </Link>
       </div>
@@ -373,7 +375,7 @@ export default function DiscountCalculatorSA() {
                 <div className="input-wrapper" style={{ marginBottom: '8px' }}>
                   <select value={typeSelect} onChange={handleSelectChange}>
                     <option value="خصم نسبة مئوية (%)">خصم نسبة مئوية (%) 📉</option>
-                    <option value="خصم مبلغ ثابت (ر.س)">خصم مبلغ ثابت (ر.س) 💵</option>
+                    <option value="خصم مبلغ ثابت (د.إ)">خصم مبلغ ثابت (د.إ) 💵</option>
                     <option value="عرض 1+1 مجاناً">عرض 1+1 مجاناً 🎁</option>
                     <option value="نوع آخر (كتابة يدوية)">➕ نوع آخر (كتابة يدوية)</option>
                   </select>
@@ -395,24 +397,24 @@ export default function DiscountCalculatorSA() {
 
             <div className="form-row">
               <div className="input-group">
-                <label>سعر البيع الأصلي (ر.س)</label>
+                <label>سعر البيع الأصلي (د.إ)</label>
                 <div className="input-wrapper">
                   <input className="with-currency" type="number" step="0.01" min="0" value={originalPrice === '' ? '' : originalPrice} onChange={(e) => setOriginalPrice(e.target.value === '' ? '' : Number(e.target.value))} placeholder="200" required />
-                  <span className="currency-tag">ر.س</span>
+                  <span className="currency-tag">د.إ</span>
                 </div>
               </div>
               <div className="input-group">
-                <label>تكلفة المنتج الأساسية (ر.س)</label>
+                <label>تكلفة المنتج الأساسية (د.إ)</label>
                 <div className="input-wrapper">
                   <input className="with-currency" type="number" step="0.01" min="0" value={productCost === '' ? '' : productCost} onChange={(e) => setProductCost(e.target.value === '' ? '' : Number(e.target.value))} placeholder="80" required />
-                  <span className="currency-tag">ر.س</span>
+                  <span className="currency-tag">د.إ</span>
                 </div>
               </div>
             </div>
 
             {!typeSelect.includes('1+1') && (
               <div className="input-group">
-                <label>{typeSelect.includes('مبلغ ثابت') ? 'قيمة الخصم (ر.س)' : 'نسبة الخصم (%)'}</label>
+                <label>{typeSelect.includes('مبلغ ثابت') ? 'قيمة الخصم (د.إ)' : 'نسبة الخصم (%)'}</label>
                 <div className="input-wrapper">
                   <input type="number" step="0.01" min="0" value={discountValue === '' ? '' : discountValue} onChange={(e) => setDiscountValue(e.target.value === '' ? '' : Number(e.target.value))} placeholder="20" required />
                 </div>
@@ -435,13 +437,13 @@ export default function DiscountCalculatorSA() {
               <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '2px' }}>الربح الصافي للقطعة بعد الخصم</div>
             </div>
             <div className="result-value">
-              {netProfitAfterOffer.toFixed(2)} ر.س
+              {netProfitAfterOffer.toFixed(2)} د.إ
             </div>
           </div>
 
           <div className="result-box">
             <span className="result-label">سعر البيع النهائي بعد الخصم</span>
-            <span className="result-value" style={{ color: '#0369a1' }}>{finalSellingPrice.toFixed(2)} ر.س</span>
+            <span className="result-value" style={{ color: '#0369a1' }}>{finalSellingPrice.toFixed(2)} د.إ</span>
           </div>
 
           <div className="result-box" style={{ background: '#f8fafc' }}>
@@ -500,10 +502,10 @@ export default function DiscountCalculatorSA() {
                       {item.createdAt && <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', fontWeight: 600 }}>🕒 {item.createdAt}</div>}
                     </td>
                     <td><span style={{ fontWeight: 800, color: '#d97706' }}>{item.offerType}</span></td>
-                    <td>{item.originalPrice} ر.س <span style={{ color: '#64748b', fontSize: '12px' }}>(تكلفة: {item.productCost})</span></td>
-                    <td style={{ fontWeight: 800 }}>{item.finalSellingPrice} ر.س</td>
+                    <td>{item.originalPrice} د.إ <span style={{ color: '#64748b', fontSize: '12px' }}>(تكلفة: {item.productCost})</span></td>
+                    <td style={{ fontWeight: 800 }}>{item.finalSellingPrice} د.إ</td>
                     <td style={{ fontWeight: 900, color: item.netProfitAfterOffer > 0 ? '#047857' : '#dc2626' }}>
-                      {item.netProfitAfterOffer} ر.س
+                      {item.netProfitAfterOffer} د.إ
                     </td>
                     <td>
                       <span style={{ color: item.isProfitable ? '#047857' : '#dc2626', background: item.isProfitable ? '#d1fae5' : '#fee2e2', padding: '4px 8px', borderRadius: '6px', fontSize: '12px', fontWeight: 800 }}>
@@ -524,7 +526,7 @@ export default function DiscountCalculatorSA() {
               <tfoot>
                 <tr className="tfoot-row">
                   <td colSpan={5} style={{ textAlign: 'center' }}>إجمالي الأرباح المتوقعة من العروض</td>
-                  <td colSpan={3} style={{ color: '#047857' }}>{totalProfitSum.toFixed(2)} ر.س</td>
+                  <td colSpan={3} style={{ color: '#047857' }}>{totalProfitSum.toFixed(2)} د.إ</td>
                 </tr>
               </tfoot>
             )}
