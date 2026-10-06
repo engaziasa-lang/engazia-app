@@ -16,7 +16,7 @@ interface CodItem {
   createdAt?: string;
 }
 
-export default function CodAnalyzerSA() {
+export default function CodAnalyzerAE() {
   const [shippingSelect, setShippingSelect] = useState<string>('أرامكس (Aramex)');
   const [customShipping, setCustomShipping] = useState<string>('أرامكس (Aramex)');
   const [totalCodOrders, setTotalCodOrders] = useState<number | ''>('');
@@ -31,7 +31,8 @@ export default function CodAnalyzerSA() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const saved = localStorage.getItem('seerk_cod_analyzer_items');
+    // تم تغيير مفتاح التخزين لفصل البيانات
+    const saved = localStorage.getItem('seerk_ae_cod_analyzer_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
@@ -39,7 +40,7 @@ export default function CodAnalyzerSA() {
 
   const saveToLocalStorage = (newItems: CodItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_cod_analyzer_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_ae_cod_analyzer_items', JSON.stringify(newItems));
   };
 
   const isActivated = typeof window !== 'undefined' && !!localStorage.getItem('merchant_license_key');
@@ -52,7 +53,7 @@ export default function CodAnalyzerSA() {
   // الحسابات
   const totalCodFees = orders * fee;
   const rejectedOrdersCount = orders * (retRate / 100);
-  const shippingAndHandlingLossPerReject = 25;
+  const shippingAndHandlingLossPerReject = 25; // يمكنك تعديل هذه التكلفة إذا كانت تختلف في الإمارات
   const totalReturnLoss = rejectedOrdersCount * shippingAndHandlingLossPerReject;
   const grandTotalCost = totalCodFees + totalReturnLoss;
 
@@ -90,7 +91,7 @@ export default function CodAnalyzerSA() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const formattedDate = `${now.toLocaleDateString('ar-SA')} - ${now.toLocaleTimeString('ar-SA', timeOptions)}`;
+    const formattedDate = `${now.toLocaleDateString('ar-AE')} - ${now.toLocaleTimeString('ar-AE', timeOptions)}`;
 
     if (editingId) {
       const updated = items.map(item => item.id === editingId ? {
@@ -129,7 +130,7 @@ export default function CodAnalyzerSA() {
   };
 
   const handleEdit = (item: CodItem) => {
-    const standardCompanies = ['أرامكس (Aramex)', 'سمسا (SMSA)', 'دي إتش إل (DHL)', 'اليكسبرس (IMLEAP)', 'نايل إكسبرس (Naqel)'];
+    const standardCompanies = ['أرامكس (Aramex)', 'بريد الإمارات (Emirates Post)', 'فيتشر (Fetchr)', 'دي إتش إل (DHL)', 'آي مايل (iMile)'];
     if (standardCompanies.includes(item.shippingCompany)) {
       setShippingSelect(item.shippingCompany);
       setCustomShipping(item.shippingCompany);
@@ -183,9 +184,9 @@ export default function CodAnalyzerSA() {
                 <th>التاريخ والوقت</th>
                 <th>عدد طلبات COD</th>
                 <th>نسبة الرفض (%)</th>
-                <th>إجمالي رسوم الخدمة</th>
-                <th>خسائر الرفض والشحن العكسي</th>
-                <th>إجمالي التكلفة الخفية</th>
+                <th>إجمالي رسوم الخدمة (د.إ)</th>
+                <th>خسائر الرفض والشحن العكسي (د.إ)</th>
+                <th>إجمالي التكلفة الخفية (د.إ)</th>
               </tr>
             </thead>
             <tbody>
@@ -215,7 +216,7 @@ export default function CodAnalyzerSA() {
                 <td>-</td>
                 <td>${totalCodFeesSum.toFixed(2)}</td>
                 <td>${totalReturnLossSum.toFixed(2)}</td>
-                <td>${grandTotalCostSum.toFixed(2)} ر.س</td>
+                <td>${grandTotalCostSum.toFixed(2)} د.إ</td>
               </tr>
             </tfoot>
           </table>
@@ -227,7 +228,7 @@ export default function CodAnalyzerSA() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", "seerk_cod_analysis.xls");
+    link.setAttribute("download", "enjazya_ae_cod_analysis.xls");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -327,7 +328,7 @@ export default function CodAnalyzerSA() {
           <h1>محلل تكاليف الدفع عند الاستلام (COD) 🚚</h1>
           <p>احسب نسبة المخاطرة، رسوم شركات الشحن، وخسائر عدم الاستلام وتأثيرها على صافي أرباحك</p>
         </div>
-        <Link href="/hub/sa" className="back-btn">
+        <Link href="/hub/ae" className="back-btn">
           <span>←</span> عودة للمنصة
         </Link>
       </div>
@@ -351,10 +352,10 @@ export default function CodAnalyzerSA() {
               <div className="input-wrapper" style={{ marginBottom: '8px' }}>
                 <select value={shippingSelect} onChange={handleSelectChange}>
                   <option value="أرامكس (Aramex)">أرامكس (Aramex)</option>
-                  <option value="سمسا (SMSA)">سمسا (SMSA)</option>
+                  <option value="بريد الإمارات (Emirates Post)">بريد الإمارات (Emirates Post)</option>
+                  <option value="فيتشر (Fetchr)">فيتشر (Fetchr)</option>
                   <option value="دي إتش إل (DHL)">دي إتش إل (DHL)</option>
-                  <option value="اليكسبرس (IMLEAP)">اليكسبرس (IMLEAP)</option>
-                  <option value="نايل إكسبرس (Naqel)">نايل إكسبرس (Naqel)</option>
+                  <option value="آي مايل (iMile)">آي مايل (iMile)</option>
                   <option value="شركة أخرى (كتابة يدوية)">➕ شركة أخرى (كتابة يدوية)</option>
                 </select>
               </div>
@@ -380,20 +381,20 @@ export default function CodAnalyzerSA() {
                 </div>
               </div>
               <div className="input-group">
-                <label>متوسط قيمة الطلب (ر.س)</label>
+                <label>متوسط قيمة الطلب (د.إ)</label>
                 <div className="input-wrapper">
                   <input className="with-currency" type="number" step="0.01" min="0" value={avgOrderValue === '' ? '' : avgOrderValue} onChange={(e) => setAvgOrderValue(e.target.value === '' ? '' : Number(e.target.value))} placeholder="300" required />
-                  <span className="currency-tag">ر.س</span>
+                  <span className="currency-tag">د.إ</span>
                 </div>
               </div>
             </div>
 
             <div className="form-row">
               <div className="input-group">
-                <label>رسوم خدمة COD للطلب الواحد (ر.س)</label>
+                <label>رسوم خدمة COD للطلب الواحد (د.إ)</label>
                 <div className="input-wrapper">
                   <input className="with-currency" type="number" step="0.01" min="0" value={codFeePerOrder === '' ? '' : codFeePerOrder} onChange={(e) => setCodFeePerOrder(e.target.value === '' ? '' : Number(e.target.value))} placeholder="12" required />
-                  <span className="currency-tag">ر.س</span>
+                  <span className="currency-tag">د.إ</span>
                 </div>
               </div>
               <div className="input-group">
@@ -421,18 +422,18 @@ export default function CodAnalyzerSA() {
               <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '2px' }}>مجموع رسوم التحصيل وخسائر الرفض</div>
             </div>
             <div className="result-value">
-              {grandTotalCost.toFixed(2)} ر.س
+              {grandTotalCost.toFixed(2)} د.إ
             </div>
           </div>
 
           <div className="result-box">
             <span className="result-label">إجمالي رسوم خدمة التحصيل</span>
-            <span className="result-value" style={{ color: '#d97706' }}>{totalCodFees.toFixed(2)} ر.س</span>
+            <span className="result-value" style={{ color: '#d97706' }}>{totalCodFees.toFixed(2)} د.إ</span>
           </div>
 
           <div className="result-box" style={{ background: '#f8fafc' }}>
             <span className="result-label">خسائر الطلبات المرفوضة (الشحن العكسي والتالف)</span>
-            <span className="result-value" style={{ color: '#dc2626' }}>{totalReturnLoss.toFixed(2)} ر.س</span>
+            <span className="result-value" style={{ color: '#dc2626' }}>{totalReturnLoss.toFixed(2)} د.إ</span>
           </div>
         </div>
       </div>
@@ -485,9 +486,9 @@ export default function CodAnalyzerSA() {
                     </td>
                     <td style={{ fontWeight: 800 }}>{item.totalCodOrders} طلب</td>
                     <td><span style={{ color: '#dc2626', fontWeight: 800 }}>{item.returnRatePercent}%</span></td>
-                    <td style={{ color: '#d97706' }}>{item.totalCodFees} ر.س</td>
-                    <td style={{ color: '#dc2626' }}>{item.totalReturnLoss} ر.س</td>
-                    <td style={{ fontWeight: 900, color: '#991b1b' }}>{item.grandTotalCost} ر.س</td>
+                    <td style={{ color: '#d97706' }}>{item.totalCodFees} د.إ</td>
+                    <td style={{ color: '#dc2626' }}>{item.totalReturnLoss} د.إ</td>
+                    <td style={{ fontWeight: 900, color: '#991b1b' }}>{item.grandTotalCost} د.إ</td>
                     <td>
                       <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                         <button className="tb-action-btn btn-edit" onClick={() => handleEdit(item)} title="تعديل">✏️</button>
@@ -504,9 +505,9 @@ export default function CodAnalyzerSA() {
                   <td colSpan={2} style={{ textAlign: 'center' }}>الإجمالي الكلي</td>
                   <td>{totalOrdersSum} طلب</td>
                   <td>-</td>
-                  <td style={{ color: '#d97706' }}>{totalCodFeesSum.toFixed(2)} ر.س</td>
-                  <td style={{ color: '#dc2626' }}>{totalReturnLossSum.toFixed(2)} ر.س</td>
-                  <td style={{ color: '#991b1b' }}>{grandTotalCostSum.toFixed(2)} ر.س</td>
+                  <td style={{ color: '#d97706' }}>{totalCodFeesSum.toFixed(2)} د.إ</td>
+                  <td style={{ color: '#dc2626' }}>{totalReturnLossSum.toFixed(2)} د.إ</td>
+                  <td style={{ color: '#991b1b' }}>{grandTotalCostSum.toFixed(2)} د.إ</td>
                   <td></td>
                 </tr>
               </tfoot>
