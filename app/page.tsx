@@ -24,7 +24,9 @@ export default function MarketSelector() {
           <div style={{ background: '#ffffff', border: '2px solid #e2e8f0', borderRadius: '20px', padding: '35px 25px', textAlign: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.03)', transition: 'all 0.3s ease', cursor: 'pointer' }}
                onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#047857'; e.currentTarget.style.transform = 'translateY(-5px)'; }}
                onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.transform = 'translateY(0)'; }}>
-            <div style={{ fontSize: '55px', marginBottom: '15px' }}>🇸🇦</div>
+            <div style={{ marginBottom: '15px', display: 'inline-block', borderRadius: '8px', overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+              <img src="https://flagcdn.com/w160/sa.png" alt="علم المملكة العربية السعودية" style={{ width: '80px', height: '50px', objectFit: 'cover', display: 'block' }} />
+            </div>
             <h2 style={{ fontSize: '22px', fontWeight: 900, color: '#0f172a', marginBottom: '10px' }}>السوق السعودي</h2>
             <p style={{ color: '#64748b', fontSize: '14px', fontWeight: 500, margin: '0 0 20px 0' }}>متوافق مع متطلبات سلة، زد، والريال السعودي.</p>
             <span style={{ display: 'inline-block', background: '#ecfdf5', color: '#047857', padding: '10px 24px', borderRadius: '10px', fontWeight: 800, fontSize: '14px' }}>الدخول للسوق السعودي ←</span>
@@ -36,7 +38,9 @@ export default function MarketSelector() {
           <div style={{ background: '#ffffff', border: '2px solid #e2e8f0', borderRadius: '20px', padding: '35px 25px', textAlign: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.03)', transition: 'all 0.3s ease', cursor: 'pointer' }}
                onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#00732f'; e.currentTarget.style.transform = 'translateY(-5px)'; }}
                onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.transform = 'translateY(0)'; }}>
-            <div style={{ fontSize: '55px', marginBottom: '15px' }}>🇦🇪</div>
+            <div style={{ marginBottom: '15px', display: 'inline-block', borderRadius: '8px', overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+              <img src="https://flagcdn.com/w160/ae.png" alt="علم دولة الإمارات العربية المتحدة" style={{ width: '80px', height: '50px', objectFit: 'cover', display: 'block' }} />
+            </div>
             <h2 style={{ fontSize: '22px', fontWeight: 900, color: '#0f172a', marginBottom: '10px' }}>السوق الإماراتي</h2>
             <p style={{ color: '#64748b', fontSize: '14px', fontWeight: 500, margin: '0 0 20px 0' }}>متوافق مع ضريبة الهيئة الاتحادية (FTA) والدرهم.</p>
             <span style={{ display: 'inline-block', background: '#f0fdf4', color: '#00732f', padding: '10px 24px', borderRadius: '10px', fontWeight: 800, fontSize: '14px' }}>الدخول للسوق الإماراتي ←</span>
