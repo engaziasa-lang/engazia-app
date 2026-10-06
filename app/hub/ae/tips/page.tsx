@@ -12,7 +12,7 @@ interface GrowthItem {
   createdAt?: string;
 }
 
-export default function StoreGrowthSecretsSA() {
+export default function StoreGrowthSecretsAE() {
   // تفريغ الحقول بالكامل كقيمة ابتدائية
   const [strategyName, setStrategyName] = useState<string>('');
   const [description, setDescription] = useState<string>('');
@@ -36,7 +36,8 @@ export default function StoreGrowthSecretsSA() {
     setIsClient(true);
     setIsActivated(!!localStorage.getItem('merchant_license_key'));
     
-    const saved = localStorage.getItem('seerk_growth_secrets_items');
+    // تم تغيير مفتاح التخزين لفصل البيانات للإمارات
+    const saved = localStorage.getItem('seerk_ae_growth_secrets_items');
     if (saved) {
       try { 
         const parsedData = JSON.parse(saved);
@@ -47,7 +48,7 @@ export default function StoreGrowthSecretsSA() {
 
   const saveToLocalStorage = (newItems: GrowthItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_growth_secrets_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_ae_growth_secrets_items', JSON.stringify(newItems));
   };
 
   const actualCategory = categorySelect === 'تصنيف آخر (كتابة يدوية)' ? customCategory : categorySelect;
@@ -83,7 +84,8 @@ export default function StoreGrowthSecretsSA() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const formattedDate = `${now.toLocaleDateString('ar-SA')} - ${now.toLocaleTimeString('ar-SA', timeOptions)}`;
+    // تعديل التوقيت ليطابق الإمارات
+    const formattedDate = `${now.toLocaleDateString('ar-AE')} - ${now.toLocaleTimeString('ar-AE', timeOptions)}`;
 
     if (editingId) {
       const updated = items.map(item => item.id === editingId ? {
@@ -203,7 +205,7 @@ export default function StoreGrowthSecretsSA() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", "seerk_store_growth_secrets.xls");
+    link.setAttribute("download", "seerk_ae_store_growth_secrets.xls");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -299,10 +301,10 @@ export default function StoreGrowthSecretsSA() {
 
       <div className="header">
         <div className="title-box">
-          <h1>أسرار نمو المتاجر السعودية 💡</h1>
-          <p>مكتبة استراتيجيات حصرية لزيادة التحويل ورفع ولاء العملاء في السوق المحلي</p>
+          <h1>أسرار نمو المتاجر الإماراتية 💡</h1>
+          <p>مكتبة استراتيجيات حصرية لزيادة التحويل ورفع ولاء العملاء في السوق الإماراتي</p>
         </div>
-        <Link href="/hub/sa" className="back-btn">
+        <Link href="/hub/ae" className="back-btn">
           <span>←</span> عودة للمنصة
         </Link>
       </div>
@@ -324,7 +326,7 @@ export default function StoreGrowthSecretsSA() {
             <div className="input-group">
               <label>اسم الاستراتيجية / الفكرة الترويجية</label>
               <div className="input-wrapper">
-                <input type="text" value={strategyName} onChange={(e) => setStrategyName(e.target.value)} placeholder="مثال: تفعيل الدفع بتابي/تمارا أو برنامج ولاء النقاط" required />
+                <input type="text" value={strategyName} onChange={(e) => setStrategyName(e.target.value)} placeholder="مثال: تفعيل الدفع بتابي أو برنامج ولاء النقاط" required />
               </div>
             </div>
 
@@ -372,7 +374,7 @@ export default function StoreGrowthSecretsSA() {
                   rows={4} 
                   value={description} 
                   onChange={(e) => setDescription(e.target.value)} 
-                  placeholder="اكتب تفاصيل الفكرة وكيفية تطبيقها في سلة أو زد للرجوع إليها لاحقاً..." 
+                  placeholder="اكتب تفاصيل الفكرة وكيفية تطبيقها للرجوع إليها لاحقاً..." 
                   style={{ resize: 'vertical' }}
                 ></textarea>
               </div>
