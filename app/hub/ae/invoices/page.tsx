@@ -22,10 +22,10 @@ interface InvoiceItem {
   createdAt?: string;
 }
 
-export default function ZatcaInvoiceGeneratorSA() {
-  // البيانات الثابتة
+export default function FtaInvoiceGeneratorAE() {
+  // البيانات الثابتة الافتراضية
   const [storeName, setStoreName] = useState<string>('متجر إنجازيا');
-  const [vatNumber, setVatNumber] = useState<string>('300000000000003');
+  const [vatNumber, setVatNumber] = useState<string>('100000000000003'); // أرقام تسجيل الهيئة الاتحادية عادة تبدأ بـ 100
   
   // بيانات الفاتورة
   const [invoiceNumber, setInvoiceNumber] = useState<string>('INV-2026-001');
@@ -44,7 +44,8 @@ export default function ZatcaInvoiceGeneratorSA() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const saved = localStorage.getItem('seerk_zatca_invoices_items');
+    // تم تغيير مفتاح التخزين لفصل البيانات للإمارات
+    const saved = localStorage.getItem('seerk_ae_fta_invoices_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
@@ -52,21 +53,21 @@ export default function ZatcaInvoiceGeneratorSA() {
 
   const saveToLocalStorage = (newItems: InvoiceItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_zatca_invoices_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_ae_fta_invoices_items', JSON.stringify(newItems));
   };
 
   const isActivated = typeof window !== 'undefined' && !!localStorage.getItem('merchant_license_key');
 
-  // حساب الإجمالي والضريبة بناءً على المنتجات المضافة
+  // حساب الإجمالي والضريبة بناءً على المنتجات المضافة (الضريبة في الإمارات 5%)
   const amt = currentProducts.reduce((acc, curr) => acc + (curr.price * curr.qty), 0);
-  const vatAmt = amt - (amt / 1.15); 
+  const vatAmt = amt - (amt / 1.05); // تعديل الضريبة لـ 5%
 
   const nowDisplay = new Date();
   const timeOptionsDisplay: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-  const currentFormattedDate = `${nowDisplay.toLocaleDateString('ar-SA')} - ${nowDisplay.toLocaleTimeString('ar-SA', timeOptionsDisplay)}`;
+  const currentFormattedDate = `${nowDisplay.toLocaleDateString('ar-AE')} - ${nowDisplay.toLocaleTimeString('ar-AE', timeOptionsDisplay)}`;
 
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(
-    `المتجر: ${storeName} | الرقم الضريبي: ${vatNumber} \vert{} التاريخ: ${currentFormattedDate} | الإجمالي: ${amt} ر.س \vert{} الضريبة: ${vatAmt.toFixed(2)} ر.س`
+    `المتجر: ${storeName} | الرقم الضريبي: ${vatNumber} \vert{} التاريخ: ${currentFormattedDate} | الإجمالي: ${amt} د.إ \vert{} الضريبة: ${vatAmt.toFixed(2)} د.إ`
   )}`;
 
   const handleAddProduct = () => {
@@ -125,7 +126,7 @@ export default function ZatcaInvoiceGeneratorSA() {
     }
 
     const now = new Date();
-    const formattedDate = `${now.toLocaleDateString('ar-SA')} - ${now.toLocaleTimeString('ar-SA', timeOptionsDisplay)}`;
+    const formattedDate = `${now.toLocaleDateString('ar-AE')} - ${now.toLocaleTimeString('ar-AE', timeOptionsDisplay)}`;
 
     if (editingId) {
       const updated = items.map(item => item.id === editingId ? {
@@ -213,7 +214,7 @@ export default function ZatcaInvoiceGeneratorSA() {
     if (!printWindow) return;
 
     const qrPrintUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(
-      `المتجر: ${dataToPrint.storeName} | الرقم الضريبي: ${dataToPrint.vatNumber} \vert{} التاريخ: ${dataToPrint.createdAt} | الإجمالي: ${dataToPrint.totalAmount} ر.س \vert{} الضريبة: ${dataToPrint.vatAmount.toFixed(2)} ر.س`
+      `المتجر: ${dataToPrint.storeName} | الرقم الضريبي: ${dataToPrint.vatNumber} \vert{} التاريخ: ${dataToPrint.createdAt} | الإجمالي: ${dataToPrint.totalAmount} د.إ \vert{} الضريبة: ${dataToPrint.vatAmount.toFixed(2)} د.إ`
     )}`;
 
     let productsRows = '';
@@ -296,15 +297,15 @@ export default function ZatcaInvoiceGeneratorSA() {
             <div class="totals-calc">
               <div class="totals-row">
                 <span>الإجمالي (غير شامل الضريبة)</span>
-                <span>${(dataToPrint.totalAmount - dataToPrint.vatAmount).toFixed(2)} ر.س</span>
+                <span>${(dataToPrint.totalAmount - dataToPrint.vatAmount).toFixed(2)} د.إ</span>
               </div>
               <div class="totals-row">
-                <span>ضريبة القيمة المضافة (15%)</span>
-                <span>${dataToPrint.vatAmount.toFixed(2)} ر.س</span>
+                <span>ضريبة القيمة المضافة (5%)</span>
+                <span>${dataToPrint.vatAmount.toFixed(2)} د.إ</span>
               </div>
               <div class="totals-row grand">
                 <span>المبلغ الإجمالي الشامل</span>
-                <span>${dataToPrint.totalAmount.toFixed(2)} ر.س</span>
+                <span>${dataToPrint.totalAmount.toFixed(2)} د.إ</span>
               </div>
             </div>
           </div>
@@ -350,8 +351,8 @@ export default function ZatcaInvoiceGeneratorSA() {
                 <th>التاريخ والوقت</th>
                 <th>اسم العميل</th>
                 <th>المنتجات المشتراة</th>
-                <th>الإجمالي الشامل</th>
-                <th>الضريبة المستقطعة (15%)</th>
+                <th>الإجمالي الشامل (د.إ)</th>
+                <th>الضريبة المستقطعة (5%)</th>
               </tr>
             </thead>
             <tbody>
@@ -393,7 +394,7 @@ export default function ZatcaInvoiceGeneratorSA() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", "seerk_zatca_invoices.xls");
+    link.setAttribute("download", "seerk_ae_fta_invoices.xls");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -504,9 +505,9 @@ export default function ZatcaInvoiceGeneratorSA() {
       <div className="header">
         <div className="title-box">
           <h1>مولد الفواتير الإلكترونية (نظام الكاشير المصغر) 🧾</h1>
-          <p>أنشئ فواتير مبسطة برمز الاستجابة السريعة (QR Code) مع جدول تفصيلي لمنتجات العميل</p>
+          <p>أنشئ فواتير مبسطة برمز الاستجابة السريعة (QR Code) متوافقة مع متطلبات الهيئة الاتحادية للضرائب (FTA)</p>
         </div>
-        <Link href="/hub/sa" className="back-btn">
+        <Link href="/hub/ae" className="back-btn">
           <span>←</span> عودة للمنصة
         </Link>
       </div>
@@ -572,7 +573,7 @@ export default function ZatcaInvoiceGeneratorSA() {
                     <div className="prod-item" key={p.id}>
                       <span>{i+1}. {p.name} (عدد: {p.qty})</span>
                       <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                        <span style={{ color: '#047857' }}>{p.price * p.qty} ر.س</span>
+                        <span style={{ color: '#047857' }}>{p.price * p.qty} د.إ</span>
                         <button type="button" className="edit-prod-btn" onClick={() => handleEditProduct(p)}>تعديل</button>
                         <button type="button" className="remove-btn" onClick={() => handleRemoveProduct(p.id)}>حذف</button>
                       </div>
@@ -606,17 +607,17 @@ export default function ZatcaInvoiceGeneratorSA() {
             </div>
 
             <div className="qr-box">
-              <img src={qrCodeUrl} alt="Zatca QR Code" />
+              <img src={qrCodeUrl} alt="FTA QR Code" />
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: 700, padding: '8px 10px', background: '#fff', borderRadius: '6px', border: '1px solid #e2e8f0', marginTop: '10px' }}>
-              <span>الضريبة (15%):</span>
-              <span style={{ color: '#047857' }}>{vatAmt.toFixed(2)} ر.س</span>
+            <div style={{ display: 'flex', justify-content: 'space-between', fontSize: '13px', fontWeight: 700, padding: '8px 10px', background: '#fff', borderRadius: '6px', border: '1px solid #e2e8f0', marginTop: '10px' }}>
+              <span>الضريبة (5%):</span>
+              <span style={{ color: '#047857' }}>{vatAmt.toFixed(2)} د.إ</span>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '15px', fontWeight: 900, padding: '10px', background: '#047857', color: '#fff', borderRadius: '6px', marginTop: '8px' }}>
+            <div style={{ display: 'flex', justify-content: 'space-between', fontSize: '15px', fontWeight: 900, padding: '10px', background: '#047857', color: '#fff', borderRadius: '6px', marginTop: '8px' }}>
               <span>الإجمالي الشامل:</span>
-              <span>{amt} ر.س</span>
+              <span>{amt} د.إ</span>
             </div>
           </div>
 
@@ -651,7 +652,7 @@ export default function ZatcaInvoiceGeneratorSA() {
                 <th>الفاتورة والتاريخ</th>
                 <th>العميل والأصناف</th>
                 <th>الإجمالي الشامل</th>
-                <th>الضريبة (15%)</th>
+                <th>الضريبة (5%)</th>
                 <th>الإجراءات</th>
               </tr>
             </thead>
@@ -678,8 +679,8 @@ export default function ZatcaInvoiceGeneratorSA() {
                            {hasProducts ? `${item.products.length} أصناف مسجلة` : (item as any).orderDescription}
                         </div>
                       </td>
-                      <td style={{ fontWeight: 900 }}>{item.totalAmount} ر.س</td>
-                      <td style={{ color: '#047857' }}>{item.vatAmount} ر.س</td>
+                      <td style={{ fontWeight: 900 }}>{item.totalAmount} د.إ</td>
+                      <td style={{ color: '#047857' }}>{item.vatAmount} د.إ</td>
                       <td>
                         <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                           <button className="tb-action-btn btn-print-tb" onClick={() => handlePrintInvoice(item)} title="طباعة بجدول مفصل">🖨️ طباعة</button>
@@ -696,8 +697,8 @@ export default function ZatcaInvoiceGeneratorSA() {
               <tfoot>
                 <tr className="tfoot-row">
                   <td colSpan={3} style={{ textAlign: 'center' }}>الإجمالي الكلي</td>
-                  <td>{totalInvoicesAmount.toFixed(2)} ر.س</td>
-                  <td style={{ color: '#047857' }}>{totalVatValue.toFixed(2)} ر.س</td>
+                  <td>{totalInvoicesAmount.toFixed(2)} د.إ</td>
+                  <td style={{ color: '#047857' }}>{totalVatValue.toFixed(2)} د.إ</td>
                   <td></td>
                 </tr>
               </tfoot>
