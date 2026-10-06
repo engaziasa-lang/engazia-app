@@ -12,7 +12,7 @@ interface WaLinkItem {
   createdAt?: string;
 }
 
-export default function WaLinkGeneratorSA() {
+export default function WaLinkGeneratorAE() {
   // تفريغ الحقول بالكامل كقيمة ابتدائية
   const [campaignName, setCampaignName] = useState<string>('');
   const [phoneNumber, setPhoneNumber] = useState<string>('');
@@ -32,7 +32,8 @@ export default function WaLinkGeneratorSA() {
     setIsClient(true);
     setIsActivated(!!localStorage.getItem('merchant_license_key'));
     
-    const saved = localStorage.getItem('seerk_wa_link_items');
+    // تم تغيير مفتاح التخزين لفصل البيانات للإمارات
+    const saved = localStorage.getItem('seerk_ae_wa_link_items');
     if (saved) {
       try { 
         const parsedData = JSON.parse(saved);
@@ -43,15 +44,15 @@ export default function WaLinkGeneratorSA() {
 
   const saveToLocalStorage = (newItems: WaLinkItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_wa_link_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_ae_wa_link_items', JSON.stringify(newItems));
   };
 
-  // معالجة رقم الجوال وتوليد الرابط المباشر
+  // معالجة رقم الجوال للإمارات (افتراضي 971 بدلاً من 966)
   let formattedPhone = phoneNumber.replace(/\D/g, ''); // إزالة أي رموز غير رقمية
   if (formattedPhone.startsWith('05')) {
-    formattedPhone = '966' + formattedPhone.substring(1);
+    formattedPhone = '971' + formattedPhone.substring(1);
   } else if (formattedPhone.startsWith('5') && formattedPhone.length === 9) {
-    formattedPhone = '966' + formattedPhone;
+    formattedPhone = '971' + formattedPhone;
   }
 
   const liveLink = formattedPhone 
@@ -78,7 +79,8 @@ export default function WaLinkGeneratorSA() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const formattedDate = `${now.toLocaleDateString('ar-SA')} - ${now.toLocaleTimeString('ar-SA', timeOptions)}`;
+    // تعديل التوقيت ليطابق الإمارات
+    const formattedDate = `${now.toLocaleDateString('ar-AE')} - ${now.toLocaleTimeString('ar-AE', timeOptions)}`;
 
     if (editingId) {
       const updated = items.map(item => item.id === editingId ? {
@@ -194,7 +196,7 @@ export default function WaLinkGeneratorSA() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", "seerk_wa_links.xls");
+    link.setAttribute("download", "seerk_ae_wa_links.xls");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -295,7 +297,7 @@ export default function WaLinkGeneratorSA() {
           <h1>صانع روابط واتساب السريعة 🔗</h1>
           <p>أنشئ روابط مخصصة برسائل جاهزة لبيو تيك توك أو تمريرها في حملات الانستقرام</p>
         </div>
-        <Link href="/hub/sa" className="back-btn">
+        <Link href="/hub/ae" className="back-btn">
           <span>←</span> عودة للمنصة
         </Link>
       </div>
@@ -322,7 +324,7 @@ export default function WaLinkGeneratorSA() {
             </div>
 
             <div className="input-group">
-              <label>رقم الواتساب (السعودي)</label>
+              <label>رقم الواتساب (الإماراتي)</label>
               <div className="input-wrapper">
                 <input type="text" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} placeholder="05XXXXXXXX" required dir="ltr" style={{ textAlign: 'left' }} />
               </div>
