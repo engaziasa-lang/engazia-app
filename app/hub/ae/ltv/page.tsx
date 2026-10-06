@@ -13,7 +13,7 @@ interface LtvItem {
   createdAt?: string;
 }
 
-export default function LtvCalculatorSA() {
+export default function LtvCalculatorAE() {
   // جعل جميع الحقول تبدأ فارغة تماماً
   const [segmentName, setSegmentName] = useState<string>('');
   const [avgOrderValue, setAvgOrderValue] = useState<number | ''>('');
@@ -34,7 +34,8 @@ export default function LtvCalculatorSA() {
     setIsClient(true);
     setIsActivated(!!localStorage.getItem('merchant_license_key'));
     
-    const saved = localStorage.getItem('seerk_ltv_calculator_items');
+    // تم تغيير مفتاح التخزين لفصل بيانات الإمارات عن السعودية
+    const saved = localStorage.getItem('seerk_ae_ltv_calculator_items');
     if (saved) {
       try { 
         const parsedData = JSON.parse(saved);
@@ -45,7 +46,7 @@ export default function LtvCalculatorSA() {
 
   const saveToLocalStorage = (newItems: LtvItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_ltv_calculator_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_ae_ltv_calculator_items', JSON.stringify(newItems));
   };
 
   const orderVal = typeof avgOrderValue === 'number' ? avgOrderValue : 0;
@@ -77,7 +78,8 @@ export default function LtvCalculatorSA() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const formattedDate = `${now.toLocaleDateString('ar-SA')} - ${now.toLocaleTimeString('ar-SA', timeOptions)}`;
+    // تعديل التوقيت ليطابق الإمارات
+    const formattedDate = `${now.toLocaleDateString('ar-AE')} - ${now.toLocaleTimeString('ar-AE', timeOptions)}`;
 
     if (editingId) {
       const updated = items.map(item => item.id === editingId ? {
@@ -151,10 +153,10 @@ export default function LtvCalculatorSA() {
                 <th>م</th>
                 <th>شريحة العملاء</th>
                 <th>التاريخ والوقت</th>
-                <th>متوسط قيمة الطلب</th>
+                <th>متوسط قيمة الطلب (د.إ)</th>
                 <th>مرات الشراء (سنوياً)</th>
                 <th>عمر العميل (بالسنوات)</th>
-                <th>القيمة الدائمة (LTV)</th>
+                <th>القيمة الدائمة (د.إ)</th>
               </tr>
             </thead>
             <tbody>
@@ -166,10 +168,10 @@ export default function LtvCalculatorSA() {
           <td>${idx + 1}</td>
           <td>${row.segmentName}</td>
           <td>${row.createdAt || '-'}</td>
-          <td>${row.avgOrderValue} ر.س</td>
+          <td>${row.avgOrderValue} د.إ</td>
           <td>${row.purchaseFrequency} مرات</td>
           <td>${row.customerLifespan} سنوات</td>
-          <td>${row.ltvValue} ر.س</td>
+          <td>${row.ltvValue} د.إ</td>
         </tr>
       `;
     });
@@ -179,7 +181,7 @@ export default function LtvCalculatorSA() {
             <tfoot>
               <tr class="tfoot-row">
                 <td colspan="6">متوسط القيمة الدائمة للعملاء</td>
-                <td>${avgLtv.toFixed(2)} ر.س</td>
+                <td>${avgLtv.toFixed(2)} د.إ</td>
               </tr>
             </tfoot>
           </table>
@@ -191,7 +193,7 @@ export default function LtvCalculatorSA() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", "seerk_ltv_calculator.xls");
+    link.setAttribute("download", "seerk_ae_ltv_calculator.xls");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -291,7 +293,7 @@ export default function LtvCalculatorSA() {
           <h1>حاسبة القيمة الدائمة للعميل (LTV) 🎯</h1>
           <p>احسب القيمة الإجمالية للعميل على مدار طوال فترة تعامله مع متجرك لضبط استراتيجيات الإعلانات</p>
         </div>
-        <Link href="/hub/sa" className="back-btn">
+        <Link href="/hub/ae" className="back-btn">
           <span>←</span> عودة للمنصة
         </Link>
       </div>
@@ -318,10 +320,10 @@ export default function LtvCalculatorSA() {
             </div>
 
             <div className="input-group">
-              <label>متوسط قيمة الطلب (ر.س)</label>
+              <label>متوسط قيمة الطلب (د.إ)</label>
               <div className="input-wrapper">
                 <input className="with-currency" type="number" step="0.01" min="0" value={avgOrderValue === '' ? '' : avgOrderValue} onChange={(e) => setAvgOrderValue(e.target.value === '' ? '' : Number(e.target.value))} placeholder="300" required />
-                <span className="currency-tag">ر.س</span>
+                <span className="currency-tag">د.إ</span>
               </div>
             </div>
 
@@ -356,13 +358,13 @@ export default function LtvCalculatorSA() {
               <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '2px' }}>إجمالي ما يدفعه العميل طوال فترة تعامله</div>
             </div>
             <div className="result-value">
-              {ltvValue.toFixed(2)} ر.س
+              {ltvValue.toFixed(2)} د.إ
             </div>
           </div>
 
           <div className="result-box">
             <span className="result-label">معدل الإنفاق السنوي للعميل</span>
-            <span className="result-value" style={{ color: '#0369a1' }}>{(orderVal * freq).toFixed(2)} ر.س/سنة</span>
+            <span className="result-value" style={{ color: '#0369a1' }}>{(orderVal * freq).toFixed(2)} د.إ/سنة</span>
           </div>
 
           <div className="result-box" style={{ background: '#f8fafc' }}>
@@ -417,10 +419,10 @@ export default function LtvCalculatorSA() {
                       <div style={{ fontWeight: 900, color: '#0f172a' }}>{item.segmentName}</div>
                       {item.createdAt && <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', fontWeight: 600 }}>🕒 {item.createdAt}</div>}
                     </td>
-                    <td>{item.avgOrderValue} ر.س</td>
+                    <td>{item.avgOrderValue} د.إ</td>
                     <td>{item.purchaseFrequency} مرات</td>
                     <td>{item.customerLifespan} سنوات</td>
-                    <td style={{ fontWeight: 900, color: '#0284c7' }}>{item.ltvValue} ر.س</td>
+                    <td style={{ fontWeight: 900, color: '#0284c7' }}>{item.ltvValue} د.إ</td>
                     <td>
                       <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                         <button className="tb-action-btn btn-edit" onClick={() => handleEdit(item)} title="تعديل">✏️</button>
@@ -435,7 +437,7 @@ export default function LtvCalculatorSA() {
               <tfoot>
                 <tr className="tfoot-row">
                   <td colSpan={5} style={{ textAlign: 'center' }}>متوسط القيمة الدائمة (LTV) الإجمالي</td>
-                  <td colSpan={2} style={{ color: '#0284c7' }}>{avgLtv.toFixed(2)} ر.س</td>
+                  <td colSpan={2} style={{ color: '#0284c7' }}>{avgLtv.toFixed(2)} د.إ</td>
                 </tr>
               </tfoot>
             )}
