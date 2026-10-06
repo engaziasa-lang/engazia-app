@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 
-export default function FAQPage() {
+export default function FAQPageAE() {
   const LEMON_CHECKOUT_URL = 'https://enjazya.lemonsqueezy.com/checkout/buy/dce1dd80-3422-43ba-aed5-8ef2dcd38d6d';
 
   const faqs = [
