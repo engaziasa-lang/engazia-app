@@ -25,7 +25,7 @@ interface InvoiceItem {
 export default function FtaInvoiceGeneratorAE() {
   // البيانات الثابتة الافتراضية
   const [storeName, setStoreName] = useState<string>('متجر إنجازيا');
-  const [vatNumber, setVatNumber] = useState<string>('100000000000003'); // أرقام تسجيل الهيئة الاتحادية عادة تبدأ بـ 100
+  const [vatNumber, setVatNumber] = useState<string>('100000000000003');
   
   // بيانات الفاتورة
   const [invoiceNumber, setInvoiceNumber] = useState<string>('INV-2026-001');
@@ -44,11 +44,17 @@ export default function FtaInvoiceGeneratorAE() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    // تم تغيير مفتاح التخزين لفصل البيانات للإمارات
-    const saved = localStorage.getItem('seerk_ae_fta_invoices_items');
-    if (saved) {
-      try { setItems(JSON.parse(saved)); } catch (e) { }
+    // استرجاع سجل الفواتير
+    const savedItems = localStorage.getItem('seerk_ae_fta_invoices_items');
+    if (savedItems) {
+      try { setItems(JSON.parse(savedItems)); } catch (e) { }
     }
+
+    // استرجاع بيانات المتجر المحفوظة لكي لا يضطر التاجر لإدخالها كل مرة
+    const savedStoreName = localStorage.getItem('seerk_ae_store_name');
+    const savedVatNumber = localStorage.getItem('seerk_ae_vat_number');
+    if (savedStoreName) setStoreName(savedStoreName);
+    if (savedVatNumber) setVatNumber(savedVatNumber);
   }, []);
 
   const saveToLocalStorage = (newItems: InvoiceItem[]) => {
@@ -60,7 +66,7 @@ export default function FtaInvoiceGeneratorAE() {
 
   // حساب الإجمالي والضريبة بناءً على المنتجات المضافة (الضريبة في الإمارات 5%)
   const amt = currentProducts.reduce((acc, curr) => acc + (curr.price * curr.qty), 0);
-  const vatAmt = amt - (amt / 1.05); // تعديل الضريبة لـ 5%
+  const vatAmt = amt - (amt / 1.05);
 
   const nowDisplay = new Date();
   const timeOptionsDisplay: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
@@ -87,12 +93,10 @@ export default function FtaInvoiceGeneratorAE() {
     setProdQty(1);
   };
 
-  // دالة تعديل منتج داخل سلة الفاتورة
   const handleEditProduct = (prod: InvoiceProduct) => {
     setProdName(prod.name);
     setProdPrice(prod.price);
     setProdQty(prod.qty);
-    // إزالة المنتج من القائمة مؤقتاً حتى يقوم المستخدم بحفظه من جديد
     setCurrentProducts(currentProducts.filter(p => p.id !== prod.id));
   };
 
@@ -101,6 +105,7 @@ export default function FtaInvoiceGeneratorAE() {
   };
 
   const handleClearForm = () => {
+    // نترك storeName و vatNumber كما هي ولن نمسحها أبداً!
     setInvoiceNumber(`INV-2026-00${items.length + 2}`);
     setCustomerName('');
     setCurrentProducts([]);
@@ -124,6 +129,10 @@ export default function FtaInvoiceGeneratorAE() {
       alert('الرجاء إضافة منتج واحد على الأقل للفاتورة.');
       return;
     }
+
+    // حفظ اسم المتجر والرقم الضريبي تلقائياً في المتصفح للاستخدام المستقبلي
+    localStorage.setItem('seerk_ae_store_name', storeName);
+    localStorage.setItem('seerk_ae_vat_number', vatNumber);
 
     const now = new Date();
     const formattedDate = `${now.toLocaleDateString('ar-AE')} - ${now.toLocaleTimeString('ar-AE', timeOptionsDisplay)}`;
@@ -163,6 +172,7 @@ export default function FtaInvoiceGeneratorAE() {
   };
 
   const handleEdit = (item: InvoiceItem) => {
+    // عند التعديل، نجلب بيانات الفاتورة القديمة (حتى لو كانت لمتجر مختلف)
     setStoreName(item.storeName);
     setVatNumber(item.vatNumber);
     setInvoiceNumber(item.invoiceNumber);
@@ -456,9 +466,7 @@ export default function FtaInvoiceGeneratorAE() {
         .input-group label { display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 6px; }
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
         .input-wrapper input { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 15px; font-family: 'Tajawal', sans-serif; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; }
-        .input-wrapper input.with-currency { padding-left: 45px; }
         .input-wrapper input:focus { border-color: #047857; background: #ffffff; }
-        .currency-tag { position: absolute; left: 14px; color: #64748b; font-weight: 800; font-size: 13px; pointer-events: none; }
         
         .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: 'Tajawal', sans-serif; margin-top: 10px; box-sizing: border-box; }
         .action-btn:hover { background: #065f46; }
@@ -518,7 +526,7 @@ export default function FtaInvoiceGeneratorAE() {
           <h2 className="card-title">
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
               <span>{editingId ? 'تعديل الفاتورة' : 'إصدار فاتورة جديدة'}</span>
-              <button type="button" className="clear-form-btn" onClick={handleClearForm} title="مسح الحقول">
+              <button type="button" className="clear-form-btn" onClick={handleClearForm} title="مسح الحقول (مع الاحتفاظ ببيانات المتجر)">
                 🧹 مسح الفاتورة
               </button>
             </div>
