@@ -15,12 +15,12 @@ interface ProfitItem {
   createdAt?: string;
 }
 
-export default function ProfitCalculatorSA() {
+export default function ProfitCalculatorAE() {
   const [productName, setProductName] = useState<string>('');
   const [sellingPrice, setSellingPrice] = useState<number | ''>('');
   const [productCost, setProductCost] = useState<number | ''>('');
   const [shippingCost, setShippingCost] = useState<number | ''>('');
-  const [gatewayFeePercent, setGatewayFeePercent] = useState<number | ''>(2.2);
+  const [gatewayFeePercent, setGatewayFeePercent] = useState<number | ''>(2.9);
 
   const [items, setItems] = useState<ProfitItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -29,7 +29,8 @@ export default function ProfitCalculatorSA() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const saved = localStorage.getItem('seerk_profit_items');
+    // تم تغيير مفتاح التخزين لفصل بيانات الإمارات عن السعودية
+    const saved = localStorage.getItem('seerk_ae_profit_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
@@ -37,7 +38,7 @@ export default function ProfitCalculatorSA() {
 
   const saveToLocalStorage = (newItems: ProfitItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_profit_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_ae_profit_items', JSON.stringify(newItems));
   };
 
   const isActivated = typeof window !== 'undefined' && !!localStorage.getItem('merchant_license_key');
@@ -47,7 +48,8 @@ export default function ProfitCalculatorSA() {
   const sCost = typeof shippingCost === 'number' ? shippingCost : 0;
   const gFee = typeof gatewayFeePercent === 'number' ? gatewayFeePercent : 0;
 
-  const vatAmount = sPrice - (sPrice / 1.15);
+  // تعديل الضريبة في الإمارات لتصبح 5%
+  const vatAmount = sPrice - (sPrice / 1.05);
   const gatewayFeeAmount = sPrice * (gFee / 100);
   const totalCosts = pCost + sCost + vatAmount + gatewayFeeAmount;
   const netProfit = sPrice - totalCosts;
@@ -58,7 +60,7 @@ export default function ProfitCalculatorSA() {
     setSellingPrice('');
     setProductCost('');
     setShippingCost('');
-    setGatewayFeePercent(2.2);
+    setGatewayFeePercent(2.9);
     setEditingId(null);
   };
 
@@ -75,7 +77,8 @@ export default function ProfitCalculatorSA() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const formattedDate = `${now.toLocaleDateString('ar-SA')} - ${now.toLocaleTimeString('ar-SA', timeOptions)}`;
+    // تعديل التوقيت ليطابق الإمارات
+    const formattedDate = `${now.toLocaleDateString('ar-AE')} - ${now.toLocaleTimeString('ar-AE', timeOptions)}`;
 
     if (editingId) {
       const updated = items.map(item => item.id === editingId ? {
@@ -156,10 +159,10 @@ export default function ProfitCalculatorSA() {
                 <th>م</th>
                 <th>اسم المنتج</th>
                 <th>التاريخ والوقت</th>
-                <th>سعر البيع</th>
-                <th>التكلفة والشحن</th>
-                <th>صافي الربح</th>
-                <th>هامش الربح</th>
+                <th>سعر البيع (د.إ)</th>
+                <th>التكلفة والشحن (د.إ)</th>
+                <th>صافي الربح (د.إ)</th>
+                <th>هامش الربح (%)</th>
               </tr>
             </thead>
             <tbody>
@@ -199,7 +202,7 @@ export default function ProfitCalculatorSA() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", "seerk_profit_analysis.xls");
+    link.setAttribute("download", "seerk_ae_profit_analysis.xls");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -293,10 +296,10 @@ export default function ProfitCalculatorSA() {
 
       <div className="header">
         <div className="title-box">
-          <h1>حاسبة أرباح ونقاط التعادل (15% ضريبة) 📊</h1>
-          <p>احسب صافي أرباحك بدقة بعد خصم التكاليف، رسوم الشحن، وضريبة القيمة المضافة</p>
+          <h1>حاسبة أرباح ونقاط التعادل (5% ضريبة) 📊</h1>
+          <p>احسب صافي أرباحك بدقة بعد خصم التكاليف، رسوم الشحن، وضريبة القيمة المضافة في الإمارات</p>
         </div>
-        <Link href="/hub/sa" className="back-btn">
+        <Link href="/hub/ae" className="back-btn">
           <span>←</span> عودة للمنصة
         </Link>
       </div>
@@ -326,7 +329,7 @@ export default function ProfitCalculatorSA() {
               <label>سعر بيع المنتج للعميل</label>
               <div className="input-wrapper">
                 <input type="number" min="0" value={sellingPrice === '' ? '' : sellingPrice} onChange={(e) => setSellingPrice(e.target.value === '' ? '' : Number(e.target.value))} placeholder="200" required />
-                <span className="currency-tag">ر.س</span>
+                <span className="currency-tag">د.إ</span>
               </div>
             </div>
 
@@ -334,7 +337,7 @@ export default function ProfitCalculatorSA() {
               <label>تكلفة المنتج الأساسية من المورد</label>
               <div className="input-wrapper">
                 <input type="number" min="0" value={productCost === '' ? '' : productCost} onChange={(e) => setProductCost(e.target.value === '' ? '' : Number(e.target.value))} placeholder="60" required />
-                <span className="currency-tag">ر.س</span>
+                <span className="currency-tag">د.إ</span>
               </div>
             </div>
 
@@ -342,14 +345,14 @@ export default function ProfitCalculatorSA() {
               <label>تكلفة التوصيل والشحن للطلب</label>
               <div className="input-wrapper">
                 <input type="number" min="0" value={shippingCost === '' ? '' : shippingCost} onChange={(e) => setShippingCost(e.target.value === '' ? '' : Number(e.target.value))} placeholder="25" />
-                <span className="currency-tag">ر.س</span>
+                <span className="currency-tag">د.إ</span>
               </div>
             </div>
 
             <div className="input-group">
               <label>رسوم بوابة الدفع (%)</label>
               <div className="input-wrapper">
-                <input type="number" step="0.1" min="0" value={gatewayFeePercent === '' ? '' : gatewayFeePercent} onChange={(e) => setGatewayFeePercent(e.target.value === '' ? '' : Number(e.target.value))} placeholder="2.2" />
+                <input type="number" step="0.1" min="0" value={gatewayFeePercent === '' ? '' : gatewayFeePercent} onChange={(e) => setGatewayFeePercent(e.target.value === '' ? '' : Number(e.target.value))} placeholder="2.9" />
                 <span className="currency-tag">%</span>
               </div>
             </div>
@@ -370,7 +373,7 @@ export default function ProfitCalculatorSA() {
               <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '2px' }}>بعد خصم التكلفة، الشحن، البوابة والضريبة</div>
             </div>
             <div className="result-value">
-              {netProfit.toFixed(2)} ر.س
+              {netProfit.toFixed(2)} د.إ
             </div>
           </div>
 
@@ -382,13 +385,13 @@ export default function ProfitCalculatorSA() {
           </div>
 
           <div className="result-box">
-            <span className="result-label">ضريبة القيمة المضافة المستقطعة (15%)</span>
-            <span className="result-value">{vatAmount.toFixed(2)} ر.س</span>
+            <span className="result-label">ضريبة القيمة المضافة المستقطعة (5%)</span>
+            <span className="result-value">{vatAmount.toFixed(2)} د.إ</span>
           </div>
 
           <div className="result-box">
             <span className="result-label">إجمالي التكاليف الشاملة للطلب</span>
-            <span className="result-value" style={{ color: '#dc2626' }}>{totalCosts.toFixed(2)} ر.س</span>
+            <span className="result-value" style={{ color: '#dc2626' }}>{totalCosts.toFixed(2)} د.إ</span>
           </div>
         </div>
       </div>
@@ -438,9 +441,9 @@ export default function ProfitCalculatorSA() {
                       <div style={{ fontWeight: 900, color: '#0f172a' }}>{item.name}</div>
                       {item.createdAt && <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', fontWeight: 600 }}>🕒 {item.createdAt}</div>}
                     </td>
-                    <td>{item.sellingPrice} ر.س</td>
-                    <td>{(item.productCost + item.shippingCost)} ر.س</td>
-                    <td style={{ color: item.netProfit > 0 ? '#047857' : '#dc2626', fontWeight: 900 }}>{item.netProfit} ر.س</td>
+                    <td>{item.sellingPrice} د.إ</td>
+                    <td>{(item.productCost + item.shippingCost)} د.إ</td>
+                    <td style={{ color: item.netProfit > 0 ? '#047857' : '#dc2626', fontWeight: 900 }}>{item.netProfit} د.إ</td>
                     <td>{item.margin}%</td>
                     <td>
                       <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
@@ -456,9 +459,9 @@ export default function ProfitCalculatorSA() {
               <tfoot>
                 <tr className="tfoot-row">
                   <td colSpan={2} style={{ textAlign: 'center' }}>الإجمالي الكلي / المتوسط</td>
-                  <td>{totalSellingPrice.toFixed(2)} ر.س</td>
-                  <td>{totalCostsValue.toFixed(2)} ر.س</td>
-                  <td style={{ color: totalNetProfitValue > 0 ? '#047857' : '#dc2626' }}>{totalNetProfitValue.toFixed(2)} ر.س</td>
+                  <td>{totalSellingPrice.toFixed(2)} د.إ</td>
+                  <td>{totalCostsValue.toFixed(2)} د.إ</td>
+                  <td style={{ color: totalNetProfitValue > 0 ? '#047857' : '#dc2626' }}>{totalNetProfitValue.toFixed(2)} د.إ</td>
                   <td style={{ color: overallMargin > 0 ? '#047857' : '#dc2626' }}>{overallMargin.toFixed(1)}%</td>
                   <td></td>
                 </tr>
