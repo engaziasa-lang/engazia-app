@@ -14,11 +14,11 @@ interface PlatformItem {
   createdAt?: string;
 }
 
-export default function PlatformFeesCalculatorSA() {
+export default function PlatformFeesCalculatorAE() {
   const [storeName, setStoreName] = useState<string>('متجر إنجازيا');
-  const [platformType, setPlatformType] = useState<'سلة (Salla)' | 'زد (Zid)' | 'منصة مخصصة'>('سلة (Salla)');
-  const [packageName, setPackageName] = useState<string>('الباقة الاحترافية (Pro)');
-  const [monthlyFee, setMonthlyFee] = useState<number | ''>(299);
+  const [platformType, setPlatformType] = useState<'شوبيفاي (Shopify)' | 'ووكومرس (WooCommerce)' | 'منصة مخصصة'>('شوبيفاي (Shopify)');
+  const [packageName, setPackageName] = useState<string>('الباقة القياسية (Basic)');
+  const [monthlyFee, setMonthlyFee] = useState<number | ''>(149);
   const [expectedMonthlyOrders, setExpectedMonthlyOrders] = useState<number | ''>(300);
 
   const [items, setItems] = useState<PlatformItem[]>([]);
@@ -28,7 +28,8 @@ export default function PlatformFeesCalculatorSA() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const saved = localStorage.getItem('seerk_platform_fees_items');
+    // تم تغيير مفتاح التخزين لفصل بيانات الإمارات عن السعودية
+    const saved = localStorage.getItem('seerk_ae_platform_fees_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
@@ -36,7 +37,7 @@ export default function PlatformFeesCalculatorSA() {
 
   const saveToLocalStorage = (newItems: PlatformItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_platform_fees_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_ae_platform_fees_items', JSON.stringify(newItems));
   };
 
   const isActivated = typeof window !== 'undefined' && !!localStorage.getItem('merchant_license_key');
@@ -47,14 +48,14 @@ export default function PlatformFeesCalculatorSA() {
   // الحساب الفعلي: تكلفة اشتراك المنصة محملة على الطلب الواحد شهرياً
   const costPerOrder = orders > 0 ? fee / orders : 0;
 
-  const handlePlatformChange = (p: 'سلة (Salla)' | 'زد (Zid)' | 'منصة مخصصة') => {
+  const handlePlatformChange = (p: 'شوبيفاي (Shopify)' | 'ووكومرس (WooCommerce)' | 'منصة مخصصة') => {
     setPlatformType(p);
-    if (p === 'سلة (Salla)') {
-      setPackageName('باقة سلة الاحترافية');
-      setMonthlyFee(299);
-    } else if (p === 'زد (Zid)') {
-      setPackageName('باقة زد النموذجية');
-      setMonthlyFee(299);
+    if (p === 'شوبيفاي (Shopify)') {
+      setPackageName('باقة شوبيفاي الأساسية');
+      setMonthlyFee(149);
+    } else if (p === 'ووكومرس (WooCommerce)') {
+      setPackageName('استضافة ووكومرس');
+      setMonthlyFee(99);
     } else {
       setPackageName('باقة مخصصة');
       setMonthlyFee(199);
@@ -63,9 +64,9 @@ export default function PlatformFeesCalculatorSA() {
 
   const handleClearForm = () => {
     setStoreName('متجر إنجازيا');
-    setPlatformType('سلة (Salla)');
-    setPackageName('الباقة الاحترافية');
-    setMonthlyFee(299);
+    setPlatformType('شوبيفاي (Shopify)');
+    setPackageName('الباقة القياسية');
+    setMonthlyFee(149);
     setExpectedMonthlyOrders(300);
     setEditingId(null);
   };
@@ -83,7 +84,8 @@ export default function PlatformFeesCalculatorSA() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const formattedDate = `${now.toLocaleDateString('ar-SA')} - ${now.toLocaleTimeString('ar-SA', timeOptions)}`;
+    // تعديل التوقيت ليطابق الإمارات
+    const formattedDate = `${now.toLocaleDateString('ar-AE')} - ${now.toLocaleTimeString('ar-AE', timeOptions)}`;
 
     if (editingId) {
       const updated = items.map(item => item.id === editingId ? {
@@ -164,9 +166,9 @@ export default function PlatformFeesCalculatorSA() {
                 <th>التاريخ والوقت</th>
                 <th>المنصة</th>
                 <th>الباقة</th>
-                <th>الاشتراك الشهري</th>
+                <th>الاشتراك الشهري (د.إ)</th>
                 <th>الطلبات المتوقعة شهرياً</th>
-                <th>تكلفة المنصة للطلب الواحد</th>
+                <th>تكلفة المنصة للطلب الواحد (د.إ)</th>
               </tr>
             </thead>
             <tbody>
@@ -194,7 +196,7 @@ export default function PlatformFeesCalculatorSA() {
                 <td colspan="5">الإجمالي الكلي / المتوسط</td>
                 <td>${totalMonthlyFees.toFixed(2)}</td>
                 <td>${totalMonthlyOrders}</td>
-                <td>${avgCostPerOrder.toFixed(2)} ر.س</td>
+                <td>${avgCostPerOrder.toFixed(2)} د.إ</td>
               </tr>
             </tfoot>
           </table>
@@ -206,7 +208,7 @@ export default function PlatformFeesCalculatorSA() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", "seerk_platform_fees.xls");
+    link.setAttribute("download", "seerk_ae_platform_fees.xls");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -310,10 +312,10 @@ export default function PlatformFeesCalculatorSA() {
 
       <div className="header">
         <div className="title-box">
-          <h1>حاسبة رسوم واشتراكات المنصات (سلة، زد) 🛒</h1>
-          <p>احسب التكاليف الخفية واشتراكات المنصات المحلية لضمان تسعير منتجاتك بشكل صحيح وعادل</p>
+          <h1>حاسبة رسوم واشتراكات المنصات (شوبيفاي، ووكومرس) 🛒</h1>
+          <p>احسب التكاليف الخفية واشتراكات المنصات العالمية والمحلية لضمان تسعير منتجاتك بشكل صحيح وعادل</p>
         </div>
-        <Link href="/hub/sa" className="back-btn">
+        <Link href="/hub/ae" className="back-btn">
           <span>←</span> عودة للمنصة
         </Link>
       </div>
@@ -335,13 +337,13 @@ export default function PlatformFeesCalculatorSA() {
             <div className="input-group">
               <label>اختر المنصة</label>
               <div className="radio-group-container">
-                <label className={`radio-box ${platformType === 'سلة (Salla)' ? 'active' : ''}`}>
-                  <input type="radio" name="plt" checked={platformType === 'سلة (Salla)'} onChange={() => handlePlatformChange('سلة (Salla)')} />
-                  سلة (Salla)
+                <label className={`radio-box ${platformType === 'شوبيفاي (Shopify)' ? 'active' : ''}`}>
+                  <input type="radio" name="plt" checked={platformType === 'شوبيفاي (Shopify)'} onChange={() => handlePlatformChange('شوبيفاي (Shopify)')} />
+                  شوبيفاي
                 </label>
-                <label className={`radio-box ${platformType === 'زد (Zid)' ? 'active' : ''}`}>
-                  <input type="radio" name="plt" checked={platformType === 'زد (Zid)'} onChange={() => handlePlatformChange('زد (Zid)')} />
-                  زد (Zid)
+                <label className={`radio-box ${platformType === 'ووكومرس (WooCommerce)' ? 'active' : ''}`}>
+                  <input type="radio" name="plt" checked={platformType === 'ووكومرس (WooCommerce)'} onChange={() => handlePlatformChange('ووكومرس (WooCommerce)')} />
+                  ووكومرس
                 </label>
                 <label className={`radio-box ${platformType === 'منصة مخصصة' ? 'active' : ''}`}>
                   <input type="radio" name="plt" checked={platformType === 'منصة مخصصة'} onChange={() => handlePlatformChange('منصة مخصصة')} />
@@ -360,17 +362,17 @@ export default function PlatformFeesCalculatorSA() {
               <div className="input-group">
                 <label>اسم الباقة (قابل للتعديل)</label>
                 <div className="input-wrapper">
-                  <input type="text" value={packageName} onChange={(e) => setPackageName(e.target.value)} placeholder="الباقة الاحترافية" required />
+                  <input type="text" value={packageName} onChange={(e) => setPackageName(e.target.value)} placeholder="الباقة القياسية" required />
                 </div>
               </div>
             </div>
 
             <div className="form-row">
               <div className="input-group">
-                <label>اشتراك المنصة الشهري (ر.س)</label>
+                <label>اشتراك المنصة الشهري (د.إ)</label>
                 <div className="input-wrapper">
-                  <input className="with-currency" type="number" step="0.01" min="0" value={monthlyFee === '' ? '' : monthlyFee} onChange={(e) => setMonthlyFee(e.target.value === '' ? '' : Number(e.target.value))} placeholder="299" required />
-                  <span className="currency-tag">ر.س</span>
+                  <input className="with-currency" type="number" step="0.01" min="0" value={monthlyFee === '' ? '' : monthlyFee} onChange={(e) => setMonthlyFee(e.target.value === '' ? '' : Number(e.target.value))} placeholder="149" required />
+                  <span className="currency-tag">د.إ</span>
                 </div>
               </div>
               <div className="input-group">
@@ -397,13 +399,13 @@ export default function PlatformFeesCalculatorSA() {
               <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '2px' }}>الخصم الفعلي من كل عملية بيع نظير المنصة</div>
             </div>
             <div className="result-value">
-              {costPerOrder.toFixed(2)} ر.س
+              {costPerOrder.toFixed(2)} د.إ
             </div>
           </div>
 
           <div className="result-box">
             <span className="result-label">الاشتراك الشهري المدفوع</span>
-            <span className="result-value" style={{ color: '#047857' }}>{fee.toFixed(2)} ر.س</span>
+            <span className="result-value" style={{ color: '#047857' }}>{fee.toFixed(2)} د.إ</span>
           </div>
 
           <div className="result-box" style={{ background: '#f8fafc' }}>
@@ -462,9 +464,9 @@ export default function PlatformFeesCalculatorSA() {
                       <div style={{ fontWeight: 800, color: '#047857' }}>{item.platformName}</div>
                       <div style={{ fontSize: '11.5px', color: '#64748b' }}>{item.packageName}</div>
                     </td>
-                    <td>{item.monthlyFee} ر.س</td>
+                    <td>{item.monthlyFee} د.إ</td>
                     <td>{item.expectedMonthlyOrders} طلب</td>
-                    <td style={{ fontWeight: 900, color: '#d97706' }}>{item.costPerOrder} ر.س</td>
+                    <td style={{ fontWeight: 900, color: '#d97706' }}>{item.costPerOrder} د.إ</td>
                     <td>
                       <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                         <button className="tb-action-btn btn-edit" onClick={() => handleEdit(item)} title="تعديل">✏️</button>
@@ -479,9 +481,9 @@ export default function PlatformFeesCalculatorSA() {
               <tfoot>
                 <tr className="tfoot-row">
                   <td colSpan={3} style={{ textAlign: 'center' }}>الإجمالي الكلي / المتوسط</td>
-                  <td>{totalMonthlyFees.toFixed(2)} ر.س</td>
+                  <td>{totalMonthlyFees.toFixed(2)} د.إ</td>
                   <td>{totalMonthlyOrders} طلب</td>
-                  <td style={{ color: '#d97706' }}>{avgCostPerOrder.toFixed(2)} ر.س</td>
+                  <td style={{ color: '#d97706' }}>{avgCostPerOrder.toFixed(2)} د.إ</td>
                   <td></td>
                 </tr>
               </tfoot>
