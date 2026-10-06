@@ -28,7 +28,7 @@ export default function PricingCard() {
     "نظام إدارة وتتبع حركة المخزون 📋",
     "مقيم مخاطر الدفع عند الاستلام (COD) ⚠️",
     "محلل أداء حملات المشاهير (Influencers) 🌟",
-    "إمكانية التفعيل على أجهزة متعددة للموظفين 💻",
+    "إمكانية التفعيل على 3 أجهزة للموظفين 💻",
     "نسخ احتياطي وتصدير كامل للبيانات بصيغة JSON 💾"
   ];
 
@@ -59,11 +59,10 @@ export default function PricingCard() {
           </span>
         </div>
 
-        {/* شبكة الأدوات (مقسمة لعمودين لتوفير المساحة وإعطاء مظهر ضخم وجذاب) */}
+        {/* شبكة الأدوات */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '16px', marginBottom: '40px' }}>
           {allFeatures.map((feature, idx) => (
             <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '12px', justifyContent: 'flex-start' }}>
-              {/* أيقونة الصح الخضراء המربعة المطابقة لتصميمك */}
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
                 <rect width="24" height="24" rx="4" fill="#059669"/>
                 <path d="M7 12.5L10.5 16L17 8" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
