@@ -17,7 +17,7 @@ interface InfluencerItem {
   createdAt?: string;
 }
 
-export default function InfluencersCalculatorSA() {
+export default function InfluencersCalculatorAE() {
   const [influencerName, setInfluencerName] = useState<string>('');
   const [platform, setPlatform] = useState<string>('سناب شات (Snapchat)');
   const [adCost, setAdCost] = useState<number | ''>('');
@@ -32,7 +32,8 @@ export default function InfluencersCalculatorSA() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const saved = localStorage.getItem('seerk_influencers_items');
+    // تم تغيير مفتاح التخزين لفصل البيانات للإمارات
+    const saved = localStorage.getItem('seerk_ae_influencers_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
@@ -40,7 +41,7 @@ export default function InfluencersCalculatorSA() {
 
   const saveToLocalStorage = (newItems: InfluencerItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_influencers_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_ae_influencers_items', JSON.stringify(newItems));
   };
 
   const isActivated = typeof window !== 'undefined' && !!localStorage.getItem('merchant_license_key');
@@ -86,7 +87,8 @@ export default function InfluencersCalculatorSA() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const formattedDate = `${now.toLocaleDateString('ar-SA')} - ${now.toLocaleTimeString('ar-SA', timeOptions)}`;
+    // تعديل التوقيت ليطابق الإمارات
+    const formattedDate = `${now.toLocaleDateString('ar-AE')} - ${now.toLocaleTimeString('ar-AE', timeOptions)}`;
 
     if (editingId) {
       const updated = items.map(item => item.id === editingId ? {
@@ -174,9 +176,9 @@ export default function InfluencersCalculatorSA() {
                 <th>اسم المؤثر</th>
                 <th>التاريخ والوقت</th>
                 <th>المنصة</th>
-                <th>تكلفة الإعلان</th>
+                <th>تكلفة الإعلان (د.إ)</th>
                 <th>الطلبات المتوقعة</th>
-                <th>صافي أرباح الحملة</th>
+                <th>صافي أرباح الحملة (د.إ)</th>
                 <th>العائد (ROI %)</th>
               </tr>
             </thead>
@@ -218,7 +220,7 @@ export default function InfluencersCalculatorSA() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", "seerk_influencers_roi.xls");
+    link.setAttribute("download", "seerk_ae_influencers_roi.xls");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -320,7 +322,7 @@ export default function InfluencersCalculatorSA() {
           <h1>حاسبة جدوى إعلانات المشاهير والمؤثرين 🤝</h1>
           <p>حلل العائد المتوقع (ROI) من إعلانات المؤثرين قبل دفع مبالغ الحملة التسويقية</p>
         </div>
-        <Link href="/hub/sa" className="back-btn">
+        <Link href="/hub/ae" className="back-btn">
           <span>←</span> عودة للمنصة
         </Link>
       </div>
@@ -343,7 +345,7 @@ export default function InfluencersCalculatorSA() {
               <div className="input-group">
                 <label>اسم المؤثر / المشهور</label>
                 <div className="input-wrapper">
-                  <input type="text" value={influencerName} onChange={(e) => setInfluencerName(e.target.value)} placeholder="مثال: سلطان بن نايف" required />
+                  <input type="text" value={influencerName} onChange={(e) => setInfluencerName(e.target.value)} placeholder="مثال: خالد العامري" required />
                 </div>
               </div>
               <div className="input-group">
@@ -361,10 +363,10 @@ export default function InfluencersCalculatorSA() {
 
             <div className="form-row">
               <div className="input-group">
-                <label>تكلفة الإعلان المطلوبة (ر.س)</label>
+                <label>تكلفة الإعلان المطلوبة (د.إ)</label>
                 <div className="input-wrapper">
                   <input className="with-currency" type="number" step="0.01" min="0" value={adCost === '' ? '' : adCost} onChange={(e) => setAdCost(e.target.value === '' ? '' : Number(e.target.value))} placeholder="5000" required />
-                  <span className="currency-tag">ر.س</span>
+                  <span className="currency-tag">د.إ</span>
                 </div>
               </div>
               <div className="input-group">
@@ -377,10 +379,10 @@ export default function InfluencersCalculatorSA() {
 
             <div className="form-row">
               <div className="input-group">
-                <label>متوسط قيمة الطلب (ر.س)</label>
+                <label>متوسط قيمة الطلب (د.إ)</label>
                 <div className="input-wrapper">
                   <input className="with-currency" type="number" step="0.01" min="0" value={avgOrderValue === '' ? '' : avgOrderValue} onChange={(e) => setAvgOrderValue(e.target.value === '' ? '' : Number(e.target.value))} placeholder="250" required />
-                  <span className="currency-tag">ر.س</span>
+                  <span className="currency-tag">د.إ</span>
                 </div>
               </div>
               <div className="input-group">
@@ -408,7 +410,7 @@ export default function InfluencersCalculatorSA() {
               <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '2px' }}>الربح الحقيقي العائد لجيبك</div>
             </div>
             <div className="result-value">
-              {netCampaignProfit.toFixed(2)} ر.س
+              {netCampaignProfit.toFixed(2)} د.إ
             </div>
           </div>
 
@@ -419,7 +421,7 @@ export default function InfluencersCalculatorSA() {
 
           <div className="result-box" style={{ background: '#f8fafc' }}>
             <span className="result-label">إجمالي إيرادات المبيعات المتوقعة</span>
-            <span className="result-value" style={{ color: '#0f172a' }}>{totalRevenue.toFixed(2)} ر.س</span>
+            <span className="result-value" style={{ color: '#0f172a' }}>{totalRevenue.toFixed(2)} د.إ</span>
           </div>
 
           <div style={{ marginTop: '15px', padding: '12px', borderRadius: '8px', background: netCampaignProfit > 0 ? '#ecfdf5' : '#fef2f2', border: `1px solid ${netCampaignProfit > 0 ? '#a7f3d0' : '#fecaca'}`, textAlign: 'center' }}>
@@ -476,10 +478,10 @@ export default function InfluencersCalculatorSA() {
                       {item.createdAt && <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', fontWeight: 600 }}>🕒 {item.createdAt}</div>}
                     </td>
                     <td><span style={{ color: '#0369a1', fontWeight: 800 }}>{item.platform}</span></td>
-                    <td style={{ color: '#dc2626' }}>{item.adCost} ر.س</td>
+                    <td style={{ color: '#dc2626' }}>{item.adCost} د.إ</td>
                     <td style={{ fontWeight: 800 }}>{item.expectedOrders} طلب</td>
                     <td style={{ fontWeight: 900, color: item.netCampaignProfit > 0 ? '#047857' : '#dc2626' }}>
-                      {item.netCampaignProfit} ر.س
+                      {item.netCampaignProfit} د.إ
                     </td>
                     <td>
                       <span style={{ color: item.roiPercent > 0 ? '#047857' : '#dc2626', fontWeight: 900 }}>
@@ -500,9 +502,9 @@ export default function InfluencersCalculatorSA() {
               <tfoot>
                 <tr className="tfoot-row">
                   <td colSpan={3} style={{ textAlign: 'center' }}>الإجمالي الكلي / المتوسط</td>
-                  <td style={{ color: '#dc2626' }}>{totalAdCosts.toFixed(2)} ر.س</td>
+                  <td style={{ color: '#dc2626' }}>{totalAdCosts.toFixed(2)} د.إ</td>
                   <td>{totalExpectedOrders} طلب</td>
-                  <td style={{ color: totalNetProfits > 0 ? '#047857' : '#dc2626' }}>{totalNetProfits.toFixed(2)} ر.س</td>
+                  <td style={{ color: totalNetProfits > 0 ? '#047857' : '#dc2626' }}>{totalNetProfits.toFixed(2)} د.إ</td>
                   <td style={{ color: avgRoi > 0 ? '#047857' : '#dc2626' }}>{avgRoi.toFixed(2)}%</td>
                   <td></td>
                 </tr>
