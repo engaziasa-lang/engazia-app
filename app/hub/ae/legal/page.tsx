@@ -14,7 +14,7 @@ interface PolicyItem {
   createdAt?: string;
 }
 
-export default function PoliciesGeneratorSA() {
+export default function PoliciesGeneratorAE() {
   const [storeName, setStoreName] = useState<string>('');
   const [policySelect, setPolicySelect] = useState<string>('سياسة الاستبدال والاسترجاع');
   const [customPolicyType, setCustomPolicyType] = useState<string>('سياسة الاستبدال والاسترجاع');
@@ -30,27 +30,28 @@ export default function PoliciesGeneratorSA() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const saved = localStorage.getItem('seerk_policies_generator_items');
+    // تم تغيير مفتاح التخزين لفصل البيانات للإمارات
+    const saved = localStorage.getItem('seerk_ae_policies_generator_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
     // جلب اسم المتجر الافتراضي إن وجد محفوظاً مسبقاً في المتصفح
-    const defaultStore = localStorage.getItem('seerk_default_store_name');
+    const defaultStore = localStorage.getItem('seerk_ae_store_name');
     if (defaultStore) setStoreName(defaultStore);
   }, []);
 
   const actualPolicyType = policySelect === 'سياسة أخرى (كتابة يدوية)' ? customPolicyType : policySelect;
 
-  // توليد النص تلقائياً عند تغيير الخيارات
+  // توليد النص تلقائياً عند تغيير الخيارات (متوافق مع السوق الإماراتي)
   useEffect(() => {
     const currentStore = storeName.trim() || 'المتجر';
-    const currentEmail = supportEmail.trim() || 'support@yourstore.com';
-    const currentPhone = supportPhone.trim() || '9665XXXXXXXX';
+    const currentEmail = supportEmail.trim() || 'support@yourstore.ae';
+    const currentPhone = supportPhone.trim() || '9715XXXXXXXX';
 
     if (policySelect === 'سياسة الاستبدال والاسترجاع') {
       setPolicyContent(
         `أهلاً بكم في ${currentStore}. حرصاً منا على خدمتكم بأفضل شكل، فإن سياسة الاستبدال والاسترجاع تخضع للشروط والضوابط التالية:\n\n` +
-        `1. مدة الاستبدال والاسترجاع هي خلال (${returnDays || 7}) أيام من تاريخ استلام الطلب.\n` +
+        `1. مدة الاستبدال والاسترجاع هي خلال (${returnDays || 7}) أيام من تاريخ استلام الطلب وفقاً لقوانين حماية المستهلك في الإمارات.\n` +
         `2. يجب أن يكون المنتج بحالته الأصلية، وفي غلافه الأصلي، ولم يتم فتحه أو استخدامُه، مع إرفاق فاتورة الشراء.\n` +
         `3. تتحمل تكاليف الشحن العكسي في حال كان الاسترجاع بسبب رغبة العميل، بينما يتحمل المتجر التكاليف في حال وجود عيب مصنعي أو خطأ في الطلب.\n` +
         `4. للاستفسار أو تقديم طلب استرجاع، يرجى التواصل معنا عبر البريد: ${currentEmail} أو الواتساب: ${currentPhone}.`
@@ -67,7 +68,7 @@ export default function PoliciesGeneratorSA() {
       setPolicyContent(
         `الشروط والأحكام الخاصة بـ ${currentStore}:\n\n` +
         `1. استخدامك للمتجر يعني موافقتك التامة على كافة الشروط والسياسات المعلنة.\n` +
-        `2. الأسعار معروضة بالريال السعودي شاملة ضريبة القيمة المضافة (15%).\n` +
+        `2. الأسعار معروضة بالدرهم الإماراتي (د.إ) شاملة ضريبة القيمة المضافة (5%).\n` +
         `3. يحق للمتجر إلغاء الطلب في حال نفاد الكمية أو عدم إتمام عملية الدفع خلال المدة المحددة، مع إرجاع المبلغ كاملاً للعميل.\n` +
         `4. للتواصل والدعم الفني: ${currentEmail} - هاتف: ${currentPhone}.`
       );
@@ -75,7 +76,7 @@ export default function PoliciesGeneratorSA() {
       if (!editingId || !policyContent) {
         setPolicyContent(
           `نص ${customPolicyType || 'السياسة'} الخاص بـ ${currentStore}:\n\n` +
-          `1. يلتزم المتجر بتقديم أفضل الخدمات وفقاً لهذه السياسة.\n` +
+          `1. يلتزم المتجر بتقديم أفضل الخدمات وفقاً لهذه السياسة والقوانين المعمول بها في دولة الإمارات العربية المتحدة.\n` +
           `2. لأي استفسارات أو تفاصيل إضافية، يرجى التواصل معنا عبر البريد: ${currentEmail} أو عبر الواتساب: ${currentPhone}.`
         );
       }
@@ -84,7 +85,7 @@ export default function PoliciesGeneratorSA() {
 
   const saveToLocalStorage = (newItems: PolicyItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_policies_generator_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_ae_policies_generator_items', JSON.stringify(newItems));
   };
 
   const isActivated = typeof window !== 'undefined' && !!localStorage.getItem('merchant_license_key');
@@ -125,7 +126,8 @@ export default function PoliciesGeneratorSA() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const formattedDate = `${now.toLocaleDateString('ar-SA')} - ${now.toLocaleTimeString('ar-SA', timeOptions)}`;
+    // تعديل التوقيت ليطابق الإمارات
+    const formattedDate = `${now.toLocaleDateString('ar-AE')} - ${now.toLocaleTimeString('ar-AE', timeOptions)}`;
 
     if (editingId) {
       const updated = items.map(item => item.id === editingId ? {
@@ -251,7 +253,7 @@ export default function PoliciesGeneratorSA() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", "seerk_policies_generator.xls");
+    link.setAttribute("download", "seerk_ae_policies_generator.xls");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -343,10 +345,10 @@ export default function PoliciesGeneratorSA() {
 
       <div className="header">
         <div className="title-box">
-          <h1>مولد السياسات وقوانين وزارة التجارة ⚖️</h1>
-          <p>أنشئ صفحات الاستبدال والاسترجاع، سياسة الخصوصية، أو أي سياسة أخرى مخصصة لمتجرك</p>
+          <h1>مولد السياسات وقوانين حماية المستهلك ⚖️</h1>
+          <p>أنشئ صفحات الاستبدال والاسترجاع، سياسة الخصوصية، أو أي سياسة أخرى مخصصة لمتجرك الإماراتي</p>
         </div>
-        <Link href="/hub/sa" className="back-btn">
+        <Link href="/hub/ae" className="back-btn">
           <span>←</span> عودة للمنصة
         </Link>
       </div>
@@ -401,13 +403,13 @@ export default function PoliciesGeneratorSA() {
               <div className="input-group">
                 <label>البريد الإلكتروني للدعم</label>
                 <div className="input-wrapper">
-                  <input type="email" value={supportEmail} onChange={(e) => setSupportEmail(e.target.value)} placeholder="support@yourstore.com" required />
+                  <input type="email" value={supportEmail} onChange={(e) => setSupportEmail(e.target.value)} placeholder="support@yourstore.ae" required />
                 </div>
               </div>
               <div className="input-group">
                 <label>رقم واتساب الدعم</label>
                 <div className="input-wrapper">
-                  <input type="text" value={supportPhone} onChange={(e) => setSupportPhone(e.target.value)} placeholder="9665XXXXXXXX" required />
+                  <input type="text" value={supportPhone} onChange={(e) => setSupportPhone(e.target.value)} placeholder="9715XXXXXXXX" required />
                 </div>
               </div>
             </div>
