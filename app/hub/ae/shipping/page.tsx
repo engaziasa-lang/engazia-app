@@ -13,7 +13,7 @@ interface ShipmentItem {
   createdAt?: string;
 }
 
-export default function ShippingTrackerSA() {
+export default function ShippingTrackerAE() {
   const [trackingNumber, setTrackingNumber] = useState<string>('');
   const [customerName, setCustomerName] = useState<string>('');
   const [phoneNumber, setPhoneNumber] = useState<string>('');
@@ -28,7 +28,8 @@ export default function ShippingTrackerSA() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const saved = localStorage.getItem('seerk_shipping_tracker_items');
+    // تم تغيير مفتاح التخزين لفصل البيانات للإمارات
+    const saved = localStorage.getItem('seerk_ae_shipping_tracker_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
@@ -36,7 +37,7 @@ export default function ShippingTrackerSA() {
 
   const saveToLocalStorage = (newItems: ShipmentItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_shipping_tracker_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_ae_shipping_tracker_items', JSON.stringify(newItems));
   };
 
   const isActivated = typeof window !== 'undefined' && !!localStorage.getItem('merchant_license_key');
@@ -75,7 +76,8 @@ export default function ShippingTrackerSA() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const formattedDate = `${now.toLocaleDateString('ar-SA')} - ${now.toLocaleTimeString('ar-SA', timeOptions)}`;
+    // تعديل التوقيت ليطابق الإمارات
+    const formattedDate = `${now.toLocaleDateString('ar-AE')} - ${now.toLocaleTimeString('ar-AE', timeOptions)}`;
 
     if (editingId) {
       const updated = items.map(item => item.id === editingId ? {
@@ -112,7 +114,8 @@ export default function ShippingTrackerSA() {
     setCustomerName(item.customerName);
     setPhoneNumber(item.phoneNumber);
     
-    const standardCompanies = ['أرامكس (Aramex)', 'سمسا (SMSA)', 'ريدبوكس (RedBox)', 'دي إتش إل (DHL)', 'نايل إكسبرس (Naqel)'];
+    // تخصيص قائمة الشركات للسوق الإماراتي
+    const standardCompanies = ['أرامكس (Aramex)', 'فيديكس (FedEx)', 'إمبوست (Emirates Post)', 'دي إتش إل (DHL)', 'كريم (Careem)'];
     if (standardCompanies.includes(item.shippingCompany)) {
       setShippingSelect(item.shippingCompany);
       setCustomShipping(item.shippingCompany);
@@ -132,11 +135,13 @@ export default function ShippingTrackerSA() {
     }
   };
 
-  // دالة إرسال واتساب للعميل بخصوص شحنته
+  // دالة إرسال واتساب للعميل بخصوص شحنته (محدثة لكود الإمارات 971)
   const handleSendWhatsapp = (item: ShipmentItem) => {
     let phone = (item.phoneNumber || '').replace(/\D/g, '');
     if (phone.startsWith('05')) {
-      phone = '966' + phone.substring(1);
+      phone = '971' + phone.substring(1);
+    } else if (phone.startsWith('5') && phone.length === 9) {
+      phone = '971' + phone;
     }
     
     const text = `مرحباً بك يا ${item.customerName} 📦. بخصوص شحنتك رقم (${item.trackingNumber}) عبر شركة (${item.shippingCompany})، حالتها الحالية هي: (${item.shipmentStatus}). نشكر لثقتك بنا!`;
@@ -208,7 +213,7 @@ export default function ShippingTrackerSA() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", "seerk_shipping_tracker.xls");
+    link.setAttribute("download", "seerk_ae_shipping_tracker.xls");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -310,9 +315,9 @@ export default function ShippingTrackerSA() {
       <div className="header">
         <div className="title-box">
           <h1>مدير تتبع الشحنات المحلية 📦</h1>
-          <p>تابع حالات الشحنات (سمسا، أرامكس، ريدبوكس) وحل استفسارات تأخر التوصيل عبر واتساب</p>
+          <p>تابع حالات الشحنات في الإمارات وحل استفسارات تأخر التوصيل عبر واتساب بضغطة زر</p>
         </div>
-        <Link href="/hub/sa" className="back-btn">
+        <Link href="/hub/ae" className="back-btn">
           <span>←</span> عودة للمنصة
         </Link>
       </div>
@@ -341,14 +346,14 @@ export default function ShippingTrackerSA() {
               <div className="input-group">
                 <label>اسم العميل</label>
                 <div className="input-wrapper">
-                  <input type="text" value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="مثال: خالد العتيبي" required />
+                  <input type="text" value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="مثال: خالد المنصوري" required />
                 </div>
               </div>
             </div>
 
             <div className="form-row">
               <div className="input-group">
-                <label>رقم جوال العميل</label>
+                <label>رقم جوال العميل (الإماراتي)</label>
                 <div className="input-wrapper">
                   <input type="text" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} placeholder="05XXXXXXXX" required />
                 </div>
@@ -371,10 +376,10 @@ export default function ShippingTrackerSA() {
               <div className="input-wrapper" style={{ marginBottom: '8px' }}>
                 <select value={shippingSelect} onChange={handleSelectChange}>
                   <option value="أرامكس (Aramex)">أرامكس (Aramex)</option>
-                  <option value="سمسا (SMSA)">سمسا (SMSA)</option>
-                  <option value="ريدبوكس (RedBox)">ريدبوكس (RedBox)</option>
+                  <option value="فيديكس (FedEx)">فيديكس (FedEx)</option>
+                  <option value="إمبوست (Emirates Post)">إمبوست (Emirates Post)</option>
                   <option value="دي إتش إل (DHL)">دي إتش إل (DHL)</option>
-                  <option value="نايل إكسبرس (Naqel)">نايل إكسبرس (Naqel)</option>
+                  <option value="كريم (Careem)">كريم (Careem)</option>
                   <option value="شركة أخرى (كتابة يدوية)">➕ شركة أخرى (كتابة يدوية)</option>
                 </select>
               </div>
