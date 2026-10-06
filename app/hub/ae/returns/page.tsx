@@ -10,12 +10,12 @@ interface ReturnItem {
   avgOrderValue: number;
   reverseShippingCost: number;
   damageCost: number;
-  totalLoss: number;         // الخسارة الفعلية المدفوعة (شحن + تالف)
+  totalLoss: number;       // الخسارة الفعلية المدفوعة (شحن + تالف)
   totalLostRevenue: number;  // المبيعات التي طارت
   createdAt?: string;
 }
 
-export default function ReturnsAnalyzerSA() {
+export default function ReturnsAnalyzerAE() {
   const [productName, setProductName] = useState<string>('');
   const [returnedOrders, setReturnedOrders] = useState<number | ''>('');
   const [avgOrderValue, setAvgOrderValue] = useState<number | ''>('');
@@ -29,7 +29,8 @@ export default function ReturnsAnalyzerSA() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const saved = localStorage.getItem('seerk_returns_analysis_items');
+    // تم تغيير مفتاح التخزين لفصل بيانات الإمارات عن السعودية
+    const saved = localStorage.getItem('seerk_ae_returns_analysis_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
@@ -37,7 +38,7 @@ export default function ReturnsAnalyzerSA() {
 
   const saveToLocalStorage = (newItems: ReturnItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_returns_analysis_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_ae_returns_analysis_items', JSON.stringify(newItems));
   };
 
   const isActivated = typeof window !== 'undefined' && !!localStorage.getItem('merchant_license_key');
@@ -74,7 +75,8 @@ export default function ReturnsAnalyzerSA() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const formattedDate = `${now.toLocaleDateString('ar-SA')} - ${now.toLocaleTimeString('ar-SA', timeOptions)}`;
+    // تعديل التوقيت ليطابق الإمارات
+    const formattedDate = `${now.toLocaleDateString('ar-AE')} - ${now.toLocaleTimeString('ar-AE', timeOptions)}`;
 
     if (editingId) {
       const updated = items.map(item => item.id === editingId ? {
@@ -156,10 +158,10 @@ export default function ReturnsAnalyzerSA() {
                 <th>اسم المنتج أو الفئة</th>
                 <th>التاريخ والوقت</th>
                 <th>عدد المرتجعات</th>
-                <th>المبيعات المفقودة</th>
-                <th>تكلفة الشحن العكسي للطلب</th>
-                <th>تكلفة التالف للطلب</th>
-                <th>إجمالي الخسارة الفعلية</th>
+                <th>المبيعات المفقودة (د.إ)</th>
+                <th>تكلفة الشحن العكسي للطلب (د.إ)</th>
+                <th>تكلفة التالف للطلب (د.إ)</th>
+                <th>إجمالي الخسارة الفعلية (د.إ)</th>
               </tr>
             </thead>
             <tbody>
@@ -188,7 +190,7 @@ export default function ReturnsAnalyzerSA() {
                 <td>${sumReturns}</td>
                 <td>${sumLostRev.toFixed(2)}</td>
                 <td colspan="2"></td>
-                <td>${sumActualLoss.toFixed(2)}</td>
+                <td>${sumActualLoss.toFixed(2)} د.إ</td>
               </tr>
             </tfoot>
           </table>
@@ -200,7 +202,7 @@ export default function ReturnsAnalyzerSA() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", "seerk_returns_analysis.xls");
+    link.setAttribute("download", "seerk_ae_returns_analysis.xls");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -303,9 +305,9 @@ export default function ReturnsAnalyzerSA() {
       <div className="header">
         <div className="title-box">
           <h1>محلل خسائر المرتجعات والشحن العكسي 🔄</h1>
-          <p>قس تأثير الاسترجاع والاستبدال على صافي أرباحك الشهرية وتدفقك النقدي</p>
+          <p>قس تأثير الاسترجاع والاستبدال على صافي أرباحك الشهرية وتدفقك النقدي في متجرك الإماراتي</p>
         </div>
-        <Link href="/hub/sa" className="back-btn">
+        <Link href="/hub/ae" className="back-btn">
           <span>←</span> عودة للمنصة
         </Link>
       </div>
@@ -339,10 +341,10 @@ export default function ReturnsAnalyzerSA() {
                 </div>
               </div>
               <div className="input-group">
-                <label>متوسط قيمة الطلب (ر.س)</label>
+                <label>متوسط قيمة الطلب (د.إ)</label>
                 <div className="input-wrapper">
                   <input className="with-currency" type="number" min="0" value={avgOrderValue === '' ? '' : avgOrderValue} onChange={(e) => setAvgOrderValue(e.target.value === '' ? '' : Number(e.target.value))} placeholder="350" required />
-                  <span className="currency-tag">ر.س</span>
+                  <span className="currency-tag">د.إ</span>
                 </div>
               </div>
             </div>
@@ -352,14 +354,14 @@ export default function ReturnsAnalyzerSA() {
                 <label>تكلفة الشحن العكسي للطلب الواحد</label>
                 <div className="input-wrapper">
                   <input className="with-currency" type="number" min="0" value={reverseShippingCost === '' ? '' : reverseShippingCost} onChange={(e) => setReverseShippingCost(e.target.value === '' ? '' : Number(e.target.value))} placeholder="28" />
-                  <span className="currency-tag">ر.س</span>
+                  <span className="currency-tag">د.إ</span>
                 </div>
               </div>
               <div className="input-group">
                 <label>تكلفة التغليف المهدر / التالف للطلب</label>
                 <div className="input-wrapper">
                   <input className="with-currency" type="number" min="0" value={damageCost === '' ? '' : damageCost} onChange={(e) => setDamageCost(e.target.value === '' ? '' : Number(e.target.value))} placeholder="5" />
-                  <span className="currency-tag">ر.س</span>
+                  <span className="currency-tag">د.إ</span>
                 </div>
               </div>
             </div>
@@ -380,7 +382,7 @@ export default function ReturnsAnalyzerSA() {
               <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '2px' }}>مبالغ دُفعت للشحن العكسي والتوالف</div>
             </div>
             <div className="result-value">
-              {totalLoss.toFixed(2)} ر.س
+              {totalLoss.toFixed(2)} د.إ
             </div>
           </div>
 
@@ -390,13 +392,13 @@ export default function ReturnsAnalyzerSA() {
               <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '2px' }}>إيرادات طارت بسبب الاسترجاع</div>
             </div>
             <div className="result-value">
-              {totalLostRevenue.toFixed(2)} ر.س
+              {totalLostRevenue.toFixed(2)} د.إ
             </div>
           </div>
 
           <div className="result-box" style={{ background: '#f8fafc' }}>
             <span className="result-label">الخسارة التشغيلية للطلب الواحد</span>
-            <span className="result-value" style={{ color: '#0f172a' }}>{lossPerOrder.toFixed(2)} ر.س</span>
+            <span className="result-value" style={{ color: '#0f172a' }}>{lossPerOrder.toFixed(2)} د.إ</span>
           </div>
         </div>
       </div>
@@ -447,12 +449,12 @@ export default function ReturnsAnalyzerSA() {
                       {item.createdAt && <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', fontWeight: 600 }}>🕒 {item.createdAt}</div>}
                     </td>
                     <td style={{ fontWeight: 800 }}>{item.returnedOrders} طلب</td>
-                    <td style={{ color: '#d97706', fontWeight: 800 }}>{item.totalLostRevenue} ر.س</td>
+                    <td style={{ color: '#d97706', fontWeight: 800 }}>{item.totalLostRevenue} د.إ</td>
                     <td style={{ fontSize: '12px' }}>
-                      <div style={{ color: '#475569' }}>شحن: {item.reverseShippingCost} ر.س</div>
-                      <div style={{ color: '#64748b' }}>تالف: {item.damageCost} ر.س</div>
+                      <div style={{ color: '#475569' }}>شحن: {item.reverseShippingCost} د.إ</div>
+                      <div style={{ color: '#64748b' }}>تالف: {item.damageCost} د.إ</div>
                     </td>
-                    <td style={{ color: '#dc2626', fontWeight: 900 }}>{item.totalLoss} ر.س</td>
+                    <td style={{ color: '#dc2626', fontWeight: 900 }}>{item.totalLoss} د.إ</td>
                     <td>
                       <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                         <button className="tb-action-btn btn-edit" onClick={() => handleEdit(item)} title="تعديل البيانات">✏️</button>
@@ -468,9 +470,9 @@ export default function ReturnsAnalyzerSA() {
                 <tr className="tfoot-row">
                   <td colSpan={2} style={{ textAlign: 'center' }}>الإجمالي الكلي</td>
                   <td>{sumReturns} طلب</td>
-                  <td style={{ color: '#d97706' }}>{sumLostRev.toFixed(2)} ر.س</td>
+                  <td style={{ color: '#d97706' }}>{sumLostRev.toFixed(2)} د.إ</td>
                   <td></td>
-                  <td style={{ color: '#dc2626' }}>{sumActualLoss.toFixed(2)} ر.س</td>
+                  <td style={{ color: '#dc2626' }}>{sumActualLoss.toFixed(2)} د.إ</td>
                   <td></td>
                 </tr>
               </tfoot>
