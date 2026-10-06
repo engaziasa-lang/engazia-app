@@ -18,7 +18,7 @@ interface ABTestItem {
   createdAt?: string;
 }
 
-export default function ABTestingCalculatorSA() {
+export default function ABTestingCalculatorAE() {
   // تفريغ الحقول بالكامل كقيمة ابتدائية
   const [testName, setTestName] = useState<string>('');
   
@@ -43,7 +43,8 @@ export default function ABTestingCalculatorSA() {
     setIsClient(true);
     setIsActivated(!!localStorage.getItem('merchant_license_key'));
     
-    const saved = localStorage.getItem('seerk_ab_testing_items');
+    // تم تغيير مفتاح التخزين لفصل بيانات الإمارات عن السعودية
+    const saved = localStorage.getItem('seerk_ae_ab_testing_items');
     if (saved) {
       try { 
         const parsedData = JSON.parse(saved);
@@ -54,7 +55,7 @@ export default function ABTestingCalculatorSA() {
 
   const saveToLocalStorage = (newItems: ABTestItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_ab_testing_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_ae_ab_testing_items', JSON.stringify(newItems));
   };
 
   // تأمين القيم العددية للحساب
@@ -117,7 +118,8 @@ export default function ABTestingCalculatorSA() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const formattedDate = `${now.toLocaleDateString('ar-SA')} - ${now.toLocaleTimeString('ar-SA', timeOptions)}`;
+    // تم التعديل إلى توقيت الإمارات ar-AE
+    const formattedDate = `${now.toLocaleDateString('ar-AE')} - ${now.toLocaleTimeString('ar-AE', timeOptions)}`;
 
     const newItemData = {
       testName,
@@ -234,7 +236,7 @@ export default function ABTestingCalculatorSA() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", "seerk_ab_testing.xls");
+    link.setAttribute("download", "enjazya_ae_ab_testing.xls");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -333,7 +335,7 @@ export default function ABTestingCalculatorSA() {
           <h1>حاسبة اختبارات الإعلانات (A/B) ⚖️</h1>
           <p>قارن بين حملتين إعلانيتين لتعرف أيهما يحقق أفضل عائد بأقل تكلفة للطلب</p>
         </div>
-        <Link href="/hub/sa" className="back-btn">
+        <Link href="/hub/ae" className="back-btn">
           <span>←</span> عودة للمنصة
         </Link>
       </div>
@@ -369,7 +371,7 @@ export default function ABTestingCalculatorSA() {
                   </div>
                 </div>
                 <div className="input-group" style={{ marginBottom: 0 }}>
-                  <label>تكلفة الإعلان (ر.س)</label>
+                  <label>تكلفة الإعلان (د.إ)</label>
                   <div className="input-wrapper">
                     <input type="number" step="0.01" min="0" value={campASpend === '' ? '' : campASpend} onChange={(e) => setCampASpend(e.target.value === '' ? '' : Number(e.target.value))} placeholder="500" required />
                   </div>
@@ -393,7 +395,7 @@ export default function ABTestingCalculatorSA() {
                   </div>
                 </div>
                 <div className="input-group" style={{ marginBottom: 0 }}>
-                  <label>تكلفة الإعلان (ر.س)</label>
+                  <label>تكلفة الإعلان (د.إ)</label>
                   <div className="input-wrapper">
                     <input type="number" step="0.01" min="0" value={campBSpend === '' ? '' : campBSpend} onChange={(e) => setCampBSpend(e.target.value === '' ? '' : Number(e.target.value))} placeholder="500" required />
                   </div>
@@ -429,12 +431,12 @@ export default function ABTestingCalculatorSA() {
 
           <div className="result-box" style={{ borderRight: '4px solid #047857' }}>
             <span className="result-label">تكلفة الطلب (CPA) للحملة (أ)</span>
-            <span className="result-value" style={{ color: '#047857' }}>{cpaA.toFixed(2)} ر.س/طلب</span>
+            <span className="result-value" style={{ color: '#047857' }}>{cpaA.toFixed(2)} د.إ/طلب</span>
           </div>
 
           <div className="result-box" style={{ borderRight: '4px solid #0284c7', background: '#f8fafc' }}>
             <span className="result-label">تكلفة الطلب (CPA) للحملة (ب)</span>
-            <span className="result-value" style={{ color: '#0284c7' }}>{cpaB.toFixed(2)} ر.س/طلب</span>
+            <span className="result-value" style={{ color: '#0284c7' }}>{cpaB.toFixed(2)} د.إ/طلب</span>
           </div>
         </div>
       </div>
@@ -492,11 +494,11 @@ export default function ABTestingCalculatorSA() {
                       {item.createdAt && <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', fontWeight: 600 }}>🕒 {item.createdAt}</div>}
                     </td>
                     <td style={{ fontWeight: 800, color: '#047857', background: '#f8fafc' }}>{item.campAName}</td>
-                    <td style={{ background: '#f8fafc', fontSize: '12.5px' }}>{item.campASpend} ر.س <br/> <span style={{ color: '#64748b' }}>({item.campAOrders} طلب)</span></td>
+                    <td style={{ background: '#f8fafc', fontSize: '12.5px' }}>{item.campASpend} د.إ <br/> <span style={{ color: '#64748b' }}>({item.campAOrders} طلب)</span></td>
                     <td style={{ fontWeight: 900, background: '#f8fafc' }}>{item.campACpa}</td>
                     
                     <td style={{ fontWeight: 800, color: '#0284c7' }}>{item.campBName}</td>
-                    <td style={{ fontSize: '12.5px' }}>{item.campBSpend} ر.س <br/> <span style={{ color: '#64748b' }}>({item.campBOrders} طلب)</span></td>
+                    <td style={{ fontSize: '12.5px' }}>{item.campBSpend} د.إ <br/> <span style={{ color: '#64748b' }}>({item.campBOrders} طلب)</span></td>
                     <td style={{ fontWeight: 900 }}>{item.campBCpa}</td>
                     
                     <td>
