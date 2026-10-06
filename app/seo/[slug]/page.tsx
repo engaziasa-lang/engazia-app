@@ -13,15 +13,6 @@ export default async function ProgrammaticSeoPage({ params }: PageProps) {
   
   const pageData = generateSeoContent(slug);
 
-  const relatedLinks = [
-    { title: "حاسبة أرباح متاجر العطور على سلة", href: "/seo/profit-salla-perfumes-riyadh" },
-    { title: "حاسبة رسوم بوابات الدفع لمتاجر العبايات", href: "/seo/fees-zid-abaya-jeddah" },
-    { title: "أداة استرجاع السلال لمتاجر القهوة المختصة", href: "/seo/whatsapp-shopify-coffee-dammam" },
-    { title: "محلل الإعلانات لمتاجر التمور", href: "/seo/roas-salla-dates-riyadh" },
-    { title: "منشئ الفواتير الإلكترونية لمتاجر الإلكترونيات", href: "/seo/invoices-salla-electronics-khobar" },
-    { title: "مدير سياسة المرتجعات لمتاجر الأثاث", href: "/seo/returns-zid-furniture-tabuk" },
-  ];
-
   return (
     <div style={{ backgroundColor: '#f8fafc', padding: '40px 16px', direction: 'rtl', minHeight: '100vh', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
       <div style={{ maxWidth: '1000px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '32px' }}>
@@ -54,7 +45,7 @@ export default async function ProgrammaticSeoPage({ params }: PageProps) {
           </div>
         </header>
 
-        {/* --- قسم صورة الأداة (العرض الديناميكي والحجم المثالي) --- */}
+        {/* --- قسم صورة الأداة --- */}
         <div style={{ width: '100%', textAlign: 'center', margin: '0 auto' }}>
           <img 
             src={pageData.imagePath} 
@@ -62,11 +53,11 @@ export default async function ProgrammaticSeoPage({ params }: PageProps) {
             style={{ 
               maxWidth: '100%', 
               height: 'auto', 
-              maxHeight: '450px', // يمنع الصورة من أن تصبح عملاقة على الشاشات الكبيرة
+              maxHeight: '450px',
               borderRadius: '24px', 
               boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)', 
               border: '1px solid #e2e8f0',
-              objectFit: 'cover', // يحافظ على تناسق الأبعاد
+              objectFit: 'cover',
               display: 'block',
               margin: '0 auto'
             }} 
@@ -107,7 +98,7 @@ export default async function ProgrammaticSeoPage({ params }: PageProps) {
           </div>
         </section>
 
-        {/* شبكة الربط الداخلي */}
+        {/* شبكة الربط الداخلي المتغيرة لكل صفحة ديناميكياً */}
         <section style={{ backgroundColor: '#0f172a', color: '#ffffff', padding: '40px', borderRadius: '24px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }}>
           <h3 style={{ fontSize: '22px', fontWeight: 'bold', marginBottom: '16px', textAlign: 'right' }}>
             أدوات وحلول سيو مخصصة للمتاجر السعودية
@@ -116,7 +107,7 @@ export default async function ProgrammaticSeoPage({ params }: PageProps) {
             استكشف المزيد من الحلول الرقمية والآلات الحاسبة المصممة لرفع كفاءة ومبيعات المتاجر الرقمية.
           </p>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
-            {relatedLinks.map((link, idx) => (
+            {pageData.relatedLinks.map((link, idx) => (
               <Link 
                 key={idx} 
                 href={link.href}
