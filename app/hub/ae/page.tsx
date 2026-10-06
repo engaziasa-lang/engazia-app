@@ -117,6 +117,15 @@ export default function EnjazyaUaeHub() {
     }
   };
 
+  // دالة إلغاء التفعيل للعودة للوضع التجريبي (لأغراض الاختبار)
+  const handleDeactivate = () => {
+    if (confirm('هل أنت متأكد من إلغاء تفعيل المنصة؟ (سيعود الحساب للوضع التجريبي وستفقد الصلاحيات الكاملة)')) {
+      localStorage.removeItem('merchant_license_key');
+      setIsActivated(false);
+      setLicenseKeyInput('');
+    }
+  };
+
   const handleExportAllData = () => {
     try {
       const allData: Record<string, string> = {};
@@ -269,7 +278,16 @@ export default function EnjazyaUaeHub() {
           <div className="license-box">
             <span style={{ fontSize: '13px', fontWeight: 800, color: '#475569' }}>🔑 ترخيص PRO:</span>
             {isActivated ? (
-              <span style={{ fontSize: '13px', fontWeight: 900, color: '#10b981', padding: '4px 8px' }}>المنصة مفعلة ✓</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '13px', fontWeight: 900, color: '#10b981', padding: '4px 8px' }}>المنصة مفعلة ✓</span>
+                <button 
+                  onClick={handleDeactivate}
+                  style={{ background: '#fee2e2', color: '#991b1b', border: '1px solid #fca5a5', padding: '4px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: 800, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif' }}
+                  title="إلغاء التفعيل للعودة للوضع التجريبي"
+                >
+                  إلغاء التفعيل ❌
+                </button>
+              </div>
             ) : (
               <>
                 <input 
