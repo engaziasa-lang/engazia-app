@@ -47,7 +47,7 @@ export default function WaLinkGeneratorAE() {
     localStorage.setItem('seerk_ae_wa_link_items', JSON.stringify(newItems));
   };
 
-  // معالجة رقم الجوال للإمارات (افتراضي 971 بدلاً من 966)
+  // معالجة رقم الجوال للإمارات (+971)
   let formattedPhone = phoneNumber.replace(/\D/g, ''); // إزالة أي رموز غير رقمية
   if (formattedPhone.startsWith('05')) {
     formattedPhone = '971' + formattedPhone.substring(1);
