@@ -13,7 +13,7 @@ interface ReviewItem {
   createdAt?: string;
 }
 
-export default function AutomatedReviewsSA() {
+export default function AutomatedReviewsAE() {
   const [customerName, setCustomerName] = useState<string>('');
   const [phoneNumber, setPhoneNumber] = useState<string>('');
   const [orderNumber, setOrderNumber] = useState<string>('');
@@ -30,7 +30,8 @@ export default function AutomatedReviewsSA() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const saved = localStorage.getItem('seerk_automated_reviews_items');
+    // تم تغيير مفتاح التخزين لفصل البيانات للإمارات
+    const saved = localStorage.getItem('seerk_ae_automated_reviews_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
@@ -38,7 +39,7 @@ export default function AutomatedReviewsSA() {
 
   const saveToLocalStorage = (newItems: ReviewItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_automated_reviews_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_ae_automated_reviews_items', JSON.stringify(newItems));
   };
 
   const isActivated = typeof window !== 'undefined' && !!localStorage.getItem('merchant_license_key');
@@ -78,7 +79,8 @@ export default function AutomatedReviewsSA() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const formattedDate = `${now.toLocaleDateString('ar-SA')} - ${now.toLocaleTimeString('ar-SA', timeOptions)}`;
+    // تعديل التوقيت ليطابق الإمارات
+    const formattedDate = `${now.toLocaleDateString('ar-AE')} - ${now.toLocaleTimeString('ar-AE', timeOptions)}`;
 
     if (editingId) {
       const updated = items.map(item => item.id === editingId ? {
@@ -135,11 +137,13 @@ export default function AutomatedReviewsSA() {
     }
   };
 
-  // دالة إرسال رسالة واتساب لطلب التقييم
+  // دالة إرسال رسالة واتساب لطلب التقييم (محدثة لكود الإمارات 971)
   const handleSendWhatsapp = (item: ReviewItem) => {
     let phone = (item.phoneNumber || '').replace(/\D/g, '');
     if (phone.startsWith('05')) {
-      phone = '966' + phone.substring(1);
+      phone = '971' + phone.substring(1);
+    } else if (phone.startsWith('5') && phone.length === 9) {
+      phone = '971' + phone;
     }
     
     const text = `مرحباً بك يا ${item.customerName} 🌟. نتمنى أن منتجك (${item.productName || 'الطلب رقم ' + item.orderNumber}) قد نال إعجابك! نتشرف برأيك وتقييمك لخدمتنا عبر الرد على هذه الرسالة أو من خلال تقييم المتجر. شكراً لثقتك بنا!`;
@@ -211,7 +215,7 @@ export default function AutomatedReviewsSA() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", "seerk_automated_reviews.xls");
+    link.setAttribute("download", "seerk_ae_automated_reviews.xls");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -312,9 +316,9 @@ export default function AutomatedReviewsSA() {
       <div className="header">
         <div className="title-box">
           <h1>نظام طلب التقييمات الآلي ⭐</h1>
-          <p>أرسل رسائل تلقائية للعملاء عبر واتساب بعد الاستلام لجمع التقييمات وبناء الموثوقية</p>
+          <p>أرسل رسائل تلقائية للعملاء عبر واتساب بعد الاستلام لجمع التقييمات وبناء الموثوقية في متجرك الإماراتي</p>
         </div>
-        <Link href="/hub/sa" className="back-btn">
+        <Link href="/hub/ae" className="back-btn">
           <span>←</span> عودة للمنصة
         </Link>
       </div>
@@ -337,7 +341,7 @@ export default function AutomatedReviewsSA() {
               <div className="input-group">
                 <label>اسم العميل</label>
                 <div className="input-wrapper">
-                  <input type="text" value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="مثال: فهد الشمري" required />
+                  <input type="text" value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="مثال: راشد المنصوري" required />
                 </div>
               </div>
               <div className="input-group">
