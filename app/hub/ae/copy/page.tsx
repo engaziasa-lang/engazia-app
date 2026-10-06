@@ -13,11 +13,11 @@ interface CopyItem {
   createdAt?: string;
 }
 
-export default function ExploredCopywritingSA() {
+export default function ExploredCopywritingAE() {
   const [productName, setProductName] = useState<string>('عطر إنجازيا الفاخر');
   const [contentSelect, setContentSelect] = useState<string>('إعلان فيديو تيك توك (حماسي)');
   const [customContentType, setCustomContentType] = useState<string>('إعلان فيديو تيك توك (حماسي)');
-  const [problemSolved, setProblemSolved] = useState<string>('تبحث عن عطر فخم يثبت معك طوال اليوم وبسعر مناسب؟');
+  const [problemSolved, setProblemSolved] = useState<string>('تدور على عطر فخم يثبت معاك طول اليوم وبسعر مناسب؟');
   const [offerText, setOfferText] = useState<string>('خصم 30% + توصيل مجاني لأول 100 طلب');
   const [generatedScript, setGeneratedScript] = useState<string>('');
 
@@ -28,7 +28,8 @@ export default function ExploredCopywritingSA() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const saved = localStorage.getItem('seerk_copywriting_items');
+    // تم تغيير مفتاح التخزين لفصل البيانات للإمارات
+    const saved = localStorage.getItem('seerk_ae_copywriting_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
@@ -36,52 +37,52 @@ export default function ExploredCopywritingSA() {
 
   const actualContentType = contentSelect === 'نوع آخر (كتابة يدوية)' ? customContentType : contentSelect;
 
-  // توليد السكريبت تلقائياً عند تغيير المدخلات
+  // توليد السكريبت تلقائياً عند تغيير المدخلات (باللهجة الإماراتية)
   useEffect(() => {
     const pName = productName.trim() || 'المنتج';
-    const prob = problemSolved.trim() || 'تبحث عن الأفضل دائماً؟';
+    const prob = problemSolved.trim() || 'تدور على الأفضل دايماً؟';
     const offer = offerText.trim() || 'عروض لفترة محدودة';
 
     if (contentSelect.includes('تيك توك')) {
       setGeneratedScript(
-        `🎬 **[سكريبت إعلان تيك توك - باللهجة السعودية]**\n\n` +
+        `🎬 **[سكريبت إعلان تيك توك - باللهجة الإماراتية]**\n\n` +
         `🎵 *(موسيقى حماسية وترند في الخلفية)*\n\n` +
         `🗣️ **المشهد الأول (الخطاف - أول 3 ثواني):**\n` +
-        `"يا جماعة الخير، إذا ${prob}.. اسمعوني للأخير لأن اللي أقوله بيفرق معكم كثير!"\n\n` +
+        `"يا مرحبا الساع، إذا ${prob}.. ركزوا وياي للآخر لأن هالشي بيفرق معاكم وايد!"\n\n` +
         `🗣️ **المشهد الثاني (المشكلة والحل):**\n` +
-        `"كثيراً ندور على الجودة والزين بس نلقى الأسعار فلكية.. لكن مع (${pName}) نسّونا الهم! المنتج فخم، عملي، ومصمم خصيصاً يريحك."\n\n` +
+        `"وايد ندور على الجودة والشي الغاوي بس نلقى الأسعار نار.. لكن مع (${pName}) طاح الهم! المنتج فخم، عملي، ومصمم خصيصاً عشان يريحكم."\n\n` +
         `🗣️ **المشهد الثالث (العرض والطلب من الإكسبلور):**\n` +
-        `"واللي جايين من الإكسبلور لهم علمٍ يطيب الخاطر: ${offer}!\n` +
+        `"واللي يايين من الإكسبلور لهم بشارة طيبة: ${offer}!\n` +
         `الكمية محدودة جداً، الحق اطلب قبل لا يخلص المخزون، الرابط تحت بالفيديو أو بالبايو! 🚀"`
       );
     } else if (contentSelect.includes('سناب شات')) {
       setGeneratedScript(
         `👻 **[سكريبت سناب شات - تفاعلي وعفوي]**\n\n` +
         `🗣️ **سنابة 1 (جذب الانتباه):**\n` +
-        `"مساء الخير يا أهلنا.. وصلني اليوم (${pName}) اللي جنن الكل! تدري إن ${prob}"\n\n` +
+        `"مساكم الله بالخير يا الربع.. وصلني اليوم (${pName}) اللي مكسر الدنيا! تدرون إن ${prob}"\n\n` +
         `🗣️ **سنابة 2 (استعراض المنتج):**\n` +
-        `"شوفوا معي الجودة والتفاصيل كيف ما شاء الله. شي فاخر من الآخر ويهدئ البال."\n\n` +
-        `🗣️️ **سنابة 3 (Call to Action):**\n` +
-        `"وعشان أنتم غالين علينا، وفرنا لكم: ${offer}.\n` +
-        `ارفع الشاشة لفوق 👆 وطلبك يوصلك لباب بيتك وين ما كنت بالمملكة!"`
+        `"شوفوا وياي الجودة والتفاصيل كيف ما شاء الله. شي فاخر من الآخر ويهدي البال."\n\n` +
+        `🗣 **سنابة 3 (Call to Action):**\n` +
+        `"وعشانكم غالين علينا، وفرنا لكم: ${offer}.\n` +
+        `ارفع الشاشة لفوق 👆 وطلبك يوصلك لباب بيتك وين ما كنت في الإمارات!"`
       );
     } else {
       setGeneratedScript(
         `📢 **[بوست إعلاني جذاب - تسويقي]**\n\n` +
         `🔥 يا هلا بكل متابع ومتابعـة!\n\n` +
         `إذا كنت ${prob}، مالك إلا (${pName}).\n\n` +
-        `💎 **ليه تختارنا؟**\n` +
-        `- جودة عالية تبيض الوجه.\n` +
+        `💎 **ليش تختارنا؟**\n` +
+        `- جودة عالية تبيض الويه.\n` +
         `- خدمة عملاء على مدار الساعة.\n` +
         `- ${offer}.\n\n` +
-        `🛒 لا تفوت الفرصة واطلب الآن عبر المتجر قبل نفاد الكمية!`
+        `🛒 لا تفوت الفرصة واطلب الحين عبر المتجر قبل نفاد الكمية!`
       );
     }
   }, [productName, contentSelect, customContentType, problemSolved, offerText]);
 
   const saveToLocalStorage = (newItems: CopyItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_copywriting_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_ae_copywriting_items', JSON.stringify(newItems));
   };
 
   const isActivated = typeof window !== 'undefined' && !!localStorage.getItem('merchant_license_key');
@@ -100,7 +101,7 @@ export default function ExploredCopywritingSA() {
     setProductName('عطر إنجازيا الفاخر');
     setContentSelect('إعلان فيديو تيك توك (حماسي)');
     setCustomContentType('إعلان فيديو تيك توك (حماسي)');
-    setProblemSolved('تبحث عن عطر فخم يثبت معك طوال اليوم وبسعر مناسب؟');
+    setProblemSolved('تدور على عطر فخم يثبت معاك طول اليوم وبسعر مناسب؟');
     setOfferText('خصم 30% + توصيل مجاني لأول 100 طلب');
     setEditingId(null);
   };
@@ -119,7 +120,8 @@ export default function ExploredCopywritingSA() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const formattedDate = `${now.toLocaleDateString('ar-SA')} - ${now.toLocaleTimeString('ar-SA', timeOptions)}`;
+    // تعديل التوقيت ليطابق الإمارات
+    const formattedDate = `${now.toLocaleDateString('ar-AE')} - ${now.toLocaleTimeString('ar-AE', timeOptions)}`;
 
     if (editingId) {
       const updated = items.map(item => item.id === editingId ? {
@@ -242,7 +244,7 @@ export default function ExploredCopywritingSA() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", "seerk_explore_copywriting.xls");
+    link.setAttribute("download", "seerk_ae_explore_copywriting.xls");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -328,16 +330,17 @@ export default function ExploredCopywritingSA() {
         .trial-badge { background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 800; }
         
         .tb-action-btn { border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; font-family: 'Tajawal', sans-serif;}
+        .btn-wa { background: #dcfce7; color: #166534; }
         .btn-edit { background: #e0f2fe; color: #0369a1; }
         .btn-delete { background: #fee2e2; color: #991b1b; }
       `}</style>
 
       <div className="header">
         <div className="title-box">
-          <h1>مولد نصوص الإكسبلور باللهجة السعودية ✍️</h1>
+          <h1>مولد نصوص الإكسبلور باللهجة الإماراتية ✍️</h1>
           <p>اصنع سكريبتات تيك توك وإعلانات جذابة باللهجة المحلية لزيادة تفاعل العملاء ومعدل التحويل</p>
         </div>
-        <Link href="/hub/sa" className="back-btn">
+        <Link href="/hub/ae" className="back-btn">
           <span>←</span> عودة للمنصة
         </Link>
       </div>
@@ -389,9 +392,9 @@ export default function ExploredCopywritingSA() {
             </div>
 
             <div className="input-group">
-              <label>المشكلة التي يحلها المنتج (اللهجة المحلية)</label>
+              <label>المشكلة التي يحلها المنتج (باللهجة المحلية)</label>
               <div className="input-wrapper">
-                <input type="text" value={problemSolved} onChange={(e) => setProblemSolved(e.target.value)} placeholder="تبحث عن عطر فخم يثبت معك طوال اليوم؟" required />
+                <input type="text" value={problemSolved} onChange={(e) => setProblemSolved(e.target.value)} placeholder="تدور على عطر فخم يثبت معاك طول اليوم؟" required />
               </div>
             </div>
 
