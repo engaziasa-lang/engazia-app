@@ -14,7 +14,7 @@ interface TaxItem {
   createdAt?: string;
 }
 
-export default function TaxReturnPreparerSA() {
+export default function TaxReturnPreparerAE() {
   const [invoiceDate, setInvoiceDate] = useState<string>('');
   const [invoiceNumber, setInvoiceNumber] = useState<string>('');
   const [transactionType, setTransactionType] = useState<string>('مبيعات ↗️');
@@ -34,7 +34,8 @@ export default function TaxReturnPreparerSA() {
     setIsClient(true);
     setIsActivated(!!localStorage.getItem('merchant_license_key'));
     
-    const saved = localStorage.getItem('seerk_tax_return_items');
+    // تم تغيير مفتاح التخزين لفصل البيانات للإمارات
+    const saved = localStorage.getItem('seerk_ae_tax_return_items');
     if (saved) {
       try { 
         const parsedData = JSON.parse(saved);
@@ -45,10 +46,10 @@ export default function TaxReturnPreparerSA() {
 
   const saveToLocalStorage = (newItems: TaxItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_tax_return_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_ae_tax_return_items', JSON.stringify(newItems));
   };
 
-  // الحساب التلقائي للضريبة 15% عند إدخال المبلغ
+  // الحساب التلقائي للضريبة 5% في الإمارات عند إدخال المبلغ
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     if (val === '') {
@@ -57,7 +58,7 @@ export default function TaxReturnPreparerSA() {
     } else {
       const numVal = Number(val);
       setAmountBeforeVat(numVal);
-      setVatAmount(Number((numVal * 0.15).toFixed(2)));
+      setVatAmount(Number((numVal * 0.05).toFixed(2))); // ضريبة 5% للإمارات
     }
   };
 
@@ -88,7 +89,8 @@ export default function TaxReturnPreparerSA() {
     const totalAmount = amtBefore + vat;
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const formattedDate = `${now.toLocaleDateString('ar-SA')} - ${now.toLocaleTimeString('ar-SA', timeOptions)}`;
+    // تعديل التوقيت ليطابق الإمارات
+    const formattedDate = `${now.toLocaleDateString('ar-AE')} - ${now.toLocaleTimeString('ar-AE', timeOptions)}`;
 
     if (editingId) {
       const updated = items.map(item => item.id === editingId ? {
@@ -168,9 +170,9 @@ export default function TaxReturnPreparerSA() {
         </head>
         <body>
           <h2>تقرير الإقرار الضريبي المبدئي</h2>
-          <p>إجمالي ضريبة المبيعات: ${totalSalesVat.toFixed(2)} ر.س</p>
-          <p>إجمالي ضريبة المشتريات: ${totalPurchaseVat.toFixed(2)} ر.س</p>
-          <p><strong>صافي الضريبة المستحقة (ZATCA): ${netVatDue.toFixed(2)} ر.س</strong></p>
+          <p>إجمالي ضريبة المبيعات: ${totalSalesVat.toFixed(2)} د.إ</p>
+          <p>إجمالي ضريبة المشتريات: ${totalPurchaseVat.toFixed(2)} د.إ</p>
+          <p><strong>صافي الضريبة المستحقة (FTA): ${netVatDue.toFixed(2)} د.إ</strong></p>
           <br/>
           <table>
             <thead>
@@ -181,8 +183,8 @@ export default function TaxReturnPreparerSA() {
                 <th>نوع المعاملة</th>
                 <th>تاريخ الإدخال</th>
                 <th>المبلغ (قبل الضريبة)</th>
-                <th>قيمة الضريبة (15%)</th>
-                <th>المبلغ الإجمالي</th>
+                <th>قيمة الضريبة (5%)</th>
+                <th>المبلغ الإجمالي (د.إ)</th>
               </tr>
             </thead>
             <tbody>
@@ -214,7 +216,7 @@ export default function TaxReturnPreparerSA() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", "seerk_tax_return_data.xls");
+    link.setAttribute("download", "seerk_ae_tax_return_data.xls");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -313,9 +315,9 @@ export default function TaxReturnPreparerSA() {
       <div className="header">
         <div className="title-box">
           <h1>مجهز بيانات الإقرار الضريبي 📄</h1>
-          <p>اجمع ورتب بيانات مبيعاتك ومشترياتك لتسهيل رفع الإقرار الضريبي لزاتكا بدون أخطاء</p>
+          <p>اجمع ورتب بيانات مبيعاتك ومشترياتك لتسهيل رفع الإقرار الضريبي للهيئة الاتحادية للضرائب (FTA) بدون أخطاء</p>
         </div>
-        <Link href="/hub/sa" className="back-btn">
+        <Link href="/hub/ae" className="back-btn">
           <span>←</span> عودة للمنصة
         </Link>
       </div>
@@ -354,27 +356,27 @@ export default function TaxReturnPreparerSA() {
                 <label>نوع المعاملة</label>
                 <div className="input-wrapper">
                   <select value={transactionType} onChange={(e) => setTransactionType(e.target.value)}>
-                    <option value="مبيعات ↗️">مبيعات (ضريبة محصلة) ↗️️</option>
+                    <option value="مبيعات ↗️">مبيعات (ضريبة محصلة) ↗</option>
                     <option value="مشتريات ↙️">مشتريات (ضريبة مدفوعة) ↙️</option>
                   </select>
                 </div>
               </div>
               <div className="input-group">
-                <label>المبلغ قبل الضريبة (ر.س)</label>
+                <label>المبلغ قبل الضريبة (د.إ)</label>
                 <div className="input-wrapper">
                   <input className="with-currency" type="number" step="0.01" min="0" value={amountBeforeVat === '' ? '' : amountBeforeVat} onChange={handleAmountChange} placeholder="1000" required />
-                  <span className="currency-tag">ر.س</span>
+                  <span className="currency-tag">د.إ</span>
                 </div>
               </div>
             </div>
 
             <div className="input-group">
-              <label>قيمة الضريبة المضافة 15% (محسوبة آلياً)</label>
+              <label>قيمة الضريبة المضافة 5% (محسوبة آلياً)</label>
               <div className="input-wrapper">
-                <input className="with-currency" type="number" step="0.01" min="0" value={vatAmount === '' ? '' : vatAmount} onChange={(e) => setVatAmount(e.target.value === '' ? '' : Number(e.target.value))} placeholder="150" required />
-                <span className="currency-tag">ر.س</span>
+                <input className="with-currency" type="number" step="0.01" min="0" value={vatAmount === '' ? '' : vatAmount} onChange={(e) => setVatAmount(e.target.value === '' ? '' : Number(e.target.value))} placeholder="50" required />
+                <span className="currency-tag">د.إ</span>
               </div>
-              <small style={{ color: '#64748b', fontSize: '11px', display: 'block', marginTop: '4px' }}>* يمكنك تعديل الهللات يدوياً إذا اختلفت عن الفاتورة الأصلية.</small>
+              <small style={{ color: '#64748b', fontSize: '11px', display: 'block', marginTop: '4px' }}>* يمكنك تعديل الفلوس يدوياً إذا اختلفت عن الفاتورة الأصلية.</small>
             </div>
 
             <button type="submit" className="action-btn">
@@ -389,22 +391,22 @@ export default function TaxReturnPreparerSA() {
 
           <div className="result-box primary" style={{ background: netVatDue >= 0 ? 'linear-gradient(135deg, #047857 0%, #065f46 100%)' : 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)' }}>
             <div>
-              <div className="result-label">صافي الضريبة المستحقة (ZATCA)</div>
+              <div className="result-label">صافي الضريبة المستحقة (FTA)</div>
               <div style={{ fontSize: '11px', opacity: 0.9, marginTop: '2px' }}>{netVatDue >= 0 ? 'مبلغ واجب السداد للهيئة' : 'رصيد دائن مسترد لك'}</div>
             </div>
             <div className="result-value" dir="ltr" style={{ textAlign: 'right' }}>
-              {Math.abs(netVatDue).toFixed(2)} ر.س {netVatDue < 0 && '-'}
+              {Math.abs(netVatDue).toFixed(2)} د.إ {netVatDue < 0 && '-'}
             </div>
           </div>
 
           <div className="result-box" style={{ borderRight: '4px solid #047857' }}>
             <span className="result-label">إجمالي ضريبة المبيعات المحصلة</span>
-            <span className="result-value" style={{ color: '#047857' }}>{totalSalesVat.toFixed(2)} ر.س</span>
+            <span className="result-value" style={{ color: '#047857' }}>{totalSalesVat.toFixed(2)} د.إ</span>
           </div>
 
           <div className="result-box" style={{ borderRight: '4px solid #d97706', background: '#f8fafc' }}>
             <span className="result-label">إجمالي ضريبة المشتريات المدفوعة</span>
-            <span className="result-value" style={{ color: '#d97706' }}>{totalPurchaseVat.toFixed(2)} ر.س</span>
+            <span className="result-value" style={{ color: '#d97706' }}>{totalPurchaseVat.toFixed(2)} د.إ</span>
           </div>
         </div>
       </div>
@@ -434,7 +436,7 @@ export default function TaxReturnPreparerSA() {
                 <th>الفاتورة والتاريخ</th>
                 <th>نوع المعاملة</th>
                 <th>المبلغ (بدون ضريبة)</th>
-                <th>الضريبة (15%)</th>
+                <th>الضريبة (5%)</th>
                 <th>الإجمالي</th>
                 <th>الإجراءات</th>
               </tr>
@@ -461,9 +463,9 @@ export default function TaxReturnPreparerSA() {
                           {item.transactionType}
                         </span>
                       </td>
-                      <td style={{ fontWeight: 700 }}>{item.amountBeforeVat} ر.س</td>
-                      <td style={{ fontWeight: 800, color: isSales ? '#047857' : '#d97706' }}>{item.vatAmount} ر.س</td>
-                      <td style={{ fontWeight: 900 }}>{item.totalAmount} ر.س</td>
+                      <td style={{ fontWeight: 700 }}>{item.amountBeforeVat} د.إ</td>
+                      <td style={{ fontWeight: 800, color: isSales ? '#047857' : '#d97706' }}>{item.vatAmount} د.إ</td>
+                      <td style={{ fontWeight: 900 }}>{item.totalAmount} د.إ</td>
                       <td>
                         <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                           <button className="tb-action-btn btn-edit" onClick={() => handleEdit(item)} title="تعديل">✏️</button>
@@ -478,8 +480,8 @@ export default function TaxReturnPreparerSA() {
             {filteredItems.length > 0 && (
               <tfoot>
                 <tr className="tfoot-row">
-                  <td colSpan={3} style={{ textAlign: 'center' }}>الصافي المستحق (زاتكا)</td>
-                  <td colSpan={4} style={{ color: netVatDue >= 0 ? '#047857' : '#0284c7', fontSize: '15px' }} dir="ltr">{netVatDue >= 0 ? netVatDue.toFixed(2) : `(${Math.abs(netVatDue).toFixed(2)})`} ر.س</td>
+                  <td colSpan={3} style={{ textAlign: 'center' }}>الصافي المستحق (FTA)</td>
+                  <td colSpan={4} style={{ color: netVatDue >= 0 ? '#047857' : '#0284c7', fontSize: '15px' }} dir="ltr">{netVatDue >= 0 ? netVatDue.toFixed(2) : `(${Math.abs(netVatDue).toFixed(2)})`} د.إ</td>
                 </tr>
               </tfoot>
             )}
