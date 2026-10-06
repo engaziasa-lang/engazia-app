@@ -183,13 +183,13 @@ export default function EnjazyaUaeHub() {
         .license-input { border: 1px solid #cbd5e1; border-radius: 6px; padding: 7px 10px; font-size: 12px; outline: none; width: 140px; background: #fff; color: #0f172a; }
         .license-input:focus { border-color: #f59e0b; box-shadow: 0 0 0 2px rgba(245,158,11,0.15); }
         .backup-warning-bar { max-width: 1250px; margin: 0 auto 25px; background: #fffbeb; border: 1px solid #fde68a; color: #92400e; padding: 10px 18px; border-radius: 10px; font-size: 13px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
-        .promo-banner { max-width: 1250px; margin: 0 auto 35px; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #fff; border-radius: 16px; padding: 22px 32px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; box-shadow: 0 12px 30px rgba(15,23,42,0.2); border: 2px solid #f59e0b; position: relative; overflow: hidden; }
+        .promo-banner { max-width: 1250px; margin: 0 auto 35px; background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: #fff; border-radius: 16px; padding: 22px 32px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; box-shadow: 0 12px 30px rgba(2,132,199,0.25); border: 2px solid #38bdf8; position: relative; overflow: hidden; }
         .promo-content { display: flex; flex-direction: column; gap: 8px; z-index: 1; }
         .promo-heading { font-size: 17px; font-weight: 900; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; color: #ffffff; }
         .promo-text { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
         .price-tag-new { background: #f59e0b; color: #0f172a; padding: 3px 10px; border-radius: 8px; font-weight: 900; font-size: 15px; }
         .price-tag-old { text-decoration: line-through; opacity: 0.75; font-size: 13px; font-weight: 800; }
-        .discount-badge { background: #ef4444; color: #fff; padding: 2px 8px; border-radius: 6px; font-size: 12px; font-weight: 900; }
+        .discount-badge { background: #0f172a; color: #fff; padding: 2px 8px; border-radius: 6px; font-size: 12px; font-weight: 900; border: 1px solid rgba(255,255,255,0.2); }
         .promo-btn { background: #f59e0b; color: #0f172a; border: none; padding: 12px 26px; border-radius: 12px; font-weight: 900; font-size: 14px; cursor: pointer; transition: all 0.25s ease; box-shadow: 0 6px 15px rgba(245,158,11,0.3); z-index: 1; white-space: nowrap; }
         .promo-btn:hover { background: #d97706; color: #fff; transform: translateY(-3px); }
         .hero { text-align: center; max-width: 800px; margin: 0 auto 50px; }
