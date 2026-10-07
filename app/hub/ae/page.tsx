@@ -184,16 +184,16 @@ export default function EnjazyaUaeHub() {
         .license-input:focus { border-color: #00732f; box-shadow: 0 0 0 2px rgba(0,115,47,0.15); }
         .backup-warning-bar { max-width: 1250px; margin: 0 auto 25px; background: #fffbeb; border: 1px solid #fde68a; color: #92400e; padding: 10px 18px; border-radius: 10px; font-size: 13px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; border-right: 4px solid #ce1126; }
         
-        /* تحديثات تنسيق البنر الفاخر الجديد (ULTRA MAX) */
-        .promo-banner { max-width: 1250px; margin: 0 auto 35px; background: linear-gradient(90deg, #0f172a 0%, #1e293b 100%); color: #ffffff; border-radius: 16px; padding: 24px 32px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15); }
+        /* تحديثات البنر إلى اللون الأبيض الفاخر والنظيف (Clean Premium White) */
+        .promo-banner { max-width: 1250px; margin: 0 auto 35px; background: #ffffff; border-radius: 16px; padding: 24px 32px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; box-shadow: 0 15px 35px -5px rgba(206, 17, 38, 0.12); border: 2px solid #fecaca; }
         .promo-content { flex: 1 1 min-content; display: flex; flex-direction: column; gap: 8px; }
-        .promo-heading { font-size: 20px; font-weight: 900; margin: 0 0 4px 0; display: flex; align-items: center; gap: 8px; color: #f8fafc; }
+        .promo-heading { font-size: 20px; font-weight: 900; margin: 0 0 4px 0; display: flex; align-items: center; gap: 8px; color: #0f172a; }
         .promo-text { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
-        .price-tag-old { text-decoration: line-through; color: #94a3b8; font-size: 15px; font-weight: 500; }
-        .price-tag-new { background-color: #fee2e2; color: #dc2626; padding: 6px 12px; border-radius: 8px; font-weight: 900; font-size: 16px; box-shadow: 0 2px 4px rgba(220, 38, 38, 0.1); }
-        .discount-badge { background-color: #ef4444; color: #ffffff; padding: 4px 10px; border-radius: 6px; font-size: 13px; font-weight: bold; }
-        .promo-btn { background-color: #dc2626; color: #ffffff; border: none; padding: 14px 28px; border-radius: 10px; font-size: 16px; font-weight: 900; cursor: pointer; box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4); transition: all 0.3s ease; display: flex; align-items: center; gap: 10px; white-space: nowrap; }
-        .promo-btn:hover { background-color: #b91c1c; transform: scale(1.03); }
+        .price-tag-old { text-decoration: line-through; color: #64748b; font-size: 15px; font-weight: 500; }
+        .price-tag-new { background-color: #fef2f2; color: #ce1126; padding: 6px 12px; border-radius: 8px; font-weight: 900; font-size: 16px; border: 1px solid #fecaca; }
+        .discount-badge { background-color: #ce1126; color: #ffffff; padding: 4px 10px; border-radius: 6px; font-size: 13px; font-weight: bold; }
+        .promo-btn { background-color: #ce1126; color: #ffffff; border: none; padding: 14px 28px; border-radius: 10px; font-size: 16px; font-weight: 900; cursor: pointer; box-shadow: 0 8px 20px rgba(206, 17, 38, 0.3); transition: all 0.3s ease; display: flex; align-items: center; gap: 10px; white-space: nowrap; }
+        .promo-btn:hover { background-color: #a80d1e; transform: translateY(-2px); box-shadow: 0 12px 25px rgba(206, 17, 38, 0.4); }
         
         .hero { text-align: center; max-width: 800px; margin: 0 auto 50px; }
         .hero h1 { font-size: 36px; font-weight: 900; color: #0f172a; margin-bottom: 15px; letter-spacing: -0.5px; }
