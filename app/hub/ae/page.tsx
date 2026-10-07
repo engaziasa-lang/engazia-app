@@ -287,14 +287,15 @@ export default function EnjazyaUaeHub() {
         </div>
 
         <div className="nav-controls">
-          {/* هذا هو زر تغيير اللغة الواضح والمميز */}
           <button onClick={toggleLanguage} className="lang-toggle-btn" title="تغيير لغة المنصة / Change Language">
             {lang === 'ar' ? 'English 🌐' : 'العربية 🌐'}
           </button>
 
-          <a href={LEMON_CHECKOUT_URL} target="_blank" rel="noopener noreferrer" className="action-btn-primary" title="ترقية الحساب">
-            ⚡ {lang === 'ar' ? 'ترقية (49.99 د.إ)' : 'Upgrade (49.99 AED)'}
-          </a>
+          {!isActivated && (
+            <a href={LEMON_CHECKOUT_URL} target="_blank" rel="noopener noreferrer" className="action-btn-primary" title="ترقية الحساب">
+              ⚡ {lang === 'ar' ? 'ترقية (49.99 د.إ)' : 'Upgrade (49.99 AED)'}
+            </a>
+          )}
 
           <button onClick={handleExportAllData} className="backup-action-btn" title={lang === 'ar' ? 'تصدير كافة مدخلات الأدوات الـ 24' : 'Export all 24 tools data'}>
             {lang === 'ar' ? 'تصدير البيانات 💾' : 'Export Data 💾'}
