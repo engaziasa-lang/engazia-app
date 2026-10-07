@@ -14,14 +14,15 @@ interface ReviewItem {
 }
 
 export default function AutomatedReviewsAE() {
+  const [lang, setLang] = useState<'ar' | 'en'>('ar');
+
   const [customerName, setCustomerName] = useState<string>('');
   const [phoneNumber, setPhoneNumber] = useState<string>('');
   const [orderNumber, setOrderNumber] = useState<string>('');
   const [productName, setProductName] = useState<string>('');
   
-  // الخيارات الذكية لحالة التقييم مع الكتابة اليدوية
-  const [statusSelect, setStatusSelect] = useState<string>('في انتظار الإرسال 🕒');
-  const [customStatus, setCustomStatus] = useState<string>('في انتظار الإرسال 🕒');
+  const [statusSelect, setStatusSelect] = useState<string>('');
+  const [customStatus, setCustomStatus] = useState<string>('');
 
   const [items, setItems] = useState<ReviewItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -30,7 +31,21 @@ export default function AutomatedReviewsAE() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    // تم تغيير مفتاح التخزين لفصل البيانات للإمارات
+    // قراءة اللغة من الصفحة الرئيسية
+    const savedLang = localStorage.getItem('seerk_global_lang') as 'ar' | 'en';
+    if (savedLang) {
+      setLang(savedLang);
+    }
+    
+    // ضبط القيم الافتراضية
+    if (savedLang === 'en') {
+      setStatusSelect('Pending 🕒');
+      setCustomStatus('Pending 🕒');
+    } else {
+      setStatusSelect('في انتظار الإرسال 🕒');
+      setCustomStatus('في انتظار الإرسال 🕒');
+    }
+
     const saved = localStorage.getItem('seerk_ae_automated_reviews_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
@@ -44,12 +59,133 @@ export default function AutomatedReviewsAE() {
 
   const isActivated = typeof window !== 'undefined' && !!localStorage.getItem('merchant_license_key');
 
-  const finalReviewStatus = statusSelect === 'حالة أخرى (كتابة يدوية)' ? customStatus : statusSelect;
+  // قاموس الترجمة الفوري
+  const t = {
+    ar: {
+      back: '← عودة للمنصة',
+      title: 'نظام طلب التقييمات الآلي ⭐',
+      desc: 'أرسل رسائل تلقائية للعملاء عبر واتساب بعد الاستلام لجمع التقييمات وبناء الموثوقية في متجرك الإماراتي',
+      editRecord: 'تعديل السجل',
+      newRecord: 'إضافة عميل لطلب تقييم',
+      clear: '🧹 مسح الحقول',
+      trial: 'تجريبي',
+      custName: 'اسم العميل',
+      custNamePH: 'مثال: راشد المنصوري',
+      phone: 'رقم جوال العميل',
+      phonePH: '05XXXXXXXX',
+      orderNum: 'رقم الطلب',
+      orderNumPH: 'مثال: #89201',
+      prodName: 'اسم المنتج (اختياري)',
+      prodNamePH: 'مثال: عطر إنجازيا الفاخر',
+      statusLabel: 'حالة التقييم',
+      statusPending: 'في انتظار الإرسال 🕒',
+      statusSent: 'تم إرسال الطلب 📤',
+      statusDone: 'تم التقييم بنجاح ⭐',
+      statusNoResp: 'لم يستجب ❌',
+      statusOther: '➕ حالة أخرى (كتابة يدوية)',
+      otherPH: 'اكتب حالة التقييم المخصصة هنا...',
+      saveBtnNew: '+ إضافة العميل إلى السجل',
+      saveBtnEdit: '💾 حفظ التعديلات',
+      analysisTitle: 'مؤشرات التقييمات الفورية',
+      totalTarget: 'إجمالي العملاء المستهدفين',
+      totalTargetSub: 'سجل متابعة طلبات التقييم',
+      completedRev: 'التقييمات المكتملة (⭐)',
+      responseRate: 'معدل الاستجابة والتوثيق',
+      searchPH: '🔍 بحث باسم العميل أو رقم الطلب...',
+      exportBtn: '📥 تصدير Excel',
+      importBtn: '📂 استيراد',
+      table: {
+        noRecords: 'لا توجد سجلات تقييمات مسجلة حالياً.',
+        th1: '#',
+        th2: 'العميل والتاريخ',
+        th3: 'رقم الطلب والمنتج',
+        th4: 'رقم الجوال',
+        th5: 'حالة التقييم',
+        th6: 'الإجراءات',
+        generalOrder: 'طلب عام',
+        waBtn: '💬 واتساب',
+        totalLabel: 'إجمالي العملاء المسجلين',
+        custUnit: 'عميل'
+      },
+      alerts: {
+        limit: '🔒 عذراً، لقد استهلكت الحد التجريبي (3 عملاء). يرجى ترقية حسابك لفتح السعة الكاملة بلا حدود!',
+        fillErr: 'الرجاء التأكد من تعبئة اسم العميل، رقم الجوال، رقم الطلب، وحالة التقييم.',
+        updateSuccess: '✨ تم تحديث السجل بنجاح!',
+        saveSuccess: '✅ تمت إضافة العميل إلى سجل طلبات التقييم بنجاح!',
+        delConfirm: 'هل أنت متأكد من حذف هذا السجل؟',
+        noDataExp: 'لا توجد بيانات لتصديرها.',
+        importSuccess: '✨ تم استيراد بيانات التقييمات بنجاح!',
+        importErr: '❌ ملف غير صالح.'
+      },
+      whatsappMsg: (name: string, prod: string) => `مرحباً بك يا ${name} 🌟. نتمنى أن منتجك (${prod}) قد نال إعجابك! نتشرف برأيك وتقييمك لخدمتنا عبر الرد على هذه الرسالة أو من خلال تقييم المتجر. شكراً لثقتك بنا!`
+    },
+    en: {
+      back: '→ Back to Hub',
+      title: 'Automated Review Request System ⭐',
+      desc: 'Send automated WhatsApp messages to customers after delivery to collect reviews and build trust in your UAE store',
+      editRecord: 'Edit Record',
+      newRecord: 'Add Customer for Review Request',
+      clear: '🧹 Clear Fields',
+      trial: 'Trial',
+      custName: 'Customer Name',
+      custNamePH: 'e.g. Rashid Al Mansoori',
+      phone: 'Customer Phone Number',
+      phonePH: '05XXXXXXXX',
+      orderNum: 'Order Number',
+      orderNumPH: 'e.g. #89201',
+      prodName: 'Product Name (Optional)',
+      prodNamePH: 'e.g. Luxury Enjazya Perfume',
+      statusLabel: 'Review Status',
+      statusPending: 'Pending 🕒',
+      statusSent: 'Request Sent 📤',
+      statusDone: 'Reviewed Successfully ⭐',
+      statusNoResp: 'No Response ❌',
+      statusOther: '➕ Other Status (Manual Entry)',
+      otherPH: 'Type custom review status here...',
+      saveBtnNew: '+ Add Customer to Log',
+      saveBtnEdit: '💾 Save Changes',
+      analysisTitle: 'Instant Review Indicators',
+      totalTarget: 'Total Targeted Customers',
+      totalTargetSub: 'Review requests tracking log',
+      completedRev: 'Completed Reviews (⭐)',
+      responseRate: 'Response & Documentation Rate',
+      searchPH: '🔍 Search by customer name or order number...',
+      exportBtn: '📥 Export Excel',
+      importBtn: '📂 Import',
+      table: {
+        noRecords: 'No review records currently saved.',
+        th1: '#',
+        th2: 'Customer & Date',
+        th3: 'Order No. & Product',
+        th4: 'Phone Number',
+        th5: 'Review Status',
+        th6: 'Actions',
+        generalOrder: 'General Order',
+        waBtn: '💬 WhatsApp',
+        totalLabel: 'Total Saved Customers',
+        custUnit: 'customer(s)'
+      },
+      alerts: {
+        limit: '🔒 Sorry, you reached the trial limit (3 customers). Please upgrade to unlock unlimited access!',
+        fillErr: 'Please ensure customer name, phone, order number, and status are filled correctly.',
+        updateSuccess: '✨ Record updated successfully!',
+        saveSuccess: '✅ Customer added to review requests log successfully!',
+        delConfirm: 'Are you sure you want to delete this record?',
+        noDataExp: 'No data to export.',
+        importSuccess: '✨ Reviews data imported successfully!',
+        importErr: '❌ Invalid file.'
+      },
+      whatsappMsg: (name: string, prod: string) => `Hello ${name} 🌟. We hope you liked your product (${prod})! We would be honored to have your feedback and review of our service by replying to this message or reviewing our store. Thank you for trusting us!`
+    }
+  };
+
+  const text = t[lang];
+  const finalReviewStatus = statusSelect === text.statusOther ? customStatus : statusSelect;
 
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const val = e.target.value;
     setStatusSelect(val);
-    if (val !== 'حالة أخرى (كتابة يدوية)') {
+    if (val !== text.statusOther) {
       setCustomStatus(val);
     } else {
       setCustomStatus('');
@@ -61,26 +197,27 @@ export default function AutomatedReviewsAE() {
     setPhoneNumber('');
     setOrderNumber('');
     setProductName('');
-    setStatusSelect('في انتظار الإرسال 🕒');
-    setCustomStatus('في انتظار الإرسال 🕒');
+    const defStatus = lang === 'en' ? 'Pending 🕒' : 'في انتظار الإرسال 🕒';
+    setStatusSelect(defStatus);
+    setCustomStatus(defStatus);
     setEditingId(null);
   };
 
   const handleSaveItem = (e: React.FormEvent) => {
     e.preventDefault();
     if (!isActivated && items.length >= 3 && !editingId) {
-      alert('🔒 عذراً، لقد استهلكت الحد التجريبي (3 عملاء). يرجى ترقية حسابك لفتح السعة الكاملة بلا حدود!');
+      alert(text.alerts.limit);
       return;
     }
     if (!customerName.trim() || !phoneNumber.trim() || !orderNumber.trim() || !finalReviewStatus.trim()) {
-      alert('الرجاء التأكد من تعبئة اسم العميل، رقم الجوال، رقم الطلب، وحالة التقييم.');
+      alert(text.alerts.fillErr);
       return;
     }
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    // تعديل التوقيت ليطابق الإمارات
-    const formattedDate = `${now.toLocaleDateString('ar-AE')} - ${now.toLocaleTimeString('ar-AE', timeOptions)}`;
+    const localeStr = lang === 'ar' ? 'ar-AE' : 'en-AE';
+    const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
 
     if (editingId) {
       const updated = items.map(item => item.id === editingId ? {
@@ -94,7 +231,7 @@ export default function AutomatedReviewsAE() {
       } : item);
       saveToLocalStorage(updated);
       setEditingId(null);
-      alert('✨ تم تحديث السجل بنجاح!');
+      alert(text.alerts.updateSuccess);
     } else {
       const newItem: ReviewItem = {
         id: Date.now().toString(),
@@ -106,7 +243,7 @@ export default function AutomatedReviewsAE() {
         createdAt: formattedDate
       };
       saveToLocalStorage([...items, newItem]);
-      alert('✅ تمت إضافة العميل إلى سجل طلبات التقييم بنجاح!');
+      alert(text.alerts.saveSuccess);
     }
 
     handleClearForm();
@@ -118,26 +255,32 @@ export default function AutomatedReviewsAE() {
     setOrderNumber(item.orderNumber);
     setProductName(item.productName);
     
-    const standardStatuses = ['في انتظار الإرسال 🕒', 'تم إرسال الطلب 📤', 'تم التقييم بنجاح ⭐', 'لم يستجب ❌'];
-    if (standardStatuses.includes(item.reviewStatus)) {
-      setStatusSelect(item.reviewStatus);
-      setCustomStatus(item.reviewStatus);
-    } else {
-      setStatusSelect('حالة أخرى (كتابة يدوية)');
-      setCustomStatus(item.reviewStatus);
-    }
+    // مطابقة الحالة بذكاء
+    const isPending = item.reviewStatus.includes('انتظار') || item.reviewStatus.includes('Pending');
+    const isSent = item.reviewStatus.includes('إرسال') || item.reviewStatus.includes('Sent');
+    const isDone = item.reviewStatus.includes('بنجاح') || item.reviewStatus.includes('Successfully');
+    const isNoResp = item.reviewStatus.includes('يستجب') || item.reviewStatus.includes('No Response');
+
+    let matchedStatus = '';
+    if (isPending) matchedStatus = text.statusPending;
+    else if (isSent) matchedStatus = text.statusSent;
+    else if (isDone) matchedStatus = text.statusDone;
+    else if (isNoResp) matchedStatus = text.statusNoResp;
+    else matchedStatus = text.statusOther;
+
+    setStatusSelect(matchedStatus);
+    setCustomStatus(item.reviewStatus);
     setEditingId(item.id);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleDelete = (id: string) => {
-    if (confirm('هل أنت متأكد من حذف هذا السجل؟')) {
+    if (confirm(text.alerts.delConfirm)) {
       const filtered = items.filter(i => i.id !== id);
       saveToLocalStorage(filtered);
     }
   };
 
-  // دالة إرسال رسالة واتساب لطلب التقييم (محدثة لكود الإمارات 971)
   const handleSendWhatsapp = (item: ReviewItem) => {
     let phone = (item.phoneNumber || '').replace(/\D/g, '');
     if (phone.startsWith('05')) {
@@ -146,19 +289,20 @@ export default function AutomatedReviewsAE() {
       phone = '971' + phone;
     }
     
-    const text = `مرحباً بك يا ${item.customerName} 🌟. نتمنى أن منتجك (${item.productName || 'الطلب رقم ' + item.orderNumber}) قد نال إعجابك! نتشرف برأيك وتقييمك لخدمتنا عبر الرد على هذه الرسالة أو من خلال تقييم المتجر. شكراً لثقتك بنا!`;
-    const url = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
+    const prodDisplay = item.productName || (lang === 'ar' ? 'الطلب رقم ' + item.orderNumber : 'Order #' + item.orderNumber);
+    const textMsg = text.whatsappMsg(item.customerName, prodDisplay);
+    const url = `https://wa.me/${phone}?text=${encodeURIComponent(textMsg)}`;
     window.open(url, '_blank');
   };
 
   const handleExportExcel = () => {
     if (items.length === 0) {
-      alert('لا توجد بيانات لتصديرها.');
+      alert(text.alerts.noDataExp);
       return;
     }
 
     let tableHtml = `
-      <html dir="rtl" lang="ar">
+      <html dir="${lang === 'ar' ? 'rtl' : 'ltr'}" lang="${lang}">
         <head>
           <meta charset="utf-8">
           <style>
@@ -172,13 +316,13 @@ export default function AutomatedReviewsAE() {
           <table>
             <thead>
               <tr>
-                <th>م</th>
-                <th>اسم العميل</th>
-                <th>رقم الجوال</th>
-                <th>رقم الطلب</th>
-                <th>المنتج</th>
-                <th>حالة التقييم</th>
-                <th>التاريخ</th>
+                <th>${text.table.th1}</th>
+                <th>${text.custName}</th>
+                <th>${text.phone}</th>
+                <th>${text.orderNum}</th>
+                <th>${text.prodName.split(' ')[0]}</th>
+                <th>${text.statusLabel}</th>
+                <th>Date / Time</th>
               </tr>
             </thead>
             <tbody>
@@ -189,7 +333,7 @@ export default function AutomatedReviewsAE() {
         <tr>
           <td>${idx + 1}</td>
           <td>${row.customerName}</td>
-          <td>${row.phoneNumber}</td>
+          <td dir="ltr">${row.phoneNumber}</td>
           <td>${row.orderNumber}</td>
           <td>${row.productName || '-'}</td>
           <td>${row.reviewStatus}</td>
@@ -202,8 +346,8 @@ export default function AutomatedReviewsAE() {
             </tbody>
             <tfoot>
               <tr class="tfoot-row">
-                <td colspan="6">إجمالي العملاء المسجلين</td>
-                <td>${items.length} عميل</td>
+                <td colspan="6">${text.table.totalLabel}</td>
+                <td>${items.length} ${text.table.custUnit}</td>
               </tr>
             </tfoot>
           </table>
@@ -215,7 +359,7 @@ export default function AutomatedReviewsAE() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", "seerk_ae_automated_reviews.xls");
+    link.setAttribute("download", "enjazya_ae_automated_reviews.xls");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -230,10 +374,10 @@ export default function AutomatedReviewsAE() {
           const imported = JSON.parse(event.target?.result as string);
           if (Array.isArray(imported)) {
             saveToLocalStorage(imported);
-            alert('✨ تم استيراد بيانات التقييمات بنجاح!');
+            alert(text.alerts.importSuccess);
           }
         } catch (err) {
-          alert('❌ ملف غير صالح.');
+          alert(text.alerts.importErr);
         }
       };
     }
@@ -245,19 +389,19 @@ export default function AutomatedReviewsAE() {
     item.phoneNumber.includes(searchQuery)
   );
 
-  const completedReviews = filteredItems.filter(i => i.reviewStatus.includes('تم التقييم')).length;
+  const completedReviews = filteredItems.filter(i => i.reviewStatus.includes('⭐') || i.reviewStatus.includes('بنجاح') || i.reviewStatus.includes('Successfully')).length;
 
   return (
-    <div className="tool-container">
+    <div className="tool-container" style={{ direction: lang === 'ar' ? 'rtl' : 'ltr' }}>
       <style jsx global>{`
-        body { background-color: #f8fafc; margin: 0; font-family: 'Tajawal', sans-serif; }
+        body { background-color: #f8fafc; margin: 0; font-family: ${lang === 'ar' ? "'Tajawal', sans-serif" : "'Inter', sans-serif"}; }
         a { text-decoration: none; }
       `}</style>
       <style jsx>{`
-        .tool-container { direction: rtl; max-width: 1100px; margin: 20px auto; padding: 20px; }
+        .tool-container { max-width: 1100px; margin: 20px auto; padding: 20px; }
         @media(max-width: 768px) { .tool-container { padding: 10px; margin: 10px auto; } }
         
-        .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; }
+        .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .back-btn { background: #ffffff; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 8px; color: #475569; font-weight: 700; font-size: 14px; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
         .back-btn:hover { background: #f1f5f9; color: #0f172a; }
         
@@ -268,46 +412,46 @@ export default function AutomatedReviewsAE() {
         @media(max-width: 850px) { .grid-layout { grid-template-columns: 1fr; } }
         
         .card { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
-        .card-title { font-size: 18px; font-weight: 800; color: #1e293b; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        .card-title { font-size: 18px; font-weight: 800; color: #1e293b; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         
-        .clear-form-btn { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: 'Tajawal', sans-serif; display: flex; align-items: center; gap: 5px; }
+        .clear-form-btn { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; display: flex; align-items: center; gap: 5px; }
         .clear-form-btn:hover { background: #fecaca; }
 
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         @media(max-width: 600px) { .form-row { grid-template-columns: 1fr; gap: 0; } }
 
-        .input-group { margin-bottom: 15px; width: 100%; }
+        .input-group { margin-bottom: 15px; width: 100%; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .input-group label { display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 6px; }
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
-        .input-wrapper input, .input-wrapper select { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: 'Tajawal', sans-serif; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; }
+        .input-wrapper input, .input-wrapper select { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .input-wrapper input:focus, .input-wrapper select:focus { border-color: #047857; background: #ffffff; }
         
-        .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: 'Tajawal', sans-serif; margin-top: 10px; box-sizing: border-box; }
+        .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
         .action-btn:hover { background: #065f46; }
 
-        .result-box { background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px; }
+        .result-box { background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .result-box.primary { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #fff; border: none; padding: 20px; }
         .result-label { font-size: 13px; font-weight: 700; color: #64748b; }
         .primary .result-label { color: #ffffff; opacity: 0.9; }
-        .result-value { font-size: 18px; font-weight: 900; color: #0f172a; }
-        .primary .result-value { font-size: 26px; color: #ffffff; }
+        .result-value { font-size: 18px; font-weight: 900; color: #0f172a; direction: ltr; }
+        .primary .result-value { font-size: 26px; color: #ffffff; direction: ${lang === 'ar' ? 'rtl' : 'ltr'}; }
 
-        .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
-        .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
-        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: 'Tajawal', sans-serif; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; }
+        .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
+        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
-        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: 'Tajawal', sans-serif; display: flex; align-items: center; justify-content: center; }
+        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; }
         .t-btn:hover { background: #f1f5f9; }
 
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 900px; }
-        .data-table th { background: #f8fafc; padding: 12px; text-align: right; border-bottom: 2px solid #cbd5e1; font-weight: 800; color: #334155; white-space: nowrap; }
+        .data-table th { background: #f8fafc; padding: 12px; text-align: ${lang === 'ar' ? 'right' : 'left'}; border-bottom: 2px solid #cbd5e1; font-weight: 800; color: #334155; white-space: nowrap; }
         .data-table td { padding: 12px; border-bottom: 1px solid #e2e8f0; color: #0f172a; font-weight: 600; vertical-align: middle; }
         .data-table tfoot td { background: #f1f5f9; font-weight: 900; color: #0f172a; border-top: 2px solid #cbd5e1; }
         
         .trial-badge { background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 800; }
         
-        .tb-action-btn { border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; font-family: 'Tajawal', sans-serif;}
+        .tb-action-btn { border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; font-family: inherit;}
         .btn-edit { background: #e0f2fe; color: #0369a1; }
         .btn-delete { background: #fee2e2; color: #991b1b; }
         .btn-wa { background: #22c55e; color: #ffffff; }
@@ -315,77 +459,76 @@ export default function AutomatedReviewsAE() {
 
       <div className="header">
         <div className="title-box">
-          <h1>نظام طلب التقييمات الآلي ⭐</h1>
-          <p>أرسل رسائل تلقائية للعملاء عبر واتساب بعد الاستلام لجمع التقييمات وبناء الموثوقية في متجرك الإماراتي</p>
+          <h1>{text.title}</h1>
+          <p>{text.desc}</p>
         </div>
         <Link href="/hub/ae" className="back-btn">
-          <span>←</span> عودة للمنصة
+          {text.back}
         </Link>
       </div>
 
       <div className="grid-layout">
-        {/* قسم المدخلات */}
         <div className="card">
           <h2 className="card-title">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-              <span>{editingId ? 'تعديل السجل' : 'إضافة عميل لطلب تقييم'}</span>
-              <button type="button" className="clear-form-btn" onClick={handleClearForm} title="مسح الحقول">
-                🧹 مسح الحقول
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', flexDirection: lang === 'ar' ? 'row' : 'row-reverse' }}>
+              <span>{editingId ? text.editRecord : text.newRecord}</span>
+              <button type="button" className="clear-form-btn" onClick={handleClearForm}>
+                {text.clear}
               </button>
             </div>
-            {!isActivated && <span className="trial-badge">تجريبي: {items.length}/3</span>}
+            {!isActivated && <span className="trial-badge">{text.trial}: {items.length}/3</span>}
           </h2>
 
           <form onSubmit={handleSaveItem}>
             <div className="form-row">
               <div className="input-group">
-                <label>اسم العميل</label>
+                <label>{text.custName}</label>
                 <div className="input-wrapper">
-                  <input type="text" value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="مثال: راشد المنصوري" required />
+                  <input type="text" value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder={text.custNamePH} required />
                 </div>
               </div>
               <div className="input-group">
-                <label>رقم جوال العميل</label>
+                <label>{text.phone}</label>
                 <div className="input-wrapper">
-                  <input type="text" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} placeholder="05XXXXXXXX" required />
+                  <input type="text" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} placeholder={text.phonePH} required dir="ltr" style={{ textAlign: lang === 'ar' ? 'right' : 'left' }} />
                 </div>
               </div>
             </div>
 
             <div className="form-row">
               <div className="input-group">
-                <label>رقم الطلب</label>
+                <label>{text.orderNum}</label>
                 <div className="input-wrapper">
-                  <input type="text" value={orderNumber} onChange={(e) => setOrderNumber(e.target.value)} placeholder="مثال: #89201" required />
+                  <input type="text" value={orderNumber} onChange={(e) => setOrderNumber(e.target.value)} placeholder={text.orderNumPH} required />
                 </div>
               </div>
               <div className="input-group">
-                <label>اسم المنتج (اختياري)</label>
+                <label>{text.prodName}</label>
                 <div className="input-wrapper">
-                  <input type="text" value={productName} onChange={(e) => setProductName(e.target.value)} placeholder="مثال: عطر إنجازيا الفاخر" />
+                  <input type="text" value={productName} onChange={(e) => setProductName(e.target.value)} placeholder={text.prodNamePH} />
                 </div>
               </div>
             </div>
 
             <div className="input-group">
-              <label>حالة التقييم</label>
+              <label>{text.statusLabel}</label>
               <div className="input-wrapper" style={{ marginBottom: '8px' }}>
                 <select value={statusSelect} onChange={handleSelectChange}>
-                  <option value="في انتظار الإرسال 🕒">في انتظار الإرسال 🕒</option>
-                  <option value="تم إرسال الطلب 📤">تم إرسال الطلب 📤</option>
-                  <option value="تم التقييم بنجاح ⭐">تم التقييم بنجاح ⭐</option>
-                  <option value="لم يستجب ❌">لم يستجب ❌</option>
-                  <option value="حالة أخرى (كتابة يدوية)">➕ حالة أخرى (كتابة يدوية)</option>
+                  <option value={text.statusPending}>{text.statusPending}</option>
+                  <option value={text.statusSent}>{text.statusSent}</option>
+                  <option value={text.statusDone}>{text.statusDone}</option>
+                  <option value={text.statusNoResp}>{text.statusNoResp}</option>
+                  <option value={text.statusOther}>{text.statusOther}</option>
                 </select>
               </div>
 
-              {statusSelect === 'حالة أخرى (كتابة يدوية)' && (
+              {statusSelect === text.statusOther && (
                 <div className="input-wrapper">
                   <input 
                     type="text" 
                     value={customStatus} 
                     onChange={(e) => setCustomStatus(e.target.value)} 
-                    placeholder="اكتب حالة التقييم المخصصة هنا..." 
+                    placeholder={text.otherPH} 
                     required 
                   />
                 </div>
@@ -393,32 +536,31 @@ export default function AutomatedReviewsAE() {
             </div>
 
             <button type="submit" className="action-btn">
-              {editingId ? '💾 حفظ التعديلات' : '+ إضافة العميل إلى السجل'}
+              {editingId ? text.saveBtnEdit : text.saveBtnNew}
             </button>
           </form>
         </div>
 
-        {/* قسم المؤشرات الفورية */}
         <div className="card">
-          <h2 className="card-title">مؤشرات التقييمات الفورية</h2>
+          <h2 className="card-title">{text.analysisTitle}</h2>
 
           <div className="result-box primary">
             <div>
-              <div className="result-label">إجمالي العملاء المستهدفين</div>
-              <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '2px' }}>سجل متابعة طلبات التقييم</div>
+              <div className="result-label">{text.totalTarget}</div>
+              <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '2px' }}>{text.totalTargetSub}</div>
             </div>
             <div className="result-value">
-              {items.length} عميل
+              {items.length} {text.table.custUnit}
             </div>
           </div>
 
           <div className="result-box">
-            <span className="result-label">التقييمات المكتملة (⭐)</span>
+            <span className="result-label">{text.completedRev}</span>
             <span className="result-value" style={{ color: '#047857' }}>{completedReviews}</span>
           </div>
 
           <div className="result-box" style={{ background: '#f8fafc' }}>
-            <span className="result-label">معدل الاستجابة والتوثيق</span>
+            <span className="result-label">{text.responseRate}</span>
             <span className="result-value" style={{ color: '#d97706' }}>
               {items.length > 0 ? ((completedReviews / items.length) * 100).toFixed(1) : 0}%
             </span>
@@ -426,19 +568,18 @@ export default function AutomatedReviewsAE() {
         </div>
       </div>
 
-      {/* جدول البيانات السفلي */}
       <div className="table-section">
         <div className="table-toolbar">
           <input 
             type="text" 
             className="search-input" 
-            placeholder="🔍 بحث باسم العميل أو رقم الطلب..." 
+            placeholder={text.searchPH} 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
           <div className="table-btns">
-            <button className="t-btn" onClick={handleExportExcel} title="تصدير بصيغة Excel لدعم اللغة العربية">📥 تصدير Excel</button>
-            <button className="t-btn" onClick={() => fileInputRef.current?.click()}>📂 استيراد</button>
+            <button className="t-btn" onClick={handleExportExcel}>{text.exportBtn}</button>
+            <button className="t-btn" onClick={() => fileInputRef.current?.click()}>{text.importBtn}</button>
             <input type="file" ref={fileInputRef} onChange={handleImportJson} accept=".json" style={{ display: 'none' }} />
           </div>
         </div>
@@ -447,27 +588,27 @@ export default function AutomatedReviewsAE() {
           <table className="data-table">
             <thead>
               <tr>
-                <th>#</th>
-                <th>العميل والتاريخ</th>
-                <th>رقم الطلب والمنتج</th>
-                <th>رقم الجوال</th>
-                <th>حالة التقييم</th>
-                <th>الإجراءات</th>
+                <th>{text.table.th1}</th>
+                <th>{text.table.th2}</th>
+                <th>{text.table.th3}</th>
+                <th>{text.table.th4}</th>
+                <th>{text.table.th5}</th>
+                <th>{text.table.th6}</th>
               </tr>
             </thead>
             <tbody>
               {filteredItems.length === 0 ? (
                 <tr>
                   <td colSpan={6} style={{ textAlign: 'center', color: '#94a3b8', padding: '30px 0' }}>
-                    لا توجد سجلات تقييمات مسجلة حالياً.
+                    {text.table.noRecords}
                   </td>
                 </tr>
               ) : (
                 filteredItems.map((item, idx) => {
                   let statusColor = '#0369a1';
-                  if (item.reviewStatus.includes('تم التقييم')) statusColor = '#047857';
-                  if (item.reviewStatus.includes('الإرسال')) statusColor = '#d97706';
-                  if (item.reviewStatus.includes('لم يستجب')) statusColor = '#dc2626';
+                  if (item.reviewStatus.includes('⭐') || item.reviewStatus.includes('بنجاح') || item.reviewStatus.includes('Successfully')) statusColor = '#047857';
+                  if (item.reviewStatus.includes('إرسال') || item.reviewStatus.includes('Sent')) statusColor = '#d97706';
+                  if (item.reviewStatus.includes('يستجب') || item.reviewStatus.includes('No Response') || item.reviewStatus.includes('❌')) statusColor = '#dc2626';
 
                   return (
                     <tr key={item.id}>
@@ -478,9 +619,9 @@ export default function AutomatedReviewsAE() {
                       </td>
                       <td>
                         <div style={{ fontWeight: 800, color: '#0369a1' }}>{item.orderNumber}</div>
-                        <div style={{ fontSize: '12px', color: '#64748b' }}>{item.productName || 'طلب عام'}</div>
+                        <div style={{ fontSize: '12px', color: '#64748b' }}>{item.productName || text.table.generalOrder}</div>
                       </td>
-                      <td style={{ direction: 'ltr', textAlign: 'right', fontWeight: 700 }}>{item.phoneNumber}</td>
+                      <td style={{ direction: 'ltr', textAlign: lang === 'ar' ? 'right' : 'left', fontWeight: 700 }}>{item.phoneNumber}</td>
                       <td>
                         <span style={{ color: statusColor, background: `${statusColor}15`, padding: '4px 8px', borderRadius: '6px', fontSize: '12px', fontWeight: 800 }}>
                           {item.reviewStatus}
@@ -488,9 +629,9 @@ export default function AutomatedReviewsAE() {
                       </td>
                       <td>
                         <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                          <button className="tb-action-btn btn-wa" onClick={() => handleSendWhatsapp(item)} title="إرسال طلب التقييم عبر واتساب">💬 واتساب</button>
-                          <button className="tb-action-btn btn-edit" onClick={() => handleEdit(item)} title="تعديل">✏️</button>
-                          <button className="tb-action-btn btn-delete" onClick={() => handleDelete(item.id)} title="حذف">❌</button>
+                          <button className="tb-action-btn btn-wa" onClick={() => handleSendWhatsapp(item)} title={text.table.waBtn}>{text.table.waBtn}</button>
+                          <button className="tb-action-btn btn-edit" onClick={() => handleEdit(item)} title="✏️">✏️</button>
+                          <button className="tb-action-btn btn-delete" onClick={() => handleDelete(item.id)} title="❌">❌</button>
                         </div>
                       </td>
                     </tr>
@@ -501,8 +642,8 @@ export default function AutomatedReviewsAE() {
             {filteredItems.length > 0 && (
               <tfoot>
                 <tr className="tfoot-row">
-                  <td colSpan={5} style={{ textAlign: 'center' }}>إجمالي العملاء المسجلين</td>
-                  <td>{filteredItems.length} عميل</td>
+                  <td colSpan={5} style={{ textAlign: 'center' }}>{text.table.totalLabel}</td>
+                  <td>{filteredItems.length} {text.table.custUnit}</td>
                 </tr>
               </tfoot>
             )}
