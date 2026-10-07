@@ -14,11 +14,13 @@ interface SupportItem {
 }
 
 export default function SupportTemplatesAE() {
-  const [customerName, setCustomerName] = useState<string>('خالد');
-  const [inquirySelect, setInquirySelect] = useState<string>('استفسار عن تأخر الشحنة');
-  const [customInquiryType, setCustomInquiryType] = useState<string>('استفسار عن تأخر الشحنة');
-  const [storeName, setStoreName] = useState<string>('متجر إنجازيا');
-  const [orderNumber, setOrderNumber] = useState<string>('#84920');
+  const [lang, setLang] = useState<'ar' | 'en'>('ar');
+
+  const [customerName, setCustomerName] = useState<string>('');
+  const [inquirySelect, setInquirySelect] = useState<string>('');
+  const [customInquiryType, setCustomInquiryType] = useState<string>('');
+  const [storeName, setStoreName] = useState<string>('');
+  const [orderNumber, setOrderNumber] = useState<string>('');
   const [generatedReply, setGeneratedReply] = useState<string>('');
 
   const [items, setItems] = useState<SupportItem[]>([]);
@@ -27,59 +29,217 @@ export default function SupportTemplatesAE() {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const [isClient, setIsClient] = useState(false);
+  const [isActivated, setIsActivated] = useState(true);
+
   useEffect(() => {
-    // تم تغيير مفتاح التخزين لفصل البيانات للإمارات
+    setIsClient(true);
+    setIsActivated(!!localStorage.getItem('merchant_license_key'));
+    
+    // قراءة اللغة من الصفحة الرئيسية
+    const savedLang = localStorage.getItem('seerk_global_lang') as 'ar' | 'en';
+    if (savedLang) {
+      setLang(savedLang);
+    }
+    
+    // ضبط القيم الافتراضية للنموذج
+    if (savedLang === 'en') {
+      setCustomerName('Khalid');
+      setInquirySelect('Delayed Shipment Inquiry 🚚');
+      setCustomInquiryType('Delayed Shipment Inquiry 🚚');
+      setOrderNumber('#84920');
+    } else {
+      setCustomerName('خالد');
+      setInquirySelect('استفسار عن تأخر الشحنة 🚚');
+      setCustomInquiryType('استفسار عن تأخر الشحنة 🚚');
+      setOrderNumber('#84920');
+    }
+
     const saved = localStorage.getItem('seerk_ae_support_templates_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
-    // جلب اسم المتجر الإماراتي إن وجد محفوظاً
+    
     const aeStoreName = localStorage.getItem('seerk_ae_store_name');
-    if (aeStoreName) setStoreName(aeStoreName);
+    if (aeStoreName) {
+      setStoreName(aeStoreName);
+    } else {
+      setStoreName(savedLang === 'en' ? 'Enjazya Store' : 'متجر إنجازيا');
+    }
   }, []);
 
-  const actualInquiryType = inquirySelect === 'استفسار آخر (كتابة يدوية)' ? customInquiryType : inquirySelect;
-
-  // توليد الرد تلقائياً عند تغيير المدخلات
-  useEffect(() => {
-    const cName = customerName.trim() || 'عزيزنا العميل';
-    const sName = storeName.trim() || 'المتجر';
-    const oNum = orderNumber.trim() || 'الطلب';
-
-    if (inquirySelect.includes('تأخر الشحنة')) {
-      setGeneratedReply(
-        `مرحباً بك يا ${cName} 🌸\n` +
-        `نعتذر منك بشدة عن التأخير البسيط الحاصل في توصيل طلبك رقم (${oNum}). نحن نتابع حالياً مع شركة الشحن لضمان وصول طلبك لأقرب وقت ممكن. شكراً لتفهمك وصبرك معنا!`
-      );
-    } else if (inquirySelect.includes('الاستبدال والاسترجاع')) {
-      setGeneratedReply(
-        `أهلاً بك يا ${cName} في ${sName} ✨\n` +
-        `بخصوص طلبك (${oNum})، يسعدنا خدمتك في الاستبدال أو الاسترجاع خلال المدة المحددة بشرط أن يكون المنتج بحالته الأصلية. تفضل بزيارة صفحة السياسات بالمتجر أو تزويدنا بسبب الاسترجاع لنخدمك فوراً.`
-      );
-    } else if (inquirySelect.includes('الدفع')) {
-      setGeneratedReply(
-        `مرحباً بك يا ${cName} 💳\n` +
-        `نؤكد لك أن جميع عمليات الدفع الإلكتروني والدفع عند الاستلام في ${sName} آمنة ومحمولة بالكامل. طلبك رقم (${oNum}) يتم تجهيزه الآن بكل اهتمام!`
-      );
-    } else {
-      setGeneratedReply(
-        `مرحباً بك يا ${cName} في ${sName} 🤝\n` +
-        `بخصوص استفسارك عن (${actualInquiryType}) للطلب (${oNum})، نحن نعمل بكل جهد لخدمتك وتلبية طلبك في أسرع وقت ممكن. نسعد دائماً بتواصلك معنا!`
-      );
+  const t = {
+    ar: {
+      back: '← عودة للمنصة',
+      title: 'قوالب خدمة العملاء السريعة 🎧',
+      desc: 'انسخ ردود احترافية جاهزة للرد على استفسارات العملاء المكررة عبر واتساب لمتجرك الإماراتي',
+      editRecord: 'تعديل القالب',
+      newRecord: 'توليد قالب رد جديد',
+      clear: '🧹 مسح الحقول',
+      trial: 'تجريبي',
+      custName: 'اسم العميل',
+      custNamePH: 'مثال: خالد',
+      inquiryType: 'نوع الاستفسار',
+      inqDelayed: 'استفسار عن تأخر الشحنة 🚚',
+      inqReturn: 'طلب الاستبدال والاسترجاع 🔄',
+      inqPayment: 'استفسار عن الدفع والتحصيل 💳',
+      inqOther: '➕ استفسار آخر (كتابة يدوية)',
+      otherPH: 'اكتب نوع الاستفسار هنا...',
+      storeNameLabel: 'اسم المتجر',
+      storeNamePH: 'متجر إنجازيا',
+      orderNum: 'رقم الطلب',
+      orderNumPH: '#84920',
+      saveBtnNew: '+ حفظ القالب في السجل',
+      saveBtnEdit: '💾 حفظ التعديلات',
+      previewTitle: 'معاينة نص الرد الاحترافي',
+      copyBtn: '📋 نسخ الرد للحافظة واتساب',
+      searchPH: '🔍 بحث باسم العميل أو نوع الاستفسار...',
+      exportBtn: '📥 تصدير Excel',
+      importBtn: '📂 استيراد',
+      table: {
+        noRecords: 'لا توجد قوالب ردود مسجلة حالياً.',
+        th1: '#',
+        th2: 'العميل والتاريخ',
+        th3: 'نوع الاستفسار',
+        th4: 'رقم الطلب',
+        th5: 'الإجراءات',
+        copy: '📋 نسخ',
+        totalLabel: 'إجمالي القوالب المسجلة',
+        templatesCount: 'قوالب'
+      },
+      alerts: {
+        limit: '🔒 عذراً، لقد استهلكت الحد التجريبي (3 قوالب). يرجى ترقية حسابك لفتح السعة الكاملة بلا حدود!',
+        fillErr: 'الرجاء التأكد من تعبئة اسم العميل ونوع الاستفسار.',
+        updateSuccess: '✨ تم تحديث القالب بنجاح!',
+        saveSuccess: '✅ تمت إضافة الرد إلى سجل خدمة العملاء بنجاح!',
+        delConfirm: 'هل أنت متأكد من حذف هذا السجل؟',
+        copySuccess: '📋 تم نسخ الرد بنجاح! جاهز للإرسال للعميل عبر واتساب.',
+        noDataExp: 'لا توجد بيانات لتصديرها.',
+        importSuccess: '✨ تم استيراد قوالب خدمة العملاء بنجاح!',
+        importErr: '❌ ملف غير صالح.'
+      }
+    },
+    en: {
+      back: '→ Back to Hub',
+      title: 'Quick Customer Support Templates 🎧',
+      desc: 'Copy ready-made professional responses for frequent customer inquiries via WhatsApp for your UAE store',
+      editRecord: 'Edit Template',
+      newRecord: 'Generate New Reply Template',
+      clear: '🧹 Clear Fields',
+      trial: 'Trial',
+      custName: 'Customer Name',
+      custNamePH: 'e.g. Khalid',
+      inquiryType: 'Inquiry Type',
+      inqDelayed: 'Delayed Shipment Inquiry 🚚',
+      inqReturn: 'Return & Exchange Request 🔄',
+      inqPayment: 'Payment & Collection Inquiry 💳',
+      inqOther: '➕ Other Inquiry (Manual Entry)',
+      otherPH: 'Type the inquiry type here...',
+      storeNameLabel: 'Store Name',
+      storeNamePH: 'Enjazya Store',
+      orderNum: 'Order Number',
+      orderNumPH: '#84920',
+      saveBtnNew: '+ Save Template to Log',
+      saveBtnEdit: '💾 Save Changes',
+      previewTitle: 'Professional Reply Preview',
+      copyBtn: '📋 Copy Reply for WhatsApp',
+      searchPH: '🔍 Search by customer or inquiry type...',
+      exportBtn: '📥 Export Excel',
+      importBtn: '📂 Import',
+      table: {
+        noRecords: 'No reply templates currently saved.',
+        th1: '#',
+        th2: 'Customer & Date',
+        th3: 'Inquiry Type',
+        th4: 'Order Number',
+        th5: 'Actions',
+        copy: '📋 Copy',
+        totalLabel: 'Total Saved Templates',
+        templatesCount: 'template(s)'
+      },
+      alerts: {
+        limit: '🔒 Sorry, you reached the trial limit (3 templates). Please upgrade to unlock unlimited access!',
+        fillErr: 'Please ensure customer name and inquiry type are filled.',
+        updateSuccess: '✨ Template updated successfully!',
+        saveSuccess: '✅ Reply added to customer service log successfully!',
+        delConfirm: 'Are you sure you want to delete this record?',
+        copySuccess: '📋 Reply copied successfully! Ready to send to customer via WhatsApp.',
+        noDataExp: 'No data to export.',
+        importSuccess: '✨ Support templates imported successfully!',
+        importErr: '❌ Invalid file.'
+      }
     }
-  }, [customerName, inquirySelect, customInquiryType, storeName, orderNumber]);
+  };
+
+  const text = t[lang];
+  const actualInquiryType = inquirySelect === text.inqOther ? customInquiryType : inquirySelect;
+
+  // توليد الرد تلقائياً بناءً على اللغة
+  useEffect(() => {
+    const cName = customerName.trim() || (lang === 'ar' ? 'عزيزنا العميل' : 'Dear Customer');
+    const sName = storeName.trim() || (lang === 'ar' ? 'المتجر' : 'Our Store');
+    const oNum = orderNumber.trim() || (lang === 'ar' ? 'الطلب' : 'your order');
+
+    const isDelayed = inquirySelect.includes('تأخر') || inquirySelect.includes('Delayed');
+    const isReturn = inquirySelect.includes('استرجاع') || inquirySelect.includes('Return');
+    const isPayment = inquirySelect.includes('الدفع') || inquirySelect.includes('Payment');
+
+    if (lang === 'ar') {
+      if (isDelayed) {
+        setGeneratedReply(
+          `مرحباً بك يا ${cName} 🌸\n` +
+          `نعتذر منك بشدة عن التأخير البسيط الحاصل في توصيل طلبك رقم (${oNum}). نحن نتابع حالياً مع شركة الشحن لضمان وصول طلبك لأقرب وقت ممكن. شكراً لتفهمك وصبرك معنا!`
+        );
+      } else if (isReturn) {
+        setGeneratedReply(
+          `أهلاً بك يا ${cName} في ${sName} ✨\n` +
+          `بخصوص طلبك (${oNum})، يسعدنا خدمتك في الاستبدال أو الاسترجاع خلال المدة المحددة بشرط أن يكون المنتج بحالته الأصلية. تفضل بزيارة صفحة السياسات بالمتجر أو تزويدنا بسبب الاسترجاع لنخدمك فوراً.`
+        );
+      } else if (isPayment) {
+        setGeneratedReply(
+          `مرحباً بك يا ${cName} 💳\n` +
+          `نؤكد لك أن جميع عمليات الدفع الإلكتروني والدفع عند الاستلام في ${sName} آمنة ومحمية بالكامل. طلبك رقم (${oNum}) يتم تجهيزه الآن بكل اهتمام!`
+        );
+      } else {
+        setGeneratedReply(
+          `مرحباً بك يا ${cName} في ${sName} 🤝\n` +
+          `بخصوص استفسارك عن (${actualInquiryType}) للطلب (${oNum})، نحن نعمل بكل جهد لخدمتك وتلبية طلبك في أسرع وقت ممكن. نسعد دائماً بتواصلك معنا!`
+        );
+      }
+    } else {
+      if (isDelayed) {
+        setGeneratedReply(
+          `Hello ${cName} 🌸\n` +
+          `We sincerely apologize for the slight delay in delivering your order (${oNum}). We are currently following up with the shipping company to ensure it reaches you as soon as possible. Thank you for your patience and understanding!`
+        );
+      } else if (isReturn) {
+        setGeneratedReply(
+          `Welcome ${cName} to ${sName} ✨\n` +
+          `Regarding your order (${oNum}), we are happy to assist you with a return or exchange within the specified period, provided the product is in its original condition. Please visit our store's policy page or provide us with the reason for return so we can serve you immediately.`
+        );
+      } else if (isPayment) {
+        setGeneratedReply(
+          `Hello ${cName} 💳\n` +
+          `We assure you that all online and cash-on-delivery payments at ${sName} are fully secure and protected. Your order (${oNum}) is being processed with great care!`
+        );
+      } else {
+        setGeneratedReply(
+          `Hello ${cName}, welcome to ${sName} 🤝\n` +
+          `Regarding your inquiry about (${actualInquiryType}) for order (${oNum}), we are working hard to serve you and fulfill your request as quickly as possible. We are always happy to assist you!`
+        );
+      }
+    }
+  }, [customerName, inquirySelect, customInquiryType, storeName, orderNumber, lang, actualInquiryType]);
 
   const saveToLocalStorage = (newItems: SupportItem[]) => {
     setItems(newItems);
     localStorage.setItem('seerk_ae_support_templates_items', JSON.stringify(newItems));
   };
 
-  const isActivated = typeof window !== 'undefined' && !!localStorage.getItem('merchant_license_key');
-
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const val = e.target.value;
     setInquirySelect(val);
-    if (val !== 'استفسار آخر (كتابة يدوية)') {
+    if (val !== text.inqOther) {
       setCustomInquiryType(val);
     } else {
       setCustomInquiryType('');
@@ -87,10 +247,17 @@ export default function SupportTemplatesAE() {
   };
 
   const handleClearForm = () => {
-    setCustomerName('خالد');
-    setInquirySelect('استفسار عن تأخر الشحنة');
-    setCustomInquiryType('استفسار عن تأخر الشحنة');
-    setStoreName('متجر إنجازيا');
+    if (lang === 'en') {
+      setCustomerName('Khalid');
+      setInquirySelect(text.inqDelayed);
+      setCustomInquiryType(text.inqDelayed);
+    } else {
+      setCustomerName('خالد');
+      setInquirySelect(text.inqDelayed);
+      setCustomInquiryType(text.inqDelayed);
+    }
+    const aeStoreName = localStorage.getItem('seerk_ae_store_name');
+    setStoreName(aeStoreName || (lang === 'en' ? 'Enjazya Store' : 'متجر إنجازيا'));
     setOrderNumber('#84920');
     setEditingId(null);
   };
@@ -98,19 +265,19 @@ export default function SupportTemplatesAE() {
   const handleSaveItem = (e: React.FormEvent) => {
     e.preventDefault();
     if (!isActivated && items.length >= 3 && !editingId) {
-      alert('🔒 عذراً، لقد استهلكت الحد التجريبي (3 قوالب). يرجى ترقية حسابك لفتح السعة الكاملة بلا حدود!');
+      alert(text.alerts.limit);
       return;
     }
-    const finalType = inquirySelect === 'استفسار آخر (كتابة يدوية)' ? customInquiryType : inquirySelect;
+    const finalType = inquirySelect === text.inqOther ? customInquiryType : inquirySelect;
     if (!customerName.trim() || !finalType.trim()) {
-      alert('الرجاء التأكد من تعبئة اسم العميل ونوع الاستفسار.');
+      alert(text.alerts.fillErr);
       return;
     }
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    // تعديل التوقيت ليطابق الإمارات
-    const formattedDate = `${now.toLocaleDateString('ar-AE')} - ${now.toLocaleTimeString('ar-AE', timeOptions)}`;
+    const localeStr = lang === 'ar' ? 'ar-AE' : 'en-AE';
+    const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
 
     if (editingId) {
       const updated = items.map(item => item.id === editingId ? {
@@ -124,7 +291,7 @@ export default function SupportTemplatesAE() {
       } : item);
       saveToLocalStorage(updated);
       setEditingId(null);
-      alert('✨ تم تحديث القالب بنجاح!');
+      alert(text.alerts.updateSuccess);
     } else {
       const newItem: SupportItem = {
         id: Date.now().toString(),
@@ -136,7 +303,7 @@ export default function SupportTemplatesAE() {
         createdAt: formattedDate
       };
       saveToLocalStorage([...items, newItem]);
-      alert('✅ تمت إضافة الرد إلى سجل خدمة العملاء بنجاح!');
+      alert(text.alerts.saveSuccess);
     }
 
     handleClearForm();
@@ -144,14 +311,21 @@ export default function SupportTemplatesAE() {
 
   const handleEdit = (item: SupportItem) => {
     setCustomerName(item.customerName);
-    const standardInquiries = ['استفسار عن تأخر الشحنة', 'طلب الاستبدال والاسترجاع', 'استفسار عن الدفع والتحصيل'];
-    if (standardInquiries.includes(item.inquiryType)) {
-      setInquirySelect(item.inquiryType);
-      setCustomInquiryType(item.inquiryType);
-    } else {
-      setInquirySelect('استفسار آخر (كتابة يدوية)');
-      setCustomInquiryType(item.inquiryType);
-    }
+    
+    // مطابقة نوع الاستفسار بذكاء
+    const isDelayed = item.inquiryType.includes('تأخر') || item.inquiryType.includes('Delayed');
+    const isReturn = item.inquiryType.includes('استرجاع') || item.inquiryType.includes('Return');
+    const isPayment = item.inquiryType.includes('الدفع') || item.inquiryType.includes('Payment');
+
+    let matchedType = '';
+    if (isDelayed) matchedType = text.inqDelayed;
+    else if (isReturn) matchedType = text.inqReturn;
+    else if (isPayment) matchedType = text.inqPayment;
+    else matchedType = text.inqOther;
+
+    setInquirySelect(matchedType);
+    setCustomInquiryType(item.inquiryType); // الحفاظ على القيمة الأصلية
+    
     setStoreName(item.storeName);
     setOrderNumber(item.orderNumber);
     setGeneratedReply(item.generatedReply);
@@ -160,7 +334,7 @@ export default function SupportTemplatesAE() {
   };
 
   const handleDelete = (id: string) => {
-    if (confirm('هل أنت متأكد من حذف هذا السجل؟')) {
+    if (confirm(text.alerts.delConfirm)) {
       const filtered = items.filter(i => i.id !== id);
       saveToLocalStorage(filtered);
     }
@@ -168,17 +342,17 @@ export default function SupportTemplatesAE() {
 
   const handleCopyText = () => {
     navigator.clipboard.writeText(generatedReply);
-    alert('📋 تم نسخ الرد بنجاح! جاهز للإرسال للعميل عبر واتساب.');
+    alert(text.alerts.copySuccess);
   };
 
   const handleExportExcel = () => {
     if (items.length === 0) {
-      alert('لا توجد بيانات لتصديرها.');
+      alert(text.alerts.noDataExp);
       return;
     }
 
     let tableHtml = `
-      <html dir="rtl" lang="ar">
+      <html dir="${lang === 'ar' ? 'rtl' : 'ltr'}" lang="${lang}">
         <head>
           <meta charset="utf-8">
           <style>
@@ -192,12 +366,12 @@ export default function SupportTemplatesAE() {
           <table>
             <thead>
               <tr>
-                <th>م</th>
-                <th>اسم العميل</th>
-                <th>نوع الاستفسار</th>
-                <th>رقم الطلب</th>
-                <th>التاريخ والوقت</th>
-                <th>نص الرد الجاهز</th>
+                <th>${text.table.th1}</th>
+                <th>${text.custName}</th>
+                <th>${text.inquiryType}</th>
+                <th>${text.orderNum}</th>
+                <th>Date / Time</th>
+                <th>Generated Reply</th>
               </tr>
             </thead>
             <tbody>
@@ -220,8 +394,8 @@ export default function SupportTemplatesAE() {
             </tbody>
             <tfoot>
               <tr class="tfoot-row">
-                <td colspan="5">إجمالي القوالب المسجلة</td>
-                <td>${items.length} قوالب</td>
+                <td colspan="5">${text.table.totalLabel}</td>
+                <td>${items.length} ${text.table.templatesCount}</td>
               </tr>
             </tfoot>
           </table>
@@ -233,7 +407,7 @@ export default function SupportTemplatesAE() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", "seerk_ae_support_templates.xls");
+    link.setAttribute("download", "enjazya_ae_support_templates.xls");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -248,10 +422,10 @@ export default function SupportTemplatesAE() {
           const imported = JSON.parse(event.target?.result as string);
           if (Array.isArray(imported)) {
             saveToLocalStorage(imported);
-            alert('✨ تم استيراد قوالب خدمة العملاء بنجاح!');
+            alert(text.alerts.importSuccess);
           }
         } catch (err) {
-          alert('❌ ملف غير صالح.');
+          alert(text.alerts.importErr);
         }
       };
     }
@@ -264,16 +438,16 @@ export default function SupportTemplatesAE() {
   );
 
   return (
-    <div className="tool-container">
+    <div className="tool-container" style={{ direction: lang === 'ar' ? 'rtl' : 'ltr' }}>
       <style jsx global>{`
-        body { background-color: #f8fafc; margin: 0; font-family: 'Tajawal', sans-serif; }
+        body { background-color: #f8fafc; margin: 0; font-family: ${lang === 'ar' ? "'Tajawal', sans-serif" : "'Inter', sans-serif"}; }
         a { text-decoration: none; }
       `}</style>
       <style jsx>{`
-        .tool-container { direction: rtl; max-width: 1100px; margin: 20px auto; padding: 20px; }
+        .tool-container { max-width: 1100px; margin: 20px auto; padding: 20px; }
         @media(max-width: 768px) { .tool-container { padding: 10px; margin: 10px auto; } }
         
-        .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; }
+        .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .back-btn { background: #ffffff; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 8px; color: #475569; font-weight: 700; font-size: 14px; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
         .back-btn:hover { background: #f1f5f9; color: #0f172a; }
         
@@ -284,96 +458,95 @@ export default function SupportTemplatesAE() {
         @media(max-width: 850px) { .grid-layout { grid-template-columns: 1fr; } }
         
         .card { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
-        .card-title { font-size: 18px; font-weight: 800; color: #1e293b; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        .card-title { font-size: 18px; font-weight: 800; color: #1e293b; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         
-        .clear-form-btn { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: 'Tajawal', sans-serif; display: flex; align-items: center; gap: 5px; }
+        .clear-form-btn { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; display: flex; align-items: center; gap: 5px; }
         .clear-form-btn:hover { background: #fecaca; }
 
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         @media(max-width: 600px) { .form-row { grid-template-columns: 1fr; gap: 0; } }
 
-        .input-group { margin-bottom: 15px; width: 100%; }
+        .input-group { margin-bottom: 15px; width: 100%; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .input-group label { display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 6px; }
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
-        .input-wrapper input, .input-wrapper select { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: 'Tajawal', sans-serif; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; }
-        .input-wrapper input:focus, .input-wrapper select:focus { border-color: #047857; background: #ffffff; }
+        .input-wrapper input, .input-wrapper select, .input-wrapper textarea { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .input-wrapper input:focus, .input-wrapper select:focus, .input-wrapper textarea:focus { border-color: #047857; background: #ffffff; }
         
-        .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: 'Tajawal', sans-serif; margin-top: 10px; box-sizing: border-box; }
+        .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
         .action-btn:hover { background: #065f46; }
         
-        .copy-btn { background: #0369a1; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: 'Tajawal', sans-serif; margin-top: 10px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .copy-btn { background: #0369a1; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .copy-btn:hover { background: #0284c7; }
 
-        .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
-        .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
-        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: 'Tajawal', sans-serif; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; }
+        .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
+        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
-        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: 'Tajawal', sans-serif; display: flex; align-items: center; justify-content: center; }
+        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; }
         .t-btn:hover { background: #f1f5f9; }
 
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 900px; }
-        .data-table th { background: #f8fafc; padding: 12px; text-align: right; border-bottom: 2px solid #cbd5e1; font-weight: 800; color: #334155; white-space: nowrap; }
+        .data-table th { background: #f8fafc; padding: 12px; text-align: ${lang === 'ar' ? 'right' : 'left'}; border-bottom: 2px solid #cbd5e1; font-weight: 800; color: #334155; white-space: nowrap; }
         .data-table td { padding: 12px; border-bottom: 1px solid #e2e8f0; color: #0f172a; font-weight: 600; vertical-align: middle; }
         .data-table tfoot td { background: #f1f5f9; font-weight: 900; color: #0f172a; border-top: 2px solid #cbd5e1; }
         
         .trial-badge { background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 800; }
         
-        .tb-action-btn { border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; font-family: 'Tajawal', sans-serif;}
+        .tb-action-btn { border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; font-family: inherit;}
+        .btn-wa { background: #dcfce7; color: #166534; }
         .btn-edit { background: #e0f2fe; color: #0369a1; }
         .btn-delete { background: #fee2e2; color: #991b1b; }
-        .btn-wa { background: #22c55e; color: #ffffff; }
       `}</style>
 
       <div className="header">
         <div className="title-box">
-          <h1>قوالب خدمة العملاء السريعة 🎧</h1>
-          <p>انسخ ردود احترافية جاهزة للرد على استفسارات العملاء المكررة عبر واتساب لمتجرك الإماراتي</p>
+          <h1>{text.title}</h1>
+          <p>{text.desc}</p>
         </div>
         <Link href="/hub/ae" className="back-btn">
-          <span>←</span> عودة للمنصة
+          {text.back}
         </Link>
       </div>
 
       <div className="grid-layout">
-        {/* قسم المدخلات */}
         <div className="card">
           <h2 className="card-title">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-              <span>{editingId ? 'تعديل القالب' : 'توليد قالب رد جديد'}</span>
-              <button type="button" className="clear-form-btn" onClick={handleClearForm} title="مسح الحقول">
-                🧹 مسح الحقول
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', flexDirection: lang === 'ar' ? 'row' : 'row-reverse' }}>
+              <span>{editingId ? text.editRecord : text.newRecord}</span>
+              <button type="button" className="clear-form-btn" onClick={handleClearForm}>
+                {text.clear}
               </button>
             </div>
-            {!isActivated && <span className="trial-badge">تجريبي: {items.length}/3</span>}
+            {isClient && !isActivated && <span className="trial-badge">{text.trial}: {items.length}/3</span>}
           </h2>
 
           <form onSubmit={handleSaveItem}>
             <div className="form-row">
               <div className="input-group">
-                <label>اسم العميل</label>
+                <label>{text.custName}</label>
                 <div className="input-wrapper">
-                  <input type="text" value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="مثال: خالد" required />
+                  <input type="text" value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder={text.custNamePH} required />
                 </div>
               </div>
               <div className="input-group">
-                <label>نوع الاستفسار</label>
+                <label>{text.inquiryType}</label>
                 <div className="input-wrapper" style={{ marginBottom: '8px' }}>
                   <select value={inquirySelect} onChange={handleSelectChange}>
-                    <option value="استفسار عن تأخر الشحنة">استفسار عن تأخر الشحنة 🚚</option>
-                    <option value="طلب الاستبدال والاسترجاع">طلب الاستبدال والاسترجاع 🔄</option>
-                    <option value="استفسار عن الدفع والتحصيل">استفسار عن الدفع والتحصيل 💳</option>
-                    <option value="استفسار آخر (كتابة يدوية)">➕ استفسار آخر (كتابة يدوية)</option>
+                    <option value={text.inqDelayed}>{text.inqDelayed}</option>
+                    <option value={text.inqReturn}>{text.inqReturn}</option>
+                    <option value={text.inqPayment}>{text.inqPayment}</option>
+                    <option value={text.inqOther}>{text.inqOther}</option>
                   </select>
                 </div>
 
-                {inquirySelect === 'استفسار آخر (كتابة يدوية)' && (
+                {inquirySelect === text.inqOther && (
                   <div className="input-wrapper">
                     <input 
                       type="text" 
                       value={customInquiryType} 
                       onChange={(e) => setCustomInquiryType(e.target.value)} 
-                      placeholder="اكتب نوع الاستفسار هنا..." 
+                      placeholder={text.otherPH} 
                       required 
                     />
                   </div>
@@ -383,28 +556,27 @@ export default function SupportTemplatesAE() {
 
             <div className="form-row">
               <div className="input-group">
-                <label>اسم المتجر</label>
+                <label>{text.storeNameLabel}</label>
                 <div className="input-wrapper">
-                  <input type="text" value={storeName} onChange={(e) => setStoreName(e.target.value)} placeholder="متجر إنجازيا" required />
+                  <input type="text" value={storeName} onChange={(e) => setStoreName(e.target.value)} placeholder={text.storeNamePH} required />
                 </div>
               </div>
               <div className="input-group">
-                <label>رقم الطلب</label>
+                <label>{text.orderNum}</label>
                 <div className="input-wrapper">
-                  <input type="text" value={orderNumber} onChange={(e) => setOrderNumber(e.target.value)} placeholder="#84920" required />
+                  <input type="text" value={orderNumber} onChange={(e) => setOrderNumber(e.target.value)} placeholder={text.orderNumPH} required />
                 </div>
               </div>
             </div>
 
             <button type="submit" className="action-btn">
-              {editingId ? '💾 حفظ التعديلات' : '+ حفظ القالب في السجل'}
+              {editingId ? text.saveBtnEdit : text.saveBtnNew}
             </button>
           </form>
         </div>
 
-        {/* قسم المعاينة والنسخ الفوري */}
         <div className="card">
-          <h2 className="card-title">معاينة نص الرد الاحترافي ({actualInquiryType})</h2>
+          <h2 className="card-title">{text.previewTitle} ({actualInquiryType})</h2>
 
           <div className="input-group" style={{ marginBottom: 0 }}>
             <div className="input-wrapper">
@@ -412,30 +584,29 @@ export default function SupportTemplatesAE() {
                 rows={10} 
                 value={generatedReply} 
                 onChange={(e) => setGeneratedReply(e.target.value)} 
-                style={{ width: '100%', padding: '12px', border: '1px solid #cbd5e1', borderRadius: '8px', fontSize: '13.5px', fontFamily: 'Tajawal, sans-serif', outline: 'none', background: '#f8fafc', color: '#0f172a', resize: 'vertical', lineHeight: '1.6' }}
+                style={{ width: '100%', padding: '12px', border: '1px solid #cbd5e1', borderRadius: '8px', fontSize: '13.5px', fontFamily: 'inherit', outline: 'none', background: '#f8fafc', color: '#0f172a', resize: 'vertical', lineHeight: '1.6', textAlign: lang === 'ar' ? 'right' : 'left', direction: lang === 'ar' ? 'rtl' : 'ltr' }}
               ></textarea>
             </div>
           </div>
 
           <button type="button" className="copy-btn" onClick={handleCopyText}>
-            📋 نسخ الرد للحافظة واتساب
+            {text.copyBtn}
           </button>
         </div>
       </div>
 
-      {/* جدول البيانات السفلي */}
       <div className="table-section">
         <div className="table-toolbar">
           <input 
             type="text" 
             className="search-input" 
-            placeholder="🔍 بحث باسم العميل أو نوع الاستفسار..." 
+            placeholder={text.searchPH} 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
           <div className="table-btns">
-            <button className="t-btn" onClick={handleExportExcel} title="تصدير بصيغة Excel لدعم اللغة العربية">📥 تصدير Excel</button>
-            <button className="t-btn" onClick={() => fileInputRef.current?.click()}>📂 استيراد</button>
+            <button className="t-btn" onClick={handleExportExcel}>{text.exportBtn}</button>
+            <button className="t-btn" onClick={() => fileInputRef.current?.click()}>{text.importBtn}</button>
             <input type="file" ref={fileInputRef} onChange={handleImportJson} accept=".json" style={{ display: 'none' }} />
           </div>
         </div>
@@ -444,18 +615,18 @@ export default function SupportTemplatesAE() {
           <table className="data-table">
             <thead>
               <tr>
-                <th>#</th>
-                <th>العميل والتاريخ</th>
-                <th>نوع الاستفسار</th>
-                <th>رقم الطلب</th>
-                <th>الإجراءات</th>
+                <th>{text.table.th1}</th>
+                <th>{text.table.th2}</th>
+                <th>{text.table.th3}</th>
+                <th>{text.table.th4}</th>
+                <th>{text.table.th5}</th>
               </tr>
             </thead>
             <tbody>
               {filteredItems.length === 0 ? (
                 <tr>
                   <td colSpan={5} style={{ textAlign: 'center', color: '#94a3b8', padding: '30px 0' }}>
-                    لا توجد قوالب ردود مسجلة حالياً.
+                    {text.table.noRecords}
                   </td>
                 </tr>
               ) : (
@@ -470,9 +641,9 @@ export default function SupportTemplatesAE() {
                     <td><span style={{ fontWeight: 700, color: '#047857' }}>{item.orderNumber}</span></td>
                     <td>
                       <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                        <button className="tb-action-btn btn-wa" onClick={() => { navigator.clipboard.writeText(item.generatedReply); alert('📋 تم نسخ الرد!'); }} title="نسخ النص">📋 نسخ</button>
-                        <button className="tb-action-btn btn-edit" onClick={() => handleEdit(item)} title="تعديل">✏️</button>
-                        <button className="tb-action-btn btn-delete" onClick={() => handleDelete(item.id)} title="حذف">❌</button>
+                        <button className="tb-action-btn btn-wa" onClick={() => { navigator.clipboard.writeText(item.generatedReply); alert(text.alerts.copySuccess); }} title={text.table.copy}>{text.table.copy}</button>
+                        <button className="tb-action-btn btn-edit" onClick={() => handleEdit(item)} title="✏️">✏️</button>
+                        <button className="tb-action-btn btn-delete" onClick={() => handleDelete(item.id)} title="❌">❌</button>
                       </div>
                     </td>
                   </tr>
@@ -482,8 +653,8 @@ export default function SupportTemplatesAE() {
             {filteredItems.length > 0 && (
               <tfoot>
                 <tr className="tfoot-row">
-                  <td colSpan={4} style={{ textAlign: 'center' }}>إجمالي القوالب المسجلة</td>
-                  <td>{items.length} قوالب</td>
+                  <td colSpan={4} style={{ textAlign: 'center' }}>{text.table.totalLabel}</td>
+                  <td>{items.length} {text.table.templatesCount}</td>
                 </tr>
               </tfoot>
             )}
