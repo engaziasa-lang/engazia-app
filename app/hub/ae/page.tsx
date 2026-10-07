@@ -173,8 +173,37 @@ export default function EnjazyaUaeHub() {
         .brand { font-size: 26px; font-weight: 900; color: #0f172a; white-space: nowrap; display: flex; align-items: center; gap: 12px; letter-spacing: -0.5px; }
         .ae-badge { background: #fef2f2; color: #ce1126; font-size: 12px; font-weight: 800; padding: 5px 10px; border-radius: 6px; letter-spacing: normal; display: inline-flex; align-items: center; border: 1px solid #fecaca; }
         .nav-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; flex-direction: row-reverse; }
-        .action-btn-primary { background: linear-gradient(135deg, #00732f 0%, #005221 100%); color: #ffffff; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 900; font-size: 14px; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; box-shadow: 0 4px 12px rgba(0,115,47,0.25); white-space: nowrap; }
-        .action-btn-primary:hover { background: linear-gradient(135deg, #005f25 0%, #003b17 100%); color: #fff; transform: translateY(-1px); }
+        
+        /* تحديث زر الترقية العلوي باللون الأحمر مع تأثير النبض (Pulse Animation) */
+        .action-btn-primary { 
+          background: linear-gradient(135deg, #ce1126 0%, #991b1b 100%); 
+          color: #ffffff !important; 
+          border: 1px solid #fecaca; 
+          padding: 10px 24px; 
+          border-radius: 10px; 
+          font-weight: 900; 
+          font-size: 15px; 
+          cursor: pointer; 
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+          display: inline-flex; 
+          align-items: center; 
+          gap: 8px; 
+          text-decoration: none; 
+          box-shadow: 0 4px 15px rgba(206, 17, 38, 0.4); 
+          white-space: nowrap; 
+          animation: pulse-red 2s infinite; 
+        }
+        .action-btn-primary:hover { 
+          background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); 
+          transform: translateY(-3px) scale(1.02); 
+          box-shadow: 0 8px 25px rgba(206, 17, 38, 0.5); 
+        }
+        @keyframes pulse-red {
+          0% { box-shadow: 0 0 0 0 rgba(206, 17, 38, 0.7); }
+          70% { box-shadow: 0 0 0 12px rgba(206, 17, 38, 0); }
+          100% { box-shadow: 0 0 0 0 rgba(206, 17, 38, 0); }
+        }
+
         .backup-action-btn { background: #0f172a; color: #fff; border: none; padding: 9px 14px; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
         .backup-action-btn:hover { background: #1e293b; }
         .restore-action-btn { background: #f8fafc; color: #334155; border: 1px solid #cbd5e1; padding: 9px 14px; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
@@ -184,7 +213,7 @@ export default function EnjazyaUaeHub() {
         .license-input:focus { border-color: #00732f; box-shadow: 0 0 0 2px rgba(0,115,47,0.15); }
         .backup-warning-bar { max-width: 1250px; margin: 0 auto 25px; background: #fffbeb; border: 1px solid #fde68a; color: #92400e; padding: 10px 18px; border-radius: 10px; font-size: 13px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; border-right: 4px solid #ce1126; }
         
-        /* تحديثات البنر إلى اللون الأبيض الفاخر والنظيف (Clean Premium White) */
+        /* البنر الأبيض الفاخر والنظيف (Clean Premium White) */
         .promo-banner { max-width: 1250px; margin: 0 auto 35px; background: #ffffff; border-radius: 16px; padding: 24px 32px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; box-shadow: 0 15px 35px -5px rgba(206, 17, 38, 0.12); border: 2px solid #fecaca; }
         .promo-content { flex: 1 1 min-content; display: flex; flex-direction: column; gap: 8px; }
         .promo-heading { font-size: 20px; font-weight: 900; margin: 0 0 4px 0; display: flex; align-items: center; gap: 8px; color: #0f172a; }
