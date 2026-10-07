@@ -393,7 +393,7 @@ export default function TaxReturnPreparerAE() {
   );
 
   return (
-    <div className="tool-container" style={{ direction: lang === 'ar' ? 'rtl' : 'ltr' }}>
+    <div className="tool-container" lang={lang} style={{ direction: lang === 'ar' ? 'rtl' : 'ltr' }}>
       <style jsx global>{`
         body { background-color: #f8fafc; margin: 0; font-family: ${lang === 'ar' ? "'Tajawal', sans-serif" : "'Inter', sans-serif"}; }
         a { text-decoration: none; }
@@ -485,7 +485,13 @@ export default function TaxReturnPreparerAE() {
               <div className="input-group">
                 <label>{text.invDate}</label>
                 <div className="input-wrapper">
-                  <input type="date" value={invoiceDate} onChange={(e) => setInvoiceDate(e.target.value)} required />
+                  <input 
+                    type="date" 
+                    lang={lang === 'ar' ? 'ar-AE' : 'en-US'} 
+                    value={invoiceDate} 
+                    onChange={(e) => setInvoiceDate(e.target.value)} 
+                    required 
+                  />
                 </div>
               </div>
               <div className="input-group">
