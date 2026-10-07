@@ -169,12 +169,13 @@ export default function EnjazyaUaeHub() {
       <style jsx>{`
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
         .hub-container { background-color: #f8fafc; min-height: 100vh; font-family: 'Tajawal', sans-serif; padding: 30px 20px 40px; }
-        .navbar { max-width: 1250px; margin: 0 auto 20px; padding: 14px 24px; background: #ffffff; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 15px; border-top: 5px solid #00732f; position: relative; }
+        
+        /* إزالة اللون الأخضر من الـ Navbar واستبداله بالأحمر الإماراتي */
+        .navbar { max-width: 1250px; margin: 0 auto 20px; padding: 14px 24px; background: #ffffff; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 15px; border-top: 5px solid #ce1126; position: relative; }
         .brand { font-size: 26px; font-weight: 900; color: #0f172a; white-space: nowrap; display: flex; align-items: center; gap: 12px; letter-spacing: -0.5px; }
         .ae-badge { background: #fef2f2; color: #ce1126; font-size: 12px; font-weight: 800; padding: 5px 10px; border-radius: 6px; letter-spacing: normal; display: inline-flex; align-items: center; border: 1px solid #fecaca; }
         .nav-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; flex-direction: row-reverse; }
         
-        /* تحديث زر الترقية العلوي باللون الأحمر مع تأثير النبض (Pulse Animation) */
         .action-btn-primary { 
           background: linear-gradient(135deg, #ce1126 0%, #991b1b 100%); 
           color: #ffffff !important; 
@@ -209,11 +210,10 @@ export default function EnjazyaUaeHub() {
         .restore-action-btn { background: #f8fafc; color: #334155; border: 1px solid #cbd5e1; padding: 9px 14px; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
         .restore-action-btn:hover { background: #e2e8f0; }
         .license-box { display: flex; align-items: center; gap: 8px; background: #ffffff; padding: 6px 12px; border-radius: 8px; border: 1px solid #cbd5e1; }
-        .license-input { border: 1px solid #cbd5e1; border-radius: 6px; padding: 7px 10px; font-size: 12px; outline: none; width: 140px; background: #fff; color: #0f172a; }
-        .license-input:focus { border-color: #00732f; box-shadow: 0 0 0 2px rgba(0,115,47,0.15); }
+        .license-input { border: 1px solid #cbd5e1; border-radius: 6px; padding: 7px 10px; font-size: 12px; outline: none; width: 140px; background: #fff; color: #0f172a; transition: all 0.2s; }
+        .license-input:focus { border-color: #ce1126; box-shadow: 0 0 0 2px rgba(206, 17, 38, 0.15); }
         .backup-warning-bar { max-width: 1250px; margin: 0 auto 25px; background: #fffbeb; border: 1px solid #fde68a; color: #92400e; padding: 10px 18px; border-radius: 10px; font-size: 13px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; border-right: 4px solid #ce1126; }
         
-        /* البنر الأبيض الفاخر والنظيف (Clean Premium White) */
         .promo-banner { max-width: 1250px; margin: 0 auto 35px; background: #ffffff; border-radius: 16px; padding: 24px 32px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; box-shadow: 0 15px 35px -5px rgba(206, 17, 38, 0.12); border: 2px solid #fecaca; }
         .promo-content { flex: 1 1 min-content; display: flex; flex-direction: column; gap: 8px; }
         .promo-heading { font-size: 20px; font-weight: 900; margin: 0 0 4px 0; display: flex; align-items: center; gap: 8px; color: #0f172a; }
@@ -228,20 +228,29 @@ export default function EnjazyaUaeHub() {
         .hero h1 { font-size: 36px; font-weight: 900; color: #0f172a; margin-bottom: 15px; letter-spacing: -0.5px; }
         .hero h1 span { color: #ce1126; }
         .hero p { color: #475569; font-size: 16px; line-height: 1.7; font-weight: 500; }
+        
+        /* تحديثات البطاقات: إزالة اللون الأخضر واستبداله بالرمادي الأنيق والأحمر */
         .cards-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; max-width: 1250px; margin: 0 auto 60px; }
         .card { background: #ffffff; border-radius: 12px; padding: 24px; border: 2px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.3s ease; display: flex; flex-direction: column; justify-content: space-between; text-align: start; }
-        .card:hover { transform: translateY(-5px); border-color: #00732f; box-shadow: 0 15px 30px -5px rgba(0,115,47,0.12); }
+        .card:hover { transform: translateY(-5px); border-color: #ce1126; box-shadow: 0 15px 30px -5px rgba(206, 17, 38, 0.12); }
+        
         .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
-        .card-icon { font-size: 28px; background: #f8fafc; width: 55px; height: 55px; display: flex; align-items: center; justify-content: center; border-radius: 10px; border: 1px solid #e2e8f0; }
-        .card:hover .card-icon { background: #f0fdf4; border-color: #bbf7d0; }
-        .card-badge { background: #f1f5f9; color: #475569; font-size: 14px; font-weight: 900; padding: 6px 14px; border-radius: 8px; }
-        .card:hover .card-badge { color: #00732f; background: #f0fdf4; }
+        .card-icon { font-size: 28px; background: #f8fafc; width: 55px; height: 55px; display: flex; align-items: center; justify-content: center; border-radius: 10px; border: 1px solid #e2e8f0; transition: all 0.3s ease; }
+        .card:hover .card-icon { background: #fef2f2; border-color: #fecaca; }
+        
+        .card-badge { background: #f1f5f9; color: #475569; font-size: 14px; font-weight: 900; padding: 6px 14px; border-radius: 8px; transition: all 0.3s ease; }
+        .card:hover .card-badge { color: #ce1126; background: #fef2f2; }
+        
         .card h3 { font-size: 18px; font-weight: 900; color: #0f172a; margin-bottom: 10px; line-height: 1.4; transition: color 0.3s ease; }
-        .card:hover h3 { color: #00732f; }
+        .card:hover h3 { color: #ce1126; }
         .card p { color: #64748b; font-size: 13.5px; line-height: 1.6; font-weight: 500; margin-bottom: 24px; min-height: 50px; }
-        .card-btn { background: #f0fdf4; color: #00732f; text-align: center; padding: 14px; border-radius: 8px; font-weight: 800; font-size: 14px; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .card:hover .card-btn { background: #00732f; color: #ffffff; box-shadow: 0 4px 12px rgba(0,115,47,0.25); }
-        .footer { max-width: 1250px; margin: 0 auto; background: #000000; border-radius: 16px; padding: 40px; color: #f8fafc; border: 2px solid #00732f; text-align: start; }
+        
+        /* تحديث زر "تشغيل الأداة" ليكون احترافياً ويتماشى مع الثيم */
+        .card-btn { background: #f8fafc; color: #334155; border: 1px solid #e2e8f0; text-align: center; padding: 14px; border-radius: 8px; font-weight: 800; font-size: 14px; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .card:hover .card-btn { background: #ce1126; color: #ffffff; border-color: #ce1126; box-shadow: 0 4px 12px rgba(206, 17, 38, 0.25); }
+
+        /* تحديث الفوتر ليناسب الهوية الداكنة المتميزة */
+        .footer { max-width: 1250px; margin: 0 auto; background: #000000; border-radius: 16px; padding: 40px; color: #f8fafc; border: 2px solid #1e293b; text-align: start; }
         .footer-content { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 30px; margin-bottom: 30px; border-bottom: 1px solid #222222; padding-bottom: 30px; }
         .footer-brand { max-width: 400px; }
         .footer-brand h3 { font-size: 24px; font-weight: 900; margin-bottom: 15px; color: #ffffff; letter-spacing: -0.5px; }
@@ -252,7 +261,7 @@ export default function EnjazyaUaeHub() {
         .links-column ul { list-style: none; padding: 0; margin: 0; }
         .links-column ul li { margin-bottom: 12px; }
         .links-column ul li a { color: #94a3b8 !important; font-size: 14px; font-weight: 500; transition: color 0.2s; }
-        .links-column ul li a:hover { color: #00732f !important; }
+        .links-column ul li a:hover { color: #ce1126 !important; }
         .footer-bottom { text-align: center; color: #64748b; font-size: 14px; font-weight: 500; }
 
         @media(max-width: 1024px) { .cards-grid { grid-template-columns: repeat(2, 1fr); } .footer-content { flex-direction: column; } }
@@ -288,7 +297,7 @@ export default function EnjazyaUaeHub() {
             <span style={{ fontSize: '13px', fontWeight: 800, color: '#475569' }}>🔑 ترخيص PRO:</span>
             {isActivated ? (
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '13px', fontWeight: 900, color: '#00732f', padding: '4px 8px' }}>المنصة مفعلة ✓</span>
+                <span style={{ fontSize: '13px', fontWeight: 900, color: '#16a34a', padding: '4px 8px' }}>المنصة مفعلة ✓</span>
                 <button 
                   onClick={handleDeactivate}
                   style={{ background: '#fee2e2', color: '#991b1b', border: '1px solid #fca5a5', padding: '4px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: 800, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif' }}
@@ -309,7 +318,7 @@ export default function EnjazyaUaeHub() {
                 <button 
                   onClick={handleActivateLicense}
                   disabled={isLoading}
-                  style={{ background: '#00732f', color: '#fff', border: 'none', padding: '7px 14px', borderRadius: '6px', fontSize: '12px', fontWeight: 900, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif', opacity: isLoading ? 0.7 : 1 }}
+                  style={{ background: '#0f172a', color: '#fff', border: 'none', padding: '7px 14px', borderRadius: '6px', fontSize: '12px', fontWeight: 900, cursor: 'pointer', fontFamily: 'Tajawal, sans-serif', opacity: isLoading ? 0.7 : 1 }}
                 >
                   {isLoading ? 'جاري التحقق...' : 'تفعيل'}
                 </button>
