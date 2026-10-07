@@ -17,8 +17,10 @@ interface RoasItem {
 }
 
 export default function RoasCalculatorAE() {
+  const [lang, setLang] = useState<'ar' | 'en'>('ar');
+
   const [campaignName, setCampaignName] = useState<string>('');
-  const [platformInput, setPlatformInput] = useState<string>('تيك توك (TikTok Ads)');
+  const [platformInput, setPlatformInput] = useState<string>('');
   const [adSpend, setAdSpend] = useState<number | ''>('');
   const [ordersGenerated, setOrdersGenerated] = useState<number | ''>('');
   const [revenueGenerated, setRevenueGenerated] = useState<number | ''>('');
@@ -28,9 +30,25 @@ export default function RoasCalculatorAE() {
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  const [isClient, setIsClient] = useState(false);
+  const [isActivated, setIsActivated] = useState(true);
 
   useEffect(() => {
-    // تم تغيير مفتاح التخزين لفصل بيانات الإمارات عن السعودية
+    setIsClient(true);
+    setIsActivated(!!localStorage.getItem('merchant_license_key'));
+    
+    // قراءة اللغة من الصفحة الرئيسية
+    const savedLang = localStorage.getItem('seerk_global_lang') as 'ar' | 'en';
+    if (savedLang) {
+      setLang(savedLang);
+      if (savedLang === 'en') {
+        setPlatformInput('TikTok Ads');
+      } else {
+        setPlatformInput('تيك توك (TikTok Ads)');
+      }
+    }
+
     const saved = localStorage.getItem('seerk_ae_roas_calculator_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
@@ -42,23 +60,151 @@ export default function RoasCalculatorAE() {
     localStorage.setItem('seerk_ae_roas_calculator_items', JSON.stringify(newItems));
   };
 
-  const isActivated = typeof window !== 'undefined' && !!localStorage.getItem('merchant_license_key');
-
   const spend = typeof adSpend === 'number' ? adSpend : 0;
   const orders = typeof ordersGenerated === 'number' ? ordersGenerated : 0;
   const rev = typeof revenueGenerated === 'number' ? revenueGenerated : 0;
 
   // الحسابات الفعلية
-  const cac = orders > 0 ? spend / orders : 0; // تكلفة الاستحواذ على العميل
-  const roas = spend > 0 ? rev / spend : 0; // العائد على الإنفاق الإعلاني
+  const cac = orders > 0 ? spend / orders : 0;
+  const roas = spend > 0 ? rev / spend : 0;
 
-  let status = 'خسارة (إيقاف الحملة)';
+  // قاموس الترجمة الفوري
+  const t = {
+    ar: {
+      back: '← عودة للمنصة',
+      title: 'محلل عائد الإعلانات (ROAS) 📈',
+      desc: 'قس بدقة أداء إعلاناتك وهل تحقق عوائد مجزية أم تستنزف ميزانيتك في متجرك الإماراتي',
+      editRecord: 'تعديل الحملة',
+      newRecord: 'تحليل حملة إعلانية جديدة',
+      clear: '🧹 مسح الحقول',
+      trial: 'تجريبي',
+      campName: 'اسم الحملة الإعلانية',
+      campNamePH: 'مثال: حملة دبي للتسوق',
+      platformLabel: 'اختيار المنصة (أو كتابتها يدوياً)',
+      platTikTok: 'تيك توك (TikTok Ads)',
+      platSnap: 'سناب شات (Snapchat Ads)',
+      platGoogle: 'إعلانات جوجل (Google Ads)',
+      platMeta: 'ميتا (Instagram / Meta)',
+      platActualPH: 'اسم المنصة الفعلي',
+      adSpend: 'الميزانية المنفقة على الحملة (Ad Spend)',
+      adSpendPH: '6000',
+      ordersGen: 'عدد الطلبات المحققة من الحملة',
+      ordersGenPH: '120',
+      revGen: 'إجمالي العائد المحقق (Revenue)',
+      revGenPH: '24000',
+      saveBtnNew: '+ حفظ التحليل في السجل',
+      saveBtnEdit: '💾 حفظ التعديلات',
+      analysisTitle: 'مؤشرات الأداء الفورية (KPIs)',
+      roasLabel: 'مؤشر العائد على الإنفاق (ROAS)',
+      roasSub: 'كل درهم تم إنفاقه كم حقق إيرادات',
+      cacLabel: 'تكلفة الاستحواذ على العميل (CAC)',
+      totalRevLabel: 'إجمالي العائد (Revenue)',
+      decisionLabel: 'القرار المقترح للحملة:',
+      statusGood: 'ممتاز جداً (زيادة الميزانية) 🚀',
+      statusWarn: 'جيد (تحتاج تحسين)',
+      statusBad: 'خسارة (إيقاف الحملة)',
+      currency: 'د.إ',
+      ordersUnit: 'طلب',
+      searchPH: '🔍 بحث في الحملات...',
+      exportBtn: '📥 تصدير Excel',
+      importBtn: '📂 استيراد',
+      table: {
+        noRecords: 'لا توجد حملات إعلانية مسجلة في الجدول حالياً.',
+        th1: '#',
+        th2: 'الحملة والمنصة',
+        th3: 'الإنفاق',
+        th4: 'الطلبات (CAC)',
+        th5: 'العائد (Revenue)',
+        th6: 'مؤشر (ROAS)',
+        th7: 'الإجراءات',
+        edit: 'تعديل',
+        delete: 'حذف',
+        totalLabel: 'الإجمالي الكلي / المتوسط'
+      },
+      alerts: {
+        limit: '🔒 عذراً، لقد استهلكت الحد التجريبي (3 حملات). يرجى ترقية حسابك لفتح السعة الكاملة بلا حدود!',
+        fillErr: 'الرجاء إدخال اسم الحملة والميزانية بشكل صحيح.',
+        updateSuccess: '✨ تم تحديث الحملة بنجاح!',
+        saveSuccess: '✅ تمت إضافة التحليل إلى السجل بنجاح!',
+        delConfirm: 'هل أنت متأكد من حذف هذه الحملة من السجل؟',
+        noDataExp: 'لا توجد بيانات لتصديرها.',
+        importSuccess: '✨ تم استيراد البيانات بنجاح!',
+        importErr: '❌ ملف غير صالح.'
+      }
+    },
+    en: {
+      back: '→ Back to Hub',
+      title: 'Return on Ad Spend (ROAS) Analyzer 📈',
+      desc: 'Accurately measure your ad performance and see if they bring profitable returns to your UAE store',
+      editRecord: 'Edit Campaign',
+      newRecord: 'Analyze New Ad Campaign',
+      clear: '🧹 Clear Fields',
+      trial: 'Trial',
+      campName: 'Ad Campaign Name',
+      campNamePH: 'e.g. Dubai Shopping Fest Campaign',
+      platformLabel: 'Select Platform (or type manually)',
+      platTikTok: 'TikTok Ads',
+      platSnap: 'Snapchat Ads',
+      platGoogle: 'Google Ads',
+      platMeta: 'Meta (Instagram / Facebook)',
+      platActualPH: 'Actual Platform Name',
+      adSpend: 'Campaign Ad Spend Budget',
+      adSpendPH: '6000',
+      ordersGen: 'Orders Generated from Campaign',
+      ordersGenPH: '120',
+      revGen: 'Total Revenue Generated',
+      revGenPH: '24000',
+      saveBtnNew: '+ Save Analysis to Log',
+      saveBtnEdit: '💾 Save Changes',
+      analysisTitle: 'Instant Key Performance Indicators (KPIs)',
+      roasLabel: 'Return on Ad Spend (ROAS)',
+      roasSub: 'Revenue generated for every Dirham spent',
+      cacLabel: 'Customer Acquisition Cost (CAC)',
+      totalRevLabel: 'Total Revenue Generated',
+      decisionLabel: 'Suggested Campaign Decision:',
+      statusGood: 'Excellent (Scale Budget) 🚀',
+      statusWarn: 'Good (Needs Optimization)',
+      statusBad: 'Loss (Stop Campaign)',
+      currency: 'AED',
+      ordersUnit: 'order(s)',
+      searchPH: '🔍 Search campaigns...',
+      exportBtn: '📥 Export Excel',
+      importBtn: '📂 Import',
+      table: {
+        noRecords: 'No ad campaigns currently saved in the table.',
+        th1: '#',
+        th2: 'Campaign & Platform',
+        th3: 'Ad Spend',
+        th4: 'Orders (CAC)',
+        th5: 'Revenue',
+        th6: 'ROAS',
+        th7: 'Actions',
+        edit: 'Edit',
+        delete: 'Delete',
+        totalLabel: 'Grand Total / Average'
+      },
+      alerts: {
+        limit: '🔒 Sorry, you reached the trial limit (3 campaigns). Please upgrade to unlock unlimited access!',
+        fillErr: 'Please enter a valid campaign name and budget.',
+        updateSuccess: '✨ Campaign updated successfully!',
+        saveSuccess: '✅ Analysis added to log successfully!',
+        delConfirm: 'Are you sure you want to delete this campaign?',
+        noDataExp: 'No data to export.',
+        importSuccess: '✨ Data imported successfully!',
+        importErr: '❌ Invalid file.'
+      }
+    }
+  };
+
+  const text = t[lang];
+
+  let statusStr = text.statusBad;
   let statusColor = '#dc2626';
   if (roas >= 3) {
-    status = 'ممتاز جداً (زيادة الميزانية) 🚀';
+    statusStr = text.statusGood;
     statusColor = '#047857';
   } else if (roas >= 1.5) {
-    status = 'جيد (تحتاج تحسين)';
+    statusStr = text.statusWarn;
     statusColor = '#d97706';
   }
 
@@ -68,28 +214,33 @@ export default function RoasCalculatorAE() {
 
   const handleClearForm = () => {
     setCampaignName('');
-    setPlatformInput('تيك توك (TikTok Ads)');
+    setPlatformInput(lang === 'en' ? 'TikTok Ads' : 'تيك توك (TikTok Ads)');
     setAdSpend('');
     setOrdersGenerated('');
     setRevenueGenerated('');
     setEditingId(null);
+    const selectEl = document.getElementById('platform-preset') as HTMLSelectElement;
+    if (selectEl) selectEl.value = lang === 'en' ? 'TikTok Ads' : 'تيك توك (TikTok Ads)';
   };
 
   const handleSaveItem = (e: React.FormEvent) => {
     e.preventDefault();
     if (!isActivated && items.length >= 3 && !editingId) {
-      alert('🔒 عذراً، لقد استهلكت الحد التجريبي (3 حملات). يرجى ترقية حسابك لفتح السعة الكاملة بلا حدود!');
+      alert(text.alerts.limit);
       return;
     }
     if (!campaignName.trim() || spend <= 0) {
-      alert('الرجاء إدخال اسم الحملة والميزانية بشكل صحيح.');
+      alert(text.alerts.fillErr);
       return;
     }
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    // تعديل التوقيت ليطابق الإمارات
-    const formattedDate = `${now.toLocaleDateString('ar-AE')} - ${now.toLocaleTimeString('ar-AE', timeOptions)}`;
+    const localeStr = lang === 'ar' ? 'ar-AE' : 'en-AE';
+    const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
+
+    // نحفظ الحالة باللغة العربية كقيمة مرجعية في الـ DB
+    const dbStatus = roas >= 3 ? 'ممتاز جداً (زيادة الميزانية) 🚀' : roas >= 1.5 ? 'جيد (تحتاج تحسين)' : 'خسارة (إيقاف الحملة)';
 
     if (editingId) {
       const updated = items.map(item => item.id === editingId ? {
@@ -101,12 +252,12 @@ export default function RoasCalculatorAE() {
         revenueGenerated: rev,
         cac: Number(cac.toFixed(2)),
         roas: Number(roas.toFixed(2)),
-        status,
+        status: dbStatus,
         createdAt: item.createdAt || formattedDate
       } : item);
       saveToLocalStorage(updated);
       setEditingId(null);
-      alert('✨ تم تحديث الحملة بنجاح!');
+      alert(text.alerts.updateSuccess);
     } else {
       const newItem: RoasItem = {
         id: Date.now().toString(),
@@ -117,11 +268,11 @@ export default function RoasCalculatorAE() {
         revenueGenerated: rev,
         cac: Number(cac.toFixed(2)),
         roas: Number(roas.toFixed(2)),
-        status,
+        status: dbStatus,
         createdAt: formattedDate
       };
       saveToLocalStorage([...items, newItem]);
-      alert('✅ تمت إضافة التحليل إلى السجل بنجاح!');
+      alert(text.alerts.saveSuccess);
     }
 
     handleClearForm();
@@ -129,7 +280,26 @@ export default function RoasCalculatorAE() {
 
   const handleEdit = (item: RoasItem) => {
     setCampaignName(item.campaignName);
-    setPlatformInput(item.platform);
+    
+    // مطابقة المنصة
+    const isTikTok = item.platform.toLowerCase().includes('tiktok') || item.platform.includes('تيك');
+    const isSnap = item.platform.toLowerCase().includes('snap') || item.platform.includes('سناب');
+    const isGoogle = item.platform.toLowerCase().includes('google') || item.platform.includes('جوجل');
+    const isMeta = item.platform.toLowerCase().includes('meta') || item.platform.toLowerCase().includes('insta') || item.platform.includes('ميتا');
+
+    let matchedPlatform = item.platform;
+    if (isTikTok) matchedPlatform = text.platTikTok;
+    else if (isSnap) matchedPlatform = text.platSnap;
+    else if (isGoogle) matchedPlatform = text.platGoogle;
+    else if (isMeta) matchedPlatform = text.platMeta;
+
+    setPlatformInput(matchedPlatform);
+    
+    const selectEl = document.getElementById('platform-preset') as HTMLSelectElement;
+    if (selectEl && [text.platTikTok, text.platSnap, text.platGoogle, text.platMeta].includes(matchedPlatform)) {
+      selectEl.value = matchedPlatform;
+    }
+
     setAdSpend(item.adSpend);
     setOrdersGenerated(item.ordersGenerated);
     setRevenueGenerated(item.revenueGenerated);
@@ -138,7 +308,7 @@ export default function RoasCalculatorAE() {
   };
 
   const handleDelete = (id: string) => {
-    if (confirm('هل أنت متأكد من حذف هذه الحملة من السجل؟')) {
+    if (confirm(text.alerts.delConfirm)) {
       const filtered = items.filter(i => i.id !== id);
       saveToLocalStorage(filtered);
     }
@@ -146,7 +316,7 @@ export default function RoasCalculatorAE() {
 
   const handleExportExcel = () => {
     if (items.length === 0) {
-      alert('لا توجد بيانات لتصديرها.');
+      alert(text.alerts.noDataExp);
       return;
     }
 
@@ -157,7 +327,7 @@ export default function RoasCalculatorAE() {
     const overallCac = totalOrders > 0 ? totalAdSpend / totalOrders : 0;
 
     let tableHtml = `
-      <html dir="rtl" lang="ar">
+      <html dir="${lang === 'ar' ? 'rtl' : 'ltr'}" lang="${lang}">
         <head>
           <meta charset="utf-8">
           <style>
@@ -171,15 +341,15 @@ export default function RoasCalculatorAE() {
           <table>
             <thead>
               <tr>
-                <th>م</th>
-                <th>اسم الحملة</th>
-                <th>التاريخ والوقت</th>
-                <th>المنصة الإعلانية</th>
-                <th>الميزانية (الإنفاق) (د.إ)</th>
-                <th>عدد الطلبات</th>
-                <th>إجمالي العائد (د.إ)</th>
-                <th>تكلفة الاستحواذ (CAC) (د.إ)</th>
-                <th>مؤشر العائد (ROAS)</th>
+                <th>${text.table.th1}</th>
+                <th>${text.campName}</th>
+                <th>Date / Time</th>
+                <th>Platform</th>
+                <th>${text.adSpend} (${text.currency})</th>
+                <th>${text.table.th4}</th>
+                <th>${text.revGen} (${text.currency})</th>
+                <th>CAC (${text.currency})</th>
+                <th>ROAS</th>
               </tr>
             </thead>
             <tbody>
@@ -205,7 +375,7 @@ export default function RoasCalculatorAE() {
             </tbody>
             <tfoot>
               <tr class="tfoot-row">
-                <td colspan="4">الإجمالي الكلي / المتوسط</td>
+                <td colspan="4">${text.table.totalLabel}</td>
                 <td>${totalAdSpend.toFixed(2)}</td>
                 <td>${totalOrders}</td>
                 <td>${totalRevenue.toFixed(2)}</td>
@@ -222,7 +392,7 @@ export default function RoasCalculatorAE() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", "seerk_ae_roas_analysis.xls");
+    link.setAttribute("download", "enjazya_ae_roas_analysis.xls");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -237,10 +407,10 @@ export default function RoasCalculatorAE() {
           const imported = JSON.parse(event.target?.result as string);
           if (Array.isArray(imported)) {
             saveToLocalStorage(imported);
-            alert('✨ تم استيراد البيانات بنجاح!');
+            alert(text.alerts.importSuccess);
           }
         } catch (err) {
-          alert('❌ ملف غير صالح.');
+          alert(text.alerts.importErr);
         }
       };
     }
@@ -258,16 +428,16 @@ export default function RoasCalculatorAE() {
   const overallCac = totalOrders > 0 ? totalAdSpend / totalOrders : 0;
 
   return (
-    <div className="tool-container">
+    <div className="tool-container" style={{ direction: lang === 'ar' ? 'rtl' : 'ltr' }}>
       <style jsx global>{`
-        body { background-color: #f8fafc; margin: 0; font-family: 'Tajawal', sans-serif; }
+        body { background-color: #f8fafc; margin: 0; font-family: ${lang === 'ar' ? "'Tajawal', sans-serif" : "'Inter', sans-serif"}; }
         a { text-decoration: none; }
       `}</style>
       <style jsx>{`
-        .tool-container { direction: rtl; max-width: 1100px; margin: 20px auto; padding: 20px; }
+        .tool-container { max-width: 1100px; margin: 20px auto; padding: 20px; }
         @media(max-width: 768px) { .tool-container { padding: 10px; margin: 10px auto; } }
         
-        .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; }
+        .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .back-btn { background: #ffffff; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 8px; color: #475569; font-weight: 700; font-size: 14px; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
         .back-btn:hover { background: #f1f5f9; color: #0f172a; }
         
@@ -278,133 +448,132 @@ export default function RoasCalculatorAE() {
         @media(max-width: 850px) { .grid-layout { grid-template-columns: 1fr; } }
         
         .card { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
-        .card-title { font-size: 18px; font-weight: 800; color: #1e293b; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        .card-title { font-size: 18px; font-weight: 800; color: #1e293b; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         
-        .clear-form-btn { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: 'Tajawal', sans-serif; display: flex; align-items: center; gap: 5px; }
+        .clear-form-btn { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; display: flex; align-items: center; gap: 5px; }
         .clear-form-btn:hover { background: #fecaca; }
 
-        .input-group { margin-bottom: 15px; width: 100%; }
+        .input-group { margin-bottom: 15px; width: 100%; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .input-group label { display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 6px; }
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
-        .input-wrapper input, .input-wrapper select { width: 100%; padding: 10px 45px 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 15px; font-family: 'Tajawal', sans-serif; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; }
+        .input-wrapper input, .input-wrapper select { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .input-wrapper input.with-currency { padding-${lang === 'ar' ? 'left' : 'right'}: 45px; }
         .input-wrapper input:focus, .input-wrapper select:focus { border-color: #047857; background: #ffffff; }
-        .currency-tag { position: absolute; left: 14px; color: #64748b; font-weight: 800; font-size: 13px; pointer-events: none; }
+        .currency-tag { position: absolute; ${lang === 'ar' ? 'left: 14px;' : 'right: 14px;'} color: #64748b; font-weight: 800; font-size: 13px; pointer-events: none; }
         
-        .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: 'Tajawal', sans-serif; margin-top: 10px; box-sizing: border-box; }
+        .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
         .action-btn:hover { background: #065f46; }
 
-        .result-box { background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px; }
+        .result-box { background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .result-box.primary { background: linear-gradient(135deg, #047857 0%, #065f46 100%); color: #fff; border: none; padding: 20px; }
         .result-box.warning { background: linear-gradient(135deg, #d97706 0%, #b45309 100%); color: #fff; border: none; padding: 20px; }
         .result-box.danger { background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); color: #fff; border: none; padding: 20px; }
         .result-label { font-size: 13px; font-weight: 700; color: #64748b; }
         .primary .result-label, .danger .result-label, .warning .result-label { color: #ffffff; opacity: 0.9; }
-        .result-value { font-size: 18px; font-weight: 900; color: #0f172a; }
-        .primary .result-value, .danger .result-value, .warning .result-value { font-size: 26px; color: #ffffff; }
+        .result-value { font-size: 18px; font-weight: 900; color: #0f172a; direction: ltr; }
+        .primary .result-value, .danger .result-value, .warning .result-value { font-size: 26px; color: #ffffff; direction: ${lang === 'ar' ? 'rtl' : 'ltr'}; }
 
-        .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
-        .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
-        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: 'Tajawal', sans-serif; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; }
+        .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
+        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
-        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: 'Tajawal', sans-serif; display: flex; align-items: center; justify-content: center; }
+        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; }
         .t-btn:hover { background: #f1f5f9; }
 
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 900px; }
-        .data-table th { background: #f8fafc; padding: 12px; text-align: right; border-bottom: 2px solid #cbd5e1; font-weight: 800; color: #334155; white-space: nowrap; }
+        .data-table th { background: #f8fafc; padding: 12px; text-align: ${lang === 'ar' ? 'right' : 'left'}; border-bottom: 2px solid #cbd5e1; font-weight: 800; color: #334155; white-space: nowrap; }
         .data-table td { padding: 12px; border-bottom: 1px solid #e2e8f0; color: #0f172a; font-weight: 600; vertical-align: middle; }
         .data-table tfoot td { background: #f1f5f9; font-weight: 900; color: #0f172a; border-top: 2px solid #cbd5e1; }
         
         .trial-badge { background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 800; }
         
-        .tb-action-btn { border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; font-family: 'Tajawal', sans-serif;}
+        .tb-action-btn { border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; font-family: inherit;}
         .btn-edit { background: #e0f2fe; color: #0369a1; }
         .btn-delete { background: #fee2e2; color: #991b1b; }
       `}</style>
 
       <div className="header">
         <div className="title-box">
-          <h1>محلل عائد الإعلانات (ROAS) 📈</h1>
-          <p>قس بدقة أداء إعلاناتك وهل تحقق عوائد مجزية أم تستنزف ميزانيتك في متجرك الإماراتي</p>
+          <h1>{text.title}</h1>
+          <p>{text.desc}</p>
         </div>
         <Link href="/hub/ae" className="back-btn">
-          <span>←</span> عودة للمنصة
+          {text.back}
         </Link>
       </div>
 
       <div className="grid-layout">
-        {/* قسم المدخلات */}
         <div className="card">
           <h2 className="card-title">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-              <span>{editingId ? 'تعديل الحملة' : 'تحليل حملة إعلانية جديدة'}</span>
-              <button type="button" className="clear-form-btn" onClick={handleClearForm} title="مسح الحقول">
-                🧹 مسح الحقول
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', flexDirection: lang === 'ar' ? 'row' : 'row-reverse' }}>
+              <span>{editingId ? text.editRecord : text.newRecord}</span>
+              <button type="button" className="clear-form-btn" onClick={handleClearForm}>
+                {text.clear}
               </button>
             </div>
-            {!isActivated && <span className="trial-badge">تجريبي: {items.length}/3</span>}
+            {isClient && !isActivated && <span className="trial-badge">{text.trial}: {items.length}/3</span>}
           </h2>
 
           <form onSubmit={handleSaveItem}>
             <div className="input-group">
-              <label>اسم الحملة الإعلانية</label>
+              <label>{text.campName}</label>
               <div className="input-wrapper">
-                <input type="text" value={campaignName} onChange={(e) => setCampaignName(e.target.value)} placeholder="مثال: حملة دبي للتسوق" required />
+                <input type="text" value={campaignName} onChange={(e) => setCampaignName(e.target.value)} placeholder={text.campNamePH} required />
               </div>
             </div>
 
             <div className="input-group">
-              <label>اختيار المنصة (أو كتابتها يدوياً)</label>
+              <label>{text.platformLabel}</label>
               <div className="input-wrapper" style={{ marginBottom: '8px' }}>
-                <select onChange={handlePresetChange} defaultValue="تيك توك (TikTok Ads)" style={{ padding: '10px' }}>
-                  <option value="تيك توك (TikTok Ads)">تيك توك (TikTok Ads)</option>
-                  <option value="سناب شات (Snapchat Ads)">سناب شات (Snapchat Ads)</option>
-                  <option value="إعلانات جوجل (Google Ads)">إعلانات جوجل (Google Ads)</option>
-                  <option value="ميتا (Instagram / Meta)">ميتا (Instagram / Meta)</option>
+                <select id="platform-preset" onChange={handlePresetChange} defaultValue={lang === 'en' ? text.platTikTok : text.platTikTok} style={{ padding: '10px' }}>
+                  <option value={text.platTikTok}>{text.platTikTok}</option>
+                  <option value={text.platSnap}>{text.platSnap}</option>
+                  <option value={text.platGoogle}>{text.platGoogle}</option>
+                  <option value={text.platMeta}>{text.platMeta}</option>
                 </select>
               </div>
               <div className="input-wrapper">
-                <input type="text" value={platformInput} onChange={(e) => setPlatformInput(e.target.value)} placeholder="اسم المنصة الفعلي" required />
+                <input type="text" value={platformInput} onChange={(e) => setPlatformInput(e.target.value)} placeholder={text.platActualPH} required />
               </div>
             </div>
 
             <div className="input-group">
-              <label>الميزانية المنفقة على الحملة (Ad Spend)</label>
+              <label>{text.adSpend} ({text.currency})</label>
               <div className="input-wrapper">
-                <input className="with-currency" type="number" min="0" value={adSpend === '' ? '' : adSpend} onChange={(e) => setAdSpend(e.target.value === '' ? '' : Number(e.target.value))} placeholder="6000" required />
-                <span className="currency-tag">د.إ</span>
+                <input className="with-currency" type="number" min="0" value={adSpend === '' ? '' : adSpend} onChange={(e) => setAdSpend(e.target.value === '' ? '' : Number(e.target.value))} placeholder={text.adSpendPH} required />
+                <span className="currency-tag">{text.currency}</span>
               </div>
             </div>
 
             <div className="input-group">
-              <label>عدد الطلبات المحققة من الحملة</label>
+              <label>{text.ordersGen}</label>
               <div className="input-wrapper">
-                <input type="number" min="0" value={ordersGenerated === '' ? '' : ordersGenerated} onChange={(e) => setOrdersGenerated(e.target.value === '' ? '' : Number(e.target.value))} placeholder="120" />
+                <input type="number" min="0" value={ordersGenerated === '' ? '' : ordersGenerated} onChange={(e) => setOrdersGenerated(e.target.value === '' ? '' : Number(e.target.value))} placeholder={text.ordersGenPH} />
               </div>
             </div>
 
             <div className="input-group">
-              <label>إجمالي العائد المحقق (Revenue)</label>
+              <label>{text.revGen} ({text.currency})</label>
               <div className="input-wrapper">
-                <input className="with-currency" type="number" min="0" value={revenueGenerated === '' ? '' : revenueGenerated} onChange={(e) => setRevenueGenerated(e.target.value === '' ? '' : Number(e.target.value))} placeholder="24000" required />
-                <span className="currency-tag">د.إ</span>
+                <input className="with-currency" type="number" min="0" value={revenueGenerated === '' ? '' : revenueGenerated} onChange={(e) => setRevenueGenerated(e.target.value === '' ? '' : Number(e.target.value))} placeholder={text.revGenPH} required />
+                <span className="currency-tag">{text.currency}</span>
               </div>
             </div>
 
             <button type="submit" className="action-btn">
-              {editingId ? '💾 حفظ التعديلات' : '+ حفظ التحليل في السجل'}
+              {editingId ? text.saveBtnEdit : text.saveBtnNew}
             </button>
           </form>
         </div>
 
-        {/* قسم النتائج الفورية */}
         <div className="card">
-          <h2 className="card-title">مؤشرات الأداء الفورية (KPIs)</h2>
+          <h2 className="card-title">{text.analysisTitle}</h2>
 
           <div className={`result-box ${roas >= 3 ? 'primary' : roas >= 1.5 ? 'warning' : 'danger'}`}>
             <div>
-              <div className="result-label">مؤشر العائد على الإنفاق (ROAS)</div>
-              <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '2px' }}>كل درهم تم إنفاقه كم حقق إيرادات</div>
+              <div className="result-label">{text.roasLabel}</div>
+              <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '2px' }}>{text.roasSub}</div>
             </div>
             <div className="result-value">
               {roas.toFixed(2)}x
@@ -412,35 +581,34 @@ export default function RoasCalculatorAE() {
           </div>
 
           <div className="result-box">
-            <span className="result-label">تكلفة الاستحواذ على العميل (CAC)</span>
-            <span className="result-value" style={{ color: '#047857' }}>{cac.toFixed(2)} د.إ</span>
+            <span className="result-label">{text.cacLabel}</span>
+            <span className="result-value" style={{ color: '#047857' }}>{cac.toFixed(2)} {text.currency}</span>
           </div>
 
           <div className="result-box" style={{ background: '#f8fafc' }}>
-            <span className="result-label">إجمالي العائد (Revenue)</span>
-            <span className="result-value">{rev.toFixed(2)} د.إ</span>
+            <span className="result-label">{text.totalRevLabel}</span>
+            <span className="result-value">{rev.toFixed(2)} {text.currency}</span>
           </div>
 
           <div style={{ marginTop: '20px', padding: '15px', borderRadius: '8px', background: roas >= 3 ? '#ecfdf5' : roas >= 1.5 ? '#fffbeb' : '#fef2f2', border: `1px solid ${roas >= 3 ? '#a7f3d0' : roas >= 1.5 ? '#fde68a' : '#fecaca'}`, textAlign: 'center' }}>
-            <div style={{ fontSize: '13px', color: '#475569', marginBottom: '5px', fontWeight: 800 }}>القرار المقترح للحملة:</div>
-            <div style={{ fontSize: '16px', fontWeight: 900, color: statusColor }}>{status}</div>
+            <div style={{ fontSize: '13px', color: '#475569', marginBottom: '5px', fontWeight: 800 }}>{text.decisionLabel}</div>
+            <div style={{ fontSize: '16px', fontWeight: 900, color: statusColor }}>{statusStr}</div>
           </div>
         </div>
       </div>
 
-      {/* جدول إدارة البيانات السفلي */}
       <div className="table-section">
         <div className="table-toolbar">
           <input 
             type="text" 
             className="search-input" 
-            placeholder="🔍 بحث في الحملات..." 
+            placeholder={text.searchPH} 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
           <div className="table-btns">
-            <button className="t-btn" onClick={handleExportExcel} title="تصدير بصيغة Excel لدعم اللغة العربية">📥 تصدير Excel</button>
-            <button className="t-btn" onClick={() => fileInputRef.current?.click()}>📂 استيراد</button>
+            <button className="t-btn" onClick={handleExportExcel}>{text.exportBtn}</button>
+            <button className="t-btn" onClick={() => fileInputRef.current?.click()}>{text.importBtn}</button>
             <input type="file" ref={fileInputRef} onChange={handleImportJson} accept=".json" style={{ display: 'none' }} />
           </div>
         </div>
@@ -449,20 +617,20 @@ export default function RoasCalculatorAE() {
           <table className="data-table">
             <thead>
               <tr>
-                <th>#</th>
-                <th>الحملة والمنصة</th>
-                <th>الإنفاق</th>
-                <th>الطلبات (CAC)</th>
-                <th>العائد (Revenue)</th>
-                <th>مؤشر (ROAS)</th>
-                <th>الإجراءات</th>
+                <th>{text.table.th1}</th>
+                <th>{text.table.th2}</th>
+                <th>{text.table.th3}</th>
+                <th>{text.table.th4}</th>
+                <th>{text.table.th5}</th>
+                <th>{text.table.th6}</th>
+                <th>{text.table.th7}</th>
               </tr>
             </thead>
             <tbody>
               {filteredItems.length === 0 ? (
                 <tr>
                   <td colSpan={7} style={{ textAlign: 'center', color: '#94a3b8', padding: '30px 0' }}>
-                    لا توجد حملات إعلانية مسجلة في الجدول حالياً.
+                    {text.table.noRecords}
                   </td>
                 </tr>
               ) : (
@@ -474,21 +642,21 @@ export default function RoasCalculatorAE() {
                       <div style={{ fontSize: '11px', color: '#0369a1', marginTop: '2px', fontWeight: 800 }}>{item.platform}</div>
                       {item.createdAt && <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', fontWeight: 600 }}>🕒 {item.createdAt}</div>}
                     </td>
-                    <td style={{ color: '#dc2626' }}>{item.adSpend} د.إ</td>
+                    <td style={{ color: '#dc2626' }}>{item.adSpend} {text.currency}</td>
                     <td>
-                      <div style={{ fontWeight: 800 }}>{item.ordersGenerated} طلب</div>
-                      <div style={{ fontSize: '11px', color: '#64748b' }}>CAC: {item.cac} د.إ</div>
+                      <div style={{ fontWeight: 800 }}>{item.ordersGenerated} {text.ordersUnit}</div>
+                      <div style={{ fontSize: '11px', color: '#64748b' }}>CAC: {item.cac} {text.currency}</div>
                     </td>
-                    <td style={{ fontWeight: 900 }}>{item.revenueGenerated} د.إ</td>
+                    <td style={{ fontWeight: 900 }}>{item.revenueGenerated} {text.currency}</td>
                     <td>
-                      <span style={{ background: item.roas >= 3 ? '#ecfdf5' : item.roas >= 1.5 ? '#fffbeb' : '#fef2f2', color: item.roas >= 3 ? '#047857' : item.roas >= 1.5 ? '#d97706' : '#dc2626', padding: '4px 8px', borderRadius: '6px', fontWeight: 900, fontSize: '14px' }}>
+                      <span style={{ background: item.roas >= 3 ? '#ecfdf5' : item.roas >= 1.5 ? '#fffbeb' : '#fef2f2', color: item.roas >= 3 ? '#047857' : item.roas >= 1.5 ? '#d97706' : '#dc2626', padding: '4px 8px', borderRadius: '6px', fontWeight: 900, fontSize: '14px', direction: 'ltr', display: 'inline-block' }}>
                         {item.roas}x
                       </span>
                     </td>
                     <td>
                       <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                        <button className="tb-action-btn btn-edit" onClick={() => handleEdit(item)} title="تعديل">✏️ تعديل</button>
-                        <button className="tb-action-btn btn-delete" onClick={() => handleDelete(item.id)} title="حذف">❌ حذف</button>
+                        <button className="tb-action-btn btn-edit" onClick={() => handleEdit(item)} title={text.table.edit}>✏️ {text.table.edit}</button>
+                        <button className="tb-action-btn btn-delete" onClick={() => handleDelete(item.id)} title={text.table.delete}>❌ {text.table.delete}</button>
                       </div>
                     </td>
                   </tr>
@@ -498,14 +666,14 @@ export default function RoasCalculatorAE() {
             {filteredItems.length > 0 && (
               <tfoot>
                 <tr className="tfoot-row">
-                  <td colSpan={2} style={{ textAlign: 'center' }}>الإجمالي الكلي / المتوسط</td>
-                  <td style={{ color: '#dc2626' }}>{totalAdSpend.toFixed(2)} د.إ</td>
+                  <td colSpan={2} style={{ textAlign: 'center' }}>{text.table.totalLabel}</td>
+                  <td style={{ color: '#dc2626' }}>{totalAdSpend.toFixed(2)} {text.currency}</td>
                   <td>
-                    <div>{totalOrders} طلب</div>
-                    <div style={{ fontSize: '11px', color: '#64748b' }}>CAC: {overallCac.toFixed(2)} د.إ</div>
+                    <div>{totalOrders} {text.ordersUnit}</div>
+                    <div style={{ fontSize: '11px', color: '#64748b' }}>CAC: {overallCac.toFixed(2)} {text.currency}</div>
                   </td>
-                  <td>{totalRevenue.toFixed(2)} د.إ</td>
-                  <td style={{ color: overallRoas >= 3 ? '#047857' : overallRoas >= 1.5 ? '#d97706' : '#dc2626' }}>{overallRoas.toFixed(2)}x</td>
+                  <td>{totalRevenue.toFixed(2)} {text.currency}</td>
+                  <td style={{ color: overallRoas >= 3 ? '#047857' : overallRoas >= 1.5 ? '#d97706' : '#dc2626', direction: 'ltr' }}>{overallRoas.toFixed(2)}x</td>
                   <td></td>
                 </tr>
               </tfoot>
