@@ -183,15 +183,18 @@ export default function EnjazyaUaeHub() {
         .license-input { border: 1px solid #cbd5e1; border-radius: 6px; padding: 7px 10px; font-size: 12px; outline: none; width: 140px; background: #fff; color: #0f172a; }
         .license-input:focus { border-color: #00732f; box-shadow: 0 0 0 2px rgba(0,115,47,0.15); }
         .backup-warning-bar { max-width: 1250px; margin: 0 auto 25px; background: #fffbeb; border: 1px solid #fde68a; color: #92400e; padding: 10px 18px; border-radius: 10px; font-size: 13px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; border-right: 4px solid #ce1126; }
-        .promo-banner { max-width: 1250px; margin: 0 auto 35px; background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: #fff; border-radius: 16px; padding: 22px 32px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; box-shadow: 0 12px 30px rgba(2,132,199,0.25); border: 2px solid #38bdf8; position: relative; overflow: hidden; }
-        .promo-content { display: flex; flex-direction: column; gap: 8px; z-index: 1; }
-        .promo-heading { font-size: 17px; font-weight: 900; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; color: #ffffff; }
-        .promo-text { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-        .price-tag-new { background: #ce1126; color: #fff; padding: 3px 10px; border-radius: 8px; font-weight: 900; font-size: 15px; }
-        .price-tag-old { text-decoration: line-through; opacity: 0.75; font-size: 13px; font-weight: 800; }
-        .discount-badge { background: #000000; color: #fff; padding: 2px 8px; border-radius: 6px; font-size: 12px; font-weight: 900; border: 1px solid rgba(255,255,255,0.2); }
-        .promo-btn { background: #ce1126; color: #fff; border: none; padding: 12px 26px; border-radius: 12px; font-weight: 900; font-size: 14px; cursor: pointer; transition: all 0.25s ease; box-shadow: 0 6px 15px rgba(206,17,38,0.3); z-index: 1; white-space: nowrap; }
-        .promo-btn:hover { background: #b00f20; transform: translateY(-3px); }
+        
+        /* تحديثات تنسيق البنر الفاخر الجديد (ULTRA MAX) */
+        .promo-banner { max-width: 1250px; margin: 0 auto 35px; background: linear-gradient(90deg, #0f172a 0%, #1e293b 100%); color: #ffffff; border-radius: 16px; padding: 24px 32px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15); }
+        .promo-content { flex: 1 1 min-content; display: flex; flex-direction: column; gap: 8px; }
+        .promo-heading { font-size: 20px; font-weight: 900; margin: 0 0 4px 0; display: flex; align-items: center; gap: 8px; color: #f8fafc; }
+        .promo-text { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
+        .price-tag-old { text-decoration: line-through; color: #94a3b8; font-size: 15px; font-weight: 500; }
+        .price-tag-new { background-color: #fee2e2; color: #dc2626; padding: 6px 12px; border-radius: 8px; font-weight: 900; font-size: 16px; box-shadow: 0 2px 4px rgba(220, 38, 38, 0.1); }
+        .discount-badge { background-color: #ef4444; color: #ffffff; padding: 4px 10px; border-radius: 6px; font-size: 13px; font-weight: bold; }
+        .promo-btn { background-color: #dc2626; color: #ffffff; border: none; padding: 14px 28px; border-radius: 10px; font-size: 16px; font-weight: 900; cursor: pointer; box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4); transition: all 0.3s ease; display: flex; align-items: center; gap: 10px; white-space: nowrap; }
+        .promo-btn:hover { background-color: #b91c1c; transform: scale(1.03); }
+        
         .hero { text-align: center; max-width: 800px; margin: 0 auto 50px; }
         .hero h1 { font-size: 36px; font-weight: 900; color: #0f172a; margin-bottom: 15px; letter-spacing: -0.5px; }
         .hero h1 span { color: #ce1126; }
@@ -294,19 +297,18 @@ export default function EnjazyaUaeHub() {
       {!isActivated && (
         <div className="promo-banner">
           <div className="promo-content">
-            <div className="promo-heading">
+            <h3 className="promo-heading">
               🔥 عرض لفترة محدودة: احصل على الوصول الكامل لجميع الأدوات الـ 24!
-            </div>
+            </h3>
             <div className="promo-text">
-              <span>كان بـ <span className="price-tag-old">299 د.إ</span> شهرياً، والآن فقط</span>
-              <span className="price-tag-new">49.99 د.إ</span>
-              <span>شهرياً!</span>
-              <span className="discount-badge">تخفيض 83% 🏷</span>
+              <span className="price-tag-old">كان بـ 299 د.إ شهرياً</span>
+              <span className="price-tag-new">والآن فقط 49.99 د.إ شهرياً</span>
+              <span className="discount-badge">تخفيض 83% 🏷️</span>
             </div>
           </div>
           <a href={LEMON_CHECKOUT_URL} target="_blank" rel="noopener noreferrer">
             <button className="promo-btn">
-              🚀 ترقية حسابك الآن وفتح كل الأدوات
+              ترقية حسابك الآن وفتح كل الأدوات 🚀
             </button>
           </a>
         </div>
