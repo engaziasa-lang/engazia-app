@@ -19,7 +19,8 @@ interface ABTestItem {
 }
 
 export default function ABTestingCalculatorSA() {
-  // تفريغ الحقول بالكامل كقيمة ابتدائية
+  const [lang, setLang] = useState<'ar' | 'en'>('ar');
+
   const [testName, setTestName] = useState<string>('');
   
   const [campAName, setCampAName] = useState<string>('');
@@ -43,6 +44,9 @@ export default function ABTestingCalculatorSA() {
     setIsClient(true);
     setIsActivated(!!localStorage.getItem('merchant_license_key'));
     
+    const savedLang = (localStorage.getItem('seerk_global_lang') as 'ar' | 'en') || 'ar';
+    setLang(savedLang);
+
     const saved = localStorage.getItem('seerk_ab_testing_items');
     if (saved) {
       try { 
@@ -57,38 +61,152 @@ export default function ABTestingCalculatorSA() {
     localStorage.setItem('seerk_ab_testing_items', JSON.stringify(newItems));
   };
 
-  // تأمين القيم العددية للحساب
+  const t = {
+    ar: {
+      back: '← عودة للمنصة',
+      title: 'حاسبة اختبارات الإعلانات (A/B) ⚖️',
+      desc: 'قارن بين حملتين إعلانيتين لتعرف أيهما يحقق أفضل عائد بأقل تكلفة للطلب في السوق السعودي',
+      editRecord: 'تعديل الاختبار',
+      newRecord: 'إضافة اختبار A/B جديد',
+      clear: '🧹 مسح الحقول',
+      trial: 'تجريبي',
+      testNameLabel: 'مسمى الاختبار الاستراتيجي',
+      testNamePH: 'مثال: مقارنة إعلان تيك توك ضد إنستقرام',
+      campAHeading: 'الحملة الأولى (أ)',
+      campANameLabel: 'اسم الحملة (أ)',
+      campANamePH: 'مثال: إعلان تيك توك',
+      spendLabel: 'تكلفة الإعلان',
+      ordersLabel: 'عدد الطلبات',
+      campBHeading: 'الحملة الثانية (ب)',
+      campBNameLabel: 'اسم الحملة (ب)',
+      campBNamePH: 'مثال: إعلان إنستقرام',
+      currency: 'ر.س',
+      saveBtnNew: '+ حفظ نتيجة الاختبار في السجل',
+      saveBtnEdit: '💾 حفظ التعديلات',
+      resultsTitle: 'مقارنة النتائج الحية',
+      resLabel: 'النتيجة النهائية للمقارنة',
+      resSub: 'الحملة الأفضل بناءً على تكلفة الاستحواذ',
+      waitData: 'في انتظار البيانات...',
+      winnerA: '🏆 الفائز: الحملة (أ)',
+      winnerB: '🏆 الفائز: الحملة (ب)',
+      tie: '⚖️ تعادل في التكلفة',
+      cpaALabel: 'تكلفة الطلب (CPA) للحملة (أ)',
+      cpaBLabel: 'تكلفة الطلب (CPA) للحملة (ب)',
+      searchPH: '🔍 بحث باسم الاختبار...',
+      exportBtn: '📥 تصدير Excel',
+      importBtn: '📂 استيراد',
+      table: {
+        noRecords: 'لا توجد اختبارات A/B مسجلة حالياً.',
+        th1: 'م',
+        th2: 'اسم الاختبار',
+        campAHeader: 'الحملة (أ)',
+        campBHeader: 'الحملة (ب)',
+        colName: 'الاسم',
+        colSpendOrders: 'التكلفة/الطلبات',
+        colCpa: 'تكلفة الطلب',
+        winnerCol: 'الحملة الفائزة',
+        actions: 'الإجراءات'
+      },
+      alerts: {
+        limit: '🔒 عذراً، لقد استهلكت الحد التجريبي (3 سجلات). يرجى ترقية حسابك لفتح السعة الكاملة بلا حدود!',
+        fillErr: 'الرجاء التأكد من تعبئة اسم الاختبار والمصروفات للحملتين بشكل صحيح.',
+        updateSuccess: '✨ تم تحديث السجل بنجاح!',
+        saveSuccess: '✅ تم حفظ نتيجة اختبار الـ A/B في السجل بنجاح!',
+        delConfirm: 'هل أنت متأكد من حذف هذا الاختبار؟',
+        noDataExp: 'لا توجد بيانات لتصديرها.',
+        importSuccess: '✨ تم استيراد البيانات بنجاح!',
+        importErr: '❌ ملف غير صالح.'
+      }
+    },
+    en: {
+      back: '→ Back to Hub',
+      title: 'A/B Ad Testing Calculator ⚖️',
+      desc: 'Compare two ad campaigns to see which achieves better returns at a lower cost in the Saudi market',
+      editRecord: 'Edit Test',
+      newRecord: 'Add New A/B Test',
+      clear: '🧹 Clear Fields',
+      trial: 'Trial',
+      testNameLabel: 'Strategic Test Name',
+      testNamePH: 'e.g. TikTok Ad vs Instagram Ad',
+      campAHeading: 'First Campaign (A)',
+      campANameLabel: 'Campaign Name (A)',
+      campANamePH: 'e.g. TikTok Ad',
+      spendLabel: 'Ad Spend',
+      ordersLabel: 'Orders Count',
+      campBHeading: 'Second Campaign (B)',
+      campBNameLabel: 'Campaign Name (B)',
+      campBNamePH: 'e.g. Instagram Ad',
+      currency: 'SAR',
+      saveBtnNew: '+ Save Test Result to Log',
+      saveBtnEdit: '💾 Save Changes',
+      resultsTitle: 'Live Results Comparison',
+      resLabel: 'Final Comparison Result',
+      resSub: 'Best campaign based on cost per acquisition',
+      waitData: 'Awaiting data...',
+      winnerA: '🏆 Winner: Campaign (A)',
+      winnerB: '🏆 Winner: Campaign (B)',
+      tie: '⚖️ Cost Tie',
+      cpaALabel: 'Cost Per Order (CPA) - Campaign A',
+      cpaBLabel: 'Cost Per Order (CPA) - Campaign B',
+      searchPH: '🔍 Search by test name...',
+      exportBtn: '📥 Export Excel',
+      importBtn: '📂 Import',
+      table: {
+        noRecords: 'No A/B tests currently registered.',
+        th1: '#',
+        th2: 'Test Name',
+        campAHeader: 'Campaign (A)',
+        campBHeader: 'Campaign (B)',
+        colName: 'Name',
+        colSpendOrders: 'Spend/Orders',
+        colCpa: 'CPA',
+        winnerCol: 'Winning Campaign',
+        actions: 'Actions'
+      },
+      alerts: {
+        limit: '🔒 Sorry, you reached the trial limit (3 records). Please upgrade to unlock unlimited access!',
+        fillErr: 'Please ensure test name and spend for both campaigns are entered correctly.',
+        updateSuccess: '✨ Record updated successfully!',
+        saveSuccess: '✅ A/B test result saved to log successfully!',
+        delConfirm: 'Are you sure you want to delete this test?',
+        noDataExp: 'No data to export.',
+        importSuccess: '✨ Data imported successfully!',
+        importErr: '❌ Invalid file.'
+      }
+    }
+  };
+
+  const text = t[lang];
+
   const spendA = typeof campASpend === 'number' ? campASpend : 0;
   const ordersA = typeof campAOrders === 'number' ? campAOrders : 0;
   
   const spendB = typeof campBSpend === 'number' ? campBSpend : 0;
   const ordersB = typeof campBOrders === 'number' ? campBOrders : 0;
 
-  // حساب تكلفة الاستحواذ للطلب الواحد (CPA / Cost Per Order)
   const cpaA = ordersA > 0 ? spendA / ordersA : 0;
   const cpaB = ordersB > 0 ? spendB / ordersB : 0;
 
-  // تحديد الحملة الفائزة (الأقل تكلفة للطلب هي الفائزة)
-  let winnerText = 'في انتظار البيانات...';
+  let winnerText = text.waitData;
   let winnerColor = '#64748b';
   
   if (ordersA > 0 || ordersB > 0) {
     if (cpaA > 0 && cpaB > 0) {
       if (cpaA < cpaB) {
-        winnerText = `🏆 الفائز: الحملة (أ) - ${campAName || 'بدون اسم'}`;
+        winnerText = `${text.winnerA} - ${campAName || (lang === 'ar' ? 'بدون اسم' : 'Unnamed')}`;
         winnerColor = '#047857';
       } else if (cpaB < cpaA) {
-        winnerText = `🏆 الفائز: الحملة (ب) - ${campBName || 'بدون اسم'}`;
+        winnerText = `${text.winnerB} - ${campBName || (lang === 'ar' ? 'بدون اسم' : 'Unnamed')}`;
         winnerColor = '#0284c7';
       } else {
-        winnerText = '⚖️ تعادل في التكلفة';
+        winnerText = text.tie;
         winnerColor = '#d97706';
       }
     } else if (cpaA > 0 && cpaB === 0) {
-      winnerText = `🏆 الفائز: الحملة (أ)`;
+      winnerText = text.winnerA;
       winnerColor = '#047857';
     } else if (cpaB > 0 && cpaA === 0) {
-      winnerText = `🏆 الفائز: الحملة (ب)`;
+      winnerText = text.winnerB;
       winnerColor = '#0284c7';
     }
   }
@@ -107,29 +225,30 @@ export default function ABTestingCalculatorSA() {
   const handleSaveItem = (e: React.FormEvent) => {
     e.preventDefault();
     if (!isActivated && items.length >= 3 && !editingId) {
-      alert('🔒 عذراً، لقد استهلكت الحد التجريبي (3 سجلات). يرجى ترقية حسابك لفتح السعة الكاملة بلا حدود!');
+      alert(text.alerts.limit);
       return;
     }
     if (!testName.trim() || spendA <= 0 || spendB <= 0) {
-      alert('الرجاء التأكد من تعبئة اسم الاختبار والمصروفات للحملتين بشكل صحيح.');
+      alert(text.alerts.fillErr);
       return;
     }
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const formattedDate = `${now.toLocaleDateString('ar-SA')} - ${now.toLocaleTimeString('ar-SA', timeOptions)}`;
+    const localeStr = lang === 'ar' ? 'ar-SA' : 'en-US';
+    const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
 
     const newItemData = {
       testName,
-      campAName: campAName || 'الحملة أ',
+      campAName: campAName || (lang === 'ar' ? 'الحملة أ' : 'Campaign A'),
       campASpend: spendA,
       campAOrders: ordersA,
       campACpa: Number(cpaA.toFixed(2)),
-      campBName: campBName || 'الحملة ب',
+      campBName: campBName || (lang === 'ar' ? 'الحملة ب' : 'Campaign B'),
       campBSpend: spendB,
       campBOrders: ordersB,
       campBCpa: Number(cpaB.toFixed(2)),
-      winner: winnerText.replace('🏆 الفائز: ', ''),
+      winner: winnerText.replace('🏆 الفائز: ', '').replace('🏆 Winner: ', ''),
       createdAt: formattedDate
     };
 
@@ -137,11 +256,11 @@ export default function ABTestingCalculatorSA() {
       const updated = items.map(item => item.id === editingId ? { ...item, ...newItemData, createdAt: item.createdAt || formattedDate } : item);
       saveToLocalStorage(updated);
       setEditingId(null);
-      alert('✨ تم تحديث السجل بنجاح!');
+      alert(text.alerts.updateSuccess);
     } else {
       const newItem: ABTestItem = { id: Date.now().toString(), ...newItemData };
       saveToLocalStorage([...items, newItem]);
-      alert('✅ تم حفظ نتيجة اختبار الـ A/B في السجل بنجاح!');
+      alert(text.alerts.saveSuccess);
     }
 
     handleClearForm();
@@ -160,7 +279,7 @@ export default function ABTestingCalculatorSA() {
   };
 
   const handleDelete = (id: string) => {
-    if (confirm('هل أنت متأكد من حذف هذا الاختبار؟')) {
+    if (confirm(text.alerts.delConfirm)) {
       const filtered = items.filter(i => i.id !== id);
       saveToLocalStorage(filtered);
     }
@@ -168,37 +287,36 @@ export default function ABTestingCalculatorSA() {
 
   const handleExportExcel = () => {
     if (items.length === 0) {
-      alert('لا توجد بيانات لتصديرها.');
+      alert(text.alerts.noDataExp);
       return;
     }
 
     let tableHtml = `
-      <html dir="rtl" lang="ar">
+      <html dir="${lang === 'ar' ? 'rtl' : 'ltr'}" lang="${lang}">
         <head>
           <meta charset="utf-8">
           <style>
             table { border-collapse: collapse; width: 100%; font-family: sans-serif; }
             th, td { border: 1px solid #cbd5e1; padding: 8px; text-align: center; }
             th { background-color: #f8fafc; font-weight: bold; color: #334155; }
-            .tfoot-row td { background-color: #f1f5f9; font-weight: bold; color: #0f172a; }
           </style>
         </head>
         <body>
+          <h2>A/B Testing Calculator Report</h2>
           <table>
             <thead>
               <tr>
-                <th>م</th>
-                <th>اسم الاختبار</th>
-                <th>التاريخ والوقت</th>
-                <th>(أ) اسم الحملة</th>
-                <th>(أ) التكلفة</th>
-                <th>(أ) الطلبات</th>
-                <th>(أ) تكلفة الطلب (CPA)</th>
-                <th>(ب) اسم الحملة</th>
-                <th>(ب) التكلفة</th>
-                <th>(ب) الطلبات</th>
-                <th>(ب) تكلفة الطلب (CPA)</th>
-                <th>الفائز</th>
+                <th>${text.table.th1}</th>
+                <th>${text.table.th2}</th>
+                <th>A Name</th>
+                <th>A Spend</th>
+                <th>A Orders</th>
+                <th>A CPA</th>
+                <th>B Name</th>
+                <th>B Spend</th>
+                <th>B Orders</th>
+                <th>B CPA</th>
+                <th>Winner</th>
               </tr>
             </thead>
             <tbody>
@@ -209,7 +327,6 @@ export default function ABTestingCalculatorSA() {
         <tr>
           <td>${idx + 1}</td>
           <td>${row.testName}</td>
-          <td>${row.createdAt || '-'}</td>
           <td>${row.campAName}</td>
           <td>${row.campASpend}</td>
           <td>${row.campAOrders}</td>
@@ -234,7 +351,7 @@ export default function ABTestingCalculatorSA() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", "seerk_ab_testing.xls");
+    link.setAttribute("download", "enjazya_sa_ab_testing.xls");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -249,10 +366,10 @@ export default function ABTestingCalculatorSA() {
           const imported = JSON.parse(event.target?.result as string);
           if (Array.isArray(imported)) {
             saveToLocalStorage(imported);
-            alert('✨ تم استيراد البيانات بنجاح!');
+            alert(text.alerts.importSuccess);
           }
         } catch (err) {
-          alert('❌ ملف غير صالح.');
+          alert(text.alerts.importErr);
         }
       };
     }
@@ -263,16 +380,16 @@ export default function ABTestingCalculatorSA() {
   );
 
   return (
-    <div className="tool-container">
+    <div className="tool-container" style={{ direction: lang === 'ar' ? 'rtl' : 'ltr' }}>
       <style jsx global>{`
-        body { background-color: #f8fafc; margin: 0; font-family: 'Tajawal', sans-serif; }
+        body { background-color: #f8fafc; margin: 0; font-family: ${lang === 'ar' ? "'Tajawal', sans-serif" : "'Inter', sans-serif"}; }
         a { text-decoration: none; }
       `}</style>
       <style jsx>{`
-        .tool-container { direction: rtl; max-width: 1100px; margin: 20px auto; padding: 20px; }
+        .tool-container { max-width: 1100px; margin: 20px auto; padding: 20px; }
         @media(max-width: 768px) { .tool-container { padding: 10px; margin: 10px auto; } }
         
-        .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; }
+        .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .back-btn { background: #ffffff; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 8px; color: #475569; font-weight: 700; font-size: 14px; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
         .back-btn:hover { background: #f1f5f9; color: #0f172a; }
         
@@ -283,37 +400,35 @@ export default function ABTestingCalculatorSA() {
         @media(max-width: 850px) { .grid-layout { grid-template-columns: 1fr; } }
         
         .card { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
-        .card-title { font-size: 18px; font-weight: 800; color: #1e293b; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        .card-title { font-size: 18px; font-weight: 800; color: #1e293b; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         
-        .clear-form-btn { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: 'Tajawal', sans-serif; display: flex; align-items: center; gap: 5px; }
+        .clear-form-btn { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; display: flex; align-items: center; gap: 5px; }
         .clear-form-btn:hover { background: #fecaca; }
 
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         @media(max-width: 600px) { .form-row { grid-template-columns: 1fr; gap: 0; } }
 
-        .input-group { margin-bottom: 15px; width: 100%; }
+        .input-group { margin-bottom: 15px; width: 100%; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .input-group label { display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 6px; }
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
-        .input-wrapper input { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: 'Tajawal', sans-serif; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; }
-        .input-wrapper input.with-currency { padding-left: 45px; }
+        .input-wrapper input { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .input-wrapper input:focus { border-color: #047857; background: #ffffff; }
-        .currency-tag { position: absolute; left: 14px; color: #64748b; font-weight: 800; font-size: 13px; pointer-events: none; }
         
-        .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: 'Tajawal', sans-serif; margin-top: 10px; box-sizing: border-box; }
+        .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
         .action-btn:hover { background: #065f46; }
 
-        .result-box { background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px; }
+        .result-box { background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .result-box.primary { color: #fff; border: none; padding: 20px; transition: background 0.3s ease; }
         .result-label { font-size: 13px; font-weight: 700; color: #64748b; }
         .primary .result-label { color: #ffffff; opacity: 0.9; }
-        .result-value { font-size: 18px; font-weight: 900; color: #0f172a; }
-        .primary .result-value { font-size: 22px; color: #ffffff; }
+        .result-value { font-size: 18px; font-weight: 900; color: #0f172a; direction: ltr; }
+        .primary .result-value { font-size: 20px; color: #ffffff; direction: ltr; }
 
-        .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); margin-top: 20px;}
-        .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
-        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: 'Tajawal', sans-serif; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; }
+        .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); margin-top: 20px; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
+        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
-        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: 'Tajawal', sans-serif; display: flex; align-items: center; justify-content: center; }
+        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; }
         .t-btn:hover { background: #f1f5f9; }
 
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
@@ -323,59 +438,58 @@ export default function ABTestingCalculatorSA() {
         
         .trial-badge { background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 800; }
         
-        .tb-action-btn { border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; font-family: 'Tajawal', sans-serif;}
+        .tb-action-btn { border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; font-family: inherit;}
         .btn-edit { background: #e0f2fe; color: #0369a1; }
         .btn-delete { background: #fee2e2; color: #991b1b; }
       `}</style>
 
       <div className="header">
         <div className="title-box">
-          <h1>حاسبة اختبارات الإعلانات (A/B) ⚖️</h1>
-          <p>قارن بين حملتين إعلانيتين لتعرف أيهما يحقق أفضل عائد بأقل تكلفة للطلب</p>
+          <h1>{text.title}</h1>
+          <p>{text.desc}</p>
         </div>
         <Link href="/hub/sa" className="back-btn">
-          <span>←</span> عودة للمنصة
+          {text.back}
         </Link>
       </div>
 
       <div className="grid-layout">
-        {/* قسم المدخلات */}
         <div className="card">
           <h2 className="card-title">
-            <span style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-              <span>{editingId ? 'تعديل الاختبار' : 'إضافة اختبار A/B جديد'}</span>
-              <button type="button" className="clear-form-btn" onClick={handleClearForm} title="مسح الحقول لتصبح فارغة تماماً">
-                🧹 مسح الحقول
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', flexDirection: lang === 'ar' ? 'row' : 'row-reverse' }}>
+              <span>{editingId ? text.editRecord : text.newRecord}</span>
+              <button type="button" className="clear-form-btn" onClick={handleClearForm}>
+                {text.clear}
               </button>
-            </span>
-            {isClient && !isActivated && <span className="trial-badge">تجريبي: {items.length}/3</span>}
+            </div>
+            {isClient && !isActivated && <span className="trial-badge">{text.trial}: {items.length}/3</span>}
           </h2>
 
           <form onSubmit={handleSaveItem}>
             <div className="input-group">
-              <label>مسمى الاختبار الاستراتيجي</label>
+              <label>{text.testNameLabel}</label>
               <div className="input-wrapper">
-                <input type="text" value={testName} onChange={(e) => setTestName(e.target.value)} placeholder="مثال: مقارنة إعلان تيك توك ضد إنستقرام" required />
+                <input type="text" value={testName} onChange={(e) => setTestName(e.target.value)} placeholder={text.testNamePH} required />
               </div>
             </div>
 
-            <div style={{ background: '#f8fafc', padding: '15px', borderRadius: '12px', marginBottom: '15px', border: '1px solid #e2e8f0' }}>
-              <h3 style={{ fontSize: '14px', margin: '0 0 10px 0', color: '#047857' }}>الحملة الأولى (أ)</h3>
+            <div style={{ background: '#f8fafc', padding: '15px', borderRadius: '12px', marginBottom: '15px', border: '1px solid #e2e8f0', textAlign: lang === 'ar' ? 'right' : 'left' }}>
+              <h3 style={{ fontSize: '14px', margin: '0 0 10px 0', color: '#047857' }}>{text.campAHeading}</h3>
               <div className="form-row">
                 <div className="input-group" style={{ marginBottom: 0 }}>
-                  <label>اسم الحملة (أ)</label>
+                  <label>{text.campANameLabel}</label>
                   <div className="input-wrapper">
-                    <input type="text" value={campAName} onChange={(e) => setCampAName(e.target.value)} placeholder="مثال: إعلان تيك توك" required />
+                    <input type="text" value={campAName} onChange={(e) => setCampAName(e.target.value)} placeholder={text.campANamePH} required />
                   </div>
                 </div>
                 <div className="input-group" style={{ marginBottom: 0 }}>
-                  <label>تكلفة الإعلان (ر.س)</label>
+                  <label>{text.spendLabel} ({text.currency})</label>
                   <div className="input-wrapper">
                     <input type="number" step="0.01" min="0" value={campASpend === '' ? '' : campASpend} onChange={(e) => setCampASpend(e.target.value === '' ? '' : Number(e.target.value))} placeholder="500" required />
                   </div>
                 </div>
                 <div className="input-group" style={{ marginBottom: 0 }}>
-                  <label>عدد الطلبات</label>
+                  <label>{text.ordersLabel}</label>
                   <div className="input-wrapper">
                     <input type="number" min="0" value={campAOrders === '' ? '' : campAOrders} onChange={(e) => setCampAOrders(e.target.value === '' ? '' : Number(e.target.value))} placeholder="20" required />
                   </div>
@@ -383,23 +497,23 @@ export default function ABTestingCalculatorSA() {
               </div>
             </div>
 
-            <div style={{ background: '#f8fafc', padding: '15px', borderRadius: '12px', marginBottom: '15px', border: '1px solid #e2e8f0' }}>
-              <h3 style={{ fontSize: '14px', margin: '0 0 10px 0', color: '#0284c7' }}>الحملة الثانية (ب)</h3>
+            <div style={{ background: '#f8fafc', padding: '15px', borderRadius: '12px', marginBottom: '15px', border: '1px solid #e2e8f0', textAlign: lang === 'ar' ? 'right' : 'left' }}>
+              <h3 style={{ fontSize: '14px', margin: '0 0 10px 0', color: '#0284c7' }}>{text.campBHeading}</h3>
               <div className="form-row">
                 <div className="input-group" style={{ marginBottom: 0 }}>
-                  <label>اسم الحملة (ب)</label>
+                  <label>{text.campBNameLabel}</label>
                   <div className="input-wrapper">
-                    <input type="text" value={campBName} onChange={(e) => setCampBName(e.target.value)} placeholder="مثال: إعلان إنستقرام" required />
+                    <input type="text" value={campBName} onChange={(e) => setCampBName(e.target.value)} placeholder={text.campBNamePH} required />
                   </div>
                 </div>
                 <div className="input-group" style={{ marginBottom: 0 }}>
-                  <label>تكلفة الإعلان (ر.س)</label>
+                  <label>{text.spendLabel} ({text.currency})</label>
                   <div className="input-wrapper">
                     <input type="number" step="0.01" min="0" value={campBSpend === '' ? '' : campBSpend} onChange={(e) => setCampBSpend(e.target.value === '' ? '' : Number(e.target.value))} placeholder="500" required />
                   </div>
                 </div>
                 <div className="input-group" style={{ marginBottom: 0 }}>
-                  <label>عدد الطلبات</label>
+                  <label>{text.ordersLabel}</label>
                   <div className="input-wrapper">
                     <input type="number" min="0" value={campBOrders === '' ? '' : campBOrders} onChange={(e) => setCampBOrders(e.target.value === '' ? '' : Number(e.target.value))} placeholder="15" required />
                   </div>
@@ -408,50 +522,48 @@ export default function ABTestingCalculatorSA() {
             </div>
 
             <button type="submit" className="action-btn">
-              {editingId ? '💾 حفظ التعديلات' : '+ حفظ نتيجة الاختبار في السجل'}
+              {editingId ? text.saveBtnEdit : text.saveBtnNew}
             </button>
           </form>
         </div>
 
-        {/* قسم النتائج الفورية */}
         <div className="card">
-          <h2 className="card-title">مقارنة النتائج الحية</h2>
+          <h2 className="card-title">{text.resultsTitle}</h2>
 
           <div className="result-box primary" style={{ background: winnerColor }}>
             <div>
-              <div className="result-label">النتيجة النهائية للمقارنة</div>
-              <div style={{ fontSize: '11px', opacity: 0.9, marginTop: '2px' }}>الحملة الأفضل بناءً على تكلفة الاستحواذ</div>
+              <div className="result-label">{text.resLabel}</div>
+              <div style={{ fontSize: '11px', opacity: 0.9, marginTop: '2px' }}>{text.resSub}</div>
             </div>
             <div className="result-value">
               {winnerText}
             </div>
           </div>
 
-          <div className="result-box" style={{ borderRight: '4px solid #047857' }}>
-            <span className="result-label">تكلفة الطلب (CPA) للحملة (أ)</span>
-            <span className="result-value" style={{ color: '#047857' }}>{cpaA.toFixed(2)} ر.س/طلب</span>
+          <div className="result-box" style={{ borderRight: lang === 'ar' ? '4px solid #047857' : 'none', borderLeft: lang === 'en' ? '4px solid #047857' : 'none' }}>
+            <span className="result-label">{text.cpaALabel}</span>
+            <span className="result-value" style={{ color: '#047857' }}>{cpaA.toFixed(2)} {text.currency}</span>
           </div>
 
-          <div className="result-box" style={{ borderRight: '4px solid #0284c7', background: '#f8fafc' }}>
-            <span className="result-label">تكلفة الطلب (CPA) للحملة (ب)</span>
-            <span className="result-value" style={{ color: '#0284c7' }}>{cpaB.toFixed(2)} ر.س/طلب</span>
+          <div className="result-box" style={{ borderRight: lang === 'ar' ? '4px solid #0284c7' : 'none', borderLeft: lang === 'en' ? '4px solid #0284c7' : 'none', background: '#f8fafc' }}>
+            <span className="result-label">{text.cpaBLabel}</span>
+            <span className="result-value" style={{ color: '#0284c7' }}>{cpaB.toFixed(2)} {text.currency}</span>
           </div>
         </div>
       </div>
 
-      {/* جدول البيانات السفلي */}
       <div className="table-section">
         <div className="table-toolbar">
           <input 
             type="text" 
             className="search-input" 
-            placeholder="🔍 بحث باسم الاختبار..." 
+            placeholder={text.searchPH} 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
           <div className="table-btns">
-            <button className="t-btn" onClick={handleExportExcel} title="تصدير بصيغة Excel لدعم اللغة العربية">📥 تصدير Excel</button>
-            <button className="t-btn" onClick={() => fileInputRef.current?.click()}>📂 استيراد</button>
+            <button className="t-btn" onClick={handleExportExcel}>{text.exportBtn}</button>
+            <button className="t-btn" onClick={() => fileInputRef.current?.click()}>{text.importBtn}</button>
             <input type="file" ref={fileInputRef} onChange={handleImportJson} accept=".json" style={{ display: 'none' }} />
           </div>
         </div>
@@ -460,54 +572,54 @@ export default function ABTestingCalculatorSA() {
           <table className="data-table">
             <thead>
               <tr>
-                <th rowSpan={2} style={{ verticalAlign: 'middle' }}>م</th>
-                <th rowSpan={2} style={{ verticalAlign: 'middle', textAlign: 'right' }}>اسم الاختبار</th>
-                <th colSpan={3} style={{ borderBottom: '2px solid #047857', color: '#047857', background: '#ecfdf5' }}>الحملة (أ)</th>
-                <th colSpan={3} style={{ borderBottom: '2px solid #0284c7', color: '#0284c7', background: '#f0f9ff' }}>الحملة (ب)</th>
-                <th rowSpan={2} style={{ verticalAlign: 'middle' }}>الحملة الفائزة</th>
-                <th rowSpan={2} style={{ verticalAlign: 'middle' }}>الإجراءات</th>
+                <th rowSpan={2} style={{ verticalAlign: 'middle' }}>{text.table.th1}</th>
+                <th rowSpan={2} style={{ verticalAlign: 'middle', textAlign: lang === 'ar' ? 'right' : 'left' }}>{text.table.th2}</th>
+                <th colSpan={3} style={{ borderBottom: '2px solid #047857', color: '#047857', background: '#ecfdf5' }}>{text.table.campAHeader}</th>
+                <th colSpan={3} style={{ borderBottom: '2px solid #0284c7', color: '#0284c7', background: '#f0f9ff' }}>{text.table.campBHeader}</th>
+                <th rowSpan={2} style={{ verticalAlign: 'middle' }}>{text.table.winnerCol}</th>
+                <th rowSpan={2} style={{ verticalAlign: 'middle' }}>{text.table.actions}</th>
               </tr>
               <tr>
-                <th style={{ background: '#ecfdf5', fontSize: '12px' }}>الاسم</th>
-                <th style={{ background: '#ecfdf5', fontSize: '12px' }}>التكلفة/الطلبات</th>
-                <th style={{ background: '#ecfdf5', fontSize: '12px' }}>تكلفة الطلب</th>
-                <th style={{ background: '#f0f9ff', fontSize: '12px' }}>الاسم</th>
-                <th style={{ background: '#f0f9ff', fontSize: '12px' }}>التكلفة/الطلبات</th>
-                <th style={{ background: '#f0f9ff', fontSize: '12px' }}>تكلفة الطلب</th>
+                <th style={{ background: '#ecfdf5', fontSize: '12px' }}>{text.table.colName}</th>
+                <th style={{ background: '#ecfdf5', fontSize: '12px' }}>{text.table.colSpendOrders}</th>
+                <th style={{ background: '#ecfdf5', fontSize: '12px' }}>{text.table.colCpa}</th>
+                <th style={{ background: '#f0f9ff', fontSize: '12px' }}>{text.table.colName}</th>
+                <th style={{ background: '#f0f9ff', fontSize: '12px' }}>{text.table.colSpendOrders}</th>
+                <th style={{ background: '#f0f9ff', fontSize: '12px' }}>{text.table.colCpa}</th>
               </tr>
             </thead>
             <tbody>
               {filteredItems.length === 0 ? (
                 <tr>
                   <td colSpan={10} style={{ textAlign: 'center', color: '#94a3b8', padding: '30px 0' }}>
-                    لا توجد اختبارات A/B مسجلة حالياً.
+                    {text.table.noRecords}
                   </td>
                 </tr>
               ) : (
                 filteredItems.map((item, idx) => (
                   <tr key={item.id}>
                     <td>{idx + 1}</td>
-                    <td style={{ textAlign: 'right' }}>
+                    <td style={{ textAlign: lang === 'ar' ? 'right' : 'left' }}>
                       <div style={{ fontWeight: 900, color: '#0f172a' }}>{item.testName}</div>
                       {item.createdAt && <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', fontWeight: 600 }}>🕒 {item.createdAt}</div>}
                     </td>
                     <td style={{ fontWeight: 800, color: '#047857', background: '#f8fafc' }}>{item.campAName}</td>
-                    <td style={{ background: '#f8fafc', fontSize: '12.5px' }}>{item.campASpend} ر.س <br/> <span style={{ color: '#64748b' }}>({item.campAOrders} طلب)</span></td>
+                    <td style={{ background: '#f8fafc', fontSize: '12.5px' }}>{item.campASpend} {text.currency} <br/> <span style={{ color: '#64748b' }}>({item.campAOrders} orders)</span></td>
                     <td style={{ fontWeight: 900, background: '#f8fafc' }}>{item.campACpa}</td>
                     
                     <td style={{ fontWeight: 800, color: '#0284c7' }}>{item.campBName}</td>
-                    <td style={{ fontSize: '12.5px' }}>{item.campBSpend} ر.س <br/> <span style={{ color: '#64748b' }}>({item.campBOrders} طلب)</span></td>
+                    <td style={{ fontSize: '12.5px' }}>{item.campBSpend} {text.currency} <br/> <span style={{ color: '#64748b' }}>({item.campBOrders} orders)</span></td>
                     <td style={{ fontWeight: 900 }}>{item.campBCpa}</td>
                     
                     <td>
-                      <span style={{ color: '#fff', background: item.winner.includes('(أ)') ? '#047857' : item.winner.includes('(ب)') ? '#0284c7' : '#d97706', padding: '4px 8px', borderRadius: '6px', fontSize: '12px', fontWeight: 800 }}>
+                      <span style={{ color: '#fff', background: item.winner.includes('(أ)') || item.winner.includes('A') ? '#047857' : item.winner.includes('(ب)') || item.winner.includes('B') ? '#0284c7' : '#d97706', padding: '4px 8px', borderRadius: '6px', fontSize: '12px', fontWeight: 800 }}>
                         {item.winner}
                       </span>
                     </td>
                     <td>
                       <div style={{ display: 'flex', gap: '6px', justifyContent: 'center', flexWrap: 'wrap' }}>
-                        <button className="tb-action-btn btn-edit" onClick={() => handleEdit(item)} title="تعديل">✏️</button>
-                        <button className="tb-action-btn btn-delete" onClick={() => handleDelete(item.id)} title="حذف">❌</button>
+                        <button className="tb-action-btn btn-edit" onClick={() => handleEdit(item)} title="Edit">✏️</button>
+                        <button className="tb-action-btn btn-delete" onClick={() => handleDelete(item.id)} title="Delete">❌</button>
                       </div>
                     </td>
                   </tr>
