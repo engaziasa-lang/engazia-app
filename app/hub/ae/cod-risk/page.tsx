@@ -17,6 +17,7 @@ interface CodItem {
 }
 
 export default function CodAnalyzerAE() {
+  const [lang, setLang] = useState<'ar' | 'en'>('ar');
   const [shippingSelect, setShippingSelect] = useState<string>('أرامكس (Aramex)');
   const [customShipping, setCustomShipping] = useState<string>('أرامكس (Aramex)');
   const [totalCodOrders, setTotalCodOrders] = useState<number | ''>('');
@@ -31,7 +32,12 @@ export default function CodAnalyzerAE() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    // تم تغيير مفتاح التخزين لفصل البيانات
+    // قراءة اللغة من الصفحة الرئيسية
+    const savedLang = localStorage.getItem('seerk_global_lang') as 'ar' | 'en';
+    if (savedLang) {
+      setLang(savedLang);
+    }
+
     const saved = localStorage.getItem('seerk_ae_cod_analyzer_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
@@ -53,14 +59,128 @@ export default function CodAnalyzerAE() {
   // الحسابات
   const totalCodFees = orders * fee;
   const rejectedOrdersCount = orders * (retRate / 100);
-  const shippingAndHandlingLossPerReject = 25; // يمكنك تعديل هذه التكلفة إذا كانت تختلف في الإمارات
+  const shippingAndHandlingLossPerReject = 25; // تكلفة الشحن العكسي التقريبية
   const totalReturnLoss = rejectedOrdersCount * shippingAndHandlingLossPerReject;
   const grandTotalCost = totalCodFees + totalReturnLoss;
+
+  // قاموس الترجمة الفوري
+  const t = {
+    ar: {
+      back: '← عودة للمنصة',
+      title: 'محلل تكاليف الدفع عند الاستلام (COD) 🚚',
+      desc: 'احسب نسبة المخاطرة، رسوم شركات الشحن، وخسائر عدم الاستلام وتأثيرها على صافي أرباحك',
+      editRecord: 'تعديل السجل',
+      newRecord: 'حساب تكاليف شحن COD جديدة',
+      clear: '🧹 مسح الحقول',
+      trial: 'تجريبي',
+      shippingComp: 'اختر شركة الشحن',
+      otherComp: '➕ شركة أخرى (كتابة يدوية)',
+      otherCompPH: 'اكتب اسم شركة الشحن هنا...',
+      ordersLabel: 'عدد طلبات الدفع عند الاستلام',
+      ordersPH: '200',
+      avgValLabel: 'متوسط قيمة الطلب',
+      avgValPH: '300',
+      feeLabel: 'رسوم خدمة COD للطلب الواحد',
+      feePH: '12',
+      retRateLabel: 'نسبة عدم الاستلام / الرفض (%)',
+      retRatePH: '15',
+      saveBtnNew: '+ حفظ التحليل في السجل',
+      saveBtnEdit: '💾 حفظ التعديلات',
+      analysisTitle: 'تحليل التكاليف الخفية الفوري',
+      grandTotal: 'إجمالي التكلفة الخفية لخدمة COD',
+      grandTotalSub: 'مجموع رسوم التحصيل وخسائر الرفض',
+      feeTotal: 'إجمالي رسوم خدمة التحصيل',
+      retLossTotal: 'خسائر الطلبات المرفوضة (الشحن العكسي والتالف)',
+      currency: 'د.إ',
+      searchPH: '🔍 بحث بشركة الشحن...',
+      exportBtn: '📥 تصدير Excel',
+      importBtn: '📂 استيراد',
+      table: {
+        noRecords: 'لا توجد سجلات تكاليف COD مسجلة حالياً.',
+        th1: '#',
+        th2: 'شركة الشحن والتاريخ',
+        th3: 'طلبات COD',
+        th4: 'نسبة الرفض',
+        th5: 'رسوم التحصيل',
+        th6: 'خسائر الرفض',
+        th7: 'إجمالي التكلفة الخفية',
+        th8: 'الإجراءات',
+        totalLabel: 'الإجمالي الكلي',
+        ordersCount: 'طلب'
+      },
+      alerts: {
+        limit: '🔒 عذراً، لقد استهلكت الحد التجريبي (3 سجلات). يرجى ترقية حسابك لفتح السعة الكاملة بلا حدود!',
+        fillErr: 'الرجاء التأكد من تحديد شركة الشحن، عدد الطلبات، وقيمة الطلب بشكل صحيح.',
+        updateSuccess: '✨ تم تحديث السجل بنجاح!',
+        saveSuccess: '✅ تمت إضافة تحليل تكاليف COD إلى السجل بنجاح!',
+        delConfirm: 'هل أنت متأكد من حذف هذا السجل؟',
+        noDataExp: 'لا توجد بيانات لتصديرها.',
+        importSuccess: '✨ تم استيراد البيانات بنجاح!',
+        importErr: '❌ ملف غير صالح.',
+      }
+    },
+    en: {
+      back: '→ Back to Hub',
+      title: 'Cash on Delivery (COD) Analyzer 🚚',
+      desc: 'Calculate risk ratios, shipping fees, return losses, and their impact on net profit',
+      editRecord: 'Edit Record',
+      newRecord: 'New COD Calculation',
+      clear: '🧹 Clear Fields',
+      trial: 'Trial',
+      shippingComp: 'Select Shipping Company',
+      otherComp: '➕ Other Company (Manual Entry)',
+      otherCompPH: 'Enter shipping company name...',
+      ordersLabel: 'Number of COD Orders',
+      ordersPH: '200',
+      avgValLabel: 'Average Order Value',
+      avgValPH: '300',
+      feeLabel: 'COD Service Fee per Order',
+      feePH: '12',
+      retRateLabel: 'Non-Delivery / Return Rate (%)',
+      retRatePH: '15',
+      saveBtnNew: '+ Save Analysis to Log',
+      saveBtnEdit: '💾 Save Changes',
+      analysisTitle: 'Instant Hidden Cost Analysis',
+      grandTotal: 'Total Hidden Cost of COD Service',
+      grandTotalSub: 'Sum of collection fees and return losses',
+      feeTotal: 'Total Collection Service Fees',
+      retLossTotal: 'Losses from Rejected Orders (Reverse Shipping)',
+      currency: 'AED',
+      searchPH: '🔍 Search by shipping company...',
+      exportBtn: '📥 Export Excel',
+      importBtn: '📂 Import',
+      table: {
+        noRecords: 'No COD cost records currently saved.',
+        th1: '#',
+        th2: 'Shipping Company & Date',
+        th3: 'COD Orders',
+        th4: 'Return Rate',
+        th5: 'Collection Fees',
+        th6: 'Return Losses',
+        th7: 'Total Hidden Cost',
+        th8: 'Actions',
+        totalLabel: 'Grand Total',
+        ordersCount: 'order'
+      },
+      alerts: {
+        limit: '🔒 Sorry, you have reached the trial limit (3 records). Please upgrade to unlock unlimited access!',
+        fillErr: 'Please ensure shipping company, number of orders, and order value are filled correctly.',
+        updateSuccess: '✨ Record updated successfully!',
+        saveSuccess: '✅ COD cost analysis added to log successfully!',
+        delConfirm: 'Are you sure you want to delete this record?',
+        noDataExp: 'No data to export.',
+        importSuccess: '✨ Data imported successfully!',
+        importErr: '❌ Invalid file.',
+      }
+    }
+  };
+
+  const text = t[lang];
 
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const val = e.target.value;
     setShippingSelect(val);
-    if (val !== 'شركة أخرى (كتابة يدوية)') {
+    if (val !== 'OTHER') {
       setCustomShipping(val);
     } else {
       setCustomShipping('');
@@ -80,18 +200,19 @@ export default function CodAnalyzerAE() {
   const handleSaveItem = (e: React.FormEvent) => {
     e.preventDefault();
     if (!isActivated && items.length >= 3 && !editingId) {
-      alert('🔒 عذراً، لقد استهلكت الحد التجريبي (3 سجلات). يرجى ترقية حسابك لفتح السعة الكاملة بلا حدود!');
+      alert(text.alerts.limit);
       return;
     }
-    const finalCompany = shippingSelect === 'شركة أخرى (كتابة يدوية)' ? customShipping : shippingSelect;
+    const finalCompany = shippingSelect === 'OTHER' ? customShipping : shippingSelect;
     if (!finalCompany.trim() || orders <= 0 || orderVal <= 0) {
-      alert('الرجاء التأكد من تحديد شركة الشحن، عدد الطلبات، وقيمة الطلب بشكل صحيح.');
+      alert(text.alerts.fillErr);
       return;
     }
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const formattedDate = `${now.toLocaleDateString('ar-AE')} - ${now.toLocaleTimeString('ar-AE', timeOptions)}`;
+    const localeStr = lang === 'ar' ? 'ar-AE' : 'en-AE';
+    const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
 
     if (editingId) {
       const updated = items.map(item => item.id === editingId ? {
@@ -108,7 +229,7 @@ export default function CodAnalyzerAE() {
       } : item);
       saveToLocalStorage(updated);
       setEditingId(null);
-      alert('✨ تم تحديث السجل بنجاح!');
+      alert(text.alerts.updateSuccess);
     } else {
       const newItem: CodItem = {
         id: Date.now().toString(),
@@ -123,7 +244,7 @@ export default function CodAnalyzerAE() {
         createdAt: formattedDate
       };
       saveToLocalStorage([...items, newItem]);
-      alert('✅ تمت إضافة تحليل تكاليف COD إلى السجل بنجاح!');
+      alert(text.alerts.saveSuccess);
     }
 
     handleClearForm();
@@ -135,7 +256,7 @@ export default function CodAnalyzerAE() {
       setShippingSelect(item.shippingCompany);
       setCustomShipping(item.shippingCompany);
     } else {
-      setShippingSelect('شركة أخرى (كتابة يدوية)');
+      setShippingSelect('OTHER');
       setCustomShipping(item.shippingCompany);
     }
     setTotalCodOrders(item.totalCodOrders);
@@ -147,7 +268,7 @@ export default function CodAnalyzerAE() {
   };
 
   const handleDelete = (id: string) => {
-    if (confirm('هل أنت متأكد من حذف هذا السجل؟')) {
+    if (confirm(text.alerts.delConfirm)) {
       const filtered = items.filter(i => i.id !== id);
       saveToLocalStorage(filtered);
     }
@@ -160,12 +281,12 @@ export default function CodAnalyzerAE() {
 
   const handleExportExcel = () => {
     if (items.length === 0) {
-      alert('لا توجد بيانات لتصديرها.');
+      alert(text.alerts.noDataExp);
       return;
     }
 
     let tableHtml = `
-      <html dir="rtl" lang="ar">
+      <html dir="${lang === 'ar' ? 'rtl' : 'ltr'}" lang="${lang}">
         <head>
           <meta charset="utf-8">
           <style>
@@ -179,14 +300,14 @@ export default function CodAnalyzerAE() {
           <table>
             <thead>
               <tr>
-                <th>م</th>
-                <th>شركة الشحن</th>
-                <th>التاريخ والوقت</th>
-                <th>عدد طلبات COD</th>
-                <th>نسبة الرفض (%)</th>
-                <th>إجمالي رسوم الخدمة (د.إ)</th>
-                <th>خسائر الرفض والشحن العكسي (د.إ)</th>
-                <th>إجمالي التكلفة الخفية (د.إ)</th>
+                <th>${text.table.th1}</th>
+                <th>${text.table.th2}</th>
+                <th>Date / Time</th>
+                <th>${text.table.th3}</th>
+                <th>${text.table.th4}</th>
+                <th>${text.table.th5} (${text.currency})</th>
+                <th>${text.table.th6} (${text.currency})</th>
+                <th>${text.table.th7} (${text.currency})</th>
               </tr>
             </thead>
             <tbody>
@@ -211,12 +332,12 @@ export default function CodAnalyzerAE() {
             </tbody>
             <tfoot>
               <tr class="tfoot-row">
-                <td colspan="3">الإجمالي الكلي</td>
+                <td colspan="3">${text.table.totalLabel}</td>
                 <td>${totalOrdersSum}</td>
                 <td>-</td>
                 <td>${totalCodFeesSum.toFixed(2)}</td>
                 <td>${totalReturnLossSum.toFixed(2)}</td>
-                <td>${grandTotalCostSum.toFixed(2)} د.إ</td>
+                <td>${grandTotalCostSum.toFixed(2)} ${text.currency}</td>
               </tr>
             </tfoot>
           </table>
@@ -243,10 +364,10 @@ export default function CodAnalyzerAE() {
           const imported = JSON.parse(event.target?.result as string);
           if (Array.isArray(imported)) {
             saveToLocalStorage(imported);
-            alert('✨ تم استيراد البيانات بنجاح!');
+            alert(text.alerts.importSuccess);
           }
         } catch (err) {
-          alert('❌ ملف غير صالح.');
+          alert(text.alerts.importErr);
         }
       };
     }
@@ -257,16 +378,16 @@ export default function CodAnalyzerAE() {
   );
 
   return (
-    <div className="tool-container">
+    <div className="tool-container" style={{ direction: lang === 'ar' ? 'rtl' : 'ltr' }}>
       <style jsx global>{`
-        body { background-color: #f8fafc; margin: 0; font-family: 'Tajawal', sans-serif; }
+        body { background-color: #f8fafc; margin: 0; font-family: ${lang === 'ar' ? "'Tajawal', sans-serif" : "'Inter', sans-serif"}; }
         a { text-decoration: none; }
       `}</style>
       <style jsx>{`
-        .tool-container { direction: rtl; max-width: 1100px; margin: 20px auto; padding: 20px; }
+        .tool-container { max-width: 1100px; margin: 20px auto; padding: 20px; }
         @media(max-width: 768px) { .tool-container { padding: 10px; margin: 10px auto; } }
         
-        .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; }
+        .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .back-btn { background: #ffffff; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 8px; color: #475569; font-weight: 700; font-size: 14px; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
         .back-btn:hover { background: #f1f5f9; color: #0f172a; }
         
@@ -277,96 +398,95 @@ export default function CodAnalyzerAE() {
         @media(max-width: 850px) { .grid-layout { grid-template-columns: 1fr; } }
         
         .card { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
-        .card-title { font-size: 18px; font-weight: 800; color: #1e293b; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        .card-title { font-size: 18px; font-weight: 800; color: #1e293b; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         
-        .clear-form-btn { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: 'Tajawal', sans-serif; display: flex; align-items: center; gap: 5px; }
+        .clear-form-btn { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; display: flex; align-items: center; gap: 5px; }
         .clear-form-btn:hover { background: #fecaca; }
 
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         @media(max-width: 600px) { .form-row { grid-template-columns: 1fr; gap: 0; } }
 
-        .input-group { margin-bottom: 15px; width: 100%; }
+        .input-group { margin-bottom: 15px; width: 100%; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .input-group label { display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 6px; }
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
-        .input-wrapper input, .input-wrapper select { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: 'Tajawal', sans-serif; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; }
-        .input-wrapper input.with-currency { padding-left: 45px; }
+        .input-wrapper input, .input-wrapper select { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .input-wrapper input.with-currency { padding-${lang === 'ar' ? 'left' : 'right'}: 45px; }
         .input-wrapper input:focus, .input-wrapper select:focus { border-color: #047857; background: #ffffff; }
-        .currency-tag { position: absolute; left: 14px; color: #64748b; font-weight: 800; font-size: 13px; pointer-events: none; }
+        .currency-tag { position: absolute; ${lang === 'ar' ? 'left: 14px;' : 'right: 14px;'} color: #64748b; font-weight: 800; font-size: 13px; pointer-events: none; }
         
-        .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: 'Tajawal', sans-serif; margin-top: 10px; box-sizing: border-box; }
+        .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
         .action-btn:hover { background: #065f46; }
 
-        .result-box { background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px; }
+        .result-box { background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .result-box.danger { background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); color: #fff; border: none; padding: 20px; }
         .result-label { font-size: 13px; font-weight: 700; color: #64748b; }
         .danger .result-label { color: #ffffff; opacity: 0.9; }
-        .result-value { font-size: 18px; font-weight: 900; color: #0f172a; }
-        .danger .result-value { font-size: 26px; color: #ffffff; }
+        .result-value { font-size: 18px; font-weight: 900; color: #0f172a; direction: ltr; }
+        .danger .result-value { font-size: 26px; color: #ffffff; direction: ${lang === 'ar' ? 'rtl' : 'ltr'}; }
 
-        .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
-        .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
-        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: 'Tajawal', sans-serif; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; }
+        .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
+        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
-        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: 'Tajawal', sans-serif; display: flex; align-items: center; justify-content: center; }
+        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; }
         .t-btn:hover { background: #f1f5f9; }
 
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 900px; }
-        .data-table th { background: #f8fafc; padding: 12px; text-align: right; border-bottom: 2px solid #cbd5e1; font-weight: 800; color: #334155; white-space: nowrap; }
+        .data-table th { background: #f8fafc; padding: 12px; text-align: ${lang === 'ar' ? 'right' : 'left'}; border-bottom: 2px solid #cbd5e1; font-weight: 800; color: #334155; white-space: nowrap; }
         .data-table td { padding: 12px; border-bottom: 1px solid #e2e8f0; color: #0f172a; font-weight: 600; vertical-align: middle; }
         .data-table tfoot td { background: #f1f5f9; font-weight: 900; color: #0f172a; border-top: 2px solid #cbd5e1; }
         
         .trial-badge { background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 800; }
         
-        .tb-action-btn { border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; font-family: 'Tajawal', sans-serif;}
+        .tb-action-btn { border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; font-family: inherit;}
         .btn-edit { background: #e0f2fe; color: #0369a1; }
         .btn-delete { background: #fee2e2; color: #991b1b; }
       `}</style>
 
       <div className="header">
         <div className="title-box">
-          <h1>محلل تكاليف الدفع عند الاستلام (COD) 🚚</h1>
-          <p>احسب نسبة المخاطرة، رسوم شركات الشحن، وخسائر عدم الاستلام وتأثيرها على صافي أرباحك</p>
+          <h1>{text.title}</h1>
+          <p>{text.desc}</p>
         </div>
         <Link href="/hub/ae" className="back-btn">
-          <span>←</span> عودة للمنصة
+          {text.back}
         </Link>
       </div>
 
       <div className="grid-layout">
-        {/* قسم المدخلات */}
         <div className="card">
           <h2 className="card-title">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-              <span>{editingId ? 'تعديل السجل' : 'حساب تكاليف شحن COD جديدة'}</span>
-              <button type="button" className="clear-form-btn" onClick={handleClearForm} title="مسح الحقول">
-                🧹 مسح الحقول
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', flexDirection: lang === 'ar' ? 'row' : 'row-reverse' }}>
+              <span>{editingId ? text.editRecord : text.newRecord}</span>
+              <button type="button" className="clear-form-btn" onClick={handleClearForm}>
+                {text.clear}
               </button>
             </div>
-            {!isActivated && <span className="trial-badge">تجريبي: {items.length}/3</span>}
+            {!isActivated && <span className="trial-badge">{text.trial}: {items.length}/3</span>}
           </h2>
 
           <form onSubmit={handleSaveItem}>
             <div className="input-group">
-              <label>اختر شركة الشحن</label>
+              <label>{text.shippingComp}</label>
               <div className="input-wrapper" style={{ marginBottom: '8px' }}>
                 <select value={shippingSelect} onChange={handleSelectChange}>
-                  <option value="أرامكس (Aramex)">أرامكس (Aramex)</option>
-                  <option value="بريد الإمارات (Emirates Post)">بريد الإمارات (Emirates Post)</option>
-                  <option value="فيتشر (Fetchr)">فيتشر (Fetchr)</option>
-                  <option value="دي إتش إل (DHL)">دي إتش إل (DHL)</option>
-                  <option value="آي مايل (iMile)">آي مايل (iMile)</option>
-                  <option value="شركة أخرى (كتابة يدوية)">➕ شركة أخرى (كتابة يدوية)</option>
+                  <option value="أرامكس (Aramex)">{lang === 'ar' ? 'أرامكس (Aramex)' : 'Aramex'}</option>
+                  <option value="بريد الإمارات (Emirates Post)">{lang === 'ar' ? 'بريد الإمارات (Emirates Post)' : 'Emirates Post'}</option>
+                  <option value="فيتشر (Fetchr)">{lang === 'ar' ? 'فيتشر (Fetchr)' : 'Fetchr'}</option>
+                  <option value="دي إتش إل (DHL)">{lang === 'ar' ? 'دي إتش إل (DHL)' : 'DHL'}</option>
+                  <option value="آي مايل (iMile)">{lang === 'ar' ? 'آي مايل (iMile)' : 'iMile'}</option>
+                  <option value="OTHER">{text.otherComp}</option>
                 </select>
               </div>
 
-              {shippingSelect === 'شركة أخرى (كتابة يدوية)' && (
+              {shippingSelect === 'OTHER' && (
                 <div className="input-wrapper">
                   <input 
                     type="text" 
                     value={customShipping} 
                     onChange={(e) => setCustomShipping(e.target.value)} 
-                    placeholder="اكتب اسم شركة الشحن هنا..." 
+                    placeholder={text.otherCompPH} 
                     required 
                   />
                 </div>
@@ -375,82 +495,80 @@ export default function CodAnalyzerAE() {
 
             <div className="form-row">
               <div className="input-group">
-                <label>عدد طلبات الدفع عند الاستلام</label>
+                <label>{text.ordersLabel}</label>
                 <div className="input-wrapper">
-                  <input type="number" min="1" value={totalCodOrders === '' ? '' : totalCodOrders} onChange={(e) => setTotalCodOrders(e.target.value === '' ? '' : Number(e.target.value))} placeholder="200" required />
+                  <input type="number" min="1" value={totalCodOrders === '' ? '' : totalCodOrders} onChange={(e) => setTotalCodOrders(e.target.value === '' ? '' : Number(e.target.value))} placeholder={text.ordersPH} required />
                 </div>
               </div>
               <div className="input-group">
-                <label>متوسط قيمة الطلب (د.إ)</label>
+                <label>{text.avgValLabel} ({text.currency})</label>
                 <div className="input-wrapper">
-                  <input className="with-currency" type="number" step="0.01" min="0" value={avgOrderValue === '' ? '' : avgOrderValue} onChange={(e) => setAvgOrderValue(e.target.value === '' ? '' : Number(e.target.value))} placeholder="300" required />
-                  <span className="currency-tag">د.إ</span>
+                  <input className="with-currency" type="number" step="0.01" min="0" value={avgOrderValue === '' ? '' : avgOrderValue} onChange={(e) => setAvgOrderValue(e.target.value === '' ? '' : Number(e.target.value))} placeholder={text.avgValPH} required />
+                  <span className="currency-tag">{text.currency}</span>
                 </div>
               </div>
             </div>
 
             <div className="form-row">
               <div className="input-group">
-                <label>رسوم خدمة COD للطلب الواحد (د.إ)</label>
+                <label>{text.feeLabel} ({text.currency})</label>
                 <div className="input-wrapper">
-                  <input className="with-currency" type="number" step="0.01" min="0" value={codFeePerOrder === '' ? '' : codFeePerOrder} onChange={(e) => setCodFeePerOrder(e.target.value === '' ? '' : Number(e.target.value))} placeholder="12" required />
-                  <span className="currency-tag">د.إ</span>
+                  <input className="with-currency" type="number" step="0.01" min="0" value={codFeePerOrder === '' ? '' : codFeePerOrder} onChange={(e) => setCodFeePerOrder(e.target.value === '' ? '' : Number(e.target.value))} placeholder={text.feePH} required />
+                  <span className="currency-tag">{text.currency}</span>
                 </div>
               </div>
               <div className="input-group">
-                <label>نسبة عدم الاستلام / الرفض (%)</label>
+                <label>{text.retRateLabel}</label>
                 <div className="input-wrapper">
-                  <input type="number" step="0.1" min="0" max="100" value={returnRatePercent === '' ? '' : returnRatePercent} onChange={(e) => setReturnRatePercent(e.target.value === '' ? '' : Number(e.target.value))} placeholder="15" required />
+                  <input type="number" step="0.1" min="0" max="100" value={returnRatePercent === '' ? '' : returnRatePercent} onChange={(e) => setReturnRatePercent(e.target.value === '' ? '' : Number(e.target.value))} placeholder={text.retRatePH} required />
                   <span className="currency-tag">%</span>
                 </div>
               </div>
             </div>
 
             <button type="submit" className="action-btn">
-              {editingId ? '💾 حفظ التعديلات' : '+ حفظ التحليل في السجل'}
+              {editingId ? text.saveBtnEdit : text.saveBtnNew}
             </button>
           </form>
         </div>
 
-        {/* قسم النتائج الفورية */}
         <div className="card">
-          <h2 className="card-title">تحليل التكاليف الخفية الفوري</h2>
+          <h2 className="card-title">{text.analysisTitle}</h2>
 
           <div className="result-box danger">
             <div>
-              <div className="result-label">إجمالي التكلفة الخفية لخدمة COD</div>
-              <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '2px' }}>مجموع رسوم التحصيل وخسائر الرفض</div>
+              <div className="result-label">{text.grandTotal}</div>
+              <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '2px' }}>{text.grandTotalSub}</div>
             </div>
             <div className="result-value">
-              {grandTotalCost.toFixed(2)} د.إ
+              {grandTotalCost.toFixed(2)} {text.currency}
             </div>
           </div>
 
           <div className="result-box">
-            <span className="result-label">إجمالي رسوم خدمة التحصيل</span>
-            <span className="result-value" style={{ color: '#d97706' }}>{totalCodFees.toFixed(2)} د.إ</span>
+            <span className="result-label">{text.feeTotal}</span>
+            <span className="result-value" style={{ color: '#d97706' }}>{totalCodFees.toFixed(2)} {text.currency}</span>
           </div>
 
           <div className="result-box" style={{ background: '#f8fafc' }}>
-            <span className="result-label">خسائر الطلبات المرفوضة (الشحن العكسي والتالف)</span>
-            <span className="result-value" style={{ color: '#dc2626' }}>{totalReturnLoss.toFixed(2)} د.إ</span>
+            <span className="result-label">{text.retLossTotal}</span>
+            <span className="result-value" style={{ color: '#dc2626' }}>{totalReturnLoss.toFixed(2)} {text.currency}</span>
           </div>
         </div>
       </div>
 
-      {/* جدول البيانات السفلي */}
       <div className="table-section">
         <div className="table-toolbar">
           <input 
             type="text" 
             className="search-input" 
-            placeholder="🔍 بحث بشركة الشحن..." 
+            placeholder={text.searchPH} 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
           <div className="table-btns">
-            <button className="t-btn" onClick={handleExportExcel} title="تصدير بصيغة Excel لدعم اللغة العربية">📥 تصدير Excel</button>
-            <button className="t-btn" onClick={() => fileInputRef.current?.click()}>📂 استيراد</button>
+            <button className="t-btn" onClick={handleExportExcel}>{text.exportBtn}</button>
+            <button className="t-btn" onClick={() => fileInputRef.current?.click()}>{text.importBtn}</button>
             <input type="file" ref={fileInputRef} onChange={handleImportJson} accept=".json" style={{ display: 'none' }} />
           </div>
         </div>
@@ -459,21 +577,21 @@ export default function CodAnalyzerAE() {
           <table className="data-table">
             <thead>
               <tr>
-                <th>#</th>
-                <th>شركة الشحن والتاريخ</th>
-                <th>طلبات COD</th>
-                <th>نسبة الرفض</th>
-                <th>رسوم التحصيل</th>
-                <th>خسائر الرفض</th>
-                <th>إجمالي التكلفة الخفية</th>
-                <th>الإجراءات</th>
+                <th>{text.table.th1}</th>
+                <th>{text.table.th2}</th>
+                <th>{text.table.th3}</th>
+                <th>{text.table.th4}</th>
+                <th>{text.table.th5}</th>
+                <th>{text.table.th6}</th>
+                <th>{text.table.th7}</th>
+                <th>{text.table.th8}</th>
               </tr>
             </thead>
             <tbody>
               {filteredItems.length === 0 ? (
                 <tr>
                   <td colSpan={8} style={{ textAlign: 'center', color: '#94a3b8', padding: '30px 0' }}>
-                    لا توجد سجلات تكاليف COD مسجلة حالياً.
+                    {text.table.noRecords}
                   </td>
                 </tr>
               ) : (
@@ -484,15 +602,15 @@ export default function CodAnalyzerAE() {
                       <div style={{ fontWeight: 900, color: '#0f172a' }}>{item.shippingCompany}</div>
                       {item.createdAt && <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', fontWeight: 600 }}>🕒 {item.createdAt}</div>}
                     </td>
-                    <td style={{ fontWeight: 800 }}>{item.totalCodOrders} طلب</td>
+                    <td style={{ fontWeight: 800 }}>{item.totalCodOrders} {text.table.ordersCount}</td>
                     <td><span style={{ color: '#dc2626', fontWeight: 800 }}>{item.returnRatePercent}%</span></td>
-                    <td style={{ color: '#d97706' }}>{item.totalCodFees} د.إ</td>
-                    <td style={{ color: '#dc2626' }}>{item.totalReturnLoss} د.إ</td>
-                    <td style={{ fontWeight: 900, color: '#991b1b' }}>{item.grandTotalCost} د.إ</td>
+                    <td style={{ color: '#d97706' }}>{item.totalCodFees} {text.currency}</td>
+                    <td style={{ color: '#dc2626' }}>{item.totalReturnLoss} {text.currency}</td>
+                    <td style={{ fontWeight: 900, color: '#991b1b' }}>{item.grandTotalCost} {text.currency}</td>
                     <td>
                       <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                        <button className="tb-action-btn btn-edit" onClick={() => handleEdit(item)} title="تعديل">✏️</button>
-                        <button className="tb-action-btn btn-delete" onClick={() => handleDelete(item.id)} title="حذف">❌</button>
+                        <button className="tb-action-btn btn-edit" onClick={() => handleEdit(item)} title={text.editRecord}>✏️</button>
+                        <button className="tb-action-btn btn-delete" onClick={() => handleDelete(item.id)} title={text.alerts.delConfirm}>❌</button>
                       </div>
                     </td>
                   </tr>
@@ -502,12 +620,12 @@ export default function CodAnalyzerAE() {
             {filteredItems.length > 0 && (
               <tfoot>
                 <tr className="tfoot-row">
-                  <td colSpan={2} style={{ textAlign: 'center' }}>الإجمالي الكلي</td>
-                  <td>{totalOrdersSum} طلب</td>
+                  <td colSpan={2} style={{ textAlign: 'center' }}>{text.table.totalLabel}</td>
+                  <td>{totalOrdersSum} {text.table.ordersCount}</td>
                   <td>-</td>
-                  <td style={{ color: '#d97706' }}>{totalCodFeesSum.toFixed(2)} د.إ</td>
-                  <td style={{ color: '#dc2626' }}>{totalReturnLossSum.toFixed(2)} د.إ</td>
-                  <td style={{ color: '#991b1b' }}>{grandTotalCostSum.toFixed(2)} د.إ</td>
+                  <td style={{ color: '#d97706' }}>{totalCodFeesSum.toFixed(2)} {text.currency}</td>
+                  <td style={{ color: '#dc2626' }}>{totalReturnLossSum.toFixed(2)} {text.currency}</td>
+                  <td style={{ color: '#991b1b' }}>{grandTotalCostSum.toFixed(2)} {text.currency}</td>
                   <td></td>
                 </tr>
               </tfoot>
