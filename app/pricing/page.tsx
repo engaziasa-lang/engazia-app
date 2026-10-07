@@ -1,84 +1,87 @@
 import React from 'react';
 
-export default function PricingCard() {
-  // مصفوفة تشمل الميزات الأساسية + كافة الـ 24 أداة بترتيب منسق وجذاب
-  const allFeatures = [
-    "تفعيل فوري لكافة الأدوات الـ 24 🚀",
-    "أداة جسمل (مقارنة وتحليل الأسعار مع المنافسين) ⚖️",
-    "إدارة عملاء واتساب الشاملة (إنجازيا Pro Max) 📱",
-    "حسابات ضريبية متوافقة مع هيئة الزكاة (ZATCA) 🏛️",
-    "حاسبة الأرباح والتكاليف التشغيلية الشاملة 📊",
-    "حاسبة رسوم بوابات الدفع (تابي، تمارا، مدى) 💳",
-    "أداة استرجاع السلال المتروكة آلياً 🛒",
-    "محلل عائد الإنفاق الإعلاني الدقيق (ROAS) 📈",
-    "مدير سياسة المرتجعات والشحن العكسي 🔄",
-    "منشئ الفواتير الإلكترونية المعتمدة 🧾",
-    "مقارن ومتبع أسعار شركات الشحن 🚚",
-    "مستشار الذكاء الاصطناعي لنمو المتاجر 💡",
-    "مقارن منصات التجارة الإلكترونية 🛍️",
-    "محلل تجارب الأداء وتحسين التحويل (A/B Test) 🧪",
-    "حاسبة القيمة الدائمة للعملاء (LTV) 💎",
-    "مخطط العروض الترويجية والخصومات 🎁",
-    "مركز الدعم الذكي وإدارة التذاكر 🎧",
-    "مولد النصوص التسويقية والإعلانية ✍️",
-    "محلل ومخطط أعمال الدروبشيبينغ 📦",
-    "مجمع تقييمات العملاء لزيادة الموثوقية ⭐",
-    "منشئ السياسات القانونية والشروط 📜",
-    "متتبع المصاريف والنفقات المتغيرة 📉",
-    "نظام إدارة وتتبع حركة المخزون 📋",
-    "مقيم مخاطر الدفع عند الاستلام (COD) ⚠️",
-    "محلل أداء حملات المشاهير (Influencers) 🌟",
-    "إمكانية التفعيل على 3 أجهزة للموظفين 💻",
-    "نسخ احتياطي وتصدير كامل للبيانات بصيغة JSON 💾"
-  ];
-
+export default function SupportContact() {
   return (
-    <div style={{ backgroundColor: '#f8fafc', padding: '40px 16px', direction: 'rtl', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
+    <div style={{ backgroundColor: '#f8fafc', padding: '40px 16px', direction: 'rtl', fontFamily: 'system-ui, -apple-system, sans-serif', minHeight: '100vh' }}>
       
-      {/* بطاقة الباقة الشاملة */}
-      <div style={{ border: '2px solid #059669', borderRadius: '16px', padding: '40px', backgroundColor: '#ffffff', maxWidth: '900px', margin: '0 auto', boxShadow: '0 10px 25px -5px rgba(5, 150, 105, 0.15)' }}>
+      {/* الحاوية الرئيسية لصفحة الدعم */}
+      <div style={{ maxWidth: '1000px', margin: '0 auto', backgroundColor: '#ffffff', borderRadius: '16px', padding: '40px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}>
         
-        {/* عنوان الباقة */}
-        <h2 style={{ textAlign: 'center', fontSize: '32px', fontWeight: '900', color: '#0f172a', marginBottom: '12px' }}>
-          الباقة الشاملة (PRO ULTRA)
-        </h2>
-        <p style={{ textAlign: 'center', color: '#64748b', fontSize: '18px', marginBottom: '32px' }}>
-          وصول غير محدود لجميع الأدوات الـ 24 والتحديثات المستقبلية وميزات التصدير والاستيراد.
-        </p>
-
-        {/* السعر */}
-        <div style={{ textAlign: 'center', marginBottom: '40px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '16px' }}>
-          <span style={{ fontSize: '56px', fontWeight: '900', color: '#059669', lineHeight: '1' }}>
-            49.99 <span style={{ fontSize: '24px', fontWeight: '700' }}>ر.س</span>
-          </span>
-          <span style={{ fontSize: '24px', fontWeight: 'bold', color: '#94a3b8', textDecoration: 'line-through' }}>
-            299 ر.س
-          </span>
-          <span style={{ fontSize: '18px', color: '#64748b', alignSelf: 'flex-end', paddingBottom: '10px' }}>
-            / شهرياً
-          </span>
-        </div>
-
-        {/* شبكة الأدوات */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '16px', marginBottom: '40px' }}>
-          {allFeatures.map((feature, idx) => (
-            <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '12px', justifyContent: 'flex-start' }}>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
-                <rect width="24" height="24" rx="4" fill="#059669"/>
-                <path d="M7 12.5L10.5 16L17 8" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              <span style={{ fontSize: '16px', color: '#1e293b', fontWeight: '700' }}>
-                {feature}
-              </span>
-            </div>
-          ))}
-        </div>
-
-        {/* زر الاشتراك */}
-        <div style={{ textAlign: 'center' }}>
-          <button style={{ backgroundColor: '#059669', color: '#ffffff', border: 'none', padding: '18px 48px', fontSize: '22px', fontWeight: 'bold', borderRadius: '12px', cursor: 'pointer', width: '100%', maxWidth: '450px', boxShadow: '0 4px 12px rgba(5, 150, 105, 0.3)', transition: 'transform 0.2s, backgroundColor 0.2s' }}>
-            اشترك الآن وافتح جميع الأدوات 🚀
+        {/* زر العودة */}
+        <div style={{ marginBottom: '24px' }}>
+          <button style={{ backgroundColor: '#f1f5f9', border: 'none', padding: '10px 20px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', color: '#334155' }}>
+            ← عودة للمنصة
           </button>
+        </div>
+
+        {/* رأس الصفحة */}
+        <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+          <h1 style={{ fontSize: '32px', fontWeight: '900', color: '#0f172a', marginBottom: '12px' }}>
+            الدعم الفني والمساعدة
+          </h1>
+          <p style={{ color: '#64748b', fontSize: '16px' }}>
+            نحن هنا لمساعدتك في أي استفسار أو مشكلة تواجهك في استخدام المنصة
+          </p>
+        </div>
+
+        {/* شبكة المحتوى (قسم قنوات التواصل وقسم إرسال الرسالة) */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '32px' }}>
+          
+          {/* قسم قنوات التواصل السريعة (بدون واتساب) */}
+          <div style={{ backgroundColor: '#f8fafc', padding: '24px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+            <h3 style={{ fontSize: '20px', fontWeight: 'bold', color: '#1e293b', marginBottom: '20px' }}>
+              قنوات التواصل السريعة
+            </h3>
+            <p style={{ color: '#64748b', fontSize: '14px', marginBottom: '8px' }}>
+              البريد الإلكتروني المباشر:
+            </p>
+            <a href="mailto:engazia.sa@gmail.com" style={{ display: 'block', fontSize: '18px', fontWeight: 'bold', color: '#059669', marginBottom: '24px', textDecoration: 'none' }}>
+              engazia.sa@gmail.com
+            </a>
+
+            <p style={{ color: '#64748b', fontSize: '14px', marginBottom: '8px' }}>
+              مواعيد العمل:
+            </p>
+            <p style={{ fontSize: '16px', fontWeight: '700', color: '#334155', lineHeight: '1.6' }}>
+              من الأحد إلى الخميس<br />
+              (9:00 صباحاً - 5:00 مساءً)
+            </p>
+          </div>
+
+          {/* قسم إرسال رسالة للدعم */}
+          <div style={{ backgroundColor: '#f8fafc', padding: '24px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+            <h3 style={{ fontSize: '20px', fontWeight: 'bold', color: '#1e293b', marginBottom: '20px' }}>
+              أرسل رسالة للدعم
+            </h3>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: 'bold', color: '#334155', marginBottom: '6px' }}>
+                  الاسم الكريم
+                </label>
+                <input type="text" placeholder="اكتب اسمك هنا..." style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', outline: 'none', backgroundColor: '#ffffff' }} />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: 'bold', color: '#334155', marginBottom: '6px' }}>
+                  البريد الإلكتروني
+                </label>
+                <input type="email" placeholder="example@domain.com" style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', outline: 'none', backgroundColor: '#ffffff' }} />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: 'bold', color: '#334155', marginBottom: '6px' }}>
+                  تفاصيل الاستفسار أو المشكلة
+                </label>
+                <textarea rows={4} placeholder="كيف يمكننا مساعدتك؟" style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', outline: 'none', backgroundColor: '#ffffff', resize: 'vertical' }}></textarea>
+              </div>
+
+              <button style={{ backgroundColor: '#059669', color: '#ffffff', border: 'none', padding: '14px', borderRadius: '8px', fontWeight: 'bold', fontSize: '16px', cursor: 'pointer', marginTop: '8px' }}>
+                إرسال الرسالة
+              </button>
+            </div>
+          </div>
+
         </div>
 
       </div>
