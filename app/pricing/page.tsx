@@ -4,7 +4,8 @@ import React, { useEffect } from 'react';
 import Link from 'next/link';
 
 export default function PricingSA() {
-  const LEMON_CHECKOUT_URL = 'https://enjazya.lemonsqueezy.com/checkout/buy/dce1dd80-3422-43ba-aed5-8ef2dcd38d6d?locale=ar';
+  // تم تعديل الرابط بحذف المتغير الخاطئ ليعمل بشكل سليم
+  const LEMON_CHECKOUT_URL = 'https://enjazya.lemonsqueezy.com/checkout/buy/dce1dd80-3422-43ba-aed5-8ef2dcd38d6d';
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
