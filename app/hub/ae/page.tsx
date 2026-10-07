@@ -170,7 +170,6 @@ export default function EnjazyaUaeHub() {
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
         .hub-container { background-color: #f8fafc; min-height: 100vh; font-family: 'Tajawal', sans-serif; padding: 30px 20px 40px; }
         
-        /* إزالة اللون الأخضر من الـ Navbar واستبداله بالأحمر الإماراتي */
         .navbar { max-width: 1250px; margin: 0 auto 20px; padding: 14px 24px; background: #ffffff; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 15px; border-top: 5px solid #ce1126; position: relative; }
         .brand { font-size: 26px; font-weight: 900; color: #0f172a; white-space: nowrap; display: flex; align-items: center; gap: 12px; letter-spacing: -0.5px; }
         .ae-badge { background: #fef2f2; color: #ce1126; font-size: 12px; font-weight: 800; padding: 5px 10px; border-radius: 6px; letter-spacing: normal; display: inline-flex; align-items: center; border: 1px solid #fecaca; }
@@ -229,7 +228,6 @@ export default function EnjazyaUaeHub() {
         .hero h1 span { color: #ce1126; }
         .hero p { color: #475569; font-size: 16px; line-height: 1.7; font-weight: 500; }
         
-        /* تحديثات البطاقات: إزالة اللون الأخضر واستبداله بالرمادي الأنيق والأحمر */
         .cards-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; max-width: 1250px; margin: 0 auto 60px; }
         .card { background: #ffffff; border-radius: 12px; padding: 24px; border: 2px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.3s ease; display: flex; flex-direction: column; justify-content: space-between; text-align: start; }
         .card:hover { transform: translateY(-5px); border-color: #ce1126; box-shadow: 0 15px 30px -5px rgba(206, 17, 38, 0.12); }
@@ -245,11 +243,10 @@ export default function EnjazyaUaeHub() {
         .card:hover h3 { color: #ce1126; }
         .card p { color: #64748b; font-size: 13.5px; line-height: 1.6; font-weight: 500; margin-bottom: 24px; min-height: 50px; }
         
-        /* تحديث زر "تشغيل الأداة" ليكون احترافياً ويتماشى مع الثيم */
-        .card-btn { background: #f8fafc; color: #334155; border: 1px solid #e2e8f0; text-align: center; padding: 14px; border-radius: 8px; font-weight: 800; font-size: 14px; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        /* تحديث زر تشغيل الأداة ليصبح أحمر خفيف بشكل افتراضي */
+        .card-btn { background: #fef2f2; color: #ce1126; border: 1px solid #fecaca; text-align: center; padding: 14px; border-radius: 8px; font-weight: 800; font-size: 14px; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .card:hover .card-btn { background: #ce1126; color: #ffffff; border-color: #ce1126; box-shadow: 0 4px 12px rgba(206, 17, 38, 0.25); }
 
-        /* تحديث الفوتر ليناسب الهوية الداكنة المتميزة */
         .footer { max-width: 1250px; margin: 0 auto; background: #000000; border-radius: 16px; padding: 40px; color: #f8fafc; border: 2px solid #1e293b; text-align: start; }
         .footer-content { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 30px; margin-bottom: 30px; border-bottom: 1px solid #222222; padding-bottom: 30px; }
         .footer-brand { max-width: 400px; }
