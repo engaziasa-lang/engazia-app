@@ -8,14 +8,14 @@ interface SeasonItem {
   productName: string;
   seasonName: string;
   normalMonthlySales: number;
-  growthRatePercent: number; 
-  requiredStock: number;     
+  growthRatePercent: number;
+  requiredStock: number;
   createdAt?: string;
 }
 
 export default function SeasonalInventoryPlannerAE() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
-
+  
   const [productName, setProductName] = useState<string>('');
   const [seasonSelect, setSeasonSelect] = useState<string>('');
   const [customSeason, setCustomSeason] = useState<string>('');
@@ -35,7 +35,7 @@ export default function SeasonalInventoryPlannerAE() {
       setLang(savedLang);
     }
     
-    // ضبط الموسم الافتراضي بناءً على اللغة
+    // ضبط الموسم الافتراضي
     if (savedLang === 'en') {
       setSeasonSelect('Dubai Summer Surprises (DSS) 🛍️');
       setCustomSeason('Dubai Summer Surprises (DSS) 🛍️');
@@ -60,7 +60,7 @@ export default function SeasonalInventoryPlannerAE() {
   const sales = typeof normalMonthlySales === 'number' ? normalMonthlySales : 0;
   const growth = typeof growthRatePercent === 'number' ? growthRatePercent : 0;
 
-  // الحساب
+  // الحساب: الكمية المطلوبة للموسم
   const requiredStock = Math.round(sales + (sales * (growth / 100)));
 
   // قاموس الترجمة الفوري
@@ -76,12 +76,12 @@ export default function SeasonalInventoryPlannerAE() {
       prodName: 'اسم المنتج أو الفئة',
       prodNamePH: 'مثال: عبايات نسائية فاخرة',
       seasonLabel: 'اختر الموسم المستهدف',
-      optDss: 'مفاجآت صيف دبي (DSS) 🛍️',
-      optNatDay: 'اليوم الوطني الإماراتي 🇦🇪',
-      optDsf: 'مهرجان دبي للتسوق (DSF) ⭐',
-      optFriday: 'الجمعة البيضاء / السوداء 🏷️',
-      optRamadan: 'موسم رمضان والعيد 🌙',
-      optOther: '➕ موسم آخر (كتابة يدوية)',
+      s_dss: 'مفاجآت صيف دبي (DSS) 🛍️',
+      s_national: 'اليوم الوطني الإماراتي 🇦🇪',
+      s_dsf: 'مهرجان دبي للتسوق (DSF) ⭐',
+      s_friday: 'الجمعة البيضاء / السوداء 🏷️',
+      s_eid: 'موسم رمضان والعيد 🌙',
+      s_other: '➕ موسم آخر (كتابة يدوية)',
       otherPH: 'اكتب اسم الموسم هنا...',
       salesLabel: 'مبيعات المنتج العادية (شهرياً)',
       salesPH: '100',
@@ -92,8 +92,8 @@ export default function SeasonalInventoryPlannerAE() {
       analysisTitle: 'توقع المخزون الموسمي الفوري',
       reqStock: 'الكمية المطلوبة لتغطية الموسم',
       reqStockSub: 'المخزون الكافي لتجنب نفاد البضاعة',
-      normalRate: 'معدل المبيعات الشهري العادي',
-      demandInc: 'نسبة الطلب المتوقعة في الموسم',
+      normalSales: 'معدل المبيعات الشهري العادي',
+      growthExp: 'نسبة الطلب المتوقعة في الموسم',
       unit: 'وحدة',
       unitMonth: 'وحدة/شهر',
       searchPH: '🔍 بحث بالمنتج أو الموسم...',
@@ -106,7 +106,7 @@ export default function SeasonalInventoryPlannerAE() {
         th3: 'الموسم المستهدف',
         th4: 'المبيعات العادية',
         th5: 'نسبة النمو',
-        th6: 'الكمية المطلوبة للموسم',
+        th6: 'الكمية المطلوبة',
         th7: 'الإجراءات',
         totalLabel: 'الإجمالي الكلي'
       },
@@ -126,32 +126,32 @@ export default function SeasonalInventoryPlannerAE() {
       title: 'UAE Seasonal Inventory Planner 📅',
       desc: 'Forecast required stock for UAE seasons (DSS, Eid, National Day) to prevent stockouts',
       editRecord: 'Edit Record',
-      newRecord: 'Plan New Season Inventory',
+      newRecord: 'Plan New Seasonal Inventory',
       clear: '🧹 Clear Fields',
       trial: 'Trial',
       prodName: 'Product or Category Name',
       prodNamePH: 'e.g. Luxury Women Abayas',
       seasonLabel: 'Select Target Season',
-      optDss: 'Dubai Summer Surprises (DSS) 🛍️',
-      optNatDay: 'UAE National Day 🇦🇪',
-      optDsf: 'Dubai Shopping Festival (DSF) ⭐',
-      optFriday: 'White / Black Friday 🏷️',
-      optRamadan: 'Ramadan & Eid Season 🌙',
-      optOther: '➕ Other Season (Manual Entry)',
+      s_dss: 'Dubai Summer Surprises (DSS) 🛍️',
+      s_national: 'UAE National Day 🇦🇪',
+      s_dsf: 'Dubai Shopping Festival (DSF) ⭐',
+      s_friday: 'White / Black Friday 🏷️',
+      s_eid: 'Ramadan & Eid Season 🌙',
+      s_other: '➕ Other Season (Manual Entry)',
       otherPH: 'Type season name here...',
       salesLabel: 'Normal Monthly Sales',
       salesPH: '100',
-      growthLabel: 'Expected Seasonal Growth Rate (%)',
+      growthLabel: 'Expected Season Growth (%)',
       growthPH: '150',
       saveBtnNew: '+ Save Plan to Log',
       saveBtnEdit: '💾 Save Changes',
       analysisTitle: 'Instant Seasonal Stock Forecast',
-      reqStock: 'Required Quantity for the Season',
-      reqStockSub: 'Sufficient stock to avoid selling out',
-      normalRate: 'Normal Monthly Sales Rate',
-      demandInc: 'Expected Demand Increase',
+      reqStock: 'Required Stock for the Season',
+      reqStockSub: 'Sufficient inventory to avoid stockouts',
+      normalSales: 'Regular Monthly Sales Rate',
+      growthExp: 'Expected Demand Growth',
       unit: 'unit(s)',
-      unitMonth: 'unit(s)/month',
+      unitMonth: 'units/month',
       searchPH: '🔍 Search by product or season...',
       exportBtn: '📥 Export Excel',
       importBtn: '📂 Import',
@@ -162,15 +162,15 @@ export default function SeasonalInventoryPlannerAE() {
         th3: 'Target Season',
         th4: 'Normal Sales',
         th5: 'Growth Rate',
-        th6: 'Required Quantity',
+        th6: 'Required Stock',
         th7: 'Actions',
         totalLabel: 'Grand Total'
       },
       alerts: {
-        limit: '🔒 Sorry, you have reached the trial limit (3 records). Please upgrade to unlock unlimited access!',
-        fillErr: 'Please ensure product name, season, and valid monthly sales are filled.',
+        limit: '🔒 Sorry, you reached the trial limit (3 records). Please upgrade to unlock unlimited access!',
+        fillErr: 'Please ensure product name, season, and normal sales are filled correctly.',
         updateSuccess: '✨ Inventory plan updated successfully!',
-        saveSuccess: '✅ Seasonal inventory plan added successfully!',
+        saveSuccess: '✅ Seasonal plan added successfully!',
         delConfirm: 'Are you sure you want to delete this record?',
         noDataExp: 'No data to export.',
         importSuccess: '✨ Seasonal inventory data imported successfully!',
@@ -184,7 +184,7 @@ export default function SeasonalInventoryPlannerAE() {
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const val = e.target.value;
     setSeasonSelect(val);
-    if (val !== 'موسم آخر (كتابة يدوية)' && val !== '➕ Other Season (Manual Entry)') {
+    if (val !== text.s_other) {
       setCustomSeason(val);
     } else {
       setCustomSeason('');
@@ -193,13 +193,9 @@ export default function SeasonalInventoryPlannerAE() {
 
   const handleClearForm = () => {
     setProductName('');
-    if (lang === 'en') {
-      setSeasonSelect('Dubai Summer Surprises (DSS) 🛍️');
-      setCustomSeason('Dubai Summer Surprises (DSS) 🛍️');
-    } else {
-      setSeasonSelect('مفاجآت صيف دبي (DSS) 🛍️');
-      setCustomSeason('مفاجآت صيف دبي (DSS) 🛍️');
-    }
+    const defaultSeason = lang === 'en' ? text.s_dss : text.s_dss;
+    setSeasonSelect(defaultSeason);
+    setCustomSeason(defaultSeason);
     setNormalMonthlySales('');
     setGrowthRatePercent(150);
     setEditingId(null);
@@ -211,7 +207,7 @@ export default function SeasonalInventoryPlannerAE() {
       alert(text.alerts.limit);
       return;
     }
-    const finalSeason = seasonSelect === 'موسم آخر (كتابة يدوية)' || seasonSelect === '➕ Other Season (Manual Entry)' ? customSeason : seasonSelect;
+    const finalSeason = seasonSelect === text.s_other ? customSeason : seasonSelect;
     if (!productName.trim() || !finalSeason.trim() || sales <= 0) {
       alert(text.alerts.fillErr);
       return;
@@ -252,4 +248,379 @@ export default function SeasonalInventoryPlannerAE() {
     handleClearForm();
   };
 
-  const handleEdit = (item: SeasonItem) =>
+  const handleEdit = (item: SeasonItem) => {
+    setProductName(item.productName);
+    
+    // محاولة مطابقة الموسم بناءً على نصوص تدل عليه
+    const isDSS = item.seasonName.includes('صيف') || item.seasonName.includes('DSS');
+    const isNational = item.seasonName.includes('وطني') || item.seasonName.includes('National');
+    const isDSF = item.seasonName.includes('مهرجان') || item.seasonName.includes('DSF');
+    const isFriday = item.seasonName.includes('جمعة') || item.seasonName.includes('Friday');
+    const isEid = item.seasonName.includes('رمضان') || item.seasonName.includes('Eid');
+
+    let matchedSeason = '';
+    if (isDSS) matchedSeason = text.s_dss;
+    else if (isNational) matchedSeason = text.s_national;
+    else if (isDSF) matchedSeason = text.s_dsf;
+    else if (isFriday) matchedSeason = text.s_friday;
+    else if (isEid) matchedSeason = text.s_eid;
+    else matchedSeason = text.s_other;
+
+    setSeasonSelect(matchedSeason);
+    setCustomSeason(item.seasonName); // يحتفظ بالاسم الفعلي
+    setNormalMonthlySales(item.normalMonthlySales);
+    setGrowthRatePercent(item.growthRatePercent);
+    setEditingId(item.id);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleDelete = (id: string) => {
+    if (confirm(text.alerts.delConfirm)) {
+      const filtered = items.filter(i => i.id !== id);
+      saveToLocalStorage(filtered);
+    }
+  };
+
+  const totalNormalSalesSum = items.reduce((acc, curr) => acc + curr.normalMonthlySales, 0);
+  const totalRequiredStockSum = items.reduce((acc, curr) => acc + curr.requiredStock, 0);
+
+  const handleExportExcel = () => {
+    if (items.length === 0) {
+      alert(text.alerts.noDataExp);
+      return;
+    }
+
+    let tableHtml = `
+      <html dir="${lang === 'ar' ? 'rtl' : 'ltr'}" lang="${lang}">
+        <head>
+          <meta charset="utf-8">
+          <style>
+            table { border-collapse: collapse; width: 100%; font-family: sans-serif; }
+            th, td { border: 1px solid #cbd5e1; padding: 8px; text-align: center; }
+            th { background-color: #f8fafc; font-weight: bold; color: #334155; }
+            .tfoot-row td { background-color: #f1f5f9; font-weight: bold; color: #0f172a; }
+          </style>
+        </head>
+        <body>
+          <table>
+            <thead>
+              <tr>
+                <th>${text.table.th1}</th>
+                <th>${text.prodName.split(' ')[0]}</th>
+                <th>Date / Time</th>
+                <th>${text.table.th3}</th>
+                <th>${text.table.th4}</th>
+                <th>${text.table.th5} (%)</th>
+                <th>${text.table.th6}</th>
+              </tr>
+            </thead>
+            <tbody>
+    `;
+
+    items.forEach((row, idx) => {
+      tableHtml += `
+        <tr>
+          <td>${idx + 1}</td>
+          <td>${row.productName}</td>
+          <td>${row.createdAt || '-'}</td>
+          <td>${row.seasonName}</td>
+          <td>${row.normalMonthlySales}</td>
+          <td>${row.growthRatePercent}%</td>
+          <td>${row.requiredStock}</td>
+        </tr>
+      `;
+    });
+
+    tableHtml += `
+            </tbody>
+            <tfoot>
+              <tr class="tfoot-row">
+                <td colspan="4">${text.table.totalLabel}</td>
+                <td>${totalNormalSalesSum}</td>
+                <td>-</td>
+                <td>${totalRequiredStockSum}</td>
+              </tr>
+            </tfoot>
+          </table>
+        </body>
+      </html>
+    `;
+
+    const blob = new Blob([tableHtml], { type: 'application/vnd.ms-excel' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", "enjazya_ae_seasonal_inventory.xls");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleImportJson = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const reader = new FileReader();
+    if (e.target.files && e.target.files[0]) {
+      reader.readAsText(e.target.files[0], "UTF-8");
+      reader.onload = (event) => {
+        try {
+          const imported = JSON.parse(event.target?.result as string);
+          if (Array.isArray(imported)) {
+            saveToLocalStorage(imported);
+            alert(text.alerts.importSuccess);
+          }
+        } catch (err) {
+          alert(text.alerts.importErr);
+        }
+      };
+    }
+  };
+
+  const filteredItems = items.filter(item => 
+    item.productName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.seasonName.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  return (
+    <div className="tool-container" style={{ direction: lang === 'ar' ? 'rtl' : 'ltr' }}>
+      <style jsx global>{`
+        body { background-color: #f8fafc; margin: 0; font-family: ${lang === 'ar' ? "'Tajawal', sans-serif" : "'Inter', sans-serif"}; }
+        a { text-decoration: none; }
+      `}</style>
+      <style jsx>{`
+        .tool-container { max-width: 1100px; margin: 20px auto; padding: 20px; }
+        @media(max-width: 768px) { .tool-container { padding: 10px; margin: 10px auto; } }
+        
+        .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .back-btn { background: #ffffff; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 8px; color: #475569; font-weight: 700; font-size: 14px; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
+        .back-btn:hover { background: #f1f5f9; color: #0f172a; }
+        
+        .title-box h1 { font-size: 24px; font-weight: 900; color: #0f172a; margin: 0 0 5px 0; }
+        .title-box p { color: #64748b; margin: 0; font-size: 14px; }
+        
+        .grid-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 40px; }
+        @media(max-width: 850px) { .grid-layout { grid-template-columns: 1fr; } }
+        
+        .card { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
+        .card-title { font-size: 18px; font-weight: 800; color: #1e293b; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        
+        .clear-form-btn { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; display: flex; align-items: center; gap: 5px; }
+        .clear-form-btn:hover { background: #fecaca; }
+
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        @media(max-width: 600px) { .form-row { grid-template-columns: 1fr; gap: 0; } }
+
+        .input-group { margin-bottom: 15px; width: 100%; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .input-group label { display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 6px; }
+        .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
+        .input-wrapper input, .input-wrapper select { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .input-wrapper input.with-currency { padding-${lang === 'ar' ? 'left' : 'right'}: 45px; }
+        .input-wrapper input:focus, .input-wrapper select:focus { border-color: #047857; background: #ffffff; }
+        .currency-tag { position: absolute; ${lang === 'ar' ? 'left: 14px;' : 'right: 14px;'} color: #64748b; font-weight: 800; font-size: 13px; pointer-events: none; }
+        
+        .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
+        .action-btn:hover { background: #065f46; }
+
+        .result-box { background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .result-box.primary { background: linear-gradient(135deg, #047857 0%, #065f46 100%); color: #fff; border: none; padding: 20px; }
+        .result-label { font-size: 13px; font-weight: 700; color: #64748b; }
+        .primary .result-label { color: #ffffff; opacity: 0.9; }
+        .result-value { font-size: 18px; font-weight: 900; color: #0f172a; direction: ltr; }
+        .primary .result-value { font-size: 26px; color: #ffffff; direction: ${lang === 'ar' ? 'rtl' : 'ltr'}; }
+
+        .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
+        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
+        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; }
+        .t-btn:hover { background: #f1f5f9; }
+
+        .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 900px; }
+        .data-table th { background: #f8fafc; padding: 12px; text-align: ${lang === 'ar' ? 'right' : 'left'}; border-bottom: 2px solid #cbd5e1; font-weight: 800; color: #334155; white-space: nowrap; }
+        .data-table td { padding: 12px; border-bottom: 1px solid #e2e8f0; color: #0f172a; font-weight: 600; vertical-align: middle; }
+        .data-table tfoot td { background: #f1f5f9; font-weight: 900; color: #0f172a; border-top: 2px solid #cbd5e1; }
+        
+        .trial-badge { background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 800; }
+        
+        .tb-action-btn { border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; font-family: inherit;}
+        .btn-edit { background: #e0f2fe; color: #0369a1; }
+        .btn-delete { background: #fee2e2; color: #991b1b; }
+      `}</style>
+
+      <div className="header">
+        <div className="title-box">
+          <h1>{text.title}</h1>
+          <p>{text.desc}</p>
+        </div>
+        <Link href="/hub/ae" className="back-btn">
+          {text.back}
+        </Link>
+      </div>
+
+      <div className="grid-layout">
+        <div className="card">
+          <h2 className="card-title">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', flexDirection: lang === 'ar' ? 'row' : 'row-reverse' }}>
+              <span>{editingId ? text.editRecord : text.newRecord}</span>
+              <button type="button" className="clear-form-btn" onClick={handleClearForm}>
+                {text.clear}
+              </button>
+            </div>
+            {!isActivated && <span className="trial-badge">{text.trial}: {items.length}/3</span>}
+          </h2>
+
+          <form onSubmit={handleSaveItem}>
+            <div className="input-group">
+              <label>{text.prodName}</label>
+              <div className="input-wrapper">
+                <input type="text" value={productName} onChange={(e) => setProductName(e.target.value)} placeholder={text.prodNamePH} required />
+              </div>
+            </div>
+
+            <div className="input-group">
+              <label>{text.seasonLabel}</label>
+              <div className="input-wrapper" style={{ marginBottom: '8px' }}>
+                <select value={seasonSelect} onChange={handleSelectChange}>
+                  <option value={text.s_dss}>{text.s_dss}</option>
+                  <option value={text.s_national}>{text.s_national}</option>
+                  <option value={text.s_dsf}>{text.s_dsf}</option>
+                  <option value={text.s_friday}>{text.s_friday}</option>
+                  <option value={text.s_eid}>{text.s_eid}</option>
+                  <option value={text.s_other}>{text.s_other}</option>
+                </select>
+              </div>
+
+              {seasonSelect === text.s_other && (
+                <div className="input-wrapper">
+                  <input 
+                    type="text" 
+                    value={customSeason} 
+                    onChange={(e) => setCustomSeason(e.target.value)} 
+                    placeholder={text.otherPH} 
+                    required 
+                  />
+                </div>
+              )}
+            </div>
+
+            <div className="form-row">
+              <div className="input-group">
+                <label>{text.salesLabel}</label>
+                <div className="input-wrapper">
+                  <input type="number" min="1" value={normalMonthlySales === '' ? '' : normalMonthlySales} onChange={(e) => setNormalMonthlySales(e.target.value === '' ? '' : Number(e.target.value))} placeholder={text.salesPH} required />
+                </div>
+              </div>
+              <div className="input-group">
+                <label>{text.growthLabel}</label>
+                <div className="input-wrapper">
+                  <input className="with-currency" type="number" min="0" max="1000" value={growthRatePercent === '' ? '' : growthRatePercent} onChange={(e) => setGrowthRatePercent(e.target.value === '' ? '' : Number(e.target.value))} placeholder={text.growthPH} required />
+                  <span className="currency-tag">%</span>
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" className="action-btn">
+              {editingId ? text.saveBtnEdit : text.saveBtnNew}
+            </button>
+          </form>
+        </div>
+
+        <div className="card">
+          <h2 className="card-title">{text.analysisTitle}</h2>
+
+          <div className="result-box primary">
+            <div>
+              <div className="result-label">{text.reqStock}</div>
+              <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '2px' }}>{text.reqStockSub}</div>
+            </div>
+            <div className="result-value">
+              {requiredStock} {text.unit}
+            </div>
+          </div>
+
+          <div className="result-box">
+            <span className="result-label">{text.normalSales}</span>
+            <span className="result-value" style={{ color: '#0f172a' }}>{sales} {text.unitMonth}</span>
+          </div>
+
+          <div className="result-box" style={{ background: '#f8fafc' }}>
+            <span className="result-label">{text.growthExp}</span>
+            <span className="result-value" style={{ color: '#047857' }}>+{growth}%</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="table-section">
+        <div className="table-toolbar">
+          <input 
+            type="text" 
+            className="search-input" 
+            placeholder={text.searchPH} 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          <div className="table-btns">
+            <button className="t-btn" onClick={handleExportExcel}>{text.exportBtn}</button>
+            <button className="t-btn" onClick={() => fileInputRef.current?.click()}>{text.importBtn}</button>
+            <input type="file" ref={fileInputRef} onChange={handleImportJson} accept=".json" style={{ display: 'none' }} />
+          </div>
+        </div>
+
+        <div className="table-responsive">
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>{text.table.th1}</th>
+                <th>{text.table.th2}</th>
+                <th>{text.table.th3}</th>
+                <th>{text.table.th4}</th>
+                <th>{text.table.th5}</th>
+                <th>{text.table.th6}</th>
+                <th>{text.table.th7}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredItems.length === 0 ? (
+                <tr>
+                  <td colSpan={7} style={{ textAlign: 'center', color: '#94a3b8', padding: '30px 0' }}>
+                    {text.table.noRecords}
+                  </td>
+                </tr>
+              ) : (
+                filteredItems.map((item, idx) => (
+                  <tr key={item.id}>
+                    <td>{idx + 1}</td>
+                    <td>
+                      <div style={{ fontWeight: 900, color: '#0f172a' }}>{item.productName}</div>
+                      {item.createdAt && <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', fontWeight: 600 }}>🕒 {item.createdAt}</div>}
+                    </td>
+                    <td><span style={{ fontWeight: 800, color: '#047857' }}>{item.seasonName}</span></td>
+                    <td>{item.normalMonthlySales} {text.unit}</td>
+                    <td><span style={{ color: '#d97706', fontWeight: 800 }}>+{item.growthRatePercent}%</span></td>
+                    <td style={{ fontWeight: 900, color: '#0f172a' }}>{item.requiredStock} {text.unit}</td>
+                    <td>
+                      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                        <button className="tb-action-btn btn-edit" onClick={() => handleEdit(item)} title="✏️">✏️</button>
+                        <button className="tb-action-btn btn-delete" onClick={() => handleDelete(item.id)} title="❌">❌</button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+            {filteredItems.length > 0 && (
+              <tfoot>
+                <tr className="tfoot-row">
+                  <td colSpan={3} style={{ textAlign: 'center' }}>{text.table.totalLabel}</td>
+                  <td>{totalNormalSalesSum} {text.unit}</td>
+                  <td>-</td>
+                  <td style={{ color: '#047857' }}>{totalRequiredStockSum} {text.unit}</td>
+                  <td></td>
+                </tr>
+              </tfoot>
+            )}
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
