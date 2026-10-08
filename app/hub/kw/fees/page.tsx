@@ -14,13 +14,13 @@ interface FeeItem {
   createdAt?: string;
 }
 
-export default function GatewayFeesCalculatorSA() {
+export default function GatewayFeesCalculatorKW() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
 
-  const [orderAmount, setOrderAmount] = useState<number | ''>(350);
-  const [gatewayName, setGatewayName] = useState<string>('مدى (Mada)');
-  const [feePercent, setFeePercent] = useState<number | ''>(1.0);
-  const [feeFixed, setFeeFixed] = useState<number | ''>(1.0);
+  const [orderAmount, setOrderAmount] = useState<number | ''>(35);
+  const [gatewayName, setGatewayName] = useState<string>('كي نت (K-Net)');
+  const [feePercent, setFeePercent] = useState<number | ''>(0.5);
+  const [feeFixed, setFeeFixed] = useState<number | ''>(0.05);
 
   const [items, setItems] = useState<FeeItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -38,12 +38,12 @@ export default function GatewayFeesCalculatorSA() {
     setLang(savedLang);
 
     if (savedLang === 'en') {
-      setGatewayName('Mada');
+      setGatewayName('K-Net');
     } else {
-      setGatewayName('مدى (Mada)');
+      setGatewayName('كي نت (K-Net)');
     }
 
-    const saved = localStorage.getItem('seerk_gateway_fees_items');
+    const saved = localStorage.getItem('seerk_kw_gateway_fees_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
@@ -51,35 +51,35 @@ export default function GatewayFeesCalculatorSA() {
 
   const saveToLocalStorage = (newItems: FeeItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_gateway_fees_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_kw_gateway_fees_items', JSON.stringify(newItems));
   };
 
   const t = {
     ar: {
       back: '← عودة للمنصة',
-      title: 'حاسبة رسوم بوابات الدفع (تابي، تمارا، مدى) 💳',
-      desc: 'احسب بدقة عمولات وبوابات الدفع المحلية مع رسوم الضريبة (15%) على العمولة وتأثيرها على حسابك في السوق السعودي',
+      title: 'حاسبة بوابات الدفع (كي نت، تاب، ماي فاتورة) 💳',
+      desc: 'احسب بدقة عمولات بوابات الدفع المحلية وتأثيرها على صافي أرباحك في السوق الكويتي',
       editRecord: 'تعديل السجل',
       newRecord: 'حساب رسوم جديدة',
       clear: '🧹 مسح الحقول',
       trial: 'تجريبي',
       orderAmtLabel: 'قيمة طلب العميل الإجمالية',
-      presetLabel: 'اختيار البوابة لملء البيانات التلقائي (اختياري)',
-      optMada: 'مدى (Mada) - (1% + 1 ريال)',
-      optVisa: 'فيزا / ماستركارد (Visa/Master) - (2.2% + 1 ريال)',
-      optTabby: 'التقسيط (تابي / تمارا) - (2.5% + 2 ريال)',
+      presetLabel: 'اختيار البوابة لملء البيانات التلقائي (النسب تقريبية وقابلة للتعديل)',
+      optKnet: 'كي نت (K-Net) - (0.5% + 0.05 د.ك)',
+      optVisa: 'فيزا / ماستركارد (Tap/MyFatoorah) - (2.5% + 0.100 د.ك)',
+      optTabby: 'التقسيط (تابي / تمارا) - (3.9% + 0.150 د.ك)',
       optCustom: 'تفريغ الحقول (إدخال يدوي بالكامل)',
       gwNameLabel: 'اسم البوابة (قابل للتعديل)',
       gwNamePH: 'مثال: أبل باي',
-      pctLabel: 'النسبة (%)',
-      fixedLabel: 'رسوم ثابتة',
-      currency: 'ر.س',
+      pctLabel: 'النسبة المئوية (%)',
+      fixedLabel: 'رسوم ثابتة للعملية',
+      currency: 'د.ك',
       saveBtnNew: '+ حفظ العملية في الجدول',
       saveBtnEdit: '💾 حفظ التعديلات',
       resultsTitle: 'تحليل الرسوم الفوري',
       netRecLabel: 'المبلغ الصافي الذي يدخل لحسابك البنكي',
-      netRecSub: 'بعد خصم عمولة البوابة وضريبة 15% عليها',
-      totalFeeLabel: 'إجمالي الرسوم المقتطعة (شاملة الضريبة)',
+      netRecSub: 'بعد خصم عمولة البوابة والرسوم الثابتة',
+      totalFeeLabel: 'إجمالي الرسوم المقتطعة',
       effPctLabel: 'النسبة المؤثرة الفعلية من قيمة الطلب',
       searchPH: '🔍 بحث في السجلات المحفوظة...',
       exportBtn: '📥 تصدير Excel',
@@ -89,7 +89,7 @@ export default function GatewayFeesCalculatorSA() {
         th1: '#',
         th2: 'بوابة الدفع والتاريخ',
         th3: 'قيمة الطلب',
-        th4: 'الرسوم (شاملة الضريبة)',
+        th4: 'الرسوم المقتطعة',
         th5: 'نسبة الاستقطاع',
         th6: 'المبلغ الصافي',
         th7: 'الإجراءات',
@@ -110,29 +110,29 @@ export default function GatewayFeesCalculatorSA() {
     },
     en: {
       back: '→ Back to Hub',
-      title: 'Payment Gateway Fee Calculator (Tabby, Tamara, Mada) 💳',
-      desc: 'Accurately calculate local payment gateway commissions with 15% VAT on fees and their impact in the Saudi market',
+      title: 'Gateway Fee Calculator (K-Net, Tap, MyFatoorah) 💳',
+      desc: 'Accurately calculate local payment gateway commissions and their impact in the Kuwaiti market',
       editRecord: 'Edit Record',
       newRecord: 'Calculate New Fees',
       clear: '🧹 Clear Fields',
       trial: 'Trial',
       orderAmtLabel: 'Total Customer Order Amount',
-      presetLabel: 'Select Gateway for Auto-Fill (Optional)',
-      optMada: 'Mada - (1% + 1 SAR)',
-      optVisa: 'Visa / MasterCard - (2.2% + 1 SAR)',
-      optTabby: 'Installments (Tabby / Tamara) - (2.5% + 2 SAR)',
+      presetLabel: 'Select Gateway for Auto-Fill (Rates are estimates & editable)',
+      optKnet: 'K-Net - (0.5% + 0.05 KWD)',
+      optVisa: 'Visa / MasterCard (Tap/MyFatoorah) - (2.5% + 0.100 KWD)',
+      optTabby: 'Installments (Tabby / Tamara) - (3.9% + 0.150 KWD)',
       optCustom: 'Clear Fields (Full Manual Entry)',
       gwNameLabel: 'Gateway Name (Editable)',
       gwNamePH: 'e.g. Apple Pay',
       pctLabel: 'Percentage (%)',
-      fixedLabel: 'Fixed Fee',
-      currency: 'SAR',
+      fixedLabel: 'Fixed Fee per Trx',
+      currency: 'KWD',
       saveBtnNew: '+ Save Operation to Table',
       saveBtnEdit: '💾 Save Changes',
       resultsTitle: 'Instant Fee Analysis',
       netRecLabel: 'Net Amount Entering Your Bank Account',
-      netRecSub: 'After gateway commission and 15% VAT deduction',
-      totalFeeLabel: 'Total Deducted Fees (Incl. VAT)',
+      netRecSub: 'After gateway commission and fixed fees deduction',
+      totalFeeLabel: 'Total Deducted Fees',
       effPctLabel: 'Actual Effective Percentage of Order Value',
       searchPH: '🔍 Search saved records...',
       exportBtn: '📥 Export Excel',
@@ -142,7 +142,7 @@ export default function GatewayFeesCalculatorSA() {
         th1: '#',
         th2: 'Gateway & Date',
         th3: 'Order Amount',
-        th4: 'Fees (Incl. VAT)',
+        th4: 'Deducted Fees',
         th5: 'Deduction %',
         th6: 'Net Amount',
         th7: 'Actions',
@@ -167,18 +167,18 @@ export default function GatewayFeesCalculatorSA() {
 
   const handlePresetChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const val = e.target.value;
-    if (val === 'mada') {
-      setGatewayName(lang === 'ar' ? 'مدى (Mada)' : 'Mada');
-      setFeePercent(1.0);
-      setFeeFixed(1.0);
+    if (val === 'knet') {
+      setGatewayName(lang === 'ar' ? 'كي نت (K-Net)' : 'K-Net');
+      setFeePercent(0.5);
+      setFeeFixed(0.05);
     } else if (val === 'visa') {
-      setGatewayName(lang === 'ar' ? 'فيزا / ماستركارد (Visa/Master)' : 'Visa / MasterCard');
-      setFeePercent(2.2);
-      setFeeFixed(1.0);
+      setGatewayName(lang === 'ar' ? 'فيزا / ماستركارد' : 'Visa / MasterCard');
+      setFeePercent(2.5);
+      setFeeFixed(0.100);
     } else if (val === 'tabby') {
       setGatewayName(lang === 'ar' ? 'التقسيط (تابي / تمارا)' : 'Installments (Tabby / Tamara)');
-      setFeePercent(2.5);
-      setFeeFixed(2.0);
+      setFeePercent(3.9);
+      setFeeFixed(0.150);
     } else if (val === 'custom') {
       setGatewayName(lang === 'ar' ? 'بوابة مخصصة' : 'Custom Gateway');
       setFeePercent('');
@@ -190,15 +190,16 @@ export default function GatewayFeesCalculatorSA() {
   const pct = typeof feePercent === 'number' ? feePercent : 0;
   const fxd = typeof feeFixed === 'number' ? feeFixed : 0;
 
-  const baseFee = (amt * (pct / 100)) + fxd;
-  const totalFeeWithVat = baseFee > 0 ? baseFee * 1.15 : 0;
-  const netReceived = Math.max(0, amt - totalFeeWithVat);
+  // في الكويت عادة لا تُحسب ضريبة قيمة مضافة (VAT) على عمولة بوابات الدفع حالياً.
+  // لذا إجمالي الرسوم هو النسبة من المبلغ + الرسوم الثابتة.
+  const totalFee = (amt * (pct / 100)) + fxd;
+  const netReceived = Math.max(0, amt - totalFee);
 
   const handleClearForm = () => {
     setOrderAmount('');
-    setGatewayName(lang === 'ar' ? 'مدى (Mada)' : 'Mada');
-    setFeePercent(1.0);
-    setFeeFixed(1.0);
+    setGatewayName(lang === 'ar' ? 'كي نت (K-Net)' : 'K-Net');
+    setFeePercent(0.5);
+    setFeeFixed(0.05);
     setEditingId(null);
   };
 
@@ -215,7 +216,7 @@ export default function GatewayFeesCalculatorSA() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const localeStr = lang === 'ar' ? 'ar-SA' : 'en-US';
+    const localeStr = lang === 'ar' ? 'ar-KW' : 'en-KW';
     const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
 
     if (editingId) {
@@ -225,8 +226,8 @@ export default function GatewayFeesCalculatorSA() {
         orderAmount: amt,
         feePercent: pct,
         feeFixed: fxd,
-        netReceived: Number(netReceived.toFixed(2)),
-        totalFee: Number(totalFeeWithVat.toFixed(2)),
+        netReceived: Number(netReceived.toFixed(3)),
+        totalFee: Number(totalFee.toFixed(3)),
         createdAt: item.createdAt || formattedDate
       } : item);
       saveToLocalStorage(updated);
@@ -239,8 +240,8 @@ export default function GatewayFeesCalculatorSA() {
         orderAmount: amt,
         feePercent: pct,
         feeFixed: fxd,
-        netReceived: Number(netReceived.toFixed(2)),
-        totalFee: Number(totalFeeWithVat.toFixed(2)),
+        netReceived: Number(netReceived.toFixed(3)),
+        totalFee: Number(totalFee.toFixed(3)),
         createdAt: formattedDate
       };
       saveToLocalStorage([...items, newItem]);
@@ -273,9 +274,9 @@ export default function GatewayFeesCalculatorSA() {
     }
 
     const totalOrderAmount = items.reduce((acc, curr) => acc + curr.orderAmount, 0);
-    const totalFees = items.reduce((acc, curr) => acc + curr.totalFee, 0);
+    const totalFeesSum = items.reduce((acc, curr) => acc + curr.totalFee, 0);
     const totalNetReceived = items.reduce((acc, curr) => acc + curr.netReceived, 0);
-    const overallFeePercent = totalOrderAmount > 0 ? (totalFees / totalOrderAmount) * 100 : 0;
+    const overallFeePercent = totalOrderAmount > 0 ? (totalFeesSum / totalOrderAmount) * 100 : 0;
 
     let tableHtml = `
       <html dir="${lang === 'ar' ? 'rtl' : 'ltr'}" lang="${lang}">
@@ -288,7 +289,7 @@ export default function GatewayFeesCalculatorSA() {
           </style>
         </head>
         <body>
-          <h2>Gateway Fees Calculator Report</h2>
+          <h2>Gateway Fees Calculator Report (KW)</h2>
           <table>
             <thead>
               <tr>
@@ -328,7 +329,7 @@ export default function GatewayFeesCalculatorSA() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", "enjazya_sa_gateway_fees.xls");
+    link.setAttribute("download", "enjazya_kw_gateway_fees.xls");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -355,14 +356,14 @@ export default function GatewayFeesCalculatorSA() {
   const filteredItems = items.filter(item => item.gatewayName.toLowerCase().includes(searchQuery.toLowerCase()));
 
   const totalOrderAmount = filteredItems.reduce((acc, curr) => acc + curr.orderAmount, 0);
-  const totalFees = filteredItems.reduce((acc, curr) => acc + curr.totalFee, 0);
+  const totalFeesSum = filteredItems.reduce((acc, curr) => acc + curr.totalFee, 0);
   const totalNetReceived = filteredItems.reduce((acc, curr) => acc + curr.netReceived, 0);
-  const overallFeePercent = totalOrderAmount > 0 ? (totalFees / totalOrderAmount) * 100 : 0;
+  const overallFeePercent = totalOrderAmount > 0 ? (totalFeesSum / totalOrderAmount) * 100 : 0;
 
   return (
     <div className="tool-container" style={{ direction: lang === 'ar' ? 'rtl' : 'ltr' }}>
       <style jsx global>{`
-        body { background-color: #f8fafc; margin: 0; font-family: ${lang === 'ar' ? "'Tajawal', sans-serif" : "'Inter', sans-serif"}; }
+        body { background-color: #f1f5f9; margin: 0; font-family: ${lang === 'ar' ? "'Tajawal', sans-serif" : "'Inter', sans-serif"}; }
         a { text-decoration: none; }
       `}</style>
       <style jsx>{`
@@ -370,8 +371,8 @@ export default function GatewayFeesCalculatorSA() {
         @media(max-width: 768px) { .tool-container { padding: 10px; margin: 10px auto; } }
         
         .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .back-btn { background: #ffffff; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 8px; color: #475569; font-weight: 700; font-size: 14px; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
-        .back-btn:hover { background: #f1f5f9; color: #0f172a; }
+        .back-btn { background: #ffffff; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 10px; color: #475569; font-weight: 700; font-size: 14px; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
+        .back-btn:hover { background: #f8fafc; color: #0f172a; border-color: #0284c7; }
         
         .title-box h1 { font-size: 24px; font-weight: 900; color: #0f172a; margin: 0 0 5px 0; }
         .title-box p { color: #64748b; margin: 0; font-size: 14px; }
@@ -379,48 +380,51 @@ export default function GatewayFeesCalculatorSA() {
         .grid-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 40px; }
         @media(max-width: 850px) { .grid-layout { grid-template-columns: 1fr; } }
         
-        .card { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
+        .card { background: #ffffff; border-radius: 20px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
         .card-title { font-size: 18px; font-weight: 800; color: #1e293b; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         
-        .clear-form-btn { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; display: flex; align-items: center; gap: 5px; }
+        .clear-form-btn { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 5px 12px; border-radius: 8px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; display: flex; align-items: center; gap: 5px; }
         .clear-form-btn:hover { background: #fecaca; }
 
         .input-group { margin-bottom: 15px; width: 100%; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .input-group label { display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 6px; }
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
-        .input-wrapper input, .input-wrapper select { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 15px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .input-wrapper input, .input-wrapper select { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 15px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; transition: all 0.2s; }
         .input-wrapper input.with-currency { padding-${lang === 'ar' ? 'left' : 'right'}: 45px; }
-        .input-wrapper input:focus, .input-wrapper select:focus { border-color: #047857; background: #ffffff; }
+        .input-wrapper input:focus, .input-wrapper select:focus { border-color: #0284c7; background: #ffffff; box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15); }
         .currency-tag { position: absolute; ${lang === 'ar' ? 'left: 14px;' : 'right: 14px;'} color: #64748b; font-weight: 800; font-size: 13px; pointer-events: none; }
         
-        .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
-        .action-btn:hover { background: #065f46; }
+        .action-btn { background: #0284c7; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 10px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
+        .action-btn:hover { background: #0369a1; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(2, 132, 199, 0.2); }
 
         .result-box { background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .result-box.primary { background: linear-gradient(135deg, #047857 0%, #065f46 100%); color: #fff; border: none; padding: 20px; }
+        .result-box.primary { background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: #fff; border: none; padding: 20px; box-shadow: 0 4px 15px rgba(2, 132, 199, 0.2); }
         .result-label { font-size: 13px; font-weight: 700; color: #64748b; }
         .primary .result-label { color: #ffffff; opacity: 0.9; }
         .result-value { font-size: 18px; font-weight: 900; color: #0f172a; direction: ltr; }
         .primary .result-value { font-size: 24px; color: #ffffff; direction: ltr; }
 
-        .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .table-section { background: #ffffff; border-radius: 20px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.03); text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
-        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 10px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; transition: all 0.2s; }
+        .search-input:focus { border-color: #0284c7; box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15); }
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
-        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; }
-        .t-btn:hover { background: #f1f5f9; }
+        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .t-btn:hover { background: #f1f5f9; color: #0284c7; border-color: #0284c7; }
 
-        .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
+        .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; border-radius: 12px; border: 1px solid #e2e8f0; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 700px; }
         .data-table th { background: #f8fafc; padding: 12px; text-align: ${lang === 'ar' ? 'right' : 'left'}; border-bottom: 2px solid #cbd5e1; font-weight: 800; color: #334155; white-space: nowrap; }
         .data-table td { padding: 12px; border-bottom: 1px solid #e2e8f0; color: #0f172a; font-weight: 600; vertical-align: middle; }
         .data-table tfoot td { background: #f1f5f9; font-weight: 900; color: #0f172a; border-top: 2px solid #cbd5e1; }
         
-        .trial-badge { background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 800; }
+        .trial-badge { background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: 800; }
         
-        .tb-action-btn { border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; font-family: inherit;}
+        .tb-action-btn { border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; font-family: inherit; transition: all 0.2s; }
         .btn-edit { background: #e0f2fe; color: #0369a1; }
+        .btn-edit:hover { background: #bae6fd; }
         .btn-delete { background: #fee2e2; color: #991b1b; }
+        .btn-delete:hover { background: #fca5a5; }
       `}</style>
 
       <div className="header">
@@ -428,7 +432,7 @@ export default function GatewayFeesCalculatorSA() {
           <h1>{text.title}</h1>
           <p>{text.desc}</p>
         </div>
-        <Link href="/hub/sa" className="back-btn">
+        <Link href="/hub/kw" className="back-btn">
           {text.back}
         </Link>
       </div>
@@ -449,7 +453,7 @@ export default function GatewayFeesCalculatorSA() {
             <div className="input-group">
               <label>{text.orderAmtLabel} ({text.currency})</label>
               <div className="input-wrapper">
-                <input className="with-currency" type="number" min="0" value={orderAmount === '' ? '' : orderAmount} onChange={(e) => setOrderAmount(e.target.value === '' ? '' : Number(e.target.value))} placeholder="350" required />
+                <input className="with-currency" type="number" step="0.01" min="0" value={orderAmount === '' ? '' : orderAmount} onChange={(e) => setOrderAmount(e.target.value === '' ? '' : Number(e.target.value))} placeholder="35" required />
                 <span className="currency-tag">{text.currency}</span>
               </div>
             </div>
@@ -457,8 +461,8 @@ export default function GatewayFeesCalculatorSA() {
             <div className="input-group">
               <label>{text.presetLabel}</label>
               <div className="input-wrapper">
-                <select onChange={handlePresetChange} defaultValue="mada">
-                  <option value="mada">{text.optMada}</option>
+                <select onChange={handlePresetChange} defaultValue="knet">
+                  <option value="knet">{text.optKnet}</option>
                   <option value="visa">{text.optVisa}</option>
                   <option value="tabby">{text.optTabby}</option>
                   <option value="custom">{text.optCustom}</option>
@@ -466,7 +470,7 @@ export default function GatewayFeesCalculatorSA() {
               </div>
             </div>
 
-            <div className="input-group" style={{ background: '#f1f5f9', padding: '15px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+            <div className="input-group" style={{ background: '#f8fafc', padding: '15px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
               <label style={{ color: '#0f172a' }}>{text.gwNameLabel}</label>
               <div className="input-wrapper" style={{ marginBottom: '10px' }}>
                 <input type="text" value={gatewayName} onChange={(e) => setGatewayName(e.target.value)} placeholder={text.gwNamePH} required />
@@ -483,7 +487,7 @@ export default function GatewayFeesCalculatorSA() {
                 <div>
                   <label style={{ color: '#0f172a' }}>{text.fixedLabel} ({text.currency})</label>
                   <div className="input-wrapper">
-                    <input type="number" step="0.01" min="0" value={feeFixed === '' ? '' : feeFixed} onChange={(e) => setFeeFixed(e.target.value === '' ? '' : Number(e.target.value))} required />
+                    <input type="number" step="0.001" min="0" value={feeFixed === '' ? '' : feeFixed} onChange={(e) => setFeeFixed(e.target.value === '' ? '' : Number(e.target.value))} required />
                     <span className="currency-tag">{text.currency}</span>
                   </div>
                 </div>
@@ -505,18 +509,18 @@ export default function GatewayFeesCalculatorSA() {
               <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '2px' }}>{text.netRecSub}</div>
             </div>
             <div className="result-value">
-              {netReceived.toFixed(2)} {text.currency}
+              {netReceived.toFixed(3)} {text.currency}
             </div>
           </div>
 
           <div className="result-box" style={{ borderRight: lang === 'ar' ? '4px solid #dc2626' : 'none', borderLeft: lang === 'en' ? '4px solid #dc2626' : 'none' }}>
             <span className="result-label">{text.totalFeeLabel}</span>
-            <span className="result-value" style={{ color: '#dc2626' }}>{totalFeeWithVat.toFixed(2)} {text.currency}</span>
+            <span className="result-value" style={{ color: '#dc2626' }}>{totalFee.toFixed(3)} {text.currency}</span>
           </div>
 
           <div className="result-box" style={{ borderRight: lang === 'ar' ? '4px solid #d97706' : 'none', borderLeft: lang === 'en' ? '4px solid #d97706' : 'none', background: '#f8fafc' }}>
             <span className="result-label">{text.effPctLabel}</span>
-            <span className="result-value" style={{ color: '#d97706' }}>{amt > 0 ? ((totalFeeWithVat / amt) * 100).toFixed(2) : 0}%</span>
+            <span className="result-value" style={{ color: '#d97706' }}>{amt > 0 ? ((totalFee / amt) * 100).toFixed(2) : 0}%</span>
           </div>
         </div>
       </div>
@@ -568,11 +572,11 @@ export default function GatewayFeesCalculatorSA() {
                         {item.createdAt && <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', fontWeight: 600 }}>🕒 {item.createdAt}</div>}
                       </td>
                       <td>{item.orderAmount} {text.currency}</td>
-                      <td style={{ color: '#dc2626' }}>{item.totalFee} {text.currency}</td>
+                      <td style={{ color: '#dc2626' }}>{item.totalFee.toFixed(3)} {text.currency}</td>
                       <td style={{ color: '#d97706' }}>{feePct.toFixed(2)}%</td>
-                      <td style={{ color: '#047857', fontWeight: 900 }}>{item.netReceived} {text.currency}</td>
+                      <td style={{ color: '#0284c7', fontWeight: 900 }}>{item.netReceived.toFixed(3)} {text.currency}</td>
                       <td>
-                        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center' }}>
                           <button className="tb-action-btn btn-edit" onClick={() => handleEdit(item)} title="Edit">{text.table.editBtn}</button>
                           <button className="tb-action-btn btn-delete" onClick={() => handleDelete(item.id)} title="Delete">{text.table.delBtn}</button>
                         </div>
@@ -587,9 +591,9 @@ export default function GatewayFeesCalculatorSA() {
                 <tr className="tfoot-row">
                   <td colSpan={2} style={{ textAlign: 'center' }}>{text.table.totalLabel}</td>
                   <td>{totalOrderAmount.toFixed(2)} {text.currency}</td>
-                  <td style={{ color: '#dc2626' }}>{totalFees.toFixed(2)} {text.currency}</td>
+                  <td style={{ color: '#dc2626' }}>{totalFeesSum.toFixed(3)} {text.currency}</td>
                   <td style={{ color: '#d97706' }}>{overallFeePercent.toFixed(2)}%</td>
-                  <td style={{ color: '#047857' }}>{totalNetReceived.toFixed(2)} {text.currency}</td>
+                  <td style={{ color: '#0284c7' }}>{totalNetReceived.toFixed(3)} {text.currency}</td>
                   <td></td>
                 </tr>
               </tfoot>
