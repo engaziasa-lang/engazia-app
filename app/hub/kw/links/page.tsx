@@ -12,7 +12,7 @@ interface WaLinkItem {
   createdAt?: string;
 }
 
-export default function WaLinkGeneratorSA() {
+export default function WaLinkGeneratorKW() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
 
   const [campaignName, setCampaignName] = useState<string>('');
@@ -35,7 +35,7 @@ export default function WaLinkGeneratorSA() {
     const savedLang = (localStorage.getItem('seerk_global_lang') as 'ar' | 'en') || 'ar';
     setLang(savedLang);
 
-    const saved = localStorage.getItem('seerk_wa_link_items');
+    const saved = localStorage.getItem('seerk_kw_wa_link_items');
     if (saved) {
       try { 
         const parsedData = JSON.parse(saved);
@@ -46,24 +46,24 @@ export default function WaLinkGeneratorSA() {
 
   const saveToLocalStorage = (newItems: WaLinkItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_wa_link_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_kw_wa_link_items', JSON.stringify(newItems));
   };
 
   const t = {
     ar: {
       back: '← عودة للمنصة',
       title: 'صانع روابط واتساب السريعة 🔗',
-      desc: 'أنشئ روابط مخصصة برسائل جاهزة لبيو تيك توك أو تمريرها في حملات الانستقرام في السوق السعودي',
+      desc: 'أنشئ روابط مخصصة برسائل جاهزة لبيو تيك توك أو تمريرها في حملات الانستقرام في السوق الكويتي',
       editRecord: 'تعديل الرابط',
       newRecord: 'إنشاء رابط واتساب جديد',
       clear: '🧹 مسح الحقول',
       trial: 'تجريبي',
       campNameLabel: 'اسم الحملة أو الرابط (للتمييز الداخلي)',
       campNamePH: 'مثال: رابط بايو تيك توك',
-      phoneLabel: 'رقم الواتساب (السعودي)',
-      phonePH: '05XXXXXXXX',
+      phoneLabel: 'رقم الواتساب (الكويتي)',
+      phonePH: 'مثال: 6XXXXXXX',
       msgLabel: 'الرسالة الجاهزة (اختياري)',
-      msgPH: 'مثال: أهلاً، أريد الاستفسار عن عرض العطور...',
+      msgPH: 'مثال: أهلاً، بغيت أستفسر عن العرض...',
       saveBtnNew: '+ حفظ الرابط في السجل',
       saveBtnEdit: '💾 حفظ التعديلات',
       previewTitle: 'معاينة الرابط الحي',
@@ -104,17 +104,17 @@ export default function WaLinkGeneratorSA() {
     en: {
       back: '→ Back to Hub',
       title: 'Quick WhatsApp Link Generator 🔗',
-      desc: 'Create custom links with pre-filled messages for TikTok bio or Instagram campaigns in the Saudi market',
+      desc: 'Create custom links with pre-filled messages for TikTok bio or Instagram campaigns in the Kuwaiti market',
       editRecord: 'Edit Link',
       newRecord: 'Create New WhatsApp Link',
       clear: '🧹 Clear Fields',
       trial: 'Trial',
       campNameLabel: 'Campaign or Link Name (Internal)',
       campNamePH: 'e.g. TikTok Bio Link',
-      phoneLabel: 'WhatsApp Number (Saudi)',
-      phonePH: '05XXXXXXXX',
+      phoneLabel: 'WhatsApp Number (Kuwaiti)',
+      phonePH: 'e.g. 6XXXXXXX',
       msgLabel: 'Pre-filled Message (Optional)',
-      msgPH: 'e.g. Hi, I would like to inquire about the perfume offer...',
+      msgPH: 'e.g. Hi, I would like to inquire about the offer...',
       saveBtnNew: '+ Save Link to Log',
       saveBtnEdit: '💾 Save Changes',
       previewTitle: 'Live Link Preview',
@@ -157,10 +157,11 @@ export default function WaLinkGeneratorSA() {
   const text = t[lang];
 
   let formattedPhone = phoneNumber.replace(/\D/g, '');
-  if (formattedPhone.startsWith('05')) {
-    formattedPhone = '966' + formattedPhone.substring(1);
-  } else if (formattedPhone.startsWith('5') && formattedPhone.length === 9) {
-    formattedPhone = '966' + formattedPhone;
+  // معالجة الأرقام الكويتية (تتكون عادة من 8 أرقام، وتبدأ بـ 5, 6, 9)
+  if (formattedPhone.length === 8) {
+    formattedPhone = '965' + formattedPhone;
+  } else if (formattedPhone.startsWith('00965')) {
+    formattedPhone = formattedPhone.substring(2);
   }
 
   const liveLink = formattedPhone 
@@ -187,7 +188,7 @@ export default function WaLinkGeneratorSA() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const localeStr = lang === 'ar' ? 'ar-SA' : 'en-US';
+    const localeStr = lang === 'ar' ? 'ar-KW' : 'en-KW';
     const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
 
     if (editingId) {
@@ -259,7 +260,7 @@ export default function WaLinkGeneratorSA() {
           </style>
         </head>
         <body>
-          <h2>WhatsApp Link Generator Report</h2>
+          <h2>WhatsApp Link Generator Report (KW)</h2>
           <table>
             <thead>
               <tr>
@@ -294,7 +295,7 @@ export default function WaLinkGeneratorSA() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", "enjazya_sa_wa_links.xls");
+    link.setAttribute("download", "enjazya_kw_wa_links.xls");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -326,7 +327,7 @@ export default function WaLinkGeneratorSA() {
   return (
     <div className="tool-container" style={{ direction: lang === 'ar' ? 'rtl' : 'ltr' }}>
       <style jsx global>{`
-        body { background-color: #f8fafc; margin: 0; font-family: ${lang === 'ar' ? "'Tajawal', sans-serif" : "'Inter', sans-serif"}; }
+        body { background-color: #f1f5f9; margin: 0; font-family: ${lang === 'ar' ? "'Tajawal', sans-serif" : "'Inter', sans-serif"}; }
         a { text-decoration: none; }
       `}</style>
       <style jsx>{`
@@ -334,8 +335,8 @@ export default function WaLinkGeneratorSA() {
         @media(max-width: 768px) { .tool-container { padding: 10px; margin: 10px auto; } }
         
         .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .back-btn { background: #ffffff; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 8px; color: #475569; font-weight: 700; font-size: 14px; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
-        .back-btn:hover { background: #f1f5f9; color: #0f172a; }
+        .back-btn { background: #ffffff; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 10px; color: #475569; font-weight: 700; font-size: 14px; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
+        .back-btn:hover { background: #f8fafc; color: #0f172a; border-color: #0284c7; }
         
         .title-box h1 { font-size: 24px; font-weight: 900; color: #0f172a; margin: 0 0 5px 0; }
         .title-box p { color: #64748b; margin: 0; font-size: 14px; }
@@ -343,10 +344,10 @@ export default function WaLinkGeneratorSA() {
         .grid-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 40px; }
         @media(max-width: 850px) { .grid-layout { grid-template-columns: 1fr; } }
         
-        .card { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
+        .card { background: #ffffff; border-radius: 20px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
         .card-title { font-size: 18px; font-weight: 800; color: #1e293b; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         
-        .clear-form-btn { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; display: flex; align-items: center; gap: 5px; }
+        .clear-form-btn { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 5px 12px; border-radius: 8px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; display: flex; align-items: center; gap: 5px; }
         .clear-form-btn:hover { background: #fecaca; }
 
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
@@ -355,39 +356,43 @@ export default function WaLinkGeneratorSA() {
         .input-group { margin-bottom: 15px; width: 100%; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .input-group label { display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 6px; }
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
-        .input-wrapper input, .input-wrapper textarea { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .input-wrapper input:focus, .input-wrapper textarea:focus { border-color: #059669; background: #ffffff; }
+        .input-wrapper input, .input-wrapper textarea { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; transition: all 0.2s; }
+        .input-wrapper input:focus, .input-wrapper textarea:focus { border-color: #0284c7; background: #ffffff; box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15); }
         
-        .action-btn { background: #059669; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
-        .action-btn:hover { background: #047857; }
+        .action-btn { background: #0284c7; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 10px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
+        .action-btn:hover { background: #0369a1; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(2, 132, 199, 0.2); }
         
-        .copy-btn { background: #0284c7; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .copy-btn:hover { background: #0369a1; }
+        .copy-btn { background: #0f172a; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 10px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .copy-btn:hover { background: #1e293b; transform: translateY(-2px); }
 
-        .test-btn { background: #f8fafc; color: #0f172a; border: 1px solid #cbd5e1; width: 100%; padding: 12px; border-radius: 8px; font-weight: 800; font-size: 14px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none;}
-        .test-btn:hover { background: #f1f5f9; }
+        .test-btn { background: #f8fafc; color: #0f172a; border: 1px solid #cbd5e1; width: 100%; padding: 12px; border-radius: 10px; font-weight: 800; font-size: 14px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none;}
+        .test-btn:hover { background: #f1f5f9; border-color: #0284c7; color: #0284c7; }
 
-        .link-preview-box { background: #f0fdf4; border: 1px dashed #4ade80; padding: 15px; border-radius: 8px; margin-bottom: 15px; direction: ltr; text-align: left; word-break: break-all; font-family: monospace; font-size: 13px; color: #065f46; line-height: 1.5; min-height: 50px;}
+        .link-preview-box { background: #f0f9ff; border: 1px dashed #bae6fd; padding: 15px; border-radius: 10px; margin-bottom: 15px; direction: ltr; text-align: left; word-break: break-all; font-family: monospace; font-size: 13px; color: #0369a1; line-height: 1.5; min-height: 50px;}
 
-        .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .table-section { background: #ffffff; border-radius: 20px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.03); text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
-        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 10px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; transition: all 0.2s; }
+        .search-input:focus { border-color: #0284c7; box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15); }
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
-        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; }
-        .t-btn:hover { background: #f1f5f9; }
+        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .t-btn:hover { background: #f1f5f9; color: #0284c7; border-color: #0284c7; }
 
-        .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
+        .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; border-radius: 12px; border: 1px solid #e2e8f0; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 900px; }
         .data-table th { background: #f8fafc; padding: 12px; text-align: ${lang === 'ar' ? 'right' : 'left'}; border-bottom: 2px solid #cbd5e1; font-weight: 800; color: #334155; white-space: nowrap; }
         .data-table td { padding: 12px; border-bottom: 1px solid #e2e8f0; color: #0f172a; font-weight: 600; vertical-align: middle; }
         .data-table tfoot td { background: #f1f5f9; font-weight: 900; color: #0f172a; border-top: 2px solid #cbd5e1; }
         
-        .trial-badge { background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 800; }
+        .trial-badge { background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: 800; }
         
-        .tb-action-btn { border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; font-family: inherit;}
+        .tb-action-btn { border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; font-family: inherit; transition: all 0.2s; }
         .btn-edit { background: #e0f2fe; color: #0369a1; }
+        .btn-edit:hover { background: #bae6fd; }
         .btn-delete { background: #fee2e2; color: #991b1b; }
-        .btn-copy { background: #dcfce7; color: #15803d; }
+        .btn-delete:hover { background: #fca5a5; }
+        .btn-copy { background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; }
+        .btn-copy:hover { background: #bae6fd; }
       `}</style>
 
       <div className="header">
@@ -395,7 +400,7 @@ export default function WaLinkGeneratorSA() {
           <h1>{text.title}</h1>
           <p>{text.desc}</p>
         </div>
-        <Link href="/hub/sa" className="back-btn">
+        <Link href="/hub/kw" className="back-btn">
           {text.back}
         </Link>
       </div>
@@ -516,12 +521,12 @@ export default function WaLinkGeneratorSA() {
                       <div style={{ fontWeight: 900, color: '#0f172a' }}>{item.campaignName}</div>
                       {item.createdAt && <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', fontWeight: 600 }}>🕒 {item.createdAt}</div>}
                     </td>
-                    <td dir="ltr" style={{ textAlign: lang === 'ar' ? 'right' : 'left', fontWeight: 700, color: '#047857' }}>{item.phoneNumber}</td>
+                    <td dir="ltr" style={{ textAlign: lang === 'ar' ? 'right' : 'left', fontWeight: 700, color: '#0284c7' }}>{item.phoneNumber}</td>
                     <td style={{ maxWidth: '300px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontSize: '12px' }}>
                       {item.presetMessage || <span style={{ color: '#94a3b8' }}>{text.table.noMsg}</span>}
                     </td>
                     <td>
-                      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', justifyContent: 'center' }}>
                         <button className="tb-action-btn btn-copy" onClick={() => handleCopyLink(item.generatedLink)} title="Copy Link">{text.table.copyAction}</button>
                         <button className="tb-action-btn btn-edit" onClick={() => handleEdit(item)} title="Edit">{text.table.editAction}</button>
                         <button className="tb-action-btn btn-delete" onClick={() => handleDelete(item.id)} title="Delete">{text.table.delAction}</button>
