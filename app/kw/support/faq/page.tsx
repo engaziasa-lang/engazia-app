@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 
-export default function FAQPageAE() {
+export default function FAQPageKW() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
   const LEMON_CHECKOUT_URL = 'https://enjazya.lemonsqueezy.com/checkout/buy/dce1dd80-3422-43ba-aed5-8ef2dcd38d6d';
 
@@ -13,19 +13,19 @@ export default function FAQPageAE() {
       if (savedLang) {
         setLang(savedLang);
       }
-      document.title = savedLang === 'en' ? 'Enjazya | FAQ (UAE)' : 'إنجازيا | الأسئلة الشائعة (الإمارات)';
+      document.title = savedLang === 'en' ? 'Enjazya | FAQ (Kuwait)' : 'إنجازيا | الأسئلة الشائعة (الكويت)';
     }
   }, []);
 
   const t = {
     ar: {
       title: 'الأسئلة الشائعة 💡',
-      desc: 'إجابات وافية عن كل ما تحتاج لمعرفته حول منصة إنجازيا (الإمارات)',
+      desc: 'إجابات وافية عن كل ما تحتاج لمعرفته حول منصة إنجازيا (الكويت)',
       back: '← عودة للمنصة',
       otherTitle: 'هل لديك استفسار آخر؟',
       otherDesc: 'فريق الدعم الفني جاهز لمساعدتك في أي وقت.',
       contactBtn: 'تواصل معنا 🎧',
-      subBtn: 'اشترك بـ 49.99 د.إ ⚡',
+      subBtn: 'اشترك بـ 3.99 د.ك ⚡',
       faqs: [
         {
           q: 'كيف تعمل أدوات منصة إنجازيا ومن المسؤول عن حماية بيانات متجري؟',
@@ -37,7 +37,7 @@ export default function FAQPageAE() {
         },
         {
           q: 'كم سعر الاشتراك الشهري وهل يشمل جميع الأدوات؟',
-          a: 'الاشتراك يمنحك وصولاً كاملاً وغير محدود لجميع الأدوات الـ 24. العرض الساري حالياً يتيح لك الاشتراك بـ 49.99 د.إ شهرياً بدلاً من السعر السابق 299 د.إ (بتخفيض حصري 83% لفترة محدودة).'
+          a: 'الاشتراك يمنحك وصولاً كاملاً وغير محدود لجميع الأدوات الـ 24. العرض الساري حالياً يتيح لك الاشتراك بـ 3.99 د.ك شهرياً بدلاً من السعر السابق 24.99 د.ك (بتخفيض حصري 83% لفترة محدودة).'
         },
         {
           q: 'هل يمكنني استعادة بياناتي أو نقلها بين الأجهزة؟',
@@ -47,12 +47,12 @@ export default function FAQPageAE() {
     },
     en: {
       title: 'Frequently Asked Questions 💡',
-      desc: 'Comprehensive answers to everything you need to know about the Enjazya platform (UAE)',
+      desc: 'Comprehensive answers to everything you need to know about the Enjazya platform (Kuwait)',
       back: '→ Back to Hub',
       otherTitle: 'Have another question?',
       otherDesc: 'Our technical support team is ready to help you at any time.',
       contactBtn: 'Contact Us 🎧',
-      subBtn: 'Subscribe for 49.99 AED ⚡',
+      subBtn: 'Subscribe for 3.99 KWD ⚡',
       faqs: [
         {
           q: 'How do Enjazya tools work and who is responsible for protecting my store data?',
@@ -64,7 +64,7 @@ export default function FAQPageAE() {
         },
         {
           q: 'How much is the monthly subscription and does it include all tools?',
-          a: 'The subscription grants you full and unlimited access to all 24 tools. The current active offer allows you to subscribe for 49.99 AED monthly instead of the previous 299 AED (an 83% exclusive discount for a limited time).'
+          a: 'The subscription grants you full and unlimited access to all 24 tools. The current active offer allows you to subscribe for 3.99 KWD monthly instead of the previous 24.99 KWD (an 83% exclusive discount for a limited time).'
         },
         {
           q: 'Can I restore my data or transfer it between devices?',
@@ -77,7 +77,7 @@ export default function FAQPageAE() {
   const text = t[lang];
 
   return (
-    <div style={{ direction: lang === 'ar' ? 'rtl' : 'ltr', fontFamily: lang === 'ar' ? "'Tajawal', sans-serif" : "'Inter', sans-serif", backgroundColor: '#f8fafc', minHeight: '100vh', padding: '40px 20px' }}>
+    <div style={{ direction: lang === 'ar' ? 'rtl' : 'ltr', fontFamily: lang === 'ar' ? "'Tajawal', sans-serif" : "'Inter', sans-serif", backgroundColor: '#f1f5f9', minHeight: '100vh', padding: '40px 20px' }}>
       <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet" />
       
       <div style={{ maxWidth: '800px', margin: '0 auto' }}>
@@ -86,26 +86,26 @@ export default function FAQPageAE() {
             <h1 style={{ fontSize: '32px', fontWeight: 900, color: '#0f172a', margin: '0 0 10px 0' }}>{text.title}</h1>
             <p style={{ color: '#64748b', fontSize: '15px', margin: 0 }}>{text.desc}</p>
           </div>
-          <Link href="/hub/ae" style={{ background: '#ffffff', border: '1px solid #cbd5e1', color: '#334155', padding: '10px 20px', borderRadius: '8px', textDecoration: 'none', fontWeight: 700, fontSize: '14px', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
+          <Link href="/kw" style={{ background: '#ffffff', border: '1px solid #cbd5e1', color: '#334155', padding: '10px 20px', borderRadius: '10px', textDecoration: 'none', fontWeight: 700, fontSize: '14px', boxShadow: '0 2px 4px rgba(0,0,0,0.02)', transition: 'all 0.2s' }}>
             {text.back}
           </Link>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginBottom: '40px' }}>
           {text.faqs.map((faq, index) => (
-            <div key={index} style={{ background: '#fff', padding: '25px', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 2px 4px rgba(0,0,0,0.02)', textAlign: lang === 'ar' ? 'right' : 'left' }}>
+            <div key={index} style={{ background: '#fff', padding: '25px', borderRadius: '20px', border: '1px solid #e2e8f0', boxShadow: '0 4px 10px rgba(0,0,0,0.03)', textAlign: lang === 'ar' ? 'right' : 'left' }}>
               <h3 style={{ fontSize: '18px', fontWeight: 900, color: '#0f172a', marginBottom: '10px' }}>{faq.q}</h3>
               <p style={{ color: '#475569', fontSize: '15px', lineHeight: '1.7', margin: 0, fontWeight: 500 }}>{faq.a}</p>
             </div>
           ))}
         </div>
 
-        <div style={{ background: '#ecfdf5', border: '1px solid #a7f3d0', padding: '30px', borderRadius: '16px', textAlign: 'center' }}>
-          <h3 style={{ color: '#065f46', fontSize: '20px', fontWeight: 900, marginBottom: '10px' }}>{text.otherTitle}</h3>
-          <p style={{ color: '#047857', fontSize: '15px', marginBottom: '20px', fontWeight: 700 }}>{text.otherDesc}</p>
+        <div style={{ background: '#e0f2fe', border: '1px solid #bae6fd', padding: '30px', borderRadius: '20px', textAlign: 'center' }}>
+          <h3 style={{ color: '#0369a1', fontSize: '20px', fontWeight: 900, marginBottom: '10px' }}>{text.otherTitle}</h3>
+          <p style={{ color: '#0284c7', fontSize: '15px', marginBottom: '20px', fontWeight: 700 }}>{text.otherDesc}</p>
           <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', flexWrap: 'wrap', flexDirection: lang === 'ar' ? 'row' : 'row-reverse' }}>
-            <Link href="/ae/support/contact" style={{ background: '#047857', color: '#fff', padding: '12px 24px', borderRadius: '8px', textDecoration: 'none', fontWeight: 900, fontSize: '14px' }}>{text.contactBtn}</Link>
-            <a href={LEMON_CHECKOUT_URL} target="_blank" rel="noopener noreferrer" style={{ background: '#8b5cf6', color: '#fff', padding: '12px 24px', borderRadius: '8px', textDecoration: 'none', fontWeight: 900, fontSize: '14px' }}>{text.subBtn}</a>
+            <Link href="/kw/support/contact" style={{ background: '#0284c7', color: '#fff', padding: '12px 24px', borderRadius: '10px', textDecoration: 'none', fontWeight: 900, fontSize: '14px', transition: 'all 0.2s', boxShadow: '0 4px 10px rgba(2, 132, 199, 0.2)' }}>{text.contactBtn}</Link>
+            <a href={LEMON_CHECKOUT_URL} target="_blank" rel="noopener noreferrer" style={{ background: '#0f172a', color: '#fff', padding: '12px 24px', borderRadius: '10px', textDecoration: 'none', fontWeight: 900, fontSize: '14px', transition: 'all 0.2s' }}>{text.subBtn}</a>
           </div>
         </div>
       </div>
