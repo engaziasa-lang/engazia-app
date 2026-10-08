@@ -18,7 +18,7 @@ interface ABTestItem {
   createdAt?: string;
 }
 
-export default function ABTestingCalculatorSA() {
+export default function ABTestingCalculatorKW() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
 
   const [testName, setTestName] = useState<string>('');
@@ -47,7 +47,7 @@ export default function ABTestingCalculatorSA() {
     const savedLang = (localStorage.getItem('seerk_global_lang') as 'ar' | 'en') || 'ar';
     setLang(savedLang);
 
-    const saved = localStorage.getItem('seerk_ab_testing_items');
+    const saved = localStorage.getItem('seerk_kw_ab_testing_items');
     if (saved) {
       try { 
         const parsedData = JSON.parse(saved);
@@ -58,14 +58,14 @@ export default function ABTestingCalculatorSA() {
 
   const saveToLocalStorage = (newItems: ABTestItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_ab_testing_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_kw_ab_testing_items', JSON.stringify(newItems));
   };
 
   const t = {
     ar: {
       back: '← عودة للمنصة',
       title: 'حاسبة اختبارات الإعلانات (A/B) ⚖️',
-      desc: 'قارن بين حملتين إعلانيتين لتعرف أيهما يحقق أفضل عائد بأقل تكلفة للطلب في السوق السعودي',
+      desc: 'قارن بين حملتين إعلانيتين لتعرف أيهما يحقق أفضل عائد بأقل تكلفة للطلب في السوق الكويتي',
       editRecord: 'تعديل الاختبار',
       newRecord: 'إضافة اختبار A/B جديد',
       clear: '🧹 مسح الحقول',
@@ -80,7 +80,7 @@ export default function ABTestingCalculatorSA() {
       campBHeading: 'الحملة الثانية (ب)',
       campBNameLabel: 'اسم الحملة (ب)',
       campBNamePH: 'مثال: إعلان إنستقرام',
-      currency: 'ر.س',
+      currency: 'د.ك',
       saveBtnNew: '+ حفظ نتيجة الاختبار في السجل',
       saveBtnEdit: '💾 حفظ التعديلات',
       resultsTitle: 'مقارنة النتائج الحية',
@@ -121,7 +121,7 @@ export default function ABTestingCalculatorSA() {
     en: {
       back: '→ Back to Hub',
       title: 'A/B Ad Testing Calculator ⚖️',
-      desc: 'Compare two ad campaigns to see which achieves better returns at a lower cost in the Saudi market',
+      desc: 'Compare two ad campaigns to see which achieves better returns at a lower cost in the Kuwaiti market',
       editRecord: 'Edit Test',
       newRecord: 'Add New A/B Test',
       clear: '🧹 Clear Fields',
@@ -136,7 +136,7 @@ export default function ABTestingCalculatorSA() {
       campBHeading: 'Second Campaign (B)',
       campBNameLabel: 'Campaign Name (B)',
       campBNamePH: 'e.g. Instagram Ad',
-      currency: 'SAR',
+      currency: 'KWD',
       saveBtnNew: '+ Save Test Result to Log',
       saveBtnEdit: '💾 Save Changes',
       resultsTitle: 'Live Results Comparison',
@@ -194,20 +194,20 @@ export default function ABTestingCalculatorSA() {
     if (cpaA > 0 && cpaB > 0) {
       if (cpaA < cpaB) {
         winnerText = `${text.winnerA} - ${campAName || (lang === 'ar' ? 'بدون اسم' : 'Unnamed')}`;
-        winnerColor = '#047857';
+        winnerColor = '#0284c7'; // الأزرق الكويتي للحملة أ
       } else if (cpaB < cpaA) {
         winnerText = `${text.winnerB} - ${campBName || (lang === 'ar' ? 'بدون اسم' : 'Unnamed')}`;
-        winnerColor = '#0284c7';
+        winnerColor = '#6d28d9'; // البنفسجي للحملة ب
       } else {
         winnerText = text.tie;
         winnerColor = '#d97706';
       }
     } else if (cpaA > 0 && cpaB === 0) {
       winnerText = text.winnerA;
-      winnerColor = '#047857';
+      winnerColor = '#0284c7';
     } else if (cpaB > 0 && cpaA === 0) {
       winnerText = text.winnerB;
-      winnerColor = '#0284c7';
+      winnerColor = '#6d28d9';
     }
   }
 
@@ -235,7 +235,7 @@ export default function ABTestingCalculatorSA() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const localeStr = lang === 'ar' ? 'ar-SA' : 'en-US';
+    const localeStr = lang === 'ar' ? 'ar-KW' : 'en-KW';
     const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
 
     const newItemData = {
@@ -302,7 +302,7 @@ export default function ABTestingCalculatorSA() {
           </style>
         </head>
         <body>
-          <h2>A/B Testing Calculator Report</h2>
+          <h2>A/B Testing Calculator Report (KW)</h2>
           <table>
             <thead>
               <tr>
@@ -351,7 +351,7 @@ export default function ABTestingCalculatorSA() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", "enjazya_sa_ab_testing.xls");
+    link.setAttribute("download", "enjazya_kw_ab_testing.xls");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -382,7 +382,7 @@ export default function ABTestingCalculatorSA() {
   return (
     <div className="tool-container" style={{ direction: lang === 'ar' ? 'rtl' : 'ltr' }}>
       <style jsx global>{`
-        body { background-color: #f8fafc; margin: 0; font-family: ${lang === 'ar' ? "'Tajawal', sans-serif" : "'Inter', sans-serif"}; }
+        body { background-color: #f1f5f9; margin: 0; font-family: ${lang === 'ar' ? "'Tajawal', sans-serif" : "'Inter', sans-serif"}; }
         a { text-decoration: none; }
       `}</style>
       <style jsx>{`
@@ -390,8 +390,8 @@ export default function ABTestingCalculatorSA() {
         @media(max-width: 768px) { .tool-container { padding: 10px; margin: 10px auto; } }
         
         .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .back-btn { background: #ffffff; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 8px; color: #475569; font-weight: 700; font-size: 14px; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
-        .back-btn:hover { background: #f1f5f9; color: #0f172a; }
+        .back-btn { background: #ffffff; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 10px; color: #475569; font-weight: 700; font-size: 14px; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
+        .back-btn:hover { background: #f8fafc; color: #0f172a; border-color: #0284c7; }
         
         .title-box h1 { font-size: 24px; font-weight: 900; color: #0f172a; margin: 0 0 5px 0; }
         .title-box p { color: #64748b; margin: 0; font-size: 14px; }
@@ -399,10 +399,10 @@ export default function ABTestingCalculatorSA() {
         .grid-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 40px; }
         @media(max-width: 850px) { .grid-layout { grid-template-columns: 1fr; } }
         
-        .card { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
+        .card { background: #ffffff; border-radius: 20px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
         .card-title { font-size: 18px; font-weight: 800; color: #1e293b; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         
-        .clear-form-btn { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; display: flex; align-items: center; gap: 5px; }
+        .clear-form-btn { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 5px 12px; border-radius: 8px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; display: flex; align-items: center; gap: 5px; }
         .clear-form-btn:hover { background: #fecaca; }
 
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
@@ -411,11 +411,11 @@ export default function ABTestingCalculatorSA() {
         .input-group { margin-bottom: 15px; width: 100%; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .input-group label { display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 6px; }
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
-        .input-wrapper input { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .input-wrapper input:focus { border-color: #047857; background: #ffffff; }
+        .input-wrapper input { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; transition: all 0.2s; }
+        .input-wrapper input:focus { border-color: #0284c7; background: #ffffff; box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15); }
         
-        .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
-        .action-btn:hover { background: #065f46; }
+        .action-btn { background: #0284c7; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 10px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
+        .action-btn:hover { background: #0369a1; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(2, 132, 199, 0.2); }
 
         .result-box { background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .result-box.primary { color: #fff; border: none; padding: 20px; transition: background 0.3s ease; }
@@ -424,23 +424,26 @@ export default function ABTestingCalculatorSA() {
         .result-value { font-size: 18px; font-weight: 900; color: #0f172a; direction: ltr; }
         .primary .result-value { font-size: 20px; color: #ffffff; direction: ltr; }
 
-        .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); margin-top: 20px; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .table-section { background: #ffffff; border-radius: 20px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.03); margin-top: 20px; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
-        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 10px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; transition: all 0.2s; }
+        .search-input:focus { border-color: #0284c7; box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15); }
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
-        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; }
-        .t-btn:hover { background: #f1f5f9; }
+        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .t-btn:hover { background: #f1f5f9; color: #0284c7; border-color: #0284c7; }
 
-        .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
+        .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; border-radius: 12px; border: 1px solid #e2e8f0; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 900px; }
         .data-table th { background: #f8fafc; padding: 12px; text-align: center; border-bottom: 2px solid #cbd5e1; font-weight: 800; color: #334155; white-space: nowrap; }
         .data-table td { padding: 12px; border-bottom: 1px solid #e2e8f0; color: #0f172a; font-weight: 600; vertical-align: middle; text-align: center; }
         
-        .trial-badge { background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 800; }
+        .trial-badge { background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: 800; }
         
-        .tb-action-btn { border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; font-family: inherit;}
+        .tb-action-btn { border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; font-family: inherit; transition: all 0.2s; }
         .btn-edit { background: #e0f2fe; color: #0369a1; }
+        .btn-edit:hover { background: #bae6fd; }
         .btn-delete { background: #fee2e2; color: #991b1b; }
+        .btn-delete:hover { background: #fca5a5; }
       `}</style>
 
       <div className="header">
@@ -448,7 +451,7 @@ export default function ABTestingCalculatorSA() {
           <h1>{text.title}</h1>
           <p>{text.desc}</p>
         </div>
-        <Link href="/hub/sa" className="back-btn">
+        <Link href="/hub/kw" className="back-btn">
           {text.back}
         </Link>
       </div>
@@ -474,7 +477,7 @@ export default function ABTestingCalculatorSA() {
             </div>
 
             <div style={{ background: '#f8fafc', padding: '15px', borderRadius: '12px', marginBottom: '15px', border: '1px solid #e2e8f0', textAlign: lang === 'ar' ? 'right' : 'left' }}>
-              <h3 style={{ fontSize: '14px', margin: '0 0 10px 0', color: '#047857' }}>{text.campAHeading}</h3>
+              <h3 style={{ fontSize: '14px', margin: '0 0 10px 0', color: '#0284c7' }}>{text.campAHeading}</h3>
               <div className="form-row">
                 <div className="input-group" style={{ marginBottom: 0 }}>
                   <label>{text.campANameLabel}</label>
@@ -485,7 +488,7 @@ export default function ABTestingCalculatorSA() {
                 <div className="input-group" style={{ marginBottom: 0 }}>
                   <label>{text.spendLabel} ({text.currency})</label>
                   <div className="input-wrapper">
-                    <input type="number" step="0.01" min="0" value={campASpend === '' ? '' : campASpend} onChange={(e) => setCampASpend(e.target.value === '' ? '' : Number(e.target.value))} placeholder="500" required />
+                    <input type="number" step="0.01" min="0" value={campASpend === '' ? '' : campASpend} onChange={(e) => setCampASpend(e.target.value === '' ? '' : Number(e.target.value))} placeholder="150" required />
                   </div>
                 </div>
                 <div className="input-group" style={{ marginBottom: 0 }}>
@@ -498,7 +501,7 @@ export default function ABTestingCalculatorSA() {
             </div>
 
             <div style={{ background: '#f8fafc', padding: '15px', borderRadius: '12px', marginBottom: '15px', border: '1px solid #e2e8f0', textAlign: lang === 'ar' ? 'right' : 'left' }}>
-              <h3 style={{ fontSize: '14px', margin: '0 0 10px 0', color: '#0284c7' }}>{text.campBHeading}</h3>
+              <h3 style={{ fontSize: '14px', margin: '0 0 10px 0', color: '#6d28d9' }}>{text.campBHeading}</h3>
               <div className="form-row">
                 <div className="input-group" style={{ marginBottom: 0 }}>
                   <label>{text.campBNameLabel}</label>
@@ -509,7 +512,7 @@ export default function ABTestingCalculatorSA() {
                 <div className="input-group" style={{ marginBottom: 0 }}>
                   <label>{text.spendLabel} ({text.currency})</label>
                   <div className="input-wrapper">
-                    <input type="number" step="0.01" min="0" value={campBSpend === '' ? '' : campBSpend} onChange={(e) => setCampBSpend(e.target.value === '' ? '' : Number(e.target.value))} placeholder="500" required />
+                    <input type="number" step="0.01" min="0" value={campBSpend === '' ? '' : campBSpend} onChange={(e) => setCampBSpend(e.target.value === '' ? '' : Number(e.target.value))} placeholder="150" required />
                   </div>
                 </div>
                 <div className="input-group" style={{ marginBottom: 0 }}>
@@ -540,14 +543,14 @@ export default function ABTestingCalculatorSA() {
             </div>
           </div>
 
-          <div className="result-box" style={{ borderRight: lang === 'ar' ? '4px solid #047857' : 'none', borderLeft: lang === 'en' ? '4px solid #047857' : 'none' }}>
+          <div className="result-box" style={{ borderRight: lang === 'ar' ? '4px solid #0284c7' : 'none', borderLeft: lang === 'en' ? '4px solid #0284c7' : 'none' }}>
             <span className="result-label">{text.cpaALabel}</span>
-            <span className="result-value" style={{ color: '#047857' }}>{cpaA.toFixed(2)} {text.currency}</span>
+            <span className="result-value" style={{ color: '#0284c7' }}>{cpaA.toFixed(2)} {text.currency}</span>
           </div>
 
-          <div className="result-box" style={{ borderRight: lang === 'ar' ? '4px solid #0284c7' : 'none', borderLeft: lang === 'en' ? '4px solid #0284c7' : 'none', background: '#f8fafc' }}>
+          <div className="result-box" style={{ borderRight: lang === 'ar' ? '4px solid #6d28d9' : 'none', borderLeft: lang === 'en' ? '4px solid #6d28d9' : 'none', background: '#f8fafc' }}>
             <span className="result-label">{text.cpaBLabel}</span>
-            <span className="result-value" style={{ color: '#0284c7' }}>{cpaB.toFixed(2)} {text.currency}</span>
+            <span className="result-value" style={{ color: '#6d28d9' }}>{cpaB.toFixed(2)} {text.currency}</span>
           </div>
         </div>
       </div>
@@ -574,18 +577,18 @@ export default function ABTestingCalculatorSA() {
               <tr>
                 <th rowSpan={2} style={{ verticalAlign: 'middle' }}>{text.table.th1}</th>
                 <th rowSpan={2} style={{ verticalAlign: 'middle', textAlign: lang === 'ar' ? 'right' : 'left' }}>{text.table.th2}</th>
-                <th colSpan={3} style={{ borderBottom: '2px solid #047857', color: '#047857', background: '#ecfdf5' }}>{text.table.campAHeader}</th>
-                <th colSpan={3} style={{ borderBottom: '2px solid #0284c7', color: '#0284c7', background: '#f0f9ff' }}>{text.table.campBHeader}</th>
+                <th colSpan={3} style={{ borderBottom: '2px solid #0284c7', color: '#0284c7', background: '#f0f9ff' }}>{text.table.campAHeader}</th>
+                <th colSpan={3} style={{ borderBottom: '2px solid #6d28d9', color: '#6d28d9', background: '#f3e8ff' }}>{text.table.campBHeader}</th>
                 <th rowSpan={2} style={{ verticalAlign: 'middle' }}>{text.table.winnerCol}</th>
                 <th rowSpan={2} style={{ verticalAlign: 'middle' }}>{text.table.actions}</th>
               </tr>
               <tr>
-                <th style={{ background: '#ecfdf5', fontSize: '12px' }}>{text.table.colName}</th>
-                <th style={{ background: '#ecfdf5', fontSize: '12px' }}>{text.table.colSpendOrders}</th>
-                <th style={{ background: '#ecfdf5', fontSize: '12px' }}>{text.table.colCpa}</th>
                 <th style={{ background: '#f0f9ff', fontSize: '12px' }}>{text.table.colName}</th>
                 <th style={{ background: '#f0f9ff', fontSize: '12px' }}>{text.table.colSpendOrders}</th>
                 <th style={{ background: '#f0f9ff', fontSize: '12px' }}>{text.table.colCpa}</th>
+                <th style={{ background: '#f3e8ff', fontSize: '12px' }}>{text.table.colName}</th>
+                <th style={{ background: '#f3e8ff', fontSize: '12px' }}>{text.table.colSpendOrders}</th>
+                <th style={{ background: '#f3e8ff', fontSize: '12px' }}>{text.table.colCpa}</th>
               </tr>
             </thead>
             <tbody>
@@ -603,16 +606,16 @@ export default function ABTestingCalculatorSA() {
                       <div style={{ fontWeight: 900, color: '#0f172a' }}>{item.testName}</div>
                       {item.createdAt && <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', fontWeight: 600 }}>🕒 {item.createdAt}</div>}
                     </td>
-                    <td style={{ fontWeight: 800, color: '#047857', background: '#f8fafc' }}>{item.campAName}</td>
+                    <td style={{ fontWeight: 800, color: '#0284c7', background: '#f8fafc' }}>{item.campAName}</td>
                     <td style={{ background: '#f8fafc', fontSize: '12.5px' }}>{item.campASpend} {text.currency} <br/> <span style={{ color: '#64748b' }}>({item.campAOrders} orders)</span></td>
-                    <td style={{ fontWeight: 900, background: '#f8fafc' }}>{item.campACpa}</td>
+                    <td style={{ fontWeight: 900, background: '#f8fafc', color: '#0f172a' }}>{item.campACpa}</td>
                     
-                    <td style={{ fontWeight: 800, color: '#0284c7' }}>{item.campBName}</td>
+                    <td style={{ fontWeight: 800, color: '#6d28d9' }}>{item.campBName}</td>
                     <td style={{ fontSize: '12.5px' }}>{item.campBSpend} {text.currency} <br/> <span style={{ color: '#64748b' }}>({item.campBOrders} orders)</span></td>
-                    <td style={{ fontWeight: 900 }}>{item.campBCpa}</td>
+                    <td style={{ fontWeight: 900, color: '#0f172a' }}>{item.campBCpa}</td>
                     
                     <td>
-                      <span style={{ color: '#fff', background: item.winner.includes('(أ)') || item.winner.includes('A') ? '#047857' : item.winner.includes('(ب)') || item.winner.includes('B') ? '#0284c7' : '#d97706', padding: '4px 8px', borderRadius: '6px', fontSize: '12px', fontWeight: 800 }}>
+                      <span style={{ color: '#fff', background: item.winner.includes('(أ)') || item.winner.includes('A') ? '#0284c7' : item.winner.includes('(ب)') || item.winner.includes('B') ? '#6d28d9' : '#d97706', padding: '4px 8px', borderRadius: '6px', fontSize: '12px', fontWeight: 800 }}>
                         {item.winner}
                       </span>
                     </td>
