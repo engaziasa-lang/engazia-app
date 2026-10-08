@@ -99,7 +99,7 @@ export default function FAQPage() {
           <h3 style={{ color: '#065f46', fontSize: '20px', fontWeight: 900, marginBottom: '10px' }}>{text.otherQuestionTitle}</h3>
           <p style={{ color: '#047857', fontSize: '15px', marginBottom: '20px', fontWeight: 700 }}>{text.otherQuestionDesc}</p>
           <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', flexWrap: 'wrap', flexDirection: lang === 'ar' ? 'row' : 'row-reverse' }}>
-            <Link href="/hub/sa/support/contact" style={{ background: '#047857', color: '#fff', padding: '12px 24px', borderRadius: '8px', textDecoration: 'none', fontWeight: 900, fontSize: '14px' }}>{text.supportBtn}</Link>
+            <Link href="/support/contact" style={{ background: '#047857', color: '#fff', padding: '12px 24px', borderRadius: '8px', textDecoration: 'none', fontWeight: 900, fontSize: '14px' }}>{text.supportBtn}</Link>
             <a href={LEMON_CHECKOUT_URL} target="_blank" rel="noopener noreferrer" style={{ background: '#8b5cf6', color: '#fff', padding: '12px 24px', borderRadius: '8px', textDecoration: 'none', fontWeight: 900, fontSize: '14px' }}>{text.subscribeBtn}</a>
           </div>
         </div>
