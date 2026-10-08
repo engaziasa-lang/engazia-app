@@ -48,7 +48,7 @@ export default function MarketSelector() {
         </Link>
 
         {/* بطاقة السوق الكويتي */}
-        <Link href="/kw" style={{ textDecoration: 'none' }}>
+        <Link href="/hub/kw" style={{ textDecoration: 'none' }}>
           <div style={{ background: '#ffffff', border: '2px solid #e2e8f0', borderRadius: '20px', padding: '35px 25px', textAlign: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.03)', transition: 'all 0.3s ease', cursor: 'pointer', height: '100%', boxSizing: 'border-box' }}
                onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#0284c7'; e.currentTarget.style.transform = 'translateY(-5px)'; }}
                onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.transform = 'translateY(0)'; }}>
