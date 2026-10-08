@@ -131,7 +131,7 @@ export default function AutomatedReviewsKW() {
       orderNumLabel: 'Order Number',
       orderPH: 'e.g. #89201',
       prodNameLabel: 'Product Name (Optional)',
-      prodNamePH: 'e.g. Enjazya Luxury Perfume',
+      prodPH: 'e.g. Enjazya Luxury Perfume',
       statusLabel: 'Review Status',
       optPending: 'Pending 🕒',
       optSent: 'Request Sent 📤',
