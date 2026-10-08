@@ -13,7 +13,7 @@ interface ShipmentItem {
   createdAt?: string;
 }
 
-export default function ShippingTrackerSA() {
+export default function ShippingTrackerKW() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
 
   const [trackingNumber, setTrackingNumber] = useState<string>('');
@@ -48,7 +48,7 @@ export default function ShippingTrackerSA() {
       setShipmentStatus('قيد التوصيل');
     }
 
-    const saved = localStorage.getItem('seerk_shipping_tracker_items');
+    const saved = localStorage.getItem('seerk_kw_shipping_tracker_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
@@ -56,14 +56,14 @@ export default function ShippingTrackerSA() {
 
   const saveToLocalStorage = (newItems: ShipmentItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_shipping_tracker_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_kw_shipping_tracker_items', JSON.stringify(newItems));
   };
 
   const t = {
     ar: {
       back: '← عودة للمنصة',
       title: 'مدير تتبع الشحنات المحلية 📦',
-      desc: 'تابع حالات الشحنات (سمسا، أرامكس، ريدبوكس) وحل استفسارات تأخر التوصيل عبر واتساب في السوق السعودي',
+      desc: 'تابع حالات الشحنات في دولة الكويت وحل استفسارات تأخر التوصيل عبر واتساب',
       editRecord: 'تعديل السجل',
       newRecord: 'إضافة شحنة جديدة للتتبع',
       clear: '🧹 مسح الحقول',
@@ -71,8 +71,8 @@ export default function ShippingTrackerSA() {
       trackNumLabel: 'رقم البوليصة / التتبع',
       trackNumPH: 'مثال: 384920192',
       custLabel: 'اسم العميل',
-      custPH: 'مثال: خالد العتيبي',
-      phoneLabel: 'رقم جوال العميل',
+      custPH: 'مثال: فهد الميع',
+      phoneLabel: 'رقم جوال العميل (الكويتي)',
       statusLabel: 'حالة الشحنة',
       optTransit: 'قيد التوصيل 🚚',
       optDelivered: 'تم التوصيل بنجاح ✅',
@@ -80,10 +80,9 @@ export default function ShippingTrackerSA() {
       optReturned: 'مرتجعة للمتجر 🔄',
       shipCompLabel: 'شركة الشحن',
       optAramex: 'أرامكس (Aramex)',
-      optSmsa: 'سمسا (SMSA)',
-      optRedbox: 'ريدبوكس (RedBox)',
       optDhl: 'دي إتش إل (DHL)',
-      optNaqel: 'نايل إكسبرس (Naqel)',
+      optFedex: 'فيديكس (FedEx)',
+      optLocal: 'مندوب توصيل محلي',
       optCustom: '➕ شركة أخرى (كتابة يدوية)',
       customPH: 'اكتب اسم شركة الشحن هنا...',
       saveBtnNew: '+ حفظ الشحنة في السجل',
@@ -124,7 +123,7 @@ export default function ShippingTrackerSA() {
     en: {
       back: '→ Back to Hub',
       title: 'Local Shipment Tracker Manager 📦',
-      desc: 'Track shipment statuses (SMSA, Aramex, RedBox) and resolve delivery delay inquiries via WhatsApp in Saudi Arabia',
+      desc: 'Track shipment statuses in Kuwait and resolve delivery delay inquiries via WhatsApp',
       editRecord: 'Edit Record',
       newRecord: 'Add New Shipment to Track',
       clear: '🧹 Clear Fields',
@@ -132,8 +131,8 @@ export default function ShippingTrackerSA() {
       trackNumLabel: 'Tracking / Waybill Number',
       trackNumPH: 'e.g. 384920192',
       custLabel: 'Customer Name',
-      custPH: 'e.g. John Smith',
-      phoneLabel: 'Customer Mobile Number',
+      custPH: 'e.g. Fahad Al-Mai',
+      phoneLabel: 'Customer Mobile Number (Kuwaiti)',
       statusLabel: 'Shipment Status',
       optTransit: 'In Transit 🚚',
       optDelivered: 'Delivered Successfully ✅',
@@ -141,10 +140,9 @@ export default function ShippingTrackerSA() {
       optReturned: 'Returned to Store 🔄',
       shipCompLabel: 'Shipping Company',
       optAramex: 'Aramex',
-      optSmsa: 'SMSA',
-      optRedbox: 'RedBox',
       optDhl: 'DHL',
-      optNaqel: 'Naqel',
+      optFedex: 'FedEx',
+      optLocal: 'Local Delivery Representative',
       optCustom: '➕ Other Company (Custom)',
       customPH: 'Type shipping company name...',
       saveBtnNew: '+ Save Shipment to Log',
@@ -220,7 +218,7 @@ export default function ShippingTrackerSA() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const localeStr = lang === 'ar' ? 'ar-SA' : 'en-US';
+    const localeStr = lang === 'ar' ? 'ar-KW' : 'en-KW';
     const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
 
     if (editingId) {
@@ -259,8 +257,8 @@ export default function ShippingTrackerSA() {
     setPhoneNumber(item.phoneNumber);
     
     const standardCompanies = [
-      'أرامكس (Aramex)', 'سمسا (SMSA)', 'ريدبوكس (RedBox)', 'دي إتش إل (DHL)', 'نايل إكسبرس (Naqel)',
-      'Aramex', 'SMSA', 'RedBox', 'DHL', 'Naqel'
+      'أرامكس (Aramex)', 'دي إتش إل (DHL)', 'فيديكس (FedEx)', 'مندوب توصيل محلي',
+      'Aramex', 'DHL', 'FedEx', 'Local Delivery Representative'
     ];
     if (standardCompanies.includes(item.shippingCompany)) {
       setShippingSelect(item.shippingCompany);
@@ -283,8 +281,10 @@ export default function ShippingTrackerSA() {
 
   const handleSendWhatsapp = (item: ShipmentItem) => {
     let phone = (item.phoneNumber || '').replace(/\D/g, '');
-    if (phone.startsWith('05')) {
-      phone = '966' + phone.substring(1);
+    if (phone.length === 8) {
+      phone = '965' + phone;
+    } else if (phone.startsWith('00965')) {
+      phone = phone.substring(2);
     }
     
     const waText = lang === 'ar'
@@ -312,7 +312,7 @@ export default function ShippingTrackerSA() {
           </style>
         </head>
         <body>
-          <h2>Shipping Tracker Report</h2>
+          <h2>Shipping Tracker Report (KW)</h2>
           <table>
             <thead>
               <tr>
@@ -349,7 +349,7 @@ export default function ShippingTrackerSA() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", "enjazya_sa_shipping_tracker.xls");
+    link.setAttribute("download", "enjazya_kw_shipping_tracker.xls");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -385,7 +385,7 @@ export default function ShippingTrackerSA() {
   return (
     <div className="tool-container" style={{ direction: lang === 'ar' ? 'rtl' : 'ltr' }}>
       <style jsx global>{`
-        body { background-color: #f8fafc; margin: 0; font-family: ${lang === 'ar' ? "'Tajawal', sans-serif" : "'Inter', sans-serif"}; }
+        body { background-color: #f1f5f9; margin: 0; font-family: ${lang === 'ar' ? "'Tajawal', sans-serif" : "'Inter', sans-serif"}; }
         a { text-decoration: none; }
       `}</style>
       <style jsx>{`
@@ -393,8 +393,8 @@ export default function ShippingTrackerSA() {
         @media(max-width: 768px) { .tool-container { padding: 10px; margin: 10px auto; } }
         
         .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .back-btn { background: #ffffff; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 8px; color: #475569; font-weight: 700; font-size: 14px; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
-        .back-btn:hover { background: #f1f5f9; color: #0f172a; }
+        .back-btn { background: #ffffff; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 10px; color: #475569; font-weight: 700; font-size: 14px; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
+        .back-btn:hover { background: #f8fafc; color: #0f172a; border-color: #0284c7; }
         
         .title-box h1 { font-size: 24px; font-weight: 900; color: #0f172a; margin: 0 0 5px 0; }
         .title-box p { color: #64748b; margin: 0; font-size: 14px; }
@@ -402,10 +402,10 @@ export default function ShippingTrackerSA() {
         .grid-layout { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 30px; margin-bottom: 40px; }
         @media(max-width: 850px) { .grid-layout { grid-template-columns: 1fr; } }
         
-        .card { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
+        .card { background: #ffffff; border-radius: 20px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
         .card-title { font-size: 18px; font-weight: 800; color: #1e293b; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         
-        .clear-form-btn { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; display: flex; align-items: center; gap: 5px; }
+        .clear-form-btn { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 5px 12px; border-radius: 8px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; display: flex; align-items: center; gap: 5px; }
         .clear-form-btn:hover { background: #fecaca; }
 
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
@@ -414,38 +414,42 @@ export default function ShippingTrackerSA() {
         .input-group { margin-bottom: 15px; width: 100%; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .input-group label { display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 6px; }
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
-        .input-wrapper input, .input-wrapper select { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .input-wrapper input:focus, .input-wrapper select:focus { border-color: #047857; background: #ffffff; }
+        .input-wrapper input, .input-wrapper select { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; transition: all 0.2s; }
+        .input-wrapper input:focus, .input-wrapper select:focus { border-color: #0284c7; background: #ffffff; box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15); }
         
-        .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
-        .action-btn:hover { background: #065f46; }
+        .action-btn { background: #0284c7; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 10px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
+        .action-btn:hover { background: #0369a1; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(2, 132, 199, 0.2); }
 
         .result-box { background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .result-box.primary { background: linear-gradient(135deg, #0369a1 0%, #0c4a6e 100%); color: #fff; border: none; padding: 20px; }
+        .result-box.primary { background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: #fff; border: none; padding: 20px; box-shadow: 0 4px 15px rgba(2, 132, 199, 0.2); }
         .result-label { font-size: 13px; font-weight: 700; color: #64748b; }
         .primary .result-label { color: #ffffff; opacity: 0.9; }
         .result-value { font-size: 18px; font-weight: 900; color: #0f172a; direction: ltr; }
         .primary .result-value { font-size: 24px; color: #ffffff; direction: ltr; }
 
-        .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .table-section { background: #ffffff; border-radius: 20px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.03); text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
-        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 10px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; transition: all 0.2s; }
+        .search-input:focus { border-color: #0284c7; box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15); }
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
-        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; }
-        .t-btn:hover { background: #f1f5f9; }
+        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .t-btn:hover { background: #f1f5f9; color: #0284c7; border-color: #0284c7; }
 
-        .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
+        .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; border-radius: 12px; border: 1px solid #e2e8f0; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 900px; }
         .data-table th { background: #f8fafc; padding: 12px; text-align: ${lang === 'ar' ? 'right' : 'left'}; border-bottom: 2px solid #cbd5e1; font-weight: 800; color: #334155; white-space: nowrap; }
         .data-table td { padding: 12px; border-bottom: 1px solid #e2e8f0; color: #0f172a; font-weight: 600; vertical-align: middle; }
         .data-table tfoot td { background: #f1f5f9; font-weight: 900; color: #0f172a; border-top: 2px solid #cbd5e1; }
         
-        .trial-badge { background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 800; }
+        .trial-badge { background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: 800; }
         
-        .tb-action-btn { border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; font-family: inherit;}
+        .tb-action-btn { border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; font-family: inherit; transition: all 0.2s; }
         .btn-edit { background: #e0f2fe; color: #0369a1; }
+        .btn-edit:hover { background: #bae6fd; }
         .btn-delete { background: #fee2e2; color: #991b1b; }
-        .btn-wa { background: #22c55e; color: #ffffff; }
+        .btn-delete:hover { background: #fca5a5; }
+        .btn-wa { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+        .btn-wa:hover { background: #dcfce7; }
       `}</style>
 
       <div className="header">
@@ -453,7 +457,7 @@ export default function ShippingTrackerSA() {
           <h1>{text.title}</h1>
           <p>{text.desc}</p>
         </div>
-        <Link href="/hub/sa" className="back-btn">
+        <Link href="/hub/kw" className="back-btn">
           {text.back}
         </Link>
       </div>
@@ -490,7 +494,7 @@ export default function ShippingTrackerSA() {
               <div className="input-group">
                 <label>{text.phoneLabel}</label>
                 <div className="input-wrapper">
-                  <input type="text" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} placeholder="05XXXXXXXX" required />
+                  <input type="text" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} placeholder="6XXXXXXXX" required dir="ltr" style={{ textAlign: 'left' }} />
                 </div>
               </div>
               <div className="input-group">
@@ -511,10 +515,9 @@ export default function ShippingTrackerSA() {
               <div className="input-wrapper" style={{ marginBottom: '8px' }}>
                 <select value={shippingSelect} onChange={handleSelectChange}>
                   <option value={lang === 'ar' ? 'أرامكس (Aramex)' : 'Aramex'}>{text.optAramex}</option>
-                  <option value={lang === 'ar' ? 'سمسا (SMSA)' : 'SMSA'}>{text.optSmsa}</option>
-                  <option value={lang === 'ar' ? 'ريدبوكس (RedBox)' : 'RedBox'}>{text.optRedbox}</option>
                   <option value={lang === 'ar' ? 'دي إتش إل (DHL)' : 'DHL'}>{text.optDhl}</option>
-                  <option value={lang === 'ar' ? 'نايل إكسبرس (Naqel)' : 'Naqel'}>{text.optNaqel}</option>
+                  <option value={lang === 'ar' ? 'فيديكس (FedEx)' : 'FedEx'}>{text.optFedex}</option>
+                  <option value={lang === 'ar' ? 'مندوب توصيل محلي' : 'Local Delivery Representative'}>{text.optLocal}</option>
                   <option value={lang === 'ar' ? 'شركة أخرى (كتابة يدوية)' : 'Other Company (Custom)'}>{text.optCustom}</option>
                 </select>
               </div>
@@ -551,9 +554,9 @@ export default function ShippingTrackerSA() {
             </div>
           </div>
 
-          <div className="result-box" style={{ borderRight: lang === 'ar' ? '4px solid #047857' : 'none', borderLeft: lang === 'en' ? '4px solid #047857' : 'none' }}>
+          <div className="result-box" style={{ borderRight: lang === 'ar' ? '4px solid #16a34a' : 'none', borderLeft: lang === 'en' ? '4px solid #16a34a' : 'none' }}>
             <span className="result-label">{text.deliveredLabel}</span>
-            <span className="result-value" style={{ color: '#047857' }}>{deliveredCount}</span>
+            <span className="result-value" style={{ color: '#16a34a' }}>{deliveredCount}</span>
           </div>
 
           <div className="result-box" style={{ background: '#f8fafc' }}>
@@ -600,8 +603,8 @@ export default function ShippingTrackerSA() {
                 </tr>
               ) : (
                 filteredItems.map((item, idx) => {
-                  let statusColor = '#0369a1';
-                  if (item.shipmentStatus.includes('تم التوصيل') || item.shipmentStatus.includes('Delivered')) statusColor = '#047857';
+                  let statusColor = '#0284c7';
+                  if (item.shipmentStatus.includes('تم التوصيل') || item.shipmentStatus.includes('Delivered')) statusColor = '#16a34a';
                   if (item.shipmentStatus.includes('متأخرة') || item.shipmentStatus.includes('Delayed')) statusColor = '#dc2626';
                   if (item.shipmentStatus.includes('مرتجعة') || item.shipmentStatus.includes('Returned')) statusColor = '#d97706';
 
@@ -623,7 +626,7 @@ export default function ShippingTrackerSA() {
                         </span>
                       </td>
                       <td>
-                        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', justifyContent: 'center' }}>
                           <button className="tb-action-btn btn-wa" onClick={() => handleSendWhatsapp(item)} title="WhatsApp">{text.table.waAction}</button>
                           <button className="tb-action-btn btn-edit" onClick={() => handleEdit(item)} title="Edit">{text.table.editAction}</button>
                           <button className="tb-action-btn btn-delete" onClick={() => handleDelete(item.id)} title="Delete">{text.table.delAction}</button>
