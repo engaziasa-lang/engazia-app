@@ -13,7 +13,7 @@ interface ReviewItem {
   createdAt?: string;
 }
 
-export default function AutomatedReviewsSA() {
+export default function AutomatedReviewsKW() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
 
   const [customerName, setCustomerName] = useState<string>('');
@@ -47,7 +47,7 @@ export default function AutomatedReviewsSA() {
       setCustomStatus('في انتظار الإرسال 🕒');
     }
 
-    const saved = localStorage.getItem('seerk_automated_reviews_items');
+    const saved = localStorage.getItem('seerk_kw_automated_reviews_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
@@ -55,21 +55,21 @@ export default function AutomatedReviewsSA() {
 
   const saveToLocalStorage = (newItems: ReviewItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_automated_reviews_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_kw_automated_reviews_items', JSON.stringify(newItems));
   };
 
   const t = {
     ar: {
       back: '← عودة للمنصة',
       title: 'نظام طلب التقييمات الآلي ⭐',
-      desc: 'أرسل رسائل تلقائية للعملاء عبر واتساب بعد الاستلام لجمع التقييمات وبناء الموثوقية في السوق السعودي',
+      desc: 'أرسل رسائل تلقائية للعملاء عبر واتساب بعد الاستلام لجمع التقييمات وبناء الموثوقية في السوق الكويتي',
       editRecord: 'تعديل السجل',
       newRecord: 'إضافة عميل لطلب تقييم',
       clear: '🧹 مسح الحقول',
       trial: 'تجريبي',
       custNameLabel: 'اسم العميل',
-      custPH: 'مثال: فهد الشمري',
-      phoneLabel: 'رقم جوال العميل',
+      custPH: 'مثال: فهد المطيري',
+      phoneLabel: 'رقم جوال العميل (الكويتي)',
       orderNumLabel: 'رقم الطلب',
       orderPH: 'مثال: #89201',
       prodNameLabel: 'اسم المنتج (اختياري)',
@@ -120,18 +120,18 @@ export default function AutomatedReviewsSA() {
     en: {
       back: '→ Back to Hub',
       title: 'Automated Review Request System ⭐',
-      desc: 'Send automated WhatsApp messages after delivery to collect reviews and build trust in Saudi Arabia',
+      desc: 'Send automated WhatsApp messages after delivery to collect reviews and build trust in Kuwait',
       editRecord: 'Edit Record',
       newRecord: 'Add Customer for Review',
       clear: '🧹 Clear Fields',
       trial: 'Trial',
       custNameLabel: 'Customer Name',
       custPH: 'e.g. John Doe',
-      phoneLabel: 'Customer Mobile Number',
+      phoneLabel: 'Customer Mobile Number (Kuwaiti)',
       orderNumLabel: 'Order Number',
       orderPH: 'e.g. #89201',
       prodNameLabel: 'Product Name (Optional)',
-      prodPH: 'e.g. Enjazya Luxury Perfume',
+      prodNamePH: 'e.g. Enjazya Luxury Perfume',
       statusLabel: 'Review Status',
       optPending: 'Pending 🕒',
       optSent: 'Request Sent 📤',
@@ -214,7 +214,7 @@ export default function AutomatedReviewsSA() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const localeStr = lang === 'ar' ? 'ar-SA' : 'en-US';
+    const localeStr = lang === 'ar' ? 'ar-KW' : 'en-KW';
     const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
 
     if (editingId) {
@@ -277,8 +277,10 @@ export default function AutomatedReviewsSA() {
 
   const handleSendWhatsapp = (item: ReviewItem) => {
     let phone = (item.phoneNumber || '').replace(/\D/g, '');
-    if (phone.startsWith('05')) {
-      phone = '966' + phone.substring(1);
+    if (phone.length === 8) {
+      phone = '965' + phone;
+    } else if (phone.startsWith('00965')) {
+      phone = phone.substring(2);
     }
     
     const waText = lang === 'ar'
@@ -306,7 +308,7 @@ export default function AutomatedReviewsSA() {
           </style>
         </head>
         <body>
-          <h2>Automated Reviews Report</h2>
+          <h2>Automated Reviews Report (KW)</h2>
           <table>
             <thead>
               <tr>
@@ -343,7 +345,7 @@ export default function AutomatedReviewsSA() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", "enjazya_sa_reviews.xls");
+    link.setAttribute("download", "enjazya_kw_reviews.xls");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -378,7 +380,7 @@ export default function AutomatedReviewsSA() {
   return (
     <div className="tool-container" style={{ direction: lang === 'ar' ? 'rtl' : 'ltr' }}>
       <style jsx global>{`
-        body { background-color: #f8fafc; margin: 0; font-family: ${lang === 'ar' ? "'Tajawal', sans-serif" : "'Inter', sans-serif"}; }
+        body { background-color: #f1f5f9; margin: 0; font-family: ${lang === 'ar' ? "'Tajawal', sans-serif" : "'Inter', sans-serif"}; }
         a { text-decoration: none; }
       `}</style>
       <style jsx>{`
@@ -386,8 +388,8 @@ export default function AutomatedReviewsSA() {
         @media(max-width: 768px) { .tool-container { padding: 10px; margin: 10px auto; } }
         
         .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .back-btn { background: #ffffff; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 8px; color: #475569; font-weight: 700; font-size: 14px; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
-        .back-btn:hover { background: #f1f5f9; color: #0f172a; }
+        .back-btn { background: #ffffff; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 10px; color: #475569; font-weight: 700; font-size: 14px; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
+        .back-btn:hover { background: #f8fafc; color: #0f172a; border-color: #0284c7; }
         
         .title-box h1 { font-size: 24px; font-weight: 900; color: #0f172a; margin: 0 0 5px 0; }
         .title-box p { color: #64748b; margin: 0; font-size: 14px; }
@@ -395,10 +397,10 @@ export default function AutomatedReviewsSA() {
         .grid-layout { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 30px; margin-bottom: 40px; }
         @media(max-width: 850px) { .grid-layout { grid-template-columns: 1fr; } }
         
-        .card { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
+        .card { background: #ffffff; border-radius: 20px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
         .card-title { font-size: 18px; font-weight: 800; color: #1e293b; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         
-        .clear-form-btn { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; display: flex; align-items: center; gap: 5px; }
+        .clear-form-btn { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 5px 12px; border-radius: 8px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; display: flex; align-items: center; gap: 5px; }
         .clear-form-btn:hover { background: #fecaca; }
 
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
@@ -407,38 +409,42 @@ export default function AutomatedReviewsSA() {
         .input-group { margin-bottom: 15px; width: 100%; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .input-group label { display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 6px; }
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
-        .input-wrapper input, .input-wrapper select { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .input-wrapper input:focus, .input-wrapper select:focus { border-color: #047857; background: #ffffff; }
+        .input-wrapper input, .input-wrapper select { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; transition: all 0.2s; }
+        .input-wrapper input:focus, .input-wrapper select:focus { border-color: #0284c7; background: #ffffff; box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15); }
         
-        .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
-        .action-btn:hover { background: #065f46; }
+        .action-btn { background: #0284c7; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 10px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
+        .action-btn:hover { background: #0369a1; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(2, 132, 199, 0.2); }
 
         .result-box { background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .result-box.primary { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #fff; border: none; padding: 20px; }
+        .result-box.primary { background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: #fff; border: none; padding: 20px; box-shadow: 0 4px 15px rgba(2, 132, 199, 0.2); }
         .result-label { font-size: 13px; font-weight: 700; color: #64748b; }
         .primary .result-label { color: #ffffff; opacity: 0.9; }
         .result-value { font-size: 18px; font-weight: 900; color: #0f172a; direction: ltr; }
         .primary .result-value { font-size: 24px; color: #ffffff; direction: ltr; }
 
-        .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .table-section { background: #ffffff; border-radius: 20px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.03); text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
-        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 10px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; transition: all 0.2s; }
+        .search-input:focus { border-color: #0284c7; box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15); }
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
-        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; }
-        .t-btn:hover { background: #f1f5f9; }
+        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .t-btn:hover { background: #f1f5f9; color: #0284c7; border-color: #0284c7; }
 
-        .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
+        .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; border-radius: 12px; border: 1px solid #e2e8f0; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 900px; }
         .data-table th { background: #f8fafc; padding: 12px; text-align: ${lang === 'ar' ? 'right' : 'left'}; border-bottom: 2px solid #cbd5e1; font-weight: 800; color: #334155; white-space: nowrap; }
         .data-table td { padding: 12px; border-bottom: 1px solid #e2e8f0; color: #0f172a; font-weight: 600; vertical-align: middle; }
         .data-table tfoot td { background: #f1f5f9; font-weight: 900; color: #0f172a; border-top: 2px solid #cbd5e1; }
         
-        .trial-badge { background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 800; }
+        .trial-badge { background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: 800; }
         
-        .tb-action-btn { border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; font-family: inherit;}
+        .tb-action-btn { border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; font-family: inherit; transition: all 0.2s; }
         .btn-edit { background: #e0f2fe; color: #0369a1; }
+        .btn-edit:hover { background: #bae6fd; }
         .btn-delete { background: #fee2e2; color: #991b1b; }
-        .btn-wa { background: #22c55e; color: #ffffff; }
+        .btn-delete:hover { background: #fca5a5; }
+        .btn-wa { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+        .btn-wa:hover { background: #dcfce7; }
       `}</style>
 
       <div className="header">
@@ -446,7 +452,7 @@ export default function AutomatedReviewsSA() {
           <h1>{text.title}</h1>
           <p>{text.desc}</p>
         </div>
-        <Link href="/hub/sa" className="back-btn">
+        <Link href="/hub/kw" className="back-btn">
           {text.back}
         </Link>
       </div>
@@ -474,7 +480,7 @@ export default function AutomatedReviewsSA() {
               <div className="input-group">
                 <label>{text.phoneLabel}</label>
                 <div className="input-wrapper">
-                  <input type="text" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} placeholder="05XXXXXXXX" required />
+                  <input type="text" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} placeholder="6XXXXXXXX" required dir="ltr" style={{ textAlign: 'left' }} />
                 </div>
               </div>
             </div>
@@ -538,14 +544,14 @@ export default function AutomatedReviewsSA() {
             </div>
           </div>
 
-          <div className="result-box" style={{ borderRight: lang === 'ar' ? '4px solid #047857' : 'none', borderLeft: lang === 'en' ? '4px solid #047857' : 'none' }}>
+          <div className="result-box" style={{ borderRight: lang === 'ar' ? '4px solid #0284c7' : 'none', borderLeft: lang === 'en' ? '4px solid #0284c7' : 'none' }}>
             <span className="result-label">{text.doneLabel}</span>
-            <span className="result-value" style={{ color: '#047857' }}>{completedReviews}</span>
+            <span className="result-value" style={{ color: '#0284c7' }}>{completedReviews}</span>
           </div>
 
           <div className="result-box" style={{ background: '#f8fafc' }}>
             <span className="result-label">{text.rateLabel}</span>
-            <span className="result-value" style={{ color: '#d97706' }}>
+            <span className="result-value" style={{ color: '#0369a1' }}>
               {items.length > 0 ? ((completedReviews / items.length) * 100).toFixed(1) : 0}%
             </span>
           </div>
@@ -590,7 +596,7 @@ export default function AutomatedReviewsSA() {
               ) : (
                 filteredItems.map((item, idx) => {
                   let statusColor = '#0369a1';
-                  if (item.reviewStatus.includes('تم التقييم') || item.reviewStatus.includes('Reviewed')) statusColor = '#047857';
+                  if (item.reviewStatus.includes('تم التقييم') || item.reviewStatus.includes('Reviewed')) statusColor = '#16a34a';
                   if (item.reviewStatus.includes('الإرسال') || item.reviewStatus.includes('Pending')) statusColor = '#d97706';
                   if (item.reviewStatus.includes('لم يستجب') || item.reviewStatus.includes('No Response')) statusColor = '#dc2626';
 
@@ -602,7 +608,7 @@ export default function AutomatedReviewsSA() {
                         {item.createdAt && <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', fontWeight: 600 }}>🕒 {item.createdAt}</div>}
                       </td>
                       <td>
-                        <div style={{ fontWeight: 800, color: '#0369a1' }}>{item.orderNumber}</div>
+                        <div style={{ fontWeight: 800, color: '#0284c7' }}>{item.orderNumber}</div>
                         <div style={{ fontSize: '12px', color: '#64748b' }}>{item.productName || text.table.generalOrder}</div>
                       </td>
                       <td style={{ direction: 'ltr', textAlign: lang === 'ar' ? 'right' : 'left', fontWeight: 700 }}>{item.phoneNumber}</td>
@@ -612,7 +618,7 @@ export default function AutomatedReviewsSA() {
                         </span>
                       </td>
                       <td>
-                        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', justifyContent: 'center' }}>
                           <button className="tb-action-btn btn-wa" onClick={() => handleSendWhatsapp(item)} title="Send via WhatsApp">{text.table.waAction}</button>
                           <button className="tb-action-btn btn-edit" onClick={() => handleEdit(item)} title="Edit">{text.table.editAction}</button>
                           <button className="tb-action-btn btn-delete" onClick={() => handleDelete(item.id)} title="Delete">{text.table.delAction}</button>
