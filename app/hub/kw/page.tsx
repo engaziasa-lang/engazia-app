@@ -421,23 +421,23 @@ export default function EnjazyaKuwaitHub() {
             <div className="links-column">
               <h4>{lang === 'ar' ? 'المنصة' : 'Platform'}</h4>
               <ul>
-                <li><Link href="/hub/kw">{lang === 'ar' ? 'جميع الأدوات (24)' : 'All Tools (24)'}</Link></li>
-                <li><Link href="/hub/kw/updates">{lang === 'ar' ? 'التحديثات الجديدة' : 'Latest Updates'}</Link></li>
-                <li><Link href="/hub/kw/pricing">{lang === 'ar' ? 'أسعار الباقات' : 'Pricing Plans'}</Link></li>
+                <li><Link href="/kw">{lang === 'ar' ? 'جميع الأدوات (24)' : 'All Tools (24)'}</Link></li>
+                <li><Link href="/kw/updates">{lang === 'ar' ? 'التحديثات الجديدة' : 'Latest Updates'}</Link></li>
+                <li><Link href="/kw/pricing">{lang === 'ar' ? 'أسعار الباقات' : 'Pricing Plans'}</Link></li>
               </ul>
             </div>
             <div className="links-column">
               <h4>{lang === 'ar' ? 'الدعم والمساعدة' : 'Support'}</h4>
               <ul>
-                <li><Link href="/hub/kw/support/contact">{lang === 'ar' ? 'الدعم الفني' : 'Technical Support'}</Link></li>
-                <li><Link href="/hub/kw/support/faq">{lang === 'ar' ? 'الأسئلة الشائعة' : 'FAQs'}</Link></li>
+                <li><Link href="/kw/support/contact">{lang === 'ar' ? 'الدعم الفني' : 'Technical Support'}</Link></li>
+                <li><Link href="/kw/support/faq">{lang === 'ar' ? 'الأسئلة الشائعة' : 'FAQs'}</Link></li>
               </ul>
             </div>
             <div className="links-column">
               <h4>{lang === 'ar' ? 'الأنظمة والقوانين' : 'Legal'}</h4>
               <ul>
-                <li><Link href="/hub/kw/legal/terms">{lang === 'ar' ? 'شروط الاستخدام' : 'Terms of Use'}</Link></li>
-                <li><Link href="/hub/kw/legal/privacy">{lang === 'ar' ? 'سياسة الخصوصية' : 'Privacy Policy'}</Link></li>
+                <li><Link href="/kw/legal/terms">{lang === 'ar' ? 'شروط الاستخدام' : 'Terms of Use'}</Link></li>
+                <li><Link href="/kw/legal/privacy">{lang === 'ar' ? 'سياسة الخصوصية' : 'Privacy Policy'}</Link></li>
               </ul>
             </div>
           </div>
