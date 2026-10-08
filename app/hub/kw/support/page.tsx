@@ -13,7 +13,7 @@ interface SupportItem {
   createdAt?: string;
 }
 
-export default function SupportTemplatesSA() {
+export default function SupportTemplatesKW() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
 
   const [customerName, setCustomerName] = useState<string>('');
@@ -52,7 +52,7 @@ export default function SupportTemplatesSA() {
       setOrderNumber('#84920');
     }
 
-    const saved = localStorage.getItem('seerk_support_templates_items');
+    const saved = localStorage.getItem('seerk_kw_support_templates_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
@@ -60,14 +60,14 @@ export default function SupportTemplatesSA() {
 
   const saveToLocalStorage = (newItems: SupportItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_support_templates_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_kw_support_templates_items', JSON.stringify(newItems));
   };
 
   const t = {
     ar: {
       back: '← عودة للمنصة',
       title: 'قوالب خدمة العملاء السريعة 🎧',
-      desc: 'انسخ ردود احترافية جاهزة للرد على استفسارات العملاء المكررة عبر واتساب في السوق السعودي',
+      desc: 'انسخ ردود احترافية جاهزة للرد على استفسارات العملاء المكررة عبر واتساب في السوق الكويتي',
       editRecord: 'تعديل القالب',
       newRecord: 'توليد قالب رد جديد',
       clear: '🧹 مسح الحقول',
@@ -119,7 +119,7 @@ export default function SupportTemplatesSA() {
     en: {
       back: '→ Back to Hub',
       title: 'Quick Customer Support Templates 🎧',
-      desc: 'Copy ready-made professional responses for repeated customer inquiries via WhatsApp in Saudi Arabia',
+      desc: 'Copy ready-made professional responses for repeated customer inquiries via WhatsApp in Kuwait',
       editRecord: 'Edit Template',
       newRecord: 'Generate New Response Template',
       clear: '🧹 Clear Fields',
@@ -183,17 +183,17 @@ export default function SupportTemplatesSA() {
       if (inquirySelect.includes('تأخر الشحنة')) {
         setGeneratedReply(
           `مرحباً بك يا ${cName} 🌸\n` +
-          `نعتذر منك بشدة عن التأخير البسيط الحاصل في توصيل طلبك رقم (${oNum}). نحن نتابع حالياً مع شركة الشحن لضمان وصول طلبك لأقرب وقت ممكن. شكراً لتفهمك وصبرك معنا!`
+          `نعتذر منك بشدة عن التأخير البسيط الحاصل في توصيل طلبك رقم (${oNum}). نحن نتابع حالياً مع شركة التوصيل المحلية لضمان وصول طلبك لأقرب وقت ممكن. شكراً لتفهمك وصبرك معنا!`
         );
       } else if (inquirySelect.includes('الاستبدال والاسترجاع')) {
         setGeneratedReply(
           `أهلاً بك يا ${cName} في ${sName} ✨\n` +
-          `بخصوص طلبك (${oNum})، يسعدنا خدمتك في الاستبدال أو الاسترجاع خلال المدة المحددة بشرط أن يكون المنتج بحالته الأصلية. تفضل بزيارة صفحة السياسات بالمتجر أو تزويدنا بسبب الاسترجاع لنخدمك فوراً.`
+          `بخصوص طلبك (${oNum})، يسعدنا خدمتك في الاستبدال أو الاسترجاع خلال المدة المحددة وفقاً لسياسة حماية المستهلك بشرط أن يكون المنتج بحالته الأصلية. تفضل بزيارة صفحة السياسات بالمتجر أو تزويدنا بسبب الاسترجاع لنخدمك فوراً.`
         );
       } else if (inquirySelect.includes('الدفع')) {
         setGeneratedReply(
           `مرحباً بك يا ${cName} 💳\n` +
-          `نؤكد لك أن جميع عمليات الدفع الإلكتروني والدفع عند الاستلام في ${sName} آمنة ومحمولة بالكامل. طلبك رقم (${oNum}) يتم تجهيزه الآن بكل اهتمام!`
+          `نؤكد لك أن جميع عمليات الدفع الإلكتروني وعمليات كي نت (K-Net) في ${sName} آمنة ومحمية بالكامل. طلبك رقم (${oNum}) يتم تجهيزه الآن بكل اهتمام!`
         );
       } else {
         setGeneratedReply(
@@ -205,17 +205,17 @@ export default function SupportTemplatesSA() {
       if (inquirySelect.includes('Delay') || inquirySelect.includes('تأخر')) {
         setGeneratedReply(
           `Hello ${cName} 🌸\n` +
-          `We sincerely apologize for the slight delay in delivering your order #${oNum}. We are currently following up with the shipping company to ensure your order arrives as soon as possible. Thank you for your patience!`
+          `We sincerely apologize for the slight delay in delivering your order #${oNum}. We are currently following up with the local delivery partner to ensure your order arrives as soon as possible. Thank you for your patience!`
         );
       } else if (inquirySelect.includes('Return') || inquirySelect.includes('الاستبدال')) {
         setGeneratedReply(
           `Welcome ${cName} to ${sName} ✨\n` +
-          `Regarding your order (${oNum}), we are happy to assist you with return or exchange within the specified timeframe provided the product is in its original condition. Please visit our store policies or provide the reason for return to assist you immediately.`
+          `Regarding your order (${oNum}), we are happy to assist you with return or exchange within the specified timeframe in accordance with consumer protection guidelines, provided the product is in its original condition.`
         );
       } else if (inquirySelect.includes('Payment') || inquirySelect.includes('الدفع')) {
         setGeneratedReply(
           `Hello ${cName} 💳\n` +
-          `We assure you that all electronic payment and cash on delivery transactions at ${sName} are completely secure. Your order #${oNum} is currently being prepared with utmost care!`
+          `We assure you that all electronic payments and K-Net transactions at ${sName} are completely secure. Your order #${oNum} is currently being prepared with utmost care!`
         );
       } else {
         setGeneratedReply(
@@ -259,7 +259,7 @@ export default function SupportTemplatesSA() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const localeStr = lang === 'ar' ? 'ar-SA' : 'en-US';
+    const localeStr = lang === 'ar' ? 'ar-KW' : 'en-KW';
     const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
 
     if (editingId) {
@@ -341,7 +341,7 @@ export default function SupportTemplatesSA() {
           </style>
         </head>
         <body>
-          <h2>Support Templates Report</h2>
+          <h2>Support Templates Report (KW)</h2>
           <table>
             <thead>
               <tr>
@@ -376,7 +376,7 @@ export default function SupportTemplatesSA() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", "enjazya_sa_support_templates.xls");
+    link.setAttribute("download", "enjazya_kw_support_templates.xls");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -409,7 +409,7 @@ export default function SupportTemplatesSA() {
   return (
     <div className="tool-container" style={{ direction: lang === 'ar' ? 'rtl' : 'ltr' }}>
       <style jsx global>{`
-        body { background-color: #f8fafc; margin: 0; font-family: ${lang === 'ar' ? "'Tajawal', sans-serif" : "'Inter', sans-serif"}; }
+        body { background-color: #f1f5f9; margin: 0; font-family: ${lang === 'ar' ? "'Tajawal', sans-serif" : "'Inter', sans-serif"}; }
         a { text-decoration: none; }
       `}</style>
       <style jsx>{`
@@ -417,8 +417,8 @@ export default function SupportTemplatesSA() {
         @media(max-width: 768px) { .tool-container { padding: 10px; margin: 10px auto; } }
         
         .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .back-btn { background: #ffffff; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 8px; color: #475569; font-weight: 700; font-size: 14px; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
-        .back-btn:hover { background: #f1f5f9; color: #0f172a; }
+        .back-btn { background: #ffffff; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 10px; color: #475569; font-weight: 700; font-size: 14px; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
+        .back-btn:hover { background: #f8fafc; color: #0f172a; border-color: #0284c7; }
         
         .title-box h1 { font-size: 24px; font-weight: 900; color: #0f172a; margin: 0 0 5px 0; }
         .title-box p { color: #64748b; margin: 0; font-size: 14px; }
@@ -426,10 +426,10 @@ export default function SupportTemplatesSA() {
         .grid-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 40px; }
         @media(max-width: 850px) { .grid-layout { grid-template-columns: 1fr; } }
         
-        .card { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
+        .card { background: #ffffff; border-radius: 20px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
         .card-title { font-size: 18px; font-weight: 800; color: #1e293b; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         
-        .clear-form-btn { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; display: flex; align-items: center; gap: 5px; }
+        .clear-form-btn { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 5px 12px; border-radius: 8px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; display: flex; align-items: center; gap: 5px; }
         .clear-form-btn:hover { background: #fecaca; }
 
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
@@ -438,33 +438,38 @@ export default function SupportTemplatesSA() {
         .input-group { margin-bottom: 15px; width: 100%; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .input-group label { display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 6px; }
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
-        .input-wrapper input, .input-wrapper select, .input-wrapper textarea { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .input-wrapper input:focus, .input-wrapper select:focus, .input-wrapper textarea:focus { border-color: #047857; background: #ffffff; }
+        .input-wrapper input, .input-wrapper select, .input-wrapper textarea { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; transition: all 0.2s; }
+        .input-wrapper input:focus, .input-wrapper select:focus, .input-wrapper textarea:focus { border-color: #0284c7; background: #ffffff; box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15); }
         
-        .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
-        .action-btn:hover { background: #065f46; }
+        .action-btn { background: #0284c7; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 10px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
+        .action-btn:hover { background: #0369a1; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(2, 132, 199, 0.2); }
         
-        .copy-btn { background: #0369a1; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .copy-btn:hover { background: #0284c7; }
+        .copy-btn { background: #0f172a; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 10px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .copy-btn:hover { background: #1e293b; transform: translateY(-2px); }
 
-        .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .table-section { background: #ffffff; border-radius: 20px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.03); text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
-        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 10px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; transition: all 0.2s; }
+        .search-input:focus { border-color: #0284c7; box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15); }
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
-        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; }
-        .t-btn:hover { background: #f1f5f9; }
+        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .t-btn:hover { background: #f1f5f9; color: #0284c7; border-color: #0284c7; }
 
-        .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
+        .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; border-radius: 12px; border: 1px solid #e2e8f0; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 900px; }
         .data-table th { background: #f8fafc; padding: 12px; text-align: ${lang === 'ar' ? 'right' : 'left'}; border-bottom: 2px solid #cbd5e1; font-weight: 800; color: #334155; white-space: nowrap; }
         .data-table td { padding: 12px; border-bottom: 1px solid #e2e8f0; color: #0f172a; font-weight: 600; vertical-align: middle; }
         .data-table tfoot td { background: #f1f5f9; font-weight: 900; color: #0f172a; border-top: 2px solid #cbd5e1; }
         
-        .trial-badge { background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 800; }
+        .trial-badge { background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: 800; }
         
-        .tb-action-btn { border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; font-family: inherit;}
+        .tb-action-btn { border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; font-family: inherit; transition: all 0.2s; }
+        .btn-wa { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+        .btn-wa:hover { background: #dcfce7; }
         .btn-edit { background: #e0f2fe; color: #0369a1; }
+        .btn-edit:hover { background: #bae6fd; }
         .btn-delete { background: #fee2e2; color: #991b1b; }
+        .btn-delete:hover { background: #fca5a5; }
       `}</style>
 
       <div className="header">
@@ -472,7 +477,7 @@ export default function SupportTemplatesSA() {
           <h1>{text.title}</h1>
           <p>{text.desc}</p>
         </div>
-        <Link href="/hub/sa" className="back-btn">
+        <Link href="/hub/kw" className="back-btn">
           {text.back}
         </Link>
       </div>
@@ -552,7 +557,7 @@ export default function SupportTemplatesSA() {
                 rows={10} 
                 value={generatedReply} 
                 onChange={(e) => setGeneratedReply(e.target.value)} 
-                style={{ width: '100%', padding: '12px', border: '1px solid #cbd5e1', borderRadius: '8px', fontSize: '13.5px', fontFamily: 'inherit', outline: 'none', background: '#f8fafc', color: '#0f172a', resize: 'vertical', lineHeight: '1.6', textAlign: lang === 'ar' ? 'right' : 'left' }}
+                style={{ width: '100%', padding: '15px', border: '1px solid #cbd5e1', borderRadius: '10px', fontSize: '13.5px', fontFamily: 'inherit', outline: 'none', background: '#f8fafc', color: '#0f172a', resize: 'vertical', lineHeight: '1.7', textAlign: lang === 'ar' ? 'right' : 'left', transition: 'all 0.2s' }}
               ></textarea>
             </div>
           </div>
@@ -605,10 +610,10 @@ export default function SupportTemplatesSA() {
                       <div style={{ fontWeight: 900, color: '#0f172a' }}>{item.customerName}</div>
                       {item.createdAt && <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', fontWeight: 600 }}>🕒 {item.createdAt}</div>}
                     </td>
-                    <td><span style={{ fontWeight: 800, color: '#0369a1' }}>{item.inquiryType}</span></td>
-                    <td><span style={{ fontWeight: 700, color: '#047857' }}>{item.orderNumber}</span></td>
+                    <td><span style={{ fontWeight: 800, color: '#0284c7' }}>{item.inquiryType}</span></td>
+                    <td><span style={{ fontWeight: 700, color: '#16a34a' }}>{item.orderNumber}</span></td>
                     <td>
-                      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', justifyContent: 'center' }}>
                         <button className="tb-action-btn btn-wa" onClick={() => handleCopyText(item.generatedReply)} title="Copy">{text.table.copyAction}</button>
                         <button className="tb-action-btn btn-edit" onClick={() => handleEdit(item)} title="Edit">{text.table.editAction}</button>
                         <button className="tb-action-btn btn-delete" onClick={() => handleDelete(item.id)} title="Delete">{text.table.delAction}</button>
