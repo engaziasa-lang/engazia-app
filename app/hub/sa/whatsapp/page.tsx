@@ -63,7 +63,7 @@ export default function WhatsappCrmSA() {
   const t = {
     ar: {
       back: '← عودة للمنصة',
-      title: 'إدارة عملاء واتساب (Seerk Pro Max) 💬',
+      title: 'إدارة عملاء واتساب (إنجازيا برو ماكس) 💬',
       desc: 'إدارة السلال المتروكة، إرسال روابط الدفع السريعة، وتصنيف عملاء المتجر الفاعلين في السوق السعودي',
       editRecord: 'تعديل بيانات العميل',
       newRecord: 'إضافة عميل / سلة جديدة',
@@ -135,7 +135,7 @@ export default function WhatsappCrmSA() {
     },
     en: {
       back: '→ Back to Hub',
-      title: 'WhatsApp CRM Management (Seerk Pro Max) 💬',
+      title: 'WhatsApp CRM Management (Enjazya Pro Max) 💬',
       desc: 'Manage abandoned carts, send quick payment links, and classify active store customers in Saudi Arabia',
       editRecord: 'Edit Customer Data',
       newRecord: 'Add New Customer / Cart',
