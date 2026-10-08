@@ -15,14 +15,14 @@ interface ProfitItem {
   createdAt?: string;
 }
 
-export default function ProfitCalculatorSA() {
+export default function ProfitCalculatorKW() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
 
   const [productName, setProductName] = useState<string>('');
   const [sellingPrice, setSellingPrice] = useState<number | ''>('');
   const [productCost, setProductCost] = useState<number | ''>('');
   const [shippingCost, setShippingCost] = useState<number | ''>('');
-  const [gatewayFeePercent, setGatewayFeePercent] = useState<number | ''>(2.2);
+  const [gatewayFeePercent, setGatewayFeePercent] = useState<number | ''>(2.5);
 
   const [items, setItems] = useState<ProfitItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -39,7 +39,7 @@ export default function ProfitCalculatorSA() {
     const savedLang = (localStorage.getItem('seerk_global_lang') as 'ar' | 'en') || 'ar';
     setLang(savedLang);
 
-    const saved = localStorage.getItem('seerk_profit_items');
+    const saved = localStorage.getItem('seerk_kw_profit_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
@@ -47,14 +47,14 @@ export default function ProfitCalculatorSA() {
 
   const saveToLocalStorage = (newItems: ProfitItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_profit_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_kw_profit_items', JSON.stringify(newItems));
   };
 
   const t = {
     ar: {
       back: '← عودة للمنصة',
-      title: 'حاسبة أرباح ونقاط التعادل (15% ضريبة) 📊',
-      desc: 'احسب صافي أرباحك بدقة بعد خصم التكاليف، رسوم الشحن، وضريبة القيمة المضافة في السوق السعودي',
+      title: 'حاسبة أرباح ونقاط التعادل (بدون ضريبة) 📊',
+      desc: 'احسب صافي أرباحك بدقة بعد خصم التكاليف ورسوم الشحن بالدينار الكويتي في السوق الكويتي',
       editRecord: 'تعديل بيانات المنتج',
       newRecord: 'حساب منتج جديد',
       clear: '🧹 مسح الحقول',
@@ -65,14 +65,13 @@ export default function ProfitCalculatorSA() {
       costLabel: 'تكلفة المنتج الأساسية من المورد',
       shipLabel: 'تكلفة التوصيل والشحن للطلب',
       gatewayLabel: 'رسوم بوابة الدفع (%)',
-      currency: 'ر.س',
+      currency: 'د.ك',
       saveBtnNew: '+ حفظ وإضافة المنتج للجدول',
       saveBtnEdit: '💾 حفظ التعديلات',
       resultsTitle: 'التحليل المالي الفوري',
       netProfitLabel: 'صافي الربح الفعلي للقطعة الواحدة',
-      netProfitSub: 'بعد خصم التكلفة، الشحن، البوابة والضريبة',
+      netProfitSub: 'بعد خصم التكلفة، الشحن، وبوابة الدفع',
       marginLabel: 'هامش الربح الصافي (%)',
-      vatLabel: 'ضريبة القيمة المضافة المستقطعة (15%)',
       totalCostLabel: 'إجمالي التكاليف الشاملة للطلب',
       searchPH: '🔍 بحث في المنتجات المحفوظة...',
       exportBtn: '📥 تصدير Excel',
@@ -103,8 +102,8 @@ export default function ProfitCalculatorSA() {
     },
     en: {
       back: '→ Back to Hub',
-      title: 'Profit & Break-Even Calculator (15% VAT) 📊',
-      desc: 'Accurately calculate net profits after deducting costs, shipping, and VAT in the Saudi market',
+      title: 'Profit & Break-Even Calculator (Tax-Free) 📊',
+      desc: 'Accurately calculate net profits after deducting costs and shipping fees in KWD for the Kuwaiti market',
       editRecord: 'Edit Product Data',
       newRecord: 'Calculate New Product',
       clear: '🧹 Clear Fields',
@@ -115,14 +114,13 @@ export default function ProfitCalculatorSA() {
       costLabel: 'Original Product Cost from Supplier',
       shipLabel: 'Delivery & Shipping Cost per Order',
       gatewayLabel: 'Payment Gateway Fee (%)',
-      currency: 'SAR',
+      currency: 'KWD',
       saveBtnNew: '+ Save & Add Product to Table',
       saveBtnEdit: '💾 Save Changes',
       resultsTitle: 'Instant Financial Analysis',
       netProfitLabel: 'Actual Net Profit per Single Unit',
-      netProfitSub: 'After deducting cost, shipping, gateway and VAT',
+      netProfitSub: 'After deducting cost, shipping, and payment gateway',
       marginLabel: 'Net Profit Margin (%)',
-      vatLabel: 'Deducted VAT (15%)',
       totalCostLabel: 'Total Comprehensive Order Costs',
       searchPH: '🔍 Search saved products...',
       exportBtn: '📥 Export Excel',
@@ -160,9 +158,9 @@ export default function ProfitCalculatorSA() {
   const sCost = typeof shippingCost === 'number' ? shippingCost : 0;
   const gFee = typeof gatewayFeePercent === 'number' ? gatewayFeePercent : 0;
 
-  const vatAmount = sPrice - (sPrice / 1.15);
+  // بدون ضريبة قيمة مضافة (VAT) في السوق الكويتي
   const gatewayFeeAmount = sPrice * (gFee / 100);
-  const totalCosts = pCost + sCost + vatAmount + gatewayFeeAmount;
+  const totalCosts = pCost + sCost + gatewayFeeAmount;
   const netProfit = sPrice - totalCosts;
   const margin = sPrice > 0 ? (netProfit / sPrice) * 100 : 0;
 
@@ -171,7 +169,7 @@ export default function ProfitCalculatorSA() {
     setSellingPrice('');
     setProductCost('');
     setShippingCost('');
-    setGatewayFeePercent(2.2);
+    setGatewayFeePercent(2.5);
     setEditingId(null);
   };
 
@@ -188,7 +186,7 @@ export default function ProfitCalculatorSA() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const localeStr = lang === 'ar' ? 'ar-SA' : 'en-US';
+    const localeStr = lang === 'ar' ? 'ar-KW' : 'en-KW';
     const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
 
     if (editingId) {
@@ -199,7 +197,7 @@ export default function ProfitCalculatorSA() {
         productCost: pCost,
         shippingCost: sCost,
         gatewayFeePercent: gFee,
-        netProfit: Number(netProfit.toFixed(2)),
+        netProfit: Number(netProfit.toFixed(3)),
         margin: Number(margin.toFixed(1))
       } : item);
       saveToLocalStorage(updated);
@@ -213,7 +211,7 @@ export default function ProfitCalculatorSA() {
         productCost: pCost,
         shippingCost: sCost,
         gatewayFeePercent: gFee,
-        netProfit: Number(netProfit.toFixed(2)),
+        netProfit: Number(netProfit.toFixed(3)),
         margin: Number(margin.toFixed(1)),
         createdAt: formattedDate
       };
@@ -263,7 +261,7 @@ export default function ProfitCalculatorSA() {
           </style>
         </head>
         <body>
-          <h2>Profit Calculator Report</h2>
+          <h2>Profit Calculator Report (KW)</h2>
           <table>
             <thead>
               <tr>
@@ -302,7 +300,7 @@ export default function ProfitCalculatorSA() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", "enjazya_sa_profit_analysis.xls");
+    link.setAttribute("download", "enjazya_kw_profit_analysis.xls");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -336,7 +334,7 @@ export default function ProfitCalculatorSA() {
   return (
     <div className="tool-container" style={{ direction: lang === 'ar' ? 'rtl' : 'ltr' }}>
       <style jsx global>{`
-        body { background-color: #f8fafc; margin: 0; font-family: ${lang === 'ar' ? "'Tajawal', sans-serif" : "'Inter', sans-serif"}; }
+        body { background-color: #f1f5f9; margin: 0; font-family: ${lang === 'ar' ? "'Tajawal', sans-serif" : "'Inter', sans-serif"}; }
         a { text-decoration: none; }
       `}</style>
       <style jsx>{`
@@ -344,8 +342,8 @@ export default function ProfitCalculatorSA() {
         @media(max-width: 768px) { .tool-container { padding: 10px; margin: 10px auto; } }
         
         .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .back-btn { background: #ffffff; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 8px; color: #475569; font-weight: 700; font-size: 14px; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
-        .back-btn:hover { background: #f1f5f9; color: #0f172a; }
+        .back-btn { background: #ffffff; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 10px; color: #475569; font-weight: 700; font-size: 14px; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
+        .back-btn:hover { background: #f8fafc; color: #0f172a; border-color: #0284c7; }
         
         .title-box h1 { font-size: 24px; font-weight: 900; color: #0f172a; margin: 0 0 5px 0; }
         .title-box p { color: #64748b; margin: 0; font-size: 14px; }
@@ -353,44 +351,45 @@ export default function ProfitCalculatorSA() {
         .grid-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 40px; }
         @media(max-width: 850px) { .grid-layout { grid-template-columns: 1fr; } }
         
-        .card { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
+        .card { background: #ffffff; border-radius: 20px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
         .card-title { font-size: 18px; font-weight: 800; color: #1e293b; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         
-        .clear-form-btn { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; display: flex; align-items: center; gap: 5px; }
+        .clear-form-btn { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 5px 12px; border-radius: 8px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; display: flex; align-items: center; gap: 5px; }
         .clear-form-btn:hover { background: #fecaca; }
 
         .input-group { margin-bottom: 15px; width: 100%; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .input-group label { display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 6px; }
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
-        .input-wrapper input { width: 100%; padding: 10px 45px 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 15px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .input-wrapper input:focus { border-color: #047857; background: #ffffff; }
+        .input-wrapper input { width: 100%; padding: 10px 45px 10px 14px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 15px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; transition: all 0.2s; }
+        .input-wrapper input:focus { border-color: #0284c7; background: #ffffff; box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15); }
         .currency-tag { position: absolute; ${lang === 'ar' ? 'left: 14px;' : 'right: 14px;'} color: #64748b; font-weight: 800; font-size: 13px; pointer-events: none; }
         
-        .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
-        .action-btn:hover { background: #065f46; }
+        .action-btn { background: #0284c7; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 10px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
+        .action-btn:hover { background: #0369a1; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(2, 132, 199, 0.2); }
 
         .result-box { background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .result-box.primary { background: linear-gradient(135deg, #047857 0%, #065f46 100%); color: #fff; border: none; padding: 20px; }
-        .result-box.danger { background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); color: #fff; border: none; padding: 20px; }
+        .result-box.primary { background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: #fff; border: none; padding: 20px; box-shadow: 0 4px 15px rgba(2, 132, 199, 0.2); }
+        .result-box.danger { background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); color: #fff; border: none; padding: 20px; box-shadow: 0 4px 15px rgba(220, 38, 38, 0.2); }
         .result-label { font-size: 13px; font-weight: 700; color: #64748b; }
         .primary .result-label, .danger .result-label { color: #ffffff; opacity: 0.9; }
         .result-value { font-size: 18px; font-weight: 900; color: #0f172a; direction: ltr; }
         .primary .result-value, .danger .result-value { font-size: 24px; color: #ffffff; direction: ltr; }
 
-        .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .table-section { background: #ffffff; border-radius: 20px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.03); text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
-        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 10px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; transition: all 0.2s; }
+        .search-input:focus { border-color: #0284c7; box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15); }
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
-        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; }
-        .t-btn:hover { background: #f1f5f9; }
+        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .t-btn:hover { background: #f1f5f9; color: #0284c7; border-color: #0284c7; }
 
-        .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
+        .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; border-radius: 12px; border: 1px solid #e2e8f0; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 700px; }
         .data-table th { background: #f8fafc; padding: 12px; text-align: ${lang === 'ar' ? 'right' : 'left'}; border-bottom: 2px solid #cbd5e1; font-weight: 800; color: #334155; white-space: nowrap; }
         .data-table td { padding: 12px; border-bottom: 1px solid #e2e8f0; color: #0f172a; font-weight: 600; vertical-align: middle; }
         .data-table tfoot td { background: #f1f5f9; font-weight: 900; color: #0f172a; border-top: 2px solid #cbd5e1; }
         
-        .trial-badge { background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 800; }
+        .trial-badge { background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: 800; }
       `}</style>
 
       <div className="header">
@@ -398,7 +397,7 @@ export default function ProfitCalculatorSA() {
           <h1>{text.title}</h1>
           <p>{text.desc}</p>
         </div>
-        <Link href="/hub/sa" className="back-btn">
+        <Link href="/hub/kw" className="back-btn">
           {text.back}
         </Link>
       </div>
@@ -426,7 +425,7 @@ export default function ProfitCalculatorSA() {
             <div className="input-group">
               <label>{text.sellPriceLabel} ({text.currency})</label>
               <div className="input-wrapper">
-                <input type="number" min="0" value={sellingPrice === '' ? '' : sellingPrice} onChange={(e) => setSellingPrice(e.target.value === '' ? '' : Number(e.target.value))} placeholder="200" required />
+                <input type="number" step="0.001" min="0" value={sellingPrice === '' ? '' : sellingPrice} onChange={(e) => setSellingPrice(e.target.value === '' ? '' : Number(e.target.value))} placeholder="20" required />
                 <span className="currency-tag">{text.currency}</span>
               </div>
             </div>
@@ -434,7 +433,7 @@ export default function ProfitCalculatorSA() {
             <div className="input-group">
               <label>{text.costLabel} ({text.currency})</label>
               <div className="input-wrapper">
-                <input type="number" min="0" value={productCost === '' ? '' : productCost} onChange={(e) => setProductCost(e.target.value === '' ? '' : Number(e.target.value))} placeholder="60" required />
+                <input type="number" step="0.001" min="0" value={productCost === '' ? '' : productCost} onChange={(e) => setProductCost(e.target.value === '' ? '' : Number(e.target.value))} placeholder="6" required />
                 <span className="currency-tag">{text.currency}</span>
               </div>
             </div>
@@ -442,7 +441,7 @@ export default function ProfitCalculatorSA() {
             <div className="input-group">
               <label>{text.shipLabel} ({text.currency})</label>
               <div className="input-wrapper">
-                <input type="number" min="0" value={shippingCost === '' ? '' : shippingCost} onChange={(e) => setShippingCost(e.target.value === '' ? '' : Number(e.target.value))} placeholder="25" />
+                <input type="number" step="0.001" min="0" value={shippingCost === '' ? '' : shippingCost} onChange={(e) => setShippingCost(e.target.value === '' ? '' : Number(e.target.value))} placeholder="1.5" />
                 <span className="currency-tag">{text.currency}</span>
               </div>
             </div>
@@ -450,7 +449,7 @@ export default function ProfitCalculatorSA() {
             <div className="input-group">
               <label>{text.gatewayLabel}</label>
               <div className="input-wrapper">
-                <input type="number" step="0.1" min="0" value={gatewayFeePercent === '' ? '' : gatewayFeePercent} onChange={(e) => setGatewayFeePercent(e.target.value === '' ? '' : Number(e.target.value))} placeholder="2.2" />
+                <input type="number" step="0.1" min="0" value={gatewayFeePercent === '' ? '' : gatewayFeePercent} onChange={(e) => setGatewayFeePercent(e.target.value === '' ? '' : Number(e.target.value))} placeholder="2.5" />
                 <span className="currency-tag">%</span>
               </div>
             </div>
@@ -470,25 +469,20 @@ export default function ProfitCalculatorSA() {
               <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '2px' }}>{text.netProfitSub}</div>
             </div>
             <div className="result-value">
-              {netProfit.toFixed(2)} {text.currency}
+              {netProfit.toFixed(3)} {text.currency}
             </div>
           </div>
 
-          <div className="result-box" style={{ borderRight: lang === 'ar' ? '4px solid #047857' : 'none', borderLeft: lang === 'en' ? '4px solid #047857' : 'none' }}>
+          <div className="result-box" style={{ borderRight: lang === 'ar' ? '4px solid #0284c7' : 'none', borderLeft: lang === 'en' ? '4px solid #0284c7' : 'none' }}>
             <span className="result-label">{text.marginLabel}</span>
-            <span className="result-value" style={{ color: margin >= 20 ? '#10b981' : '#d97706' }}>
+            <span className="result-value" style={{ color: margin >= 20 ? '#0284c7' : '#d97706' }}>
               {margin.toFixed(1)}%
             </span>
           </div>
 
-          <div className="result-box" style={{ borderRight: lang === 'ar' ? '4px solid #0369a1' : 'none', borderLeft: lang === 'en' ? '4px solid #0369a1' : 'none' }}>
-            <span className="result-label">{text.vatLabel}</span>
-            <span className="result-value" style={{ color: '#0369a1' }}>{vatAmount.toFixed(2)} {text.currency}</span>
-          </div>
-
           <div className="result-box" style={{ borderRight: lang === 'ar' ? '4px solid #dc2626' : 'none', borderLeft: lang === 'en' ? '4px solid #dc2626' : 'none', background: '#f8fafc' }}>
             <span className="result-label">{text.totalCostLabel}</span>
-            <span className="result-value" style={{ color: '#dc2626' }}>{totalCosts.toFixed(2)} {text.currency}</span>
+            <span className="result-value" style={{ color: '#dc2626' }}>{totalCosts.toFixed(3)} {text.currency}</span>
           </div>
         </div>
       </div>
@@ -537,13 +531,13 @@ export default function ProfitCalculatorSA() {
                       <div style={{ fontWeight: 900, color: '#0f172a' }}>{item.name}</div>
                       {item.createdAt && <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', fontWeight: 600 }}>🕒 {item.createdAt}</div>}
                     </td>
-                    <td>{item.sellingPrice} {text.currency}</td>
-                    <td>{(item.productCost + item.shippingCost)} {text.currency}</td>
-                    <td style={{ color: item.netProfit > 0 ? '#047857' : '#dc2626', fontWeight: 900 }}>{item.netProfit} {text.currency}</td>
+                    <td>{item.sellingPrice.toFixed(3)} {text.currency}</td>
+                    <td>{(item.productCost + item.shippingCost).toFixed(3)} {text.currency}</td>
+                    <td style={{ color: item.netProfit > 0 ? '#0284c7' : '#dc2626', fontWeight: 900 }}>{item.netProfit.toFixed(3)} {text.currency}</td>
                     <td>{item.margin}%</td>
                     <td>
-                      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                        <button onClick={() => handleEdit(item)} style={{ background: '#e0f2fe', color: '#0369a1', border: 'none', padding: '6px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 800, cursor: 'pointer' }}>{text.table.editBtn}</button>
+                      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center' }}>
+                        <button onClick={() => handleEdit(item)} style={{ background: '#e0f2fe', color: '#0369a1', border: 'none', padding: '6px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 800, cursor: pointer }}>{text.table.editBtn}</button>
                         <button onClick={() => handleDelete(item.id)} style={{ background: '#fee2e2', color: '#991b1b', border: 'none', padding: '6px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 800, cursor: 'pointer' }}>{text.table.delBtn}</button>
                       </div>
                     </td>
@@ -555,10 +549,10 @@ export default function ProfitCalculatorSA() {
               <tfoot>
                 <tr className="tfoot-row">
                   <td colSpan={2} style={{ textAlign: 'center' }}>{text.table.totalLabel}</td>
-                  <td>{totalSellingPrice.toFixed(2)} {text.currency}</td>
-                  <td>{totalCostsValue.toFixed(2)} {text.currency}</td>
-                  <td style={{ color: totalNetProfitValue > 0 ? '#047857' : '#dc2626' }}>{totalNetProfitValue.toFixed(2)} {text.currency}</td>
-                  <td style={{ color: overallMargin > 0 ? '#047857' : '#dc2626' }}>{overallMargin.toFixed(1)}%</td>
+                  <td>{totalSellingPrice.toFixed(3)} {text.currency}</td>
+                  <td>{totalCostsValue.toFixed(3)} {text.currency}</td>
+                  <td style={{ color: totalNetProfitValue > 0 ? '#0284c7' : '#dc2626' }}>{totalNetProfitValue.toFixed(3)} {text.currency}</td>
+                  <td style={{ color: overallMargin > 0 ? '#0284c7' : '#dc2626' }}>{overallMargin.toFixed(1)}%</td>
                   <td></td>
                 </tr>
               </tfoot>
