@@ -17,7 +17,7 @@ interface DiscountItem {
   createdAt?: string;
 }
 
-export default function DiscountCalculatorSA() {
+export default function DiscountCalculatorKW() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
 
   const [offerName, setOfferName] = useState<string>('');
@@ -50,7 +50,7 @@ export default function DiscountCalculatorSA() {
       setCustomOfferType('خصم نسبة مئوية (%)');
     }
 
-    const saved = localStorage.getItem('seerk_discount_calculator_items');
+    const saved = localStorage.getItem('seerk_kw_discount_calculator_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
@@ -58,14 +58,14 @@ export default function DiscountCalculatorSA() {
 
   const saveToLocalStorage = (newItems: DiscountItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_discount_calculator_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_kw_discount_calculator_items', JSON.stringify(newItems));
   };
 
   const t = {
     ar: {
       back: '← عودة للمنصة',
       title: 'حاسبة جدوى أكواد الخصم والعروض 🎟️',
-      desc: 'تأكد من أن عروضك الترويجية (مثل 1+1 أو الشحن المجاني) لا تسبب لك خسائر مالية مخفية في السوق السعودي',
+      desc: 'تأكد من أن عروضك الترويجية (مثل 1+1 أو الشحن المجاني) لا تسبب لك خسائر مالية مخفية في السوق الكويتي',
       editRecord: 'تعديل السجل',
       newRecord: 'حساب جدوى عرض أو كود جديد',
       clear: '🧹 مسح الحقول',
@@ -74,14 +74,14 @@ export default function DiscountCalculatorSA() {
       offerNamePH: 'مثال: كود خصم (SAVE20)',
       typeLabel: 'نوع العرض أو الخصم',
       optPct: 'خصم نسبة مئوية (%) 📉',
-      optFixed: 'خصم مبلغ ثابت (ر.س) 💵',
+      optFixed: 'خصم مبلغ ثابت (د.ك) 💵',
       optBogo: 'عرض 1+1 مجاناً 🎁',
       optCustom: '➕ نوع آخر (كتابة يدوية)',
       customPH: 'اكتب نوع العرض هنا...',
       origPriceLabel: 'سعر البيع الأصلي',
       costLabel: 'تكلفة المنتج الأساسية',
       discValLabel: 'قيمة الخصم',
-      currency: 'ر.س',
+      currency: 'د.ك',
       saveBtnNew: '+ حفظ حساب الجدوى في السجل',
       saveBtnEdit: '💾 حفظ التعديلات',
       resultsTitle: 'تحليل جدوى العرض الفوري',
@@ -120,7 +120,7 @@ export default function DiscountCalculatorSA() {
     en: {
       back: '→ Back to Hub',
       title: 'Discount & Promo Code ROI Calculator 🎟️',
-      desc: 'Ensure your promotional offers (BOGO or free shipping) do not cause hidden financial losses in Saudi Arabia',
+      desc: 'Ensure your promotional offers (BOGO or free shipping) do not cause hidden financial losses in Kuwait',
       editRecord: 'Edit Record',
       newRecord: 'Calculate New Offer Feasibility',
       clear: '🧹 Clear Fields',
@@ -129,14 +129,14 @@ export default function DiscountCalculatorSA() {
       offerNamePH: 'e.g. Discount Code (SAVE20)',
       typeLabel: 'Offer or Discount Type',
       optPct: 'Percentage Discount (%) 📉',
-      optFixed: 'Fixed Amount Discount (SAR) 💵',
+      optFixed: 'Fixed Amount Discount (KWD) 💵',
       optBogo: 'BOGO Offer (Buy 1 Get 1) 🎁',
       optCustom: '➕ Other Offer (Custom)',
       customPH: 'Type offer type here...',
       origPriceLabel: 'Original Selling Price',
       costLabel: 'Original Product Cost',
       discValLabel: 'Discount Value',
-      currency: 'SAR',
+      currency: 'KWD',
       saveBtnNew: '+ Save Feasibility to Log',
       saveBtnEdit: '💾 Save Changes',
       resultsTitle: 'Instant Offer Feasibility Analysis',
@@ -211,8 +211,8 @@ export default function DiscountCalculatorSA() {
     setOfferName(lang === 'ar' ? 'كود خصم (SAVE20)' : 'Discount Code (SAVE20)');
     setTypeSelect(lang === 'ar' ? 'خصم نسبة مئوية (%)' : 'Percentage Discount (%)');
     setCustomOfferType(lang === 'ar' ? 'خصم نسبة مئوية (%)' : 'Percentage Discount (%)');
-    setOriginalPrice(200);
-    setProductCost(80);
+    setOriginalPrice(20);
+    setProductCost(8);
     setDiscountValue(20);
     setEditingId(null);
   };
@@ -231,7 +231,7 @@ export default function DiscountCalculatorSA() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const localeStr = lang === 'ar' ? 'ar-SA' : 'en-US';
+    const localeStr = lang === 'ar' ? 'ar-KW' : 'en-KW';
     const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
 
     if (editingId) {
@@ -242,8 +242,8 @@ export default function DiscountCalculatorSA() {
         originalPrice: origPrice,
         productCost: cost,
         discountValue: disc,
-        finalSellingPrice: Number(finalSellingPrice.toFixed(2)),
-        netProfitAfterOffer: Number(netProfitAfterOffer.toFixed(2)),
+        finalSellingPrice: Number(finalSellingPrice.toFixed(3)),
+        netProfitAfterOffer: Number(netProfitAfterOffer.toFixed(3)),
         profitMarginPercent: Number(profitMarginPercent.toFixed(2)),
         isProfitable,
         createdAt: item.createdAt || formattedDate
@@ -259,8 +259,8 @@ export default function DiscountCalculatorSA() {
         originalPrice: origPrice,
         productCost: cost,
         discountValue: disc,
-        finalSellingPrice: Number(finalSellingPrice.toFixed(2)),
-        netProfitAfterOffer: Number(netProfitAfterOffer.toFixed(2)),
+        finalSellingPrice: Number(finalSellingPrice.toFixed(3)),
+        netProfitAfterOffer: Number(netProfitAfterOffer.toFixed(3)),
         profitMarginPercent: Number(profitMarginPercent.toFixed(2)),
         isProfitable,
         createdAt: formattedDate
@@ -275,8 +275,8 @@ export default function DiscountCalculatorSA() {
   const handleEdit = (item: DiscountItem) => {
     setOfferName(item.offerName);
     const standardTypes = [
-      'خصم نسبة مئوية (%)', 'خصم مبلغ ثابت (ر.س)', 'عرض 1+1 مجاناً',
-      'Percentage Discount (%)', 'Fixed Amount Discount (SAR)', 'BOGO Offer (Buy 1 Get 1)'
+      'خصم نسبة مئوية (%)', 'خصم مبلغ ثابت (د.ك)', 'عرض 1+1 مجاناً',
+      'Percentage Discount (%)', 'Fixed Amount Discount (KWD)', 'BOGO Offer (Buy 1 Get 1)'
     ];
     if (standardTypes.includes(item.offerType)) {
       setTypeSelect(item.offerType);
@@ -318,7 +318,7 @@ export default function DiscountCalculatorSA() {
           </style>
         </head>
         <body>
-          <h2>Discount ROI Calculator Report</h2>
+          <h2>Discount ROI Calculator Report (KW)</h2>
           <table>
             <thead>
               <tr>
@@ -359,7 +359,7 @@ export default function DiscountCalculatorSA() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", "enjazya_sa_discount_calculator.xls");
+    link.setAttribute("download", "enjazya_kw_discount_calculator.xls");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -391,7 +391,7 @@ export default function DiscountCalculatorSA() {
   return (
     <div className="tool-container" style={{ direction: lang === 'ar' ? 'rtl' : 'ltr' }}>
       <style jsx global>{`
-        body { background-color: #f8fafc; margin: 0; font-family: ${lang === 'ar' ? "'Tajawal', sans-serif" : "'Inter', sans-serif"}; }
+        body { background-color: #f1f5f9; margin: 0; font-family: ${lang === 'ar' ? "'Tajawal', sans-serif" : "'Inter', sans-serif"}; }
         a { text-decoration: none; }
       `}</style>
       <style jsx>{`
@@ -399,8 +399,8 @@ export default function DiscountCalculatorSA() {
         @media(max-width: 768px) { .tool-container { padding: 10px; margin: 10px auto; } }
         
         .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .back-btn { background: #ffffff; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 8px; color: #475569; font-weight: 700; font-size: 14px; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
-        .back-btn:hover { background: #f1f5f9; color: #0f172a; }
+        .back-btn { background: #ffffff; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 10px; color: #475569; font-weight: 700; font-size: 14px; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
+        .back-btn:hover { background: #f8fafc; color: #0f172a; border-color: #0284c7; }
         
         .title-box h1 { font-size: 24px; font-weight: 900; color: #0f172a; margin: 0 0 5px 0; }
         .title-box p { color: #64748b; margin: 0; font-size: 14px; }
@@ -408,10 +408,10 @@ export default function DiscountCalculatorSA() {
         .grid-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 40px; }
         @media(max-width: 850px) { .grid-layout { grid-template-columns: 1fr; } }
         
-        .card { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
+        .card { background: #ffffff; border-radius: 20px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
         .card-title { font-size: 18px; font-weight: 800; color: #1e293b; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         
-        .clear-form-btn { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; display: flex; align-items: center; gap: 5px; }
+        .clear-form-btn { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 5px 12px; border-radius: 8px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; display: flex; align-items: center; gap: 5px; }
         .clear-form-btn:hover { background: #fecaca; }
 
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
@@ -420,39 +420,42 @@ export default function DiscountCalculatorSA() {
         .input-group { margin-bottom: 15px; width: 100%; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .input-group label { display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 6px; }
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
-        .input-wrapper input, .input-wrapper select { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .input-wrapper input, .input-wrapper select { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; transition: all 0.2s; }
         .input-wrapper input.with-currency { padding-${lang === 'ar' ? 'left' : 'right'}: 45px; }
-        .input-wrapper input:focus, .input-wrapper select:focus { border-color: #047857; background: #ffffff; }
+        .input-wrapper input:focus, .input-wrapper select:focus { border-color: #0284c7; background: #ffffff; box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15); }
         .currency-tag { position: absolute; ${lang === 'ar' ? 'left: 14px;' : 'right: 14px;'} color: #64748b; font-weight: 800; font-size: 13px; pointer-events: none; }
         
-        .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
-        .action-btn:hover { background: #065f46; }
+        .action-btn { background: #0284c7; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 10px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
+        .action-btn:hover { background: #0369a1; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(2, 132, 199, 0.2); }
 
         .result-box { background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .result-box.primary { background: linear-gradient(135deg, #d97706 0%, #b45309 100%); color: #fff; border: none; padding: 20px; }
+        .result-box.primary { background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: #fff; border: none; padding: 20px; box-shadow: 0 4px 15px rgba(2, 132, 199, 0.2); }
         .result-label { font-size: 13px; font-weight: 700; color: #64748b; }
         .primary .result-label { color: #ffffff; opacity: 0.9; }
         .result-value { font-size: 18px; font-weight: 900; color: #0f172a; direction: ltr; }
         .primary .result-value { font-size: 24px; color: #ffffff; direction: ltr; }
 
-        .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .table-section { background: #ffffff; border-radius: 20px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.03); text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
-        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 10px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; transition: all 0.2s; }
+        .search-input:focus { border-color: #0284c7; box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15); }
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
-        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; }
-        .t-btn:hover { background: #f1f5f9; }
+        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .t-btn:hover { background: #f1f5f9; color: #0284c7; border-color: #0284c7; }
 
-        .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
+        .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; border-radius: 12px; border: 1px solid #e2e8f0; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 900px; }
         .data-table th { background: #f8fafc; padding: 12px; text-align: ${lang === 'ar' ? 'right' : 'left'}; border-bottom: 2px solid #cbd5e1; font-weight: 800; color: #334155; white-space: nowrap; }
         .data-table td { padding: 12px; border-bottom: 1px solid #e2e8f0; color: #0f172a; font-weight: 600; vertical-align: middle; }
         .data-table tfoot td { background: #f1f5f9; font-weight: 900; color: #0f172a; border-top: 2px solid #cbd5e1; }
         
-        .trial-badge { background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 800; }
+        .trial-badge { background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: 800; }
         
-        .tb-action-btn { border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; font-family: inherit;}
+        .tb-action-btn { border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; font-family: inherit; transition: all 0.2s; }
         .btn-edit { background: #e0f2fe; color: #0369a1; }
+        .btn-edit:hover { background: #bae6fd; }
         .btn-delete { background: #fee2e2; color: #991b1b; }
+        .btn-delete:hover { background: #fca5a5; }
       `}</style>
 
       <div className="header">
@@ -460,7 +463,7 @@ export default function DiscountCalculatorSA() {
           <h1>{text.title}</h1>
           <p>{text.desc}</p>
         </div>
-        <Link href="/hub/sa" className="back-btn">
+        <Link href="/hub/kw" className="back-btn">
           {text.back}
         </Link>
       </div>
@@ -490,7 +493,7 @@ export default function DiscountCalculatorSA() {
                 <div className="input-wrapper" style={{ marginBottom: '8px' }}>
                   <select value={typeSelect} onChange={handleSelectChange}>
                     <option value={lang === 'ar' ? 'خصم نسبة مئوية (%)' : 'Percentage Discount (%)'}>{text.optPct}</option>
-                    <option value={lang === 'ar' ? 'خصم مبلغ ثابت (ر.س)' : 'Fixed Amount Discount (SAR)'}>{text.optFixed}</option>
+                    <option value={lang === 'ar' ? 'خصم مبلغ ثابت (د.ك)' : 'Fixed Amount Discount (KWD)'}>{text.optFixed}</option>
                     <option value={lang === 'ar' ? 'عرض 1+1 مجاناً' : 'BOGO Offer (Buy 1 Get 1)'}>{text.optBogo}</option>
                     <option value={lang === 'ar' ? 'نوع آخر (كتابة يدوية)' : 'Other Offer (Custom)'}>{text.optCustom}</option>
                   </select>
@@ -514,14 +517,14 @@ export default function DiscountCalculatorSA() {
               <div className="input-group">
                 <label>{text.origPriceLabel} ({text.currency})</label>
                 <div className="input-wrapper">
-                  <input className="with-currency" type="number" step="0.01" min="0" value={originalPrice === '' ? '' : originalPrice} onChange={(e) => setOriginalPrice(e.target.value === '' ? '' : Number(e.target.value))} placeholder="200" required />
+                  <input className="with-currency" type="number" step="0.001" min="0" value={originalPrice === '' ? '' : originalPrice} onChange={(e) => setOriginalPrice(e.target.value === '' ? '' : Number(e.target.value))} placeholder="20" required />
                   <span className="currency-tag">{text.currency}</span>
                 </div>
               </div>
               <div className="input-group">
                 <label>{text.costLabel} ({text.currency})</label>
                 <div className="input-wrapper">
-                  <input className="with-currency" type="number" step="0.01" min="0" value={productCost === '' ? '' : productCost} onChange={(e) => setProductCost(e.target.value === '' ? '' : Number(e.target.value))} placeholder="80" required />
+                  <input className="with-currency" type="number" step="0.001" min="0" value={productCost === '' ? '' : productCost} onChange={(e) => setProductCost(e.target.value === '' ? '' : Number(e.target.value))} placeholder="8" required />
                   <span className="currency-tag">{text.currency}</span>
                 </div>
               </div>
@@ -531,7 +534,7 @@ export default function DiscountCalculatorSA() {
               <div className="input-group">
                 <label>{typeSelect.includes('مبلغ ثابت') || typeSelect.includes('Fixed') ? `${text.discValLabel} (${text.currency})` : `${text.discValLabel} (%)`}</label>
                 <div className="input-wrapper">
-                  <input type="number" step="0.01" min="0" value={discountValue === '' ? '' : discountValue} onChange={(e) => setDiscountValue(e.target.value === '' ? '' : Number(e.target.value))} placeholder="20" required />
+                  <input type="number" step="0.001" min="0" value={discountValue === '' ? '' : discountValue} onChange={(e) => setDiscountValue(e.target.value === '' ? '' : Number(e.target.value))} placeholder="20" required />
                 </div>
               </div>
             )}
@@ -551,18 +554,18 @@ export default function DiscountCalculatorSA() {
               <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '2px' }}>{text.netProfitSub}</div>
             </div>
             <div className="result-value">
-              {netProfitAfterOffer.toFixed(2)} {text.currency}
+              {netProfitAfterOffer.toFixed(3)} {text.currency}
             </div>
           </div>
 
-          <div className="result-box" style={{ borderRight: lang === 'ar' ? '4px solid #0369a1' : 'none', borderLeft: lang === 'en' ? '4px solid #0369a1' : 'none' }}>
+          <div className="result-box" style={{ borderRight: lang === 'ar' ? '4px solid #0284c7' : 'none', borderLeft: lang === 'en' ? '4px solid #0284c7' : 'none' }}>
             <span className="result-label">{text.finalPriceLabel}</span>
-            <span className="result-value" style={{ color: '#0369a1' }}>{finalSellingPrice.toFixed(2)} {text.currency}</span>
+            <span className="result-value" style={{ color: '#0284c7' }}>{finalSellingPrice.toFixed(3)} {text.currency}</span>
           </div>
 
           <div className="result-box" style={{ background: '#f8fafc' }}>
             <span className="result-label">{text.statusLabel}</span>
-            <span className="result-value" style={{ color: isProfitable ? '#047857' : '#dc2626' }}>
+            <span className="result-value" style={{ color: isProfitable ? '#0284c7' : '#dc2626' }}>
               {isProfitable ? text.profStatus : text.lossStatus}
             </span>
           </div>
@@ -614,19 +617,19 @@ export default function DiscountCalculatorSA() {
                       <div style={{ fontWeight: 900, color: '#0f172a' }}>{item.offerName}</div>
                       {item.createdAt && <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', fontWeight: 600 }}>🕒 {item.createdAt}</div>}
                     </td>
-                    <td><span style={{ fontWeight: 800, color: '#d97706' }}>{item.offerType}</span></td>
-                    <td>{item.originalPrice} {text.currency} <span style={{ color: '#64748b', fontSize: '12px' }}>(Cost: {item.productCost})</span></td>
-                    <td style={{ fontWeight: 800 }}>{item.finalSellingPrice} {text.currency}</td>
-                    <td style={{ fontWeight: 900, color: item.netProfitAfterOffer > 0 ? '#047857' : '#dc2626' }}>
-                      {item.netProfitAfterOffer} {text.currency}
+                    <td><span style={{ fontWeight: 800, color: '#0284c7' }}>{item.offerType}</span></td>
+                    <td>{item.originalPrice.toFixed(3)} {text.currency} <span style={{ color: '#64748b', fontSize: '12px' }}>(Cost: {item.productCost.toFixed(3)})</span></td>
+                    <td style={{ fontWeight: 800 }}>{item.finalSellingPrice.toFixed(3)} {text.currency}</td>
+                    <td style={{ fontWeight: 900, color: item.netProfitAfterOffer > 0 ? '#0284c7' : '#dc2626' }}>
+                      {item.netProfitAfterOffer.toFixed(3)} {text.currency}
                     </td>
                     <td>
-                      <span style={{ color: item.isProfitable ? '#047857' : '#dc2626', background: item.isProfitable ? '#d1fae5' : '#fee2e2', padding: '4px 8px', borderRadius: '6px', fontSize: '12px', fontWeight: 800 }}>
+                      <span style={{ color: item.isProfitable ? '#0284c7' : '#dc2626', background: item.isProfitable ? '#e0f2fe' : '#fee2e2', padding: '4px 8px', borderRadius: '6px', fontSize: '12px', fontWeight: 800 }}>
                         {item.isProfitable ? (lang === 'ar' ? 'مربح ✅' : 'Profitable ✅') : (lang === 'ar' ? 'خسارة ⚠️' : 'Loss ⚠️')}
                       </span>
                     </td>
                     <td>
-                      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', justifyContent: 'center' }}>
                         <button className="tb-action-btn btn-edit" onClick={() => handleEdit(item)} title="Edit">✏️</button>
                         <button className="tb-action-btn btn-delete" onClick={() => handleDelete(item.id)} title="Delete">❌</button>
                       </div>
@@ -639,7 +642,7 @@ export default function DiscountCalculatorSA() {
               <tfoot>
                 <tr className="tfoot-row">
                   <td colSpan={5} style={{ textAlign: 'center' }}>{text.table.totalLabel}</td>
-                  <td colSpan={3} style={{ color: '#047857' }}>{totalProfitSum.toFixed(2)} {text.currency}</td>
+                  <td colSpan={3} style={{ color: '#0284c7' }}>{totalProfitSum.toFixed(3)} {text.currency}</td>
                 </tr>
               </tfoot>
             )}
