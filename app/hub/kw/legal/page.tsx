@@ -14,7 +14,7 @@ interface PolicyItem {
   createdAt?: string;
 }
 
-export default function PoliciesGeneratorSA() {
+export default function PoliciesGeneratorKW() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
 
   const [storeName, setStoreName] = useState<string>('');
@@ -22,7 +22,7 @@ export default function PoliciesGeneratorSA() {
   const [customPolicyType, setCustomPolicyType] = useState<string>('سياسة الاستبدال والاسترجاع');
   const [supportEmail, setSupportEmail] = useState<string>('');
   const [supportPhone, setSupportPhone] = useState<string>('');
-  const [returnDays, setReturnDays] = useState<number | ''>(7);
+  const [returnDays, setReturnDays] = useState<number | ''>(14);
   const [policyContent, setPolicyContent] = useState<string>('');
 
   const [items, setItems] = useState<PolicyItem[]>([]);
@@ -48,7 +48,7 @@ export default function PoliciesGeneratorSA() {
       setCustomPolicyType('سياسة الاستبدال والاسترجاع');
     }
 
-    const saved = localStorage.getItem('seerk_policies_generator_items');
+    const saved = localStorage.getItem('seerk_kw_policies_generator_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
@@ -60,14 +60,14 @@ export default function PoliciesGeneratorSA() {
   const t = {
     ar: {
       back: '← عودة للمنصة',
-      title: 'مولد السياسات وقوانين وزارة التجارة ⚖️',
-      desc: 'أنشئ صفحات الاستبدال والاسترجاع، سياسة الخصوصية، أو أي سياسة أخرى مخصصة لمتجرك متوافقة مع القوانين المحلية في السعودية',
+      title: 'مولد السياسات (حماية المستهلك الكويتي) ⚖️',
+      desc: 'أنشئ صفحات الاستبدال والاسترجاع، سياسة الخصوصية، أو أي سياسة أخرى لمتجرك متوافقة مع قوانين حماية المستهلك في دولة الكويت',
       editRecord: 'تعديل السياسة',
       newRecord: 'توليد سياسة جديدة',
       clear: '🧹 مسح الحقول',
       trial: 'تجريبي',
       storeLabel: 'اسم المتجر',
-      storePH: 'مثال: متجر سديم',
+      storePH: 'مثال: متجر الكويت الأنيق',
       policyTypeLabel: 'نوع السياسة المطلوبة',
       optReturn: 'سياسة الاستبدال والاسترجاع 🔄',
       optPrivacy: 'سياسة الخصوصية 🔒',
@@ -109,14 +109,14 @@ export default function PoliciesGeneratorSA() {
     },
     en: {
       back: '→ Back to Hub',
-      title: 'Store Policies Generator (Ministry of Commerce) ⚖️',
-      desc: 'Generate return policies, privacy terms, or custom store policies compliant with local Saudi regulations',
+      title: 'Store Policies Generator (Consumer Protection) ⚖️',
+      desc: 'Generate return policies, privacy terms, or custom store policies compliant with local regulations in Kuwait',
       editRecord: 'Edit Policy',
       newRecord: 'Generate New Policy',
       clear: '🧹 Clear Fields',
       trial: 'Trial',
       storeLabel: 'Store Name',
-      storePH: 'e.g. Sadeem Store',
+      storePH: 'e.g. Elegant Kuwait Store',
       policyTypeLabel: 'Required Policy Type',
       optReturn: 'Return & Exchange Policy 🔄',
       optPrivacy: 'Privacy Policy 🔒',
@@ -165,38 +165,40 @@ export default function PoliciesGeneratorSA() {
   useEffect(() => {
     const currentStore = storeName.trim() || (lang === 'ar' ? 'المتجر' : 'Store');
     const currentEmail = supportEmail.trim() || 'support@yourstore.com';
-    const currentPhone = supportPhone.trim() || '9665XXXXXXXX';
+    const currentPhone = supportPhone.trim() || '965XXXXXXXX';
 
     if (lang === 'ar') {
       if (policySelect === 'سياسة الاستبدال والاسترجاع') {
         setPolicyContent(
-          `أهلاً بكم في ${currentStore}. حرصاً منا على خدمتكم بأفضل شكل، فإن سياسة الاستبدال والاسترجاع تخضع للشروط والضوابط التالية:\n\n` +
-          `1. مدة الاستبدال والاسترجاع هي خلال (${returnDays || 7}) أيام من تاريخ استلاستلام الطلب.\n` +
-          `2. يجب أن يكون المنتج بحالته الأصلية، وفي غلافه الأصلي، ولم يتم فتحه أو استخدامُه، مع إرفاق فاتورة الشراء.\n` +
-          `3. تتحمل تكاليف الشحن العكسي في حال كان الاسترجاع بسبب رغبة العميل، بينما يتحمل المتجر التكاليف في حال وجود عيب مصنعي أو خطأ في الطلب.\n` +
-          `4. للاستفسار أو تقديم طلب استرجاع، يرجى التواصل معنا عبر البريد: ${currentEmail} أو الواتساب: ${currentPhone}.`
+          `أهلاً بكم في ${currentStore}. حرصاً منا على خدمتكم وتطبيقاً لقوانين حماية المستهلك في دولة الكويت، فإن سياسة الاستبدال والاسترجاع تخضع للشروط والضوابط التالية:\n\n` +
+          `1. يحق للمستهلك الاستبدال أو الاسترجاع خلال (${returnDays || 14}) يوماً من تاريخ استلام الطلب.\n` +
+          `2. يجب أن يكون المنتج بحالته الأصلية، وفي غلافه الأصلي، ولم يتم فتحه أو استخدامه، مع إرفاق فاتورة الشراء الأصلية.\n` +
+          `3. يتحمل العميل تكاليف الشحن والتوصيل في حال كان الاسترجاع بناءً على رغبته، بينما يتحمل المتجر التكاليف في حال وجود عيب مصنعي أو اختلاف في المواصفات.\n` +
+          `4. السلع التي لا تشملها سياسة الاسترجاع: (المنتجات التي تُصنع بناءً على طلب المستهلك، الملابس الداخلية، العطور المفتوحة، ومستحضرات التجميل).\n` +
+          `5. للاستفسار أو تقديم طلب استرجاع، يرجى التواصل معنا عبر البريد: ${currentEmail} أو الواتساب: ${currentPhone}.`
         );
       } else if (policySelect === 'سياسة الخصوصية') {
         setPolicyContent(
           `في ${currentStore}، نلتزم بحماية خصوصية بياناتكم الشخصية. توضح هذه السياسة كيف نقوم بجمع واستخدام وحماية معلوماتكم:\n\n` +
-          `1. البيانات التي نجمعها: الاسم، رقم الجوال، عنوان الشحن، البريد الإلكتروني لتنفيذ طلباتكم فقط.\n` +
+          `1. البيانات التي نجمعها: الاسم، رقم الجوال، عنوان الشحن، والبريد الإلكتروني لتنفيذ طلباتكم فقط ولأغراض التوصيل داخل الكويت.\n` +
           `2. حماية البيانات: نستخدم أحدث أساليب التشفير والأمان لضمان عدم تسريب أي معلومة.\n` +
-          `3. لا نقوم نهائياً ببيع أو مشاركة بياناتك مع أي طرف ثالث لأغراض تسويقية.\n` +
+          `3. لا نقوم نهائياً ببيع أو مشاركة بياناتك مع أي طرف ثالث لأغراض تسويقية دون موافقة مسبقة.\n` +
           `4. لأي استفسار بخصوص الخصوصية، يرجى التواصل معنا على: ${currentEmail}.`
         );
       } else if (policySelect === 'الشروط والأحكام') {
         setPolicyContent(
           `الشروط والأحكام الخاصة بـ ${currentStore}:\n\n` +
           `1. استخدامك للمتجر يعني موافقتك التامة على كافة الشروط والسياسات المعلنة.\n` +
-          `2. الأسعار معروضة بالريال السعودي شاملة ضريبة القيمة المضافة (15%).\n` +
+          `2. كافة الأسعار معروضة بالدينار الكويتي (د.ك).\n` +
           `3. يحق للمتجر إلغاء الطلب في حال نفاد الكمية أو عدم إتمام عملية الدفع خلال المدة المحددة، مع إرجاع المبلغ كاملاً للعميل.\n` +
-          `4. للتواصل والدعم الفني: ${currentEmail} - هاتف: ${currentPhone}.`
+          `4. تخضع هذه الشروط والأحكام للقوانين والتشريعات المعمول بها في دولة الكويت.\n` +
+          `5. للتواصل والدعم الفني: ${currentEmail} - هاتف/واتساب: ${currentPhone}.`
         );
       } else {
         if (!editingId || !policyContent) {
           setPolicyContent(
             `نص ${customPolicyType || 'السياسة'} الخاص بـ ${currentStore}:\n\n` +
-            `1. يلتزم المتجر بتقديم أفضل الخدمات وفقاً لهذه السياسة.\n` +
+            `1. يلتزم المتجر بتقديم أفضل الخدمات وفقاً لهذه السياسة وللقوانين المعمول بها في الكويت.\n` +
             `2. لأي استفسارات أو تفاصيل إضافية، يرجى التواصل معنا عبر البريد: ${currentEmail} أو عبر الواتساب: ${currentPhone}.`
           );
         }
@@ -204,16 +206,17 @@ export default function PoliciesGeneratorSA() {
     } else {
       if (policySelect.includes('Return') || policySelect.includes('الاستبدال')) {
         setPolicyContent(
-          `Welcome to ${currentStore}. To provide you with the best service, our return and exchange policy is subject to the following terms:\n\n` +
-          `1. The return and exchange period is within (${returnDays || 7}) days from the date of receiving the order.\n` +
+          `Welcome to ${currentStore}. In compliance with Consumer Protection Laws in Kuwait, our return and exchange policy is subject to the following terms:\n\n` +
+          `1. The return and exchange period is within (${returnDays || 14}) days from the date of receiving the order.\n` +
           `2. The product must be in its original condition, in its original packaging, unopened or unused, with the purchase invoice attached.\n` +
-          `3. Return shipping costs are borne by the customer unless due to a manufacturing defect or wrong order.\n` +
-          `4. For inquiries or return requests, contact us via email: ${currentEmail} or WhatsApp: ${currentPhone}.`
+          `3. Return shipping costs are borne by the customer unless due to a manufacturing defect or wrong item delivered.\n` +
+          `4. Non-returnable items include: Customized products, underwear, opened perfumes, and cosmetics.\n` +
+          `5. For inquiries or return requests, contact us via email: ${currentEmail} or WhatsApp: ${currentPhone}.`
         );
       } else if (policySelect.includes('Privacy') || policySelect.includes('الخصوصية')) {
         setPolicyContent(
           `At ${currentStore}, we are committed to protecting your personal data privacy. This policy explains how we collect and protect your information:\n\n` +
-          `1. Data collected: Name, mobile number, shipping address, and email strictly for fulfilling your orders.\n` +
+          `1. Data collected: Name, mobile number, Kuwait shipping address, and email strictly for fulfilling your orders.\n` +
           `2. Data protection: We use advanced encryption and security methods.\n` +
           `3. We never sell or share your data with third parties for marketing purposes.\n` +
           `4. For privacy inquiries, contact us at: ${currentEmail}.`
@@ -222,15 +225,16 @@ export default function PoliciesGeneratorSA() {
         setPolicyContent(
           `Terms and Conditions of ${currentStore}:\n\n` +
           `1. Using the store implies your full agreement to all announced terms and policies.\n` +
-          `2. Prices are displayed in Saudi Riyals including 15% VAT.\n` +
+          `2. All prices are displayed in Kuwaiti Dinars (KWD).\n` +
           `3. The store reserves the right to cancel orders in case of stockouts or failed payments, issuing a full refund.\n` +
-          `4. For support: ${currentEmail} - Phone: ${currentPhone}.`
+          `4. These terms are governed by the laws of the State of Kuwait.\n` +
+          `5. For support: ${currentEmail} - Phone: ${currentPhone}.`
         );
       } else {
         if (!editingId || !policyContent) {
           setPolicyContent(
             `${customPolicyType || 'Policy'} text for ${currentStore}:\n\n` +
-            `1. The store is committed to providing best services according to this policy.\n` +
+            `1. The store is committed to providing the best services according to this policy.\n` +
             `2. For inquiries, contact us via email: ${currentEmail} or WhatsApp: ${currentPhone}.`
           );
         }
@@ -240,10 +244,10 @@ export default function PoliciesGeneratorSA() {
 
   const saveToLocalStorage = (newItems: PolicyItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_policies_generator_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_kw_policies_generator_items', JSON.stringify(newItems));
   };
 
-  const days = typeof returnDays === 'number' ? returnDays : 7;
+  const days = typeof returnDays === 'number' ? returnDays : 14;
 
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const val = e.target.value;
@@ -261,7 +265,7 @@ export default function PoliciesGeneratorSA() {
     setCustomPolicyType(lang === 'ar' ? 'سياسة الاستبدال والاسترجاع' : 'Return & Exchange Policy');
     setSupportEmail('');
     setSupportPhone('');
-    setReturnDays(7);
+    setReturnDays(14);
     setEditingId(null);
   };
 
@@ -279,7 +283,7 @@ export default function PoliciesGeneratorSA() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const localeStr = lang === 'ar' ? 'ar-SA' : 'en-US';
+    const localeStr = lang === 'ar' ? 'ar-KW' : 'en-KW';
     const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
 
     if (editingId) {
@@ -364,7 +368,7 @@ export default function PoliciesGeneratorSA() {
           </style>
         </head>
         <body>
-          <h2>Policies Generator Report</h2>
+          <h2>Policies Generator Report (KW)</h2>
           <table>
             <thead>
               <tr>
@@ -399,7 +403,7 @@ export default function PoliciesGeneratorSA() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", "enjazya_sa_policies.xls");
+    link.setAttribute("download", "enjazya_kw_policies.xls");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -431,7 +435,7 @@ export default function PoliciesGeneratorSA() {
   return (
     <div className="tool-container" style={{ direction: lang === 'ar' ? 'rtl' : 'ltr' }}>
       <style jsx global>{`
-        body { background-color: #f8fafc; margin: 0; font-family: ${lang === 'ar' ? "'Tajawal', sans-serif" : "'Inter', sans-serif"}; }
+        body { background-color: #f1f5f9; margin: 0; font-family: ${lang === 'ar' ? "'Tajawal', sans-serif" : "'Inter', sans-serif"}; }
         a { text-decoration: none; }
       `}</style>
       <style jsx>{`
@@ -439,8 +443,8 @@ export default function PoliciesGeneratorSA() {
         @media(max-width: 768px) { .tool-container { padding: 10px; margin: 10px auto; } }
         
         .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .back-btn { background: #ffffff; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 8px; color: #475569; font-weight: 700; font-size: 14px; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
-        .back-btn:hover { background: #f1f5f9; color: #0f172a; }
+        .back-btn { background: #ffffff; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 10px; color: #475569; font-weight: 700; font-size: 14px; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
+        .back-btn:hover { background: #f8fafc; color: #0f172a; border-color: #0284c7; }
         
         .title-box h1 { font-size: 24px; font-weight: 900; color: #0f172a; margin: 0 0 5px 0; }
         .title-box p { color: #64748b; margin: 0; font-size: 14px; }
@@ -448,10 +452,10 @@ export default function PoliciesGeneratorSA() {
         .grid-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 40px; }
         @media(max-width: 850px) { .grid-layout { grid-template-columns: 1fr; } }
         
-        .card { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
+        .card { background: #ffffff; border-radius: 20px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
         .card-title { font-size: 18px; font-weight: 800; color: #1e293b; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         
-        .clear-form-btn { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; display: flex; align-items: center; gap: 5px; }
+        .clear-form-btn { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 5px 12px; border-radius: 8px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; display: flex; align-items: center; gap: 5px; }
         .clear-form-btn:hover { background: #fecaca; }
 
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
@@ -460,33 +464,38 @@ export default function PoliciesGeneratorSA() {
         .input-group { margin-bottom: 15px; width: 100%; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .input-group label { display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 6px; }
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
-        .input-wrapper input, .input-wrapper select, .input-wrapper textarea { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .input-wrapper input:focus, .input-wrapper select:focus, .input-wrapper textarea:focus { border-color: #047857; background: #ffffff; }
+        .input-wrapper input, .input-wrapper select, .input-wrapper textarea { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; transition: all 0.2s; }
+        .input-wrapper input:focus, .input-wrapper select:focus, .input-wrapper textarea:focus { border-color: #0284c7; background: #ffffff; box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15); }
         
-        .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
-        .action-btn:hover { background: #065f46; }
+        .action-btn { background: #0284c7; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 10px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
+        .action-btn:hover { background: #0369a1; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(2, 132, 199, 0.2); }
         
-        .copy-btn { background: #0369a1; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .copy-btn:hover { background: #0284c7; }
+        .copy-btn { background: #0f172a; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 10px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .copy-btn:hover { background: #1e293b; transform: translateY(-2px); }
 
-        .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .table-section { background: #ffffff; border-radius: 20px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.03); text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
-        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 10px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; transition: all 0.2s; }
+        .search-input:focus { border-color: #0284c7; box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15); }
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
-        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; }
-        .t-btn:hover { background: #f1f5f9; }
+        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .t-btn:hover { background: #f1f5f9; color: #0284c7; border-color: #0284c7; }
 
-        .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
+        .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; border-radius: 12px; border: 1px solid #e2e8f0; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 900px; }
         .data-table th { background: #f8fafc; padding: 12px; text-align: ${lang === 'ar' ? 'right' : 'left'}; border-bottom: 2px solid #cbd5e1; font-weight: 800; color: #334155; white-space: nowrap; }
         .data-table td { padding: 12px; border-bottom: 1px solid #e2e8f0; color: #0f172a; font-weight: 600; vertical-align: middle; }
         .data-table tfoot td { background: #f1f5f9; font-weight: 900; color: #0f172a; border-top: 2px solid #cbd5e1; }
         
-        .trial-badge { background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 800; }
+        .trial-badge { background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: 800; }
         
-        .tb-action-btn { border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; font-family: inherit;}
-        .btn-edit { background: #e0f2fe; color: #0369a1; }
+        .tb-action-btn { border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; font-family: inherit; transition: all 0.2s; }
+        .btn-wa { background: #f0f9ff; color: #0369a1; border: 1px solid #bae6fd; }
+        .btn-wa:hover { background: #e0f2fe; }
+        .btn-edit { background: #f8fafc; color: #475569; border: 1px solid #cbd5e1; }
+        .btn-edit:hover { background: #e2e8f0; }
         .btn-delete { background: #fee2e2; color: #991b1b; }
+        .btn-delete:hover { background: #fca5a5; }
       `}</style>
 
       <div className="header">
@@ -494,7 +503,7 @@ export default function PoliciesGeneratorSA() {
           <h1>{text.title}</h1>
           <p>{text.desc}</p>
         </div>
-        <Link href="/hub/sa" className="back-btn">
+        <Link href="/hub/kw" className="back-btn">
           {text.back}
         </Link>
       </div>
@@ -554,7 +563,7 @@ export default function PoliciesGeneratorSA() {
               <div className="input-group">
                 <label>{text.phoneLabel}</label>
                 <div className="input-wrapper">
-                  <input type="text" value={supportPhone} onChange={(e) => setSupportPhone(e.target.value)} placeholder="9665XXXXXXXX" required />
+                  <input type="text" value={supportPhone} onChange={(e) => setSupportPhone(e.target.value)} placeholder="965XXXXXXXX" required />
                 </div>
               </div>
             </div>
@@ -563,7 +572,7 @@ export default function PoliciesGeneratorSA() {
               <div className="input-group">
                 <label>{text.returnDaysLabel}</label>
                 <div className="input-wrapper">
-                  <input type="number" min="1" max="30" value={returnDays === '' ? '' : returnDays} onChange={(e) => setReturnDays(e.target.value === '' ? '' : Number(e.target.value))} placeholder="7" required />
+                  <input type="number" min="1" max="30" value={returnDays === '' ? '' : returnDays} onChange={(e) => setReturnDays(e.target.value === '' ? '' : Number(e.target.value))} placeholder="14" required />
                 </div>
               </div>
             )}
@@ -580,10 +589,10 @@ export default function PoliciesGeneratorSA() {
           <div className="input-group" style={{ marginBottom: 0 }}>
             <div className="input-wrapper">
               <textarea 
-                rows={10} 
+                rows={11} 
                 value={policyContent} 
                 onChange={(e) => setPolicyContent(e.target.value)} 
-                style={{ width: '100%', padding: '12px', border: '1px solid #cbd5e1', borderRadius: '8px', fontSize: '13.5px', fontFamily: 'inherit', outline: 'none', background: '#f8fafc', color: '#0f172a', resize: 'vertical', lineHeight: '1.6', textAlign: lang === 'ar' ? 'right' : 'left' }}
+                style={{ width: '100%', padding: '15px', border: '1px solid #cbd5e1', borderRadius: '10px', fontSize: '13.5px', fontFamily: 'inherit', outline: 'none', background: '#f8fafc', color: '#0f172a', resize: 'vertical', lineHeight: '1.7', textAlign: lang === 'ar' ? 'right' : 'left', transition: 'all 0.2s' }}
               ></textarea>
             </div>
           </div>
@@ -636,13 +645,13 @@ export default function PoliciesGeneratorSA() {
                       <div style={{ fontWeight: 900, color: '#0f172a' }}>{item.storeName}</div>
                       {item.createdAt && <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', fontWeight: 600 }}>🕒 {item.createdAt}</div>}
                     </td>
-                    <td><span style={{ fontWeight: 800, color: '#047857' }}>{item.policyType}</span></td>
+                    <td><span style={{ fontWeight: 800, color: '#0284c7' }}>{item.policyType}</span></td>
                     <td>
-                      <div style={{ fontSize: '12.5px', color: '#334155' }}>{item.supportEmail}</div>
+                      <div style={{ fontSize: '12.5px', color: '#334155', fontWeight: 700 }}>{item.supportEmail}</div>
                       <div style={{ fontSize: '11.5px', color: '#64748b' }}>{item.supportPhone}</div>
                     </td>
                     <td>
-                      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', justifyContent: 'center' }}>
                         <button className="tb-action-btn btn-wa" onClick={() => handleCopyText(item.policyContent)} title="Copy">{text.table.copyAction}</button>
                         <button className="tb-action-btn btn-edit" onClick={() => handleEdit(item)} title="Edit">✏️</button>
                         <button className="tb-action-btn btn-delete" onClick={() => handleDelete(item.id)} title="Delete">❌</button>
