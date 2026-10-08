@@ -273,7 +273,6 @@ export default function EnjazyaKuwaitHub() {
         .card:hover h3 { color: #0284c7; }
         .card p { color: #64748b; font-size: 14px; line-height: 1.7; font-weight: 500; margin-bottom: 26px; min-height: 50px; }
         
-        /* التعديل الجديد على زر تشغيل الأداة */
         .card-btn { background: #f0f9ff; color: #0284c7; border: 1px solid #bae6fd; text-align: center; padding: 14px; border-radius: 12px; font-weight: 800; font-size: 14px; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 8px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
         .card:hover .card-btn { background: #0284c7; color: #ffffff; border-color: #0284c7; box-shadow: 0 6px 15px rgba(2, 132, 199, 0.25); }
 
@@ -415,4 +414,38 @@ export default function EnjazyaKuwaitHub() {
         <div className="footer-content">
           <div className="footer-brand">
             <h3>{lang === 'ar' ? 'إنجازيا ' : 'Enjazya '}<span>{lang === 'ar' ? 'الكويت 🇰🇼' : 'Kuwait 🇰🇼'}</span></h3>
-            <p>{lang === 'ar' ? 'المنصة السحابية الأولى المخص
+            <p>{lang === 'ar' ? 'المنصة السحابية الأولى المخصصة لتمكين تجار التجارة الإلكترونية في دولة الكويت. أدوات دقيقة، تقارير مالية محلية، وأرباح مضاعفة.' : 'The premier cloud platform dedicated to empowering e-commerce merchants in Kuwait. Precise tools, local financial reports, and multiplied profits.'}</p>
+          </div>
+          
+          <div className="footer-links">
+            <div className="links-column">
+              <h4>{lang === 'ar' ? 'المنصة' : 'Platform'}</h4>
+              <ul>
+                <li><Link href="/hub/kw">{lang === 'ar' ? 'جميع الأدوات (24)' : 'All Tools (24)'}</Link></li>
+                <li><Link href="/updates">{lang === 'ar' ? 'التحديثات الجديدة' : 'Latest Updates'}</Link></li>
+                <li><Link href="/pricing">{lang === 'ar' ? 'أسعار الباقات' : 'Pricing Plans'}</Link></li>
+              </ul>
+            </div>
+            <div className="links-column">
+              <h4>{lang === 'ar' ? 'الدعم والمساعدة' : 'Support'}</h4>
+              <ul>
+                <li><Link href="/support/contact">{lang === 'ar' ? 'الدعم الفني' : 'Technical Support'}</Link></li>
+                <li><Link href="/faq">{lang === 'ar' ? 'الأسئلة الشائعة' : 'FAQs'}</Link></li>
+              </ul>
+            </div>
+            <div className="links-column">
+              <h4>{lang === 'ar' ? 'الأنظمة والقوانين' : 'Legal'}</h4>
+              <ul>
+                <li><Link href="/legal/terms">{lang === 'ar' ? 'شروط الاستخدام' : 'Terms of Use'}</Link></li>
+                <li><Link href="/legal/privacy">{lang === 'ar' ? 'سياسة الخصوصية' : 'Privacy Policy'}</Link></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div className="footer-bottom">
+          <p>{lang === 'ar' ? 'جميع الحقوق محفوظة © 2026 منصة إنجازيا لتمكين التجارة الإلكترونية في دولة الكويت' : 'All rights reserved © 2026 Enjazya Platform Kuwait'}</p>
+        </div>
+      </footer>
+    </div>
+  );
+}
