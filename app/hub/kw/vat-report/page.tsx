@@ -14,14 +14,14 @@ interface TaxItem {
   createdAt?: string;
 }
 
-export default function TaxReturnPreparerSA() {
+export default function TaxReturnPreparerKW() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
 
   const [invoiceDate, setInvoiceDate] = useState<string>('');
   const [invoiceNumber, setInvoiceNumber] = useState<string>('');
-  const [transactionType, setTransactionType] = useState<string>('مبيعات ↗️');
+  const [transactionType, setTransactionType] = useState<string>('مبيعات تجارية ↗️');
   const [amountBeforeVat, setAmountBeforeVat] = useState<number | ''>('');
-  const [vatAmount, setVatAmount] = useState<number | ''>('');
+  const [vatAmount, setVatAmount] = useState<number | ''>(0);
 
   const [items, setItems] = useState<TaxItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -40,12 +40,12 @@ export default function TaxReturnPreparerSA() {
     setLang(savedLang);
 
     if (savedLang === 'en') {
-      setTransactionType('Sales ↗️');
+      setTransactionType('Commercial Sales ↗️');
     } else {
-      setTransactionType('مبيعات ↗️');
+      setTransactionType('مبيعات تجارية ↗️');
     }
 
-    const saved = localStorage.getItem('seerk_tax_return_items');
+    const saved = localStorage.getItem('seerk_kw_tax_return_items');
     if (saved) {
       try { 
         const parsedData = JSON.parse(saved);
@@ -56,59 +56,55 @@ export default function TaxReturnPreparerSA() {
 
   const saveToLocalStorage = (newItems: TaxItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_tax_return_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_kw_tax_return_items', JSON.stringify(newItems));
   };
 
   const t = {
     ar: {
       back: '← عودة للمنصة',
-      title: 'مجهز بيانات الإقرار الضريبي 📄',
-      desc: 'اجمع ورتب بيانات مبيعاتك ومشترياتك لتسهيل رفع الإقرار الضريبي لزاتكا بدون أخطاء في السوق السعودي',
+      title: 'مجهز سجلات المبيعات والمشتريات 📄',
+      desc: 'اجمع ورتب بيانات مبيعاتك ومشترياتك التجارية بدقة بالدينار الكويتي في السوق الكويتي',
       editRecord: 'تعديل الفاتورة',
-      newRecord: 'إضافة فاتورة جديدة للسجل',
+      newRecord: 'إضافة معاملة جديدة للسجل',
       clear: '🧹 مسح الحقول',
       trial: 'تجريبي',
-      invDateLabel: 'تاريخ الفاتورة',
-      invNumLabel: 'رقم الفاتورة (اختياري)',
+      invDateLabel: 'تاريخ المعاملة',
+      invNumLabel: 'رقم الفاتورة أو المستند (اختياري)',
       invNumPH: 'مثال: INV-1002',
       transTypeLabel: 'نوع المعاملة',
-      optSales: 'مبيعات (ضريبة محصلة) ↗️',
-      optPurchases: 'مشتريات (ضريبة مدفوعة) ↙️',
-      amtLabel: 'المبلغ قبل الضريبة',
-      vatLabel: 'قيمة الضريبة المضافة 15% (محسوبة آلياً)',
-      vatNote: '* يمكنك تعديل الهللات يدوياً إذا اختلفت عن الفاتورة الأصلية.',
-      currency: 'ر.س',
-      saveBtnNew: '+ حفظ الفاتورة في السجل',
+      optSales: 'مبيعات تجارية ↗️',
+      optPurchases: 'مشتريات وتكاليف ↙️',
+      amtLabel: 'قيمة المعاملة الإجمالية',
+      vatNote: '* السوق الكويتي خالٍ من ضريبة القيمة المضافة الحالية، يتم تسجيل القيم الصافية.',
+      currency: 'د.ك',
+      saveBtnNew: '+ حفظ المعاملة في السجل',
       saveBtnEdit: '💾 حفظ التعديلات',
-      resultsTitle: 'مؤشرات الإقرار الضريبي الحية',
-      netVatLabel: 'صافي الضريبة المستحقة (ZATCA)',
-      netVatSubPay: 'مبلغ واجب السداد للهيئة',
-      netVatSubRefund: 'رصيد دائن مسترد لك',
-      salesVatLabel: 'إجمالي ضريبة المبيعات المحصلة',
-      purchasesVatLabel: 'إجمالي ضريبة المشتريات المدفوعة',
+      resultsTitle: 'مؤشرات الأداء المالي الحية',
+      netVatLabel: 'صافي التدفق التجاري (المبيعات - المشتريات)',
+      netVatSubPay: 'إجمالي العائد الصافي',
+      salesVatLabel: 'إجمالي المبيعات المحققة',
+      purchasesVatLabel: 'إجمالي المشتريات والتكاليف',
       searchPH: '🔍 بحث برقم الفاتورة أو النوع...',
-      exportBtn: '📥 تصدير الإقرار (Excel)',
+      exportBtn: '📥 تصدير السجل (Excel)',
       importBtn: '📂 استيراد',
       table: {
-        noRecords: 'سجل الفواتير فارغ حالياً.',
+        noRecords: 'سجل المعاملات فارغ حالياً.',
         th1: '#',
-        th2: 'الفاتورة والتاريخ',
+        th2: 'المستند والتاريخ',
         th3: 'نوع المعاملة',
-        th4: 'المبلغ (بدون ضريبة)',
-        th5: 'الضريبة (15%)',
-        th6: 'الإجمالي',
-        th7: 'الإجراءات',
+        th4: 'القيمة المالية',
+        th5: 'الإجراءات',
         editAction: '✏️',
         delAction: '❌',
         noNum: 'بدون رقم',
-        totalLabel: 'الصافي المستحق (زاتكا)'
+        totalLabel: 'صافي الربح التشغيلي الإجمالي'
       },
       alerts: {
         limit: '🔒 عذراً، لقد استهلكت الحد التجريبي (5 فواتير). يرجى ترقية حسابك لفتح السعة الكاملة!',
         fillErr: 'الرجاء التأكد من تعبئة التاريخ، نوع المعاملة، والمبلغ بشكل صحيح.',
-        updateSuccess: '✨ تم تحديث بيانات الفاتورة بنجاح!',
-        saveSuccess: '✅ تمت إضافة الفاتورة إلى سجل الإقرار الضريبي بنجاح!',
-        delConfirm: 'هل أنت متأكد من حذف هذه الفاتورة من السجل؟',
+        updateSuccess: '✨ تم تحديث بيانات المعاملة بنجاح!',
+        saveSuccess: '✅ تمت إضافة المعاملة إلى السجل بنجاح!',
+        delConfirm: 'هل أنت متأكد من حذف هذه المعاملة من السجل؟',
         noDataExp: 'لا توجد بيانات لتصديرها.',
         importSuccess: '✨ تم استيراد بيانات الفواتير بنجاح!',
         importErr: '❌ ملف غير صالح.'
@@ -116,55 +112,51 @@ export default function TaxReturnPreparerSA() {
     },
     en: {
       back: '→ Back to Hub',
-      title: 'VAT Return Preparer 📄',
-      desc: 'Collect and organize your sales and purchase data to easily file ZATCA VAT returns without errors in Saudi Arabia',
+      title: 'Sales & Purchases Log Preparer 📄',
+      desc: 'Collect and organize your commercial sales and purchase data accurately in KWD for the Kuwaiti market',
       editRecord: 'Edit Invoice',
-      newRecord: 'Add New Invoice to Log',
+      newRecord: 'Add New Transaction to Log',
       clear: '🧹 Clear Fields',
       trial: 'Trial',
-      invDateLabel: 'Invoice Date',
+      invDateLabel: 'Transaction Date',
       invNumLabel: 'Invoice Number (Optional)',
       invNumPH: 'e.g. INV-1002',
       transTypeLabel: 'Transaction Type',
-      optSales: 'Sales (Collected VAT) ↗️',
-      optPurchases: 'Purchases (Paid VAT) ↙️',
-      amtLabel: 'Amount Before VAT',
-      vatLabel: 'VAT Value 15% (Auto-calculated)',
-      vatNote: '* You can manually adjust cents if they differ from the original invoice.',
-      currency: 'SAR',
-      saveBtnNew: '+ Save Invoice to Log',
+      optSales: 'Commercial Sales ↗️',
+      optPurchases: 'Purchases & Costs ↙️',
+      amtLabel: 'Total Transaction Amount',
+      vatNote: '* Kuwait market is currently tax-free; net values are recorded.',
+      currency: 'KWD',
+      saveBtnNew: '+ Save Transaction to Log',
       saveBtnEdit: '💾 Save Changes',
-      resultsTitle: 'Live VAT Return Indicators',
-      netVatLabel: 'Net VAT Due (ZATCA)',
-      netVatSubPay: 'Amount payable to authority',
-      netVatSubRefund: 'Credit balance refundable to you',
-      salesVatLabel: 'Total Collected Sales VAT',
-      purchasesVatLabel: 'Total Paid Purchases VAT',
+      resultsTitle: 'Live Financial Indicators',
+      netVatLabel: 'Net Commercial Flow (Sales - Purchases)',
+      netVatSubPay: 'Total Net Revenue',
+      salesVatLabel: 'Total Realized Sales',
+      purchasesVatLabel: 'Total Purchases & Costs',
       searchPH: '🔍 Search by invoice number or type...',
-      exportBtn: '📥 Export Return (Excel)',
+      exportBtn: '📥 Export Log (Excel)',
       importBtn: '📂 Import',
       table: {
-        noRecords: 'Invoice log is currently empty.',
+        noRecords: 'Transaction log is currently empty.',
         th1: '#',
-        th2: 'Invoice & Date',
+        th2: 'Document & Date',
         th3: 'Transaction Type',
-        th4: 'Amount (Excl. VAT)',
-        th5: 'VAT (15%)',
-        th6: 'Grand Total',
-        th7: 'Actions',
+        th4: 'Amount',
+        th5: 'Actions',
         editAction: '✏️',
         delAction: '❌',
         noNum: 'No Number',
-        totalLabel: 'Net Due (ZATCA)'
+        totalLabel: 'Net Operating Profit'
       },
       alerts: {
         limit: '🔒 Sorry, you reached the trial limit (5 invoices). Please upgrade to unlock full capacity!',
         fillErr: 'Please ensure date, transaction type, and amount are entered correctly.',
-        updateSuccess: '✨ Invoice data updated successfully!',
-        saveSuccess: '✅ Invoice added to VAT return log successfully!',
-        delConfirm: 'Are you sure you want to delete this invoice from log?',
+        updateSuccess: '✨ Transaction data updated successfully!',
+        saveSuccess: '✅ Transaction added to log successfully!',
+        delConfirm: 'Are you sure you want to delete this transaction from log?',
         noDataExp: 'No data to export.',
-        importSuccess: '✨ Invoice data imported successfully!',
+        importSuccess: '✨ Transaction data imported successfully!',
         importErr: '❌ Invalid file.'
       }
     }
@@ -172,24 +164,12 @@ export default function TaxReturnPreparerSA() {
 
   const text = t[lang];
 
-  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    if (val === '') {
-      setAmountBeforeVat('');
-      setVatAmount('');
-    } else {
-      const numVal = Number(val);
-      setAmountBeforeVat(numVal);
-      setVatAmount(Number((numVal * 0.15).toFixed(2)));
-    }
-  };
-
   const handleClearForm = () => {
     setInvoiceDate('');
     setInvoiceNumber('');
-    setTransactionType(lang === 'ar' ? 'مبيعات ↗️' : 'Sales ↗️');
+    setTransactionType(lang === 'ar' ? 'مبيعات تجارية ↗️' : 'Commercial Sales ↗️');
     setAmountBeforeVat('');
-    setVatAmount('');
+    setVatAmount(0);
     setEditingId(null);
   };
 
@@ -201,17 +181,15 @@ export default function TaxReturnPreparerSA() {
     }
     
     const amtBefore = typeof amountBeforeVat === 'number' ? amountBeforeVat : 0;
-    const vat = typeof vatAmount === 'number' ? vatAmount : 0;
     
     if (!invoiceDate || !transactionType || amtBefore <= 0) {
       alert(text.alerts.fillErr);
       return;
     }
 
-    const totalAmount = amtBefore + vat;
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const localeStr = lang === 'ar' ? 'ar-SA' : 'en-US';
+    const localeStr = lang === 'ar' ? 'ar-KW' : 'en-KW';
     const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
 
     if (editingId) {
@@ -221,8 +199,8 @@ export default function TaxReturnPreparerSA() {
         invoiceNumber: invoiceNumber || text.table.noNum,
         transactionType,
         amountBeforeVat: amtBefore,
-        vatAmount: vat,
-        totalAmount: Number(totalAmount.toFixed(2)),
+        vatAmount: 0,
+        totalAmount: Number(amtBefore.toFixed(3)),
         createdAt: item.createdAt || formattedDate
       } : item);
       saveToLocalStorage(updated);
@@ -235,8 +213,8 @@ export default function TaxReturnPreparerSA() {
         invoiceNumber: invoiceNumber || text.table.noNum,
         transactionType,
         amountBeforeVat: amtBefore,
-        vatAmount: vat,
-        totalAmount: Number(totalAmount.toFixed(2)),
+        vatAmount: 0,
+        totalAmount: Number(amtBefore.toFixed(3)),
         createdAt: formattedDate
       };
       saveToLocalStorage([...items, newItem]);
@@ -251,7 +229,7 @@ export default function TaxReturnPreparerSA() {
     setInvoiceNumber(item.invoiceNumber !== text.table.noNum ? item.invoiceNumber : '');
     setTransactionType(item.transactionType);
     setAmountBeforeVat(item.amountBeforeVat);
-    setVatAmount(item.vatAmount);
+    setVatAmount(0);
     setEditingId(item.id);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -266,10 +244,10 @@ export default function TaxReturnPreparerSA() {
   const salesItems = items.filter(i => i.transactionType.includes('مبيعات') || i.transactionType.includes('Sales'));
   const purchaseItems = items.filter(i => i.transactionType.includes('مشتريات') || i.transactionType.includes('Purchases'));
 
-  const totalSalesVat = salesItems.reduce((acc, curr) => acc + curr.vatAmount, 0);
-  const totalPurchaseVat = purchaseItems.reduce((acc, curr) => acc + curr.vatAmount, 0);
+  const totalSalesAmount = salesItems.reduce((acc, curr) => acc + curr.amountBeforeVat, 0);
+  const totalPurchaseAmount = purchaseItems.reduce((acc, curr) => acc + curr.amountBeforeVat, 0);
   
-  const netVatDue = totalSalesVat - totalPurchaseVat;
+  const netFlow = totalSalesAmount - totalPurchaseAmount;
 
   const handleExportExcel = () => {
     if (items.length === 0) {
@@ -288,10 +266,10 @@ export default function TaxReturnPreparerSA() {
           </style>
         </head>
         <body>
-          <h2>VAT Return Preliminary Report</h2>
-          <p>Total Sales VAT: ${totalSalesVat.toFixed(2)} ${text.currency}</p>
-          <p>Total Purchase VAT: ${totalPurchaseVat.toFixed(2)} ${text.currency}</p>
-          <p><strong>Net VAT Due (ZATCA): ${netVatDue.toFixed(2)} ${text.currency}</strong></p>
+          <h2>Sales & Purchases Log Report (KW)</h2>
+          <p>Total Sales: ${totalSalesAmount.toFixed(3)} ${text.currency}</p>
+          <p>Total Purchases: ${totalPurchaseAmount.toFixed(3)} ${text.currency}</p>
+          <p><strong>Net Flow: ${netFlow.toFixed(3)} ${text.currency}</strong></p>
           <br/>
           <table>
             <thead>
@@ -301,7 +279,6 @@ export default function TaxReturnPreparerSA() {
                 <th>${text.table.th3}</th>
                 <th>${text.table.th4}</th>
                 <th>${text.table.th5}</th>
-                <th>${text.table.th6}</th>
               </tr>
             </thead>
             <tbody>
@@ -314,7 +291,6 @@ export default function TaxReturnPreparerSA() {
           <td>${row.invoiceNumber} (${row.invoiceDate})</td>
           <td>${row.transactionType}</td>
           <td>${row.amountBeforeVat}</td>
-          <td>${row.vatAmount}</td>
           <td>${row.totalAmount}</td>
         </tr>
       `;
@@ -331,7 +307,7 @@ export default function TaxReturnPreparerSA() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", "enjazya_sa_tax_return.xls");
+    link.setAttribute("download", "enjazya_kw_tax_return.xls");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -363,7 +339,7 @@ export default function TaxReturnPreparerSA() {
   return (
     <div className="tool-container" style={{ direction: lang === 'ar' ? 'rtl' : 'ltr' }}>
       <style jsx global>{`
-        body { background-color: #f8fafc; margin: 0; font-family: ${lang === 'ar' ? "'Tajawal', sans-serif" : "'Inter', sans-serif"}; }
+        body { background-color: #f1f5f9; margin: 0; font-family: ${lang === 'ar' ? "'Tajawal', sans-serif" : "'Inter', sans-serif"}; }
         a { text-decoration: none; }
       `}</style>
       <style jsx>{`
@@ -371,8 +347,8 @@ export default function TaxReturnPreparerSA() {
         @media(max-width: 768px) { .tool-container { padding: 10px; margin: 10px auto; } }
         
         .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .back-btn { background: #ffffff; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 8px; color: #475569; font-weight: 700; font-size: 14px; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
-        .back-btn:hover { background: #f1f5f9; color: #0f172a; }
+        .back-btn { background: #ffffff; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 10px; color: #475569; font-weight: 700; font-size: 14px; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
+        .back-btn:hover { background: #f8fafc; color: #0f172a; border-color: #0284c7; }
         
         .title-box h1 { font-size: 24px; font-weight: 900; color: #0f172a; margin: 0 0 5px 0; }
         .title-box p { color: #64748b; margin: 0; font-size: 14px; }
@@ -380,10 +356,10 @@ export default function TaxReturnPreparerSA() {
         .grid-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 40px; }
         @media(max-width: 850px) { .grid-layout { grid-template-columns: 1fr; } }
         
-        .card { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
+        .card { background: #ffffff; border-radius: 20px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
         .card-title { font-size: 18px; font-weight: 800; color: #1e293b; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         
-        .clear-form-btn { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; display: flex; align-items: center; gap: 5px; }
+        .clear-form-btn { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 5px 12px; border-radius: 8px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; display: flex; align-items: center; gap: 5px; }
         .clear-form-btn:hover { background: #fecaca; }
 
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
@@ -392,39 +368,42 @@ export default function TaxReturnPreparerSA() {
         .input-group { margin-bottom: 15px; width: 100%; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .input-group label { display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 6px; }
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
-        .input-wrapper input, .input-wrapper select { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .input-wrapper input, .input-wrapper select { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; transition: all 0.2s; }
         .input-wrapper input.with-currency { padding-${lang === 'ar' ? 'left' : 'right'}: 45px; }
-        .input-wrapper input:focus, .input-wrapper select:focus { border-color: #047857; background: #ffffff; }
+        .input-wrapper input:focus, .input-wrapper select:focus { border-color: #0284c7; background: #ffffff; box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15); }
         .currency-tag { position: absolute; ${lang === 'ar' ? 'left: 14px;' : 'right: 14px;'} color: #64748b; font-weight: 800; font-size: 13px; pointer-events: none; }
         
-        .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
-        .action-btn:hover { background: #065f46; }
+        .action-btn { background: #0284c7; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 10px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
+        .action-btn:hover { background: #0369a1; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(2, 132, 199, 0.2); }
 
         .result-box { background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .result-box.primary { background: linear-gradient(135deg, #047857 0%, #065f46 100%); color: #fff; border: none; padding: 20px; }
+        .result-box.primary { background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: #fff; border: none; padding: 20px; box-shadow: 0 4px 15px rgba(2, 132, 199, 0.2); }
         .result-label { font-size: 13px; font-weight: 700; color: #64748b; }
         .primary .result-label { color: #ffffff; opacity: 0.9; }
         .result-value { font-size: 18px; font-weight: 900; color: #0f172a; direction: ltr; }
         .primary .result-value { font-size: 24px; color: #ffffff; direction: ltr; }
 
-        .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .table-section { background: #ffffff; border-radius: 20px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.03); text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
-        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 10px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; transition: all 0.2s; }
+        .search-input:focus { border-color: #0284c7; box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15); }
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
-        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; }
-        .t-btn:hover { background: #f1f5f9; }
+        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .t-btn:hover { background: #f1f5f9; color: #0284c7; border-color: #0284c7; }
 
-        .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
+        .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; border-radius: 12px; border: 1px solid #e2e8f0; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 900px; }
         .data-table th { background: #f8fafc; padding: 12px; text-align: ${lang === 'ar' ? 'right' : 'left'}; border-bottom: 2px solid #cbd5e1; font-weight: 800; color: #334155; white-space: nowrap; }
         .data-table td { padding: 12px; border-bottom: 1px solid #e2e8f0; color: #0f172a; font-weight: 600; vertical-align: middle; }
         .data-table tfoot td { background: #f1f5f9; font-weight: 900; color: #0f172a; border-top: 2px solid #cbd5e1; }
         
-        .trial-badge { background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 800; }
+        .trial-badge { background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: 800; }
         
-        .tb-action-btn { border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; font-family: inherit;}
+        .tb-action-btn { border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; font-family: inherit; transition: all 0.2s; }
         .btn-edit { background: #e0f2fe; color: #0369a1; }
+        .btn-edit:hover { background: #bae6fd; }
         .btn-delete { background: #fee2e2; color: #991b1b; }
+        .btn-delete:hover { background: #fca5a5; }
       `}</style>
 
       <div className="header">
@@ -432,7 +411,7 @@ export default function TaxReturnPreparerSA() {
           <h1>{text.title}</h1>
           <p>{text.desc}</p>
         </div>
-        <Link href="/hub/sa" className="back-btn">
+        <Link href="/hub/kw" className="back-btn">
           {text.back}
         </Link>
       </div>
@@ -470,28 +449,21 @@ export default function TaxReturnPreparerSA() {
                 <label>{text.transTypeLabel}</label>
                 <div className="input-wrapper">
                   <select value={transactionType} onChange={(e) => setTransactionType(e.target.value)}>
-                    <option value={lang === 'ar' ? 'مبيعات ↗️' : 'Sales ↗️'}>{text.optSales}</option>
-                    <option value={lang === 'ar' ? 'مشتريات ↙️' : 'Purchases ↙️'}>{text.optPurchases}</option>
+                    <option value={lang === 'ar' ? 'مبيعات تجارية ↗️' : 'Commercial Sales ↗️'}>{text.optSales}</option>
+                    <option value={lang === 'ar' ? 'مشتريات وتكاليف ↙️' : 'Purchases & Costs ↙️'}>{text.optPurchases}</option>
                   </select>
                 </div>
               </div>
               <div className="input-group">
                 <label>{text.amtLabel} ({text.currency})</label>
                 <div className="input-wrapper">
-                  <input className="with-currency" type="number" step="0.01" min="0" value={amountBeforeVat === '' ? '' : amountBeforeVat} onChange={handleAmountChange} placeholder="1000" required />
+                  <input className="with-currency" type="number" step="0.001" min="0" value={amountBeforeVat === '' ? '' : amountBeforeVat} onChange={(e) => setAmountBeforeVat(e.target.value === '' ? '' : Number(e.target.value))} placeholder="100" required />
                   <span className="currency-tag">{text.currency}</span>
                 </div>
               </div>
             </div>
 
-            <div className="input-group">
-              <label>{text.vatLabel}</label>
-              <div className="input-wrapper">
-                <input className="with-currency" type="number" step="0.01" min="0" value={vatAmount === '' ? '' : vatAmount} onChange={(e) => setVatAmount(e.target.value === '' ? '' : Number(e.target.value))} placeholder="150" required />
-                <span className="currency-tag">{text.currency}</span>
-              </div>
-              <small style={{ color: '#64748b', fontSize: '11px', display: 'block', marginTop: '4px' }}>{text.vatNote}</small>
-            </div>
+            <small style={{ color: '#64748b', fontSize: '11px', display: 'block', marginBottom: '15px' }}>{text.vatNote}</small>
 
             <button type="submit" className="action-btn">
               {editingId ? text.saveBtnEdit : text.saveBtnNew}
@@ -502,24 +474,24 @@ export default function TaxReturnPreparerSA() {
         <div className="card">
           <h2 className="card-title">{text.resultsTitle}</h2>
 
-          <div className="result-box primary" style={{ background: netVatDue >= 0 ? 'linear-gradient(135deg, #047857 0%, #065f46 100%)' : 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)' }}>
+          <div className="result-box primary" style={{ background: netFlow >= 0 ? 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)' : 'linear-gradient(135deg, #dc2626 0%, #991b1b 100%)' }}>
             <div>
               <div className="result-label">{text.netVatLabel}</div>
-              <div style={{ fontSize: '11px', opacity: 0.9, marginTop: '2px' }}>{netVatDue >= 0 ? text.netVatSubPay : text.netVatSubRefund}</div>
+              <div style={{ fontSize: '11px', opacity: 0.9, marginTop: '2px' }}>{text.netVatSubPay}</div>
             </div>
             <div className="result-value">
-              {Math.abs(netVatDue).toFixed(2)} {text.currency} {netVatDue < 0 && '-'}
+              {Math.abs(netFlow).toFixed(3)} {text.currency} {netFlow < 0 && '-'}
             </div>
           </div>
 
-          <div className="result-box" style={{ borderRight: lang === 'ar' ? '4px solid #047857' : 'none', borderLeft: lang === 'en' ? '4px solid #047857' : 'none' }}>
+          <div className="result-box" style={{ borderRight: lang === 'ar' ? '4px solid #0284c7' : 'none', borderLeft: lang === 'en' ? '4px solid #0284c7' : 'none' }}>
             <span className="result-label">{text.salesVatLabel}</span>
-            <span className="result-value" style={{ color: '#047857' }}>{totalSalesVat.toFixed(2)} {text.currency}</span>
+            <span className="result-value" style={{ color: '#0284c7' }}>{totalSalesAmount.toFixed(3)} {text.currency}</span>
           </div>
 
           <div className="result-box" style={{ borderRight: lang === 'ar' ? '4px solid #d97706' : 'none', borderLeft: lang === 'en' ? '4px solid #d97706' : 'none', background: '#f8fafc' }}>
             <span className="result-label">{text.purchasesVatLabel}</span>
-            <span className="result-value" style={{ color: '#d97706' }}>{totalPurchaseVat.toFixed(2)} {text.currency}</span>
+            <span className="result-value" style={{ color: '#d97706' }}>{totalPurchaseAmount.toFixed(3)} {text.currency}</span>
           </div>
         </div>
       </div>
@@ -549,14 +521,12 @@ export default function TaxReturnPreparerSA() {
                 <th>{text.table.th3}</th>
                 <th>{text.table.th4}</th>
                 <th>{text.table.th5}</th>
-                <th>{text.table.th6}</th>
-                <th>{text.table.th7}</th>
               </tr>
             </thead>
             <tbody>
               {filteredItems.length === 0 ? (
                 <tr>
-                  <td colSpan={7} style={{ textAlign: 'center', color: '#94a3b8', padding: '30px 0' }}>
+                  <td colSpan={5} style={{ textAlign: 'center', color: '#94a3b8', padding: '30px 0' }}>
                     {text.table.noRecords}
                   </td>
                 </tr>
@@ -571,15 +541,13 @@ export default function TaxReturnPreparerSA() {
                         <div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px', fontWeight: 600 }}>📅 {item.invoiceDate}</div>
                       </td>
                       <td>
-                        <span style={{ color: isSales ? '#047857' : '#d97706', background: isSales ? '#ecfdf5' : '#fffbeb', padding: '4px 8px', borderRadius: '6px', fontSize: '12px', fontWeight: 800 }}>
+                        <span style={{ color: isSales ? '#0284c7' : '#d97706', background: isSales ? '#e0f2fe' : '#fffbeb', padding: '4px 8px', borderRadius: '6px', fontSize: '12px', fontWeight: 800 }}>
                           {item.transactionType}
                         </span>
                       </td>
-                      <td style={{ fontWeight: 700 }}>{item.amountBeforeVat} {text.currency}</td>
-                      <td style={{ fontWeight: 800, color: isSales ? '#047857' : '#d97706' }}>{item.vatAmount} {text.currency}</td>
-                      <td style={{ fontWeight: 900 }}>{item.totalAmount} {text.currency}</td>
+                      <td style={{ fontWeight: 900, color: isSales ? '#0284c7' : '#d97706' }}>{item.amountBeforeVat.toFixed(3)} {text.currency}</td>
                       <td>
-                        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', justifyContent: 'center' }}>
                           <button className="tb-action-btn btn-edit" onClick={() => handleEdit(item)} title="Edit">{text.table.editAction}</button>
                           <button className="tb-action-btn btn-delete" onClick={() => handleDelete(item.id)} title="Delete">{text.table.delAction}</button>
                         </div>
@@ -593,8 +561,8 @@ export default function TaxReturnPreparerSA() {
               <tfoot>
                 <tr className="tfoot-row">
                   <td colSpan={3} style={{ textAlign: 'center' }}>{text.table.totalLabel}</td>
-                  <td colSpan={4} style={{ color: netVatDue >= 0 ? '#047857' : '#0284c7', fontSize: '15px' }}>
-                    {netVatDue >= 0 ? netVatDue.toFixed(2) : `(${Math.abs(netVatDue).toFixed(2)})`} {text.currency}
+                  <td colSpan={2} style={{ color: netFlow >= 0 ? '#0284c7' : '#dc2626', fontSize: '15px' }}>
+                    {netFlow >= 0 ? netFlow.toFixed(3) : `(${Math.abs(netFlow).toFixed(3)})`} {text.currency}
                   </td>
                 </tr>
               </tfoot>
