@@ -14,7 +14,7 @@ interface JasmalItem {
   createdAt?: string;
 }
 
-export default function JasmalScraperSA() {
+export default function JasmalScraperKW() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
 
   const [competitorName, setCompetitorName] = useState<string>('');
@@ -52,7 +52,7 @@ export default function JasmalScraperSA() {
       setNotes('منتج منافس قوي في السوق');
     }
 
-    const saved = localStorage.getItem('seerk_jasmal_scraper_items');
+    const saved = localStorage.getItem('seerk_kw_jasmal_scraper_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
@@ -60,20 +60,20 @@ export default function JasmalScraperSA() {
 
   const saveToLocalStorage = (newItems: JasmalItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_jasmal_scraper_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_kw_jasmal_scraper_items', JSON.stringify(newItems));
   };
 
   const t = {
     ar: {
       back: '← عودة للمنصة',
       title: 'جاسمال (Jasmal) لاستخراج البيانات 🕷️',
-      desc: 'اسحب بيانات المنتجات والأسعار من المتاجر المنافسة ورتبها فوراً في ملفات إكسل في السوق السعودي',
+      desc: 'اسحب بيانات المنتجات والأسعار من المتاجر المنافسة ورتبها فوراً في ملفات إكسل في السوق الكويتي',
       editRecord: 'تعديل بيانات المنتج',
       newRecord: 'إضافة منتج منافس جديد',
       clear: '🧹 مسح الحقول',
       trial: 'تجريبي',
       compNameLabel: 'اسم المتجر المنافس',
-      compPH: 'مثال: متجر نون / زليج',
+      compPH: 'مثال: إكسايت / يوريكا / نون',
       prodNameLabel: 'اسم المنتج المنافس',
       prodPH: 'مثال: ساعة يد رجالية جلد',
       priceLabel: 'سعر المنتج المنافس',
@@ -88,7 +88,7 @@ export default function JasmalScraperSA() {
       urlPH: 'https://competitor.com/product/123',
       notesLabel: 'ملاحظات أو مميزات المنتج',
       notesPH: 'يشمل توصيل مجاني وضمان سنتين',
-      currency: 'ر.س',
+      currency: 'د.ك',
       saveBtnNew: '+ استخراج وإضافة المنتج للسجل',
       saveBtnEdit: '💾 حفظ التعديلات',
       resultsTitle: 'مؤشرات الاستخبارات الفورية',
@@ -126,13 +126,13 @@ export default function JasmalScraperSA() {
     en: {
       back: '→ Back to Hub',
       title: 'Jasmal Data Extraction Tool 🕷️',
-      desc: 'Extract product data and prices from competitor stores and organize them instantly into Excel files in Saudi Arabia',
+      desc: 'Extract product data and prices from competitor stores and organize them instantly into Excel files in Kuwait',
       editRecord: 'Edit Product Data',
       newRecord: 'Add New Competitor Product',
       clear: '🧹 Clear Fields',
       trial: 'Trial',
       compNameLabel: 'Competitor Store Name',
-      compPH: 'e.g. Noon / Amazon',
+      compPH: 'e.g. X-cite / Eureka / Noon',
       prodNameLabel: 'Competitor Product Name',
       prodPH: 'e.g. Leather Men Watch',
       priceLabel: 'Competitor Product Price',
@@ -147,7 +147,7 @@ export default function JasmalScraperSA() {
       urlPH: 'https://competitor.com/product/123',
       notesLabel: 'Notes or Product Features',
       notesPH: 'Includes free shipping and 2-year warranty',
-      currency: 'SAR',
+      currency: 'KWD',
       saveBtnNew: '+ Extract & Add Product to Log',
       saveBtnEdit: '💾 Save Changes',
       resultsTitle: 'Instant Intelligence Indicators',
@@ -223,7 +223,7 @@ export default function JasmalScraperSA() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const localeStr = lang === 'ar' ? 'ar-SA' : 'en-US';
+    const localeStr = lang === 'ar' ? 'ar-KW' : 'en-KW';
     const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
 
     if (editingId) {
@@ -306,7 +306,7 @@ export default function JasmalScraperSA() {
           </style>
         </head>
         <body>
-          <h2>Jasmal Scraper Report</h2>
+          <h2>Jasmal Scraper Report (KW)</h2>
           <table>
             <thead>
               <tr>
@@ -343,7 +343,7 @@ export default function JasmalScraperSA() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", "enjazya_sa_jasmal.xls");
+    link.setAttribute("download", "enjazya_kw_jasmal.xls");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -376,7 +376,7 @@ export default function JasmalScraperSA() {
   return (
     <div className="tool-container" style={{ direction: lang === 'ar' ? 'rtl' : 'ltr' }}>
       <style jsx global>{`
-        body { background-color: #f8fafc; margin: 0; font-family: ${lang === 'ar' ? "'Tajawal', sans-serif" : "'Inter', sans-serif"}; }
+        body { background-color: #f1f5f9; margin: 0; font-family: ${lang === 'ar' ? "'Tajawal', sans-serif" : "'Inter', sans-serif"}; }
         a { text-decoration: none; }
       `}</style>
       <style jsx>{`
@@ -384,8 +384,8 @@ export default function JasmalScraperSA() {
         @media(max-width: 768px) { .tool-container { padding: 10px; margin: 10px auto; } }
         
         .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .back-btn { background: #ffffff; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 8px; color: #475569; font-weight: 700; font-size: 14px; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
-        .back-btn:hover { background: #f1f5f9; color: #0f172a; }
+        .back-btn { background: #ffffff; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 10px; color: #475569; font-weight: 700; font-size: 14px; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
+        .back-btn:hover { background: #f8fafc; color: #0f172a; border-color: #0284c7; }
         
         .title-box h1 { font-size: 24px; font-weight: 900; color: #0f172a; margin: 0 0 5px 0; }
         .title-box p { color: #64748b; margin: 0; font-size: 14px; }
@@ -393,10 +393,10 @@ export default function JasmalScraperSA() {
         .grid-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 40px; }
         @media(max-width: 850px) { .grid-layout { grid-template-columns: 1fr; } }
         
-        .card { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
+        .card { background: #ffffff; border-radius: 20px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
         .card-title { font-size: 18px; font-weight: 800; color: #1e293b; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         
-        .clear-form-btn { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; display: flex; align-items: center; gap: 5px; }
+        .clear-form-btn { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 5px 12px; border-radius: 8px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; display: flex; align-items: center; gap: 5px; }
         .clear-form-btn:hover { background: #fecaca; }
 
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
@@ -405,39 +405,42 @@ export default function JasmalScraperSA() {
         .input-group { margin-bottom: 15px; width: 100%; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .input-group label { display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 6px; }
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
-        .input-wrapper input, .input-wrapper select { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .input-wrapper input, .input-wrapper select { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; transition: all 0.2s; }
         .input-wrapper input.with-currency { padding-${lang === 'ar' ? 'left' : 'right'}: 45px; }
-        .input-wrapper input:focus, .input-wrapper select:focus { border-color: #047857; background: #ffffff; }
+        .input-wrapper input:focus, .input-wrapper select:focus { border-color: #0284c7; background: #ffffff; box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15); }
         .currency-tag { position: absolute; ${lang === 'ar' ? 'left: 14px;' : 'right: 14px;'} color: #64748b; font-weight: 800; font-size: 13px; pointer-events: none; }
         
-        .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
-        .action-btn:hover { background: #065f46; }
+        .action-btn { background: #0284c7; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 10px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
+        .action-btn:hover { background: #0369a1; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(2, 132, 199, 0.2); }
 
         .result-box { background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .result-box.primary { background: linear-gradient(135deg, #047857 0%, #065f46 100%); color: #fff; border: none; padding: 20px; }
+        .result-box.primary { background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: #fff; border: none; padding: 20px; box-shadow: 0 4px 15px rgba(2, 132, 199, 0.2); }
         .result-label { font-size: 13px; font-weight: 700; color: #64748b; }
         .primary .result-label { color: #ffffff; opacity: 0.9; }
         .result-value { font-size: 18px; font-weight: 900; color: #0f172a; direction: ltr; }
         .primary .result-value { font-size: 24px; color: #ffffff; direction: ltr; }
 
-        .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .table-section { background: #ffffff; border-radius: 20px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.03); text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
-        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 10px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; transition: all 0.2s; }
+        .search-input:focus { border-color: #0284c7; box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15); }
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
-        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; }
-        .t-btn:hover { background: #f1f5f9; }
+        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .t-btn:hover { background: #f1f5f9; color: #0284c7; border-color: #0284c7; }
 
-        .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
+        .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; border-radius: 12px; border: 1px solid #e2e8f0; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 900px; }
         .data-table th { background: #f8fafc; padding: 12px; text-align: ${lang === 'ar' ? 'right' : 'left'}; border-bottom: 2px solid #cbd5e1; font-weight: 800; color: #334155; white-space: nowrap; }
         .data-table td { padding: 12px; border-bottom: 1px solid #e2e8f0; color: #0f172a; font-weight: 600; vertical-align: middle; }
         .data-table tfoot td { background: #f1f5f9; font-weight: 900; color: #0f172a; border-top: 2px solid #cbd5e1; }
         
-        .trial-badge { background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 800; }
+        .trial-badge { background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: 800; }
         
-        .tb-action-btn { border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; font-family: inherit;}
+        .tb-action-btn { border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; font-family: inherit; transition: all 0.2s; }
         .btn-edit { background: #e0f2fe; color: #0369a1; }
+        .btn-edit:hover { background: #bae6fd; }
         .btn-delete { background: #fee2e2; color: #991b1b; }
+        .btn-delete:hover { background: #fca5a5; }
       `}</style>
 
       <div className="header">
@@ -445,7 +448,7 @@ export default function JasmalScraperSA() {
           <h1>{text.title}</h1>
           <p>{text.desc}</p>
         </div>
-        <Link href="/hub/sa" className="back-btn">
+        <Link href="/hub/kw" className="back-btn">
           {text.back}
         </Link>
       </div>
@@ -482,7 +485,7 @@ export default function JasmalScraperSA() {
               <div className="input-group">
                 <label>{text.priceLabel} ({text.currency})</label>
                 <div className="input-wrapper">
-                  <input className="with-currency" type="number" step="0.01" min="0" value={productPrice === '' ? '' : productPrice} onChange={(e) => setProductPrice(e.target.value === '' ? '' : Number(e.target.value))} placeholder="299" required />
+                  <input className="with-currency" type="number" step="0.01" min="0" value={productPrice === '' ? '' : productPrice} onChange={(e) => setProductPrice(e.target.value === '' ? '' : Number(e.target.value))} placeholder="29.9" required />
                   <span className="currency-tag">{text.currency}</span>
                 </div>
               </div>
@@ -546,9 +549,9 @@ export default function JasmalScraperSA() {
             </div>
           </div>
 
-          <div className="result-box" style={{ borderRight: lang === 'ar' ? '4px solid #047857' : 'none', borderLeft: lang === 'en' ? '4px solid #047857' : 'none' }}>
+          <div className="result-box" style={{ borderRight: lang === 'ar' ? '4px solid #0284c7' : 'none', borderLeft: lang === 'en' ? '4px solid #0284c7' : 'none' }}>
             <span className="result-label">{text.avgPriceLabel}</span>
-            <span className="result-value" style={{ color: '#047857' }}>{avgCompetitorPrice.toFixed(2)} {text.currency}</span>
+            <span className="result-value" style={{ color: '#0284c7' }}>{avgCompetitorPrice.toFixed(2)} {text.currency}</span>
           </div>
 
           <div className="result-box" style={{ background: '#f8fafc' }}>
@@ -605,7 +608,7 @@ export default function JasmalScraperSA() {
                       <div style={{ fontWeight: 800, color: '#0369a1' }}>{item.productName}</div>
                       <div style={{ fontSize: '12px', color: '#64748b' }}>{item.category}</div>
                     </td>
-                    <td style={{ fontWeight: 900, color: '#047857' }}>{item.productPrice} {text.currency}</td>
+                    <td style={{ fontWeight: 900, color: '#0284c7' }}>{item.productPrice} {text.currency}</td>
                     <td>
                       {item.productUrl ? (
                         <a href={item.productUrl} target="_blank" rel="noopener noreferrer" style={{ color: '#2563eb', textDecoration: 'underline', fontWeight: 700, display: 'block', fontSize: '12.5px' }}>
@@ -615,7 +618,7 @@ export default function JasmalScraperSA() {
                       <div style={{ fontSize: '11.5px', color: '#64748b', marginTop: '3px' }}>{item.notes}</div>
                     </td>
                     <td>
-                      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', justifyContent: 'center' }}>
                         <button className="tb-action-btn btn-edit" onClick={() => handleEdit(item)} title="Edit">✏️</button>
                         <button className="tb-action-btn btn-delete" onClick={() => handleDelete(item.id)} title="Delete">❌</button>
                       </div>
@@ -628,7 +631,7 @@ export default function JasmalScraperSA() {
               <tfoot>
                 <tr className="tfoot-row">
                   <td colSpan={3} style={{ textAlign: 'center' }}>{text.table.totalLabel}</td>
-                  <td style={{ color: '#047857' }}>{avgCompetitorPrice.toFixed(2)} {text.currency}</td>
+                  <td style={{ color: '#0284c7' }}>{avgCompetitorPrice.toFixed(2)} {text.currency}</td>
                   <td colSpan={2}></td>
                 </tr>
               </tfoot>
