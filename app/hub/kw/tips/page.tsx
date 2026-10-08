@@ -12,7 +12,7 @@ interface GrowthItem {
   createdAt?: string;
 }
 
-export default function StoreGrowthSecretsSA() {
+export default function StoreGrowthSecretsKW() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
 
   const [strategyName, setStrategyName] = useState<string>('');
@@ -46,7 +46,7 @@ export default function StoreGrowthSecretsSA() {
       setExecutionStatus('لم تبدأ ⏸️');
     }
 
-    const saved = localStorage.getItem('seerk_growth_secrets_items');
+    const saved = localStorage.getItem('seerk_kw_growth_secrets_items');
     if (saved) {
       try { 
         const parsedData = JSON.parse(saved);
@@ -57,20 +57,20 @@ export default function StoreGrowthSecretsSA() {
 
   const saveToLocalStorage = (newItems: GrowthItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_growth_secrets_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_kw_growth_secrets_items', JSON.stringify(newItems));
   };
 
   const t = {
     ar: {
       back: '← عودة للمنصة',
-      title: 'أسرار نمو المتاجر السعودية 💡',
-      desc: 'مكتبة استراتيجيات حصرية لزيادة التحويل ورفع ولاء العملاء في السوق المحلي السعودي',
+      title: 'أسرار نمو المتاجر الكويتية 💡',
+      desc: 'مكتبة استراتيجيات حصرية لزيادة التحويل ورفع ولاء العملاء في السوق المحلي الكويتي',
       editRecord: 'تعديل خطة النمو',
       newRecord: 'إضافة استراتيجية نمو جديدة',
       clear: '🧹 مسح الحقول',
       trial: 'تجريبي',
       stratNameLabel: 'اسم الاستراتيجية / الفكرة الترويجية',
-      stratNamePH: 'مثال: تفعيل الدفع بتابي/تمارا أو برنامج ولاء النقاط',
+      stratNamePH: 'مثال: تفعيل بوابات الدفع السريعة أو برنامج ولاء النقاط',
       catLabel: 'تصنيف الاستراتيجية',
       optConv: 'زيادة معدل التحويل 🚀',
       optLoyalty: 'رفع ولاء العملاء 🤝',
@@ -82,7 +82,7 @@ export default function StoreGrowthSecretsSA() {
       statusInProgress: 'قيد التنفيذ ⏳',
       statusDone: 'مكتملة ومفعلة ✅',
       descLabel: 'وصف الاستراتيجية وخطوات التنفيذ بالمتجر',
-      descPH: 'اكتب تفاصيل الفكرة وكيفية تطبيقها في سلة أو زد للرجوع إليها لاحقاً...',
+      descPH: 'اكتب تفاصيل الفكرة وكيفية تطبيقها في سلة أو زد أو المنصة الخاصة للرجوع إليها لاحقاً...',
       saveBtnNew: '+ إضافة الاستراتيجية للمكتبة',
       saveBtnEdit: '💾 حفظ التعديلات',
       resultsTitle: 'مؤشرات تطبيق خطط النمو',
@@ -120,14 +120,14 @@ export default function StoreGrowthSecretsSA() {
     },
     en: {
       back: '→ Back to Hub',
-      title: 'Saudi Store Growth Secrets 💡',
-      desc: 'Exclusive strategy library to increase conversion and boost customer loyalty in the local market',
+      title: 'Kuwaiti Store Growth Secrets 💡',
+      desc: 'Exclusive strategy library to increase conversion and boost customer loyalty in the local Kuwaiti market',
       editRecord: 'Edit Growth Plan',
       newRecord: 'Add New Growth Strategy',
       clear: '🧹 Clear Fields',
       trial: 'Trial',
       stratNameLabel: 'Strategy Name / Promotional Idea',
-      stratNamePH: 'e.g. Enable Tabby/Tamara or Points Loyalty Program',
+      stratNamePH: 'e.g. Enable K-Net or Points Loyalty Program',
       catLabel: 'Strategy Category',
       optConv: 'Increase Conversion Rate 🚀',
       optLoyalty: 'Boost Customer Loyalty 🤝',
@@ -139,7 +139,7 @@ export default function StoreGrowthSecretsSA() {
       statusInProgress: 'In Progress ⏳',
       statusDone: 'Completed & Active ✅',
       descLabel: 'Strategy Description & Store Implementation Steps',
-      descPH: 'Write details of the idea and how to apply it in Salla or Zid for future reference...',
+      descPH: 'Write details of the idea and how to apply it for future reference...',
       saveBtnNew: '+ Add Strategy to Library',
       saveBtnEdit: '💾 Save Changes',
       resultsTitle: 'Growth Plan Implementation Indicators',
@@ -211,7 +211,7 @@ export default function StoreGrowthSecretsSA() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const localeStr = lang === 'ar' ? 'ar-SA' : 'en-US';
+    const localeStr = lang === 'ar' ? 'ar-KW' : 'en-KW';
     const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
 
     if (editingId) {
@@ -289,7 +289,7 @@ export default function StoreGrowthSecretsSA() {
           </style>
         </head>
         <body>
-          <h2>Store Growth Secrets Report</h2>
+          <h2>Store Growth Secrets Report (KW)</h2>
           <table>
             <thead>
               <tr>
@@ -326,7 +326,7 @@ export default function StoreGrowthSecretsSA() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", "enjazya_sa_growth_secrets.xls");
+    link.setAttribute("download", "enjazya_kw_growth_secrets.xls");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -358,7 +358,7 @@ export default function StoreGrowthSecretsSA() {
   return (
     <div className="tool-container" style={{ direction: lang === 'ar' ? 'rtl' : 'ltr' }}>
       <style jsx global>{`
-        body { background-color: #f8fafc; margin: 0; font-family: ${lang === 'ar' ? "'Tajawal', sans-serif" : "'Inter', sans-serif"}; }
+        body { background-color: #f1f5f9; margin: 0; font-family: ${lang === 'ar' ? "'Tajawal', sans-serif" : "'Inter', sans-serif"}; }
         a { text-decoration: none; }
       `}</style>
       <style jsx>{`
@@ -366,8 +366,8 @@ export default function StoreGrowthSecretsSA() {
         @media(max-width: 768px) { .tool-container { padding: 10px; margin: 10px auto; } }
         
         .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .back-btn { background: #ffffff; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 8px; color: #475569; font-weight: 700; font-size: 14px; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
-        .back-btn:hover { background: #f1f5f9; color: #0f172a; }
+        .back-btn { background: #ffffff; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 10px; color: #475569; font-weight: 700; font-size: 14px; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
+        .back-btn:hover { background: #f8fafc; color: #0f172a; border-color: #0284c7; }
         
         .title-box h1 { font-size: 24px; font-weight: 900; color: #0f172a; margin: 0 0 5px 0; }
         .title-box p { color: #64748b; margin: 0; font-size: 14px; }
@@ -375,10 +375,10 @@ export default function StoreGrowthSecretsSA() {
         .grid-layout { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 30px; margin-bottom: 40px; }
         @media(max-width: 850px) { .grid-layout { grid-template-columns: 1fr; } }
         
-        .card { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
+        .card { background: #ffffff; border-radius: 20px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
         .card-title { font-size: 18px; font-weight: 800; color: #1e293b; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         
-        .clear-form-btn { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; display: flex; align-items: center; gap: 5px; }
+        .clear-form-btn { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 5px 12px; border-radius: 8px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; display: flex; align-items: center; gap: 5px; }
         .clear-form-btn:hover { background: #fecaca; }
 
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
@@ -387,37 +387,40 @@ export default function StoreGrowthSecretsSA() {
         .input-group { margin-bottom: 15px; width: 100%; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .input-group label { display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 6px; }
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
-        .input-wrapper input, .input-wrapper select, .input-wrapper textarea { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .input-wrapper input:focus, .input-wrapper select:focus, .input-wrapper textarea:focus { border-color: #047857; background: #ffffff; }
+        .input-wrapper input, .input-wrapper select, .input-wrapper textarea { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; transition: all 0.2s; }
+        .input-wrapper input:focus, .input-wrapper select:focus, .input-wrapper textarea:focus { border-color: #0284c7; background: #ffffff; box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15); }
         
-        .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
-        .action-btn:hover { background: #065f46; }
+        .action-btn { background: #0284c7; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 10px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
+        .action-btn:hover { background: #0369a1; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(2, 132, 199, 0.2); }
 
         .result-box { background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .result-box.primary { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #fff; border: none; padding: 20px; }
+        .result-box.primary { background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: #fff; border: none; padding: 20px; box-shadow: 0 4px 15px rgba(2, 132, 199, 0.2); }
         .result-label { font-size: 13px; font-weight: 700; color: #64748b; }
         .primary .result-label { color: #ffffff; opacity: 0.9; }
         .result-value { font-size: 18px; font-weight: 900; color: #0f172a; direction: ltr; }
         .primary .result-value { font-size: 24px; color: #ffffff; direction: ltr; }
 
-        .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .table-section { background: #ffffff; border-radius: 20px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.03); text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
-        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 10px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; transition: all 0.2s; }
+        .search-input:focus { border-color: #0284c7; box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15); }
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
-        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; }
-        .t-btn:hover { background: #f1f5f9; }
+        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .t-btn:hover { background: #f1f5f9; color: #0284c7; border-color: #0284c7; }
 
-        .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
+        .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; border-radius: 12px; border: 1px solid #e2e8f0; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 900px; }
         .data-table th { background: #f8fafc; padding: 12px; text-align: ${lang === 'ar' ? 'right' : 'left'}; border-bottom: 2px solid #cbd5e1; font-weight: 800; color: #334155; white-space: nowrap; }
         .data-table td { padding: 12px; border-bottom: 1px solid #e2e8f0; color: #0f172a; font-weight: 600; vertical-align: middle; }
         .data-table tfoot td { background: #f1f5f9; font-weight: 900; color: #0f172a; border-top: 2px solid #cbd5e1; }
         
-        .trial-badge { background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 800; }
+        .trial-badge { background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: 800; }
         
-        .tb-action-btn { border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; font-family: inherit;}
+        .tb-action-btn { border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; font-family: inherit; transition: all 0.2s; }
         .btn-edit { background: #e0f2fe; color: #0369a1; }
+        .btn-edit:hover { background: #bae6fd; }
         .btn-delete { background: #fee2e2; color: #991b1b; }
+        .btn-delete:hover { background: #fca5a5; }
       `}</style>
 
       <div className="header">
@@ -425,7 +428,7 @@ export default function StoreGrowthSecretsSA() {
           <h1>{text.title}</h1>
           <p>{text.desc}</p>
         </div>
-        <Link href="/hub/sa" className="back-btn">
+        <Link href="/hub/kw" className="back-btn">
           {text.back}
         </Link>
       </div>
@@ -519,9 +522,9 @@ export default function StoreGrowthSecretsSA() {
             </div>
           </div>
 
-          <div className="result-box" style={{ borderRight: lang === 'ar' ? '4px solid #047857' : 'none', borderLeft: lang === 'en' ? '4px solid #047857' : 'none' }}>
+          <div className="result-box" style={{ borderRight: lang === 'ar' ? '4px solid #0284c7' : 'none', borderLeft: lang === 'en' ? '4px solid #0284c7' : 'none' }}>
             <span className="result-label">{text.doneStratLabel}</span>
-            <span className="result-value" style={{ color: '#047857' }}>{completedCount}</span>
+            <span className="result-value" style={{ color: '#0284c7' }}>{completedCount}</span>
           </div>
 
           <div className="result-box" style={{ borderRight: lang === 'ar' ? '4px solid #d97706' : 'none', borderLeft: lang === 'en' ? '4px solid #d97706' : 'none', background: '#f8fafc' }}>
@@ -581,7 +584,7 @@ export default function StoreGrowthSecretsSA() {
                         <div style={{ fontWeight: 900, color: '#0f172a' }}>{item.strategyName}</div>
                         {item.createdAt && <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', fontWeight: 600 }}>🕒 {item.createdAt}</div>}
                       </td>
-                      <td><span style={{ fontWeight: 800, color: '#0369a1' }}>{item.category}</span></td>
+                      <td><span style={{ fontWeight: 800, color: '#0284c7' }}>{item.category}</span></td>
                       <td style={{ maxWidth: '250px', fontSize: '12px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                         {item.description || <span style={{ color: '#94a3b8' }}>{text.table.noDesc}</span>}
                       </td>
@@ -591,7 +594,7 @@ export default function StoreGrowthSecretsSA() {
                         </span>
                       </td>
                       <td>
-                        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', justifyContent: 'center' }}>
                           <button className="tb-action-btn btn-edit" onClick={() => handleEdit(item)} title="Edit">{text.table.editAction}</button>
                           <button className="tb-action-btn btn-delete" onClick={() => handleDelete(item.id)} title="Delete">{text.table.delAction}</button>
                         </div>
