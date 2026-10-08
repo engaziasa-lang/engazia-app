@@ -7,17 +7,19 @@ interface ExpenseItem {
   id: string;
   expenseName: string;
   expenseType: string;
-  recurrence: string; // تكرار المصروف (شهري، سنوي، مرة واحدة)
+  recurrence: string;
   amount: number;
   periodOrNote: string;
   createdAt?: string;
 }
 
 export default function ExpensesManagerSA() {
+  const [lang, setLang] = useState<'ar' | 'en'>('ar');
+
   const [expenseName, setExpenseName] = useState<string>('');
   const [typeSelect, setTypeSelect] = useState<string>('مصاريف ثابتة');
   const [customType, setCustomType] = useState<string>('مصاريف ثابتة');
-  const [recurrence, setRecurrence] = useState<string>('شهري (Monthly)'); // الميزة الجديدة
+  const [recurrence, setRecurrence] = useState<string>('شهري (Monthly)');
   const [amount, setAmount] = useState<number | ''>('');
   const [periodOrNote, setPeriodOrNote] = useState<string>('أكتوبر 2026');
 
@@ -26,8 +28,24 @@ export default function ExpensesManagerSA() {
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isClient, setIsClient] = useState(false);
+  const [isActivated, setIsActivated] = useState(true);
 
   useEffect(() => {
+    setIsClient(true);
+    setIsActivated(!!localStorage.getItem('merchant_license_key'));
+    
+    const savedLang = (localStorage.getItem('seerk_global_lang') as 'ar' | 'en') || 'ar';
+    setLang(savedLang);
+
+    if (savedLang === 'en') {
+      setPeriodOrNote('October 2026');
+      setRecurrence('Monthly');
+    } else {
+      setPeriodOrNote('أكتوبر 2026');
+      setRecurrence('شهري (Monthly)');
+    }
+
     const saved = localStorage.getItem('seerk_expenses_manager_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
@@ -39,14 +57,135 @@ export default function ExpensesManagerSA() {
     localStorage.setItem('seerk_expenses_manager_items', JSON.stringify(newItems));
   };
 
-  const isActivated = typeof window !== 'undefined' && !!localStorage.getItem('merchant_license_key');
+  const t = {
+    ar: {
+      back: '← عودة للمنصة',
+      title: 'مدير النفقات والمصاريف التشغيلية 💸',
+      desc: 'تتبع مصاريف المتجر الثابتة والمتغيرة، وتكرار المصروف (شهري، سنوي، مرة واحدة) لضبط التدفق النقدي في السوق السعودي',
+      editRecord: 'تعديل السجل',
+      newRecord: 'إضافة مصروف تشغيلي جديد',
+      clear: '🧹 مسح الحقول',
+      trial: 'تجريبي',
+      expNameLabel: 'اسم المصروف أو البند',
+      expNamePH: 'مثال: اشتراك منصة سلة / رواتب الموظفين',
+      typeLabel: 'نوع المصروف',
+      optFixed: 'مصاريف ثابتة 🏢',
+      optVariable: 'مصاريف متغيرة 📦',
+      optAds: 'إعلانات تسويقية 📢',
+      optSalaries: 'رواتب وأجور 👤',
+      optShipping: 'تغليف وشحن 📦',
+      optSubs: 'اشتراكات برمجية 💻',
+      optCustom: '➕ نوع آخر (كتابة يدوية)',
+      customPH: 'اكتب نوع المصروف هنا...',
+      recurLabel: 'تكرار المصروف',
+      recMonthly: 'شهري (Monthly)',
+      recYearly: 'سنوي (Yearly)',
+      recOneTime: 'مرة واحدة (One-time)',
+      amountLabel: 'مبلغ المصروف',
+      periodLabel: 'الفترة أو ملاحظة',
+      periodPH: 'أكتوبر 2026',
+      currency: 'ر.س',
+      saveBtnNew: '+ حفظ المصروف في السجل',
+      saveBtnEdit: '💾 حفظ التعديلات',
+      resultsTitle: 'مؤشرات المصاريف الفورية',
+      totalExpLabel: 'إجمالي المصاريف التشغيلية',
+      totalExpSub: 'مجموع النفقات الخارجة من المتجر',
+      fixedLabel: 'المصاريف الثابتة والرواتب',
+      variableLabel: 'المصاريف المتغيرة والإعلانات',
+      searchPH: '🔍 بحث باسم المصروف أو التكرار...',
+      exportBtn: '📥 تصدير Excel',
+      importBtn: '📂 استيراد',
+      table: {
+        noRecords: 'لا توجد مصاريف تشغيلية مسجلة حالياً.',
+        th1: '#',
+        th2: 'البند والتاريخ',
+        th3: 'نوع المصروف',
+        th4: 'تكرار المصروف',
+        th5: 'الفترة / ملاحظة',
+        th6: 'المبلغ',
+        th7: 'الإجراءات',
+        totalLabel: 'الإجمالي الكلي للمصاريف'
+      },
+      alerts: {
+        limit: '🔒 عذراً، لقد استهلكت الحد التجريبي (3 سجلات). يرجى ترقية حسابك لفتح السعة الكاملة بلا حدود!',
+        fillErr: 'الرجاء التأكد من تعبئة اسم المصروف، النوع، ومبلغ صحيح.',
+        updateSuccess: '✨ تم تحديث المصروف بنجاح!',
+        saveSuccess: '✅ تمت إضافة المصروف إلى السجل بنجاح!',
+        delConfirm: 'هل أنت متأكد من حذف هذا المصروف؟',
+        noDataExp: 'لا توجد بيانات لتصديرها.',
+        importSuccess: '✨ تم استيراد المصاريف بنجاح!',
+        importErr: '❌ ملف غير صالح.'
+      }
+    },
+    en: {
+      back: '→ Back to Hub',
+      title: 'Operational Expenses Manager 💸',
+      desc: 'Track fixed and variable store expenses, and recurrence (monthly, yearly, one-time) to control cash flow in Saudi Arabia',
+      editRecord: 'Edit Record',
+      newRecord: 'Add New Operational Expense',
+      clear: '🧹 Clear Fields',
+      trial: 'Trial',
+      expNameLabel: 'Expense Name or Item',
+      expNamePH: 'e.g. Salla Subscription / Employee Salaries',
+      typeLabel: 'Expense Type',
+      optFixed: 'Fixed Expenses 🏢',
+      optVariable: 'Variable Expenses 📦',
+      optAds: 'Marketing Ads 📢',
+      optSalaries: 'Salaries & Wages 👤',
+      optShipping: 'Packaging & Shipping 📦',
+      optSubs: 'Software Subscriptions 💻',
+      optCustom: '➕ Other (Custom)',
+      customPH: 'Type expense type here...',
+      recurLabel: 'Expense Recurrence',
+      recMonthly: 'Monthly',
+      recYearly: 'Yearly',
+      recOneTime: 'One-time',
+      amountLabel: 'Expense Amount',
+      periodLabel: 'Period or Note',
+      periodPH: 'October 2026',
+      currency: 'SAR',
+      saveBtnNew: '+ Save Expense to Log',
+      saveBtnEdit: '💾 Save Changes',
+      resultsTitle: 'Instant Expense Indicators',
+      totalExpLabel: 'Total Operational Expenses',
+      totalExpSub: 'Sum of outgoing store expenses',
+      fixedLabel: 'Fixed Expenses & Salaries',
+      variableLabel: 'Variable Expenses & Ads',
+      searchPH: '🔍 Search by expense name or recurrence...',
+      exportBtn: '📥 Export Excel',
+      importBtn: '📂 Import',
+      table: {
+        noRecords: 'No operational expenses currently registered.',
+        th1: '#',
+        th2: 'Item & Date',
+        th3: 'Expense Type',
+        th4: 'Recurrence',
+        th5: 'Period / Note',
+        th6: 'Amount',
+        th7: 'Actions',
+        totalLabel: 'Grand Total Expenses'
+      },
+      alerts: {
+        limit: '🔒 Sorry, you reached the trial limit (3 records). Please upgrade to unlock unlimited access!',
+        fillErr: 'Please ensure expense name, type, and a valid amount are entered.',
+        updateSuccess: '✨ Expense updated successfully!',
+        saveSuccess: '✅ Expense added to log successfully!',
+        delConfirm: 'Are you sure you want to delete this expense?',
+        noDataExp: 'No data to export.',
+        importSuccess: '✨ Expenses imported successfully!',
+        importErr: '❌ Invalid file.'
+      }
+    }
+  };
+
+  const text = t[lang];
 
   const expAmount = typeof amount === 'number' ? amount : 0;
 
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const val = e.target.value;
     setTypeSelect(val);
-    if (val !== 'نوع آخر (كتابة يدوية)') {
+    if (val !== 'نوع آخر (كتابة يدوية)' && val !== 'Other (Custom)') {
       setCustomType(val);
     } else {
       setCustomType('');
@@ -57,27 +196,28 @@ export default function ExpensesManagerSA() {
     setExpenseName('');
     setTypeSelect('مصاريف ثابتة');
     setCustomType('مصاريف ثابتة');
-    setRecurrence('شهري (Monthly)');
+    setRecurrence(lang === 'ar' ? 'شهري (Monthly)' : 'Monthly');
     setAmount('');
-    setPeriodOrNote('أكتوبر 2026');
+    setPeriodOrNote(lang === 'ar' ? 'أكتوبر 2026' : 'October 2026');
     setEditingId(null);
   };
 
   const handleSaveItem = (e: React.FormEvent) => {
     e.preventDefault();
     if (!isActivated && items.length >= 3 && !editingId) {
-      alert('🔒 عذراً، لقد استهلكت الحد التجريبي (3 سجلات). يرجى ترقية حسابك لفتح السعة الكاملة بلا حدود!');
+      alert(text.alerts.limit);
       return;
     }
-    const finalType = typeSelect === 'نوع آخر (كتابة يدوية)' ? customType : typeSelect;
+    const finalType = (typeSelect === 'نوع آخر (كتابة يدوية)' || typeSelect === 'Other (Custom)') ? customType : typeSelect;
     if (!expenseName.trim() || expAmount <= 0 || !finalType.trim()) {
-      alert('الرجاء التأكد من تعبئة اسم المصروف، النوع، ومبلغ صحيح.');
+      alert(text.alerts.fillErr);
       return;
     }
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const formattedDate = `${now.toLocaleDateString('ar-SA')} - ${now.toLocaleTimeString('ar-SA', timeOptions)}`;
+    const localeStr = lang === 'ar' ? 'ar-SA' : 'en-US';
+    const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
 
     if (editingId) {
       const updated = items.map(item => item.id === editingId ? {
@@ -91,7 +231,7 @@ export default function ExpensesManagerSA() {
       } : item);
       saveToLocalStorage(updated);
       setEditingId(null);
-      alert('✨ تم تحديث المصروف بنجاح!');
+      alert(text.alerts.updateSuccess);
     } else {
       const newItem: ExpenseItem = {
         id: Date.now().toString(),
@@ -103,7 +243,7 @@ export default function ExpensesManagerSA() {
         createdAt: formattedDate
       };
       saveToLocalStorage([...items, newItem]);
-      alert('✅ تمت إضافة المصروف إلى السجل بنجاح!');
+      alert(text.alerts.saveSuccess);
     }
 
     handleClearForm();
@@ -111,15 +251,15 @@ export default function ExpensesManagerSA() {
 
   const handleEdit = (item: ExpenseItem) => {
     setExpenseName(item.expenseName);
-    const standardTypes = ['مصاريف ثابتة', 'مصاريف متغيرة', 'إعلانات تسويقية', 'رواتب وأجور', 'تغليف وشحن', 'اشتراكات برمجية'];
+    const standardTypes = ['مصاريف ثابتة', 'مصاريف متغيرة', 'إعلانات تسويقية', 'رواتب وأجور', 'تغليف وشحن', 'اشتراكات برمجية', 'Fixed Expenses', 'Variable Expenses', 'Marketing Ads', 'Salaries & Wages', 'Packaging & Shipping', 'Software Subscriptions'];
     if (standardTypes.includes(item.expenseType)) {
       setTypeSelect(item.expenseType);
       setCustomType(item.expenseType);
     } else {
-      setTypeSelect('نوع آخر (كتابة يدوية)');
+      setTypeSelect(lang === 'ar' ? 'نوع آخر (كتابة يدوية)' : 'Other (Custom)');
       setCustomType(item.expenseType);
     }
-    setRecurrence(item.recurrence || 'شهري (Monthly)');
+    setRecurrence(item.recurrence || (lang === 'ar' ? 'شهري (Monthly)' : 'Monthly'));
     setAmount(item.amount);
     setPeriodOrNote(item.periodOrNote);
     setEditingId(item.id);
@@ -127,44 +267,43 @@ export default function ExpensesManagerSA() {
   };
 
   const handleDelete = (id: string) => {
-    if (confirm('هل أنت متأكد من حذف هذا المصروف؟')) {
+    if (confirm(text.alerts.delConfirm)) {
       const filtered = items.filter(i => i.id !== id);
       saveToLocalStorage(filtered);
     }
   };
 
-  const totalFixedExpenses = items.filter(i => i.expenseType.includes('ثابتة') || i.expenseType.includes('رواتب') || i.expenseType.includes('اشتراكات')).reduce((acc, curr) => acc + curr.amount, 0);
-  const totalVariableExpenses = items.filter(i => !i.expenseType.includes('ثابتة') && !i.expenseType.includes('رواتب') && !i.expenseType.includes('اشتراكات')).reduce((acc, curr) => acc + curr.amount, 0);
+  const totalFixedExpenses = items.filter(i => i.expenseType.includes('ثابتة') || i.expenseType.includes('رواتب') || i.expenseType.includes('اشتراكات') || i.expenseType.includes('Fixed') || i.expenseType.includes('Salaries')).reduce((acc, curr) => acc + curr.amount, 0);
+  const totalVariableExpenses = items.filter(i => !i.expenseType.includes('ثابتة') && !i.expenseType.includes('رواتب') && !i.expenseType.includes('اشتراكات') && !i.expenseType.includes('Fixed') && !i.expenseType.includes('Salaries')).reduce((acc, curr) => acc + curr.amount, 0);
   const grandTotalExpenses = items.reduce((acc, curr) => acc + curr.amount, 0);
 
   const handleExportExcel = () => {
     if (items.length === 0) {
-      alert('لا توجد بيانات لتصديرها.');
+      alert(text.alerts.noDataExp);
       return;
     }
 
     let tableHtml = `
-      <html dir="rtl" lang="ar">
+      <html dir="${lang === 'ar' ? 'rtl' : 'ltr'}" lang="${lang}">
         <head>
           <meta charset="utf-8">
           <style>
             table { border-collapse: collapse; width: 100%; font-family: sans-serif; }
             th, td { border: 1px solid #cbd5e1; padding: 8px; text-align: center; }
             th { background-color: #f8fafc; font-weight: bold; color: #334155; }
-            .tfoot-row td { background-color: #f1f5f9; font-weight: bold; color: #0f172a; }
           </style>
         </head>
         <body>
+          <h2>Expenses Manager Report</h2>
           <table>
             <thead>
               <tr>
-                <th>م</th>
-                <th>اسم المصروف البند</th>
-                <th>التاريخ والوقت</th>
-                <th>نوع المصروف</th>
-                <th>تكرار المصروف</th>
-                <th>الفترة أو الملاحظة</th>
-                <th>المبلغ (ر.س)</th>
+                <th>${text.table.th1}</th>
+                <th>${text.table.th2}</th>
+                <th>${text.table.th3}</th>
+                <th>${text.table.th4}</th>
+                <th>${text.table.th5}</th>
+                <th>${text.table.th6}</th>
               </tr>
             </thead>
             <tbody>
@@ -175,9 +314,8 @@ export default function ExpensesManagerSA() {
         <tr>
           <td>${idx + 1}</td>
           <td>${row.expenseName}</td>
-          <td>${row.createdAt || '-'}</td>
           <td>${row.expenseType}</td>
-          <td>${row.recurrence || 'شهري (Monthly)'}</td>
+          <td>${row.recurrence}</td>
           <td>${row.periodOrNote}</td>
           <td>${row.amount}</td>
         </tr>
@@ -186,12 +324,6 @@ export default function ExpensesManagerSA() {
 
     tableHtml += `
             </tbody>
-            <tfoot>
-              <tr class="tfoot-row">
-                <td colspan="6">إجمالي المصاريف التشغيلية</td>
-                <td>${grandTotalExpenses.toFixed(2)} ر.س</td>
-              </tr>
-            </tfoot>
           </table>
         </body>
       </html>
@@ -201,7 +333,7 @@ export default function ExpensesManagerSA() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", "seerk_expenses_manager.xls");
+    link.setAttribute("download", "enjazya_sa_expenses.xls");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -216,10 +348,10 @@ export default function ExpensesManagerSA() {
           const imported = JSON.parse(event.target?.result as string);
           if (Array.isArray(imported)) {
             saveToLocalStorage(imported);
-            alert('✨ تم استيراد المصاريف بنجاح!');
+            alert(text.alerts.importSuccess);
           }
         } catch (err) {
-          alert('❌ ملف غير صالح.');
+          alert(text.alerts.importErr);
         }
       };
     }
@@ -233,16 +365,16 @@ export default function ExpensesManagerSA() {
   );
 
   return (
-    <div className="tool-container">
+    <div className="tool-container" style={{ direction: lang === 'ar' ? 'rtl' : 'ltr' }}>
       <style jsx global>{`
-        body { background-color: #f8fafc; margin: 0; font-family: 'Tajawal', sans-serif; }
+        body { background-color: #f8fafc; margin: 0; font-family: ${lang === 'ar' ? "'Tajawal', sans-serif" : "'Inter', sans-serif"}; }
         a { text-decoration: none; }
       `}</style>
       <style jsx>{`
-        .tool-container { direction: rtl; max-width: 1100px; margin: 20px auto; padding: 20px; }
+        .tool-container { max-width: 1100px; margin: 20px auto; padding: 20px; }
         @media(max-width: 768px) { .tool-container { padding: 10px; margin: 10px auto; } }
         
-        .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; }
+        .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .back-btn { background: #ffffff; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 8px; color: #475569; font-weight: 700; font-size: 14px; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
         .back-btn:hover { background: #f1f5f9; color: #0f172a; }
         
@@ -253,120 +385,119 @@ export default function ExpensesManagerSA() {
         @media(max-width: 850px) { .grid-layout { grid-template-columns: 1fr; } }
         
         .card { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
-        .card-title { font-size: 18px; font-weight: 800; color: #1e293b; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        .card-title { font-size: 18px; font-weight: 800; color: #1e293b; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         
-        .clear-form-btn { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: 'Tajawal', sans-serif; display: flex; align-items: center; gap: 5px; }
+        .clear-form-btn { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; display: flex; align-items: center; gap: 5px; }
         .clear-form-btn:hover { background: #fecaca; }
 
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         @media(max-width: 600px) { .form-row { grid-template-columns: 1fr; gap: 0; } }
 
-        .input-group { margin-bottom: 15px; width: 100%; }
+        .input-group { margin-bottom: 15px; width: 100%; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .input-group label { display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 6px; }
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
-        .input-wrapper input, .input-wrapper select { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: 'Tajawal', sans-serif; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; }
-        .input-wrapper input.with-currency { padding-left: 45px; }
+        .input-wrapper input, .input-wrapper select { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .input-wrapper input.with-currency { padding-${lang === 'ar' ? 'left' : 'right'}: 45px; }
         .input-wrapper input:focus, .input-wrapper select:focus { border-color: #047857; background: #ffffff; }
-        .currency-tag { position: absolute; left: 14px; color: #64748b; font-weight: 800; font-size: 13px; pointer-events: none; }
+        .currency-tag { position: absolute; ${lang === 'ar' ? 'left: 14px;' : 'right: 14px;'} color: #64748b; font-weight: 800; font-size: 13px; pointer-events: none; }
         
-        .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: 'Tajawal', sans-serif; margin-top: 10px; box-sizing: border-box; }
+        .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
         .action-btn:hover { background: #065f46; }
 
-        .result-box { background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px; }
+        .result-box { background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .result-box.danger { background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); color: #fff; border: none; padding: 20px; }
         .result-label { font-size: 13px; font-weight: 700; color: #64748b; }
         .danger .result-label { color: #ffffff; opacity: 0.9; }
-        .result-value { font-size: 18px; font-weight: 900; color: #0f172a; }
-        .danger .result-value { font-size: 26px; color: #ffffff; }
+        .result-value { font-size: 18px; font-weight: 900; color: #0f172a; direction: ltr; }
+        .danger .result-value { font-size: 24px; color: #ffffff; direction: ltr; }
 
-        .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
-        .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
-        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: 'Tajawal', sans-serif; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; }
+        .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
+        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
-        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: 'Tajawal', sans-serif; display: flex; align-items: center; justify-content: center; }
+        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; }
         .t-btn:hover { background: #f1f5f9; }
 
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 900px; }
-        .data-table th { background: #f8fafc; padding: 12px; text-align: right; border-bottom: 2px solid #cbd5e1; font-weight: 800; color: #334155; white-space: nowrap; }
+        .data-table th { background: #f8fafc; padding: 12px; text-align: ${lang === 'ar' ? 'right' : 'left'}; border-bottom: 2px solid #cbd5e1; font-weight: 800; color: #334155; white-space: nowrap; }
         .data-table td { padding: 12px; border-bottom: 1px solid #e2e8f0; color: #0f172a; font-weight: 600; vertical-align: middle; }
         .data-table tfoot td { background: #f1f5f9; font-weight: 900; color: #0f172a; border-top: 2px solid #cbd5e1; }
         
         .trial-badge { background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 800; }
         
-        .tb-action-btn { border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; font-family: 'Tajawal', sans-serif;}
+        .tb-action-btn { border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; font-family: inherit;}
         .btn-edit { background: #e0f2fe; color: #0369a1; }
         .btn-delete { background: #fee2e2; color: #991b1b; }
       `}</style>
 
       <div className="header">
         <div className="title-box">
-          <h1>مدير النفقات والمصاريف التشغيلية 💸</h1>
-          <p>تتبع مصاريف المتجر الثابتة والمتغيرة، وتكرار المصروف (شهري، سنوي، مرة واحدة) لضبط التدفق النقدي</p>
+          <h1>{text.title}</h1>
+          <p>{text.desc}</p>
         </div>
         <Link href="/hub/sa" className="back-btn">
-          <span>←</span> عودة للمنصة
+          {text.back}
         </Link>
       </div>
 
       <div className="grid-layout">
-        {/* قسم المدخلات */}
         <div className="card">
           <h2 className="card-title">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-              <span>{editingId ? 'تعديل السجل' : 'إضافة مصروف تشغيلي جديد'}</span>
-              <button type="button" className="clear-form-btn" onClick={handleClearForm} title="مسح الحقول">
-                🧹 مسح الحقول
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', flexDirection: lang === 'ar' ? 'row' : 'row-reverse' }}>
+              <span>{editingId ? text.editRecord : text.newRecord}</span>
+              <button type="button" className="clear-form-btn" onClick={handleClearForm}>
+                {text.clear}
               </button>
             </div>
-            {!isActivated && <span className="trial-badge">تجريبي: {items.length}/3</span>}
+            {isClient && !isActivated && <span className="trial-badge">{text.trial}: {items.length}/3</span>}
           </h2>
 
           <form onSubmit={handleSaveItem}>
             <div className="input-group">
-              <label>اسم المصروف أو البند</label>
+              <label>{text.expNameLabel}</label>
               <div className="input-wrapper">
-                <input type="text" value={expenseName} onChange={(e) => setExpenseName(e.target.value)} placeholder="مثال: اشتراك منصة سلة / رواتب الموظفين" required />
+                <input type="text" value={expenseName} onChange={(e) => setExpenseName(e.target.value)} placeholder={text.expNamePH} required />
               </div>
             </div>
 
             <div className="form-row">
               <div className="input-group">
-                <label>نوع المصروف</label>
+                <label>{text.typeLabel}</label>
                 <div className="input-wrapper">
                   <select value={typeSelect} onChange={handleSelectChange}>
-                    <option value="مصاريف ثابتة">مصاريف ثابتة 🏢</option>
-                    <option value="مصاريف متغيرة">مصاريف متغيرة 📦</option>
-                    <option value="إعلانات تسويقية">إعلانات تسويقية 📢</option>
-                    <option value="رواتب وأجور">رواتب وأجور 👤</option>
-                    <option value="تغليف وشحن">تغليف وشحن 📦</option>
-                    <option value="اشتراكات برمجية">اشتراكات برمجية 💻</option>
-                    <option value="نوع آخر (كتابة يدوية)">➕ نوع آخر (كتابة يدوية)</option>
+                    <option value={lang === 'ar' ? 'مصاريف ثابتة' : 'Fixed Expenses'}>{text.optFixed}</option>
+                    <option value={lang === 'ar' ? 'مصاريف متغيرة' : 'Variable Expenses'}>{text.optVariable}</option>
+                    <option value={lang === 'ar' ? 'إعلانات تسويقية' : 'Marketing Ads'}>{text.optAds}</option>
+                    <option value={lang === 'ar' ? 'رواتب وأجور' : 'Salaries & Wages'}>{text.optSalaries}</option>
+                    <option value={lang === 'ar' ? 'تغليف وشحن' : 'Packaging & Shipping'}>{text.optShipping}</option>
+                    <option value={lang === 'ar' ? 'اشتراكات برمجية' : 'Software Subscriptions'}>{text.optSubs}</option>
+                    <option value={lang === 'ar' ? 'نوع آخر (كتابة يدوية)' : 'Other (Custom)'}>{text.optCustom}</option>
                   </select>
                 </div>
               </div>
 
               <div className="input-group">
-                <label>تكرار المصروف</label>
+                <label>{text.recurLabel}</label>
                 <div className="input-wrapper">
                   <select value={recurrence} onChange={(e) => setRecurrence(e.target.value)}>
-                    <option value="شهري (Monthly)">شهري (Monthly)</option>
-                    <option value="سنوي (Yearly)">سنوي (Yearly)</option>
-                    <option value="مرة واحدة (One-time)">مرة واحدة (One-time)</option>
+                    <option value={lang === 'ar' ? 'شهري (Monthly)' : 'Monthly'}>{text.recMonthly}</option>
+                    <option value={lang === 'ar' ? 'سنوي (Yearly)' : 'Yearly'}>{text.recYearly}</option>
+                    <option value={lang === 'ar' ? 'مرة واحدة (One-time)' : 'One-time'}>{text.recOneTime}</option>
                   </select>
                 </div>
               </div>
             </div>
 
-            {typeSelect === 'نوع آخر (كتابة يدوية)' && (
+            {(typeSelect === 'نوع آخر (كتابة يدوية)' || typeSelect === 'Other (Custom)') && (
               <div className="input-group">
-                <label>اكتب نوع المصروف المخصص</label>
+                <label>{text.customPH}</label>
                 <div className="input-wrapper">
                   <input 
                     type="text" 
                     value={customType} 
                     onChange={(e) => setCustomType(e.target.value)} 
-                    placeholder="اكتب نوع المصروف هنا..." 
+                    placeholder={text.customPH} 
                     required 
                   />
                 </div>
@@ -375,65 +506,63 @@ export default function ExpensesManagerSA() {
 
             <div className="form-row">
               <div className="input-group">
-                <label>مبلغ المصروف (ر.س)</label>
+                <label>{text.amountLabel} ({text.currency})</label>
                 <div className="input-wrapper">
                   <input className="with-currency" type="number" step="0.01" min="0" value={amount === '' ? '' : amount} onChange={(e) => setAmount(e.target.value === '' ? '' : Number(e.target.value))} placeholder="1500" required />
-                  <span className="currency-tag">ر.س</span>
+                  <span className="currency-tag">{text.currency}</span>
                 </div>
               </div>
               <div className="input-group">
-                <label>الفترة أو ملاحظة</label>
+                <label>{text.periodLabel}</label>
                 <div className="input-wrapper">
-                  <input type="text" value={periodOrNote} onChange={(e) => setPeriodOrNote(e.target.value)} placeholder="أكتوبر 2026" required />
+                  <input type="text" value={periodOrNote} onChange={(e) => setPeriodOrNote(e.target.value)} placeholder={text.periodPH} required />
                 </div>
               </div>
             </div>
 
             <button type="submit" className="action-btn">
-              {editingId ? '💾 حفظ التعديلات' : '+ حفظ المصروف في السجل'}
+              {editingId ? text.saveBtnEdit : text.saveBtnNew}
             </button>
           </form>
         </div>
 
-        {/* قسم النتائج الفورية */}
         <div className="card">
-          <h2 className="card-title">مؤشرات المصاريف الفورية</h2>
+          <h2 className="card-title">{text.resultsTitle}</h2>
 
           <div className="result-box danger">
             <div>
-              <div className="result-label">إجمالي المصاريف التشغيلية</div>
-              <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '2px' }}>مجموع النفقات الخارجة من المتجر</div>
+              <div className="result-label">{text.totalExpLabel}</div>
+              <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '2px' }}>{text.totalExpSub}</div>
             </div>
             <div className="result-value">
-              {grandTotalExpenses.toFixed(2)} ر.س
+              {grandTotalExpenses.toFixed(2)} {text.currency}
             </div>
           </div>
 
-          <div className="result-box">
-            <span className="result-label">المصاريف الثابتة والرواتب</span>
-            <span className="result-value" style={{ color: '#0369a1' }}>{totalFixedExpenses.toFixed(2)} ر.س</span>
+          <div className="result-box" style={{ borderRight: lang === 'ar' ? '4px solid #0369a1' : 'none', borderLeft: lang === 'en' ? '4px solid #0369a1' : 'none' }}>
+            <span className="result-label">{text.fixedLabel}</span>
+            <span className="result-value" style={{ color: '#0369a1' }}>{totalFixedExpenses.toFixed(2)} {text.currency}</span>
           </div>
 
-          <div className="result-box" style={{ background: '#f8fafc' }}>
-            <span className="result-label">المصاريف المتغيرة والإعلانات</span>
-            <span className="result-value" style={{ color: '#d97706' }}>{totalVariableExpenses.toFixed(2)} ر.س</span>
+          <div className="result-box" style={{ borderRight: lang === 'ar' ? '4px solid #d97706' : 'none', borderLeft: lang === 'en' ? '4px solid #d97706' : 'none', background: '#f8fafc' }}>
+            <span className="result-label">{text.variableLabel}</span>
+            <span className="result-value" style={{ color: '#d97706' }}>{totalVariableExpenses.toFixed(2)} {text.currency}</span>
           </div>
         </div>
       </div>
 
-      {/* جدول البيانات السفلي */}
       <div className="table-section">
         <div className="table-toolbar">
           <input 
             type="text" 
             className="search-input" 
-            placeholder="🔍 بحث باسم المصروف أو التكرار..." 
+            placeholder={text.searchPH} 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
           <div className="table-btns">
-            <button className="t-btn" onClick={handleExportExcel} title="تصدير بصيغة Excel لدعم اللغة العربية">📥 تصدير Excel</button>
-            <button className="t-btn" onClick={() => fileInputRef.current?.click()}>📂 استيراد</button>
+            <button className="t-btn" onClick={handleExportExcel}>{text.exportBtn}</button>
+            <button className="t-btn" onClick={() => fileInputRef.current?.click()}>{text.importBtn}</button>
             <input type="file" ref={fileInputRef} onChange={handleImportJson} accept=".json" style={{ display: 'none' }} />
           </div>
         </div>
@@ -442,20 +571,20 @@ export default function ExpensesManagerSA() {
           <table className="data-table">
             <thead>
               <tr>
-                <th>#</th>
-                <th>البند والتاريخ</th>
-                <th>نوع المصروف</th>
-                <th>تكرار المصروف</th>
-                <th>الفترة / ملاحظة</th>
-                <th>المبلغ</th>
-                <th>الإجراءات</th>
+                <th>{text.table.th1}</th>
+                <th>{text.table.th2}</th>
+                <th>{text.table.th3}</th>
+                <th>{text.table.th4}</th>
+                <th>{text.table.th5}</th>
+                <th>{text.table.th6}</th>
+                <th>{text.table.th7}</th>
               </tr>
             </thead>
             <tbody>
               {filteredItems.length === 0 ? (
                 <tr>
                   <td colSpan={7} style={{ textAlign: 'center', color: '#94a3b8', padding: '30px 0' }}>
-                    لا توجد مصاريف تشغيلية مسجلة حالياً.
+                    {text.table.noRecords}
                   </td>
                 </tr>
               ) : (
@@ -468,16 +597,16 @@ export default function ExpensesManagerSA() {
                     </td>
                     <td><span style={{ fontWeight: 800, color: '#0369a1' }}>{item.expenseType}</span></td>
                     <td>
-                      <span style={{ fontWeight: 800, color: item.recurrence?.includes('شهري') ? '#047857' : item.recurrence?.includes('سنوي') ? '#d97706' : '#475569', background: '#f8fafc', padding: '3px 8px', borderRadius: '6px', fontSize: '12px' }}>
+                      <span style={{ fontWeight: 800, color: item.recurrence?.includes('شهري') || item.recurrence?.includes('Monthly') ? '#047857' : item.recurrence?.includes('سنوي') || item.recurrence?.includes('Yearly') ? '#d97706' : '#475569', background: '#f8fafc', padding: '3px 8px', borderRadius: '6px', fontSize: '12px' }}>
                         {item.recurrence || 'شهري (Monthly)'}
                       </span>
                     </td>
                     <td>{item.periodOrNote}</td>
-                    <td style={{ fontWeight: 900, color: '#dc2626' }}>{item.amount} ر.س</td>
+                    <td style={{ fontWeight: 900, color: '#dc2626' }}>{item.amount} {text.currency}</td>
                     <td>
                       <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                        <button className="tb-action-btn btn-edit" onClick={() => handleEdit(item)} title="تعديل">✏️</button>
-                        <button className="tb-action-btn btn-delete" onClick={() => handleDelete(item.id)} title="حذف">❌</button>
+                        <button className="tb-action-btn btn-edit" onClick={() => handleEdit(item)} title="Edit">✏️</button>
+                        <button className="tb-action-btn btn-delete" onClick={() => handleDelete(item.id)} title="Delete">❌</button>
                       </div>
                     </td>
                   </tr>
@@ -487,8 +616,8 @@ export default function ExpensesManagerSA() {
             {filteredItems.length > 0 && (
               <tfoot>
                 <tr className="tfoot-row">
-                  <td colSpan={5} style={{ textAlign: 'center' }}>الإجمالي الكلي للمصاريف</td>
-                  <td style={{ color: '#dc2626' }}>{grandTotalExpenses.toFixed(2)} ر.س</td>
+                  <td colSpan={5} style={{ textAlign: 'center' }}>{text.table.totalLabel}</td>
+                  <td style={{ color: '#dc2626' }}>{grandTotalExpenses.toFixed(2)} {text.currency}</td>
                   <td></td>
                 </tr>
               </tfoot>
