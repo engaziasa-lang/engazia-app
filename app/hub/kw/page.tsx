@@ -18,7 +18,7 @@ const kwTools: ToolInfo[] = [
   { id: 'fees', titleAr: 'حاسبة بوابات الدفع (كي نت، تاب، ماي فاتورة)', titleEn: 'Gateway Fee Calculator (K-Net, Tap, MyFatoorah)', descAr: 'احسب نسب بوابات الدفع المحلية في الكويت وتأثيرها الفعلي على هوامش أرباح متجرك.', descEn: 'Calculate local Kuwaiti payment gateway rates and their actual impact on your margins.', icon: '💳', link: '/hub/kw/fees' },
   { id: 'invoices', titleAr: 'مولد الفواتير التجارية المعتمدة', titleEn: 'Commercial Invoice Generator', descAr: 'أنشئ فواتير مبيعات نظامية متوافقة مع متطلبات وزارة التجارة والصناعة الكويتية.', descEn: 'Generate formal sales invoices compliant with the Kuwaiti Ministry of Commerce & Industry.', icon: '🧾', link: '/hub/kw/invoices' },
   { id: 'roas', titleAr: 'محلل عائد الإعلانات (سناب وتيك توك)', titleEn: 'Ad Return Analyzer (Snapchat & TikTok)', descAr: 'قس بدقة أداء إعلاناتك وهل تحقق عوائد مجزية في السوق الكويتي أم تستنزف ميزانيتك.', descEn: 'Measure your ad performance precisely and check if they yield rewarding returns in Kuwait.', icon: '📈', link: '/hub/kw/roas' },
-  { id: 'whatsapp', titleAr: 'إدارة عملاء واتساب (إنجازيا Pro Max)', titleEn: 'WhatsApp CRM (Enjazya Pro Max)', descAr: 'إدارة السلال المتروكة، إرسال روابط الدفع السريعة، وتصنيف عملاء المتجر الفاعلين.', descEn: 'Manage abandoned carts, send quick payment links, and categorize active store customers.', icon: '💬', link: '/hub/kw/whatsapp' },
+  { id: 'whatsapp', titleAr: 'إدارة عملاء واتساب (إنجازيا)', titleEn: 'WhatsApp CRM (Enjazya)', descAr: 'إدارة السلال المتروكة، إرسال روابط الدفع السريعة، وتصنيف عملاء المتجر الفاعلين.', descEn: 'Manage abandoned carts, send quick payment links, and categorize active store customers.', icon: '💬', link: '/hub/kw/whatsapp' },
   { id: 'returns', titleAr: 'محلل خسائر المرتجعات والشحن العكسي', titleEn: 'Returns & Reverse Logistics Loss Analyzer', descAr: 'قس تأثير الاسترجاع والاستبدال على صافي أرباحك الشهرية وتدفقك النقدي.', descEn: 'Measure the impact of returns and exchanges on your monthly net profit and cash flow.', icon: '🔄', link: '/hub/kw/returns' },
   { id: 'financial_report', titleAr: 'مجهز التقارير المالية والمبيعات', titleEn: 'Financial & Sales Report Preparer', descAr: 'اجمع ورتب بيانات مبيعاتك ومشترياتك لتسهيل المراجعة المالية لمتجرك الكويتي بدون أخطاء.', descEn: 'Organize your sales and purchases data for error-free financial bookkeeping.', icon: '📑', link: '/hub/kw/financial-report' },
   { id: 'platforms', titleAr: 'حاسبة رسوم المنصات (سلة، زد، شوبيفاي)', titleEn: 'Platform Fee Calculator (Salla, Zid, Shopify)', descAr: 'احسب التكاليف الخفية واشتراكات المنصات لضمان تسعير منتجاتك بشكل صحيح.', descEn: 'Calculate hidden costs and platform subscriptions to price your products correctly.', icon: '🛒', link: '/hub/kw/platforms' },
@@ -60,7 +60,7 @@ export default function EnjazyaKuwaitHub() {
     setLicenseKeyInput(licenseKey);
     setIsActivated(!!licenseKey);
 
-    document.title = savedLang === 'en' ? 'Enjazya Platform | Kuwait Market 🇰🇼' : 'منصة إنجازيا برو ماكس | السوق الكويتي 🇰🇼';
+    document.title = savedLang === 'en' ? 'Enjazya Platform | Kuwait Market' : 'منصة إنجازيا | السوق الكويتي';
   }, []);
 
   const toggleLanguage = () => {
@@ -68,7 +68,7 @@ export default function EnjazyaKuwaitHub() {
     setLang(newLang);
     localStorage.setItem('enjazya_kw_lang', newLang);
     localStorage.setItem('seerk_global_lang', newLang);
-    document.title = newLang === 'en' ? 'Enjazya Platform | Kuwait Market 🇰🇼' : 'منصة إنجازيا برو ماكس | السوق الكويتي 🇰🇼';
+    document.title = newLang === 'en' ? 'Enjazya Platform | Kuwait Market' : 'منصة إنجازيا | السوق الكويتي';
   };
 
   const handleActivateLicense = async () => {
@@ -273,7 +273,8 @@ export default function EnjazyaKuwaitHub() {
         .card:hover h3 { color: #0284c7; }
         .card p { color: #64748b; font-size: 14px; line-height: 1.7; font-weight: 500; margin-bottom: 26px; min-height: 50px; }
         
-        .card-btn { background: #f8fafc; color: #334155; border: 1px solid #e2e8f0; text-align: center; padding: 14px; border-radius: 12px; font-weight: 800; font-size: 14px; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 8px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
+        /* التعديل الجديد على زر تشغيل الأداة */
+        .card-btn { background: #f0f9ff; color: #0284c7; border: 1px solid #bae6fd; text-align: center; padding: 14px; border-radius: 12px; font-weight: 800; font-size: 14px; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 8px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
         .card:hover .card-btn { background: #0284c7; color: #ffffff; border-color: #0284c7; box-shadow: 0 6px 15px rgba(2, 132, 199, 0.25); }
 
         .footer { max-width: 1250px; margin: 0 auto; background: #0f172a; border-radius: 24px; padding: 45px; color: #f8fafc; text-align: ${lang === 'ar' ? 'start' : 'left'}; }
@@ -387,7 +388,7 @@ export default function EnjazyaKuwaitHub() {
       )}
 
       <div className="hero">
-        <h1>{lang === 'ar' ? 'منصة إنجازيا برو ماكس ' : 'Enjazya Pro Max '}<span>{lang === 'ar' ? 'ULTRA MAX للسوق الكويتي' : 'ULTRA MAX Kuwait Market'}</span></h1>
+        <h1>{lang === 'ar' ? 'منصة إنجازيا ' : 'Enjazya Platform '}<span>{lang === 'ar' ? 'للسوق الكويتي' : 'Kuwait Market'}</span></h1>
         <p>{lang === 'ar' ? 'الترسانة السحابية المتكاملة بـ 24 أداة دقيقة، صُممت خصيصاً لتمكين وتطوير المتاجر الإلكترونية في دولة الكويت بالدينار الكويتي (د.ك) ومتوافقة تماماً مع السوق المحلي.' : 'The integrated cloud arsenal with 24 precise tools designed specifically to empower and scale e-commerce stores in Kuwait in Kuwaiti Dinars (KWD).'}</p>
       </div>
 
@@ -413,39 +414,5 @@ export default function EnjazyaKuwaitHub() {
       <footer className="footer">
         <div className="footer-content">
           <div className="footer-brand">
-            <h3>{lang === 'ar' ? 'إنجازيا برو ماكس ' : 'Enjazya Pro Max '}<span>{lang === 'ar' ? 'الكويت 🇰🇼' : 'Kuwait 🇰🇼'}</span></h3>
-            <p>{lang === 'ar' ? 'المنصة السحابية الأولى المخصصة لتمكين تجار التجارة الإلكترونية في دولة الكويت. أدوات دقيقة، تقارير مالية محلية، وأرباح مضاعفة.' : 'The premier cloud platform dedicated to empowering e-commerce merchants in Kuwait. Precise tools, local financial reports, and multiplied profits.'}</p>
-          </div>
-          
-          <div className="footer-links">
-            <div className="links-column">
-              <h4>{lang === 'ar' ? 'المنصة' : 'Platform'}</h4>
-              <ul>
-                <li><Link href="/hub/kw">{lang === 'ar' ? 'جميع الأدوات (24)' : 'All Tools (24)'}</Link></li>
-                <li><Link href="/updates">{lang === 'ar' ? 'التحديثات الجديدة' : 'Latest Updates'}</Link></li>
-                <li><Link href="/pricing">{lang === 'ar' ? 'أسعار الباقات' : 'Pricing Plans'}</Link></li>
-              </ul>
-            </div>
-            <div className="links-column">
-              <h4>{lang === 'ar' ? 'الدعم والمساعدة' : 'Support'}</h4>
-              <ul>
-                <li><Link href="/support/contact">{lang === 'ar' ? 'الدعم الفني' : 'Technical Support'}</Link></li>
-                <li><Link href="/faq">{lang === 'ar' ? 'الأسئلة الشائعة' : 'FAQs'}</Link></li>
-              </ul>
-            </div>
-            <div className="links-column">
-              <h4>{lang === 'ar' ? 'الأنظمة والقوانين' : 'Legal'}</h4>
-              <ul>
-                <li><Link href="/legal/terms">{lang === 'ar' ? 'شروط الاستخدام' : 'Terms of Use'}</Link></li>
-                <li><Link href="/legal/privacy">{lang === 'ar' ? 'سياسة الخصوصية' : 'Privacy Policy'}</Link></li>
-              </ul>
-            </div>
-          </div>
-        </div>
-        <div className="footer-bottom">
-          <p>{lang === 'ar' ? 'جميع الحقوق محفوظة © 2026 منصة إنجازيا لتمكين التجارة الإلكترونية في دولة الكويت' : 'All rights reserved © 2026 Enjazya Platform Kuwait'}</p>
-        </div>
-      </footer>
-    </div>
-  );
-}
+            <h3>{lang === 'ar' ? 'إنجازيا ' : 'Enjazya '}<span>{lang === 'ar' ? 'الكويت 🇰🇼' : 'Kuwait 🇰🇼'}</span></h3>
+            <p>{lang === 'ar' ? 'المنصة السحابية الأولى المخص
