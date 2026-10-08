@@ -158,7 +158,6 @@ export default function ProfitCalculatorKW() {
   const sCost = typeof shippingCost === 'number' ? shippingCost : 0;
   const gFee = typeof gatewayFeePercent === 'number' ? gatewayFeePercent : 0;
 
-  // بدون ضريبة قيمة مضافة (VAT) في السوق الكويتي
   const gatewayFeeAmount = sPrice * (gFee / 100);
   const totalCosts = pCost + sCost + gatewayFeeAmount;
   const netProfit = sPrice - totalCosts;
@@ -390,6 +389,12 @@ export default function ProfitCalculatorKW() {
         .data-table tfoot td { background: #f1f5f9; font-weight: 900; color: #0f172a; border-top: 2px solid #cbd5e1; }
         
         .trial-badge { background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: 800; }
+        
+        .tb-action-btn { border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; font-family: inherit; transition: all 0.2s; }
+        .btn-edit { background: #e0f2fe; color: #0369a1; }
+        .btn-edit:hover { background: #bae6fd; }
+        .btn-delete { background: #fee2e2; color: #991b1b; }
+        .btn-delete:hover { background: #fca5a5; }
       `}</style>
 
       <div className="header">
@@ -537,8 +542,8 @@ export default function ProfitCalculatorKW() {
                     <td>{item.margin}%</td>
                     <td>
                       <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center' }}>
-                        <button onClick={() => handleEdit(item)} style={{ background: '#e0f2fe', color: '#0369a1', border: 'none', padding: '6px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 800, cursor: pointer }}>{text.table.editBtn}</button>
-                        <button onClick={() => handleDelete(item.id)} style={{ background: '#fee2e2', color: '#991b1b', border: 'none', padding: '6px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 800, cursor: 'pointer' }}>{text.table.delBtn}</button>
+                        <button className="tb-action-btn btn-edit" onClick={() => handleEdit(item)} title="Edit">{text.table.editBtn}</button>
+                        <button className="tb-action-btn btn-delete" onClick={() => handleDelete(item.id)} title="Delete">{text.table.delBtn}</button>
                       </div>
                     </td>
                   </tr>
