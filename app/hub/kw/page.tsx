@@ -13,34 +13,34 @@ interface ToolInfo {
   link: string;
 }
 
-const saTools: ToolInfo[] = [
-  { id: 'profit', titleAr: 'حاسبة أرباح ونقاط التعادل (15% ضريبة)', titleEn: 'Profit & Break-Even Calculator (15% VAT)', descAr: 'احسب صافي أرباحك بدقة بعد خصم التكاليف، رسوم الشحن، وضريبة القيمة المضافة.', descEn: 'Calculate your net profit accurately after deducting costs, shipping fees, and VAT.', icon: '📊', link: '/hub/sa/profit' },
-  { id: 'fees', titleAr: 'حاسبة رسوم بوابات الدفع (تابي، تمارا، مدى)', titleEn: 'Payment Gateway Fee Calculator (Tabby, Tamara, Mada)', descAr: 'احسب نسب بوابات الدفع المحلية وتأثيرها الفعلي على هوامش أرباح متجرك.', descEn: 'Calculate local payment gateway rates and their actual impact on your store margins.', icon: '💳', link: '/hub/sa/fees' },
-  { id: 'invoices', titleAr: 'مولد الفواتير الإلكترونية (زاتكا)', titleEn: 'Electronic Invoicing Generator (ZATCA)', descAr: 'أنشئ فواتير مبيعات نظامية مبسطة (QR Code) متوافقة مع متطلبات هيئة الزكاة والضريبة.', descEn: 'Generate simplified sales invoices (QR Code) compliant with ZATCA requirements.', icon: '🧾', link: '/hub/sa/invoices' },
-  { id: 'roas', titleAr: 'محلل عائد الإعلانات (سناب وتيك توك)', titleEn: 'Ad Return Analyzer (Snapchat & TikTok)', descAr: 'قس بدقة أداء إعلاناتك وهل تحقق عوائد مجزية في السوق السعودي أم تستنزف ميزانيتك.', descEn: 'Measure your ad performance precisely and check if they yield rewarding returns in the Saudi market.', icon: '📈', link: '/hub/sa/roas' },
-  { id: 'whatsapp', titleAr: 'إدارة عملاء واتساب (إنجازيا Pro Max)', titleEn: 'WhatsApp CRM (Enjazya Pro Max)', descAr: 'إدارة السلال المتروكة، إرسال روابط الدفع السريعة، وتصنيف عملاء المتجر الفاعلين.', descEn: 'Manage abandoned carts, send quick payment links, and categorize active store customers.', icon: '💬', link: '/hub/sa/whatsapp' },
-  { id: 'returns', titleAr: 'محلل خسائر المرتجعات والشحن العكسي', titleEn: 'Returns & Reverse Logistics Loss Analyzer', descAr: 'قس تأثير الاسترجاع والاستبدال على صافي أرباحك الشهرية وتدفقك النقدي.', descEn: 'Measure the impact of returns and exchanges on your monthly net profit and cash flow.', icon: '🔄', link: '/hub/sa/returns' },
-  { id: 'vat_report', titleAr: 'مجهز بيانات الإقرار الضريبي', titleEn: 'VAT Return Data Preparer', descAr: 'اجمع ورتب بيانات مبيعاتك ومشترياتك لتسهيل رفع الإقرار الضريبي لزاتكا بدون أخطاء.', descEn: 'Gather and organize sales and purchases data to simplify filing VAT returns to ZATCA without errors.', icon: '📑', link: '/hub/sa/vat-report' },
-  { id: 'platforms', titleAr: 'حاسبة رسوم المنصات (سلة، زد)', titleEn: 'Platform Fee Calculator (Salla, Zid)', descAr: 'احسب التكاليف الخفية واشتراكات المنصات المحلية لضمان تسعير منتجاتك بشكل صحيح.', descEn: 'Calculate hidden costs and local platform subscriptions to price your products correctly.', icon: '🛒', link: '/hub/sa/platforms' },
-  { id: 'influencer', titleAr: 'حاسبة جدوى إعلانات المشاهير', titleEn: 'Influencer Marketing ROI Calculator', descAr: 'حلل العائد المتوقع (ROI) من إعلانات المؤثرين قبل دفع مبالغ الحملة التسويقية.', descEn: 'Analyze expected ROI from influencer ads before paying out campaign marketing budgets.', icon: '🤳', link: '/hub/sa/influencer' },
-  { id: 'cod_risk', titleAr: 'محلل تكاليف الدفع عند الاستلام', titleEn: 'Cash on Delivery (COD) Risk Analyzer', descAr: 'احسب نسبة المخاطرة والرسوم الإضافية لطلبات الدفع عند الاستلام وتأثيرها على الربح.', descEn: 'Calculate risk ratios and extra fees for COD orders and their overall profit impact.', icon: '🚚', link: '/hub/sa/cod-risk' },
-  { id: 'shipping', titleAr: 'مدير تتبع الشحنات المحلية', titleEn: 'Local Shipment Tracking Manager', descAr: 'تابع حالات الشحنات (سمسا، أرامكس، ريدبوكس) وحل استفسارات تأخر التوصيل.', descEn: 'Track shipment statuses (SMSA, Aramex, RedBox) and resolve delivery delays.', icon: '📦', link: '/hub/sa/shipping' },
-  { id: 'inventory', titleAr: 'مخطط المخزون للمواسم السعودية', titleEn: 'Saudi Seasonal Inventory Planner', descAr: 'توقع الكميات المطلوبة لمواسم (رمضان، العيد، اليوم الوطني) لتجنب نفاذ الكمية.', descEn: 'Forecast required stock for Saudi seasons (Ramadan, Eid, National Day) to prevent stockouts.', icon: '📅', link: '/hub/sa/inventory' },
-  { id: 'expenses', titleAr: 'مدير النفقات والمصاريف التشغيلية', titleEn: 'Operational Expenses Manager', descAr: 'تتبع مصاريف المتجر الثابتة والمتغيرة بالريال السعودي لضبط التدفق النقدي.', descEn: 'Track fixed and variable store expenses in Saudi Riyals to control cash flow.', icon: '💸', link: '/hub/sa/expenses' },
-  { id: 'legal', titleAr: 'مولد السياسات (وزارة التجارة)', titleEn: 'Store Policies Generator (Ministry of Commerce)', descAr: 'أنشئ صفحات الاستبدال والاسترجاع وسياسة الخصوصية المتوافقة مع القوانين المحلية.', descEn: 'Generate return policies and privacy terms compliant with local regulations.', icon: '⚖', link: '/hub/sa/legal' },
-  { id: 'jasmal', titleAr: 'جاسمال (Jasmal) لاستخراج البيانات', titleEn: 'Jasmal Data Extraction Tool', descAr: 'اسحب بيانات المنتجات والأسعار من المتاجر المنافسة ورتبها فوراً في ملفات إكسل.', descEn: 'Extract product data and prices from competitor stores and organize them instantly into Excel files.', icon: '🕷️', link: '/hub/sa/jasmal' },
-  { id: 'reviews', titleAr: 'نظام طلب التقييمات الآلي', titleEn: 'Automated Review Request System', descAr: 'أرسل رسائل تلقائية للعملاء عبر واتساب بعد الاستلام لجمع التقييمات وبناء الموثوقية.', descEn: 'Send automated WhatsApp messages after delivery to collect reviews and build trust.', icon: '⭐', link: '/hub/sa/reviews' },
-  { id: 'dropshipping', titleAr: 'حاسبة أرباح الدروبشيبينغ', titleEn: 'Dropshipping Profit Calculator', descAr: 'احسب هوامش الربح للمنتجات المستوردة مع أخذ رسوم الجمارك والشحن الدولي في الحسبان.', descEn: 'Calculate profit margins for imported products factoring in custom duties and international shipping.', icon: '🌍', link: '/hub/sa/dropshipping' },
-  { id: 'copy', titleAr: 'مولد نصوص الإكسبلور (باللهجة السعودية)', titleEn: 'Explore Copywriting Generator (Saudi Dialect)', descAr: 'اصنع سكربتات تيك توك وإعلانات جذابة باللهجة المحلية لزيادة معدل التحويل.', descEn: 'Create catchy TikTok scripts and ads in the local Saudi dialect to boost conversions.', icon: '✍', link: '/hub/sa/copy' },
-  { id: 'support', titleAr: 'قوالب خدمة العملاء السريعة', titleEn: 'Quick Customer Service Templates', descAr: 'انسخ ردود احترافية جاهزة للرد على استفسارات العملاء المكررة عبر واتساب.', descEn: 'Copy ready professional responses for repetitive customer inquiries via WhatsApp.', icon: '🎧', link: '/hub/sa/support' },
-  { id: 'promos', titleAr: 'حاسبة جدوى أكواد الخصم والعروض', titleEn: 'Discount & Promo Code ROI Calculator', descAr: 'تأكد من أن عروضك الترويجية (مثل 1+1 أو الشحن المجاني) لا تسبب لك خسائر مخفية.', descEn: 'Ensure your promotional offers (BOGO or free shipping) do not cause hidden losses.', icon: '🎟️', link: '/hub/sa/promos' },
-  { id: 'ltv', titleAr: 'حاسبة القيمة الدائمة للعميل (LTV)', titleEn: 'Customer Lifetime Value (LTV) Calculator', descAr: 'اعرف تكلفة الاستحواذ على العميل (CAC) وقيمته الفعلية لمتجرك على المدى الطويل.', descEn: 'Know your customer acquisition cost (CAC) and long-term value for your store.', icon: '🎯', link: '/hub/sa/ltv' },
-  { id: 'ab_test', titleAr: 'حاسبة اختبارات الإعلانات (A/B)', titleEn: 'A/B Ad Testing Calculator', descAr: 'قارن بين حملتين إعلانيتين لتعرف أيهما يحقق أفضل عائد بأقل تكلفة للطلب.', descEn: 'Compare two ad campaigns to see which achieves better returns at a lower cost.', icon: '⚖️', link: '/hub/sa/ab-test' },
-  { id: 'links', titleAr: 'صانع روابط واتساب السريعة', titleEn: 'Quick WhatsApp Link Generator', descAr: 'أنشئ روابط مخصصة برسائل جاهزة لبيو تيك توك أو تمريرها في حملات الانستقرام.', descEn: 'Create custom links with pre-filled messages for TikTok bio or Instagram campaigns.', icon: '🔗', link: '/hub/sa/links' },
-  { id: 'tips', titleAr: 'أسرار نمو المتاجر السعودية', titleEn: 'Saudi Store Growth Secrets', descAr: 'مكتبة استراتيجيات حصرية لزيادة التحويل ورفع ولاء العملاء في السوق المحلي.', descEn: 'Exclusive strategy library to increase conversions and customer loyalty in the local market.', icon: '💡', link: '/hub/sa/tips' }
+const kwTools: ToolInfo[] = [
+  { id: 'profit', titleAr: 'حاسبة أرباح ونقاط التعادل (بدون ضريبة)', titleEn: 'Profit & Break-Even Calculator (Tax-Free)', descAr: 'احسب صافي أرباحك بدقة بعد خصم التكاليف ورسوم الشحن بالدينار الكويتي.', descEn: 'Calculate your net profit accurately after deducting costs and shipping fees in KWD.', icon: '📊', link: '/hub/kw/profit' },
+  { id: 'fees', titleAr: 'حاسبة بوابات الدفع (كي نت، تاب، ماي فاتورة)', titleEn: 'Gateway Fee Calculator (K-Net, Tap, MyFatoorah)', descAr: 'احسب نسب بوابات الدفع المحلية في الكويت وتأثيرها الفعلي على هوامش أرباح متجرك.', descEn: 'Calculate local Kuwaiti payment gateway rates and their actual impact on your margins.', icon: '💳', link: '/hub/kw/fees' },
+  { id: 'invoices', titleAr: 'مولد الفواتير التجارية المعتمدة', titleEn: 'Commercial Invoice Generator', descAr: 'أنشئ فواتير مبيعات نظامية متوافقة مع متطلبات وزارة التجارة والصناعة الكويتية.', descEn: 'Generate formal sales invoices compliant with the Kuwaiti Ministry of Commerce & Industry.', icon: '🧾', link: '/hub/kw/invoices' },
+  { id: 'roas', titleAr: 'محلل عائد الإعلانات (سناب وتيك توك)', titleEn: 'Ad Return Analyzer (Snapchat & TikTok)', descAr: 'قس بدقة أداء إعلاناتك وهل تحقق عوائد مجزية في السوق الكويتي أم تستنزف ميزانيتك.', descEn: 'Measure your ad performance precisely and check if they yield rewarding returns in Kuwait.', icon: '📈', link: '/hub/kw/roas' },
+  { id: 'whatsapp', titleAr: 'إدارة عملاء واتساب (إنجازيا Pro Max)', titleEn: 'WhatsApp CRM (Enjazya Pro Max)', descAr: 'إدارة السلال المتروكة، إرسال روابط الدفع السريعة، وتصنيف عملاء المتجر الفاعلين.', descEn: 'Manage abandoned carts, send quick payment links, and categorize active store customers.', icon: '💬', link: '/hub/kw/whatsapp' },
+  { id: 'returns', titleAr: 'محلل خسائر المرتجعات والشحن العكسي', titleEn: 'Returns & Reverse Logistics Loss Analyzer', descAr: 'قس تأثير الاسترجاع والاستبدال على صافي أرباحك الشهرية وتدفقك النقدي.', descEn: 'Measure the impact of returns and exchanges on your monthly net profit and cash flow.', icon: '🔄', link: '/hub/kw/returns' },
+  { id: 'financial_report', titleAr: 'مجهز التقارير المالية والمبيعات', titleEn: 'Financial & Sales Report Preparer', descAr: 'اجمع ورتب بيانات مبيعاتك ومشترياتك لتسهيل المراجعة المالية لمتجرك الكويتي بدون أخطاء.', descEn: 'Organize your sales and purchases data for error-free financial bookkeeping.', icon: '📑', link: '/hub/kw/financial-report' },
+  { id: 'platforms', titleAr: 'حاسبة رسوم المنصات (سلة، زد، شوبيفاي)', titleEn: 'Platform Fee Calculator (Salla, Zid, Shopify)', descAr: 'احسب التكاليف الخفية واشتراكات المنصات لضمان تسعير منتجاتك بشكل صحيح.', descEn: 'Calculate hidden costs and platform subscriptions to price your products correctly.', icon: '🛒', link: '/hub/kw/platforms' },
+  { id: 'influencer', titleAr: 'حاسبة جدوى إعلانات المشاهير (الكويت)', titleEn: 'Influencer Marketing ROI Calculator', descAr: 'حلل العائد المتوقع (ROI) من إعلانات المؤثرين قبل دفع مبالغ الحملة التسويقية.', descEn: 'Analyze expected ROI from influencer ads before paying out campaign marketing budgets.', icon: '🤳', link: '/hub/kw/influencer' },
+  { id: 'cod_risk', titleAr: 'محلل تكاليف الدفع عند الاستلام', titleEn: 'Cash on Delivery (COD) Risk Analyzer', descAr: 'احسب نسبة المخاطرة والرسوم الإضافية لطلبات الدفع عند الاستلام وتأثيرها على الربح.', descEn: 'Calculate risk ratios and extra fees for COD orders and their overall profit impact.', icon: '🚚', link: '/hub/kw/cod-risk' },
+  { id: 'shipping', titleAr: 'مدير تتبع الشحنات المحلية', titleEn: 'Local Shipment Tracking Manager', descAr: 'تابع حالات الشحنات (بوستا بلس، أرامكس، مبادر) وحل استفسارات تأخر التوصيل.', descEn: 'Track shipment statuses (Posta Plus, Aramex, Mubaader) and resolve delivery delays.', icon: '📦', link: '/hub/kw/shipping' },
+  { id: 'inventory', titleAr: 'مخطط المخزون للمواسم الكويتية', titleEn: 'Kuwaiti Seasonal Inventory Planner', descAr: 'توقع الكميات المطلوبة لمواسم (هلا فبراير، رمضان، العيد) لتجنب نفاذ الكمية.', descEn: 'Forecast required stock for Kuwaiti seasons (Hala February, Ramadan, Eid) to prevent stockouts.', icon: '📅', link: '/hub/kw/inventory' },
+  { id: 'expenses', titleAr: 'مدير النفقات والمصاريف التشغيلية', titleEn: 'Operational Expenses Manager', descAr: 'تتبع مصاريف المتجر الثابتة والمتغيرة بالدينار الكويتي لضبط التدفق النقدي.', descEn: 'Track fixed and variable store expenses in Kuwaiti Dinars (KWD) to control cash flow.', icon: '💸', link: '/hub/kw/expenses' },
+  { id: 'legal', titleAr: 'مولد السياسات (حماية المستهلك)', titleEn: 'Store Policies Generator (Consumer Protection)', descAr: 'أنشئ صفحات الاستبدال والاسترجاع وسياسة الخصوصية المتوافقة مع القوانين الكويتية.', descEn: 'Generate return policies and privacy terms compliant with local Kuwaiti regulations.', icon: '⚖', link: '/hub/kw/legal' },
+  { id: 'jasmal', titleAr: 'جاسمال (Jasmal) لاستخراج البيانات', titleEn: 'Jasmal Data Extraction Tool', descAr: 'اسحب بيانات المنتجات والأسعار من المتاجر المنافسة ورتبها فوراً في ملفات إكسل.', descEn: 'Extract product data and prices from competitor stores and organize them instantly into Excel files.', icon: '🕷️', link: '/hub/kw/jasmal' },
+  { id: 'reviews', titleAr: 'نظام طلب التقييمات الآلي', titleEn: 'Automated Review Request System', descAr: 'أرسل رسائل تلقائية للعملاء عبر واتساب بعد الاستلام لجمع التقييمات وبناء الموثوقية.', descEn: 'Send automated WhatsApp messages after delivery to collect reviews and build trust.', icon: '⭐', link: '/hub/kw/reviews' },
+  { id: 'dropshipping', titleAr: 'حاسبة أرباح الدروبشيبينغ', titleEn: 'Dropshipping Profit Calculator', descAr: 'احسب هوامش الربح للمنتجات المستوردة مع أخذ رسوم الجمارك والشحن الدولي في الحسبان.', descEn: 'Calculate profit margins for imported products factoring in custom duties and international shipping.', icon: '🌍', link: '/hub/kw/dropshipping' },
+  { id: 'copy', titleAr: 'مولد نصوص الإكسبلور (باللهجة الكويتية)', titleEn: 'Explore Copywriting Generator (Kuwaiti Dialect)', descAr: 'اصنع سكربتات تيك توك وإعلانات جذابة باللهجة المحلية لزيادة معدل التحويل.', descEn: 'Create catchy TikTok scripts and ads in the local Kuwaiti dialect to boost conversions.', icon: '✍', link: '/hub/kw/copy' },
+  { id: 'support', titleAr: 'قوالب خدمة العملاء السريعة', titleEn: 'Quick Customer Service Templates', descAr: 'انسخ ردود احترافية جاهزة للرد على استفسارات العملاء المكررة عبر واتساب.', descEn: 'Copy ready professional responses for repetitive customer inquiries via WhatsApp.', icon: '🎧', link: '/hub/kw/support' },
+  { id: 'promos', titleAr: 'حاسبة جدوى أكواد الخصم والعروض', titleEn: 'Discount & Promo Code ROI Calculator', descAr: 'تأكد من أن عروضك الترويجية (مثل 1+1 أو الشحن المجاني) لا تسبب لك خسائر مخفية.', descEn: 'Ensure your promotional offers (BOGO or free shipping) do not cause hidden losses.', icon: '🎟️', link: '/hub/kw/promos' },
+  { id: 'ltv', titleAr: 'حاسبة القيمة الدائمة للعميل (LTV)', titleEn: 'Customer Lifetime Value (LTV) Calculator', descAr: 'اعرف تكلفة الاستحواذ على العميل (CAC) وقيمته الفعلية لمتجرك على المدى الطويل.', descEn: 'Know your customer acquisition cost (CAC) and long-term value for your store.', icon: '🎯', link: '/hub/kw/ltv' },
+  { id: 'ab_test', titleAr: 'حاسبة اختبارات الإعلانات (A/B)', titleEn: 'A/B Ad Testing Calculator', descAr: 'قارن بين حملتين إعلانيتين لتعرف أيهما يحقق أفضل عائد بأقل تكلفة للطلب.', descEn: 'Compare two ad campaigns to see which achieves better returns at a lower cost.', icon: '⚖️', link: '/hub/kw/ab-test' },
+  { id: 'links', titleAr: 'صانع روابط واتساب السريعة', titleEn: 'Quick WhatsApp Link Generator', descAr: 'أنشئ روابط مخصصة برسائل جاهزة لبيو تيك توك أو تمريرها في حملات الانستقرام.', descEn: 'Create custom links with pre-filled messages for TikTok bio or Instagram campaigns.', icon: '🔗', link: '/hub/kw/links' },
+  { id: 'tips', titleAr: 'أسرار نمو المتاجر الكويتية', titleEn: 'Kuwaiti Store Growth Secrets', descAr: 'مكتبة استراتيجيات حصرية لزيادة التحويل ورفع ولاء العملاء في السوق الكويتي.', descEn: 'Exclusive strategy library to increase conversions and customer loyalty in the local market.', icon: '💡', link: '/hub/kw/tips' }
 ];
 
-export default function EnjazyaSaudiHub() {
+export default function EnjazyaKuwaitHub() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
   const [licenseKeyInput, setLicenseKeyInput] = useState<string>('');
   const [isActivated, setIsActivated] = useState<boolean>(false);
@@ -50,25 +50,25 @@ export default function EnjazyaSaudiHub() {
   const LEMON_CHECKOUT_URL = 'https://enjazya.lemonsqueezy.com/checkout/buy/dce1dd80-3422-43ba-aed5-8ef2dcd38d6d?locale=en';
 
   useEffect(() => {
-    const savedLang = (localStorage.getItem('enjazya_sa_lang') as 'ar' | 'en') || 'ar';
+    const savedLang = (localStorage.getItem('enjazya_kw_lang') as 'ar' | 'en') || 'ar';
     setLang(savedLang);
 
     localStorage.setItem('seerk_global_lang', savedLang);
-    localStorage.setItem('seerk_global_currency', 'SAR');
+    localStorage.setItem('seerk_global_currency', 'KWD');
 
     const licenseKey = localStorage.getItem('merchant_license_key') || '';
     setLicenseKeyInput(licenseKey);
     setIsActivated(!!licenseKey);
 
-    document.title = savedLang === 'en' ? 'Enjazya Platform | Saudi Market 🇸🇦' : 'منصة إنجازيا | السوق السعودي 🇸🇦';
+    document.title = savedLang === 'en' ? 'Enjazya Platform | Kuwait Market 🇰🇼' : 'منصة إنجازيا برو ماكس | السوق الكويتي 🇰🇼';
   }, []);
 
   const toggleLanguage = () => {
     const newLang = lang === 'ar' ? 'en' : 'ar';
     setLang(newLang);
-    localStorage.setItem('enjazya_sa_lang', newLang);
+    localStorage.setItem('enjazya_kw_lang', newLang);
     localStorage.setItem('seerk_global_lang', newLang);
-    document.title = newLang === 'en' ? 'Enjazya Platform | Saudi Market 🇸🇦' : 'منصة إنجازيا | السوق السعودي 🇸🇦';
+    document.title = newLang === 'en' ? 'Enjazya Platform | Kuwait Market 🇰🇼' : 'منصة إنجازيا برو ماكس | السوق الكويتي 🇰🇼';
   };
 
   const handleActivateLicense = async () => {
@@ -131,7 +131,7 @@ export default function EnjazyaSaudiHub() {
       const allData: Record<string, string> = {};
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key && (key.startsWith('seerk_') || key.startsWith('enjazya_sa_') || key === 'merchant_license_key')) {
+        if (key && (key.startsWith('seerk_') || key.startsWith('enjazya_kw_') || key === 'merchant_license_key')) {
           allData[key] = localStorage.getItem(key) || '';
         }
       }
@@ -139,7 +139,7 @@ export default function EnjazyaSaudiHub() {
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(allData, null, 2));
       const downloadAnchor = document.createElement('a');
       downloadAnchor.setAttribute("href", dataStr);
-      downloadAnchor.setAttribute("download", `enjazya_saudi_backup_${new Date().toISOString().slice(0, 10)}.json`);
+      downloadAnchor.setAttribute("download", `enjazya_kuwait_backup_${new Date().toISOString().slice(0, 10)}.json`);
       document.body.appendChild(downloadAnchor);
       downloadAnchor.click();
       downloadAnchor.remove();
@@ -181,7 +181,7 @@ export default function EnjazyaSaudiHub() {
         
         .navbar { max-width: 1250px; margin: 0 auto 20px; padding: 14px 24px; background: #ffffff; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 15px; border-top: 5px solid #047857; position: relative; }
         .brand { font-size: 26px; font-weight: 900; color: #0f172a; white-space: nowrap; display: flex; align-items: center; gap: 12px; letter-spacing: -0.5px; }
-        .sa-badge { background: #dcfce7; color: #166534; font-size: 12px; font-weight: 800; padding: 5px 10px; border-radius: 6px; letter-spacing: normal; display: inline-flex; align-items: center; border: 1px solid #a7f3d0; }
+        .kw-badge { background: #fef3c7; color: #92400e; font-size: 12px; font-weight: 800; padding: 5px 10px; border-radius: 6px; letter-spacing: normal; display: inline-flex; align-items: center; border: 1px solid #fde68a; }
         
         .nav-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; flex-direction: ${lang === 'ar' ? 'row-reverse' : 'row'}; }
         
@@ -298,7 +298,7 @@ export default function EnjazyaSaudiHub() {
       
       <div className="navbar">
         <div className="brand">
-          {lang === 'ar' ? 'إنجازيا' : 'Enjazya'} <span className="sa-badge">{lang === 'ar' ? 'السوق السعودي SA 🇸🇦' : 'Saudi Market 🇸🇦'}</span>
+          {lang === 'ar' ? 'إنجازيا' : 'Enjazya'} <span className="kw-badge">{lang === 'ar' ? 'السوق الكويتي KW 🇰🇼' : 'Kuwait Market 🇰🇼'}</span>
         </div>
 
         <div className="nav-controls">
@@ -308,7 +308,7 @@ export default function EnjazyaSaudiHub() {
 
           {!isActivated && (
             <a href={LEMON_CHECKOUT_URL} target="_blank" rel="noopener noreferrer" className="action-btn-primary" title="ترقية الحساب">
-              ⚡ {lang === 'ar' ? 'ترقية (49.99 ر.س)' : 'Upgrade (49.99 SAR)'}
+              ⚡ {lang === 'ar' ? 'ترقية (3.99 د.ك)' : 'Upgrade (3.99 KWD)'}
             </a>
           )}
 
@@ -375,8 +375,8 @@ export default function EnjazyaSaudiHub() {
               {lang === 'ar' ? '🔥 عرض لفترة محدودة: احصل على الوصول الكامل لجميع الأدوات الـ 24!' : '🔥 Limited Time Offer: Get Full Access to All 24 Tools!'}
             </h3>
             <div className="promo-text">
-              <span className="price-tag-old">{lang === 'ar' ? 'كان بـ 299 ر.س شهرياً' : 'Was 299 SAR/mo'}</span>
-              <span className="price-tag-new">{lang === 'ar' ? 'والآن فقط 49.99 ر.س شهرياً' : 'Now only 49.99 SAR/mo'}</span>
+              <span className="price-tag-old">{lang === 'ar' ? 'كان بـ 24.99 د.ك شهرياً' : 'Was 24.99 KWD/mo'}</span>
+              <span className="price-tag-new">{lang === 'ar' ? 'والآن فقط 3.99 د.ك شهرياً' : 'Now only 3.99 KWD/mo'}</span>
               <span className="discount-badge">{lang === 'ar' ? 'تخفيض 83% 🏷️' : '83% OFF 🏷️'}</span>
             </div>
           </div>
@@ -389,12 +389,12 @@ export default function EnjazyaSaudiHub() {
       )}
 
       <div className="hero">
-        <h1>{lang === 'ar' ? 'منصة إنجازيا ' : 'Enjazya Platform '}<span>{lang === 'ar' ? 'ULTRA MAX للسوق السعودي' : 'ULTRA MAX Saudi Market'}</span></h1>
-        <p>{lang === 'ar' ? 'الترسانة السحابية المتكاملة بـ 24 أداة دقيقة، صُممت خصيصاً لتمكين وتطوير المتاجر الإلكترونية في المملكة العربية السعودية بالريال السعودي (ر.س) ومتوافقة مع متطلبات ضريبة القيمة المضافة.' : 'The integrated cloud arsenal with 24 precise tools designed specifically to empower and scale e-commerce stores in Saudi Arabia in Saudi Riyals (SAR) and compliant with VAT.'}</p>
+        <h1>{lang === 'ar' ? 'منصة إنجازيا برو ماكس ' : 'Enjazya Pro Max '}<span>{lang === 'ar' ? 'ULTRA MAX للسوق الكويتي' : 'ULTRA MAX Kuwait Market'}</span></h1>
+        <p>{lang === 'ar' ? 'الترسانة السحابية المتكاملة بـ 24 أداة دقيقة، صُممت خصيصاً لتمكين وتطوير المتاجر الإلكترونية في دولة الكويت بالدينار الكويتي (د.ك) ومتوافقة تماماً مع السوق المحلي.' : 'The integrated cloud arsenal with 24 precise tools designed specifically to empower and scale e-commerce stores in Kuwait in Kuwaiti Dinars (KWD).'}</p>
       </div>
 
       <div className="cards-grid">
-        {saTools.map((tool, index) => (
+        {kwTools.map((tool, index) => (
           <Link href={tool.link} key={tool.id} className="card clean-link">
             <div>
               <div className="card-top">
@@ -415,15 +415,15 @@ export default function EnjazyaSaudiHub() {
       <footer className="footer">
         <div className="footer-content">
           <div className="footer-brand">
-            <h3>{lang === 'ar' ? 'إنجازيا ' : 'Enjazya '}<span>{lang === 'ar' ? 'السعودية 🇸🇦' : 'Saudi Arabia 🇸🇦'}</span></h3>
-            <p>{lang === 'ar' ? 'المنصة السحابية الأولى المخصصة لتمكين تجار التجارة الإلكترونية في المملكة العربية السعودية. أدوات دقيقة، حسابات ضريبية متوافقة مع زاتكا، وأرباح مضاعفة.' : 'The premier cloud platform dedicated to empowering e-commerce merchants in Saudi Arabia. Precise tools, ZATCA-compliant tax calculations, and multiplied profits.'}</p>
+            <h3>{lang === 'ar' ? 'إنجازيا برو ماكس ' : 'Enjazya Pro Max '}<span>{lang === 'ar' ? 'الكويت 🇰🇼' : 'Kuwait 🇰🇼'}</span></h3>
+            <p>{lang === 'ar' ? 'المنصة السحابية الأولى المخصصة لتمكين تجار التجارة الإلكترونية في دولة الكويت. أدوات دقيقة، تقارير مالية محلية، وأرباح مضاعفة.' : 'The premier cloud platform dedicated to empowering e-commerce merchants in Kuwait. Precise tools, local financial reports, and multiplied profits.'}</p>
           </div>
           
           <div className="footer-links">
             <div className="links-column">
               <h4>{lang === 'ar' ? 'المنصة' : 'Platform'}</h4>
               <ul>
-                <li><Link href="/hub/sa">{lang === 'ar' ? 'جميع الأدوات (24)' : 'All Tools (24)'}</Link></li>
+                <li><Link href="/hub/kw">{lang === 'ar' ? 'جميع الأدوات (24)' : 'All Tools (24)'}</Link></li>
                 <li><Link href="/updates">{lang === 'ar' ? 'التحديثات الجديدة' : 'Latest Updates'}</Link></li>
                 <li><Link href="/pricing">{lang === 'ar' ? 'أسعار الباقات' : 'Pricing Plans'}</Link></li>
               </ul>
@@ -432,7 +432,7 @@ export default function EnjazyaSaudiHub() {
               <h4>{lang === 'ar' ? 'الدعم والمساعدة' : 'Support'}</h4>
               <ul>
                 <li><Link href="/support/contact">{lang === 'ar' ? 'الدعم الفني' : 'Technical Support'}</Link></li>
-                <li><Link href="/support/faq">{lang === 'ar' ? 'الأسئلة الشائعة' : 'FAQs'}</Link></li>
+                <li><Link href="/faq">{lang === 'ar' ? 'الأسئلة الشائعة' : 'FAQs'}</Link></li>
               </ul>
             </div>
             <div className="links-column">
@@ -445,7 +445,7 @@ export default function EnjazyaSaudiHub() {
           </div>
         </div>
         <div className="footer-bottom">
-          <p>{lang === 'ar' ? 'جميع الحقوق محفوظة © 2026 منصة إنجازيا لتمكين التجارة الإلكترونية في المملكة العربية السعودية' : 'All rights reserved © 2026 Enjazya Platform Saudi Arabia'}</p>
+          <p>{lang === 'ar' ? 'جميع الحقوق محفوظة © 2026 منصة إنجازيا لتمكين التجارة الإلكترونية في دولة الكويت' : 'All rights reserved © 2026 Enjazya Platform Kuwait'}</p>
         </div>
       </footer>
     </div>
