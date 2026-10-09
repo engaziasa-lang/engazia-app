@@ -11,9 +11,10 @@ interface SeasonItem {
   growthRatePercent: number;
   requiredStock: number;
   createdAt?: string;
+  timestamp?: number; // تمت الإضافة للفرز الزمني
 }
 
-export default function SeasonalInventoryPlannerAE() {
+export default function SeasonalInventoryPlannerQA() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
   
   const [productName, setProductName] = useState<string>('');
@@ -24,27 +25,34 @@ export default function SeasonalInventoryPlannerAE() {
 
   const [items, setItems] = useState<SeasonItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [dateFilter, setDateFilter] = useState<string>('all'); // الفرز الزمني
   const [editingId, setEditingId] = useState<string | null>(null);
+
+  const [isClient, setIsClient] = useState(false);
+  const [isActivated, setIsActivated] = useState(true);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    setIsClient(true);
+    setIsActivated(!!localStorage.getItem('merchant_license_key_qa'));
+
     // قراءة اللغة من الصفحة الرئيسية
     const savedLang = localStorage.getItem('seerk_global_lang') as 'ar' | 'en';
     if (savedLang) {
       setLang(savedLang);
     }
     
-    // ضبط الموسم الافتراضي
+    // ضبط الموسم الافتراضي القطري
     if (savedLang === 'en') {
-      setSeasonSelect('Dubai Summer Surprises (DSS) 🛍️');
-      setCustomSeason('Dubai Summer Surprises (DSS) 🛍️');
+      setSeasonSelect('Shop Qatar 🛍️');
+      setCustomSeason('Shop Qatar 🛍️');
     } else {
-      setSeasonSelect('مفاجآت صيف دبي (DSS) 🛍️');
-      setCustomSeason('مفاجآت صيف دبي (DSS) 🛍️');
+      setSeasonSelect('مهرجان قطر للتسوق 🛍️');
+      setCustomSeason('مهرجان قطر للتسوق 🛍️');
     }
 
-    const saved = localStorage.getItem('seerk_ae_seasonal_inventory_items');
+    const saved = localStorage.getItem('seerk_qa_seasonal_inventory_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
@@ -52,10 +60,8 @@ export default function SeasonalInventoryPlannerAE() {
 
   const saveToLocalStorage = (newItems: SeasonItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_ae_seasonal_inventory_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_qa_seasonal_inventory_items', JSON.stringify(newItems));
   };
-
-  const isActivated = typeof window !== 'undefined' && !!localStorage.getItem('merchant_license_key');
 
   const sales = typeof normalMonthlySales === 'number' ? normalMonthlySales : 0;
   const growth = typeof growthRatePercent === 'number' ? growthRatePercent : 0;
@@ -67,8 +73,8 @@ export default function SeasonalInventoryPlannerAE() {
   const t = {
     ar: {
       back: '← عودة للمنصة',
-      title: 'مخطط المخزون للمواسم الإماراتية 📅',
-      desc: 'توقع الكميات المطلوبة لمواسم الإمارات (مفاجآت صيف دبي، العيد، اليوم الوطني) لتجنب نفاد المخزون',
+      title: 'مخطط المخزون للمواسم القطرية 📅',
+      desc: 'توقع الكميات المطلوبة لمواسم قطر (مهرجان قطر للتسوق، العيد، اليوم الوطني) لتجنب نفاد المخزون',
       editRecord: 'تعديل السجل',
       newRecord: 'تخطيط مخزون لموسم جديد',
       clear: '🧹 مسح الحقول',
@@ -76,9 +82,9 @@ export default function SeasonalInventoryPlannerAE() {
       prodName: 'اسم المنتج أو الفئة',
       prodNamePH: 'مثال: عبايات نسائية فاخرة',
       seasonLabel: 'اختر الموسم المستهدف',
-      s_dss: 'مفاجآت صيف دبي (DSS) 🛍️',
-      s_national: 'اليوم الوطني الإماراتي 🇦🇪',
-      s_dsf: 'مهرجان دبي للتسوق (DSF) ⭐',
+      s_dss: 'مهرجان قطر للتسوق 🛍️',
+      s_national: 'اليوم الوطني القطري 🇶🇦',
+      s_dsf: 'مهرجان الدوحة التجاري ⭐',
       s_friday: 'الجمعة البيضاء / السوداء 🏷️',
       s_eid: 'موسم رمضان والعيد 🌙',
       s_other: '➕ موسم آخر (كتابة يدوية)',
@@ -99,8 +105,16 @@ export default function SeasonalInventoryPlannerAE() {
       searchPH: '🔍 بحث بالمنتج أو الموسم...',
       exportBtn: '📥 تصدير Excel',
       importBtn: '📂 استيراد',
+      filters: {
+        all: 'الكل',
+        day: 'آخر يوم',
+        week: 'آخر أسبوع',
+        month: 'آخر شهر',
+        sixMonths: 'آخر 6 أشهر',
+        year: 'آخر سنة'
+      },
       table: {
-        noRecords: 'لا توجد خطط مخزون موسمية مسجلة حالياً.',
+        noRecords: 'لا توجد خطط مخزون موسمية تطابق بحثك حالياً.',
         th1: '#',
         th2: 'المنتج والتاريخ',
         th3: 'الموسم المستهدف',
@@ -123,8 +137,8 @@ export default function SeasonalInventoryPlannerAE() {
     },
     en: {
       back: '→ Back to Hub',
-      title: 'UAE Seasonal Inventory Planner 📅',
-      desc: 'Forecast required stock for UAE seasons (DSS, Eid, National Day) to prevent stockouts',
+      title: 'Qatar Seasonal Inventory Planner 📅',
+      desc: 'Forecast required stock for Qatar seasons (Shop Qatar, Eid, National Day) to prevent stockouts',
       editRecord: 'Edit Record',
       newRecord: 'Plan New Seasonal Inventory',
       clear: '🧹 Clear Fields',
@@ -132,9 +146,9 @@ export default function SeasonalInventoryPlannerAE() {
       prodName: 'Product or Category Name',
       prodNamePH: 'e.g. Luxury Women Abayas',
       seasonLabel: 'Select Target Season',
-      s_dss: 'Dubai Summer Surprises (DSS) 🛍️',
-      s_national: 'UAE National Day 🇦🇪',
-      s_dsf: 'Dubai Shopping Festival (DSF) ⭐',
+      s_dss: 'Shop Qatar 🛍️',
+      s_national: 'Qatar National Day 🇶🇦',
+      s_dsf: 'Doha Trade Festival ⭐',
       s_friday: 'White / Black Friday 🏷️',
       s_eid: 'Ramadan & Eid Season 🌙',
       s_other: '➕ Other Season (Manual Entry)',
@@ -155,8 +169,16 @@ export default function SeasonalInventoryPlannerAE() {
       searchPH: '🔍 Search by product or season...',
       exportBtn: '📥 Export Excel',
       importBtn: '📂 Import',
+      filters: {
+        all: 'All Time',
+        day: 'Last Day',
+        week: 'Last Week',
+        month: 'Last Month',
+        sixMonths: 'Last 6 Months',
+        year: 'Last Year'
+      },
       table: {
-        noRecords: 'No seasonal inventory plans currently saved.',
+        noRecords: 'No seasonal inventory plans match your search.',
         th1: '#',
         th2: 'Product & Date',
         th3: 'Target Season',
@@ -215,7 +237,7 @@ export default function SeasonalInventoryPlannerAE() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const localeStr = lang === 'ar' ? 'ar-AE' : 'en-AE';
+    const localeStr = lang === 'ar' ? 'ar-QA' : 'en-QA';
     const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
 
     if (editingId) {
@@ -226,7 +248,8 @@ export default function SeasonalInventoryPlannerAE() {
         normalMonthlySales: sales,
         growthRatePercent: growth,
         requiredStock,
-        createdAt: item.createdAt || formattedDate
+        createdAt: item.createdAt || formattedDate,
+        timestamp: item.timestamp || now.getTime()
       } : item);
       saveToLocalStorage(updated);
       setEditingId(null);
@@ -239,9 +262,10 @@ export default function SeasonalInventoryPlannerAE() {
         normalMonthlySales: sales,
         growthRatePercent: growth,
         requiredStock,
-        createdAt: formattedDate
+        createdAt: formattedDate,
+        timestamp: now.getTime()
       };
-      saveToLocalStorage([...items, newItem]);
+      saveToLocalStorage([newItem, ...items]); // حفظ الجديد في الأعلى
       alert(text.alerts.saveSuccess);
     }
 
@@ -252,9 +276,9 @@ export default function SeasonalInventoryPlannerAE() {
     setProductName(item.productName);
     
     // محاولة مطابقة الموسم بناءً على نصوص تدل عليه
-    const isDSS = item.seasonName.includes('صيف') || item.seasonName.includes('DSS');
+    const isDSS = item.seasonName.includes('تسوق') || item.seasonName.includes('Shop') || item.seasonName.includes('DSS');
     const isNational = item.seasonName.includes('وطني') || item.seasonName.includes('National');
-    const isDSF = item.seasonName.includes('مهرجان') || item.seasonName.includes('DSF');
+    const isDSF = item.seasonName.includes('تجاري') || item.seasonName.includes('Trade') || item.seasonName.includes('DSF');
     const isFriday = item.seasonName.includes('جمعة') || item.seasonName.includes('Friday');
     const isEid = item.seasonName.includes('رمضان') || item.seasonName.includes('Eid');
 
@@ -267,7 +291,7 @@ export default function SeasonalInventoryPlannerAE() {
     else matchedSeason = text.s_other;
 
     setSeasonSelect(matchedSeason);
-    setCustomSeason(item.seasonName); // يحتفظ بالاسم الفعلي
+    setCustomSeason(item.seasonName);
     setNormalMonthlySales(item.normalMonthlySales);
     setGrowthRatePercent(item.growthRatePercent);
     setEditingId(item.id);
@@ -281,11 +305,33 @@ export default function SeasonalInventoryPlannerAE() {
     }
   };
 
-  const totalNormalSalesSum = items.reduce((acc, curr) => acc + curr.normalMonthlySales, 0);
-  const totalRequiredStockSum = items.reduce((acc, curr) => acc + curr.requiredStock, 0);
+  // فلترة النتائج بناءً على البحث والفرز الزمني
+  const filteredItems = items.filter(item => {
+    const matchesSearch = item.productName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          item.seasonName.toLowerCase().includes(searchQuery.toLowerCase());
+    let matchesDate = true;
+    
+    if (dateFilter !== 'all') {
+      const itemTime = item.timestamp || 0;
+      const now = Date.now();
+      const diff = now - itemTime;
+      const dayMs = 24 * 60 * 60 * 1000;
+      
+      if (dateFilter === 'day') matchesDate = diff <= dayMs;
+      else if (dateFilter === 'week') matchesDate = diff <= 7 * dayMs;
+      else if (dateFilter === 'month') matchesDate = diff <= 30 * dayMs;
+      else if (dateFilter === '6months') matchesDate = diff <= 180 * dayMs;
+      else if (dateFilter === 'year') matchesDate = diff <= 365 * dayMs;
+    }
+    
+    return matchesSearch && matchesDate;
+  });
+
+  const totalNormalSalesSum = filteredItems.reduce((acc, curr) => acc + curr.normalMonthlySales, 0);
+  const totalRequiredStockSum = filteredItems.reduce((acc, curr) => acc + curr.requiredStock, 0);
 
   const handleExportExcel = () => {
-    if (items.length === 0) {
+    if (filteredItems.length === 0) {
       alert(text.alerts.noDataExp);
       return;
     }
@@ -317,7 +363,7 @@ export default function SeasonalInventoryPlannerAE() {
             <tbody>
     `;
 
-    items.forEach((row, idx) => {
+    filteredItems.forEach((row, idx) => {
       tableHtml += `
         <tr>
           <td>${idx + 1}</td>
@@ -350,7 +396,7 @@ export default function SeasonalInventoryPlannerAE() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", "enjazya_ae_seasonal_inventory.xls");
+    link.setAttribute("download", `enjazya_qa_seasonal_inventory_${dateFilter}.xls`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -364,7 +410,8 @@ export default function SeasonalInventoryPlannerAE() {
         try {
           const imported = JSON.parse(event.target?.result as string);
           if (Array.isArray(imported)) {
-            saveToLocalStorage(imported);
+            const newItems = imported.filter(imp => !items.find(i => i.id === imp.id));
+            saveToLocalStorage([...newItems, ...items]);
             alert(text.alerts.importSuccess);
           }
         } catch (err) {
@@ -373,11 +420,6 @@ export default function SeasonalInventoryPlannerAE() {
       };
     }
   };
-
-  const filteredItems = items.filter(item => 
-    item.productName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.seasonName.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   return (
     <div className="tool-container" style={{ direction: lang === 'ar' ? 'rtl' : 'ltr' }}>
@@ -413,14 +455,14 @@ export default function SeasonalInventoryPlannerAE() {
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
         .input-wrapper input, .input-wrapper select { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .input-wrapper input.with-currency { padding-${lang === 'ar' ? 'left' : 'right'}: 45px; }
-        .input-wrapper input:focus, .input-wrapper select:focus { border-color: #047857; background: #ffffff; }
+        .input-wrapper input:focus, .input-wrapper select:focus { border-color: #8A1538; background: #ffffff; }
         .currency-tag { position: absolute; ${lang === 'ar' ? 'left: 14px;' : 'right: 14px;'} color: #64748b; font-weight: 800; font-size: 13px; pointer-events: none; }
         
-        .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
-        .action-btn:hover { background: #065f46; }
+        .action-btn { background: #8A1538; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
+        .action-btn:hover { background: #6A102B; }
 
         .result-box { background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .result-box.primary { background: linear-gradient(135deg, #047857 0%, #065f46 100%); color: #fff; border: none; padding: 20px; }
+        .result-box.primary { background: linear-gradient(135deg, #8A1538 0%, #6A102B 100%); color: #fff; border: none; padding: 20px; }
         .result-label { font-size: 13px; font-weight: 700; color: #64748b; }
         .primary .result-label { color: #ffffff; opacity: 0.9; }
         .result-value { font-size: 18px; font-weight: 900; color: #0f172a; direction: ltr; }
@@ -428,10 +470,16 @@ export default function SeasonalInventoryPlannerAE() {
 
         .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
-        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        
+        .search-input { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; flex-grow: 1; max-width: 350px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .search-input:focus { border-color: #8A1538; }
+        
+        .filter-select { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; background: #fff; color: #334155; cursor: pointer; min-width: 130px; }
+        .filter-select:focus { border-color: #8A1538; }
+
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
-        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; }
-        .t-btn:hover { background: #f1f5f9; }
+        .t-btn { padding: 9px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .t-btn:hover { background: #f1f5f9; border-color: #8A1538; color: #8A1538; }
 
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 900px; }
@@ -451,7 +499,7 @@ export default function SeasonalInventoryPlannerAE() {
           <h1>{text.title}</h1>
           <p>{text.desc}</p>
         </div>
-        <Link href="/hub/ae" className="back-btn">
+        <Link href="/hub/qa" className="back-btn">
           {text.back}
         </Link>
       </div>
@@ -465,7 +513,7 @@ export default function SeasonalInventoryPlannerAE() {
                 {text.clear}
               </button>
             </div>
-            {!isActivated && <span className="trial-badge">{text.trial}: {items.length}/3</span>}
+            {isClient && !isActivated && <span className="trial-badge">{text.trial}: {items.length}/3</span>}
           </h2>
 
           <form onSubmit={handleSaveItem}>
@@ -558,9 +606,27 @@ export default function SeasonalInventoryPlannerAE() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
+
+          <select 
+            className="filter-select"
+            value={dateFilter}
+            onChange={(e) => setDateFilter(e.target.value)}
+          >
+            <option value="all">{text.filters.all}</option>
+            <option value="day">{text.filters.day}</option>
+            <option value="week">{text.filters.week}</option>
+            <option value="month">{text.filters.month}</option>
+            <option value="6months">{text.filters.sixMonths}</option>
+            <option value="year">{text.filters.year}</option>
+          </select>
+
           <div className="table-btns">
-            <button className="t-btn" onClick={handleExportExcel}>{text.exportBtn}</button>
-            <button className="t-btn" onClick={() => fileInputRef.current?.click()}>{text.importBtn}</button>
+            <button className="t-btn" onClick={handleExportExcel}>
+              {lang === 'ar' ? 'تصدير 📥' : 'Export 📥'}
+            </button>
+            <button className="t-btn" onClick={() => fileInputRef.current?.click()}>
+              {lang === 'ar' ? 'استيراد 📂' : 'Import 📂'}
+            </button>
             <input type="file" ref={fileInputRef} onChange={handleImportJson} accept=".json" style={{ display: 'none' }} />
           </div>
         </div>
@@ -593,9 +659,9 @@ export default function SeasonalInventoryPlannerAE() {
                       <div style={{ fontWeight: 900, color: '#0f172a' }}>{item.productName}</div>
                       {item.createdAt && <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', fontWeight: 600 }}>🕒 {item.createdAt}</div>}
                     </td>
-                    <td><span style={{ fontWeight: 800, color: '#047857' }}>{item.seasonName}</span></td>
+                    <td><span style={{ fontWeight: 800, color: '#8A1538' }}>{item.seasonName}</span></td>
                     <td>{item.normalMonthlySales} {text.unit}</td>
-                    <td><span style={{ color: '#d97706', fontWeight: 800 }}>+{item.growthRatePercent}%</span></td>
+                    <td><span style={{ color: '#047857', fontWeight: 800 }}>+{item.growthRatePercent}%</span></td>
                     <td style={{ fontWeight: 900, color: '#0f172a' }}>{item.requiredStock} {text.unit}</td>
                     <td>
                       <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
@@ -613,7 +679,7 @@ export default function SeasonalInventoryPlannerAE() {
                   <td colSpan={3} style={{ textAlign: 'center' }}>{text.table.totalLabel}</td>
                   <td>{totalNormalSalesSum} {text.unit}</td>
                   <td>-</td>
-                  <td style={{ color: '#047857' }}>{totalRequiredStockSum} {text.unit}</td>
+                  <td style={{ color: '#8A1538' }}>{totalRequiredStockSum} {text.unit}</td>
                   <td></td>
                 </tr>
               </tfoot>
