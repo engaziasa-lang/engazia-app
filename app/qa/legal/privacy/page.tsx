@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 
-export default function PrivacyPageAE() {
+export default function PrivacyPageQA() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
 
   useEffect(() => {
@@ -12,7 +12,7 @@ export default function PrivacyPageAE() {
       if (savedLang) {
         setLang(savedLang);
       }
-      document.title = savedLang === 'en' ? 'Enjazya | Privacy Policy (UAE)' : 'إنجازيا | سياسة الخصوصية (الإمارات)';
+      document.title = savedLang === 'en' ? 'Enjazya | Privacy Policy (Qatar)' : 'إنجازيا | سياسة الخصوصية (قطر)';
     }
   }, []);
 
@@ -20,18 +20,18 @@ export default function PrivacyPageAE() {
     ar: {
       title: 'سياسة الخصوصية 🔒',
       back: '← عودة للمنصة',
-      intro: 'نحن في منصة إنجازيا نولي اهتماماً بالغاً بخصوصية بياناتك التجارية والشخصية وفقاً للقوانين المعمول بها في دولة الإمارات العربية المتحدة.',
+      intro: 'نحن في منصة إنجازيا نولي اهتماماً بالغاً بخصوصية بياناتك التجارية والشخصية وفقاً للقوانين المعمول بها في دولة قطر.',
       sec1Title: '1. سرية البيانات',
-      sec1Desc: 'تعتمد أدواتنا على التخزين المحلي (Local Storage)، مما يعني أن بيانات مبيعاتك، حساباتك الضريبية (FTA)، وعملاء متجرك تبقى مخزنة في متصفحك الخاص ولا يتم رفعها لخوادم خارجية.',
+      sec1Desc: 'تعتمد أدواتنا على التخزين المحلي (Local Storage)، مما يعني أن بيانات مبيعاتك، حساباتك، وعملاء متجرك تبقى مخزنة في متصفحك الخاص ولا يتم رفعها لخوادم خارجية.',
       sec2Title: '2. المعلومات التي نجمعها',
       sec2Desc: 'نجمع فقط بيانات التواصل الأساسية (مثل البريد الإلكتروني) عند إتمام عملية الشراء لغرض إصدار وإرسال مفتاح الترخيص ودعمك فنياً عند الحاجة.'
     },
     en: {
       title: 'Privacy Policy 🔒',
       back: '→ Back to Hub',
-      intro: 'At Enjazya, we place great importance on the privacy of your business and personal data in accordance with the laws applicable in the United Arab Emirates.',
+      intro: 'At Enjazya, we place great importance on the privacy of your business and personal data in accordance with the laws applicable in the State of Qatar.',
       sec1Title: '1. Data Confidentiality',
-      sec1Desc: 'Our tools rely on Local Storage, meaning your sales data, tax accounts (FTA), and store customers remain stored in your private browser and are never uploaded to external servers.',
+      sec1Desc: 'Our tools rely on Local Storage, meaning your sales data, accounts, and store customers remain stored in your private browser and are never uploaded to external servers.',
       sec2Title: '2. Information We Collect',
       sec2Desc: 'We only collect basic contact information (such as email) upon completing a purchase for the purpose of issuing and sending the license key and providing technical support when needed.'
     }
@@ -46,7 +46,7 @@ export default function PrivacyPageAE() {
       <div style={{ maxWidth: '800px', margin: '0 auto', background: '#fff', padding: '40px', borderRadius: '16px', border: '1px solid #e2e8f0', textAlign: lang === 'ar' ? 'right' : 'left' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px', flexWrap: 'wrap', gap: '15px', flexDirection: lang === 'ar' ? 'row' : 'row-reverse' }}>
           <h1 style={{ fontSize: '28px', fontWeight: 900, color: '#0f172a', margin: 0 }}>{text.title}</h1>
-          <Link href="/hub/ae" style={{ background: '#f1f5f9', color: '#334155', padding: '8px 16px', borderRadius: '8px', textDecoration: 'none', fontWeight: 700, fontSize: '13px' }}>
+          <Link href="/hub/qa" style={{ background: '#FAF0F2', color: '#8A1538', border: '1px solid #EBB8C6', padding: '8px 16px', borderRadius: '8px', textDecoration: 'none', fontWeight: 700, fontSize: '13px' }}>
             {text.back}
           </Link>
         </div>
