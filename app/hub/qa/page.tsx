@@ -291,7 +291,11 @@ export default function EnjazyaQaHub() {
       
       <div className="navbar">
         <div className="brand">
-          {lang === 'ar' ? 'إنجازيا' : 'Enjazya'} <span className="qa-badge">{lang === 'ar' ? 'السوق القطري QA 🇶🇦' : 'Qatar Market QA 🇶🇦'}</span>
+          {lang === 'ar' ? 'إنجازيا' : 'Enjazya'} 
+          <span className="qa-badge" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+            {lang === 'ar' ? 'السوق القطري' : 'Qatar Market'}
+            <img src="https://flagcdn.com/w20/qa.png" alt="Qatar Flag" style={{ width: '18px', height: '12px', borderRadius: '2px', objectFit: 'cover' }} />
+          </span>
         </div>
 
         <div className="nav-controls">
@@ -408,7 +412,13 @@ export default function EnjazyaQaHub() {
       <footer className="footer">
         <div className="footer-content">
           <div className="footer-brand">
-            <h3>{lang === 'ar' ? 'إنجازيا ' : 'Enjazya '}<span>{lang === 'ar' ? 'قطر QA 🇶🇦' : 'Qatar QA 🇶🇦'}</span></h3>
+            <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              {lang === 'ar' ? 'إنجازيا ' : 'Enjazya '}
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                {lang === 'ar' ? 'قطر' : 'Qatar'}
+                <img src="https://flagcdn.com/w40/qa.png" alt="Qatar Flag" style={{ width: '26px', height: '18px', borderRadius: '3px', objectFit: 'cover', marginTop: '2px' }} />
+              </span>
+            </h3>
             <p>{lang === 'ar' ? 'المنصة السحابية الأولى المخصصة لتمكين تجار التجارة الإلكترونية في دولة قطر. أدوات دقيقة، حسابات متوافقة مع القوانين القطرية، وأرباح مضاعفة.' : 'The premier cloud platform dedicated to empowering e-commerce merchants in Qatar. Precise tools, compliant calculations with Qatari laws, and multiplied profits.'}</p>
           </div>
           
