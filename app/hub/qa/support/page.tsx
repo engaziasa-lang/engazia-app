@@ -11,9 +11,10 @@ interface SupportItem {
   orderNumber: string;
   generatedReply: string;
   createdAt?: string;
+  timestamp?: number; // تمت الإضافة للفرز الزمني
 }
 
-export default function SupportTemplatesAE() {
+export default function SupportTemplatesQA() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
 
   const [customerName, setCustomerName] = useState<string>('');
@@ -25,6 +26,7 @@ export default function SupportTemplatesAE() {
 
   const [items, setItems] = useState<SupportItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [dateFilter, setDateFilter] = useState<string>('all'); // الفرز الزمني
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -34,7 +36,7 @@ export default function SupportTemplatesAE() {
 
   useEffect(() => {
     setIsClient(true);
-    setIsActivated(!!localStorage.getItem('merchant_license_key'));
+    setIsActivated(!!localStorage.getItem('merchant_license_key_qa'));
     
     // قراءة اللغة من الصفحة الرئيسية
     const savedLang = localStorage.getItem('seerk_global_lang') as 'ar' | 'en';
@@ -55,14 +57,14 @@ export default function SupportTemplatesAE() {
       setOrderNumber('#84920');
     }
 
-    const saved = localStorage.getItem('seerk_ae_support_templates_items');
+    const saved = localStorage.getItem('seerk_qa_support_templates_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
     
-    const aeStoreName = localStorage.getItem('seerk_ae_store_name');
-    if (aeStoreName) {
-      setStoreName(aeStoreName);
+    const qaStoreName = localStorage.getItem('seerk_qa_store_name');
+    if (qaStoreName) {
+      setStoreName(qaStoreName);
     } else {
       setStoreName(savedLang === 'en' ? 'Enjazya Store' : 'متجر إنجازيا');
     }
@@ -72,7 +74,7 @@ export default function SupportTemplatesAE() {
     ar: {
       back: '← عودة للمنصة',
       title: 'قوالب خدمة العملاء السريعة 🎧',
-      desc: 'انسخ ردود احترافية جاهزة للرد على استفسارات العملاء المكررة عبر واتساب لمتجرك الإماراتي',
+      desc: 'انسخ ردود احترافية جاهزة للرد على استفسارات العملاء المكررة عبر واتساب لمتجرك بقطر',
       editRecord: 'تعديل القالب',
       newRecord: 'توليد قالب رد جديد',
       clear: '🧹 مسح الحقول',
@@ -96,15 +98,23 @@ export default function SupportTemplatesAE() {
       searchPH: '🔍 بحث باسم العميل أو نوع الاستفسار...',
       exportBtn: '📥 تصدير Excel',
       importBtn: '📂 استيراد',
+      filters: {
+        all: 'الكل',
+        day: 'آخر يوم',
+        week: 'آخر أسبوع',
+        month: 'آخر شهر',
+        sixMonths: 'آخر 6 أشهر',
+        year: 'آخر سنة'
+      },
       table: {
-        noRecords: 'لا توجد قوالب ردود مسجلة حالياً.',
+        noRecords: 'لا توجد قوالب ردود تطابق بحثك حالياً.',
         th1: '#',
         th2: 'العميل والتاريخ',
         th3: 'نوع الاستفسار',
         th4: 'رقم الطلب',
         th5: 'الإجراءات',
         copy: '📋 نسخ',
-        totalLabel: 'إجمالي القوالب المسجلة',
+        totalLabel: 'إجمالي القوالب المعروضة',
         templatesCount: 'قوالب'
       },
       alerts: {
@@ -122,7 +132,7 @@ export default function SupportTemplatesAE() {
     en: {
       back: '→ Back to Hub',
       title: 'Quick Customer Support Templates 🎧',
-      desc: 'Copy ready-made professional responses for frequent customer inquiries via WhatsApp for your UAE store',
+      desc: 'Copy ready-made professional responses for frequent customer inquiries via WhatsApp for your Qatar store',
       editRecord: 'Edit Template',
       newRecord: 'Generate New Reply Template',
       clear: '🧹 Clear Fields',
@@ -146,15 +156,23 @@ export default function SupportTemplatesAE() {
       searchPH: '🔍 Search by customer or inquiry type...',
       exportBtn: '📥 Export Excel',
       importBtn: '📂 Import',
+      filters: {
+        all: 'All Time',
+        day: 'Last Day',
+        week: 'Last Week',
+        month: 'Last Month',
+        sixMonths: 'Last 6 Months',
+        year: 'Last Year'
+      },
       table: {
-        noRecords: 'No reply templates currently saved.',
+        noRecords: 'No reply templates match your search.',
         th1: '#',
         th2: 'Customer & Date',
         th3: 'Inquiry Type',
         th4: 'Order Number',
         th5: 'Actions',
         copy: '📋 Copy',
-        totalLabel: 'Total Saved Templates',
+        totalLabel: 'Total Displayed Templates',
         templatesCount: 'template(s)'
       },
       alerts: {
@@ -198,7 +216,7 @@ export default function SupportTemplatesAE() {
       } else if (isPayment) {
         setGeneratedReply(
           `مرحباً بك يا ${cName} 💳\n` +
-          `نؤكد لك أن جميع عمليات الدفع الإلكتروني والدفع عند الاستلام في ${sName} آمنة ومحمية بالكامل. طلبك رقم (${oNum}) يتم تجهيزه الآن بكل اهتمام!`
+          `نؤكد لك أن جميع عمليات الدفع الإلكتروني والدفع عند الاستلاستلام في ${sName} آمنة ومحمية بالكامل. طلبك رقم (${oNum}) يتم تجهيزه الآن بكل اهتمام!`
         );
       } else {
         setGeneratedReply(
@@ -233,7 +251,7 @@ export default function SupportTemplatesAE() {
 
   const saveToLocalStorage = (newItems: SupportItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_ae_support_templates_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_qa_support_templates_items', JSON.stringify(newItems));
   };
 
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -256,8 +274,8 @@ export default function SupportTemplatesAE() {
       setInquirySelect(text.inqDelayed);
       setCustomInquiryType(text.inqDelayed);
     }
-    const aeStoreName = localStorage.getItem('seerk_ae_store_name');
-    setStoreName(aeStoreName || (lang === 'en' ? 'Enjazya Store' : 'متجر إنجازيا'));
+    const qaStoreName = localStorage.getItem('seerk_qa_store_name');
+    setStoreName(qaStoreName || (lang === 'en' ? 'Enjazya Store' : 'متجر إنجازيا'));
     setOrderNumber('#84920');
     setEditingId(null);
   };
@@ -276,7 +294,7 @@ export default function SupportTemplatesAE() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const localeStr = lang === 'ar' ? 'ar-AE' : 'en-AE';
+    const localeStr = lang === 'ar' ? 'ar-QA' : 'en-QA';
     const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
 
     if (editingId) {
@@ -287,7 +305,8 @@ export default function SupportTemplatesAE() {
         storeName,
         orderNumber,
         generatedReply,
-        createdAt: item.createdAt || formattedDate
+        createdAt: item.createdAt || formattedDate,
+        timestamp: item.timestamp || now.getTime()
       } : item);
       saveToLocalStorage(updated);
       setEditingId(null);
@@ -300,9 +319,10 @@ export default function SupportTemplatesAE() {
         storeName,
         orderNumber,
         generatedReply,
-        createdAt: formattedDate
+        createdAt: formattedDate,
+        timestamp: now.getTime()
       };
-      saveToLocalStorage([...items, newItem]);
+      saveToLocalStorage([newItem, ...items]); // حفظ الجديد في الأعلى
       alert(text.alerts.saveSuccess);
     }
 
@@ -312,7 +332,6 @@ export default function SupportTemplatesAE() {
   const handleEdit = (item: SupportItem) => {
     setCustomerName(item.customerName);
     
-    // مطابقة نوع الاستفسار بذكاء
     const isDelayed = item.inquiryType.includes('تأخر') || item.inquiryType.includes('Delayed');
     const isReturn = item.inquiryType.includes('استرجاع') || item.inquiryType.includes('Return');
     const isPayment = item.inquiryType.includes('الدفع') || item.inquiryType.includes('Payment');
@@ -324,7 +343,7 @@ export default function SupportTemplatesAE() {
     else matchedType = text.inqOther;
 
     setInquirySelect(matchedType);
-    setCustomInquiryType(item.inquiryType); // الحفاظ على القيمة الأصلية
+    setCustomInquiryType(item.inquiryType);
     
     setStoreName(item.storeName);
     setOrderNumber(item.orderNumber);
@@ -345,8 +364,31 @@ export default function SupportTemplatesAE() {
     alert(text.alerts.copySuccess);
   };
 
+  // فلترة النتائج بناءً على البحث والفرز الزمني
+  const filteredItems = items.filter(item => {
+    const matchesSearch = item.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          item.inquiryType.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          item.orderNumber.toLowerCase().includes(searchQuery.toLowerCase());
+    let matchesDate = true;
+    
+    if (dateFilter !== 'all') {
+      const itemTime = item.timestamp || 0;
+      const now = Date.now();
+      const diff = now - itemTime;
+      const dayMs = 24 * 60 * 60 * 1000;
+      
+      if (dateFilter === 'day') matchesDate = diff <= dayMs;
+      else if (dateFilter === 'week') matchesDate = diff <= 7 * dayMs;
+      else if (dateFilter === 'month') matchesDate = diff <= 30 * dayMs;
+      else if (dateFilter === '6months') matchesDate = diff <= 180 * dayMs;
+      else if (dateFilter === 'year') matchesDate = diff <= 365 * dayMs;
+    }
+    
+    return matchesSearch && matchesDate;
+  });
+
   const handleExportExcel = () => {
-    if (items.length === 0) {
+    if (filteredItems.length === 0) {
       alert(text.alerts.noDataExp);
       return;
     }
@@ -377,7 +419,7 @@ export default function SupportTemplatesAE() {
             <tbody>
     `;
 
-    items.forEach((row, idx) => {
+    filteredItems.forEach((row, idx) => {
       tableHtml += `
         <tr>
           <td>${idx + 1}</td>
@@ -395,7 +437,7 @@ export default function SupportTemplatesAE() {
             <tfoot>
               <tr class="tfoot-row">
                 <td colspan="5">${text.table.totalLabel}</td>
-                <td>${items.length} ${text.table.templatesCount}</td>
+                <td>${filteredItems.length} ${text.table.templatesCount}</td>
               </tr>
             </tfoot>
           </table>
@@ -407,7 +449,7 @@ export default function SupportTemplatesAE() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", "enjazya_ae_support_templates.xls");
+    link.setAttribute("download", `enjazya_qa_support_templates_${dateFilter}.xls`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -421,7 +463,8 @@ export default function SupportTemplatesAE() {
         try {
           const imported = JSON.parse(event.target?.result as string);
           if (Array.isArray(imported)) {
-            saveToLocalStorage(imported);
+            const newItems = imported.filter(imp => !items.find(i => i.id === imp.id));
+            saveToLocalStorage([...newItems, ...items]);
             alert(text.alerts.importSuccess);
           }
         } catch (err) {
@@ -430,12 +473,6 @@ export default function SupportTemplatesAE() {
       };
     }
   };
-
-  const filteredItems = items.filter(item => 
-    item.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.inquiryType.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.orderNumber.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   return (
     <div className="tool-container" style={{ direction: lang === 'ar' ? 'rtl' : 'ltr' }}>
@@ -470,20 +507,26 @@ export default function SupportTemplatesAE() {
         .input-group label { display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 6px; }
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
         .input-wrapper input, .input-wrapper select, .input-wrapper textarea { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .input-wrapper input:focus, .input-wrapper select:focus, .input-wrapper textarea:focus { border-color: #047857; background: #ffffff; }
+        .input-wrapper input:focus, .input-wrapper select:focus, .input-wrapper textarea:focus { border-color: #8A1538; background: #ffffff; }
         
-        .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
-        .action-btn:hover { background: #065f46; }
+        .action-btn { background: #8A1538; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
+        .action-btn:hover { background: #6A102B; }
         
-        .copy-btn { background: #0369a1; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .copy-btn:hover { background: #0284c7; }
+        .copy-btn { background: #8A1538; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .copy-btn:hover { background: #6A102B; }
 
         .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
-        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        
+        .search-input { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; flex-grow: 1; max-width: 350px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .search-input:focus { border-color: #8A1538; }
+        
+        .filter-select { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; background: #fff; color: #334155; cursor: pointer; min-width: 130px; }
+        .filter-select:focus { border-color: #8A1538; }
+
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
-        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; }
-        .t-btn:hover { background: #f1f5f9; }
+        .t-btn { padding: 9px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .t-btn:hover { background: #f1f5f9; border-color: #8A1538; color: #8A1538; }
 
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 900px; }
@@ -494,7 +537,8 @@ export default function SupportTemplatesAE() {
         .trial-badge { background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 800; }
         
         .tb-action-btn { border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; font-family: inherit;}
-        .btn-wa { background: #dcfce7; color: #166534; }
+        .btn-wa { background: #FAF0F2; color: #8A1538; border: 1px solid #EBB8C6; }
+        .btn-wa:hover { background: #8A1538; color: #ffffff; }
         .btn-edit { background: #e0f2fe; color: #0369a1; }
         .btn-delete { background: #fee2e2; color: #991b1b; }
       `}</style>
@@ -504,7 +548,7 @@ export default function SupportTemplatesAE() {
           <h1>{text.title}</h1>
           <p>{text.desc}</p>
         </div>
-        <Link href="/hub/ae" className="back-btn">
+        <Link href="/hub/qa" className="back-btn">
           {text.back}
         </Link>
       </div>
@@ -604,6 +648,20 @@ export default function SupportTemplatesAE() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
+
+          <select 
+            className="filter-select"
+            value={dateFilter}
+            onChange={(e) => setDateFilter(e.target.value)}
+          >
+            <option value="all">{text.filters.all}</option>
+            <option value="day">{text.filters.day}</option>
+            <option value="week">{text.filters.week}</option>
+            <option value="month">{text.filters.month}</option>
+            <option value="sixMonths">{text.filters.sixMonths}</option>
+            <option value="year">{text.filters.year}</option>
+          </select>
+
           <div className="table-btns">
             <button className="t-btn" onClick={handleExportExcel}>{text.exportBtn}</button>
             <button className="t-btn" onClick={() => fileInputRef.current?.click()}>{text.importBtn}</button>
@@ -637,7 +695,7 @@ export default function SupportTemplatesAE() {
                       <div style={{ fontWeight: 900, color: '#0f172a' }}>{item.customerName}</div>
                       {item.createdAt && <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', fontWeight: 600 }}>🕒 {item.createdAt}</div>}
                     </td>
-                    <td><span style={{ fontWeight: 800, color: '#0369a1' }}>{item.inquiryType}</span></td>
+                    <td><span style={{ fontWeight: 800, color: '#8A1538' }}>{item.inquiryType}</span></td>
                     <td><span style={{ fontWeight: 700, color: '#047857' }}>{item.orderNumber}</span></td>
                     <td>
                       <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
@@ -654,7 +712,7 @@ export default function SupportTemplatesAE() {
               <tfoot>
                 <tr className="tfoot-row">
                   <td colSpan={4} style={{ textAlign: 'center' }}>{text.table.totalLabel}</td>
-                  <td>{items.length} {text.table.templatesCount}</td>
+                  <td>{filteredItems.length} {text.table.templatesCount}</td>
                 </tr>
               </tfoot>
             )}
