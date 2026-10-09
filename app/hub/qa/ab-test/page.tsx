@@ -18,7 +18,7 @@ interface ABTestItem {
   createdAt?: string;
 }
 
-export default function ABTestingCalculatorAE() {
+export default function ABTestingCalculatorQA() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
 
   // تفريغ الحقول بالكامل كقيمة ابتدائية
@@ -43,7 +43,7 @@ export default function ABTestingCalculatorAE() {
 
   useEffect(() => {
     setIsClient(true);
-    setIsActivated(!!localStorage.getItem('merchant_license_key'));
+    setIsActivated(!!localStorage.getItem('merchant_license_key_qa'));
     
     // قراءة اللغة من الصفحة الرئيسية
     const savedLang = localStorage.getItem('seerk_global_lang') as 'ar' | 'en';
@@ -51,7 +51,7 @@ export default function ABTestingCalculatorAE() {
       setLang(savedLang);
     }
     
-    const saved = localStorage.getItem('seerk_ae_ab_testing_items');
+    const saved = localStorage.getItem('seerk_qa_ab_testing_items');
     if (saved) {
       try { 
         const parsedData = JSON.parse(saved);
@@ -87,7 +87,7 @@ export default function ABTestingCalculatorAE() {
       bestCamp: 'الحملة الأفضل بناءً على تكلفة الاستحواذ',
       cpaA: 'تكلفة الطلب (CPA) للحملة (أ)',
       cpaB: 'تكلفة الطلب (CPA) للحملة (ب)',
-      currency: 'د.إ',
+      currency: 'ر.ق',
       perOrder: 'طلب',
       searchPH: '🔍 بحث باسم الاختبار...',
       exportBtn: '📥 تصدير Excel',
@@ -147,7 +147,7 @@ export default function ABTestingCalculatorAE() {
       bestCamp: 'Best campaign based on Customer Acquisition Cost',
       cpaA: 'Campaign (A) CPA',
       cpaB: 'Campaign (B) CPA',
-      currency: 'AED',
+      currency: 'QAR',
       perOrder: 'order',
       searchPH: '🔍 Search by test name...',
       exportBtn: '📥 Export Excel',
@@ -188,7 +188,7 @@ export default function ABTestingCalculatorAE() {
 
   const saveToLocalStorage = (newItems: ABTestItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_ae_ab_testing_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_qa_ab_testing_items', JSON.stringify(newItems));
   };
 
   const spendA = typeof campASpend === 'number' ? campASpend : 0;
@@ -206,10 +206,10 @@ export default function ABTestingCalculatorAE() {
     if (cpaA > 0 && cpaB > 0) {
       if (cpaA < cpaB) {
         winnerText = `${text.winners.winA} - ${campAName || text.winners.noName}`;
-        winnerColor = '#047857';
+        winnerColor = '#047857'; // لون الحملة أ
       } else if (cpaB < cpaA) {
         winnerText = `${text.winners.winB} - ${campBName || text.winners.noName}`;
-        winnerColor = '#0284c7';
+        winnerColor = '#0284c7'; // لون الحملة ب
       } else {
         winnerText = text.winners.tie;
         winnerColor = '#d97706';
@@ -247,7 +247,7 @@ export default function ABTestingCalculatorAE() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const localeStr = lang === 'ar' ? 'ar-AE' : 'en-AE';
+    const localeStr = lang === 'ar' ? 'ar-QA' : 'en-QA';
     const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
 
     const newItemData = {
@@ -359,7 +359,7 @@ export default function ABTestingCalculatorAE() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", "enjazya_ae_ab_testing.xls");
+    link.setAttribute("download", "enjazya_qa_ab_testing.xls");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -421,11 +421,12 @@ export default function ABTestingCalculatorAE() {
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
         .input-wrapper input { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .input-wrapper input.with-currency { padding-${lang === 'ar' ? 'left' : 'right'}: 45px; }
-        .input-wrapper input:focus { border-color: #047857; background: #ffffff; }
+        .input-wrapper input:focus { border-color: #8A1538; background: #ffffff; }
         .currency-tag { position: absolute; ${lang === 'ar' ? 'left: 14px;' : 'right: 14px;'} color: #64748b; font-weight: 800; font-size: 13px; pointer-events: none; }
         
-        .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
-        .action-btn:hover { background: #065f46; }
+        /* تلوين الزر الأساسي باللون القطري */
+        .action-btn { background: #8A1538; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
+        .action-btn:hover { background: #6A102B; }
 
         .result-box { background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .result-box.primary { color: #fff; border: none; padding: 20px; transition: background 0.3s ease; }
@@ -437,6 +438,7 @@ export default function ABTestingCalculatorAE() {
         .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); margin-top: 20px; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
         .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .search-input:focus { border-color: #8A1538; }
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
         .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; }
         .t-btn:hover { background: #f1f5f9; }
@@ -458,7 +460,7 @@ export default function ABTestingCalculatorAE() {
           <h1>{text.title}</h1>
           <p>{text.desc}</p>
         </div>
-        <Link href="/hub/ae" className="back-btn">
+        <Link href="/hub/qa" className="back-btn">
           {text.back}
         </Link>
       </div>
