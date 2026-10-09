@@ -17,7 +17,7 @@ export default function MarketSelector() {
         </p>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '25px', width: '100%', maxWidth: '950px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '25px', width: '100%', maxWidth: '1100px' }}>
         
         {/* بطاقة السوق السعودي */}
         <Link href="/hub/sa" style={{ textDecoration: 'none' }}>
@@ -44,6 +44,20 @@ export default function MarketSelector() {
             <h2 style={{ fontSize: '22px', fontWeight: 900, color: '#0f172a', marginBottom: '10px' }}>السوق الإماراتي</h2>
             <p style={{ color: '#64748b', fontSize: '14px', fontWeight: 500, margin: '0 0 20px 0' }}>متوافق مع ضريبة الهيئة الاتحادية (FTA) والدرهم.</p>
             <span style={{ display: 'inline-block', background: '#f0fdf4', color: '#00732f', padding: '10px 24px', borderRadius: '10px', fontWeight: 800, fontSize: '14px' }}>الدخول للسوق الإماراتي ←</span>
+          </div>
+        </Link>
+
+        {/* بطاقة السوق القطري */}
+        <Link href="/hub/qa" style={{ textDecoration: 'none' }}>
+          <div style={{ background: '#ffffff', border: '2px solid #e2e8f0', borderRadius: '20px', padding: '35px 25px', textAlign: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.03)', transition: 'all 0.3s ease', cursor: 'pointer', height: '100%', boxSizing: 'border-box' }}
+               onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#8A1538'; e.currentTarget.style.transform = 'translateY(-5px)'; }}
+               onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.transform = 'translateY(0)'; }}>
+            <div style={{ marginBottom: '15px', display: 'inline-block', borderRadius: '8px', overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+              <img src="https://flagcdn.com/w160/qa.png" alt="علم دولة قطر" style={{ width: '80px', height: '50px', objectFit: 'cover', display: 'block' }} />
+            </div>
+            <h2 style={{ fontSize: '22px', fontWeight: 900, color: '#0f172a', marginBottom: '10px' }}>السوق القطري</h2>
+            <p style={{ color: '#64748b', fontSize: '14px', fontWeight: 500, margin: '0 0 20px 0' }}>متوافق مع متطلبات الهيئة العامة للضرائب (GTA) والريال.</p>
+            <span style={{ display: 'inline-block', background: '#FAF0F2', color: '#8A1538', border: '1px solid #EBB8C6', padding: '10px 24px', borderRadius: '10px', fontWeight: 800, fontSize: '14px' }}>الدخول للسوق القطري ←</span>
           </div>
         </Link>
 
