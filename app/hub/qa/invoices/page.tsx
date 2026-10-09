@@ -20,9 +20,10 @@ interface InvoiceItem {
   totalAmount: number;
   vatAmount: number;
   createdAt?: string;
+  timestamp?: number; // تمت الإضافة للفرز الزمني
 }
 
-export default function FtaInvoiceGeneratorAE() {
+export default function InvoiceGeneratorQA() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
 
   // البيانات الثابتة الافتراضية
@@ -41,11 +42,18 @@ export default function FtaInvoiceGeneratorAE() {
 
   const [items, setItems] = useState<InvoiceItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [dateFilter, setDateFilter] = useState<string>('all'); // الفرز الزمني
   const [editingId, setEditingId] = useState<string | null>(null);
+
+  const [isClient, setIsClient] = useState(false);
+  const [isActivated, setIsActivated] = useState(true);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    setIsClient(true);
+    setIsActivated(!!localStorage.getItem('merchant_license_key_qa'));
+
     // قراءة اللغة من الصفحة الرئيسية
     const savedLang = localStorage.getItem('seerk_global_lang') as 'ar' | 'en';
     if (savedLang) {
@@ -53,14 +61,14 @@ export default function FtaInvoiceGeneratorAE() {
     }
     
     // استرجاع سجل الفواتير
-    const savedItems = localStorage.getItem('seerk_ae_fta_invoices_items');
+    const savedItems = localStorage.getItem('seerk_qa_invoices_items');
     if (savedItems) {
       try { setItems(JSON.parse(savedItems)); } catch (e) { }
     }
 
     // استرجاع بيانات المتجر
-    const savedStoreName = localStorage.getItem('seerk_ae_store_name');
-    const savedVatNumber = localStorage.getItem('seerk_ae_vat_number');
+    const savedStoreName = localStorage.getItem('seerk_qa_store_name');
+    const savedVatNumber = localStorage.getItem('seerk_qa_vat_number');
     if (savedStoreName) {
       setStoreName(savedStoreName);
     } else {
@@ -71,33 +79,31 @@ export default function FtaInvoiceGeneratorAE() {
 
   const saveToLocalStorage = (newItems: InvoiceItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_ae_fta_invoices_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_qa_invoices_items', JSON.stringify(newItems));
   };
 
-  const isActivated = typeof window !== 'undefined' && !!localStorage.getItem('merchant_license_key');
-
   const amt = currentProducts.reduce((acc, curr) => acc + (curr.price * curr.qty), 0);
-  const vatAmt = amt - (amt / 1.05);
+  const vatAmt = 0; // تم تصفير الضريبة لأن قطر لا تطبق 5% VAT للمتاجر حالياً
 
   const nowDisplay = new Date();
   const timeOptionsDisplay: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-  const localeStr = lang === 'ar' ? 'ar-AE' : 'en-AE';
+  const localeStr = lang === 'ar' ? 'ar-QA' : 'en-QA';
   const currentFormattedDate = `${nowDisplay.toLocaleDateString(localeStr)} - ${nowDisplay.toLocaleTimeString(localeStr, timeOptionsDisplay)}`;
 
   const t = {
     ar: {
       back: '← عودة للمنصة',
       title: 'مولد الفواتير الإلكترونية (نظام الكاشير المصغر) 🧾',
-      desc: 'أنشئ فواتير مبسطة برمز الاستجابة السريعة (QR Code) متوافقة مع متطلبات الهيئة الاتحادية للضرائب (FTA)',
+      desc: 'أنشئ فواتير مبسطة برمز الاستجابة السريعة (QR Code) متوافقة مع متطلبات الهيئة العامة للضرائب (GTA) في قطر',
       editRecord: 'تعديل الفاتورة',
       newRecord: 'إصدار فاتورة جديدة',
       clear: '🧹 مسح الفاتورة',
       trial: 'تجريبي',
       storeNameLabel: 'اسم المتجر',
-      vatNumLabel: 'الرقم الضريبي (15 رقماً)',
+      vatNumLabel: 'الرقم الضريبي / السجل التجاري',
       invNumLabel: 'رقم الفاتورة',
       custNameLabel: 'اسم العميل',
-      custNamePH: 'مثال: محمد القحطاني',
+      custNamePH: 'مثال: محمد المطيري',
       cashCust: 'عميل نقدي',
       cartTitle: 'سلة منتجات الفاتورة',
       prodNamePH: 'اسم المنتج',
@@ -110,14 +116,14 @@ export default function FtaInvoiceGeneratorAE() {
       saveBtnNew: '+ حفظ وإصدار الفاتورة',
       saveBtnEdit: '💾 تحديث وحفظ الفاتورة',
       previewTitle: 'معاينة الفاتورة والطباعة',
-      invSimple: 'فاتورة ضريبية مبسطة',
+      invSimple: 'فاتورة مبيعات مبسطة',
       clientLabel: 'العميل:',
       itemsCountLabel: 'عدد الأصناف:',
       itemsWord: 'منتجات',
-      vatLabel: 'الضريبة (5%):',
+      vatLabel: 'الضريبة (0%):',
       grandTotal: 'الإجمالي الشامل:',
       printBtn: '🖨️ طباعة الفاتورة الحالية',
-      currency: 'د.إ',
+      currency: 'ر.ق',
       searchPH: '🔍 بحث برقم الفاتورة أو العميل...',
       exportBtn: '📥 تصدير Excel',
       importBtn: '📂 استيراد',
@@ -127,17 +133,25 @@ export default function FtaInvoiceGeneratorAE() {
       qrTotal: 'الإجمالي',
       qrVatAmt: 'الضريبة',
       miscProducts: 'منتجات متنوعة',
+      filters: {
+        all: 'الكل',
+        day: 'آخر يوم',
+        week: 'آخر أسبوع',
+        month: 'آخر شهر',
+        sixMonths: 'آخر 6 أشهر',
+        year: 'آخر سنة'
+      },
       table: {
-        noRecords: 'لا توجد فواتير مسجلة في السجل حالياً.',
+        noRecords: 'لا توجد فواتير مطابقة لبحثك في السجل.',
         th1: '#',
         th2: 'الفاتورة والتاريخ',
         th3: 'العميل والأصناف',
         th4: 'الإجمالي الشامل',
-        th5: 'الضريبة (5%)',
+        th5: 'الضريبة (0%)',
         th6: 'الإجراءات',
         print: '🖨️ طباعة',
         itemsReg: 'أصناف مسجلة',
-        totalLabel: 'الإجمالي الكلي'
+        totalLabel: 'الإجمالي الكلي للفواتير المحددة'
       },
       alerts: {
         limit: '🔒 عذراً، لقد استهلكت الحد التجريبي (3 فواتير). يرجى ترقية حسابك لفتح السعة الكاملة بلا حدود!',
@@ -153,7 +167,7 @@ export default function FtaInvoiceGeneratorAE() {
         importErr: '❌ ملف غير صالح.'
       },
       print: {
-        title: 'فاتورة ضريبية مبسطة',
+        title: 'فاتورة مبيعات مبسطة',
         vatLabel: 'الرقم الضريبي:',
         dateLabel: 'تاريخ وإصدار الفاتورة',
         billTo: 'فاتورة إلى العميل',
@@ -163,7 +177,7 @@ export default function FtaInvoiceGeneratorAE() {
         th4: 'سعر الوحدة',
         th5: 'المجموع',
         subTotal: 'الإجمالي (غير شامل الضريبة)',
-        vatAmount: 'ضريبة القيمة المضافة (5%)',
+        vatAmount: 'الضريبة (0%)',
         grandTotal: 'المبلغ الإجمالي الشامل',
         thanks: 'شكراً لتسوقكم معنا في'
       }
@@ -171,13 +185,13 @@ export default function FtaInvoiceGeneratorAE() {
     en: {
       back: '→ Back to Hub',
       title: 'Electronic Invoicing Generator (Mini POS) 🧾',
-      desc: 'Create simplified tax invoices with QR Code compliant with UAE FTA requirements',
+      desc: 'Create simplified tax invoices with QR Code compliant with Qatar GTA requirements',
       editRecord: 'Edit Invoice',
       newRecord: 'Issue New Invoice',
       clear: '🧹 Clear Invoice',
       trial: 'Trial',
       storeNameLabel: 'Store Name',
-      vatNumLabel: 'VAT Number (15 digits)',
+      vatNumLabel: 'VAT / CR Number',
       invNumLabel: 'Invoice Number',
       custNameLabel: 'Customer Name',
       custNamePH: 'e.g. John Doe',
@@ -193,14 +207,14 @@ export default function FtaInvoiceGeneratorAE() {
       saveBtnNew: '+ Save & Issue Invoice',
       saveBtnEdit: '💾 Update & Save Invoice',
       previewTitle: 'Invoice Preview & Print',
-      invSimple: 'Simplified Tax Invoice',
+      invSimple: 'Simplified Sales Invoice',
       clientLabel: 'Customer:',
       itemsCountLabel: 'Total Items:',
       itemsWord: 'items',
-      vatLabel: 'VAT (5%):',
+      vatLabel: 'Tax (0%):',
       grandTotal: 'Grand Total:',
       printBtn: '🖨️ Print Current Invoice',
-      currency: 'AED',
+      currency: 'QAR',
       searchPH: '🔍 Search by invoice number or customer...',
       exportBtn: '📥 Export Excel',
       importBtn: '📂 Import',
@@ -208,15 +222,23 @@ export default function FtaInvoiceGeneratorAE() {
       qrVat: 'VAT No',
       qrDate: 'Date',
       qrTotal: 'Total',
-      qrVatAmt: 'VAT',
+      qrVatAmt: 'Tax',
       miscProducts: 'Various Products',
+      filters: {
+        all: 'All Time',
+        day: 'Last Day',
+        week: 'Last Week',
+        month: 'Last Month',
+        sixMonths: 'Last 6 Months',
+        year: 'Last Year'
+      },
       table: {
-        noRecords: 'No invoices currently saved in the log.',
+        noRecords: 'No invoices currently found matching your search.',
         th1: '#',
         th2: 'Invoice & Date',
         th3: 'Customer & Items',
         th4: 'Grand Total',
-        th5: 'VAT (5%)',
+        th5: 'Tax (0%)',
         th6: 'Actions',
         print: '🖨️ Print',
         itemsReg: 'registered items',
@@ -236,7 +258,7 @@ export default function FtaInvoiceGeneratorAE() {
         importErr: '❌ Invalid file.'
       },
       print: {
-        title: 'Simplified Tax Invoice',
+        title: 'Simplified Sales Invoice',
         vatLabel: 'VAT Number:',
         dateLabel: 'Invoice Date & Issue',
         billTo: 'Bill To Customer',
@@ -245,8 +267,8 @@ export default function FtaInvoiceGeneratorAE() {
         th3: 'Qty',
         th4: 'Unit Price',
         th5: 'Total',
-        subTotal: 'Subtotal (Excl. VAT)',
-        vatAmount: 'Value Added Tax (5%)',
+        subTotal: 'Subtotal',
+        vatAmount: 'Tax (0%)',
         grandTotal: 'Grand Total Amount',
         thanks: 'Thank you for shopping with us at'
       }
@@ -312,8 +334,8 @@ export default function FtaInvoiceGeneratorAE() {
       return;
     }
 
-    localStorage.setItem('seerk_ae_store_name', storeName);
-    localStorage.setItem('seerk_ae_vat_number', vatNumber);
+    localStorage.setItem('seerk_qa_store_name', storeName);
+    localStorage.setItem('seerk_qa_vat_number', vatNumber);
 
     const now = new Date();
     const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptionsDisplay)}`;
@@ -329,6 +351,7 @@ export default function FtaInvoiceGeneratorAE() {
         totalAmount: amt,
         vatAmount: Number(vatAmt.toFixed(2)),
         createdAt: item.createdAt || formattedDate,
+        timestamp: item.timestamp || now.getTime()
       } : item);
       saveToLocalStorage(updated);
       setEditingId(null);
@@ -344,8 +367,9 @@ export default function FtaInvoiceGeneratorAE() {
         totalAmount: amt,
         vatAmount: Number(vatAmt.toFixed(2)),
         createdAt: formattedDate,
+        timestamp: now.getTime()
       };
-      saveToLocalStorage([...items, newItem]);
+      saveToLocalStorage([newItem, ...items]); // حفظ الجديد للأعلى
       alert(text.alerts.saveSuccess);
     }
 
@@ -443,7 +467,8 @@ export default function FtaInvoiceGeneratorAE() {
           
           .totals-calc { width: 60%; text-align: ${lang === 'ar' ? 'left' : 'right'}; }
           .totals-row { display: flex; justify-content: space-between; padding: 10px; font-size: 14px; font-weight: bold; border-bottom: 1px solid #e2e8f0; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
-          .totals-row.grand { background: #047857; color: white; border-radius: 8px; font-size: 16px; margin-top: 10px; border: none; }
+          /* استخدام اللون العنابي القطري هنا */
+          .totals-row.grand { background: #8A1538; color: white; border-radius: 8px; font-size: 16px; margin-top: 10px; border: none; }
           
           @media print { body { background: #fff; padding: 0; } .invoice-box { box-shadow: none; border: none; max-width: 100%; } }
         </style>
@@ -512,14 +537,36 @@ export default function FtaInvoiceGeneratorAE() {
     printWindow.document.close();
   };
 
+  // فلترة النتائج بناءً على البحث والفرز الزمني
+  const filteredItems = items.filter(item => {
+    const matchesSearch = item.invoiceNumber.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          item.customerName.toLowerCase().includes(searchQuery.toLowerCase());
+    let matchesDate = true;
+    
+    if (dateFilter !== 'all') {
+      const itemTime = item.timestamp || 0;
+      const now = Date.now();
+      const diff = now - itemTime;
+      const dayMs = 24 * 60 * 60 * 1000;
+      
+      if (dateFilter === 'day') matchesDate = diff <= dayMs;
+      else if (dateFilter === 'week') matchesDate = diff <= 7 * dayMs;
+      else if (dateFilter === 'month') matchesDate = diff <= 30 * dayMs;
+      else if (dateFilter === '6months') matchesDate = diff <= 180 * dayMs;
+      else if (dateFilter === 'year') matchesDate = diff <= 365 * dayMs;
+    }
+    
+    return matchesSearch && matchesDate;
+  });
+
+  const totalInvoicesAmount = filteredItems.reduce((acc, curr) => acc + curr.totalAmount, 0);
+  const totalVatValue = filteredItems.reduce((acc, curr) => acc + curr.vatAmount, 0);
+
   const handleExportExcel = () => {
-    if (items.length === 0) {
+    if (filteredItems.length === 0) {
       alert(text.alerts.noDataExp);
       return;
     }
-
-    const totalInvoicesAmount = items.reduce((acc, curr) => acc + curr.totalAmount, 0);
-    const totalVatValue = items.reduce((acc, curr) => acc + curr.vatAmount, 0);
 
     let tableHtml = `
       <html dir="${lang === 'ar' ? 'rtl' : 'ltr'}" lang="${lang}">
@@ -542,13 +589,13 @@ export default function FtaInvoiceGeneratorAE() {
                 <th>Customer</th>
                 <th>Products</th>
                 <th>Grand Total (${text.currency})</th>
-                <th>VAT 5% (${text.currency})</th>
+                <th>Tax 0% (${text.currency})</th>
               </tr>
             </thead>
             <tbody>
     `;
 
-    items.forEach((row, idx) => {
+    filteredItems.forEach((row, idx) => {
       const prodsText = row.products 
         ? row.products.map(p => `${p.name} (${text.print.th3} ${p.qty})`).join('، ')
         : (row as any).orderDescription || '';
@@ -584,7 +631,7 @@ export default function FtaInvoiceGeneratorAE() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", "seerk_ae_fta_invoices.xls");
+    link.setAttribute("download", `enjazya_qa_invoices_${dateFilter}.xls`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -598,7 +645,8 @@ export default function FtaInvoiceGeneratorAE() {
         try {
           const imported = JSON.parse(event.target?.result as string);
           if (Array.isArray(imported)) {
-            saveToLocalStorage(imported);
+            const newItems = imported.filter(imp => !items.find(i => i.id === imp.id));
+            saveToLocalStorage([...newItems, ...items]);
             alert(text.alerts.importSuccess);
           }
         } catch (err) {
@@ -607,14 +655,6 @@ export default function FtaInvoiceGeneratorAE() {
       };
     }
   };
-
-  const filteredItems = items.filter(item => 
-    item.invoiceNumber.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    item.customerName.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const totalInvoicesAmount = filteredItems.reduce((acc, curr) => acc + curr.totalAmount, 0);
-  const totalVatValue = filteredItems.reduce((acc, curr) => acc + curr.vatAmount, 0);
 
   return (
     <div className="tool-container" style={{ direction: lang === 'ar' ? 'rtl' : 'ltr' }}>
@@ -646,10 +686,10 @@ export default function FtaInvoiceGeneratorAE() {
         .input-group label { display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 6px; }
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
         .input-wrapper input { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 15px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .input-wrapper input:focus { border-color: #047857; background: #ffffff; }
+        .input-wrapper input:focus { border-color: #8A1538; background: #ffffff; }
         
-        .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
-        .action-btn:hover { background: #065f46; }
+        .action-btn { background: #8A1538; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
+        .action-btn:hover { background: #6A102B; }
 
         .add-prod-box { background: #f1f5f9; padding: 15px; border-radius: 8px; border: 1px dashed #cbd5e1; margin-bottom: 20px; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .mini-btn { background: #0f172a; color: white; padding: 8px 15px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-family: inherit; }
@@ -666,15 +706,21 @@ export default function FtaInvoiceGeneratorAE() {
         .qr-box { margin: 15px auto; width: 130px; height: 130px; background: #fff; padding: 5px; border-radius: 8px; border: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: center; }
         .qr-box img { width: 120px; height: 120px; }
         
-        .print-btn { background: #fef08a; color: #854d0e; border: 1px solid #fde047; padding: 10px; width: 100%; border-radius: 8px; font-weight: 800; font-size: 14px; cursor: pointer; margin-top: 15px; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s;}
-        .print-btn:hover { background: #fde047; }
+        .print-btn { background: #FAF0F2; color: #8A1538; border: 1px solid #EBB8C6; padding: 10px; width: 100%; border-radius: 8px; font-weight: 800; font-size: 14px; cursor: pointer; margin-top: 15px; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s;}
+        .print-btn:hover { background: #8A1538; color: #ffffff; }
 
         .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
-        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        
+        .search-input { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; flex-grow: 1; max-width: 350px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .search-input:focus { border-color: #8A1538; }
+        
+        .filter-select { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; background: #fff; color: #334155; cursor: pointer; min-width: 130px; }
+        .filter-select:focus { border-color: #8A1538; }
+
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
-        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; }
-        .t-btn:hover { background: #f1f5f9; }
+        .t-btn { padding: 9px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .t-btn:hover { background: #f1f5f9; border-color: #8A1538; color: #8A1538; }
 
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 850px; }
@@ -687,7 +733,8 @@ export default function FtaInvoiceGeneratorAE() {
         .tb-action-btn { border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; font-family: inherit;}
         .btn-edit { background: #e0f2fe; color: #0369a1; }
         .btn-delete { background: #fee2e2; color: #991b1b; }
-        .btn-print-tb { background: #fef08a; color: #854d0e; }
+        .btn-print-tb { background: #FAF0F2; color: #8A1538; border: 1px solid #EBB8C6; }
+        .btn-print-tb:hover { background: #8A1538; color: #fff; }
       `}</style>
 
       <div className="header">
@@ -695,7 +742,7 @@ export default function FtaInvoiceGeneratorAE() {
           <h1>{text.title}</h1>
           <p>{text.desc}</p>
         </div>
-        <Link href="/hub/ae" className="back-btn">
+        <Link href="/hub/qa" className="back-btn">
           {text.back}
         </Link>
       </div>
@@ -709,7 +756,7 @@ export default function FtaInvoiceGeneratorAE() {
                 {text.clear}
               </button>
             </div>
-            {!isActivated && <span className="trial-badge">{text.trial}: {items.length}/3</span>}
+            {isClient && !isActivated && <span className="trial-badge">{text.trial}: {items.length}/3</span>}
           </h2>
 
           <form onSubmit={handleSaveItem}>
@@ -791,7 +838,7 @@ export default function FtaInvoiceGeneratorAE() {
             </div>
 
             <div className="qr-box">
-              <img src={qrCodeUrl} alt="FTA QR Code" />
+              <img src={qrCodeUrl} alt="GTA QR Code" />
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: 700, padding: '8px 10px', background: '#fff', borderRadius: '6px', border: '1px solid #e2e8f0', marginTop: '10px', flexDirection: lang === 'ar' ? 'row' : 'row-reverse' }}>
@@ -799,7 +846,7 @@ export default function FtaInvoiceGeneratorAE() {
               <span style={{ color: '#047857' }}>{vatAmt.toFixed(2)} {text.currency}</span>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '15px', fontWeight: 900, padding: '10px', background: '#047857', color: '#fff', borderRadius: '6px', marginTop: '8px', flexDirection: lang === 'ar' ? 'row' : 'row-reverse' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '15px', fontWeight: 900, padding: '10px', background: '#8A1538', color: '#fff', borderRadius: '6px', marginTop: '8px', flexDirection: lang === 'ar' ? 'row' : 'row-reverse' }}>
               <span>{text.grandTotal}</span>
               <span>{amt} {text.currency}</span>
             </div>
@@ -820,9 +867,27 @@ export default function FtaInvoiceGeneratorAE() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
+
+          <select 
+            className="filter-select"
+            value={dateFilter}
+            onChange={(e) => setDateFilter(e.target.value)}
+          >
+            <option value="all">{text.filters.all}</option>
+            <option value="day">{text.filters.day}</option>
+            <option value="week">{text.filters.week}</option>
+            <option value="month">{text.filters.month}</option>
+            <option value="6months">{text.filters.sixMonths}</option>
+            <option value="year">{text.filters.year}</option>
+          </select>
+
           <div className="table-btns">
-            <button className="t-btn" onClick={handleExportExcel}>{text.exportBtn}</button>
-            <button className="t-btn" onClick={() => fileInputRef.current?.click()}>{text.importBtn}</button>
+            <button className="t-btn" onClick={handleExportExcel}>
+              {lang === 'ar' ? 'تصدير 📥' : 'Export 📥'}
+            </button>
+            <button className="t-btn" onClick={() => fileInputRef.current?.click()}>
+              {lang === 'ar' ? 'استيراد 📂' : 'Import 📂'}
+            </button>
             <input type="file" ref={fileInputRef} onChange={handleImportJson} accept=".json" style={{ display: 'none' }} />
           </div>
         </div>
