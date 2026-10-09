@@ -11,9 +11,10 @@ interface ReviewItem {
   productName: string;
   reviewStatus: string;
   createdAt?: string;
+  timestamp?: number; // تمت الإضافة للفرز الزمني
 }
 
-export default function AutomatedReviewsAE() {
+export default function AutomatedReviewsQA() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
 
   const [customerName, setCustomerName] = useState<string>('');
@@ -26,11 +27,18 @@ export default function AutomatedReviewsAE() {
 
   const [items, setItems] = useState<ReviewItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [dateFilter, setDateFilter] = useState<string>('all'); // الفرز الزمني
   const [editingId, setEditingId] = useState<string | null>(null);
+
+  const [isClient, setIsClient] = useState(false);
+  const [isActivated, setIsActivated] = useState(true);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    setIsClient(true);
+    setIsActivated(!!localStorage.getItem('merchant_license_key_qa'));
+
     // قراءة اللغة من الصفحة الرئيسية
     const savedLang = localStorage.getItem('seerk_global_lang') as 'ar' | 'en';
     if (savedLang) {
@@ -46,7 +54,7 @@ export default function AutomatedReviewsAE() {
       setCustomStatus('في انتظار الإرسال 🕒');
     }
 
-    const saved = localStorage.getItem('seerk_ae_automated_reviews_items');
+    const saved = localStorage.getItem('seerk_qa_automated_reviews_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
@@ -54,25 +62,23 @@ export default function AutomatedReviewsAE() {
 
   const saveToLocalStorage = (newItems: ReviewItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_ae_automated_reviews_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_qa_automated_reviews_items', JSON.stringify(newItems));
   };
-
-  const isActivated = typeof window !== 'undefined' && !!localStorage.getItem('merchant_license_key');
 
   // قاموس الترجمة الفوري
   const t = {
     ar: {
       back: '← عودة للمنصة',
       title: 'نظام طلب التقييمات الآلي ⭐',
-      desc: 'أرسل رسائل تلقائية للعملاء عبر واتساب بعد الاستلام لجمع التقييمات وبناء الموثوقية في متجرك الإماراتي',
+      desc: 'أرسل رسائل تلقائية للعملاء عبر واتساب بعد الاستلام لجمع التقييمات وبناء الموثوقية في متجرك بقطر',
       editRecord: 'تعديل السجل',
       newRecord: 'إضافة عميل لطلب تقييم',
       clear: '🧹 مسح الحقول',
       trial: 'تجريبي',
       custName: 'اسم العميل',
-      custNamePH: 'مثال: راشد المنصوري',
-      phone: 'رقم جوال العميل',
-      phonePH: '05XXXXXXXX',
+      custNamePH: 'مثال: ناصر الكبيسي',
+      phone: 'رقم جوال العميل (القطري)',
+      phonePH: '55XXXXXX أو 33XXXXXX',
       orderNum: 'رقم الطلب',
       orderNumPH: 'مثال: #89201',
       prodName: 'اسم المنتج (اختياري)',
@@ -94,8 +100,16 @@ export default function AutomatedReviewsAE() {
       searchPH: '🔍 بحث باسم العميل أو رقم الطلب...',
       exportBtn: '📥 تصدير Excel',
       importBtn: '📂 استيراد',
+      filters: {
+        all: 'الكل',
+        day: 'آخر يوم',
+        week: 'آخر أسبوع',
+        month: 'آخر شهر',
+        sixMonths: 'آخر 6 أشهر',
+        year: 'آخر سنة'
+      },
       table: {
-        noRecords: 'لا توجد سجلات تقييمات مسجلة حالياً.',
+        noRecords: 'لا توجد سجلات تقييمات تطابق بحثك حالياً.',
         th1: '#',
         th2: 'العميل والتاريخ',
         th3: 'رقم الطلب والمنتج',
@@ -104,7 +118,7 @@ export default function AutomatedReviewsAE() {
         th6: 'الإجراءات',
         generalOrder: 'طلب عام',
         waBtn: '💬 واتساب',
-        totalLabel: 'إجمالي العملاء المسجلين',
+        totalLabel: 'إجمالي العملاء المعروضين',
         custUnit: 'عميل'
       },
       alerts: {
@@ -122,15 +136,15 @@ export default function AutomatedReviewsAE() {
     en: {
       back: '→ Back to Hub',
       title: 'Automated Review Request System ⭐',
-      desc: 'Send automated WhatsApp messages to customers after delivery to collect reviews and build trust in your UAE store',
+      desc: 'Send automated WhatsApp messages to customers after delivery to collect reviews and build trust in your Qatar store',
       editRecord: 'Edit Record',
       newRecord: 'Add Customer for Review Request',
       clear: '🧹 Clear Fields',
       trial: 'Trial',
       custName: 'Customer Name',
-      custNamePH: 'e.g. Rashid Al Mansoori',
-      phone: 'Customer Phone Number',
-      phonePH: '05XXXXXXXX',
+      custNamePH: 'e.g. Nasser Al Kubaisi',
+      phone: 'Customer Phone Number (Qatar)',
+      phonePH: '55XXXXXX or 33XXXXXX',
       orderNum: 'Order Number',
       orderNumPH: 'e.g. #89201',
       prodName: 'Product Name (Optional)',
@@ -152,8 +166,16 @@ export default function AutomatedReviewsAE() {
       searchPH: '🔍 Search by customer name or order number...',
       exportBtn: '📥 Export Excel',
       importBtn: '📂 Import',
+      filters: {
+        all: 'All Time',
+        day: 'Last Day',
+        week: 'Last Week',
+        month: 'Last Month',
+        sixMonths: 'Last 6 Months',
+        year: 'Last Year'
+      },
       table: {
-        noRecords: 'No review records currently saved.',
+        noRecords: 'No review records match your search.',
         th1: '#',
         th2: 'Customer & Date',
         th3: 'Order No. & Product',
@@ -162,7 +184,7 @@ export default function AutomatedReviewsAE() {
         th6: 'Actions',
         generalOrder: 'General Order',
         waBtn: '💬 WhatsApp',
-        totalLabel: 'Total Saved Customers',
+        totalLabel: 'Total Displayed Customers',
         custUnit: 'customer(s)'
       },
       alerts: {
@@ -216,7 +238,7 @@ export default function AutomatedReviewsAE() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const localeStr = lang === 'ar' ? 'ar-AE' : 'en-AE';
+    const localeStr = lang === 'ar' ? 'ar-QA' : 'en-QA';
     const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
 
     if (editingId) {
@@ -227,7 +249,8 @@ export default function AutomatedReviewsAE() {
         orderNumber,
         productName,
         reviewStatus: finalReviewStatus,
-        createdAt: item.createdAt || formattedDate
+        createdAt: item.createdAt || formattedDate,
+        timestamp: item.timestamp || now.getTime()
       } : item);
       saveToLocalStorage(updated);
       setEditingId(null);
@@ -240,9 +263,10 @@ export default function AutomatedReviewsAE() {
         orderNumber,
         productName,
         reviewStatus: finalReviewStatus,
-        createdAt: formattedDate
+        createdAt: formattedDate,
+        timestamp: now.getTime()
       };
-      saveToLocalStorage([...items, newItem]);
+      saveToLocalStorage([newItem, ...items]); // حفظ الجديد في الأعلى
       alert(text.alerts.saveSuccess);
     }
 
@@ -251,11 +275,16 @@ export default function AutomatedReviewsAE() {
 
   const handleEdit = (item: ReviewItem) => {
     setCustomerName(item.customerName);
-    setPhoneNumber(item.phoneNumber);
+    
+    // إزالة رمز الدولة (974) لتسهيل التعديل
+    let displayPhone = item.phoneNumber;
+    if (displayPhone.startsWith('974')) {
+      displayPhone = displayPhone.substring(3);
+    }
+    setPhoneNumber(displayPhone);
     setOrderNumber(item.orderNumber);
     setProductName(item.productName);
     
-    // مطابقة الحالة بذكاء
     const isPending = item.reviewStatus.includes('انتظار') || item.reviewStatus.includes('Pending');
     const isSent = item.reviewStatus.includes('إرسال') || item.reviewStatus.includes('Sent');
     const isDone = item.reviewStatus.includes('بنجاح') || item.reviewStatus.includes('Successfully');
@@ -283,10 +312,12 @@ export default function AutomatedReviewsAE() {
 
   const handleSendWhatsapp = (item: ReviewItem) => {
     let phone = (item.phoneNumber || '').replace(/\D/g, '');
-    if (phone.startsWith('05')) {
-      phone = '971' + phone.substring(1);
-    } else if (phone.startsWith('5') && phone.length === 9) {
-      phone = '971' + phone;
+    if (phone.startsWith('0')) {
+      phone = '974' + phone.substring(1);
+    } else if (phone.length === 8 && !phone.startsWith('974')) {
+      phone = '974' + phone;
+    } else if (!phone.startsWith('974')) {
+      phone = '974' + phone;
     }
     
     const prodDisplay = item.productName || (lang === 'ar' ? 'الطلب رقم ' + item.orderNumber : 'Order #' + item.orderNumber);
@@ -295,8 +326,33 @@ export default function AutomatedReviewsAE() {
     window.open(url, '_blank');
   };
 
+  // فلترة النتائج بناءً على البحث والفرز الزمني
+  const filteredItems = items.filter(item => {
+    const matchesSearch = item.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          item.orderNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          item.phoneNumber.includes(searchQuery);
+    let matchesDate = true;
+    
+    if (dateFilter !== 'all') {
+      const itemTime = item.timestamp || 0;
+      const now = Date.now();
+      const diff = now - itemTime;
+      const dayMs = 24 * 60 * 60 * 1000;
+      
+      if (dateFilter === 'day') matchesDate = diff <= dayMs;
+      else if (dateFilter === 'week') matchesDate = diff <= 7 * dayMs;
+      else if (dateFilter === 'month') matchesDate = diff <= 30 * dayMs;
+      else if (dateFilter === '6months') matchesDate = diff <= 180 * dayMs;
+      else if (dateFilter === 'year') matchesDate = diff <= 365 * dayMs;
+    }
+    
+    return matchesSearch && matchesDate;
+  });
+
+  const completedReviews = filteredItems.filter(i => i.reviewStatus.includes('⭐') || i.reviewStatus.includes('بنجاح') || i.reviewStatus.includes('Successfully')).length;
+
   const handleExportExcel = () => {
-    if (items.length === 0) {
+    if (filteredItems.length === 0) {
       alert(text.alerts.noDataExp);
       return;
     }
@@ -328,7 +384,7 @@ export default function AutomatedReviewsAE() {
             <tbody>
     `;
 
-    items.forEach((row, idx) => {
+    filteredItems.forEach((row, idx) => {
       tableHtml += `
         <tr>
           <td>${idx + 1}</td>
@@ -347,7 +403,7 @@ export default function AutomatedReviewsAE() {
             <tfoot>
               <tr class="tfoot-row">
                 <td colspan="6">${text.table.totalLabel}</td>
-                <td>${items.length} ${text.table.custUnit}</td>
+                <td>${filteredItems.length} ${text.table.custUnit}</td>
               </tr>
             </tfoot>
           </table>
@@ -359,7 +415,7 @@ export default function AutomatedReviewsAE() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", "enjazya_ae_automated_reviews.xls");
+    link.setAttribute("download", `enjazya_qa_automated_reviews_${dateFilter}.xls`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -373,7 +429,8 @@ export default function AutomatedReviewsAE() {
         try {
           const imported = JSON.parse(event.target?.result as string);
           if (Array.isArray(imported)) {
-            saveToLocalStorage(imported);
+            const newItems = imported.filter(imp => !items.find(i => i.id === imp.id));
+            saveToLocalStorage([...newItems, ...items]);
             alert(text.alerts.importSuccess);
           }
         } catch (err) {
@@ -382,14 +439,6 @@ export default function AutomatedReviewsAE() {
       };
     }
   };
-
-  const filteredItems = items.filter(item => 
-    item.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.orderNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.phoneNumber.includes(searchQuery)
-  );
-
-  const completedReviews = filteredItems.filter(i => i.reviewStatus.includes('⭐') || i.reviewStatus.includes('بنجاح') || i.reviewStatus.includes('Successfully')).length;
 
   return (
     <div className="tool-container" style={{ direction: lang === 'ar' ? 'rtl' : 'ltr' }}>
@@ -424,13 +473,13 @@ export default function AutomatedReviewsAE() {
         .input-group label { display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 6px; }
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
         .input-wrapper input, .input-wrapper select { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .input-wrapper input:focus, .input-wrapper select:focus { border-color: #047857; background: #ffffff; }
+        .input-wrapper input:focus, .input-wrapper select:focus { border-color: #8A1538; background: #ffffff; }
         
-        .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
-        .action-btn:hover { background: #065f46; }
+        .action-btn { background: #8A1538; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
+        .action-btn:hover { background: #6A102B; }
 
         .result-box { background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .result-box.primary { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #fff; border: none; padding: 20px; }
+        .result-box.primary { background: linear-gradient(135deg, #8A1538 0%, #6A102B 100%); color: #fff; border: none; padding: 20px; }
         .result-label { font-size: 13px; font-weight: 700; color: #64748b; }
         .primary .result-label { color: #ffffff; opacity: 0.9; }
         .result-value { font-size: 18px; font-weight: 900; color: #0f172a; direction: ltr; }
@@ -438,10 +487,16 @@ export default function AutomatedReviewsAE() {
 
         .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
-        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        
+        .search-input { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; flex-grow: 1; max-width: 350px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .search-input:focus { border-color: #8A1538; }
+        
+        .filter-select { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; background: #fff; color: #334155; cursor: pointer; min-width: 130px; }
+        .filter-select:focus { border-color: #8A1538; }
+
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
-        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; }
-        .t-btn:hover { background: #f1f5f9; }
+        .t-btn { padding: 9px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .t-btn:hover { background: #f1f5f9; border-color: #8A1538; color: #8A1538; }
 
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 900px; }
@@ -462,7 +517,7 @@ export default function AutomatedReviewsAE() {
           <h1>{text.title}</h1>
           <p>{text.desc}</p>
         </div>
-        <Link href="/hub/ae" className="back-btn">
+        <Link href="/hub/qa" className="back-btn">
           {text.back}
         </Link>
       </div>
@@ -476,7 +531,7 @@ export default function AutomatedReviewsAE() {
                 {text.clear}
               </button>
             </div>
-            {!isActivated && <span className="trial-badge">{text.trial}: {items.length}/3</span>}
+            {isClient && !isActivated && <span className="trial-badge">{text.trial}: {items.length}/3</span>}
           </h2>
 
           <form onSubmit={handleSaveItem}>
@@ -550,7 +605,7 @@ export default function AutomatedReviewsAE() {
               <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '2px' }}>{text.totalTargetSub}</div>
             </div>
             <div className="result-value">
-              {items.length} {text.table.custUnit}
+              {filteredItems.length} {text.table.custUnit}
             </div>
           </div>
 
@@ -562,7 +617,7 @@ export default function AutomatedReviewsAE() {
           <div className="result-box" style={{ background: '#f8fafc' }}>
             <span className="result-label">{text.responseRate}</span>
             <span className="result-value" style={{ color: '#d97706' }}>
-              {items.length > 0 ? ((completedReviews / items.length) * 100).toFixed(1) : 0}%
+              {filteredItems.length > 0 ? ((completedReviews / filteredItems.length) * 100).toFixed(1) : 0}%
             </span>
           </div>
         </div>
@@ -577,6 +632,20 @@ export default function AutomatedReviewsAE() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
+
+          <select 
+            className="filter-select"
+            value={dateFilter}
+            onChange={(e) => setDateFilter(e.target.value)}
+          >
+            <option value="all">{text.filters.all}</option>
+            <option value="day">{text.filters.day}</option>
+            <option value="week">{text.filters.week}</option>
+            <option value="month">{text.filters.month}</option>
+            <option value="6months">{text.filters.sixMonths}</option>
+            <option value="year">{text.filters.year}</option>
+          </select>
+
           <div className="table-btns">
             <button className="t-btn" onClick={handleExportExcel}>{text.exportBtn}</button>
             <button className="t-btn" onClick={() => fileInputRef.current?.click()}>{text.importBtn}</button>
@@ -618,7 +687,7 @@ export default function AutomatedReviewsAE() {
                         {item.createdAt && <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', fontWeight: 600 }}>🕒 {item.createdAt}</div>}
                       </td>
                       <td>
-                        <div style={{ fontWeight: 800, color: '#0369a1' }}>{item.orderNumber}</div>
+                        <div style={{ fontWeight: 800, color: '#8A1538' }}>{item.orderNumber}</div>
                         <div style={{ fontSize: '12px', color: '#64748b' }}>{item.productName || text.table.generalOrder}</div>
                       </td>
                       <td style={{ direction: 'ltr', textAlign: lang === 'ar' ? 'right' : 'left', fontWeight: 700 }}>{item.phoneNumber}</td>
