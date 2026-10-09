@@ -10,9 +10,10 @@ interface WaLinkItem {
   presetMessage: string;
   generatedLink: string;
   createdAt?: string;
+  timestamp?: number; // تمت الإضافة للفرز الزمني
 }
 
-export default function WaLinkGeneratorAE() {
+export default function WaLinkGeneratorQA() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
 
   const [campaignName, setCampaignName] = useState<string>('');
@@ -21,6 +22,7 @@ export default function WaLinkGeneratorAE() {
 
   const [items, setItems] = useState<WaLinkItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [dateFilter, setDateFilter] = useState<string>('all'); // الفرز الزمني
   const [editingId, setEditingId] = useState<string | null>(null);
   
   const [isClient, setIsClient] = useState(false);
@@ -30,7 +32,7 @@ export default function WaLinkGeneratorAE() {
 
   useEffect(() => {
     setIsClient(true);
-    setIsActivated(!!localStorage.getItem('merchant_license_key'));
+    setIsActivated(!!localStorage.getItem('merchant_license_key_qa'));
     
     // قراءة اللغة المحفوظة
     const savedLang = localStorage.getItem('seerk_global_lang') as 'ar' | 'en';
@@ -38,7 +40,7 @@ export default function WaLinkGeneratorAE() {
       setLang(savedLang);
     }
     
-    const saved = localStorage.getItem('seerk_ae_wa_link_items');
+    const saved = localStorage.getItem('seerk_qa_wa_link_items');
     if (saved) {
       try { 
         const parsedData = JSON.parse(saved);
@@ -49,15 +51,18 @@ export default function WaLinkGeneratorAE() {
 
   const saveToLocalStorage = (newItems: WaLinkItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_ae_wa_link_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_qa_wa_link_items', JSON.stringify(newItems));
   };
 
-  // معالجة رقم الجوال للإمارات (+971)
+  // معالجة رقم الجوال لقطر (+974)
   let formattedPhone = phoneNumber.replace(/\D/g, ''); 
-  if (formattedPhone.startsWith('05')) {
-    formattedPhone = '971' + formattedPhone.substring(1);
-  } else if (formattedPhone.startsWith('5') && formattedPhone.length === 9) {
-    formattedPhone = '971' + formattedPhone;
+  if (formattedPhone.startsWith('0')) {
+    formattedPhone = '974' + formattedPhone.substring(1);
+  } else if (formattedPhone.length === 8 && !formattedPhone.startsWith('974')) {
+    formattedPhone = '974' + formattedPhone;
+  } else if (formattedPhone.length > 8 && !formattedPhone.startsWith('974')) {
+    // محاولة التعامل مع أرقام بدون الصفر
+    formattedPhone = '974' + formattedPhone;
   }
 
   const liveLink = formattedPhone 
@@ -69,15 +74,15 @@ export default function WaLinkGeneratorAE() {
     ar: {
       back: '← عودة للمنصة',
       title: 'صانع روابط واتساب السريعة 🔗',
-      desc: 'أنشئ روابط مخصصة برسائل جاهزة لبيو تيك توك أو تمريرها في حملات الانستقرام',
+      desc: 'أنشئ روابط مخصصة برسائل جاهزة لبيو تيك توك أو تمريرها في حملات الانستقرام بقطر',
       editRecord: 'تعديل الرابط',
       newRecord: 'إنشاء رابط واتساب جديد',
       clear: '🧹 مسح الحقول',
       trial: 'تجريبي',
       campName: 'اسم الحملة أو الرابط (للتمييز الداخلي)',
       campNamePH: 'مثال: رابط بايو تيك توك',
-      phone: 'رقم الواتساب (الإماراتي)',
-      phonePH: '05XXXXXXXX',
+      phone: 'رقم الواتساب (القطري)',
+      phonePH: '55XXXXXX أو 33XXXXXX',
       message: 'الرسالة الجاهزة (اختياري)',
       messagePH: 'مثال: أهلاً، أريد الاستفسار عن عرض العطور...',
       saveBtnEdit: '💾 حفظ التعديلات',
@@ -90,8 +95,16 @@ export default function WaLinkGeneratorAE() {
       searchPH: '🔍 بحث باسم الحملة...',
       exportBtn: '📥 تصدير Excel',
       importBtn: '📂 استيراد',
+      filters: {
+        all: 'الكل',
+        day: 'آخر يوم',
+        week: 'آخر أسبوع',
+        month: 'آخر شهر',
+        sixMonths: 'آخر 6 أشهر',
+        year: 'آخر سنة'
+      },
       table: {
-        noRecords: 'لا توجد روابط واتساب مسجلة حالياً.',
+        noRecords: 'لا توجد روابط واتساب مطابقة لبحثك.',
         th1: '#',
         th2: 'اسم الحملة',
         th3: 'رقم الواتساب',
@@ -99,7 +112,7 @@ export default function WaLinkGeneratorAE() {
         th5: 'الإجراءات',
         noMsg: 'بدون رسالة',
         copyLink: '🔗 نسخ',
-        totalLabel: 'إجمالي الروابط المسجلة',
+        totalLabel: 'إجمالي الروابط المعروضة',
         linksCount: 'رابط'
       },
       alerts: {
@@ -118,15 +131,15 @@ export default function WaLinkGeneratorAE() {
     en: {
       back: '→ Back to Hub',
       title: 'Quick WhatsApp Link Generator 🔗',
-      desc: 'Create custom links with pre-filled messages for TikTok bios or Instagram campaigns',
+      desc: 'Create custom links with pre-filled messages for TikTok bios or Instagram campaigns in Qatar',
       editRecord: 'Edit Link',
       newRecord: 'Create New WhatsApp Link',
       clear: '🧹 Clear Fields',
       trial: 'Trial',
       campName: 'Campaign or Link Name (Internal)',
       campNamePH: 'e.g. TikTok Bio Link',
-      phone: 'WhatsApp Number (UAE)',
-      phonePH: '05XXXXXXXX',
+      phone: 'WhatsApp Number (Qatar)',
+      phonePH: '55XXXXXX or 33XXXXXX',
       message: 'Pre-filled Message (Optional)',
       messagePH: 'e.g. Hello, I want to inquire about the perfume offer...',
       saveBtnEdit: '💾 Save Changes',
@@ -139,8 +152,16 @@ export default function WaLinkGeneratorAE() {
       searchPH: '🔍 Search by campaign name...',
       exportBtn: '📥 Export Excel',
       importBtn: '📂 Import',
+      filters: {
+        all: 'All Time',
+        day: 'Last Day',
+        week: 'Last Week',
+        month: 'Last Month',
+        sixMonths: 'Last 6 Months',
+        year: 'Last Year'
+      },
       table: {
-        noRecords: 'No WhatsApp links currently saved.',
+        noRecords: 'No WhatsApp links currently match your search.',
         th1: '#',
         th2: 'Campaign Name',
         th3: 'WhatsApp Number',
@@ -148,7 +169,7 @@ export default function WaLinkGeneratorAE() {
         th5: 'Actions',
         noMsg: 'No message',
         copyLink: '🔗 Copy',
-        totalLabel: 'Total Saved Links',
+        totalLabel: 'Total Displayed Links',
         linksCount: 'link(s)'
       },
       alerts: {
@@ -188,7 +209,7 @@ export default function WaLinkGeneratorAE() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const localeStr = lang === 'ar' ? 'ar-AE' : 'en-AE';
+    const localeStr = lang === 'ar' ? 'ar-QA' : 'en-QA';
     const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
 
     if (editingId) {
@@ -198,7 +219,8 @@ export default function WaLinkGeneratorAE() {
         phoneNumber: formattedPhone,
         presetMessage,
         generatedLink: liveLink,
-        createdAt: item.createdAt || formattedDate
+        createdAt: item.createdAt || formattedDate,
+        timestamp: item.timestamp || now.getTime()
       } : item);
       saveToLocalStorage(updated);
       setEditingId(null);
@@ -210,9 +232,10 @@ export default function WaLinkGeneratorAE() {
         phoneNumber: formattedPhone,
         presetMessage,
         generatedLink: liveLink,
-        createdAt: formattedDate
+        createdAt: formattedDate,
+        timestamp: now.getTime()
       };
-      saveToLocalStorage([...items, newItem]);
+      saveToLocalStorage([newItem, ...items]); // حفظ للأعلى
       alert(text.alerts.saveSuccess);
     }
 
@@ -221,7 +244,13 @@ export default function WaLinkGeneratorAE() {
 
   const handleEdit = (item: WaLinkItem) => {
     setCampaignName(item.campaignName);
-    setPhoneNumber(item.phoneNumber);
+    
+    // إزالة رمز الدولة (974) إذا كان موجوداً لتسهيل التعديل
+    let displayPhone = item.phoneNumber;
+    if (displayPhone.startsWith('974')) {
+      displayPhone = displayPhone.substring(3);
+    }
+    setPhoneNumber(displayPhone);
     setPresetMessage(item.presetMessage);
     setEditingId(item.id);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -243,8 +272,30 @@ export default function WaLinkGeneratorAE() {
     alert(text.alerts.copySuccess);
   };
 
+  // فلترة النتائج بناءً على البحث والفرز الزمني
+  const filteredItems = items.filter(item => {
+    const matchesSearch = (item?.campaignName || '').toLowerCase().includes((searchQuery || '').toLowerCase()) ||
+                          (item?.presetMessage || '').toLowerCase().includes((searchQuery || '').toLowerCase());
+    let matchesDate = true;
+    
+    if (dateFilter !== 'all') {
+      const itemTime = item.timestamp || 0;
+      const now = Date.now();
+      const diff = now - itemTime;
+      const dayMs = 24 * 60 * 60 * 1000;
+      
+      if (dateFilter === 'day') matchesDate = diff <= dayMs;
+      else if (dateFilter === 'week') matchesDate = diff <= 7 * dayMs;
+      else if (dateFilter === 'month') matchesDate = diff <= 30 * dayMs;
+      else if (dateFilter === '6months') matchesDate = diff <= 180 * dayMs;
+      else if (dateFilter === 'year') matchesDate = diff <= 365 * dayMs;
+    }
+    
+    return matchesSearch && matchesDate;
+  });
+
   const handleExportExcel = () => {
-    if (items.length === 0) {
+    if (filteredItems.length === 0) {
       alert(text.alerts.noDataExp);
       return;
     }
@@ -275,7 +326,7 @@ export default function WaLinkGeneratorAE() {
             <tbody>
     `;
 
-    items.forEach((row, idx) => {
+    filteredItems.forEach((row, idx) => {
       tableHtml += `
         <tr>
           <td>${idx + 1}</td>
@@ -293,7 +344,7 @@ export default function WaLinkGeneratorAE() {
             <tfoot>
               <tr class="tfoot-row">
                 <td colspan="5">${text.table.totalLabel}</td>
-                <td>${items.length} ${text.table.linksCount}</td>
+                <td>${filteredItems.length} ${text.table.linksCount}</td>
               </tr>
             </tfoot>
           </table>
@@ -305,7 +356,7 @@ export default function WaLinkGeneratorAE() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", "enjazya_ae_wa_links.xls");
+    link.setAttribute("download", `enjazya_qa_wa_links_${dateFilter}.xls`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -319,7 +370,8 @@ export default function WaLinkGeneratorAE() {
         try {
           const imported = JSON.parse(event.target?.result as string);
           if (Array.isArray(imported)) {
-            saveToLocalStorage(imported);
+            const newItems = imported.filter(imp => !items.find(i => i.id === imp.id));
+            saveToLocalStorage([...newItems, ...items]);
             alert(text.alerts.importSuccess);
           }
         } catch (err) {
@@ -328,11 +380,6 @@ export default function WaLinkGeneratorAE() {
       };
     }
   };
-
-  const filteredItems = items.filter(item => 
-    (item?.campaignName || '').toLowerCase().includes((searchQuery || '').toLowerCase()) ||
-    (item?.presetMessage || '').toLowerCase().includes((searchQuery || '').toLowerCase())
-  );
 
   return (
     <div className="tool-container" style={{ direction: lang === 'ar' ? 'rtl' : 'ltr' }}>
@@ -364,25 +411,30 @@ export default function WaLinkGeneratorAE() {
         .input-group label { display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 6px; }
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
         .input-wrapper input, .input-wrapper textarea { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .input-wrapper input:focus, .input-wrapper textarea:focus { border-color: #059669; background: #ffffff; }
+        .input-wrapper input:focus, .input-wrapper textarea:focus { border-color: #8A1538; background: #ffffff; }
         
-        .action-btn { background: #059669; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
-        .action-btn:hover { background: #047857; }
+        .action-btn { background: #8A1538; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
+        .action-btn:hover { background: #6A102B; }
         
-        .copy-btn { background: #0284c7; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .copy-btn:hover { background: #0369a1; }
+        .copy-btn { background: #8A1538; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .copy-btn:hover { background: #6A102B; }
 
         .test-btn { background: #f8fafc; color: #0f172a; border: 1px solid #cbd5e1; width: 100%; padding: 12px; border-radius: 8px; font-weight: 800; font-size: 14px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none;}
         .test-btn:hover { background: #f1f5f9; }
 
-        .link-preview-box { background: #f0fdf4; border: 1px dashed #4ade80; padding: 15px; border-radius: 8px; margin-bottom: 15px; direction: ltr; text-align: left; word-break: break-all; font-family: monospace; font-size: 13px; color: #065f46; line-height: 1.5; min-height: 50px;}
+        .link-preview-box { background: #FAF0F2; border: 1px dashed #EBB8C6; padding: 15px; border-radius: 8px; margin-bottom: 15px; direction: ltr; text-align: left; word-break: break-all; font-family: monospace; font-size: 13px; color: #8A1538; line-height: 1.5; min-height: 50px;}
 
         .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
         .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .search-input:focus { border-color: #8A1538; }
+        
+        .filter-select { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; background: #fff; color: #334155; cursor: pointer; min-width: 130px; }
+        .filter-select:focus { border-color: #8A1538; }
+
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
-        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; }
-        .t-btn:hover { background: #f1f5f9; }
+        .t-btn { padding: 9px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .t-btn:hover { background: #f1f5f9; border-color: #8A1538; color: #8A1538; }
 
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 900px; }
@@ -393,9 +445,10 @@ export default function WaLinkGeneratorAE() {
         .trial-badge { background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 800; }
         
         .tb-action-btn { border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; font-family: inherit;}
+        .btn-wa { background: #FAF0F2; color: #8A1538; border: 1px solid #EBB8C6; }
+        .btn-wa:hover { background: #8A1538; color: #ffffff; }
         .btn-edit { background: #e0f2fe; color: #0369a1; }
         .btn-delete { background: #fee2e2; color: #991b1b; }
-        .btn-copy { background: #dcfce7; color: #15803d; }
       `}</style>
 
       <div className="header">
@@ -403,7 +456,7 @@ export default function WaLinkGeneratorAE() {
           <h1>{text.title}</h1>
           <p>{text.desc}</p>
         </div>
-        <Link href="/hub/ae" className="back-btn">
+        <Link href="/hub/qa" className="back-btn">
           {text.back}
         </Link>
       </div>
@@ -491,9 +544,27 @@ export default function WaLinkGeneratorAE() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
+
+          <select 
+            className="filter-select"
+            value={dateFilter}
+            onChange={(e) => setDateFilter(e.target.value)}
+          >
+            <option value="all">{text.filters.all}</option>
+            <option value="day">{text.filters.day}</option>
+            <option value="week">{text.filters.week}</option>
+            <option value="month">{text.filters.month}</option>
+            <option value="6months">{text.filters.sixMonths}</option>
+            <option value="year">{text.filters.year}</option>
+          </select>
+
           <div className="table-btns">
-            <button className="t-btn" onClick={handleExportExcel}>{text.exportBtn}</button>
-            <button className="t-btn" onClick={() => fileInputRef.current?.click()}>{text.importBtn}</button>
+            <button className="t-btn" onClick={handleExportExcel}>
+              {lang === 'ar' ? 'تصدير 📥' : 'Export 📥'}
+            </button>
+            <button className="t-btn" onClick={() => fileInputRef.current?.click()}>
+              {lang === 'ar' ? 'استيراد 📂' : 'Import 📂'}
+            </button>
             <input type="file" ref={fileInputRef} onChange={handleImportJson} accept=".json" style={{ display: 'none' }} />
           </div>
         </div>
@@ -524,13 +595,13 @@ export default function WaLinkGeneratorAE() {
                       <div style={{ fontWeight: 900, color: '#0f172a' }}>{item.campaignName}</div>
                       {item.createdAt && <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', fontWeight: 600 }}>🕒 {item.createdAt}</div>}
                     </td>
-                    <td dir="ltr" style={{ textAlign: lang === 'ar' ? 'right' : 'left', fontWeight: 700, color: '#047857' }}>{item.phoneNumber}</td>
+                    <td dir="ltr" style={{ textAlign: lang === 'ar' ? 'right' : 'left', fontWeight: 700, color: '#8A1538' }}>{item.phoneNumber}</td>
                     <td style={{ maxWidth: '300px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontSize: '12px' }}>
                       {item.presetMessage || <span style={{ color: '#94a3b8' }}>{text.table.noMsg}</span>}
                     </td>
                     <td>
                       <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                        <button className="tb-action-btn btn-copy" onClick={() => handleCopyLink(item.generatedLink)} title={text.table.copyLink}>{text.table.copyLink}</button>
+                        <button className="tb-action-btn btn-wa" onClick={() => handleCopyLink(item.generatedLink)} title={text.table.copyLink}>{text.table.copyLink}</button>
                         <button className="tb-action-btn btn-edit" onClick={() => handleEdit(item)} title="✏️">✏️</button>
                         <button className="tb-action-btn btn-delete" onClick={() => handleDelete(item.id)} title="❌">❌</button>
                       </div>
@@ -543,7 +614,7 @@ export default function WaLinkGeneratorAE() {
               <tfoot>
                 <tr className="tfoot-row">
                   <td colSpan={4} style={{ textAlign: 'center' }}>{text.table.totalLabel}</td>
-                  <td>{items.length} {text.table.linksCount}</td>
+                  <td>{filteredItems.length} {text.table.linksCount}</td>
                 </tr>
               </tfoot>
             )}
