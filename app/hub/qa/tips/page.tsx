@@ -10,9 +10,10 @@ interface GrowthItem {
   description: string;
   executionStatus: string;
   createdAt?: string;
+  timestamp?: number; // تمت الإضافة للفرز الزمني
 }
 
-export default function StoreGrowthSecretsAE() {
+export default function StoreGrowthSecretsQA() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
 
   const [strategyName, setStrategyName] = useState<string>('');
@@ -24,6 +25,7 @@ export default function StoreGrowthSecretsAE() {
 
   const [items, setItems] = useState<GrowthItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [dateFilter, setDateFilter] = useState<string>('all'); // الفرز الزمني
   const [editingId, setEditingId] = useState<string | null>(null);
   
   const [isClient, setIsClient] = useState(false);
@@ -33,7 +35,7 @@ export default function StoreGrowthSecretsAE() {
 
   useEffect(() => {
     setIsClient(true);
-    setIsActivated(!!localStorage.getItem('merchant_license_key'));
+    setIsActivated(!!localStorage.getItem('merchant_license_key_qa'));
     
     // قراءة اللغة من الصفحة الرئيسية
     const savedLang = localStorage.getItem('seerk_global_lang') as 'ar' | 'en';
@@ -50,7 +52,7 @@ export default function StoreGrowthSecretsAE() {
       setExecutionStatus('لم تبدأ ⏸️');
     }
 
-    const saved = localStorage.getItem('seerk_ae_growth_secrets_items');
+    const saved = localStorage.getItem('seerk_qa_growth_secrets_items');
     if (saved) {
       try { 
         const parsedData = JSON.parse(saved);
@@ -61,21 +63,21 @@ export default function StoreGrowthSecretsAE() {
 
   const saveToLocalStorage = (newItems: GrowthItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_ae_growth_secrets_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_qa_growth_secrets_items', JSON.stringify(newItems));
   };
 
   // قاموس الترجمة الفوري
   const t = {
     ar: {
       back: '← عودة للمنصة',
-      title: 'أسرار نمو المتاجر الإماراتية 💡',
-      desc: 'مكتبة استراتيجيات حصرية لزيادة التحويل ورفع ولاء العملاء في السوق الإماراتي',
+      title: 'أسرار نمو المتاجر القطرية 💡',
+      desc: 'مكتبة استراتيجيات حصرية لزيادة التحويل ورفع ولاء العملاء في السوق القطري',
       editRecord: 'تعديل خطة النمو',
       newRecord: 'إضافة استراتيجية نمو جديدة',
       clear: '🧹 مسح الحقول',
       trial: 'تجريبي',
       stratName: 'اسم الاستراتيجية / الفكرة الترويجية',
-      stratNamePH: 'مثال: تفعيل الدفع بتابي أو برنامج ولاء النقاط',
+      stratNamePH: 'مثال: تفعيل الدفع بـ تابـي أو برنامج ولاء النقاط',
       category: 'تصنيف الاستراتيجية',
       catConversion: 'زيادة معدل التحويل 🚀',
       catLoyalty: 'رفع ولاء العملاء 🤝',
@@ -98,8 +100,16 @@ export default function StoreGrowthSecretsAE() {
       searchPH: '🔍 بحث باسم الاستراتيجية أو التصنيف...',
       exportBtn: '📥 تصدير Excel',
       importBtn: '📂 استيراد',
+      filters: {
+        all: 'الكل',
+        day: 'آخر يوم',
+        week: 'آخر أسبوع',
+        month: 'آخر شهر',
+        sixMonths: 'آخر 6 أشهر',
+        year: 'آخر سنة'
+      },
       table: {
-        noRecords: 'مكتبة النمو فارغة حالياً. ابدأ بإضافة استراتيجيات جديدة.',
+        noRecords: 'مكتبة النمو تطابق بحثك حالياً. ابدأ بإضافة استراتيجيات جديدة.',
         th1: '#',
         th2: 'الاستراتيجية والتاريخ',
         th3: 'التصنيف',
@@ -107,7 +117,7 @@ export default function StoreGrowthSecretsAE() {
         th5: 'حالة التنفيذ',
         th6: 'الإجراءات',
         noDesc: 'بدون وصف',
-        totalLabel: 'إجمالي الاستراتيجيات والخطط',
+        totalLabel: 'إجمالي الاستراتيجيات والخطط المعروضة',
         planUnit: 'خطة'
       },
       alerts: {
@@ -123,8 +133,8 @@ export default function StoreGrowthSecretsAE() {
     },
     en: {
       back: '→ Back to Hub',
-      title: 'UAE Store Growth Secrets 💡',
-      desc: 'Exclusive library of strategies to increase conversions and boost customer loyalty in the UAE market',
+      title: 'Qatar Store Growth Secrets 💡',
+      desc: 'Exclusive library of strategies to increase conversions and boost customer loyalty in the Qatar market',
       editRecord: 'Edit Growth Plan',
       newRecord: 'Add New Growth Strategy',
       clear: '🧹 Clear Fields',
@@ -153,8 +163,16 @@ export default function StoreGrowthSecretsAE() {
       searchPH: '🔍 Search by strategy or category...',
       exportBtn: '📥 Export Excel',
       importBtn: '📂 Import',
+      filters: {
+        all: 'All Time',
+        day: 'Last Day',
+        week: 'Last Week',
+        month: 'Last Month',
+        sixMonths: 'Last 6 Months',
+        year: 'Last Year'
+      },
       table: {
-        noRecords: 'Growth library is currently empty. Start adding new strategies.',
+        noRecords: 'Growth library matches your search.',
         th1: '#',
         th2: 'Strategy & Date',
         th3: 'Category',
@@ -162,7 +180,7 @@ export default function StoreGrowthSecretsAE() {
         th5: 'Execution Status',
         th6: 'Actions',
         noDesc: 'No description',
-        totalLabel: 'Total Strategies & Plans',
+        totalLabel: 'Total Displayed Strategies & Plans',
         planUnit: 'plan(s)'
       },
       alerts: {
@@ -216,7 +234,7 @@ export default function StoreGrowthSecretsAE() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const localeStr = lang === 'ar' ? 'ar-AE' : 'en-AE';
+    const localeStr = lang === 'ar' ? 'ar-QA' : 'en-QA';
     const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
 
     if (editingId) {
@@ -226,7 +244,8 @@ export default function StoreGrowthSecretsAE() {
         category: actualCategory,
         description,
         executionStatus,
-        createdAt: item.createdAt || formattedDate
+        createdAt: item.createdAt || formattedDate,
+        timestamp: item.timestamp || now.getTime()
       } : item);
       saveToLocalStorage(updated);
       setEditingId(null);
@@ -238,9 +257,10 @@ export default function StoreGrowthSecretsAE() {
         category: actualCategory,
         description,
         executionStatus,
-        createdAt: formattedDate
+        createdAt: formattedDate,
+        timestamp: now.getTime()
       };
-      saveToLocalStorage([...items, newItem]);
+      saveToLocalStorage([newItem, ...items]); // حفظ الجديد في الأعلى
       alert(text.alerts.saveSuccess);
     }
 
@@ -251,7 +271,6 @@ export default function StoreGrowthSecretsAE() {
     setStrategyName(item.strategyName);
     setDescription(item.description);
     
-    // مطابقة حالة التنفيذ
     const isCompleted = item.executionStatus.includes('مكتمل') || item.executionStatus.includes('Completed');
     const isInProgress = item.executionStatus.includes('قيد') || item.executionStatus.includes('Progress');
     
@@ -259,7 +278,6 @@ export default function StoreGrowthSecretsAE() {
     else if (isInProgress) setExecutionStatus(text.statInProgress);
     else setExecutionStatus(text.statNotStarted);
     
-    // مطابقة التصنيف
     const isConv = item.category.includes('تحويل') || item.category.includes('Conversion');
     const isLoyalty = item.category.includes('ولاء') || item.category.includes('Loyalty');
     const isCarts = item.category.includes('سلات') || item.category.includes('Carts');
@@ -288,12 +306,33 @@ export default function StoreGrowthSecretsAE() {
     }
   };
 
-  const completedCount = items.filter(i => i.executionStatus.includes('مكتمل') || i.executionStatus.includes('Completed')).length;
-  const inProgressCount = items.filter(i => i.executionStatus.includes('قيد') || i.executionStatus.includes('Progress')).length;
-  const progressPercentage = items.length > 0 ? (completedCount / items.length) * 100 : 0;
+  // فلترة النتائج بناءً على البحث والفرز الزمني
+  const filteredItems = items.filter(item => {
+    const matchesSearch = (item?.strategyName || '').toLowerCase().includes((searchQuery || '').toLowerCase()) ||
+                          (item?.category || '').toLowerCase().includes((searchQuery || '').toLowerCase());
+    let matchesDate = true;
+    
+    if (dateFilter !== 'all') {
+      const itemTime = item.timestamp || 0;
+      const now = Date.now();
+      const diff = now - itemTime;
+      const dayMs = 24 * 60 * 60 * 1000;
+      
+      if (dateFilter === 'day') matchesDate = diff <= dayMs;
+      else if (dateFilter === 'week') matchesDate = diff <= 7 * dayMs;
+      else if (dateFilter === 'month') matchesDate = diff <= 30 * dayMs;
+      else if (dateFilter === '6months') matchesDate = diff <= 180 * dayMs;
+      else if (dateFilter === 'year') matchesDate = diff <= 365 * dayMs;
+    }
+    
+    return matchesSearch && matchesDate;
+  });
+
+  const completedCount = filteredItems.filter(i => i.executionStatus.includes('مكتمل') || i.executionStatus.includes('Completed')).length;
+  const progressPercentage = filteredItems.length > 0 ? (completedCount / filteredItems.length) * 100 : 0;
 
   const handleExportExcel = () => {
-    if (items.length === 0) {
+    if (filteredItems.length === 0) {
       alert(text.alerts.noDataExp);
       return;
     }
@@ -324,7 +363,7 @@ export default function StoreGrowthSecretsAE() {
             <tbody>
     `;
 
-    items.forEach((row, idx) => {
+    filteredItems.forEach((row, idx) => {
       tableHtml += `
         <tr>
           <td>${idx + 1}</td>
@@ -342,7 +381,7 @@ export default function StoreGrowthSecretsAE() {
             <tfoot>
               <tr class="tfoot-row">
                 <td colspan="5">${text.table.totalLabel}</td>
-                <td>${items.length} ${text.table.planUnit}</td>
+                <td>${filteredItems.length} ${text.table.planUnit}</td>
               </tr>
             </tfoot>
           </table>
@@ -354,7 +393,7 @@ export default function StoreGrowthSecretsAE() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", "enjazya_ae_store_growth_secrets.xls");
+    link.setAttribute("download", `enjazya_qa_store_growth_secrets_${dateFilter}.xls`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -368,7 +407,8 @@ export default function StoreGrowthSecretsAE() {
         try {
           const imported = JSON.parse(event.target?.result as string);
           if (Array.isArray(imported)) {
-            saveToLocalStorage(imported);
+            const newItems = imported.filter(imp => !items.find(i => i.id === imp.id));
+            saveToLocalStorage([...newItems, ...items]);
             alert(text.alerts.importSuccess);
           }
         } catch (err) {
@@ -377,11 +417,6 @@ export default function StoreGrowthSecretsAE() {
       };
     }
   };
-
-  const filteredItems = items.filter(item => 
-    (item?.strategyName || '').toLowerCase().includes((searchQuery || '').toLowerCase()) ||
-    (item?.category || '').toLowerCase().includes((searchQuery || '').toLowerCase())
-  );
 
   return (
     <div className="tool-container" style={{ direction: lang === 'ar' ? 'rtl' : 'ltr' }}>
@@ -409,17 +444,20 @@ export default function StoreGrowthSecretsAE() {
         .clear-form-btn { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; display: flex; align-items: center; gap: 5px; }
         .clear-form-btn:hover { background: #fecaca; }
 
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        @media(max-width: 600px) { .form-row { grid-template-columns: 1fr; gap: 0; } }
+
         .input-group { margin-bottom: 15px; width: 100%; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .input-group label { display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 6px; }
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
         .input-wrapper input, .input-wrapper select, .input-wrapper textarea { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .input-wrapper input:focus, .input-wrapper select:focus, .input-wrapper textarea:focus { border-color: #047857; background: #ffffff; }
+        .input-wrapper input:focus, .input-wrapper select:focus, .input-wrapper textarea:focus { border-color: #8A1538; background: #ffffff; }
         
-        .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
-        .action-btn:hover { background: #065f46; }
+        .action-btn { background: #8A1538; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
+        .action-btn:hover { background: #6A102B; }
 
         .result-box { background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .result-box.primary { background: linear-gradient(135deg, #047857 0%, #065f46 100%); color: #fff; border: none; padding: 20px; }
+        .result-box.primary { background: linear-gradient(135deg, #8A1538 0%, #6A102B 100%); color: #fff; border: none; padding: 20px; }
         .result-label { font-size: 13px; font-weight: 700; color: #64748b; }
         .primary .result-label { color: #ffffff; opacity: 0.9; }
         .result-value { font-size: 18px; font-weight: 900; color: #0f172a; }
@@ -427,10 +465,16 @@ export default function StoreGrowthSecretsAE() {
 
         .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
-        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        
+        .search-input { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; flex-grow: 1; max-width: 350px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .search-input:focus { border-color: #8A1538; }
+        
+        .filter-select { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; background: #fff; color: #334155; cursor: pointer; min-width: 130px; }
+        .filter-select:focus { border-color: #8A1538; }
+
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
-        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; }
-        .t-btn:hover { background: #f1f5f9; }
+        .t-btn { padding: 9px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .t-btn:hover { background: #f1f5f9; border-color: #8A1538; color: #8A1538; }
 
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 900px; }
@@ -450,7 +494,7 @@ export default function StoreGrowthSecretsAE() {
           <h1>{text.title}</h1>
           <p>{text.desc}</p>
         </div>
-        <Link href="/hub/ae" className="back-btn">
+        <Link href="/hub/qa" className="back-btn">
           {text.back}
         </Link>
       </div>
@@ -540,7 +584,7 @@ export default function StoreGrowthSecretsAE() {
               <div style={{ fontSize: '11px', opacity: 0.9, marginTop: '2px' }}>{text.totalStratsSub}</div>
             </div>
             <div className="result-value">
-              {items.length} {text.table.planUnit.split('(')[0]}
+              {filteredItems.length} {text.table.planUnit.split('(')[0]}
             </div>
           </div>
 
@@ -565,6 +609,20 @@ export default function StoreGrowthSecretsAE() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
+
+          <select 
+            className="filter-select"
+            value={dateFilter}
+            onChange={(e) => setDateFilter(e.target.value)}
+          >
+            <option value="all">{text.filters.all}</option>
+            <option value="day">{text.filters.day}</option>
+            <option value="week">{text.filters.week}</option>
+            <option value="month">{text.filters.month}</option>
+            <option value="sixMonths">{text.filters.sixMonths}</option>
+            <option value="year">{text.filters.year}</option>
+          </select>
+
           <div className="table-btns">
             <button className="t-btn" onClick={handleExportExcel}>{text.exportBtn}</button>
             <button className="t-btn" onClick={() => fileInputRef.current?.click()}>{text.importBtn}</button>
@@ -606,7 +664,7 @@ export default function StoreGrowthSecretsAE() {
                         <div style={{ fontWeight: 900, color: '#0f172a' }}>{item.strategyName}</div>
                         {item.createdAt && <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', fontWeight: 600 }}>🕒 {item.createdAt}</div>}
                       </td>
-                      <td><span style={{ fontWeight: 800, color: '#0369a1' }}>{item.category}</span></td>
+                      <td><span style={{ fontWeight: 800, color: '#8A1538' }}>{item.category}</span></td>
                       <td style={{ maxWidth: '250px', fontSize: '12px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                         {item.description || <span style={{ color: '#94a3b8' }}>{text.table.noDesc}</span>}
                       </td>
@@ -630,7 +688,7 @@ export default function StoreGrowthSecretsAE() {
               <tfoot>
                 <tr className="tfoot-row">
                   <td colSpan={4} style={{ textAlign: 'center' }}>{text.table.totalLabel}</td>
-                  <td colSpan={2}>{items.length} {text.table.planUnit}</td>
+                  <td colSpan={2}>{filteredItems.length} {text.table.planUnit}</td>
                 </tr>
               </tfoot>
             )}
