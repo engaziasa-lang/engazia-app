@@ -13,31 +13,39 @@ interface ReturnItem {
   totalLoss: number;
   totalLostRevenue: number;
   createdAt?: string;
+  timestamp?: number; // تمت الإضافة للفرز الزمني
 }
 
-export default function ReturnsAnalyzerAE() {
+export default function ReturnsAnalyzerQA() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
 
   const [productName, setProductName] = useState<string>('');
   const [returnedOrders, setReturnedOrders] = useState<number | ''>('');
   const [avgOrderValue, setAvgOrderValue] = useState<number | ''>('');
-  const [reverseShippingCost, setReverseShippingCost] = useState<number | ''>(28);
+  const [reverseShippingCost, setReverseShippingCost] = useState<number | ''>(30);
   const [damageCost, setDamageCost] = useState<number | ''>(5);
 
   const [items, setItems] = useState<ReturnItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [dateFilter, setDateFilter] = useState<string>('all'); // الفرز الزمني
   const [editingId, setEditingId] = useState<string | null>(null);
+
+  const [isClient, setIsClient] = useState(false);
+  const [isActivated, setIsActivated] = useState(true);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    setIsClient(true);
+    setIsActivated(!!localStorage.getItem('merchant_license_key_qa'));
+
     // قراءة اللغة من الصفحة الرئيسية
     const savedLang = localStorage.getItem('seerk_global_lang') as 'ar' | 'en';
     if (savedLang) {
       setLang(savedLang);
     }
 
-    const saved = localStorage.getItem('seerk_ae_returns_analysis_items');
+    const saved = localStorage.getItem('seerk_qa_returns_analysis_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
@@ -45,10 +53,8 @@ export default function ReturnsAnalyzerAE() {
 
   const saveToLocalStorage = (newItems: ReturnItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_ae_returns_analysis_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_qa_returns_analysis_items', JSON.stringify(newItems));
   };
-
-  const isActivated = typeof window !== 'undefined' && !!localStorage.getItem('merchant_license_key');
 
   const returnsCount = typeof returnedOrders === 'number' ? returnedOrders : 0;
   const avgVal = typeof avgOrderValue === 'number' ? avgOrderValue : 0;
@@ -65,7 +71,7 @@ export default function ReturnsAnalyzerAE() {
     ar: {
       back: '← عودة للمنصة',
       title: 'محلل خسائر المرتجعات والشحن العكسي 🔄',
-      desc: 'قس تأثير الاسترجاع والاستبدال على صافي أرباحك الشهرية وتدفقك النقدي في متجرك الإماراتي',
+      desc: 'قس تأثير الاسترجاع والاستبدال على صافي أرباحك الشهرية وتدفقك النقدي في متجرك بقطر',
       editRecord: 'تعديل السجل',
       newRecord: 'حساب خسائر منتج جديد',
       clear: '🧹 مسح الحقول',
@@ -77,7 +83,7 @@ export default function ReturnsAnalyzerAE() {
       avgVal: 'متوسط قيمة الطلب',
       avgValPH: '350',
       revShipCost: 'تكلفة الشحن العكسي للطلب الواحد',
-      revShipCostPH: '28',
+      revShipCostPH: '30',
       dmgCost: 'تكلفة التغليف المهدر / التالف للطلب',
       dmgCostPH: '5',
       saveBtnNew: '+ حفظ وإضافة السجل',
@@ -88,12 +94,20 @@ export default function ReturnsAnalyzerAE() {
       lostRev: 'إجمالي المبيعات المفقودة',
       lostRevSub: 'إيرادات طارت بسبب الاسترجاع',
       lossPerOrder: 'الخسارة التشغيلية للطلب الواحد',
-      currency: 'د.إ',
+      currency: 'ر.ق',
       searchPH: '🔍 بحث في المنتجات المسترجعة...',
       exportBtn: '📥 تصدير Excel',
       importBtn: '📂 استيراد',
+      filters: {
+        all: 'الكل',
+        day: 'آخر يوم',
+        week: 'آخر أسبوع',
+        month: 'آخر شهر',
+        sixMonths: 'آخر 6 أشهر',
+        year: 'آخر سنة'
+      },
       table: {
-        noRecords: 'لا توجد بيانات مسجلة. قم بإضافة بيانات مرتجعات لتحليلها.',
+        noRecords: 'لا توجد بيانات مطابقة لبحثك في السجل.',
         th1: '#',
         th2: 'اسم المنتج والتاريخ',
         th3: 'عدد المرتجعات',
@@ -104,7 +118,7 @@ export default function ReturnsAnalyzerAE() {
         ordersCount: 'طلب',
         shipCost: 'شحن:',
         dmgCost: 'تالف:',
-        totalLabel: 'الإجمالي الكلي'
+        totalLabel: 'الإجمالي الكلي للفواتير المحددة'
       },
       alerts: {
         limit: '🔒 عذراً، لقد استهلكت الحد التجريبي (3 سجلات). يرجى ترقية حسابك لفتح السعة الكاملة بلا حدود!',
@@ -120,7 +134,7 @@ export default function ReturnsAnalyzerAE() {
     en: {
       back: '→ Back to Hub',
       title: 'Returns & Reverse Shipping Loss Analyzer 🔄',
-      desc: 'Measure the impact of returns and exchanges on your monthly net profit and cash flow in your UAE store',
+      desc: 'Measure the impact of returns and exchanges on your monthly net profit and cash flow in your Qatar store',
       editRecord: 'Edit Record',
       newRecord: 'Calculate New Product Losses',
       clear: '🧹 Clear Fields',
@@ -132,7 +146,7 @@ export default function ReturnsAnalyzerAE() {
       avgVal: 'Average Order Value',
       avgValPH: '350',
       revShipCost: 'Reverse Shipping Cost per Order',
-      revShipCostPH: '28',
+      revShipCostPH: '30',
       dmgCost: 'Wasted Packaging / Damage Cost per Order',
       dmgCostPH: '5',
       saveBtnNew: '+ Save & Add Record',
@@ -143,12 +157,20 @@ export default function ReturnsAnalyzerAE() {
       lostRev: 'Total Lost Sales Revenue',
       lostRevSub: 'Revenues lost due to returns',
       lossPerOrder: 'Operational Loss per Order',
-      currency: 'AED',
+      currency: 'QAR',
       searchPH: '🔍 Search returned products...',
       exportBtn: '📥 Export Excel',
       importBtn: '📂 Import',
+      filters: {
+        all: 'All Time',
+        day: 'Last Day',
+        week: 'Last Week',
+        month: 'Last Month',
+        sixMonths: 'Last 6 Months',
+        year: 'Last Year'
+      },
       table: {
-        noRecords: 'No data saved. Add returns data to analyze it.',
+        noRecords: 'No data match your search in the log.',
         th1: '#',
         th2: 'Product Name & Date',
         th3: 'Returned Orders',
@@ -180,7 +202,7 @@ export default function ReturnsAnalyzerAE() {
     setProductName('');
     setReturnedOrders('');
     setAvgOrderValue('');
-    setReverseShippingCost(28);
+    setReverseShippingCost(30);
     setDamageCost(5);
     setEditingId(null);
   };
@@ -198,7 +220,7 @@ export default function ReturnsAnalyzerAE() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const localeStr = lang === 'ar' ? 'ar-AE' : 'en-AE';
+    const localeStr = lang === 'ar' ? 'ar-QA' : 'en-QA';
     const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
 
     if (editingId) {
@@ -211,7 +233,8 @@ export default function ReturnsAnalyzerAE() {
         damageCost: dmg,
         totalLoss: Number(totalLoss.toFixed(2)),
         totalLostRevenue: Number(totalLostRevenue.toFixed(2)),
-        createdAt: item.createdAt || formattedDate
+        createdAt: item.createdAt || formattedDate,
+        timestamp: item.timestamp || now.getTime()
       } : item);
       saveToLocalStorage(updated);
       setEditingId(null);
@@ -226,9 +249,10 @@ export default function ReturnsAnalyzerAE() {
         damageCost: dmg,
         totalLoss: Number(totalLoss.toFixed(2)),
         totalLostRevenue: Number(totalLostRevenue.toFixed(2)),
-        createdAt: formattedDate
+        createdAt: formattedDate,
+        timestamp: now.getTime()
       };
-      saveToLocalStorage([...items, newItem]);
+      saveToLocalStorage([newItem, ...items]); // حفظ الجديد في الأعلى
       alert(text.alerts.saveSuccess);
     }
 
@@ -252,15 +276,36 @@ export default function ReturnsAnalyzerAE() {
     }
   };
 
+  // فلترة النتائج بناءً على البحث والفرز الزمني
+  const filteredItems = items.filter(item => {
+    const matchesSearch = item.productName.toLowerCase().includes(searchQuery.toLowerCase());
+    let matchesDate = true;
+    
+    if (dateFilter !== 'all') {
+      const itemTime = item.timestamp || 0;
+      const now = Date.now();
+      const diff = now - itemTime;
+      const dayMs = 24 * 60 * 60 * 1000;
+      
+      if (dateFilter === 'day') matchesDate = diff <= dayMs;
+      else if (dateFilter === 'week') matchesDate = diff <= 7 * dayMs;
+      else if (dateFilter === 'month') matchesDate = diff <= 30 * dayMs;
+      else if (dateFilter === '6months') matchesDate = diff <= 180 * dayMs;
+      else if (dateFilter === 'year') matchesDate = diff <= 365 * dayMs;
+    }
+    
+    return matchesSearch && matchesDate;
+  });
+
+  const sumReturns = filteredItems.reduce((acc, curr) => acc + curr.returnedOrders, 0);
+  const sumLostRev = filteredItems.reduce((acc, curr) => acc + curr.totalLostRevenue, 0);
+  const sumActualLoss = filteredItems.reduce((acc, curr) => acc + curr.totalLoss, 0);
+
   const handleExportExcel = () => {
-    if (items.length === 0) {
+    if (filteredItems.length === 0) {
       alert(text.alerts.noDataExp);
       return;
     }
-
-    const sumReturns = items.reduce((acc, curr) => acc + curr.returnedOrders, 0);
-    const sumLostRev = items.reduce((acc, curr) => acc + curr.totalLostRevenue, 0);
-    const sumActualLoss = items.reduce((acc, curr) => acc + curr.totalLoss, 0);
 
     let tableHtml = `
       <html dir="${lang === 'ar' ? 'rtl' : 'ltr'}" lang="${lang}">
@@ -290,7 +335,7 @@ export default function ReturnsAnalyzerAE() {
             <tbody>
     `;
 
-    items.forEach((row, idx) => {
+    filteredItems.forEach((row, idx) => {
       tableHtml += `
         <tr>
           <td>${idx + 1}</td>
@@ -325,7 +370,7 @@ export default function ReturnsAnalyzerAE() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", "enjazya_ae_returns_analysis.xls");
+    link.setAttribute("download", `enjazya_qa_returns_analysis_${dateFilter}.xls`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -339,7 +384,8 @@ export default function ReturnsAnalyzerAE() {
         try {
           const imported = JSON.parse(event.target?.result as string);
           if (Array.isArray(imported)) {
-            saveToLocalStorage(imported);
+            const newItems = imported.filter(imp => !items.find(i => i.id === imp.id));
+            saveToLocalStorage([...newItems, ...items]);
             alert(text.alerts.importSuccess);
           }
         } catch (err) {
@@ -348,14 +394,6 @@ export default function ReturnsAnalyzerAE() {
       };
     }
   };
-
-  const filteredItems = items.filter(item => 
-    item.productName.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const sumReturns = filteredItems.reduce((acc, curr) => acc + curr.returnedOrders, 0);
-  const sumLostRev = filteredItems.reduce((acc, curr) => acc + curr.totalLostRevenue, 0);
-  const sumActualLoss = filteredItems.reduce((acc, curr) => acc + curr.totalLoss, 0);
 
   return (
     <div className="tool-container" style={{ direction: lang === 'ar' ? 'rtl' : 'ltr' }}>
@@ -391,11 +429,11 @@ export default function ReturnsAnalyzerAE() {
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
         .input-wrapper input { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .input-wrapper input.with-currency { padding-${lang === 'ar' ? 'left' : 'right'}: 45px; }
-        .input-wrapper input:focus { border-color: #047857; background: #ffffff; }
+        .input-wrapper input:focus { border-color: #8A1538; background: #ffffff; }
         .currency-tag { position: absolute; ${lang === 'ar' ? 'left: 14px;' : 'right: 14px;'} color: #64748b; font-weight: 800; font-size: 13px; pointer-events: none; }
         
-        .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
-        .action-btn:hover { background: #065f46; }
+        .action-btn { background: #8A1538; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
+        .action-btn:hover { background: #6A102B; }
 
         .result-box { background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .result-box.danger { background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); color: #fff; border: none; padding: 20px; }
@@ -407,10 +445,16 @@ export default function ReturnsAnalyzerAE() {
 
         .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
-        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        
+        .search-input { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; flex-grow: 1; max-width: 350px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .search-input:focus { border-color: #8A1538; }
+        
+        .filter-select { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; background: #fff; color: #334155; cursor: pointer; min-width: 130px; }
+        .filter-select:focus { border-color: #8A1538; }
+
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
-        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; }
-        .t-btn:hover { background: #f1f5f9; }
+        .t-btn { padding: 9px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .t-btn:hover { background: #f1f5f9; border-color: #8A1538; color: #8A1538; }
 
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 900px; }
@@ -430,7 +474,7 @@ export default function ReturnsAnalyzerAE() {
           <h1>{text.title}</h1>
           <p>{text.desc}</p>
         </div>
-        <Link href="/hub/ae" className="back-btn">
+        <Link href="/hub/qa" className="back-btn">
           {text.back}
         </Link>
       </div>
@@ -444,7 +488,7 @@ export default function ReturnsAnalyzerAE() {
                 {text.clear}
               </button>
             </div>
-            {!isActivated && <span className="trial-badge">{text.trial}: {items.length}/3</span>}
+            {isClient && !isActivated && <span className="trial-badge">{text.trial}: {items.length}/3</span>}
           </h2>
 
           <form onSubmit={handleSaveItem}>
@@ -533,6 +577,20 @@ export default function ReturnsAnalyzerAE() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
+
+          <select 
+            className="filter-select"
+            value={dateFilter}
+            onChange={(e) => setDateFilter(e.target.value)}
+          >
+            <option value="all">{text.filters.all}</option>
+            <option value="day">{text.filters.day}</option>
+            <option value="week">{text.filters.week}</option>
+            <option value="month">{text.filters.month}</option>
+            <option value="6months">{text.filters.sixMonths}</option>
+            <option value="year">{text.filters.year}</option>
+          </select>
+
           <div className="table-btns">
             <button className="t-btn" onClick={handleExportExcel}>{text.exportBtn}</button>
             <button className="t-btn" onClick={() => fileInputRef.current?.click()}>{text.importBtn}</button>
