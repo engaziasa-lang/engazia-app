@@ -291,7 +291,7 @@ export default function EnjazyaQaHub() {
       
       <div className="navbar">
         <div className="brand">
-          {lang === 'ar' ? 'إنجازيا' : 'Enjazya'} <span className="qa-badge">{lang === 'ar' ? 'السوق القطري QA 🇶🇦' : 'Qatar Market 🇶🇦'}</span>
+          {lang === 'ar' ? 'إنجازيا' : 'Enjazya'} <span className="qa-badge">{lang === 'ar' ? 'السوق القطري QA 🇶🇦' : 'Qatar Market QA 🇶🇦'}</span>
         </div>
 
         <div className="nav-controls">
@@ -408,7 +408,7 @@ export default function EnjazyaQaHub() {
       <footer className="footer">
         <div className="footer-content">
           <div className="footer-brand">
-            <h3>{lang === 'ar' ? 'إنجازيا ' : 'Enjazya '}<span>{lang === 'ar' ? 'قطر 🇶🇦' : 'Qatar 🇶🇦'}</span></h3>
+            <h3>{lang === 'ar' ? 'إنجازيا ' : 'Enjazya '}<span>{lang === 'ar' ? 'قطر QA 🇶🇦' : 'Qatar QA 🇶🇦'}</span></h3>
             <p>{lang === 'ar' ? 'المنصة السحابية الأولى المخصصة لتمكين تجار التجارة الإلكترونية في دولة قطر. أدوات دقيقة، حسابات متوافقة مع القوانين القطرية، وأرباح مضاعفة.' : 'The premier cloud platform dedicated to empowering e-commerce merchants in Qatar. Precise tools, compliant calculations with Qatari laws, and multiplied profits.'}</p>
           </div>
           
