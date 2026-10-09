@@ -14,31 +14,32 @@ interface CodItem {
   totalReturnLoss: number;
   grandTotalCost: number;
   createdAt?: string;
+  timestamp?: number; // الطابع الزمني للفرز
 }
 
-export default function CodAnalyzerAE() {
+export default function CodAnalyzerQA() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
-  const [shippingSelect, setShippingSelect] = useState<string>('أرامكس (Aramex)');
-  const [customShipping, setCustomShipping] = useState<string>('أرامكس (Aramex)');
+  const [shippingSelect, setShippingSelect] = useState<string>('بريد قطر (Qatar Post)');
+  const [customShipping, setCustomShipping] = useState<string>('بريد قطر (Qatar Post)');
   const [totalCodOrders, setTotalCodOrders] = useState<number | ''>('');
   const [avgOrderValue, setAvgOrderValue] = useState<number | ''>('');
-  const [codFeePerOrder, setCodFeePerOrder] = useState<number | ''>(12);
+  const [codFeePerOrder, setCodFeePerOrder] = useState<number | ''>(15); // متوسط قطري تقريبي
   const [returnRatePercent, setReturnRatePercent] = useState<number | ''>(15);
 
   const [items, setItems] = useState<CodItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [dateFilter, setDateFilter] = useState<string>('all'); // حالة فلتر التاريخ
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    // قراءة اللغة من الصفحة الرئيسية
     const savedLang = localStorage.getItem('seerk_global_lang') as 'ar' | 'en';
     if (savedLang) {
       setLang(savedLang);
     }
 
-    const saved = localStorage.getItem('seerk_ae_cod_analyzer_items');
+    const saved = localStorage.getItem('seerk_qa_cod_analyzer_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
@@ -46,24 +47,22 @@ export default function CodAnalyzerAE() {
 
   const saveToLocalStorage = (newItems: CodItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_ae_cod_analyzer_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_qa_cod_analyzer_items', JSON.stringify(newItems));
   };
 
-  const isActivated = typeof window !== 'undefined' && !!localStorage.getItem('merchant_license_key');
+  const isActivated = typeof window !== 'undefined' && !!localStorage.getItem('merchant_license_key_qa');
 
   const orders = typeof totalCodOrders === 'number' ? totalCodOrders : 0;
   const orderVal = typeof avgOrderValue === 'number' ? avgOrderValue : 0;
   const fee = typeof codFeePerOrder === 'number' ? codFeePerOrder : 0;
   const retRate = typeof returnRatePercent === 'number' ? returnRatePercent : 0;
 
-  // الحسابات
   const totalCodFees = orders * fee;
   const rejectedOrdersCount = orders * (retRate / 100);
-  const shippingAndHandlingLossPerReject = 25; // تكلفة الشحن العكسي التقريبية
+  const shippingAndHandlingLossPerReject = 30; // تكلفة الشحن العكسي التقريبية بالريال القطري
   const totalReturnLoss = rejectedOrdersCount * shippingAndHandlingLossPerReject;
   const grandTotalCost = totalCodFees + totalReturnLoss;
 
-  // قاموس الترجمة الفوري
   const t = {
     ar: {
       back: '← عودة للمنصة',
@@ -81,7 +80,7 @@ export default function CodAnalyzerAE() {
       avgValLabel: 'متوسط قيمة الطلب',
       avgValPH: '300',
       feeLabel: 'رسوم خدمة COD للطلب الواحد',
-      feePH: '12',
+      feePH: '15',
       retRateLabel: 'نسبة عدم الاستلام / الرفض (%)',
       retRatePH: '15',
       saveBtnNew: '+ حفظ التحليل في السجل',
@@ -91,12 +90,20 @@ export default function CodAnalyzerAE() {
       grandTotalSub: 'مجموع رسوم التحصيل وخسائر الرفض',
       feeTotal: 'إجمالي رسوم خدمة التحصيل',
       retLossTotal: 'خسائر الطلبات المرفوضة (الشحن العكسي والتالف)',
-      currency: 'د.إ',
+      currency: 'ر.ق',
       searchPH: '🔍 بحث بشركة الشحن...',
       exportBtn: '📥 تصدير Excel',
       importBtn: '📂 استيراد',
+      filters: {
+        all: 'الكل',
+        day: 'آخر يوم',
+        week: 'آخر أسبوع',
+        month: 'آخر شهر',
+        sixMonths: 'آخر 6 أشهر',
+        year: 'آخر سنة'
+      },
       table: {
-        noRecords: 'لا توجد سجلات تكاليف COD مسجلة حالياً.',
+        noRecords: 'لا توجد سجلات مطابقة مسجلة حالياً.',
         th1: '#',
         th2: 'شركة الشحن والتاريخ',
         th3: 'طلبات COD',
@@ -135,7 +142,7 @@ export default function CodAnalyzerAE() {
       avgValLabel: 'Average Order Value',
       avgValPH: '300',
       feeLabel: 'COD Service Fee per Order',
-      feePH: '12',
+      feePH: '15',
       retRateLabel: 'Non-Delivery / Return Rate (%)',
       retRatePH: '15',
       saveBtnNew: '+ Save Analysis to Log',
@@ -145,12 +152,20 @@ export default function CodAnalyzerAE() {
       grandTotalSub: 'Sum of collection fees and return losses',
       feeTotal: 'Total Collection Service Fees',
       retLossTotal: 'Losses from Rejected Orders (Reverse Shipping)',
-      currency: 'AED',
+      currency: 'QAR',
       searchPH: '🔍 Search by shipping company...',
       exportBtn: '📥 Export Excel',
       importBtn: '📂 Import',
+      filters: {
+        all: 'All Time',
+        day: 'Last Day',
+        week: 'Last Week',
+        month: 'Last Month',
+        sixMonths: 'Last 6 Months',
+        year: 'Last Year'
+      },
       table: {
-        noRecords: 'No COD cost records currently saved.',
+        noRecords: 'No matching COD cost records currently saved.',
         th1: '#',
         th2: 'Shipping Company & Date',
         th3: 'COD Orders',
@@ -188,11 +203,11 @@ export default function CodAnalyzerAE() {
   };
 
   const handleClearForm = () => {
-    setShippingSelect('أرامكس (Aramex)');
-    setCustomShipping('أرامكس (Aramex)');
+    setShippingSelect('بريد قطر (Qatar Post)');
+    setCustomShipping('بريد قطر (Qatar Post)');
     setTotalCodOrders('');
     setAvgOrderValue('');
-    setCodFeePerOrder(12);
+    setCodFeePerOrder(15);
     setReturnRatePercent(15);
     setEditingId(null);
   };
@@ -211,7 +226,7 @@ export default function CodAnalyzerAE() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const localeStr = lang === 'ar' ? 'ar-AE' : 'en-AE';
+    const localeStr = lang === 'ar' ? 'ar-QA' : 'en-QA';
     const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
 
     if (editingId) {
@@ -225,7 +240,8 @@ export default function CodAnalyzerAE() {
         totalCodFees: Number(totalCodFees.toFixed(2)),
         totalReturnLoss: Number(totalReturnLoss.toFixed(2)),
         grandTotalCost: Number(grandTotalCost.toFixed(2)),
-        createdAt: item.createdAt || formattedDate
+        createdAt: item.createdAt || formattedDate,
+        timestamp: item.timestamp || now.getTime()
       } : item);
       saveToLocalStorage(updated);
       setEditingId(null);
@@ -241,9 +257,10 @@ export default function CodAnalyzerAE() {
         totalCodFees: Number(totalCodFees.toFixed(2)),
         totalReturnLoss: Number(totalReturnLoss.toFixed(2)),
         grandTotalCost: Number(grandTotalCost.toFixed(2)),
-        createdAt: formattedDate
+        createdAt: formattedDate,
+        timestamp: now.getTime()
       };
-      saveToLocalStorage([...items, newItem]);
+      saveToLocalStorage([newItem, ...items]);
       alert(text.alerts.saveSuccess);
     }
 
@@ -251,7 +268,7 @@ export default function CodAnalyzerAE() {
   };
 
   const handleEdit = (item: CodItem) => {
-    const standardCompanies = ['أرامكس (Aramex)', 'بريد الإمارات (Emirates Post)', 'فيتشر (Fetchr)', 'دي إتش إل (DHL)', 'آي مايل (iMile)'];
+    const standardCompanies = ['بريد قطر (Qatar Post)', 'أرامكس (Aramex)', 'كيو إكسبرس (Q-Express)', 'دي إتش إل (DHL)', 'آي مايل (iMile)'];
     if (standardCompanies.includes(item.shippingCompany)) {
       setShippingSelect(item.shippingCompany);
       setCustomShipping(item.shippingCompany);
@@ -274,13 +291,35 @@ export default function CodAnalyzerAE() {
     }
   };
 
-  const totalOrdersSum = items.reduce((acc, curr) => acc + curr.totalCodOrders, 0);
-  const totalCodFeesSum = items.reduce((acc, curr) => acc + curr.totalCodFees, 0);
-  const totalReturnLossSum = items.reduce((acc, curr) => acc + curr.totalReturnLoss, 0);
-  const grandTotalCostSum = items.reduce((acc, curr) => acc + curr.grandTotalCost, 0);
+  // فلترة النتائج بناءً على البحث والفرز الزمني
+  const filteredItems = items.filter(item => {
+    const matchesSearch = item.shippingCompany.toLowerCase().includes(searchQuery.toLowerCase());
+    let matchesDate = true;
+    
+    if (dateFilter !== 'all') {
+      const itemTime = item.timestamp || 0;
+      const now = Date.now();
+      const diff = now - itemTime;
+      const dayMs = 24 * 60 * 60 * 1000;
+      
+      if (dateFilter === 'day') matchesDate = diff <= dayMs;
+      else if (dateFilter === 'week') matchesDate = diff <= 7 * dayMs;
+      else if (dateFilter === 'month') matchesDate = diff <= 30 * dayMs;
+      else if (dateFilter === '6months') matchesDate = diff <= 180 * dayMs;
+      else if (dateFilter === 'year') matchesDate = diff <= 365 * dayMs;
+    }
+    
+    return matchesSearch && matchesDate;
+  });
+
+  // تحديث المجاميع السفلية لتعتمد على البيانات المفلترة فقط
+  const totalOrdersSum = filteredItems.reduce((acc, curr) => acc + curr.totalCodOrders, 0);
+  const totalCodFeesSum = filteredItems.reduce((acc, curr) => acc + curr.totalCodFees, 0);
+  const totalReturnLossSum = filteredItems.reduce((acc, curr) => acc + curr.totalReturnLoss, 0);
+  const grandTotalCostSum = filteredItems.reduce((acc, curr) => acc + curr.grandTotalCost, 0);
 
   const handleExportExcel = () => {
-    if (items.length === 0) {
+    if (filteredItems.length === 0) {
       alert(text.alerts.noDataExp);
       return;
     }
@@ -313,7 +352,7 @@ export default function CodAnalyzerAE() {
             <tbody>
     `;
 
-    items.forEach((row, idx) => {
+    filteredItems.forEach((row, idx) => {
       tableHtml += `
         <tr>
           <td>${idx + 1}</td>
@@ -349,7 +388,7 @@ export default function CodAnalyzerAE() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", "enjazya_ae_cod_analysis.xls");
+    link.setAttribute("download", `enjazya_qa_cod_analysis_${dateFilter}.xls`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -363,7 +402,8 @@ export default function CodAnalyzerAE() {
         try {
           const imported = JSON.parse(event.target?.result as string);
           if (Array.isArray(imported)) {
-            saveToLocalStorage(imported);
+            const newItems = imported.filter(imp => !items.find(i => i.id === imp.id));
+            saveToLocalStorage([...newItems, ...items]);
             alert(text.alerts.importSuccess);
           }
         } catch (err) {
@@ -372,10 +412,6 @@ export default function CodAnalyzerAE() {
       };
     }
   };
-
-  const filteredItems = items.filter(item => 
-    item.shippingCompany.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   return (
     <div className="tool-container" style={{ direction: lang === 'ar' ? 'rtl' : 'ltr' }}>
@@ -411,11 +447,11 @@ export default function CodAnalyzerAE() {
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
         .input-wrapper input, .input-wrapper select { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .input-wrapper input.with-currency { padding-${lang === 'ar' ? 'left' : 'right'}: 45px; }
-        .input-wrapper input:focus, .input-wrapper select:focus { border-color: #047857; background: #ffffff; }
+        .input-wrapper input:focus, .input-wrapper select:focus { border-color: #8A1538; background: #ffffff; }
         .currency-tag { position: absolute; ${lang === 'ar' ? 'left: 14px;' : 'right: 14px;'} color: #64748b; font-weight: 800; font-size: 13px; pointer-events: none; }
         
-        .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
-        .action-btn:hover { background: #065f46; }
+        .action-btn { background: #8A1538; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
+        .action-btn:hover { background: #6A102B; }
 
         .result-box { background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .result-box.danger { background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); color: #fff; border: none; padding: 20px; }
@@ -425,11 +461,18 @@ export default function CodAnalyzerAE() {
         .danger .result-value { font-size: 26px; color: #ffffff; direction: ${lang === 'ar' ? 'rtl' : 'ltr'}; }
 
         .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        
+        /* شريط الأدوات المحدث بالفرز */
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
-        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .search-input { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; flex-grow: 1; max-width: 350px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .search-input:focus { border-color: #8A1538; }
+        
+        .filter-select { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; background: #fff; color: #334155; cursor: pointer; min-width: 130px; }
+        .filter-select:focus { border-color: #8A1538; }
+
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
-        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; }
-        .t-btn:hover { background: #f1f5f9; }
+        .t-btn { padding: 9px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 6px;}
+        .t-btn:hover { background: #f1f5f9; border-color: #8A1538; color: #8A1538; }
 
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 900px; }
@@ -449,7 +492,7 @@ export default function CodAnalyzerAE() {
           <h1>{text.title}</h1>
           <p>{text.desc}</p>
         </div>
-        <Link href="/hub/ae" className="back-btn">
+        <Link href="/hub/qa" className="back-btn">
           {text.back}
         </Link>
       </div>
@@ -463,7 +506,7 @@ export default function CodAnalyzerAE() {
                 {text.clear}
               </button>
             </div>
-            {!isActivated && <span className="trial-badge">{text.trial}: {items.length}/3</span>}
+            {isClient && !isActivated && <span className="trial-badge">{text.trial}: {items.length}/3</span>}
           </h2>
 
           <form onSubmit={handleSaveItem}>
@@ -471,9 +514,9 @@ export default function CodAnalyzerAE() {
               <label>{text.shippingComp}</label>
               <div className="input-wrapper" style={{ marginBottom: '8px' }}>
                 <select value={shippingSelect} onChange={handleSelectChange}>
+                  <option value="بريد قطر (Qatar Post)">{lang === 'ar' ? 'بريد قطر (Qatar Post)' : 'Qatar Post'}</option>
                   <option value="أرامكس (Aramex)">{lang === 'ar' ? 'أرامكس (Aramex)' : 'Aramex'}</option>
-                  <option value="بريد الإمارات (Emirates Post)">{lang === 'ar' ? 'بريد الإمارات (Emirates Post)' : 'Emirates Post'}</option>
-                  <option value="فيتشر (Fetchr)">{lang === 'ar' ? 'فيتشر (Fetchr)' : 'Fetchr'}</option>
+                  <option value="كيو إكسبرس (Q-Express)">{lang === 'ar' ? 'كيو إكسبرس (Q-Express)' : 'Q-Express'}</option>
                   <option value="دي إتش إل (DHL)">{lang === 'ar' ? 'دي إتش إل (DHL)' : 'DHL'}</option>
                   <option value="آي مايل (iMile)">{lang === 'ar' ? 'آي مايل (iMile)' : 'iMile'}</option>
                   <option value="OTHER">{text.otherComp}</option>
@@ -566,9 +609,27 @@ export default function CodAnalyzerAE() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
+
+          <select 
+            className="filter-select"
+            value={dateFilter}
+            onChange={(e) => setDateFilter(e.target.value)}
+          >
+            <option value="all">{text.filters.all}</option>
+            <option value="day">{text.filters.day}</option>
+            <option value="week">{text.filters.week}</option>
+            <option value="month">{text.filters.month}</option>
+            <option value="6months">{text.filters.sixMonths}</option>
+            <option value="year">{text.filters.year}</option>
+          </select>
+
           <div className="table-btns">
-            <button className="t-btn" onClick={handleExportExcel}>{text.exportBtn}</button>
-            <button className="t-btn" onClick={() => fileInputRef.current?.click()}>{text.importBtn}</button>
+            <button className="t-btn" onClick={handleExportExcel}>
+              {lang === 'ar' ? 'تصدير 📥' : 'Export 📥'}
+            </button>
+            <button className="t-btn" onClick={() => fileInputRef.current?.click()}>
+              {lang === 'ar' ? 'استيراد 📂' : 'Import 📂'}
+            </button>
             <input type="file" ref={fileInputRef} onChange={handleImportJson} accept=".json" style={{ display: 'none' }} />
           </div>
         </div>
