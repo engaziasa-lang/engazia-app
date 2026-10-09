@@ -14,7 +14,7 @@ interface CodItem {
   totalReturnLoss: number;
   grandTotalCost: number;
   createdAt?: string;
-  timestamp?: number; // الطابع الزمني للفرز
+  timestamp?: number;
 }
 
 export default function CodAnalyzerQA() {
@@ -23,17 +23,24 @@ export default function CodAnalyzerQA() {
   const [customShipping, setCustomShipping] = useState<string>('بريد قطر (Qatar Post)');
   const [totalCodOrders, setTotalCodOrders] = useState<number | ''>('');
   const [avgOrderValue, setAvgOrderValue] = useState<number | ''>('');
-  const [codFeePerOrder, setCodFeePerOrder] = useState<number | ''>(15); // متوسط قطري تقريبي
+  const [codFeePerOrder, setCodFeePerOrder] = useState<number | ''>(15);
   const [returnRatePercent, setReturnRatePercent] = useState<number | ''>(15);
 
   const [items, setItems] = useState<CodItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [dateFilter, setDateFilter] = useState<string>('all'); // حالة فلتر التاريخ
+  const [dateFilter, setDateFilter] = useState<string>('all');
   const [editingId, setEditingId] = useState<string | null>(null);
+
+  // تم إضافة هذين السطرين لحل مشكلة Vercel
+  const [isClient, setIsClient] = useState(false);
+  const [isActivated, setIsActivated] = useState(true);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    setIsClient(true);
+    setIsActivated(!!localStorage.getItem('merchant_license_key_qa'));
+
     const savedLang = localStorage.getItem('seerk_global_lang') as 'ar' | 'en';
     if (savedLang) {
       setLang(savedLang);
@@ -49,8 +56,6 @@ export default function CodAnalyzerQA() {
     setItems(newItems);
     localStorage.setItem('seerk_qa_cod_analyzer_items', JSON.stringify(newItems));
   };
-
-  const isActivated = typeof window !== 'undefined' && !!localStorage.getItem('merchant_license_key_qa');
 
   const orders = typeof totalCodOrders === 'number' ? totalCodOrders : 0;
   const orderVal = typeof avgOrderValue === 'number' ? avgOrderValue : 0;
@@ -291,7 +296,6 @@ export default function CodAnalyzerQA() {
     }
   };
 
-  // فلترة النتائج بناءً على البحث والفرز الزمني
   const filteredItems = items.filter(item => {
     const matchesSearch = item.shippingCompany.toLowerCase().includes(searchQuery.toLowerCase());
     let matchesDate = true;
@@ -312,7 +316,6 @@ export default function CodAnalyzerQA() {
     return matchesSearch && matchesDate;
   });
 
-  // تحديث المجاميع السفلية لتعتمد على البيانات المفلترة فقط
   const totalOrdersSum = filteredItems.reduce((acc, curr) => acc + curr.totalCodOrders, 0);
   const totalCodFeesSum = filteredItems.reduce((acc, curr) => acc + curr.totalCodFees, 0);
   const totalReturnLossSum = filteredItems.reduce((acc, curr) => acc + curr.totalReturnLoss, 0);
@@ -462,7 +465,6 @@ export default function CodAnalyzerQA() {
 
         .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         
-        /* شريط الأدوات المحدث بالفرز */
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
         .search-input { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; flex-grow: 1; max-width: 350px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .search-input:focus { border-color: #8A1538; }
