@@ -12,9 +12,10 @@ interface PlatformItem {
   expectedMonthlyOrders: number;
   costPerOrder: number;
   createdAt?: string;
+  timestamp?: number; // تمت الإضافة للفرز الزمني
 }
 
-export default function PlatformFeesCalculatorAE() {
+export default function PlatformFeesCalculatorQA() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
   
   const [storeName, setStoreName] = useState<string>('');
@@ -25,11 +26,18 @@ export default function PlatformFeesCalculatorAE() {
 
   const [items, setItems] = useState<PlatformItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [dateFilter, setDateFilter] = useState<string>('all'); // الفرز الزمني
   const [editingId, setEditingId] = useState<string | null>(null);
+
+  const [isClient, setIsClient] = useState(false);
+  const [isActivated, setIsActivated] = useState(true);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    setIsClient(true);
+    setIsActivated(!!localStorage.getItem('merchant_license_key_qa'));
+
     // قراءة اللغة من الصفحة الرئيسية
     const savedLang = localStorage.getItem('seerk_global_lang') as 'ar' | 'en';
     if (savedLang) {
@@ -47,7 +55,7 @@ export default function PlatformFeesCalculatorAE() {
       setPackageName('الباقة القياسية (Basic)');
     }
 
-    const saved = localStorage.getItem('seerk_ae_platform_fees_items');
+    const saved = localStorage.getItem('seerk_qa_platform_fees_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
@@ -55,10 +63,8 @@ export default function PlatformFeesCalculatorAE() {
 
   const saveToLocalStorage = (newItems: PlatformItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_ae_platform_fees_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_qa_platform_fees_items', JSON.stringify(newItems));
   };
-
-  const isActivated = typeof window !== 'undefined' && !!localStorage.getItem('merchant_license_key');
 
   const fee = typeof monthlyFee === 'number' ? monthlyFee : 0;
   const orders = typeof expectedMonthlyOrders === 'number' ? expectedMonthlyOrders : 0;
@@ -71,7 +77,7 @@ export default function PlatformFeesCalculatorAE() {
     ar: {
       back: '← عودة للمنصة',
       title: 'حاسبة رسوم واشتراكات المنصات (شوبيفاي، ووكومرس) 🛒',
-      desc: 'احسب التكاليف الخفية واشتراكات المنصات العالمية والمحلية لضمان تسعير منتجاتك بشكل صحيح وعادل',
+      desc: 'احسب التكاليف الخفية واشتراكات المنصات العالمية والمحلية بقطر لضمان تسعير منتجاتك بشكل صحيح',
       editRecord: 'تعديل السجل',
       newRecord: 'حساب رسوم منصة جديدة',
       clear: '🧹 مسح الحقول',
@@ -96,13 +102,21 @@ export default function PlatformFeesCalculatorAE() {
       costPerOrderSub: 'الخصم الفعلي من كل عملية بيع نظير المنصة',
       monthlyFeeLabel: 'الاشتراك الشهري المدفوع',
       totalOrdersLabel: 'إجمالي الطلبات الشهرية المتوقعة',
-      currency: 'د.إ',
+      currency: 'ر.ق',
       ordersUnit: 'طلب',
       searchPH: '🔍 بحث بالمتجر أو المنصة أو الباقة...',
       exportBtn: '📥 تصدير Excel',
       importBtn: '📂 استيراد',
+      filters: {
+        all: 'الكل',
+        day: 'آخر يوم',
+        week: 'آخر أسبوع',
+        month: 'آخر شهر',
+        sixMonths: 'آخر 6 أشهر',
+        year: 'آخر سنة'
+      },
       table: {
-        noRecords: 'لا توجد سجلات رسوم منصات مسجلة حالياً.',
+        noRecords: 'لا توجد سجلات رسوم منصات تطابق بحثك.',
         th1: '#',
         th2: 'المتجر والتاريخ',
         th3: 'المنصة والباقة',
@@ -126,7 +140,7 @@ export default function PlatformFeesCalculatorAE() {
     en: {
       back: '→ Back to Hub',
       title: 'Platform Fees Calculator (Shopify, WooCommerce) 🛒',
-      desc: 'Calculate hidden costs and global platform subscriptions to price your products correctly and fairly',
+      desc: 'Calculate hidden costs and global platform subscriptions to price your products correctly and fairly in Qatar',
       editRecord: 'Edit Record',
       newRecord: 'Calculate New Platform Fees',
       clear: '🧹 Clear Fields',
@@ -151,13 +165,21 @@ export default function PlatformFeesCalculatorAE() {
       costPerOrderSub: 'Actual deduction from each sale for the platform',
       monthlyFeeLabel: 'Paid Monthly Subscription',
       totalOrdersLabel: 'Total Expected Monthly Orders',
-      currency: 'AED',
+      currency: 'QAR',
       ordersUnit: 'order(s)',
       searchPH: '🔍 Search by store, platform, or package...',
       exportBtn: '📥 Export Excel',
       importBtn: '📂 Import',
+      filters: {
+        all: 'All Time',
+        day: 'Last Day',
+        week: 'Last Week',
+        month: 'Last Month',
+        sixMonths: 'Last 6 Months',
+        year: 'Last Year'
+      },
       table: {
-        noRecords: 'No platform fee records currently saved.',
+        noRecords: 'No platform fee records match your search.',
         th1: '#',
         th2: 'Store & Date',
         th3: 'Platform & Package',
@@ -218,7 +240,7 @@ export default function PlatformFeesCalculatorAE() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const localeStr = lang === 'ar' ? 'ar-AE' : 'en-AE';
+    const localeStr = lang === 'ar' ? 'ar-QA' : 'en-QA';
     const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
 
     if (editingId) {
@@ -230,7 +252,8 @@ export default function PlatformFeesCalculatorAE() {
         monthlyFee: fee,
         expectedMonthlyOrders: orders,
         costPerOrder: Number(costPerOrder.toFixed(2)),
-        createdAt: item.createdAt || formattedDate
+        createdAt: item.createdAt || formattedDate,
+        timestamp: item.timestamp || now.getTime()
       } : item);
       saveToLocalStorage(updated);
       setEditingId(null);
@@ -244,9 +267,10 @@ export default function PlatformFeesCalculatorAE() {
         monthlyFee: fee,
         expectedMonthlyOrders: orders,
         costPerOrder: Number(costPerOrder.toFixed(2)),
-        createdAt: formattedDate
+        createdAt: formattedDate,
+        timestamp: now.getTime()
       };
-      saveToLocalStorage([...items, newItem]);
+      saveToLocalStorage([newItem, ...items]); // حفظ الجديد للأعلى
       alert(text.alerts.saveSuccess);
     }
 
@@ -256,7 +280,6 @@ export default function PlatformFeesCalculatorAE() {
   const handleEdit = (item: PlatformItem) => {
     setStoreName(item.storeName);
     
-    // مطابقة المنصة بذكاء
     const isShopify = item.platformName.toLowerCase().includes('shopify') || item.platformName.includes('شوبيفاي');
     const isWoo = item.platformName.toLowerCase().includes('woo') || item.platformName.includes('ووكومرس');
 
@@ -280,12 +303,35 @@ export default function PlatformFeesCalculatorAE() {
     }
   };
 
-  const totalMonthlyFees = items.reduce((acc, curr) => acc + curr.monthlyFee, 0);
-  const totalMonthlyOrders = items.reduce((acc, curr) => acc + curr.expectedMonthlyOrders, 0);
+  // فلترة النتائج بناءً على البحث والفرز الزمني
+  const filteredItems = items.filter(item => {
+    const matchesSearch = item.storeName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          item.platformName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          item.packageName.toLowerCase().includes(searchQuery.toLowerCase());
+    let matchesDate = true;
+    
+    if (dateFilter !== 'all') {
+      const itemTime = item.timestamp || 0;
+      const now = Date.now();
+      const diff = now - itemTime;
+      const dayMs = 24 * 60 * 60 * 1000;
+      
+      if (dateFilter === 'day') matchesDate = diff <= dayMs;
+      else if (dateFilter === 'week') matchesDate = diff <= 7 * dayMs;
+      else if (dateFilter === 'month') matchesDate = diff <= 30 * dayMs;
+      else if (dateFilter === '6months') matchesDate = diff <= 180 * dayMs;
+      else if (dateFilter === 'year') matchesDate = diff <= 365 * dayMs;
+    }
+    
+    return matchesSearch && matchesDate;
+  });
+
+  const totalMonthlyFees = filteredItems.reduce((acc, curr) => acc + curr.monthlyFee, 0);
+  const totalMonthlyOrders = filteredItems.reduce((acc, curr) => acc + curr.expectedMonthlyOrders, 0);
   const avgCostPerOrder = totalMonthlyOrders > 0 ? totalMonthlyFees / totalMonthlyOrders : 0;
 
   const handleExportExcel = () => {
-    if (items.length === 0) {
+    if (filteredItems.length === 0) {
       alert(text.alerts.noDataExp);
       return;
     }
@@ -318,7 +364,7 @@ export default function PlatformFeesCalculatorAE() {
             <tbody>
     `;
 
-    items.forEach((row, idx) => {
+    filteredItems.forEach((row, idx) => {
       tableHtml += `
         <tr>
           <td>${idx + 1}</td>
@@ -352,7 +398,7 @@ export default function PlatformFeesCalculatorAE() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", "enjazya_ae_platform_fees.xls");
+    link.setAttribute("download", `enjazya_qa_platform_fees_${dateFilter}.xls`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -366,7 +412,8 @@ export default function PlatformFeesCalculatorAE() {
         try {
           const imported = JSON.parse(event.target?.result as string);
           if (Array.isArray(imported)) {
-            saveToLocalStorage(imported);
+            const newItems = imported.filter(imp => !items.find(i => i.id === imp.id));
+            saveToLocalStorage([...newItems, ...items]);
             alert(text.alerts.importSuccess);
           }
         } catch (err) {
@@ -375,12 +422,6 @@ export default function PlatformFeesCalculatorAE() {
       };
     }
   };
-
-  const filteredItems = items.filter(item => 
-    item.storeName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.platformName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.packageName.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   return (
     <div className="tool-container" style={{ direction: lang === 'ar' ? 'rtl' : 'ltr' }}>
@@ -413,7 +454,7 @@ export default function PlatformFeesCalculatorAE() {
 
         .radio-group-container { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 15px; }
         .radio-box { border: 2px solid #cbd5e1; border-radius: 8px; padding: 10px 5px; text-align: center; cursor: pointer; background: #f8fafc; font-weight: 800; font-size: 13px; color: #475569; transition: all 0.2s; display: flex; align-items: center; justify-content: center; user-select: none; }
-        .radio-box.active { border-color: #047857; background: #ecfdf5; color: #047857; }
+        .radio-box.active { border-color: #8A1538; background: #FAF0F2; color: #8A1538; }
         .radio-box input { display: none; }
 
         .input-group { margin-bottom: 15px; width: 100%; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
@@ -421,14 +462,14 @@ export default function PlatformFeesCalculatorAE() {
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
         .input-wrapper input { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .input-wrapper input.with-currency { padding-${lang === 'ar' ? 'left' : 'right'}: 45px; }
-        .input-wrapper input:focus { border-color: #047857; background: #ffffff; }
+        .input-wrapper input:focus { border-color: #8A1538; background: #ffffff; }
         .currency-tag { position: absolute; ${lang === 'ar' ? 'left: 14px;' : 'right: 14px;'} color: #64748b; font-weight: 800; font-size: 13px; pointer-events: none; }
         
-        .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
-        .action-btn:hover { background: #065f46; }
+        .action-btn { background: #8A1538; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
+        .action-btn:hover { background: #6A102B; }
 
         .result-box { background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .result-box.primary { background: linear-gradient(135deg, #047857 0%, #065f46 100%); color: #fff; border: none; padding: 20px; }
+        .result-box.primary { background: linear-gradient(135deg, #8A1538 0%, #6A102B 100%); color: #fff; border: none; padding: 20px; }
         .result-label { font-size: 13px; font-weight: 700; color: #64748b; }
         .primary .result-label { color: #ffffff; opacity: 0.9; }
         .result-value { font-size: 18px; font-weight: 900; color: #0f172a; direction: ltr; }
@@ -436,10 +477,16 @@ export default function PlatformFeesCalculatorAE() {
 
         .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
-        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        
+        .search-input { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; flex-grow: 1; max-width: 350px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .search-input:focus { border-color: #8A1538; }
+        
+        .filter-select { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; background: #fff; color: #334155; cursor: pointer; min-width: 130px; }
+        .filter-select:focus { border-color: #8A1538; }
+
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
-        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; }
-        .t-btn:hover { background: #f1f5f9; }
+        .t-btn { padding: 9px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .t-btn:hover { background: #f1f5f9; border-color: #8A1538; color: #8A1538; }
 
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 900px; }
@@ -459,7 +506,7 @@ export default function PlatformFeesCalculatorAE() {
           <h1>{text.title}</h1>
           <p>{text.desc}</p>
         </div>
-        <Link href="/hub/ae" className="back-btn">
+        <Link href="/hub/qa" className="back-btn">
           {text.back}
         </Link>
       </div>
@@ -473,7 +520,7 @@ export default function PlatformFeesCalculatorAE() {
                 {text.clear}
               </button>
             </div>
-            {!isActivated && <span className="trial-badge">{text.trial}: {items.length}/3</span>}
+            {isClient && !isActivated && <span className="trial-badge">{text.trial}: {items.length}/3</span>}
           </h2>
 
           <form onSubmit={handleSaveItem}>
@@ -547,7 +594,7 @@ export default function PlatformFeesCalculatorAE() {
 
           <div className="result-box">
             <span className="result-label">{text.monthlyFeeLabel}</span>
-            <span className="result-value" style={{ color: '#047857' }}>{fee.toFixed(2)} {text.currency}</span>
+            <span className="result-value" style={{ color: '#8A1538' }}>{fee.toFixed(2)} {text.currency}</span>
           </div>
 
           <div className="result-box" style={{ background: '#f8fafc' }}>
@@ -566,9 +613,27 @@ export default function PlatformFeesCalculatorAE() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
+
+          <select 
+            className="filter-select"
+            value={dateFilter}
+            onChange={(e) => setDateFilter(e.target.value)}
+          >
+            <option value="all">{text.filters.all}</option>
+            <option value="day">{text.filters.day}</option>
+            <option value="week">{text.filters.week}</option>
+            <option value="month">{text.filters.month}</option>
+            <option value="6months">{text.filters.sixMonths}</option>
+            <option value="year">{text.filters.year}</option>
+          </select>
+
           <div className="table-btns">
-            <button className="t-btn" onClick={handleExportExcel}>{text.exportBtn}</button>
-            <button className="t-btn" onClick={() => fileInputRef.current?.click()}>{text.importBtn}</button>
+            <button className="t-btn" onClick={handleExportExcel}>
+              {lang === 'ar' ? 'تصدير 📥' : 'Export 📥'}
+            </button>
+            <button className="t-btn" onClick={() => fileInputRef.current?.click()}>
+              {lang === 'ar' ? 'استيراد 📂' : 'Import 📂'}
+            </button>
             <input type="file" ref={fileInputRef} onChange={handleImportJson} accept=".json" style={{ display: 'none' }} />
           </div>
         </div>
@@ -602,11 +667,11 @@ export default function PlatformFeesCalculatorAE() {
                       {item.createdAt && <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', fontWeight: 600 }}>🕒 {item.createdAt}</div>}
                     </td>
                     <td>
-                      <div style={{ fontWeight: 800, color: '#047857' }}>{item.platformName}</div>
+                      <div style={{ fontWeight: 800, color: '#8A1538' }}>{item.platformName}</div>
                       <div style={{ fontSize: '11.5px', color: '#64748b' }}>{item.packageName}</div>
                     </td>
                     <td>{item.monthlyFee} {text.currency}</td>
-                    <td>{item.expectedMonthlyOrders} {text.ordersUnit.split('(')[0]}</td>
+                    <td>{item.expectedMonthlyOrders} {text.ordersUnit}</td>
                     <td style={{ fontWeight: 900, color: '#d97706' }}>{item.costPerOrder} {text.currency}</td>
                     <td>
                       <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
@@ -623,7 +688,7 @@ export default function PlatformFeesCalculatorAE() {
                 <tr className="tfoot-row">
                   <td colSpan={3} style={{ textAlign: 'center' }}>{text.table.totalLabel}</td>
                   <td>{totalMonthlyFees.toFixed(2)} {text.currency}</td>
-                  <td>{totalMonthlyOrders} {text.ordersUnit.split('(')[0]}</td>
+                  <td>{totalMonthlyOrders} {text.ordersUnit}</td>
                   <td style={{ color: '#d97706' }}>{avgCostPerOrder.toFixed(2)} {text.currency}</td>
                   <td></td>
                 </tr>
