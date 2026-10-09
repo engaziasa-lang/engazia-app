@@ -14,9 +14,10 @@ interface RoasItem {
   roas: number;
   status: string;
   createdAt?: string;
+  timestamp?: number; // تمت الإضافة للفرز الزمني
 }
 
-export default function RoasCalculatorAE() {
+export default function RoasCalculatorQA() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
 
   const [campaignName, setCampaignName] = useState<string>('');
@@ -27,6 +28,7 @@ export default function RoasCalculatorAE() {
 
   const [items, setItems] = useState<RoasItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [dateFilter, setDateFilter] = useState<string>('all'); // الفرز الزمني
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -36,7 +38,7 @@ export default function RoasCalculatorAE() {
 
   useEffect(() => {
     setIsClient(true);
-    setIsActivated(!!localStorage.getItem('merchant_license_key'));
+    setIsActivated(!!localStorage.getItem('merchant_license_key_qa'));
     
     // قراءة اللغة من الصفحة الرئيسية
     const savedLang = localStorage.getItem('seerk_global_lang') as 'ar' | 'en';
@@ -49,7 +51,7 @@ export default function RoasCalculatorAE() {
       }
     }
 
-    const saved = localStorage.getItem('seerk_ae_roas_calculator_items');
+    const saved = localStorage.getItem('seerk_qa_roas_calculator_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
@@ -57,7 +59,7 @@ export default function RoasCalculatorAE() {
 
   const saveToLocalStorage = (newItems: RoasItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_ae_roas_calculator_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_qa_roas_calculator_items', JSON.stringify(newItems));
   };
 
   const spend = typeof adSpend === 'number' ? adSpend : 0;
@@ -73,13 +75,13 @@ export default function RoasCalculatorAE() {
     ar: {
       back: '← عودة للمنصة',
       title: 'محلل عائد الإعلانات (ROAS) 📈',
-      desc: 'قس بدقة أداء إعلاناتك وهل تحقق عوائد مجزية أم تستنزف ميزانيتك في متجرك الإماراتي',
+      desc: 'قس بدقة أداء إعلاناتك وهل تحقق عوائد مجزية أم تستنزف ميزانيتك في متجرك بقطر',
       editRecord: 'تعديل الحملة',
       newRecord: 'تحليل حملة إعلانية جديدة',
       clear: '🧹 مسح الحقول',
       trial: 'تجريبي',
       campName: 'اسم الحملة الإعلانية',
-      campNamePH: 'مثال: حملة دبي للتسوق',
+      campNamePH: 'مثال: حملة مهرجان قطر للتسوق',
       platformLabel: 'اختيار المنصة (أو كتابتها يدوياً)',
       platTikTok: 'تيك توك (TikTok Ads)',
       platSnap: 'سناب شات (Snapchat Ads)',
@@ -96,20 +98,28 @@ export default function RoasCalculatorAE() {
       saveBtnEdit: '💾 حفظ التعديلات',
       analysisTitle: 'مؤشرات الأداء الفورية (KPIs)',
       roasLabel: 'مؤشر العائد على الإنفاق (ROAS)',
-      roasSub: 'كل درهم تم إنفاقه كم حقق إيرادات',
+      roasSub: 'كل ريال تم إنفاقه كم حقق إيرادات',
       cacLabel: 'تكلفة الاستحواذ على العميل (CAC)',
       totalRevLabel: 'إجمالي العائد (Revenue)',
       decisionLabel: 'القرار المقترح للحملة:',
       statusGood: 'ممتاز جداً (زيادة الميزانية) 🚀',
       statusWarn: 'جيد (تحتاج تحسين)',
       statusBad: 'خسارة (إيقاف الحملة)',
-      currency: 'د.إ',
+      currency: 'ر.ق',
       ordersUnit: 'طلب',
       searchPH: '🔍 بحث في الحملات...',
       exportBtn: '📥 تصدير Excel',
       importBtn: '📂 استيراد',
+      filters: {
+        all: 'الكل',
+        day: 'آخر يوم',
+        week: 'آخر أسبوع',
+        month: 'آخر شهر',
+        sixMonths: 'آخر 6 أشهر',
+        year: 'آخر سنة'
+      },
       table: {
-        noRecords: 'لا توجد حملات إعلانية مسجلة في الجدول حالياً.',
+        noRecords: 'لا توجد حملات إعلانية تطابق بحثك حالياً.',
         th1: '#',
         th2: 'الحملة والمنصة',
         th3: 'الإنفاق',
@@ -135,13 +145,13 @@ export default function RoasCalculatorAE() {
     en: {
       back: '→ Back to Hub',
       title: 'Return on Ad Spend (ROAS) Analyzer 📈',
-      desc: 'Accurately measure your ad performance and see if they bring profitable returns to your UAE store',
+      desc: 'Accurately measure your ad performance and see if they bring profitable returns to your Qatar store',
       editRecord: 'Edit Campaign',
       newRecord: 'Analyze New Ad Campaign',
       clear: '🧹 Clear Fields',
       trial: 'Trial',
       campName: 'Ad Campaign Name',
-      campNamePH: 'e.g. Dubai Shopping Fest Campaign',
+      campNamePH: 'e.g. Shop Qatar Campaign',
       platformLabel: 'Select Platform (or type manually)',
       platTikTok: 'TikTok Ads',
       platSnap: 'Snapchat Ads',
@@ -158,20 +168,28 @@ export default function RoasCalculatorAE() {
       saveBtnEdit: '💾 Save Changes',
       analysisTitle: 'Instant Key Performance Indicators (KPIs)',
       roasLabel: 'Return on Ad Spend (ROAS)',
-      roasSub: 'Revenue generated for every Dirham spent',
+      roasSub: 'Revenue generated for every QAR spent',
       cacLabel: 'Customer Acquisition Cost (CAC)',
       totalRevLabel: 'Total Revenue Generated',
       decisionLabel: 'Suggested Campaign Decision:',
       statusGood: 'Excellent (Scale Budget) 🚀',
       statusWarn: 'Good (Needs Optimization)',
       statusBad: 'Loss (Stop Campaign)',
-      currency: 'AED',
+      currency: 'QAR',
       ordersUnit: 'order(s)',
       searchPH: '🔍 Search campaigns...',
       exportBtn: '📥 Export Excel',
       importBtn: '📂 Import',
+      filters: {
+        all: 'All Time',
+        day: 'Last Day',
+        week: 'Last Week',
+        month: 'Last Month',
+        sixMonths: 'Last 6 Months',
+        year: 'Last Year'
+      },
       table: {
-        noRecords: 'No ad campaigns currently saved in the table.',
+        noRecords: 'No ad campaigns match your search.',
         th1: '#',
         th2: 'Campaign & Platform',
         th3: 'Ad Spend',
@@ -236,10 +254,9 @@ export default function RoasCalculatorAE() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const localeStr = lang === 'ar' ? 'ar-AE' : 'en-AE';
+    const localeStr = lang === 'ar' ? 'ar-QA' : 'en-QA';
     const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
 
-    // نحفظ الحالة باللغة العربية كقيمة مرجعية في الـ DB
     const dbStatus = roas >= 3 ? 'ممتاز جداً (زيادة الميزانية) 🚀' : roas >= 1.5 ? 'جيد (تحتاج تحسين)' : 'خسارة (إيقاف الحملة)';
 
     if (editingId) {
@@ -253,7 +270,8 @@ export default function RoasCalculatorAE() {
         cac: Number(cac.toFixed(2)),
         roas: Number(roas.toFixed(2)),
         status: dbStatus,
-        createdAt: item.createdAt || formattedDate
+        createdAt: item.createdAt || formattedDate,
+        timestamp: item.timestamp || now.getTime()
       } : item);
       saveToLocalStorage(updated);
       setEditingId(null);
@@ -269,9 +287,10 @@ export default function RoasCalculatorAE() {
         cac: Number(cac.toFixed(2)),
         roas: Number(roas.toFixed(2)),
         status: dbStatus,
-        createdAt: formattedDate
+        createdAt: formattedDate,
+        timestamp: now.getTime()
       };
-      saveToLocalStorage([...items, newItem]);
+      saveToLocalStorage([newItem, ...items]); // حفظ الجديد في الأعلى
       alert(text.alerts.saveSuccess);
     }
 
@@ -281,7 +300,6 @@ export default function RoasCalculatorAE() {
   const handleEdit = (item: RoasItem) => {
     setCampaignName(item.campaignName);
     
-    // مطابقة المنصة
     const isTikTok = item.platform.toLowerCase().includes('tiktok') || item.platform.includes('تيك');
     const isSnap = item.platform.toLowerCase().includes('snap') || item.platform.includes('سناب');
     const isGoogle = item.platform.toLowerCase().includes('google') || item.platform.includes('جوجل');
@@ -314,17 +332,39 @@ export default function RoasCalculatorAE() {
     }
   };
 
+  // فلترة النتائج بناءً على البحث والفرز الزمني
+  const filteredItems = items.filter(item => {
+    const matchesSearch = item.campaignName.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          item.platform.toLowerCase().includes(searchQuery.toLowerCase());
+    let matchesDate = true;
+    
+    if (dateFilter !== 'all') {
+      const itemTime = item.timestamp || 0;
+      const now = Date.now();
+      const diff = now - itemTime;
+      const dayMs = 24 * 60 * 60 * 1000;
+      
+      if (dateFilter === 'day') matchesDate = diff <= dayMs;
+      else if (dateFilter === 'week') matchesDate = diff <= 7 * dayMs;
+      else if (dateFilter === 'month') matchesDate = diff <= 30 * dayMs;
+      else if (dateFilter === '6months') matchesDate = diff <= 180 * dayMs;
+      else if (dateFilter === 'year') matchesDate = diff <= 365 * dayMs;
+    }
+    
+    return matchesSearch && matchesDate;
+  });
+
+  const totalAdSpend = filteredItems.reduce((acc, curr) => acc + curr.adSpend, 0);
+  const totalOrders = filteredItems.reduce((acc, curr) => acc + curr.ordersGenerated, 0);
+  const totalRevenue = filteredItems.reduce((acc, curr) => acc + curr.revenueGenerated, 0);
+  const overallRoas = totalAdSpend > 0 ? totalRevenue / totalAdSpend : 0;
+  const overallCac = totalOrders > 0 ? totalAdSpend / totalOrders : 0;
+
   const handleExportExcel = () => {
-    if (items.length === 0) {
+    if (filteredItems.length === 0) {
       alert(text.alerts.noDataExp);
       return;
     }
-
-    const totalAdSpend = items.reduce((acc, curr) => acc + curr.adSpend, 0);
-    const totalOrders = items.reduce((acc, curr) => acc + curr.ordersGenerated, 0);
-    const totalRevenue = items.reduce((acc, curr) => acc + curr.revenueGenerated, 0);
-    const overallRoas = totalAdSpend > 0 ? totalRevenue / totalAdSpend : 0;
-    const overallCac = totalOrders > 0 ? totalAdSpend / totalOrders : 0;
 
     let tableHtml = `
       <html dir="${lang === 'ar' ? 'rtl' : 'ltr'}" lang="${lang}">
@@ -355,7 +395,7 @@ export default function RoasCalculatorAE() {
             <tbody>
     `;
 
-    items.forEach((row, idx) => {
+    filteredItems.forEach((row, idx) => {
       tableHtml += `
         <tr>
           <td>${idx + 1}</td>
@@ -392,7 +432,7 @@ export default function RoasCalculatorAE() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", "enjazya_ae_roas_analysis.xls");
+    link.setAttribute("download", `enjazya_qa_roas_analysis_${dateFilter}.xls`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -406,7 +446,8 @@ export default function RoasCalculatorAE() {
         try {
           const imported = JSON.parse(event.target?.result as string);
           if (Array.isArray(imported)) {
-            saveToLocalStorage(imported);
+            const newItems = imported.filter(imp => !items.find(i => i.id === imp.id));
+            saveToLocalStorage([...newItems, ...items]);
             alert(text.alerts.importSuccess);
           }
         } catch (err) {
@@ -415,17 +456,6 @@ export default function RoasCalculatorAE() {
       };
     }
   };
-
-  const filteredItems = items.filter(item => 
-    item.campaignName.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    item.platform.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const totalAdSpend = filteredItems.reduce((acc, curr) => acc + curr.adSpend, 0);
-  const totalOrders = filteredItems.reduce((acc, curr) => acc + curr.ordersGenerated, 0);
-  const totalRevenue = filteredItems.reduce((acc, curr) => acc + curr.revenueGenerated, 0);
-  const overallRoas = totalAdSpend > 0 ? totalRevenue / totalAdSpend : 0;
-  const overallCac = totalOrders > 0 ? totalAdSpend / totalOrders : 0;
 
   return (
     <div className="tool-container" style={{ direction: lang === 'ar' ? 'rtl' : 'ltr' }}>
@@ -453,19 +483,22 @@ export default function RoasCalculatorAE() {
         .clear-form-btn { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; display: flex; align-items: center; gap: 5px; }
         .clear-form-btn:hover { background: #fecaca; }
 
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        @media(max-width: 600px) { .form-row { grid-template-columns: 1fr; gap: 0; } }
+
         .input-group { margin-bottom: 15px; width: 100%; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .input-group label { display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 6px; }
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
         .input-wrapper input, .input-wrapper select { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .input-wrapper input.with-currency { padding-${lang === 'ar' ? 'left' : 'right'}: 45px; }
-        .input-wrapper input:focus, .input-wrapper select:focus { border-color: #047857; background: #ffffff; }
+        .input-wrapper input:focus, .input-wrapper select:focus { border-color: #8A1538; background: #ffffff; }
         .currency-tag { position: absolute; ${lang === 'ar' ? 'left: 14px;' : 'right: 14px;'} color: #64748b; font-weight: 800; font-size: 13px; pointer-events: none; }
         
-        .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
-        .action-btn:hover { background: #065f46; }
+        .action-btn { background: #8A1538; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
+        .action-btn:hover { background: #6A102B; }
 
         .result-box { background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .result-box.primary { background: linear-gradient(135deg, #047857 0%, #065f46 100%); color: #fff; border: none; padding: 20px; }
+        .result-box.primary { background: linear-gradient(135deg, #8A1538 0%, #6A102B 100%); color: #fff; border: none; padding: 20px; }
         .result-box.warning { background: linear-gradient(135deg, #d97706 0%, #b45309 100%); color: #fff; border: none; padding: 20px; }
         .result-box.danger { background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); color: #fff; border: none; padding: 20px; }
         .result-label { font-size: 13px; font-weight: 700; color: #64748b; }
@@ -475,10 +508,16 @@ export default function RoasCalculatorAE() {
 
         .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
-        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        
+        .search-input { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; flex-grow: 1; max-width: 350px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .search-input:focus { border-color: #8A1538; }
+        
+        .filter-select { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; background: #fff; color: #334155; cursor: pointer; min-width: 130px; }
+        .filter-select:focus { border-color: #8A1538; }
+
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
-        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; }
-        .t-btn:hover { background: #f1f5f9; }
+        .t-btn { padding: 9px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .t-btn:hover { background: #f1f5f9; border-color: #8A1538; color: #8A1538; }
 
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 900px; }
@@ -498,7 +537,7 @@ export default function RoasCalculatorAE() {
           <h1>{text.title}</h1>
           <p>{text.desc}</p>
         </div>
-        <Link href="/hub/ae" className="back-btn">
+        <Link href="/hub/qa" className="back-btn">
           {text.back}
         </Link>
       </div>
@@ -582,7 +621,7 @@ export default function RoasCalculatorAE() {
 
           <div className="result-box">
             <span className="result-label">{text.cacLabel}</span>
-            <span className="result-value" style={{ color: '#047857' }}>{cac.toFixed(2)} {text.currency}</span>
+            <span className="result-value" style={{ color: '#8A1538' }}>{cac.toFixed(2)} {text.currency}</span>
           </div>
 
           <div className="result-box" style={{ background: '#f8fafc' }}>
@@ -606,6 +645,20 @@ export default function RoasCalculatorAE() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
+
+          <select 
+            className="filter-select"
+            value={dateFilter}
+            onChange={(e) => setDateFilter(e.target.value)}
+          >
+            <option value="all">{text.filters.all}</option>
+            <option value="day">{text.filters.day}</option>
+            <option value="week">{text.filters.week}</option>
+            <option value="month">{text.filters.month}</option>
+            <option value="6months">{text.filters.sixMonths}</option>
+            <option value="year">{text.filters.year}</option>
+          </select>
+
           <div className="table-btns">
             <button className="t-btn" onClick={handleExportExcel}>{text.exportBtn}</button>
             <button className="t-btn" onClick={() => fileInputRef.current?.click()}>{text.importBtn}</button>
@@ -639,7 +692,7 @@ export default function RoasCalculatorAE() {
                     <td>{idx + 1}</td>
                     <td>
                       <div style={{ fontWeight: 900, color: '#0f172a' }}>{item.campaignName}</div>
-                      <div style={{ fontSize: '11px', color: '#0369a1', marginTop: '2px', fontWeight: 800 }}>{item.platform}</div>
+                      <div style={{ fontSize: '11px', color: '#8A1538', marginTop: '2px', fontWeight: 800 }}>{item.platform}</div>
                       {item.createdAt && <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', fontWeight: 600 }}>🕒 {item.createdAt}</div>}
                     </td>
                     <td style={{ color: '#dc2626' }}>{item.adSpend} {text.currency}</td>
