@@ -13,9 +13,10 @@ interface CustomerItem {
   messageTemplate: string;
   isPaid?: boolean;
   createdAt?: string;
+  timestamp?: number; // تمت الإضافة للفرز الزمني
 }
 
-export default function WhatsappCrmAE() {
+export default function WhatsappCrmQA() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
 
   const [customerName, setCustomerName] = useState<string>('');
@@ -28,6 +29,7 @@ export default function WhatsappCrmAE() {
 
   const [items, setItems] = useState<CustomerItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [dateFilter, setDateFilter] = useState<string>('all'); // الفرز الزمني
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -37,7 +39,7 @@ export default function WhatsappCrmAE() {
 
   useEffect(() => {
     setIsClient(true);
-    setIsActivated(!!localStorage.getItem('merchant_license_key'));
+    setIsActivated(!!localStorage.getItem('merchant_license_key_qa'));
     
     // قراءة اللغة من الصفحة الرئيسية
     const savedLang = localStorage.getItem('seerk_global_lang') as 'ar' | 'en';
@@ -54,7 +56,7 @@ export default function WhatsappCrmAE() {
       setMessageTemplate('مرحباً {name}، لاحظنا أنك تركت منتجات رائعة في سلتك 🛒. تفضل رابط الدفع المباشر لإكمال طلبك بأسرع وقت: {link}');
     }
 
-    const saved = localStorage.getItem('enjazya_ae_whatsapp_crm_items');
+    const saved = localStorage.getItem('seerk_qa_whatsapp_crm_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
@@ -62,22 +64,22 @@ export default function WhatsappCrmAE() {
 
   const saveToLocalStorage = (newItems: CustomerItem[]) => {
     setItems(newItems);
-    localStorage.setItem('enjazya_ae_whatsapp_crm_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_qa_whatsapp_crm_items', JSON.stringify(newItems));
   };
 
   const t = {
     ar: {
       back: '← عودة للمنصة',
       title: 'إدارة عملاء واتساب (إنجازيا برو ماكس) 💬',
-      desc: 'إدارة السلال المتروكة، إرسال روابط الدفع السريعة، وتصنيف عملاء متجرك الإماراتي',
+      desc: 'إدارة السلال المتروكة، إرسال روابط الدفع السريعة، وتصنيف عملاء متجرك بقطر',
       editRecord: 'تعديل بيانات العميل',
       newRecord: 'إضافة عميل / سلة جديدة',
       clear: '🧹 مسح الحقول',
       trial: 'تجريبي',
       custName: 'اسم العميل',
-      custNamePH: 'مثال: أحمد المنصوري',
-      phone: 'رقم الجوال (الإماراتي)',
-      phonePH: '05XXXXXXXX',
+      custNamePH: 'مثال: ناصر الكبيسي',
+      phone: 'رقم الجوال (القطري)',
+      phonePH: '55XXXXXX أو 33XXXXXX',
       statusLabel: 'حالة العميل (اختر أو اكتب ما تريد)',
       stAbandoned: 'سلة متروكة',
       stPending: 'بانتظار الدفع',
@@ -106,12 +108,20 @@ export default function WhatsappCrmAE() {
       totalCust: 'إجمالي العملاء المسجلين',
       paidOrders: 'الطلبات المحصلة',
       abandonedCarts: 'السلال المتروكة',
-      currency: 'د.إ',
+      currency: 'ر.ق',
       searchPH: '🔍 بحث باسم العميل أو الحالة...',
       exportBtn: '📥 تصدير Excel',
       importBtn: '📂 استيراد',
+      filters: {
+        all: 'الكل',
+        day: 'آخر يوم',
+        week: 'آخر أسبوع',
+        month: 'آخر شهر',
+        sixMonths: 'آخر 6 أشهر',
+        year: 'آخر سنة'
+      },
       table: {
-        noRecords: 'لا يوجد عملاء مسجلين حالياً. ابدأ بإضافة سلال متروكة لاسترجاعها.',
+        noRecords: 'لا توجد عملاء مطابقة لبحثك في السجل.',
         th1: '#',
         th2: 'العميل والتاريخ',
         th3: 'رقم الجوال',
@@ -141,15 +151,15 @@ export default function WhatsappCrmAE() {
     en: {
       back: '→ Back to Hub',
       title: 'WhatsApp CRM Management (Enjazya Pro Max) 💬',
-      desc: 'Manage abandoned carts, send quick payment links, and categorize your UAE store customers',
+      desc: 'Manage abandoned carts, send quick payment links, and categorize your Qatar store customers',
       editRecord: 'Edit Customer Data',
       newRecord: 'Add New Customer / Cart',
       clear: '🧹 Clear Fields',
       trial: 'Trial',
       custName: 'Customer Name',
-      custNamePH: 'e.g. Ahmed Al Mansoori',
-      phone: 'Phone Number (UAE)',
-      phonePH: '05XXXXXXXX',
+      custNamePH: 'e.g. Nasser Al Kubaisi',
+      phone: 'Phone Number (Qatar)',
+      phonePH: '55XXXXXX or 33XXXXXX',
       statusLabel: 'Customer Status (Select or Type)',
       stAbandoned: 'Abandoned Cart',
       stPending: 'Pending Payment',
@@ -178,12 +188,20 @@ export default function WhatsappCrmAE() {
       totalCust: 'Total Registered Customers',
       paidOrders: 'Collected Orders',
       abandonedCarts: 'Abandoned Carts',
-      currency: 'AED',
+      currency: 'QAR',
       searchPH: '🔍 Search by customer name or status...',
       exportBtn: '📥 Export Excel',
       importBtn: '📂 Import',
+      filters: {
+        all: 'All Time',
+        day: 'Last Day',
+        week: 'Last Week',
+        month: 'Last Month',
+        sixMonths: 'Last 6 Months',
+        year: 'Last Year'
+      },
       table: {
-        noRecords: 'No customers currently registered. Start adding abandoned carts to recover them.',
+        noRecords: 'No customers match your search.',
         th1: '#',
         th2: 'Customer & Date',
         th3: 'Phone Number',
@@ -224,13 +242,13 @@ export default function WhatsappCrmAE() {
       );
     } else if (selected === 'pending') {
       setMessageTemplate(lang === 'ar'
-        ? 'أهلاً بك {name}، طلبك بقيمة {amount} د.إ بانتظار الدفع 💳. لإتمام الطلب وتأكيده يرجى زيارة الرابط: {link}'
-        : 'Welcome {name}, your order of {amount} AED is pending payment 💳. To complete and confirm your order please visit: {link}'
+        ? 'أهلاً بك {name}، طلبك بقيمة {amount} ر.ق بانتظار الدفع 💳. لإتمام الطلب وتأكيده يرجى زيارة الرابط: {link}'
+        : 'Welcome {name}, your order of {amount} QAR is pending payment 💳. To complete and confirm your order please visit: {link}'
       );
     } else if (selected === 'completed') {
       setMessageTemplate(lang === 'ar'
-        ? 'شكراً لك {name} لثقتك بمتجرنا 🎉. تم تأكيد طلبك بقيمة {amount} د.إ، وسيتم تجهيزه وشحنه قريباً. لتتبع الطلب: {link}'
-        : 'Thank you {name} for trusting our store 🎉. Your order of {amount} AED is confirmed and will be shipped soon. Track your order: {link}'
+        ? 'شكراً لك {name} لثقتك بمتجرنا 🎉. تم تأكيد طلبك بقيمة {amount} ر.ق، وسيتم تجهيزه وشحنه قريباً. لتتبع الطلب: {link}'
+        : 'Thank you {name} for trusting our store 🎉. Your order of {amount} QAR is confirmed and will be shipped soon. Track your order: {link}'
       );
     } else if (selected === 'custom') {
       setMessageTemplate('');
@@ -264,7 +282,7 @@ export default function WhatsappCrmAE() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const localeStr = lang === 'ar' ? 'ar-AE' : 'en-AE';
+    const localeStr = lang === 'ar' ? 'ar-QA' : 'en-QA';
     const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
 
     if (editingId) {
@@ -277,7 +295,8 @@ export default function WhatsappCrmAE() {
         paymentLink,
         messageTemplate,
         isPaid,
-        createdAt: item.createdAt || formattedDate
+        createdAt: item.createdAt || formattedDate,
+        timestamp: item.timestamp || now.getTime()
       } : item);
       saveToLocalStorage(updated);
       setEditingId(null);
@@ -292,9 +311,10 @@ export default function WhatsappCrmAE() {
         paymentLink,
         messageTemplate,
         isPaid,
-        createdAt: formattedDate
+        createdAt: formattedDate,
+        timestamp: now.getTime()
       };
-      saveToLocalStorage([...items, newItem]);
+      saveToLocalStorage([newItem, ...items]); // حفظ الجديد للأعلى
       alert(text.alerts.saveSuccess);
     }
 
@@ -303,7 +323,14 @@ export default function WhatsappCrmAE() {
 
   const handleEdit = (item: CustomerItem) => {
     setCustomerName(item.customerName || '');
-    setPhoneNumber(item.phoneNumber || '');
+    
+    // إزالة رمز الدولة (974) لتسهيل التعديل
+    let displayPhone = item.phoneNumber || '';
+    if (displayPhone.startsWith('974')) {
+      displayPhone = displayPhone.substring(3);
+    }
+    setPhoneNumber(displayPhone);
+
     setStatus(item.status || (lang === 'ar' ? 'سلة متروكة' : 'Abandoned Cart'));
     setOrderValue(item.orderValue || 0);
     setPaymentLink(item.paymentLink || '');
@@ -342,10 +369,12 @@ export default function WhatsappCrmAE() {
     const safeTemplate = item.messageTemplate || '';
 
     let phone = safePhone.replace(/\D/g, '');
-    if (phone.startsWith('05')) {
-      phone = '971' + phone.substring(1);
-    } else if (phone.startsWith('5') && phone.length === 9) {
-      phone = '971' + phone;
+    if (phone.startsWith('0')) {
+      phone = '974' + phone.substring(1);
+    } else if (phone.length === 8 && !phone.startsWith('974')) {
+      phone = '974' + phone;
+    } else if (!phone.startsWith('974')) {
+      phone = '974' + phone;
     }
     
     let textMsg = safeTemplate
@@ -357,14 +386,47 @@ export default function WhatsappCrmAE() {
     window.open(url, '_blank');
   };
 
+  // فلترة النتائج بناءً على البحث والفرز الزمني
+  const filteredItems = items.filter(item => {
+    const matchesSearch = (item.customerName || '').toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          (item.phoneNumber || '').includes(searchQuery) ||
+                          (item.status || '').toLowerCase().includes(searchQuery.toLowerCase());
+    let matchesDate = true;
+    
+    if (dateFilter !== 'all') {
+      const itemTime = item.timestamp || 0;
+      const now = Date.now();
+      const diff = now - itemTime;
+      const dayMs = 24 * 60 * 60 * 1000;
+      
+      if (dateFilter === 'day') matchesDate = diff <= dayMs;
+      else if (dateFilter === 'week') matchesDate = diff <= 7 * dayMs;
+      else if (dateFilter === 'month') matchesDate = diff <= 30 * dayMs;
+      else if (dateFilter === '6months') matchesDate = diff <= 180 * dayMs;
+      else if (dateFilter === 'year') matchesDate = diff <= 365 * dayMs;
+    }
+    
+    return matchesSearch && matchesDate;
+  });
+
+  const collectedRevenue = filteredItems.filter(i => {
+    return i.isPaid !== undefined ? i.isPaid : ((i.status || '').includes('مكتمل') || (i.status || '').toLowerCase().includes('completed'));
+  }).reduce((acc, curr) => acc + (curr.orderValue || 0), 0);
+
+  const pendingRevenue = filteredItems.filter(i => {
+    return !(i.isPaid !== undefined ? i.isPaid : ((i.status || '').includes('مكتمل') || (i.status || '').toLowerCase().includes('completed')));
+  }).reduce((acc, curr) => acc + (curr.orderValue || 0), 0);
+
+  const abandonedCount = filteredItems.filter(i => (i.status || '').includes('متروكة') || (i.status || '').toLowerCase().includes('abandoned')).length;
+  const completedCount = filteredItems.filter(i => {
+    return i.isPaid !== undefined ? i.isPaid : ((i.status || '').includes('مكتمل') || (i.status || '').toLowerCase().includes('completed'));
+  }).length;
+
   const handleExportExcel = () => {
-    if (items.length === 0) {
+    if (filteredItems.length === 0) {
       alert(text.alerts.noDataExp);
       return;
     }
-
-    const collectedRevenueExp = items.filter(i => i.isPaid !== undefined ? i.isPaid : ((i.status || '').includes('مكتمل') || (i.status || '').toLowerCase().includes('completed'))).reduce((acc, curr) => acc + (curr.orderValue || 0), 0);
-    const pendingRevenueExp = items.filter(i => !(i.isPaid !== undefined ? i.isPaid : ((i.status || '').includes('مكتمل') || (i.status || '').toLowerCase().includes('completed')))).reduce((acc, curr) => acc + (curr.orderValue || 0), 0);
 
     let tableHtml = `
       <html dir="${lang === 'ar' ? 'rtl' : 'ltr'}" lang="${lang}">
@@ -394,7 +456,7 @@ export default function WhatsappCrmAE() {
             <tbody>
     `;
 
-    items.forEach((row, idx) => {
+    filteredItems.forEach((row, idx) => {
       const isPaidFlag = row.isPaid !== undefined ? row.isPaid : ((row.status || '').includes('مكتمل') || (row.status || '').toLowerCase().includes('completed'));
       tableHtml += `
         <tr>
@@ -415,12 +477,12 @@ export default function WhatsappCrmAE() {
             <tfoot>
               <tr class="tfoot-row">
                 <td colspan="5">${text.table.totalCollected}</td>
-                <td>${collectedRevenueExp.toFixed(2)}</td>
+                <td>${collectedRevenue.toFixed(2)}</td>
                 <td colspan="2"></td>
               </tr>
               <tr class="tfoot-row" style="background-color: #fffbeb;">
                 <td colspan="5" style="color: #d97706;">${text.table.totalPending}</td>
-                <td style="color: #d97706;">${pendingRevenueExp.toFixed(2)}</td>
+                <td style="color: #d97706;">${pendingRevenue.toFixed(2)}</td>
                 <td colspan="2"></td>
               </tr>
             </tfoot>
@@ -433,7 +495,7 @@ export default function WhatsappCrmAE() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", "enjazya_pro_max_crm_ae.xls");
+    link.setAttribute("download", `enjazya_qa_whatsapp_crm_${dateFilter}.xls`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -447,7 +509,8 @@ export default function WhatsappCrmAE() {
         try {
           const imported = JSON.parse(event.target?.result as string);
           if (Array.isArray(imported)) {
-            saveToLocalStorage(imported);
+            const newItems = imported.filter(imp => !items.find(i => i.id === imp.id));
+            saveToLocalStorage([...newItems, ...items]);
             alert(text.alerts.importSuccess);
           }
         } catch (err) {
@@ -456,25 +519,6 @@ export default function WhatsappCrmAE() {
       };
     }
   };
-
-  const filteredItems = items.filter(item => 
-    (item.customerName || '').toLowerCase().includes(searchQuery.toLowerCase()) || 
-    (item.phoneNumber || '').includes(searchQuery) ||
-    (item.status || '').toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const collectedRevenue = filteredItems.filter(i => {
-    return i.isPaid !== undefined ? i.isPaid : ((i.status || '').includes('مكتمل') || (i.status || '').toLowerCase().includes('completed'));
-  }).reduce((acc, curr) => acc + (curr.orderValue || 0), 0);
-
-  const pendingRevenue = filteredItems.filter(i => {
-    return !(i.isPaid !== undefined ? i.isPaid : ((i.status || '').includes('مكتمل') || (i.status || '').toLowerCase().includes('completed')));
-  }).reduce((acc, curr) => acc + (curr.orderValue || 0), 0);
-
-  const abandonedCount = filteredItems.filter(i => (i.status || '').includes('متروكة') || (i.status || '').toLowerCase().includes('abandoned')).length;
-  const completedCount = filteredItems.filter(i => {
-    return i.isPaid !== undefined ? i.isPaid : ((i.status || '').includes('مكتمل') || (i.status || '').toLowerCase().includes('completed'));
-  }).length;
 
   return (
     <div className="tool-container" style={{ direction: lang === 'ar' ? 'rtl' : 'ltr' }}>
@@ -510,14 +554,14 @@ export default function WhatsappCrmAE() {
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
         .input-wrapper input, .input-wrapper select, .input-wrapper textarea { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .input-wrapper input.with-currency { padding-${lang === 'ar' ? 'left' : 'right'}: 45px; }
-        .input-wrapper input:focus, .input-wrapper select:focus, .input-wrapper textarea:focus { border-color: #047857; background: #ffffff; }
+        .input-wrapper input:focus, .input-wrapper select:focus, .input-wrapper textarea:focus { border-color: #8A1538; background: #ffffff; }
         .currency-tag { position: absolute; ${lang === 'ar' ? 'left: 14px;' : 'right: 14px;'} color: #64748b; font-weight: 800; font-size: 13px; pointer-events: none; }
         
-        .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
-        .action-btn:hover { background: #065f46; }
+        .action-btn { background: #8A1538; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
+        .action-btn:hover { background: #6A102B; }
 
         .result-box { background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .result-box.primary { background: linear-gradient(135deg, #0369a1 0%, #0c4a6e 100%); color: #fff; border: none; padding: 20px; }
+        .result-box.primary { background: linear-gradient(135deg, #8A1538 0%, #6A102B 100%); color: #fff; border: none; padding: 20px; }
         .result-box.warning { background: linear-gradient(135deg, #d97706 0%, #b45309 100%); color: #fff; border: none; padding: 20px; }
         .result-label { font-size: 13px; font-weight: 700; color: #64748b; }
         .primary .result-label, .warning .result-label { color: #ffffff; opacity: 0.9; }
@@ -526,10 +570,16 @@ export default function WhatsappCrmAE() {
 
         .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
-        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        
+        .search-input { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; flex-grow: 1; max-width: 350px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .search-input:focus { border-color: #8A1538; }
+        
+        .filter-select { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; background: #fff; color: #334155; cursor: pointer; min-width: 130px; }
+        .filter-select:focus { border-color: #8A1538; }
+
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
-        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; }
-        .t-btn:hover { background: #f1f5f9; }
+        .t-btn { padding: 9px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .t-btn:hover { background: #f1f5f9; border-color: #8A1538; color: #8A1538; }
 
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 1000px; }
@@ -543,12 +593,12 @@ export default function WhatsappCrmAE() {
         .btn-edit { background: #e0f2fe; color: #0369a1; }
         .btn-delete { background: #fee2e2; color: #991b1b; }
         .btn-wa { background: #22c55e; color: #ffffff; }
-        .btn-paid { background: #047857; color: #ffffff; }
+        .btn-paid { background: #8A1538; color: #ffffff; }
         .btn-unpaid { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
 
-        .checkbox-wrapper { display: flex; align-items: center; gap: 8px; background: #ecfdf5; padding: 12px; border-radius: 8px; border: 1px solid #a7f3d0; margin-top: 15px; cursor: pointer; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
-        .checkbox-wrapper input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; accent-color: #047857; margin: 0; }
-        .checkbox-wrapper label { font-size: 14px; font-weight: 800; color: #065f46; cursor: pointer; margin: 0; user-select: none; }
+        .checkbox-wrapper { display: flex; align-items: center; gap: 8px; background: #FAF0F2; padding: 12px; border-radius: 8px; border: 1px solid #EBB8C6; margin-top: 15px; cursor: pointer; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
+        .checkbox-wrapper input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; accent-color: #8A1538; margin: 0; }
+        .checkbox-wrapper label { font-size: 14px; font-weight: 800; color: #6A102B; cursor: pointer; margin: 0; user-select: none; }
       `}</style>
 
       <div className="header">
@@ -556,7 +606,7 @@ export default function WhatsappCrmAE() {
           <h1>{text.title}</h1>
           <p>{text.desc}</p>
         </div>
-        <Link href="/hub/ae" className="back-btn">
+        <Link href="/hub/qa" className="back-btn">
           {text.back}
         </Link>
       </div>
@@ -695,7 +745,7 @@ export default function WhatsappCrmAE() {
 
           <div className="result-box">
             <span className="result-label">{text.totalCust}</span>
-            <span className="result-value" style={{ color: '#0369a1' }}>{items.length}</span>
+            <span className="result-value" style={{ color: '#8A1538' }}>{filteredItems.length}</span>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
@@ -720,6 +770,20 @@ export default function WhatsappCrmAE() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
+
+          <select 
+            className="filter-select"
+            value={dateFilter}
+            onChange={(e) => setDateFilter(e.target.value)}
+          >
+            <option value="all">{text.filters.all}</option>
+            <option value="day">{text.filters.day}</option>
+            <option value="week">{text.filters.week}</option>
+            <option value="month">{text.filters.month}</option>
+            <option value="sixMonths">{text.filters.sixMonths}</option>
+            <option value="year">{text.filters.year}</option>
+          </select>
+
           <div className="table-btns">
             <button className="t-btn" onClick={handleExportExcel}>{text.exportBtn}</button>
             <button className="t-btn" onClick={() => fileInputRef.current?.click()}>{text.importBtn}</button>
@@ -751,7 +815,7 @@ export default function WhatsappCrmAE() {
                   let statusColor = '#475569';
                   const st = (item.status || '').toLowerCase();
                   if (st.includes('متروكة') || st.includes('انتظار') || st.includes('abandoned') || st.includes('pending')) statusColor = '#d97706';
-                  if (st.includes('مكتمل') || st.includes('vip') || st.includes('completed')) statusColor = '#047857';
+                  if (st.includes('مكتمل') || st.includes('vip') || st.includes('completed')) statusColor = '#8A1538';
                   if (st.includes('مسترجع') || st.includes('إلغاء') || st.includes('returned')) statusColor = '#dc2626';
 
                   const itemIsPaid = item.isPaid !== undefined ? item.isPaid : (st.includes('مكتمل') || st.includes('completed'));
