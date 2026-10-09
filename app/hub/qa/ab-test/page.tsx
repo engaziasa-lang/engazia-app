@@ -16,12 +16,12 @@ interface ABTestItem {
   campBCpa: number;
   winner: string;
   createdAt?: string;
+  timestamp?: number;
 }
 
 export default function ABTestingCalculatorQA() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
 
-  // تفريغ الحقول بالكامل كقيمة ابتدائية
   const [testName, setTestName] = useState<string>('');
   
   const [campAName, setCampAName] = useState<string>('');
@@ -34,6 +34,7 @@ export default function ABTestingCalculatorQA() {
 
   const [items, setItems] = useState<ABTestItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [dateFilter, setDateFilter] = useState<string>('all');
   const [editingId, setEditingId] = useState<string | null>(null);
   
   const [isClient, setIsClient] = useState(false);
@@ -43,16 +44,13 @@ export default function ABTestingCalculatorQA() {
 
   useEffect(() => {
     setIsClient(true);
-    // استخدام مفتاح التفعيل الخاص بقطر فقط
     setIsActivated(!!localStorage.getItem('merchant_license_key_qa'));
     
-    // قراءة اللغة
     const savedLang = localStorage.getItem('seerk_global_lang') as 'ar' | 'en';
     if (savedLang) {
       setLang(savedLang);
     }
     
-    // استخدام مساحة حفظ منفصلة تماماً للسوق القطري
     const saved = localStorage.getItem('seerk_qa_ab_testing_items');
     if (saved) {
       try { 
@@ -62,7 +60,6 @@ export default function ABTestingCalculatorQA() {
     }
   }, []);
 
-  // قاموس الترجمة
   const t = {
     ar: {
       back: '← عودة للمنصة',
@@ -94,6 +91,14 @@ export default function ABTestingCalculatorQA() {
       searchPH: '🔍 بحث باسم الاختبار...',
       exportBtn: '📥 تصدير Excel',
       importBtn: '📂 استيراد',
+      filters: {
+        all: 'الكل',
+        day: 'آخر يوم',
+        week: 'آخر أسبوع',
+        month: 'آخر شهر',
+        sixMonths: 'آخر 6 أشهر',
+        year: 'آخر سنة'
+      },
       alerts: {
         limit: '🔒 عذراً، لقد استهلكت الحد التجريبي (3 سجلات). يرجى ترقية حسابك لفتح السعة الكاملة بلا حدود!',
         fillErr: 'الرجاء التأكد من تعبئة اسم الاختبار والمصروفات للحملتين بشكل صحيح.',
@@ -105,7 +110,7 @@ export default function ABTestingCalculatorQA() {
         importErr: '❌ ملف غير صالح.',
       },
       table: {
-        noTests: 'لا توجد اختبارات A/B مسجلة حالياً.',
+        noTests: 'لا توجد اختبارات مسجلة تطابق بحثك حالياً.',
         th1: 'م',
         th2: 'اسم الاختبار',
         th3: 'الحملة (أ)',
@@ -154,6 +159,14 @@ export default function ABTestingCalculatorQA() {
       searchPH: '🔍 Search by test name...',
       exportBtn: '📥 Export Excel',
       importBtn: '📂 Import',
+      filters: {
+        all: 'All Time',
+        day: 'Last Day',
+        week: 'Last Week',
+        month: 'Last Month',
+        sixMonths: 'Last 6 Months',
+        year: 'Last Year'
+      },
       alerts: {
         limit: '🔒 Sorry, you have reached the trial limit (3 records). Please upgrade to unlock unlimited access!',
         fillErr: 'Please ensure the test name and expenses for both campaigns are filled correctly.',
@@ -165,7 +178,7 @@ export default function ABTestingCalculatorQA() {
         importErr: '❌ Invalid file.',
       },
       table: {
-        noTests: 'No A/B tests recorded currently.',
+        noTests: 'No A/B tests found matching your search.',
         th1: '#',
         th2: 'Test Name',
         th3: 'Campaign (A)',
@@ -263,17 +276,18 @@ export default function ABTestingCalculatorQA() {
       campBOrders: ordersB,
       campBCpa: Number(cpaB.toFixed(2)),
       winner: winnerText.replace('🏆 الفائز: ', '').replace('🏆 Winner: ', ''),
-      createdAt: formattedDate
+      createdAt: formattedDate,
+      timestamp: now.getTime()
     };
 
     if (editingId) {
-      const updated = items.map(item => item.id === editingId ? { ...item, ...newItemData, createdAt: item.createdAt || formattedDate } : item);
+      const updated = items.map(item => item.id === editingId ? { ...item, ...newItemData, createdAt: item.createdAt || formattedDate, timestamp: item.timestamp || now.getTime() } : item);
       saveToLocalStorage(updated);
       setEditingId(null);
       alert(text.alerts.updateSuccess);
     } else {
       const newItem: ABTestItem = { id: Date.now().toString(), ...newItemData };
-      saveToLocalStorage([...items, newItem]);
+      saveToLocalStorage([newItem, ...items]);
       alert(text.alerts.saveSuccess);
     }
 
@@ -299,8 +313,30 @@ export default function ABTestingCalculatorQA() {
     }
   };
 
+  // فلترة النتائج بناءً على البحث والفرز الزمني
+  const filteredItems = items.filter(item => {
+    const matchesSearch = (item?.testName || '').toLowerCase().includes((searchQuery || '').toLowerCase());
+    let matchesDate = true;
+    
+    if (dateFilter !== 'all') {
+      const itemTime = item.timestamp || 0; // إذا لم يكن هناك طابع زمني قديم
+      const now = Date.now();
+      const diff = now - itemTime;
+      const dayMs = 24 * 60 * 60 * 1000;
+      
+      if (dateFilter === 'day') matchesDate = diff <= dayMs;
+      else if (dateFilter === 'week') matchesDate = diff <= 7 * dayMs;
+      else if (dateFilter === 'month') matchesDate = diff <= 30 * dayMs;
+      else if (dateFilter === '6months') matchesDate = diff <= 180 * dayMs;
+      else if (dateFilter === 'year') matchesDate = diff <= 365 * dayMs;
+    }
+    
+    return matchesSearch && matchesDate;
+  });
+
   const handleExportExcel = () => {
-    if (items.length === 0) {
+    // الاعتماد المباشر على filteredItems لضمان تصدير ما يراه المستخدم فقط
+    if (filteredItems.length === 0) {
       alert(text.alerts.noDataExp);
       return;
     }
@@ -336,7 +372,7 @@ export default function ABTestingCalculatorQA() {
             <tbody>
     `;
 
-    items.forEach((row, idx) => {
+    filteredItems.forEach((row, idx) => {
       tableHtml += `
         <tr>
           <td>${idx + 1}</td>
@@ -361,7 +397,7 @@ export default function ABTestingCalculatorQA() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", "enjazya_qa_ab_testing.xls");
+    link.setAttribute("download", `enjazya_qa_ab_testing_${dateFilter}.xls`); // اسم الملف يتغير حسب الفلتر
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -375,7 +411,9 @@ export default function ABTestingCalculatorQA() {
         try {
           const imported = JSON.parse(event.target?.result as string);
           if (Array.isArray(imported)) {
-            saveToLocalStorage(imported);
+            // دمج البيانات الجديدة مع القديمة مع منع التكرار بناءً على الـ ID
+            const newItems = imported.filter(imp => !items.find(i => i.id === imp.id));
+            saveToLocalStorage([...newItems, ...items]);
             alert(text.alerts.importSuccess);
           }
         } catch (err) {
@@ -384,10 +422,6 @@ export default function ABTestingCalculatorQA() {
       };
     }
   };
-
-  const filteredItems = items.filter(item => 
-    (item?.testName || '').toLowerCase().includes((searchQuery || '').toLowerCase())
-  );
 
   return (
     <div className="tool-container" style={{ direction: lang === 'ar' ? 'rtl' : 'ltr' }}>
@@ -426,7 +460,6 @@ export default function ABTestingCalculatorQA() {
         .input-wrapper input:focus { border-color: #8A1538; background: #ffffff; }
         .currency-tag { position: absolute; ${lang === 'ar' ? 'left: 14px;' : 'right: 14px;'} color: #64748b; font-weight: 800; font-size: 13px; pointer-events: none; }
         
-        /* تلوين الزر الأساسي باللون القطري العنابي */
         .action-btn { background: #8A1538; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
         .action-btn:hover { background: #6A102B; }
 
@@ -438,12 +471,17 @@ export default function ABTestingCalculatorQA() {
         .primary .result-value { font-size: 22px; color: #ffffff; direction: ${lang === 'ar' ? 'rtl' : 'ltr'}; }
 
         .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); margin-top: 20px; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
-        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .search-input { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; flex-grow: 1; max-width: 350px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .search-input:focus { border-color: #8A1538; }
+        
+        .filter-select { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; background: #fff; color: #334155; cursor: pointer; min-width: 130px; }
+        .filter-select:focus { border-color: #8A1538; }
+
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
-        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; }
-        .t-btn:hover { background: #f1f5f9; }
+        .t-btn { padding: 9px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .t-btn:hover { background: #f1f5f9; border-color: #8A1538; color: #8A1538; }
 
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 900px; }
@@ -575,9 +613,27 @@ export default function ABTestingCalculatorQA() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
+          
+          <select 
+            className="filter-select"
+            value={dateFilter}
+            onChange={(e) => setDateFilter(e.target.value)}
+          >
+            <option value="all">{text.filters.all}</option>
+            <option value="day">{text.filters.day}</option>
+            <option value="week">{text.filters.week}</option>
+            <option value="month">{text.filters.month}</option>
+            <option value="6months">{text.filters.sixMonths}</option>
+            <option value="year">{text.filters.year}</option>
+          </select>
+
           <div className="table-btns">
-            <button className="t-btn" onClick={handleExportExcel}>{text.exportBtn}</button>
-            <button className="t-btn" onClick={() => fileInputRef.current?.click()}>{text.importBtn}</button>
+            <button className="t-btn" onClick={handleExportExcel}>
+              {lang === 'ar' ? 'تصدير 📥' : 'Export 📥'}
+            </button>
+            <button className="t-btn" onClick={() => fileInputRef.current?.click()}>
+              {lang === 'ar' ? 'استيراد 📂' : 'Import 📂'}
+            </button>
             <input type="file" ref={fileInputRef} onChange={handleImportJson} accept=".json" style={{ display: 'none' }} />
           </div>
         </div>
