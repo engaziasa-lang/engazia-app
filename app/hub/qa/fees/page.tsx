@@ -12,9 +12,10 @@ interface FeeItem {
   netReceived: number;
   totalFee: number;
   createdAt?: string;
+  timestamp?: number; // الفرز الزمني الدقيق
 }
 
-export default function GatewayFeesCalculatorAE() {
+export default function GatewayFeesCalculatorQA() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
   
   const [orderAmount, setOrderAmount] = useState<number | ''>('');
@@ -24,11 +25,18 @@ export default function GatewayFeesCalculatorAE() {
 
   const [items, setItems] = useState<FeeItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [dateFilter, setDateFilter] = useState<string>('all'); // الفرز الزمني
   const [editingId, setEditingId] = useState<string | null>(null);
+
+  const [isClient, setIsClient] = useState(false);
+  const [isActivated, setIsActivated] = useState(true);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    setIsClient(true);
+    setIsActivated(!!localStorage.getItem('merchant_license_key_qa'));
+
     // قراءة اللغة من الصفحة الرئيسية
     const savedLang = localStorage.getItem('seerk_global_lang') as 'ar' | 'en';
     if (savedLang) {
@@ -37,11 +45,11 @@ export default function GatewayFeesCalculatorAE() {
 
     // إعداد القيم الافتراضية
     setOrderAmount(350);
-    setGatewayName('Stripe');
-    setFeePercent(2.9);
+    setGatewayName('فاتورة (Fatora)');
+    setFeePercent(2.5);
     setFeeFixed(1.0);
 
-    const saved = localStorage.getItem('seerk_ae_gateway_fees_items');
+    const saved = localStorage.getItem('seerk_qa_gateway_fees_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
@@ -49,35 +57,32 @@ export default function GatewayFeesCalculatorAE() {
 
   const saveToLocalStorage = (newItems: FeeItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_ae_gateway_fees_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_qa_gateway_fees_items', JSON.stringify(newItems));
   };
-
-  const isActivated = typeof window !== 'undefined' && !!localStorage.getItem('merchant_license_key');
 
   const amt = typeof orderAmount === 'number' ? orderAmount : 0;
   const pct = typeof feePercent === 'number' ? feePercent : 0;
   const fxd = typeof feeFixed === 'number' ? feeFixed : 0;
 
-  // الحساب الفعلي (تشمل 5% ضريبة إماراتية)
-  const baseFee = (amt * (pct / 100)) + fxd;
-  const totalFeeWithVat = baseFee > 0 ? baseFee * 1.05 : 0;
+  // الحساب الفعلي (بدون ضريبة إضافية 5% لأن قطر لا تطبق الـ VAT حالياً)
+  const totalFeeWithVat = (amt * (pct / 100)) + fxd;
   const netReceived = Math.max(0, amt - totalFeeWithVat);
 
   // قاموس الترجمة الفوري
   const t = {
     ar: {
       back: '← عودة للمنصة',
-      title: 'حاسبة رسوم بوابات الدفع (Stripe، Payfort، تابي) 💳',
-      desc: 'احسب بدقة عمولات بوابات الدفع المحلية والعالمية مع رسوم الضريبة (5%) على العمولة وتأثيرها على حسابك',
+      title: 'حاسبة رسوم بوابات الدفع (فاتورة، سداد، تابي) 💳',
+      desc: 'احسب بدقة عمولات بوابات الدفع المحلية والعالمية وتأثيرها المباشر على حسابك',
       editRecord: 'تعديل السجل',
       newRecord: 'حساب رسوم جديدة',
       clear: '🧹 مسح الحقول',
       trial: 'تجريبي',
       orderAmt: 'قيمة طلب العميل الإجمالية',
       presetLabel: 'اختيار البوابة لملء البيانات التلقائي (اختياري)',
-      optStripe: 'Stripe - (2.9% + 1 درهم)',
-      optPayfort: 'Payfort (Amazon) - (2.8% + 1 درهم)',
-      optTabby: 'التقسيط (تابي / تمارا) - (2.5% + 2 درهم)',
+      optFatora: 'فاتورة (Fatora) - (2.5% + 1 ريال)',
+      optSadad: 'سداد (Sadad) - (2.8% + 1 ريال)',
+      optTabby: 'التقسيط (تابي / تمارا) - (2.5% + 2 ريال)',
       optCustom: 'تفريغ الحقول (إدخال يدوي بالكامل)',
       gwName: 'اسم البوابة (قابل للتعديل)',
       gwNamePH: 'مثال: أبل باي',
@@ -87,19 +92,27 @@ export default function GatewayFeesCalculatorAE() {
       saveBtnEdit: '💾 حفظ التعديلات',
       analysisTitle: 'تحليل الرسوم الفوري',
       netTotal: 'المبلغ الصافي الذي يدخل لحسابك البنكي',
-      netSub: 'بعد خصم عمولة البوابة وضريبة 5% عليها',
-      totalDeducted: 'إجمالي الرسوم المقتطعة (شاملة الضريبة)',
+      netSub: 'بعد خصم عمولة ورسوم البوابة',
+      totalDeducted: 'إجمالي الرسوم المقتطعة',
       effectiveRate: 'النسبة المؤثرة الفعلية من قيمة الطلب',
-      currency: 'د.إ',
+      currency: 'ر.ق',
       searchPH: '🔍 بحث في السجلات المحفوظة...',
       exportBtn: '📥 تصدير Excel',
       importBtn: '📂 استيراد',
+      filters: {
+        all: 'الكل',
+        day: 'آخر يوم',
+        week: 'آخر أسبوع',
+        month: 'آخر شهر',
+        sixMonths: 'آخر 6 أشهر',
+        year: 'آخر سنة'
+      },
       table: {
-        noRecords: 'لا توجد سجلات بوابات دفع مسجلة في الجدول حالياً.',
+        noRecords: 'لا توجد سجلات بوابات دفع تطابق بحثك حالياً.',
         th1: '#',
         th2: 'بوابة الدفع والتاريخ',
         th3: 'قيمة الطلب',
-        th4: 'الرسوم (شاملة الضريبة)',
+        th4: 'الرسوم',
         th5: 'نسبة الاستقطاع',
         th6: 'المبلغ الصافي',
         th7: 'الإجراءات',
@@ -121,16 +134,16 @@ export default function GatewayFeesCalculatorAE() {
     en: {
       back: '→ Back to Hub',
       title: 'Payment Gateway Fees Calculator 💳',
-      desc: 'Calculate local and global payment gateway commissions with UAE VAT (5%) and its impact on your payout',
+      desc: 'Calculate local and global payment gateway commissions and their direct impact on your payout',
       editRecord: 'Edit Record',
       newRecord: 'Calculate New Fees',
       clear: '🧹 Clear Fields',
       trial: 'Trial',
       orderAmt: 'Total Customer Order Amount',
       presetLabel: 'Select gateway to autofill data (Optional)',
-      optStripe: 'Stripe - (2.9% + 1 AED)',
-      optPayfort: 'Payfort (Amazon) - (2.8% + 1 AED)',
-      optTabby: 'Installments (Tabby / Tamara) - (2.5% + 2 AED)',
+      optFatora: 'Fatora - (2.5% + 1 QAR)',
+      optSadad: 'Sadad - (2.8% + 1 QAR)',
+      optTabby: 'Installments (Tabby / Tamara) - (2.5% + 2 QAR)',
       optCustom: 'Clear fields (Full manual entry)',
       gwName: 'Gateway Name (Editable)',
       gwNamePH: 'e.g. Apple Pay',
@@ -140,19 +153,27 @@ export default function GatewayFeesCalculatorAE() {
       saveBtnEdit: '💾 Save Changes',
       analysisTitle: 'Instant Fee Analysis',
       netTotal: 'Net Payout to Your Bank Account',
-      netSub: 'After deducting gateway commission and 5% VAT on fees',
-      totalDeducted: 'Total Fees Deducted (Including VAT)',
+      netSub: 'After deducting gateway commission and fees',
+      totalDeducted: 'Total Fees Deducted',
       effectiveRate: 'Effective Fee Percentage of Order Value',
-      currency: 'AED',
+      currency: 'QAR',
       searchPH: '🔍 Search saved records...',
       exportBtn: '📥 Export Excel',
       importBtn: '📂 Import',
+      filters: {
+        all: 'All Time',
+        day: 'Last Day',
+        week: 'Last Week',
+        month: 'Last Month',
+        sixMonths: 'Last 6 Months',
+        year: 'Last Year'
+      },
       table: {
-        noRecords: 'No payment gateway records currently saved in the table.',
+        noRecords: 'No payment gateway records match your search.',
         th1: '#',
         th2: 'Payment Gateway & Date',
         th3: 'Order Amount',
-        th4: 'Fees (Inc. VAT)',
+        th4: 'Fees',
         th5: 'Effective Rate',
         th6: 'Net Amount',
         th7: 'Actions',
@@ -177,12 +198,12 @@ export default function GatewayFeesCalculatorAE() {
 
   const handlePresetChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const val = e.target.value;
-    if (val === 'stripe') {
-      setGatewayName('Stripe');
-      setFeePercent(2.9);
+    if (val === 'fatora') {
+      setGatewayName(lang === 'ar' ? 'فاتورة (Fatora)' : 'Fatora');
+      setFeePercent(2.5);
       setFeeFixed(1.0);
-    } else if (val === 'payfort') {
-      setGatewayName('Payfort (Amazon)');
+    } else if (val === 'sadad') {
+      setGatewayName(lang === 'ar' ? 'سداد (Sadad)' : 'Sadad');
       setFeePercent(2.8);
       setFeeFixed(1.0);
     } else if (val === 'tabby_tamara') {
@@ -198,13 +219,12 @@ export default function GatewayFeesCalculatorAE() {
 
   const handleClearForm = () => {
     setOrderAmount('');
-    setGatewayName('Stripe');
-    setFeePercent(2.9);
+    setGatewayName(lang === 'ar' ? 'فاتورة (Fatora)' : 'Fatora');
+    setFeePercent(2.5);
     setFeeFixed(1.0);
     setEditingId(null);
-    // إعادة تعيين القائمة المنسدلة إلى الخيار الأول عن طريق استخدام DOM لتسهيل الأمر هنا
     const selectEl = document.getElementById('gateway-preset') as HTMLSelectElement;
-    if (selectEl) selectEl.value = 'stripe';
+    if (selectEl) selectEl.value = 'fatora';
   };
 
   const handleSaveItem = (e: React.FormEvent) => {
@@ -220,7 +240,7 @@ export default function GatewayFeesCalculatorAE() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const localeStr = lang === 'ar' ? 'ar-AE' : 'en-AE';
+    const localeStr = lang === 'ar' ? 'ar-QA' : 'en-QA';
     const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
 
     if (editingId) {
@@ -232,7 +252,8 @@ export default function GatewayFeesCalculatorAE() {
         feeFixed: fxd,
         netReceived: Number(netReceived.toFixed(2)),
         totalFee: Number(totalFeeWithVat.toFixed(2)),
-        createdAt: item.createdAt || formattedDate
+        createdAt: item.createdAt || formattedDate,
+        timestamp: item.timestamp || now.getTime()
       } : item);
       saveToLocalStorage(updated);
       setEditingId(null);
@@ -246,9 +267,10 @@ export default function GatewayFeesCalculatorAE() {
         feeFixed: fxd,
         netReceived: Number(netReceived.toFixed(2)),
         totalFee: Number(totalFeeWithVat.toFixed(2)),
-        createdAt: formattedDate
+        createdAt: formattedDate,
+        timestamp: now.getTime()
       };
-      saveToLocalStorage([...items, newItem]);
+      saveToLocalStorage([newItem, ...items]); // إضافة الجديد في الأعلى
       alert(text.alerts.saveSuccess);
     }
 
@@ -276,16 +298,37 @@ export default function GatewayFeesCalculatorAE() {
     }
   };
 
+  // فلترة النتائج بناءً على البحث والفرز الزمني
+  const filteredItems = items.filter(item => {
+    const matchesSearch = item.gatewayName.toLowerCase().includes(searchQuery.toLowerCase());
+    let matchesDate = true;
+    
+    if (dateFilter !== 'all') {
+      const itemTime = item.timestamp || 0;
+      const now = Date.now();
+      const diff = now - itemTime;
+      const dayMs = 24 * 60 * 60 * 1000;
+      
+      if (dateFilter === 'day') matchesDate = diff <= dayMs;
+      else if (dateFilter === 'week') matchesDate = diff <= 7 * dayMs;
+      else if (dateFilter === 'month') matchesDate = diff <= 30 * dayMs;
+      else if (dateFilter === '6months') matchesDate = diff <= 180 * dayMs;
+      else if (dateFilter === 'year') matchesDate = diff <= 365 * dayMs;
+    }
+    
+    return matchesSearch && matchesDate;
+  });
+
+  const totalOrderAmount = filteredItems.reduce((acc, curr) => acc + curr.orderAmount, 0);
+  const totalFees = filteredItems.reduce((acc, curr) => acc + curr.totalFee, 0);
+  const totalNetReceived = filteredItems.reduce((acc, curr) => acc + curr.netReceived, 0);
+  const overallFeePercent = totalOrderAmount > 0 ? (totalFees / totalOrderAmount) * 100 : 0;
+
   const handleExportExcel = () => {
-    if (items.length === 0) {
+    if (filteredItems.length === 0) {
       alert(text.alerts.noDataExp);
       return;
     }
-
-    const totalOrderAmount = items.reduce((acc, curr) => acc + curr.orderAmount, 0);
-    const totalFees = items.reduce((acc, curr) => acc + curr.totalFee, 0);
-    const totalNetReceived = items.reduce((acc, curr) => acc + curr.netReceived, 0);
-    const overallFeePercent = totalOrderAmount > 0 ? (totalFees / totalOrderAmount) * 100 : 0;
 
     let tableHtml = `
       <html dir="${lang === 'ar' ? 'rtl' : 'ltr'}" lang="${lang}">
@@ -314,7 +357,7 @@ export default function GatewayFeesCalculatorAE() {
             <tbody>
     `;
 
-    items.forEach((row, idx) => {
+    filteredItems.forEach((row, idx) => {
       const feePct = row.orderAmount > 0 ? (row.totalFee / row.orderAmount) * 100 : 0;
       tableHtml += `
         <tr>
@@ -349,7 +392,7 @@ export default function GatewayFeesCalculatorAE() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", "enjazya_ae_gateway_fees.xls");
+    link.setAttribute("download", `enjazya_qa_gateway_fees_${dateFilter}.xls`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -363,7 +406,8 @@ export default function GatewayFeesCalculatorAE() {
         try {
           const imported = JSON.parse(event.target?.result as string);
           if (Array.isArray(imported)) {
-            saveToLocalStorage(imported);
+            const newItems = imported.filter(imp => !items.find(i => i.id === imp.id));
+            saveToLocalStorage([...newItems, ...items]);
             alert(text.alerts.importSuccess);
           }
         } catch (err) {
@@ -372,13 +416,6 @@ export default function GatewayFeesCalculatorAE() {
       };
     }
   };
-
-  const filteredItems = items.filter(item => item.gatewayName.toLowerCase().includes(searchQuery.toLowerCase()));
-
-  const totalOrderAmount = filteredItems.reduce((acc, curr) => acc + curr.orderAmount, 0);
-  const totalFees = filteredItems.reduce((acc, curr) => acc + curr.totalFee, 0);
-  const totalNetReceived = filteredItems.reduce((acc, curr) => acc + curr.netReceived, 0);
-  const overallFeePercent = totalOrderAmount > 0 ? (totalFees / totalOrderAmount) * 100 : 0;
 
   return (
     <div className="tool-container" style={{ direction: lang === 'ar' ? 'rtl' : 'ltr' }}>
@@ -411,14 +448,14 @@ export default function GatewayFeesCalculatorAE() {
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
         .input-wrapper input, .input-wrapper select { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 15px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .input-wrapper input.with-currency { padding-${lang === 'ar' ? 'left' : 'right'}: 45px; }
-        .input-wrapper input:focus, .input-wrapper select:focus { border-color: #047857; background: #ffffff; }
+        .input-wrapper input:focus, .input-wrapper select:focus { border-color: #8A1538; background: #ffffff; }
         .currency-tag { position: absolute; ${lang === 'ar' ? 'left: 14px;' : 'right: 14px;'} color: #64748b; font-weight: 800; font-size: 13px; pointer-events: none; }
         
-        .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
-        .action-btn:hover { background: #065f46; }
+        .action-btn { background: #8A1538; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
+        .action-btn:hover { background: #6A102B; }
 
         .result-box { background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .result-box.primary { background: linear-gradient(135deg, #047857 0%, #065f46 100%); color: #fff; border: none; padding: 20px; }
+        .result-box.primary { background: linear-gradient(135deg, #8A1538 0%, #6A102B 100%); color: #fff; border: none; padding: 20px; }
         .result-label { font-size: 13px; font-weight: 700; color: #64748b; }
         .primary .result-label { color: #ffffff; opacity: 0.9; }
         .result-value { font-size: 18px; font-weight: 900; color: #0f172a; direction: ltr; }
@@ -426,10 +463,16 @@ export default function GatewayFeesCalculatorAE() {
 
         .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
-        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        
+        .search-input { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; flex-grow: 1; max-width: 350px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .search-input:focus { border-color: #8A1538; }
+        
+        .filter-select { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; background: #fff; color: #334155; cursor: pointer; min-width: 130px; }
+        .filter-select:focus { border-color: #8A1538; }
+
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
-        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; }
-        .t-btn:hover { background: #f1f5f9; }
+        .t-btn { padding: 9px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .t-btn:hover { background: #f1f5f9; border-color: #8A1538; color: #8A1538; }
 
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 700px; }
@@ -445,7 +488,7 @@ export default function GatewayFeesCalculatorAE() {
           <h1>{text.title}</h1>
           <p>{text.desc}</p>
         </div>
-        <Link href="/hub/ae" className="back-btn">
+        <Link href="/hub/qa" className="back-btn">
           {text.back}
         </Link>
       </div>
@@ -459,7 +502,7 @@ export default function GatewayFeesCalculatorAE() {
                 {text.clear}
               </button>
             </div>
-            {!isActivated && <span className="trial-badge">{text.trial}: {items.length}/3</span>}
+            {isClient && !isActivated && <span className="trial-badge">{text.trial}: {items.length}/3</span>}
           </h2>
 
           <form onSubmit={handleSaveItem}>
@@ -474,9 +517,9 @@ export default function GatewayFeesCalculatorAE() {
             <div className="input-group">
               <label>{text.presetLabel}</label>
               <div className="input-wrapper">
-                <select id="gateway-preset" onChange={handlePresetChange} defaultValue="stripe">
-                  <option value="stripe">{text.optStripe}</option>
-                  <option value="payfort">{text.optPayfort}</option>
+                <select id="gateway-preset" onChange={handlePresetChange} defaultValue="fatora">
+                  <option value="fatora">{text.optFatora}</option>
+                  <option value="sadad">{text.optSadad}</option>
                   <option value="tabby_tamara">{text.optTabby}</option>
                   <option value="custom">{text.optCustom}</option>
                 </select>
@@ -547,9 +590,27 @@ export default function GatewayFeesCalculatorAE() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
+
+          <select 
+            className="filter-select"
+            value={dateFilter}
+            onChange={(e) => setDateFilter(e.target.value)}
+          >
+            <option value="all">{text.filters.all}</option>
+            <option value="day">{text.filters.day}</option>
+            <option value="week">{text.filters.week}</option>
+            <option value="month">{text.filters.month}</option>
+            <option value="6months">{text.filters.sixMonths}</option>
+            <option value="year">{text.filters.year}</option>
+          </select>
+
           <div className="table-btns">
-            <button className="t-btn" onClick={handleExportExcel}>{text.exportBtn}</button>
-            <button className="t-btn" onClick={() => fileInputRef.current?.click()}>{text.importBtn}</button>
+            <button className="t-btn" onClick={handleExportExcel}>
+              {lang === 'ar' ? 'تصدير 📥' : 'Export 📥'}
+            </button>
+            <button className="t-btn" onClick={() => fileInputRef.current?.click()}>
+              {lang === 'ar' ? 'استيراد 📂' : 'Import 📂'}
+            </button>
             <input type="file" ref={fileInputRef} onChange={handleImportJson} accept=".json" style={{ display: 'none' }} />
           </div>
         </div>
@@ -585,8 +646,8 @@ export default function GatewayFeesCalculatorAE() {
                         {item.createdAt && <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', fontWeight: 600 }}>🕒 {item.createdAt}</div>}
                       </td>
                       <td>{item.orderAmount} {text.currency}</td>
-                      <td style={{ color: '#dc2626' }}>{item.totalFee} {text.currency}</td>
-                      <td style={{ color: '#d97706' }}>{feePct.toFixed(2)}%</td>
+                      <td style={{ color: '#dc2626', fontWeight: 800 }}>{item.totalFee} {text.currency}</td>
+                      <td style={{ color: '#d97706', fontWeight: 800 }}>{feePct.toFixed(2)}%</td>
                       <td style={{ color: '#047857', fontWeight: 900 }}>{item.netReceived} {text.currency}</td>
                       <td>
                         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
