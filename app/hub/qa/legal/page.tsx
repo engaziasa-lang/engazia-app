@@ -12,9 +12,10 @@ interface PolicyItem {
   returnDays: number;
   policyContent: string;
   createdAt?: string;
+  timestamp?: number; // تمت الإضافة للفرز الزمني
 }
 
-export default function PoliciesGeneratorAE() {
+export default function PoliciesGeneratorQA() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
   const [storeName, setStoreName] = useState<string>('');
   const [policySelect, setPolicySelect] = useState<string>('');
@@ -26,11 +27,18 @@ export default function PoliciesGeneratorAE() {
 
   const [items, setItems] = useState<PolicyItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [dateFilter, setDateFilter] = useState<string>('all'); // الفرز الزمني
   const [editingId, setEditingId] = useState<string | null>(null);
+
+  const [isClient, setIsClient] = useState(false);
+  const [isActivated, setIsActivated] = useState(true);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    setIsClient(true);
+    setIsActivated(!!localStorage.getItem('merchant_license_key_qa'));
+
     // قراءة اللغة
     const savedLang = localStorage.getItem('seerk_global_lang') as 'ar' | 'en';
     if (savedLang) {
@@ -46,11 +54,11 @@ export default function PoliciesGeneratorAE() {
       setCustomPolicyType('سياسة الاستبدال والاسترجاع 🔄');
     }
 
-    const saved = localStorage.getItem('seerk_ae_policies_generator_items');
+    const saved = localStorage.getItem('seerk_qa_policies_generator_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
-    const defaultStore = localStorage.getItem('seerk_ae_store_name');
+    const defaultStore = localStorage.getItem('seerk_qa_store_name');
     if (defaultStore) setStoreName(defaultStore);
   }, []);
 
@@ -58,7 +66,7 @@ export default function PoliciesGeneratorAE() {
     ar: {
       back: '← عودة للمنصة',
       title: 'مولد السياسات وقوانين حماية المستهلك ⚖️',
-      desc: 'أنشئ صفحات الاستبدال والاسترجاع، سياسة الخصوصية، أو أي سياسة أخرى مخصصة لمتجرك الإماراتي',
+      desc: 'أنشئ صفحات الاستبدال والاسترجاع، سياسة الخصوصية، أو أي سياسة أخرى مخصصة لمتجرك القطري',
       editRecord: 'تعديل السياسة',
       newRecord: 'توليد سياسة جديدة',
       clear: '🧹 مسح الحقول',
@@ -72,9 +80,9 @@ export default function PoliciesGeneratorAE() {
       optOther: '➕ سياسة أخرى (كتابة يدوية)',
       otherPH: 'اكتب مسمى السياسة هنا (مثال: سياسة الشحن)...',
       emailLabel: 'البريد الإلكتروني للدعم',
-      emailPH: 'support@yourstore.ae',
+      emailPH: 'support@yourstore.qa',
       phoneLabel: 'رقم واتساب الدعم',
-      phonePH: '9715XXXXXXXX',
+      phonePH: '974XXXXXXX',
       returnDaysLabel: 'مدة الاستبدال والاسترجاع (بالأيام)',
       saveBtnNew: '+ حفظ السياسة في السجل',
       saveBtnEdit: '💾 حفظ التعديلات',
@@ -83,14 +91,22 @@ export default function PoliciesGeneratorAE() {
       searchPH: '🔍 بحث باسم المتجر أو نوع السياسة...',
       exportBtn: '📥 تصدير Excel',
       importBtn: '📂 استيراد',
+      filters: {
+        all: 'الكل',
+        day: 'آخر يوم',
+        week: 'آخر أسبوع',
+        month: 'آخر شهر',
+        sixMonths: 'آخر 6 أشهر',
+        year: 'آخر سنة'
+      },
       table: {
-        noRecords: 'لا توجد سياسات مسجلة حالياً.',
+        noRecords: 'لا توجد سياسات تطابق بحثك حالياً.',
         th1: '#',
         th2: 'المتجر والتاريخ',
         th3: 'نوع السياسة',
         th4: 'البريد والهاتف',
         th5: 'الإجراءات',
-        totalLabel: 'إجمالي السياسات المسجلة',
+        totalLabel: 'إجمالي السياسات المعروضة',
         policiesCount: 'سياسات',
         copy: '📋 نسخ'
       },
@@ -109,7 +125,7 @@ export default function PoliciesGeneratorAE() {
     en: {
       back: '→ Back to Hub',
       title: 'Store Policies & Consumer Law Generator ⚖️',
-      desc: 'Generate customized return policies, privacy policies, and terms for your UAE store',
+      desc: 'Generate customized return policies, privacy policies, and terms for your Qatar store',
       editRecord: 'Edit Policy',
       newRecord: 'Generate New Policy',
       clear: '🧹 Clear Fields',
@@ -123,9 +139,9 @@ export default function PoliciesGeneratorAE() {
       optOther: '➕ Other Policy (Manual Entry)',
       otherPH: 'Type policy name (e.g. Shipping Policy)...',
       emailLabel: 'Support Email',
-      emailPH: 'support@yourstore.ae',
+      emailPH: 'support@yourstore.qa',
       phoneLabel: 'Support WhatsApp/Phone',
-      phonePH: '9715XXXXXXXX',
+      phonePH: '974XXXXXXX',
       returnDaysLabel: 'Return & Exchange Period (Days)',
       saveBtnNew: '+ Save Policy to Log',
       saveBtnEdit: '💾 Save Changes',
@@ -134,14 +150,22 @@ export default function PoliciesGeneratorAE() {
       searchPH: '🔍 Search by store or policy type...',
       exportBtn: '📥 Export Excel',
       importBtn: '📂 Import',
+      filters: {
+        all: 'All Time',
+        day: 'Last Day',
+        week: 'Last Week',
+        month: 'Last Month',
+        sixMonths: 'Last 6 Months',
+        year: 'Last Year'
+      },
       table: {
-        noRecords: 'No policies currently saved.',
+        noRecords: 'No policies currently match your search.',
         th1: '#',
         th2: 'Store & Date',
         th3: 'Policy Type',
         th4: 'Email & Phone',
         th5: 'Actions',
-        totalLabel: 'Total Saved Policies',
+        totalLabel: 'Total Displayed Policies',
         policiesCount: 'policies',
         copy: '📋 Copy'
       },
@@ -165,8 +189,8 @@ export default function PoliciesGeneratorAE() {
   // توليد النص تلقائياً بناءً على اللغة المختارة
   useEffect(() => {
     const currentStore = storeName.trim() || (lang === 'ar' ? 'المتجر' : 'The Store');
-    const currentEmail = supportEmail.trim() || 'support@yourstore.ae';
-    const currentPhone = supportPhone.trim() || '9715XXXXXXXX';
+    const currentEmail = supportEmail.trim() || 'support@yourstore.qa';
+    const currentPhone = supportPhone.trim() || '974XXXXXXX';
     const days = returnDays || 7;
 
     const isReturn = policySelect.includes('استرجاع') || policySelect.includes('Return');
@@ -177,7 +201,7 @@ export default function PoliciesGeneratorAE() {
       if (isReturn) {
         setPolicyContent(
           `أهلاً بكم في ${currentStore}. حرصاً منا على خدمتكم بأفضل شكل، فإن سياسة الاستبدال والاسترجاع تخضع للشروط والضوابط التالية:\n\n` +
-          `1. مدة الاستبدال والاسترجاع هي خلال (${days}) أيام من تاريخ استلام الطلب وفقاً لقوانين حماية المستهلك في الإمارات.\n` +
+          `1. مدة الاستبدال والاسترجاع هي خلال (${days}) أيام من تاريخ استلام الطلب وفقاً لقوانين حماية المستهلك في دولة قطر.\n` +
           `2. يجب أن يكون المنتج بحالته الأصلية، وفي غلافه الأصلي، ولم يتم فتحه أو استخدامُه، مع إرفاق فاتورة الشراء.\n` +
           `3. تتحمل تكاليف الشحن العكسي في حال كان الاسترجاع بسبب رغبة العميل، بينما يتحمل المتجر التكاليف في حال وجود عيب مصنعي أو خطأ في الطلب.\n` +
           `4. للاستفسار أو تقديم طلب استرجاع، يرجى التواصل معنا عبر البريد: ${currentEmail} أو الواتساب: ${currentPhone}.`
@@ -194,7 +218,7 @@ export default function PoliciesGeneratorAE() {
         setPolicyContent(
           `الشروط والأحكام الخاصة بـ ${currentStore}:\n\n` +
           `1. استخدامك للمتجر يعني موافقتك التامة على كافة الشروط والسياسات المعلنة.\n` +
-          `2. الأسعار معروضة بالدرهم الإماراتي (د.إ) شاملة ضريبة القيمة المضافة (5%).\n` +
+          `2. الأسعار معروضة بالريال القطري (ر.ق).\n` +
           `3. يحق للمتجر إلغاء الطلب في حال نفاد الكمية أو عدم إتمام عملية الدفع خلال المدة المحددة، مع إرجاع المبلغ كاملاً للعميل.\n` +
           `4. للتواصل والدعم الفني: ${currentEmail} - هاتف: ${currentPhone}.`
         );
@@ -202,7 +226,7 @@ export default function PoliciesGeneratorAE() {
         if (!editingId || !policyContent) {
           setPolicyContent(
             `نص ${customPolicyType || 'السياسة'} الخاص بـ ${currentStore}:\n\n` +
-            `1. يلتزم المتجر بتقديم أفضل الخدمات وفقاً لهذه السياسة والقوانين المعمول بها في دولة الإمارات العربية المتحدة.\n` +
+            `1. يلتزم المتجر بتقديم أفضل الخدمات وفقاً لهذه السياسة والقوانين المعمول بها في دولة قطر.\n` +
             `2. لأي استفسارات أو تفاصيل إضافية، يرجى التواصل معنا عبر البريد: ${currentEmail} أو عبر الواتساب: ${currentPhone}.`
           );
         }
@@ -212,7 +236,7 @@ export default function PoliciesGeneratorAE() {
       if (isReturn) {
         setPolicyContent(
           `Welcome to ${currentStore}. To ensure the best service, our Return and Exchange Policy is subject to the following terms:\n\n` +
-          `1. Returns and exchanges are accepted within (${days}) days of receiving the order, in accordance with UAE consumer protection laws.\n` +
+          `1. Returns and exchanges are accepted within (${days}) days of receiving the order, in accordance with Qatar consumer protection laws.\n` +
           `2. The product must be in its original condition, unopened, unused, and in its original packaging with the purchase receipt.\n` +
           `3. The customer bears the reverse shipping costs if the return is a personal preference. The store covers costs for manufacturing defects or wrong items.\n` +
           `4. For inquiries or return requests, please contact us via Email: ${currentEmail} or WhatsApp: ${currentPhone}.`
@@ -229,7 +253,7 @@ export default function PoliciesGeneratorAE() {
         setPolicyContent(
           `Terms and Conditions for ${currentStore}:\n\n` +
           `1. Your use of this store constitutes your full agreement to all stated terms and policies.\n` +
-          `2. Prices are displayed in UAE Dirhams (AED) and include Value Added Tax (5% VAT).\n` +
+          `2. Prices are displayed in Qatari Riyals (QAR).\n` +
           `3. The store reserves the right to cancel an order in case of stock depletion or incomplete payment, with a full refund to the customer.\n` +
           `4. For technical support and contact: ${currentEmail} - Phone: ${currentPhone}.`
         );
@@ -237,20 +261,18 @@ export default function PoliciesGeneratorAE() {
         if (!editingId || !policyContent) {
           setPolicyContent(
             `Text for ${customPolicyType || 'Policy'} of ${currentStore}:\n\n` +
-            `1. The store is committed to providing the best services in accordance with this policy and the applicable laws in the United Arab Emirates.\n` +
+            `1. The store is committed to providing the best services in accordance with this policy and the applicable laws in the State of Qatar.\n` +
             `2. For any inquiries or further details, please contact us via Email: ${currentEmail} or WhatsApp: ${currentPhone}.`
           );
         }
       }
     }
-  }, [storeName, policySelect, customPolicyType, returnDays, supportEmail, supportPhone, lang, editingId, policyContent]);
+  }, [storeName, policySelect, customPolicyType, returnDays, supportEmail, supportPhone, lang, editingId]);
 
   const saveToLocalStorage = (newItems: PolicyItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_ae_policies_generator_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_qa_policies_generator_items', JSON.stringify(newItems));
   };
-
-  const isActivated = typeof window !== 'undefined' && !!localStorage.getItem('merchant_license_key');
 
   const days = typeof returnDays === 'number' ? returnDays : 7;
 
@@ -289,8 +311,11 @@ export default function PoliciesGeneratorAE() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const localeStr = lang === 'ar' ? 'ar-AE' : 'en-AE';
+    const localeStr = lang === 'ar' ? 'ar-QA' : 'en-QA';
     const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
+
+    // حفظ اسم المتجر كمرجع للأدوات الأخرى
+    localStorage.setItem('seerk_qa_store_name', storeName);
 
     if (editingId) {
       const updated = items.map(item => item.id === editingId ? {
@@ -301,7 +326,8 @@ export default function PoliciesGeneratorAE() {
         supportPhone,
         returnDays: days,
         policyContent,
-        createdAt: item.createdAt || formattedDate
+        createdAt: item.createdAt || formattedDate,
+        timestamp: item.timestamp || now.getTime()
       } : item);
       saveToLocalStorage(updated);
       setEditingId(null);
@@ -315,9 +341,10 @@ export default function PoliciesGeneratorAE() {
         supportPhone,
         returnDays: days,
         policyContent,
-        createdAt: formattedDate
+        createdAt: formattedDate,
+        timestamp: now.getTime()
       };
-      saveToLocalStorage([...items, newItem]);
+      saveToLocalStorage([newItem, ...items]); // حفظ بالأعلى
       alert(text.alerts.saveSuccess);
     }
 
@@ -359,8 +386,30 @@ export default function PoliciesGeneratorAE() {
     alert(text.alerts.copySuccess);
   };
 
+  // فلترة النتائج بناءً على البحث والفرز الزمني
+  const filteredItems = items.filter(item => {
+    const matchesSearch = item.storeName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          item.policyType.toLowerCase().includes(searchQuery.toLowerCase());
+    let matchesDate = true;
+    
+    if (dateFilter !== 'all') {
+      const itemTime = item.timestamp || 0;
+      const now = Date.now();
+      const diff = now - itemTime;
+      const dayMs = 24 * 60 * 60 * 1000;
+      
+      if (dateFilter === 'day') matchesDate = diff <= dayMs;
+      else if (dateFilter === 'week') matchesDate = diff <= 7 * dayMs;
+      else if (dateFilter === 'month') matchesDate = diff <= 30 * dayMs;
+      else if (dateFilter === '6months') matchesDate = diff <= 180 * dayMs;
+      else if (dateFilter === 'year') matchesDate = diff <= 365 * dayMs;
+    }
+    
+    return matchesSearch && matchesDate;
+  });
+
   const handleExportExcel = () => {
-    if (items.length === 0) {
+    if (filteredItems.length === 0) {
       alert(text.alerts.noDataExp);
       return;
     }
@@ -391,7 +440,7 @@ export default function PoliciesGeneratorAE() {
             <tbody>
     `;
 
-    items.forEach((row, idx) => {
+    filteredItems.forEach((row, idx) => {
       tableHtml += `
         <tr>
           <td>${idx + 1}</td>
@@ -409,7 +458,7 @@ export default function PoliciesGeneratorAE() {
             <tfoot>
               <tr class="tfoot-row">
                 <td colspan="5">${text.table.totalLabel}</td>
-                <td>${items.length} ${text.table.policiesCount}</td>
+                <td>${filteredItems.length} ${text.table.policiesCount}</td>
               </tr>
             </tfoot>
           </table>
@@ -421,7 +470,7 @@ export default function PoliciesGeneratorAE() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", "enjazya_ae_policies_generator.xls");
+    link.setAttribute("download", `enjazya_qa_policies_generator_${dateFilter}.xls`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -435,7 +484,8 @@ export default function PoliciesGeneratorAE() {
         try {
           const imported = JSON.parse(event.target?.result as string);
           if (Array.isArray(imported)) {
-            saveToLocalStorage(imported);
+            const newItems = imported.filter(imp => !items.find(i => i.id === imp.id));
+            saveToLocalStorage([...newItems, ...items]);
             alert(text.alerts.importSuccess);
           }
         } catch (err) {
@@ -444,11 +494,6 @@ export default function PoliciesGeneratorAE() {
       };
     }
   };
-
-  const filteredItems = items.filter(item => 
-    item.storeName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.policyType.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   return (
     <div className="tool-container" style={{ direction: lang === 'ar' ? 'rtl' : 'ltr' }}>
@@ -483,20 +528,25 @@ export default function PoliciesGeneratorAE() {
         .input-group label { display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 6px; }
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
         .input-wrapper input, .input-wrapper select, .input-wrapper textarea { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .input-wrapper input:focus, .input-wrapper select:focus, .input-wrapper textarea:focus { border-color: #047857; background: #ffffff; }
+        .input-wrapper input:focus, .input-wrapper select:focus, .input-wrapper textarea:focus { border-color: #8A1538; background: #ffffff; }
         
-        .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
-        .action-btn:hover { background: #065f46; }
+        .action-btn { background: #8A1538; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
+        .action-btn:hover { background: #6A102B; }
         
-        .copy-btn { background: #0369a1; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .copy-btn:hover { background: #0284c7; }
+        .copy-btn { background: #8A1538; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .copy-btn:hover { background: #6A102B; }
 
         .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
-        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .search-input { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; flex-grow: 1; max-width: 350px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .search-input:focus { border-color: #8A1538; }
+        
+        .filter-select { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; background: #fff; color: #334155; cursor: pointer; min-width: 130px; }
+        .filter-select:focus { border-color: #8A1538; }
+
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
-        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; }
-        .t-btn:hover { background: #f1f5f9; }
+        .t-btn { padding: 9px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .t-btn:hover { background: #f1f5f9; border-color: #8A1538; color: #8A1538; }
 
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 900px; }
@@ -507,7 +557,8 @@ export default function PoliciesGeneratorAE() {
         .trial-badge { background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 800; }
         
         .tb-action-btn { border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; font-family: inherit;}
-        .btn-wa { background: #dcfce7; color: #166534; }
+        .btn-wa { background: #FAF0F2; color: #8A1538; border: 1px solid #EBB8C6; }
+        .btn-wa:hover { background: #8A1538; color: #ffffff; }
         .btn-edit { background: #e0f2fe; color: #0369a1; }
         .btn-delete { background: #fee2e2; color: #991b1b; }
       `}</style>
@@ -517,7 +568,7 @@ export default function PoliciesGeneratorAE() {
           <h1>{text.title}</h1>
           <p>{text.desc}</p>
         </div>
-        <Link href="/hub/ae" className="back-btn">
+        <Link href="/hub/qa" className="back-btn">
           {text.back}
         </Link>
       </div>
@@ -531,40 +582,39 @@ export default function PoliciesGeneratorAE() {
                 {text.clear}
               </button>
             </div>
-            {!isActivated && <span className="trial-badge">{text.trial}: {items.length}/3</span>}
+            {isClient && !isActivated && <span className="trial-badge">{text.trial}: {items.length}/3</span>}
           </h2>
 
           <form onSubmit={handleSaveItem}>
-            <div className="form-row">
-              <div className="input-group">
-                <label>{text.storeNameLabel}</label>
-                <div className="input-wrapper">
-                  <input type="text" value={storeName} onChange={(e) => setStoreName(e.target.value)} placeholder={text.storeNamePH} required />
-                </div>
+            <div className="input-group">
+              <label>{text.storeNameLabel}</label>
+              <div className="input-wrapper">
+                <input type="text" value={storeName} onChange={(e) => setStoreName(e.target.value)} placeholder={text.storeNamePH} required />
               </div>
-              <div className="input-group">
-                <label>{text.policyTypeLabel}</label>
-                <div className="input-wrapper" style={{ marginBottom: '8px' }}>
-                  <select value={policySelect} onChange={handleSelectChange}>
-                    <option value={text.optReturn}>{text.optReturn}</option>
-                    <option value={text.optPrivacy}>{text.optPrivacy}</option>
-                    <option value={text.optTerms}>{text.optTerms}</option>
-                    <option value={text.optOther}>{text.optOther}</option>
-                  </select>
-                </div>
+            </div>
+            
+            <div className="input-group">
+              <label>{text.policyTypeLabel}</label>
+              <div className="input-wrapper" style={{ marginBottom: '8px' }}>
+                <select value={policySelect} onChange={handleSelectChange}>
+                  <option value={text.optReturn}>{text.optReturn}</option>
+                  <option value={text.optPrivacy}>{text.optPrivacy}</option>
+                  <option value={text.optTerms}>{text.optTerms}</option>
+                  <option value={text.optOther}>{text.optOther}</option>
+                </select>
+              </div>
 
-                {policySelect === text.optOther && (
-                  <div className="input-wrapper">
-                    <input 
-                      type="text" 
-                      value={customPolicyType} 
-                      onChange={(e) => setCustomPolicyType(e.target.value)} 
-                      placeholder={text.otherPH} 
-                      required 
-                    />
-                  </div>
-                )}
-              </div>
+              {policySelect === text.optOther && (
+                <div className="input-wrapper">
+                  <input 
+                    type="text" 
+                    value={customPolicyType} 
+                    onChange={(e) => setCustomPolicyType(e.target.value)} 
+                    placeholder={text.otherPH} 
+                    required 
+                  />
+                </div>
+              )}
             </div>
 
             <div className="form-row">
@@ -626,9 +676,27 @@ export default function PoliciesGeneratorAE() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
+
+          <select 
+            className="filter-select"
+            value={dateFilter}
+            onChange={(e) => setDateFilter(e.target.value)}
+          >
+            <option value="all">{text.filters.all}</option>
+            <option value="day">{text.filters.day}</option>
+            <option value="week">{text.filters.week}</option>
+            <option value="month">{text.filters.month}</option>
+            <option value="6months">{text.filters.sixMonths}</option>
+            <option value="year">{text.filters.year}</option>
+          </select>
+
           <div className="table-btns">
-            <button className="t-btn" onClick={handleExportExcel}>{text.exportBtn}</button>
-            <button className="t-btn" onClick={() => fileInputRef.current?.click()}>{text.importBtn}</button>
+            <button className="t-btn" onClick={handleExportExcel}>
+              {lang === 'ar' ? 'تصدير 📥' : 'Export 📥'}
+            </button>
+            <button className="t-btn" onClick={() => fileInputRef.current?.click()}>
+              {lang === 'ar' ? 'استيراد 📂' : 'Import 📂'}
+            </button>
             <input type="file" ref={fileInputRef} onChange={handleImportJson} accept=".json" style={{ display: 'none' }} />
           </div>
         </div>
@@ -659,7 +727,7 @@ export default function PoliciesGeneratorAE() {
                       <div style={{ fontWeight: 900, color: '#0f172a' }}>{item.storeName}</div>
                       {item.createdAt && <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', fontWeight: 600 }}>🕒 {item.createdAt}</div>}
                     </td>
-                    <td><span style={{ fontWeight: 800, color: '#047857' }}>{item.policyType}</span></td>
+                    <td><span style={{ fontWeight: 800, color: '#8A1538' }}>{item.policyType}</span></td>
                     <td>
                       <div style={{ fontSize: '12.5px', color: '#334155' }}>{item.supportEmail}</div>
                       <div style={{ fontSize: '11.5px', color: '#64748b' }}>{item.supportPhone}</div>
@@ -679,7 +747,7 @@ export default function PoliciesGeneratorAE() {
               <tfoot>
                 <tr className="tfoot-row">
                   <td colSpan={4} style={{ textAlign: 'center' }}>{text.table.totalLabel}</td>
-                  <td>{items.length} {text.table.policiesCount}</td>
+                  <td>{filteredItems.length} {text.table.policiesCount}</td>
                 </tr>
               </tfoot>
             )}
