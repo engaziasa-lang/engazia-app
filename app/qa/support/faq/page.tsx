@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 
-export default function FAQPageAE() {
+export default function FAQPageQA() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
   const LEMON_CHECKOUT_URL = 'https://enjazya.lemonsqueezy.com/checkout/buy/dce1dd80-3422-43ba-aed5-8ef2dcd38d6d';
 
@@ -13,19 +13,19 @@ export default function FAQPageAE() {
       if (savedLang) {
         setLang(savedLang);
       }
-      document.title = savedLang === 'en' ? 'Enjazya | FAQ (UAE)' : 'إنجازيا | الأسئلة الشائعة (الإمارات)';
+      document.title = savedLang === 'en' ? 'Enjazya | FAQ (Qatar)' : 'إنجازيا | الأسئلة الشائعة (قطر)';
     }
   }, []);
 
   const t = {
     ar: {
       title: 'الأسئلة الشائعة 💡',
-      desc: 'إجابات وافية عن كل ما تحتاج لمعرفته حول منصة إنجازيا (الإمارات)',
+      desc: 'إجابات وافية عن كل ما تحتاج لمعرفته حول منصة إنجازيا (قطر)',
       back: '← عودة للمنصة',
       otherTitle: 'هل لديك استفسار آخر؟',
       otherDesc: 'فريق الدعم الفني جاهز لمساعدتك في أي وقت.',
       contactBtn: 'تواصل معنا 🎧',
-      subBtn: 'اشترك بـ 49.99 د.إ ⚡',
+      subBtn: 'اشترك بـ 49.99 ر.ق ⚡',
       faqs: [
         {
           q: 'كيف تعمل أدوات منصة إنجازيا ومن المسؤول عن حماية بيانات متجري؟',
@@ -37,7 +37,7 @@ export default function FAQPageAE() {
         },
         {
           q: 'كم سعر الاشتراك الشهري وهل يشمل جميع الأدوات؟',
-          a: 'الاشتراك يمنحك وصولاً كاملاً وغير محدود لجميع الأدوات الـ 24. العرض الساري حالياً يتيح لك الاشتراك بـ 49.99 د.إ شهرياً بدلاً من السعر السابق 299 د.إ (بتخفيض حصري 83% لفترة محدودة).'
+          a: 'الاشتراك يمنحك وصولاً كاملاً وغير محدود لجميع الأدوات. العرض الساري حالياً يتيح لك الاشتراك بـ 49.99 ر.ق شهرياً بدلاً من السعر السابق (بتخفيض حصري لفترة محدودة).'
         },
         {
           q: 'هل يمكنني استعادة بياناتي أو نقلها بين الأجهزة؟',
@@ -47,12 +47,12 @@ export default function FAQPageAE() {
     },
     en: {
       title: 'Frequently Asked Questions 💡',
-      desc: 'Comprehensive answers to everything you need to know about the Enjazya platform (UAE)',
+      desc: 'Comprehensive answers to everything you need to know about the Enjazya platform (Qatar)',
       back: '→ Back to Hub',
       otherTitle: 'Have another question?',
       otherDesc: 'Our technical support team is ready to help you at any time.',
       contactBtn: 'Contact Us 🎧',
-      subBtn: 'Subscribe for 49.99 AED ⚡',
+      subBtn: 'Subscribe for 49.99 QAR ⚡',
       faqs: [
         {
           q: 'How do Enjazya tools work and who is responsible for protecting my store data?',
@@ -64,7 +64,7 @@ export default function FAQPageAE() {
         },
         {
           q: 'How much is the monthly subscription and does it include all tools?',
-          a: 'The subscription grants you full and unlimited access to all 24 tools. The current active offer allows you to subscribe for 49.99 AED monthly instead of the previous 299 AED (an 83% exclusive discount for a limited time).'
+          a: 'The subscription grants you full and unlimited access to all tools. The current active offer allows you to subscribe for 49.99 QAR monthly instead of the regular price (exclusive discount for a limited time).'
         },
         {
           q: 'Can I restore my data or transfer it between devices?',
@@ -86,7 +86,7 @@ export default function FAQPageAE() {
             <h1 style={{ fontSize: '32px', fontWeight: 900, color: '#0f172a', margin: '0 0 10px 0' }}>{text.title}</h1>
             <p style={{ color: '#64748b', fontSize: '15px', margin: 0 }}>{text.desc}</p>
           </div>
-          <Link href="/hub/ae" style={{ background: '#ffffff', border: '1px solid #cbd5e1', color: '#334155', padding: '10px 20px', borderRadius: '8px', textDecoration: 'none', fontWeight: 700, fontSize: '14px', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
+          <Link href="/hub/qa" style={{ background: '#FAF0F2', border: '1px solid #EBB8C6', color: '#8A1538', padding: '10px 20px', borderRadius: '8px', textDecoration: 'none', fontWeight: 700, fontSize: '14px', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
             {text.back}
           </Link>
         </div>
@@ -100,12 +100,12 @@ export default function FAQPageAE() {
           ))}
         </div>
 
-        <div style={{ background: '#ecfdf5', border: '1px solid #a7f3d0', padding: '30px', borderRadius: '16px', textAlign: 'center' }}>
-          <h3 style={{ color: '#065f46', fontSize: '20px', fontWeight: 900, marginBottom: '10px' }}>{text.otherTitle}</h3>
-          <p style={{ color: '#047857', fontSize: '15px', marginBottom: '20px', fontWeight: 700 }}>{text.otherDesc}</p>
+        <div style={{ background: '#FAF0F2', border: '1px solid #EBB8C6', padding: '30px', borderRadius: '16px', textAlign: 'center' }}>
+          <h3 style={{ color: '#6A102B', fontSize: '20px', fontWeight: 900, marginBottom: '10px' }}>{text.otherTitle}</h3>
+          <p style={{ color: '#8A1538', fontSize: '15px', marginBottom: '20px', fontWeight: 700 }}>{text.otherDesc}</p>
           <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', flexWrap: 'wrap', flexDirection: lang === 'ar' ? 'row' : 'row-reverse' }}>
-            <Link href="/ae/support/contact" style={{ background: '#047857', color: '#fff', padding: '12px 24px', borderRadius: '8px', textDecoration: 'none', fontWeight: 900, fontSize: '14px' }}>{text.contactBtn}</Link>
-            <a href={LEMON_CHECKOUT_URL} target="_blank" rel="noopener noreferrer" style={{ background: '#8b5cf6', color: '#fff', padding: '12px 24px', borderRadius: '8px', textDecoration: 'none', fontWeight: 900, fontSize: '14px' }}>{text.subBtn}</a>
+            <Link href="/qa/support/contact" style={{ background: '#8A1538', color: '#fff', padding: '12px 24px', borderRadius: '8px', textDecoration: 'none', fontWeight: 900, fontSize: '14px' }}>{text.contactBtn}</Link>
+            <a href={LEMON_CHECKOUT_URL} target="_blank" rel="noopener noreferrer" style={{ background: '#6A102B', color: '#fff', padding: '12px 24px', borderRadius: '8px', textDecoration: 'none', fontWeight: 900, fontSize: '14px' }}>{text.subBtn}</a>
           </div>
         </div>
       </div>
