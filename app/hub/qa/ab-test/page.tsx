@@ -43,14 +43,16 @@ export default function ABTestingCalculatorQA() {
 
   useEffect(() => {
     setIsClient(true);
+    // استخدام مفتاح التفعيل الخاص بقطر فقط
     setIsActivated(!!localStorage.getItem('merchant_license_key_qa'));
     
-    // قراءة اللغة من الصفحة الرئيسية
+    // قراءة اللغة
     const savedLang = localStorage.getItem('seerk_global_lang') as 'ar' | 'en';
     if (savedLang) {
       setLang(savedLang);
     }
     
+    // استخدام مساحة حفظ منفصلة تماماً للسوق القطري
     const saved = localStorage.getItem('seerk_qa_ab_testing_items');
     if (saved) {
       try { 
@@ -206,10 +208,10 @@ export default function ABTestingCalculatorQA() {
     if (cpaA > 0 && cpaB > 0) {
       if (cpaA < cpaB) {
         winnerText = `${text.winners.winA} - ${campAName || text.winners.noName}`;
-        winnerColor = '#047857'; // لون الحملة أ
+        winnerColor = '#047857';
       } else if (cpaB < cpaA) {
         winnerText = `${text.winners.winB} - ${campBName || text.winners.noName}`;
-        winnerColor = '#0284c7'; // لون الحملة ب
+        winnerColor = '#0284c7';
       } else {
         winnerText = text.winners.tie;
         winnerColor = '#d97706';
@@ -424,7 +426,7 @@ export default function ABTestingCalculatorQA() {
         .input-wrapper input:focus { border-color: #8A1538; background: #ffffff; }
         .currency-tag { position: absolute; ${lang === 'ar' ? 'left: 14px;' : 'right: 14px;'} color: #64748b; font-weight: 800; font-size: 13px; pointer-events: none; }
         
-        /* تلوين الزر الأساسي باللون القطري */
+        /* تلوين الزر الأساسي باللون القطري العنابي */
         .action-btn { background: #8A1538; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
         .action-btn:hover { background: #6A102B; }
 
