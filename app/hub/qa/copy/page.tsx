@@ -11,9 +11,10 @@ interface CopyItem {
   offerText: string;
   generatedScript: string;
   createdAt?: string;
+  timestamp?: number; // تمت الإضافة للفرز الزمني
 }
 
-export default function ExploredCopywritingAE() {
+export default function ExploredCopywritingQA() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
   
   const [productName, setProductName] = useState<string>('');
@@ -25,11 +26,18 @@ export default function ExploredCopywritingAE() {
 
   const [items, setItems] = useState<CopyItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [dateFilter, setDateFilter] = useState<string>('all'); // الفرز الزمني
   const [editingId, setEditingId] = useState<string | null>(null);
+
+  const [isClient, setIsClient] = useState(false);
+  const [isActivated, setIsActivated] = useState(true);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    setIsClient(true);
+    setIsActivated(!!localStorage.getItem('merchant_license_key_qa'));
+
     const savedLang = localStorage.getItem('seerk_global_lang') as 'ar' | 'en';
     if (savedLang) {
       setLang(savedLang);
@@ -38,19 +46,19 @@ export default function ExploredCopywritingAE() {
     // وضع قيم افتراضية بناءً على اللغة
     if (savedLang === 'en') {
       setProductName('Luxury Enjazya Perfume');
-      setContentSelect('TikTok Video Ad (Enthusiastic)');
-      setCustomContentType('TikTok Video Ad (Enthusiastic)');
+      setContentSelect('TikTok Video Ad (Enthusiastic) 🎬');
+      setCustomContentType('TikTok Video Ad (Enthusiastic) 🎬');
       setProblemSolved('Looking for a luxury perfume that lasts all day at a great price?');
       setOfferText('30% OFF + Free Shipping for the first 100 orders');
     } else {
       setProductName('عطر إنجازيا الفاخر');
-      setContentSelect('إعلان فيديو تيك توك (حماسي)');
-      setCustomContentType('إعلان فيديو تيك توك (حماسي)');
+      setContentSelect('إعلان فيديو تيك توك (حماسي) 🎬');
+      setCustomContentType('إعلان فيديو تيك توك (حماسي) 🎬');
       setProblemSolved('تدور على عطر فخم يثبت معاك طول اليوم وبسعر مناسب؟');
       setOfferText('خصم 30% + توصيل مجاني لأول 100 طلب');
     }
 
-    const saved = localStorage.getItem('seerk_ae_copywriting_items');
+    const saved = localStorage.getItem('seerk_qa_copywriting_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
@@ -59,7 +67,7 @@ export default function ExploredCopywritingAE() {
   const t = {
     ar: {
       back: '← عودة للمنصة',
-      title: 'مولد نصوص الإكسبلور باللهجة الإماراتية ✍️',
+      title: 'مولد نصوص الإكسبلور باللهجة القطرية ✍️',
       desc: 'اصنع سكريبتات تيك توك وإعلانات جذابة باللهجة المحلية لزيادة تفاعل العملاء ومعدل التحويل',
       editTitle: 'تعديل السكريبت',
       newTitle: 'توليد سكريبت إعلاني جديد',
@@ -84,15 +92,23 @@ export default function ExploredCopywritingAE() {
       searchPH: '🔍 بحث باسم المنتج أو نوع المحتوى...',
       exportBtn: '📥 تصدير Excel',
       importBtn: '📂 استيراد',
+      filters: {
+        all: 'الكل',
+        day: 'آخر يوم',
+        week: 'آخر أسبوع',
+        month: 'آخر شهر',
+        sixMonths: 'آخر 6 أشهر',
+        year: 'آخر سنة'
+      },
       table: {
-        noData: 'لا توجد سكريبتات مسجلة حالياً.',
+        noData: 'لا توجد سكريبتات مطابقة للبحث حالياً.',
         th1: '#',
         th2: 'المنتج والتاريخ',
         th3: 'نوع المحتوى',
         th4: 'العرض التسويقي',
         th5: 'الإجراءات',
         copy: '📋 نسخ',
-        total: 'إجمالي السكريبتات المسجلة',
+        total: 'إجمالي السكريبتات المعروضة',
         scriptCount: 'سكريبت'
       },
       alerts: {
@@ -109,7 +125,7 @@ export default function ExploredCopywritingAE() {
     },
     en: {
       back: '→ Back to Hub',
-      title: 'Explore Copywriting Generator (UAE) ✍️',
+      title: 'Explore Copywriting Generator (QA) ✍️',
       desc: 'Create catchy TikTok scripts and ads to boost engagement and conversions',
       editTitle: 'Edit Script',
       newTitle: 'Generate New Ad Script',
@@ -134,15 +150,23 @@ export default function ExploredCopywritingAE() {
       searchPH: '🔍 Search by product name or content type...',
       exportBtn: '📥 Export Excel',
       importBtn: '📂 Import',
+      filters: {
+        all: 'All Time',
+        day: 'Last Day',
+        week: 'Last Week',
+        month: 'Last Month',
+        sixMonths: 'Last 6 Months',
+        year: 'Last Year'
+      },
       table: {
-        noData: 'No scripts currently saved.',
+        noData: 'No scripts found matching your search.',
         th1: '#',
         th2: 'Product & Date',
         th3: 'Content Type',
         th4: 'Marketing Offer',
         th5: 'Actions',
         copy: '📋 Copy',
-        total: 'Total Saved Scripts',
+        total: 'Total Displayed Scripts',
         scriptCount: 'script(s)'
       },
       alerts: {
@@ -164,7 +188,7 @@ export default function ExploredCopywritingAE() {
   // تحديد نوع المحتوى النظيف
   const actualContentType = contentSelect === 'نوع آخر (كتابة يدوية)' || contentSelect === '➕ Other (Manual Entry)' ? customContentType : contentSelect;
 
-  // توليد السكريبت تلقائياً عند تغيير المدخلات
+  // توليد السكريبت تلقائياً عند تغيير المدخلات (معدل للهجة القطرية)
   useEffect(() => {
     const pName = productName.trim() || (lang === 'ar' ? 'المنتج' : 'the product');
     const prob = problemSolved.trim() || (lang === 'ar' ? 'تدور على الأفضل دايماً؟' : 'always looking for the best?');
@@ -173,14 +197,14 @@ export default function ExploredCopywritingAE() {
     if (lang === 'ar') {
       if (contentSelect.includes('تيك توك')) {
         setGeneratedScript(
-          `🎬 **[سكريبت إعلان تيك توك - باللهجة الإماراتية]**\n\n` +
+          `🎬 **[سكريبت إعلان تيك توك - باللهجة القطرية]**\n\n` +
           `🎵 *(موسيقى حماسية وترند في الخلفية)*\n\n` +
           `🗣️ **المشهد الأول (الخطاف - أول 3 ثواني):**\n` +
-          `"يا مرحبا الساع، إذا ${prob}.. ركزوا وياي للآخر لأن هالشي بيفرق معاكم وايد!"\n\n` +
+          `"يا هلا ومسهلا، إذا ${prob}.. ركزوا وياي للآخر لأن هالشي بيفرق معاكم وايد!"\n\n` +
           `🗣️ **المشهد الثاني (المشكلة والحل):**\n` +
-          `"وايد ندور على الجودة والشي الغاوي بس نلقى الأسعار نار.. لكن مع (${pName}) طاح الهم! المنتج فخم، عملي، ومصمم خصيصاً عشان يريحكم."\n\n` +
+          `"وايد ندور على الجودة والشي الزين بس نلقى الأسعار نار.. لكن مع (${pName}) طاح الهم! المنتج فخم، عملي، ومصمم خصيصاً عشان يريحكم."\n\n` +
           `🗣️ **المشهد الثالث (العرض والطلب من الإكسبلور):**\n` +
-          `"واللي يايين من الإكسبلور لهم بشارة طيبة: ${offer}!\n` +
+          `"واللي جايين من الإكسبلور لهم بشارة طيبة: ${offer}!\n` +
           `الكمية محدودة جداً، الحق اطلب قبل لا يخلص المخزون، الرابط تحت بالفيديو أو بالبايو! 🚀"`
         );
       } else if (contentSelect.includes('سناب شات')) {
@@ -192,7 +216,7 @@ export default function ExploredCopywritingAE() {
           `"شوفوا وياي الجودة والتفاصيل كيف ما شاء الله. شي فاخر من الآخر ويهدي البال."\n\n` +
           `🗣 **سنابة 3 (Call to Action):**\n` +
           `"وعشانكم غالين علينا، وفرنا لكم: ${offer}.\n` +
-          `ارفع الشاشة لفوق 👆 وطلبك يوصلك لباب بيتك وين ما كنت في الإمارات!"`
+          `ارفع الشاشة لفوق 👆 وطلبك يوصلك لباب بيتك وين ما كنت في قطر!"`
         );
       } else {
         setGeneratedScript(
@@ -200,7 +224,7 @@ export default function ExploredCopywritingAE() {
           `🔥 يا هلا بكل متابع ومتابعـة!\n\n` +
           `إذا كنت ${prob}، مالك إلا (${pName}).\n\n` +
           `💎 **ليش تختارنا؟**\n` +
-          `- جودة عالية تبيض الويه.\n` +
+          `- جودة عالية تبيض الوجه.\n` +
           `- خدمة عملاء على مدار الساعة.\n` +
           `- ${offer}.\n\n` +
           `🛒 لا تفوت الفرصة واطلب الحين عبر المتجر قبل نفاد الكمية!`
@@ -228,7 +252,7 @@ export default function ExploredCopywritingAE() {
           `"Just look at this quality and the details. Pure luxury that gives you absolute peace of mind."\n\n` +
           `🗣 **Snap 3 (Call to Action):**\n` +
           `"And because you guys are special, we got you: ${offer}.\n` +
-          `Swipe up 👆 and get it delivered straight to your door anywhere in the UAE!"`
+          `Swipe up 👆 and get it delivered straight to your door anywhere in Qatar!"`
         );
       } else {
         setGeneratedScript(
@@ -247,10 +271,8 @@ export default function ExploredCopywritingAE() {
 
   const saveToLocalStorage = (newItems: CopyItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_ae_copywriting_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_qa_copywriting_items', JSON.stringify(newItems));
   };
-
-  const isActivated = typeof window !== 'undefined' && !!localStorage.getItem('merchant_license_key');
 
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const val = e.target.value;
@@ -293,7 +315,7 @@ export default function ExploredCopywritingAE() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const localeStr = lang === 'ar' ? 'ar-AE' : 'en-AE';
+    const localeStr = lang === 'ar' ? 'ar-QA' : 'en-QA';
     const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
 
     if (editingId) {
@@ -304,7 +326,8 @@ export default function ExploredCopywritingAE() {
         problemSolved,
         offerText,
         generatedScript,
-        createdAt: item.createdAt || formattedDate
+        createdAt: item.createdAt || formattedDate,
+        timestamp: item.timestamp || now.getTime()
       } : item);
       saveToLocalStorage(updated);
       setEditingId(null);
@@ -317,9 +340,10 @@ export default function ExploredCopywritingAE() {
         problemSolved,
         offerText,
         generatedScript,
-        createdAt: formattedDate
+        createdAt: formattedDate,
+        timestamp: now.getTime()
       };
-      saveToLocalStorage([...items, newItem]);
+      saveToLocalStorage([newItem, ...items]);
       alert(text.alerts.saveSuccess);
     }
 
@@ -329,7 +353,6 @@ export default function ExploredCopywritingAE() {
   const handleEdit = (item: CopyItem) => {
     setProductName(item.productName);
     
-    // محاولة مطابقة أنواع المحتوى بغض النظر عن اللغة المحفوظة بها
     const isTiktok = item.contentType.includes('تيك توك') || item.contentType.includes('TikTok');
     const isSnap = item.contentType.includes('سناب شات') || item.contentType.includes('Snapchat');
     const isPost = item.contentType.includes('بوست') || item.contentType.includes('Post');
@@ -341,7 +364,7 @@ export default function ExploredCopywritingAE() {
     else matchedSelect = lang === 'ar' ? 'نوع آخر (كتابة يدوية)' : '➕ Other (Manual Entry)';
 
     setContentSelect(matchedSelect);
-    setCustomContentType(item.contentType); // يحتفظ بالنوع الفعلي
+    setCustomContentType(item.contentType);
     setProblemSolved(item.problemSolved);
     setOfferText(item.offerText);
     setGeneratedScript(item.generatedScript);
@@ -361,8 +384,30 @@ export default function ExploredCopywritingAE() {
     alert(text.alerts.copySuccess);
   };
 
+  // فلترة النتائج بناءً على البحث والفرز الزمني
+  const filteredItems = items.filter(item => {
+    const matchesSearch = item.productName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          item.contentType.toLowerCase().includes(searchQuery.toLowerCase());
+    let matchesDate = true;
+    
+    if (dateFilter !== 'all') {
+      const itemTime = item.timestamp || 0;
+      const now = Date.now();
+      const diff = now - itemTime;
+      const dayMs = 24 * 60 * 60 * 1000;
+      
+      if (dateFilter === 'day') matchesDate = diff <= dayMs;
+      else if (dateFilter === 'week') matchesDate = diff <= 7 * dayMs;
+      else if (dateFilter === 'month') matchesDate = diff <= 30 * dayMs;
+      else if (dateFilter === '6months') matchesDate = diff <= 180 * dayMs;
+      else if (dateFilter === 'year') matchesDate = diff <= 365 * dayMs;
+    }
+    
+    return matchesSearch && matchesDate;
+  });
+
   const handleExportExcel = () => {
-    if (items.length === 0) {
+    if (filteredItems.length === 0) {
       alert(text.alerts.noDataExp);
       return;
     }
@@ -393,7 +438,7 @@ export default function ExploredCopywritingAE() {
             <tbody>
     `;
 
-    items.forEach((row, idx) => {
+    filteredItems.forEach((row, idx) => {
       tableHtml += `
         <tr>
           <td>${idx + 1}</td>
@@ -411,7 +456,7 @@ export default function ExploredCopywritingAE() {
             <tfoot>
               <tr class="tfoot-row">
                 <td colspan="5">${text.table.total}</td>
-                <td>${items.length} ${text.table.scriptCount}</td>
+                <td>${filteredItems.length} ${text.table.scriptCount}</td>
               </tr>
             </tfoot>
           </table>
@@ -423,7 +468,7 @@ export default function ExploredCopywritingAE() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", "enjazya_ae_copywriting.xls");
+    link.setAttribute("download", `enjazya_qa_copywriting_${dateFilter}.xls`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -437,7 +482,8 @@ export default function ExploredCopywritingAE() {
         try {
           const imported = JSON.parse(event.target?.result as string);
           if (Array.isArray(imported)) {
-            saveToLocalStorage(imported);
+            const newItems = imported.filter(imp => !items.find(i => i.id === imp.id));
+            saveToLocalStorage([...newItems, ...items]);
             alert(text.alerts.importSuccess);
           }
         } catch (err) {
@@ -446,11 +492,6 @@ export default function ExploredCopywritingAE() {
       };
     }
   };
-
-  const filteredItems = items.filter(item => 
-    item.productName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.contentType.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   return (
     <div className="tool-container" style={{ direction: lang === 'ar' ? 'rtl' : 'ltr' }}>
@@ -485,20 +526,25 @@ export default function ExploredCopywritingAE() {
         .input-group label { display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 6px; }
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
         .input-wrapper input, .input-wrapper select, .input-wrapper textarea { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .input-wrapper input:focus, .input-wrapper select:focus, .input-wrapper textarea:focus { border-color: #047857; background: #ffffff; }
+        .input-wrapper input:focus, .input-wrapper select:focus, .input-wrapper textarea:focus { border-color: #8A1538; background: #ffffff; }
         
-        .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
-        .action-btn:hover { background: #065f46; }
+        .action-btn { background: #8A1538; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
+        .action-btn:hover { background: #6A102B; }
         
-        .copy-btn { background: #0369a1; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .copy-btn:hover { background: #0284c7; }
+        .copy-btn { background: #8A1538; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .copy-btn:hover { background: #6A102B; }
 
         .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
-        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .search-input { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; flex-grow: 1; max-width: 350px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .search-input:focus { border-color: #8A1538; }
+        
+        .filter-select { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; background: #fff; color: #334155; cursor: pointer; min-width: 130px; }
+        .filter-select:focus { border-color: #8A1538; }
+
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
-        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; }
-        .t-btn:hover { background: #f1f5f9; }
+        .t-btn { padding: 9px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .t-btn:hover { background: #f1f5f9; border-color: #8A1538; color: #8A1538; }
 
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 900px; }
@@ -509,7 +555,8 @@ export default function ExploredCopywritingAE() {
         .trial-badge { background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 800; }
         
         .tb-action-btn { border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; font-family: inherit;}
-        .btn-wa { background: #dcfce7; color: #166534; }
+        .btn-wa { background: #FAF0F2; color: #8A1538; border: 1px solid #EBB8C6; }
+        .btn-wa:hover { background: #8A1538; color: #ffffff; }
         .btn-edit { background: #e0f2fe; color: #0369a1; }
         .btn-delete { background: #fee2e2; color: #991b1b; }
       `}</style>
@@ -519,7 +566,7 @@ export default function ExploredCopywritingAE() {
           <h1>{text.title}</h1>
           <p>{text.desc}</p>
         </div>
-        <Link href="/hub/ae" className="back-btn">
+        <Link href="/hub/qa" className="back-btn">
           {text.back}
         </Link>
       </div>
@@ -533,7 +580,7 @@ export default function ExploredCopywritingAE() {
                 {text.clear}
               </button>
             </div>
-            {!isActivated && <span className="trial-badge">{text.trial}: {items.length}/3</span>}
+            {isClient && !isActivated && <span className="trial-badge">{text.trial}: {items.length}/3</span>}
           </h2>
 
           <form onSubmit={handleSaveItem}>
@@ -618,9 +665,27 @@ export default function ExploredCopywritingAE() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
+
+          <select 
+            className="filter-select"
+            value={dateFilter}
+            onChange={(e) => setDateFilter(e.target.value)}
+          >
+            <option value="all">{text.filters.all}</option>
+            <option value="day">{text.filters.day}</option>
+            <option value="week">{text.filters.week}</option>
+            <option value="month">{text.filters.month}</option>
+            <option value="6months">{text.filters.sixMonths}</option>
+            <option value="year">{text.filters.year}</option>
+          </select>
+
           <div className="table-btns">
-            <button className="t-btn" onClick={handleExportExcel}>{text.exportBtn}</button>
-            <button className="t-btn" onClick={() => fileInputRef.current?.click()}>{text.importBtn}</button>
+            <button className="t-btn" onClick={handleExportExcel}>
+              {lang === 'ar' ? 'تصدير 📥' : 'Export 📥'}
+            </button>
+            <button className="t-btn" onClick={() => fileInputRef.current?.click()}>
+              {lang === 'ar' ? 'استيراد 📂' : 'Import 📂'}
+            </button>
             <input type="file" ref={fileInputRef} onChange={handleImportJson} accept=".json" style={{ display: 'none' }} />
           </div>
         </div>
@@ -651,8 +716,8 @@ export default function ExploredCopywritingAE() {
                       <div style={{ fontWeight: 900, color: '#0f172a' }}>{item.productName}</div>
                       {item.createdAt && <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', fontWeight: 600 }}>🕒 {item.createdAt}</div>}
                     </td>
-                    <td><span style={{ fontWeight: 800, color: '#0369a1' }}>{item.contentType}</span></td>
-                    <td><span style={{ fontWeight: 700, color: '#047857' }}>{item.offerText}</span></td>
+                    <td><span style={{ fontWeight: 800, color: '#8A1538' }}>{item.contentType}</span></td>
+                    <td><span style={{ fontWeight: 700, color: '#6A102B' }}>{item.offerText}</span></td>
                     <td>
                       <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                         <button className="tb-action-btn btn-wa" onClick={() => { navigator.clipboard.writeText(item.generatedScript); alert(text.alerts.copySuccess); }} title={text.table.copy}>{text.table.copy}</button>
@@ -668,7 +733,7 @@ export default function ExploredCopywritingAE() {
               <tfoot>
                 <tr className="tfoot-row">
                   <td colSpan={4} style={{ textAlign: 'center' }}>{text.table.total}</td>
-                  <td>{items.length} {text.table.scriptCount}</td>
+                  <td>{filteredItems.length} {text.table.scriptCount}</td>
                 </tr>
               </tfoot>
             )}
