@@ -12,9 +12,10 @@ interface TaxItem {
   vatAmount: number;
   totalAmount: number;
   createdAt?: string;
+  timestamp?: number; // تمت الإضافة للفرز الزمني
 }
 
-export default function TaxReturnPreparerAE() {
+export default function TaxReturnPreparerQA() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
 
   const [invoiceDate, setInvoiceDate] = useState<string>('');
@@ -25,6 +26,7 @@ export default function TaxReturnPreparerAE() {
 
   const [items, setItems] = useState<TaxItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [dateFilter, setDateFilter] = useState<string>('all'); // الفرز الزمني
   const [editingId, setEditingId] = useState<string | null>(null);
   
   const [isClient, setIsClient] = useState(false);
@@ -34,7 +36,7 @@ export default function TaxReturnPreparerAE() {
 
   useEffect(() => {
     setIsClient(true);
-    setIsActivated(!!localStorage.getItem('merchant_license_key'));
+    setIsActivated(!!localStorage.getItem('merchant_license_key_qa'));
     
     const savedLang = localStorage.getItem('seerk_global_lang') as 'ar' | 'en';
     if (savedLang) {
@@ -42,12 +44,12 @@ export default function TaxReturnPreparerAE() {
     }
 
     if (savedLang === 'en') {
-      setTransactionType('Sales (Collected VAT) ↗');
+      setTransactionType('Sales (Collected Tax) ↗');
     } else {
       setTransactionType('مبيعات (ضريبة محصلة) ↗');
     }
     
-    const saved = localStorage.getItem('seerk_ae_tax_return_items');
+    const saved = localStorage.getItem('seerk_qa_tax_return_items');
     if (saved) {
       try { 
         const parsedData = JSON.parse(saved);
@@ -58,7 +60,7 @@ export default function TaxReturnPreparerAE() {
 
   const saveToLocalStorage = (newItems: TaxItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_ae_tax_return_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_qa_tax_return_items', JSON.stringify(newItems));
   };
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -69,7 +71,7 @@ export default function TaxReturnPreparerAE() {
     } else {
       const numVal = Number(val);
       setAmountBeforeVat(numVal);
-      setVatAmount(Number((numVal * 0.05).toFixed(2)));
+      setVatAmount(Number((numVal * 0.05).toFixed(2))); // افتراضي 5% إن وجد
     }
   };
 
@@ -77,7 +79,7 @@ export default function TaxReturnPreparerAE() {
     ar: {
       back: '← عودة للمنصة',
       title: 'مجهز بيانات الإقرار الضريبي 📄',
-      desc: 'اجمع ورتب بيانات مبيعاتك ومشترياتك لتسهيل رفع الإقرار الضريبي للهيئة الاتحادية للضرائب (FTA) بدون أخطاء',
+      desc: 'اجمع ورتب بيانات مبيعاتك ومشترياتك لتسهيل رفع الإقرار الضريبي للهيئة العامة للضرائب (GTA) بقطر بدون أخطاء',
       editRecord: 'تعديل الفاتورة',
       newRecord: 'إضافة فاتورة جديدة للسجل',
       clear: '🧹 مسح الحقول',
@@ -89,43 +91,51 @@ export default function TaxReturnPreparerAE() {
       optSales: 'مبيعات (ضريبة محصلة) ↗',
       optPurchases: 'مشتريات (ضريبة مدفوعة) ↙️',
       amtBefore: 'المبلغ قبل الضريبة',
-      vatAmt: 'قيمة الضريبة المضافة 5% (محسوبة آلياً)',
-      vatNote: '* يمكنك تعديل الفلوس يدوياً إذا اختلفت عن الفاتورة الأصلية.',
+      vatAmt: 'قيمة الضريبة المضافة (محسوبة آلياً)',
+      vatNote: '* يمكنك تعديل المبلغ يدوياً إذا اختلف عن الفاتورة الأصلية.',
       saveBtnNew: '+ حفظ الفاتورة في السجل',
       saveBtnEdit: '💾 حفظ التعديلات',
       analysisTitle: 'مؤشرات الإقرار الضريبي الحية',
-      netVatDue: 'صافي الضريبة المستحقة (FTA)',
+      netVatDue: 'صافي الضريبة المستحقة (GTA)',
       netVatPos: 'مبلغ واجب السداد للهيئة',
       netVatNeg: 'رصيد دائن مسترد لك',
       totalSalesVat: 'إجمالي ضريبة المبيعات المحصلة',
       totalPurchVat: 'إجمالي ضريبة المشتريات المدفوعة',
-      currency: 'د.إ',
+      currency: 'ر.ق',
       searchPH: '🔍 بحث برقم الفاتورة أو النوع...',
       exportBtn: '📥 تصدير الإقرار (Excel)',
       importBtn: '📂 استيراد',
       noNum: 'بدون رقم',
+      filters: {
+        all: 'الكل',
+        day: 'آخر يوم',
+        week: 'آخر أسبوع',
+        month: 'آخر شهر',
+        sixMonths: 'آخر 6 أشهر',
+        year: 'آخر سنة'
+      },
       table: {
-        noRecords: 'سجل الفواتير فارغ حالياً.',
+        noRecords: 'سجل الفواتير مطابقة لبحثك في السجل.',
         th1: '#',
         th2: 'الفاتورة والتاريخ',
         th3: 'نوع المعاملة',
         th4: 'المبلغ (بدون ضريبة)',
-        th5: 'الضريبة (5%)',
+        th5: 'الضريبة',
         th6: 'الإجمالي',
         th7: 'الإجراءات',
-        netDue: 'الصافي المستحق (FTA)'
+        netDue: 'الصافي المستحق (GTA)'
       },
       export: {
         title: 'تقرير الإقرار الضريبي المبدئي',
         salesVat: 'إجمالي ضريبة المبيعات',
         purchVat: 'إجمالي ضريبة المشتريات',
-        netVat: 'صافي الضريبة المستحقة (FTA)',
+        netVat: 'صافي الضريبة المستحقة (GTA)',
         thDate: 'تاريخ الفاتورة',
         thInvNum: 'رقم الفاتورة',
         thType: 'نوع المعاملة',
         thInputDate: 'تاريخ الإدخال',
         thAmtBefore: 'المبلغ (قبل الضريبة)',
-        thVat: 'قيمة الضريبة (5%)',
+        thVat: 'قيمة الضريبة',
         thTotal: 'المبلغ الإجمالي'
       },
       alerts: {
@@ -142,7 +152,7 @@ export default function TaxReturnPreparerAE() {
     en: {
       back: '→ Back to Hub',
       title: 'Tax Return Preparer 📄',
-      desc: 'Collect and organize your sales and purchases to easily file your tax return with the FTA without errors',
+      desc: 'Collect and organize your sales and purchases to easily file your tax return with Qatar GTA without errors',
       editRecord: 'Edit Invoice',
       newRecord: 'Add New Invoice to Log',
       clear: '🧹 Clear Fields',
@@ -151,46 +161,54 @@ export default function TaxReturnPreparerAE() {
       invNum: 'Invoice Number (Optional)',
       invNumPH: 'e.g. INV-1002',
       transType: 'Transaction Type',
-      optSales: 'Sales (Collected VAT) ↗',
-      optPurchases: 'Purchases (Paid VAT) ↙️',
+      optSales: 'Sales (Collected Tax) ↗',
+      optPurchases: 'Purchases (Paid Tax) ↙️',
       amtBefore: 'Amount Before VAT',
-      vatAmt: 'VAT Amount 5% (Auto-calculated)',
+      vatAmt: 'VAT Amount (Auto-calculated)',
       vatNote: '* You can manually edit the amount if it differs from the original invoice.',
       saveBtnNew: '+ Save Invoice to Log',
       saveBtnEdit: '💾 Save Changes',
       analysisTitle: 'Live Tax Return Indicators',
-      netVatDue: 'Net VAT Due (FTA)',
+      netVatDue: 'Net VAT Due (GTA)',
       netVatPos: 'Amount payable to the authority',
       netVatNeg: 'Creditor balance refundable to you',
       totalSalesVat: 'Total Sales VAT Collected',
       totalPurchVat: 'Total Purchases VAT Paid',
-      currency: 'AED',
+      currency: 'QAR',
       searchPH: '🔍 Search by invoice number or type...',
       exportBtn: '📥 Export Return (Excel)',
       importBtn: '📂 Import',
       noNum: 'No Number',
+      filters: {
+        all: 'All Time',
+        day: 'Last Day',
+        week: 'Last Week',
+        month: 'Last Month',
+        sixMonths: 'Last 6 Months',
+        year: 'Last Year'
+      },
       table: {
-        noRecords: 'Invoice log is currently empty.',
+        noRecords: 'No invoices currently match your search.',
         th1: '#',
         th2: 'Invoice & Date',
         th3: 'Transaction Type',
         th4: 'Amount (Excl. VAT)',
-        th5: 'VAT (5%)',
+        th5: 'VAT',
         th6: 'Total',
         th7: 'Actions',
-        netDue: 'Net Due (FTA)'
+        netDue: 'Net Due (GTA)'
       },
       export: {
         title: 'Preliminary Tax Return Report',
         salesVat: 'Total Sales VAT',
         purchVat: 'Total Purchases VAT',
-        netVat: 'Net VAT Due (FTA)',
+        netVat: 'Net VAT Due (GTA)',
         thDate: 'Invoice Date',
         thInvNum: 'Invoice Number',
         thType: 'Transaction Type',
         thInputDate: 'Entry Date',
         thAmtBefore: 'Amount (Excl. VAT)',
-        thVat: 'VAT Amount (5%)',
+        thVat: 'VAT Amount',
         thTotal: 'Total Amount'
       },
       alerts: {
@@ -235,7 +253,7 @@ export default function TaxReturnPreparerAE() {
     const totalAmount = amtBefore + vat;
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const localeStr = lang === 'ar' ? 'ar-AE' : 'en-AE';
+    const localeStr = lang === 'ar' ? 'ar-QA' : 'en-QA';
     const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
 
     if (editingId) {
@@ -247,7 +265,8 @@ export default function TaxReturnPreparerAE() {
         amountBeforeVat: amtBefore,
         vatAmount: vat,
         totalAmount: Number(totalAmount.toFixed(2)),
-        createdAt: item.createdAt || formattedDate
+        createdAt: item.createdAt || formattedDate,
+        timestamp: item.timestamp || now.getTime()
       } : item);
       saveToLocalStorage(updated);
       setEditingId(null);
@@ -261,9 +280,10 @@ export default function TaxReturnPreparerAE() {
         amountBeforeVat: amtBefore,
         vatAmount: vat,
         totalAmount: Number(totalAmount.toFixed(2)),
-        createdAt: formattedDate
+        createdAt: formattedDate,
+        timestamp: now.getTime()
       };
-      saveToLocalStorage([...items, newItem]);
+      saveToLocalStorage([newItem, ...items]); // حفظ الجديد في الأعلى
       alert(text.alerts.saveSuccess);
     }
 
@@ -290,8 +310,30 @@ export default function TaxReturnPreparerAE() {
     }
   };
 
-  const salesItems = items.filter(i => i.transactionType.includes('مبيعات') || i.transactionType.includes('Sales'));
-  const purchaseItems = items.filter(i => i.transactionType.includes('مشتريات') || i.transactionType.includes('Purchases'));
+  // فلترة النتائج بناءً على البحث والفرز الزمني
+  const filteredItems = items.filter(item => {
+    const matchesSearch = (item?.invoiceNumber || '').toLowerCase().includes((searchQuery || '').toLowerCase()) ||
+                          (item?.transactionType || '').toLowerCase().includes((searchQuery || '').toLowerCase());
+    let matchesDate = true;
+    
+    if (dateFilter !== 'all') {
+      const itemTime = item.timestamp || 0;
+      const now = Date.now();
+      const diff = now - itemTime;
+      const dayMs = 24 * 60 * 60 * 1000;
+      
+      if (dateFilter === 'day') matchesDate = diff <= dayMs;
+      else if (dateFilter === 'week') matchesDate = diff <= 7 * dayMs;
+      else if (dateFilter === 'month') matchesDate = diff <= 30 * dayMs;
+      else if (dateFilter === '6months') matchesDate = diff <= 180 * dayMs;
+      else if (dateFilter === 'year') matchesDate = diff <= 365 * dayMs;
+    }
+    
+    return matchesSearch && matchesDate;
+  });
+
+  const salesItems = filteredItems.filter(i => i.transactionType.includes('مبيعات') || i.transactionType.includes('Sales'));
+  const purchaseItems = filteredItems.filter(i => i.transactionType.includes('مشتريات') || i.transactionType.includes('Purchases'));
 
   const totalSalesVat = salesItems.reduce((acc, curr) => acc + curr.vatAmount, 0);
   const totalPurchaseVat = purchaseItems.reduce((acc, curr) => acc + curr.vatAmount, 0);
@@ -299,7 +341,7 @@ export default function TaxReturnPreparerAE() {
   const netVatDue = totalSalesVat - totalPurchaseVat;
 
   const handleExportExcel = () => {
-    if (items.length === 0) {
+    if (filteredItems.length === 0) {
       alert(text.alerts.noDataExp);
       return;
     }
@@ -337,7 +379,7 @@ export default function TaxReturnPreparerAE() {
             <tbody>
     `;
 
-    items.forEach((row, idx) => {
+    filteredItems.forEach((row, idx) => {
       tableHtml += `
         <tr>
           <td>${idx + 1}</td>
@@ -363,7 +405,7 @@ export default function TaxReturnPreparerAE() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", "enjazya_ae_tax_return_data.xls");
+    link.setAttribute("download", `enjazya_qa_tax_return_data_${dateFilter}.xls`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -377,7 +419,8 @@ export default function TaxReturnPreparerAE() {
         try {
           const imported = JSON.parse(event.target?.result as string);
           if (Array.isArray(imported)) {
-            saveToLocalStorage(imported);
+            const newItems = imported.filter(imp => !items.find(i => i.id === imp.id));
+            saveToLocalStorage([...newItems, ...items]);
             alert(text.alerts.importSuccess);
           }
         } catch (err) {
@@ -386,11 +429,6 @@ export default function TaxReturnPreparerAE() {
       };
     }
   };
-
-  const filteredItems = items.filter(item => 
-    (item?.invoiceNumber || '').toLowerCase().includes((searchQuery || '').toLowerCase()) ||
-    (item?.transactionType || '').toLowerCase().includes((searchQuery || '').toLowerCase())
-  );
 
   return (
     <div className="tool-container" lang={lang} style={{ direction: lang === 'ar' ? 'rtl' : 'ltr' }}>
@@ -426,24 +464,28 @@ export default function TaxReturnPreparerAE() {
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
         .input-wrapper input, .input-wrapper select { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .input-wrapper input.with-currency { padding-${lang === 'ar' ? 'left' : 'right'}: 45px; }
-        .input-wrapper input:focus, .input-wrapper select:focus { border-color: #047857; background: #ffffff; }
+        .input-wrapper input:focus, .input-wrapper select:focus { border-color: #8A1538; background: #ffffff; }
         .currency-tag { position: absolute; ${lang === 'ar' ? 'left: 14px;' : 'right: 14px;'} color: #64748b; font-weight: 800; font-size: 13px; pointer-events: none; }
         
-        .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
-        .action-btn:hover { background: #065f46; }
+        .action-btn { background: #8A1538; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
+        .action-btn:hover { background: #6A102B; }
 
         .result-box { background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .result-label { font-size: 13px; font-weight: 700; color: #64748b; }
-        .primary .result-label { color: #ffffff; opacity: 0.9; }
         .result-value { font-size: 18px; font-weight: 900; color: #0f172a; }
-        .primary .result-value { font-size: 26px; color: #ffffff; }
 
         .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
-        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        
+        .search-input { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; flex-grow: 1; max-width: 350px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .search-input:focus { border-color: #8A1538; }
+        
+        .filter-select { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; background: #fff; color: #334155; cursor: pointer; min-width: 130px; }
+        .filter-select:focus { border-color: #8A1538; }
+
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
-        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; }
-        .t-btn:hover { background: #f1f5f9; }
+        .t-btn { padding: 9px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .t-btn:hover { background: #f1f5f9; border-color: #8A1538; color: #8A1538; }
 
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 900px; }
@@ -463,7 +505,7 @@ export default function TaxReturnPreparerAE() {
           <h1>{text.title}</h1>
           <p>{text.desc}</p>
         </div>
-        <Link href="/hub/ae" className="back-btn">
+        <Link href="/hub/qa" className="back-btn">
           {text.back}
         </Link>
       </div>
@@ -487,7 +529,7 @@ export default function TaxReturnPreparerAE() {
                 <div className="input-wrapper">
                   <input 
                     type="date" 
-                    lang={lang === 'ar' ? 'ar-AE' : 'en-US'} 
+                    lang={lang === 'ar' ? 'ar-QA' : 'en-US'} 
                     value={invoiceDate} 
                     onChange={(e) => setInvoiceDate(e.target.value)} 
                     required 
@@ -539,7 +581,7 @@ export default function TaxReturnPreparerAE() {
         <div className="card">
           <h2 className="card-title">{text.analysisTitle}</h2>
 
-          <div className="result-box primary" style={{ background: netVatDue >= 0 ? 'linear-gradient(135deg, #047857 0%, #065f46 100%)' : 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)', color: '#fff' }}>
+          <div className="result-box" style={{ background: netVatDue >= 0 ? 'linear-gradient(135deg, #8A1538 0%, #6A102B 100%)' : 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)', color: '#fff' }}>
             <div>
               <div className="result-label" style={{ color: '#fff' }}>{text.netVatDue}</div>
               <div style={{ fontSize: '11px', opacity: 0.9, marginTop: '2px' }}>{netVatDue >= 0 ? text.netVatPos : text.netVatNeg}</div>
@@ -549,9 +591,9 @@ export default function TaxReturnPreparerAE() {
             </div>
           </div>
 
-          <div className="result-box" style={{ borderRight: lang === 'ar' ? '4px solid #047857' : 'none', borderLeft: lang === 'en' ? '4px solid #047857' : 'none' }}>
+          <div className="result-box" style={{ borderRight: lang === 'ar' ? '4px solid #8A1538' : 'none', borderLeft: lang === 'en' ? '4px solid #8A1538' : 'none' }}>
             <span className="result-label">{text.totalSalesVat}</span>
-            <span className="result-value" style={{ color: '#047857' }}>{totalSalesVat.toFixed(2)} {text.currency}</span>
+            <span className="result-value" style={{ color: '#8A1538' }}>{totalSalesVat.toFixed(2)} {text.currency}</span>
           </div>
 
           <div className="result-box" style={{ borderRight: lang === 'ar' ? '4px solid #d97706' : 'none', borderLeft: lang === 'en' ? '4px solid #d97706' : 'none', background: '#f8fafc' }}>
@@ -570,6 +612,20 @@ export default function TaxReturnPreparerAE() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
+
+          <select 
+            className="filter-select"
+            value={dateFilter}
+            onChange={(e) => setDateFilter(e.target.value)}
+          >
+            <option value="all">{text.filters.all}</option>
+            <option value="day">{text.filters.day}</option>
+            <option value="week">{text.filters.week}</option>
+            <option value="month">{text.filters.month}</option>
+            <option value="sixMonths">{text.filters.sixMonths}</option>
+            <option value="year">{text.filters.year}</option>
+          </select>
+
           <div className="table-btns">
             <button className="t-btn" onClick={handleExportExcel}>{text.exportBtn}</button>
             <button className="t-btn" onClick={() => fileInputRef.current?.click()}>{text.importBtn}</button>
@@ -608,12 +664,12 @@ export default function TaxReturnPreparerAE() {
                         <div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px', fontWeight: 600 }}>📅 {item.invoiceDate}</div>
                       </td>
                       <td>
-                        <span style={{ color: isSales ? '#047857' : '#d97706', background: isSales ? '#ecfdf5' : '#fffbeb', padding: '4px 8px', borderRadius: '6px', fontSize: '12px', fontWeight: 800 }}>
+                        <span style={{ color: isSales ? '#8A1538' : '#d97706', background: isSales ? '#FAF0F2' : '#fffbeb', padding: '4px 8px', borderRadius: '6px', fontSize: '12px', fontWeight: 800 }}>
                           {item.transactionType}
                         </span>
                       </td>
                       <td style={{ fontWeight: 700 }}>{item.amountBeforeVat} {text.currency}</td>
-                      <td style={{ fontWeight: 800, color: isSales ? '#047857' : '#d97706' }}>{item.vatAmount} {text.currency}</td>
+                      <td style={{ fontWeight: 800, color: isSales ? '#8A1538' : '#d97706' }}>{item.vatAmount} {text.currency}</td>
                       <td style={{ fontWeight: 900 }}>{item.totalAmount} {text.currency}</td>
                       <td>
                         <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
@@ -630,7 +686,7 @@ export default function TaxReturnPreparerAE() {
               <tfoot>
                 <tr className="tfoot-row">
                   <td colSpan={3} style={{ textAlign: 'center' }}>{text.table.netDue}</td>
-                  <td colSpan={4} style={{ color: netVatDue >= 0 ? '#047857' : '#0284c7', fontSize: '15px' }} dir="ltr">{netVatDue >= 0 ? netVatDue.toFixed(2) : `(${Math.abs(netVatDue).toFixed(2)})`} {text.currency}</td>
+                  <td colSpan={4} style={{ color: netVatDue >= 0 ? '#8A1538' : '#0284c7', fontSize: '15px' }} dir="ltr">{netVatDue >= 0 ? netVatDue.toFixed(2) : `(${Math.abs(netVatDue).toFixed(2)})`} {text.currency}</td>
                 </tr>
               </tfoot>
             )}
