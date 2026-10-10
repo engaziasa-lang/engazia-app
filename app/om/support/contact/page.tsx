@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 
-export default function ContactSupportPageQA() {
+export default function ContactSupportPageOM() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
 
   useEffect(() => {
@@ -12,17 +12,17 @@ export default function ContactSupportPageQA() {
       if (savedLang) {
         setLang(savedLang);
       }
-      document.title = savedLang === 'en' ? 'Enjazya | Support & Help (Qatar)' : 'إنجازيا | الدعم الفني والمساعدة (قطر)';
+      document.title = savedLang === 'en' ? 'Enjazya | Support & Help (Oman)' : 'إنجازيا | الدعم الفني والمساعدة (عُمان)';
     }
   }, []);
 
   const t = {
     ar: {
       title: 'الدعم الفني والمساعدة 🎧',
-      desc: 'نحن هنا لمساعدتك في أي استفسار أو مشكلة تواجهك في استخدام منصة إنجازيا (قطر)',
+      desc: 'نحن هنا لمساعدتك في أي استفسار أو مشكلة تواجهك في استخدام منصة إنجازيا (عُمان)',
       back: '← عودة للمنصة',
       formTitle: 'أرسل رسالة للدعم',
-      subject: '🇶🇦 تذكرة دعم فني جديدة - منصة إنجازيا (قطر)',
+      subject: '🇴🇲 تذكرة دعم فني جديدة - منصة إنجازيا (عُمان)',
       nameLabel: 'الاسم الكريم',
       namePH: 'اكتب اسمك هنا...',
       emailLabel: 'البريد الإلكتروني',
@@ -41,10 +41,10 @@ export default function ContactSupportPageQA() {
     },
     en: {
       title: 'Support & Help 🎧',
-      desc: 'We are here to help you with any inquiry or issue you face while using the Enjazya platform (Qatar)',
+      desc: 'We are here to help you with any inquiry or issue you face while using the Enjazya platform (Oman)',
       back: '→ Back to Hub',
       formTitle: 'Send a Support Message',
-      subject: '🇶🇦 New Support Ticket - Enjazya Platform (Qatar)',
+      subject: '🇴🇲 New Support Ticket - Enjazya Platform (Oman)',
       nameLabel: 'Full Name',
       namePH: 'Type your name here...',
       emailLabel: 'Email Address',
@@ -75,7 +75,7 @@ export default function ContactSupportPageQA() {
             <h1 style={{ fontSize: '32px', fontWeight: 900, color: '#0f172a', margin: '0 0 10px 0' }}>{text.title}</h1>
             <p style={{ color: '#64748b', fontSize: '15px', margin: 0 }}>{text.desc}</p>
           </div>
-          <Link href="/hub/qa" style={{ background: '#FAF0F2', border: '1px solid #EBB8C6', color: '#8A1538', padding: '10px 20px', borderRadius: '8px', textDecoration: 'none', fontWeight: 700, fontSize: '14px', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
+          <Link href="/hub/om" style={{ background: '#FFEBEE', border: '1px solid #FFCDD2', color: '#C62828', padding: '10px 20px', borderRadius: '8px', textDecoration: 'none', fontWeight: 700, fontSize: '14px', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
             {text.back}
           </Link>
         </div>
@@ -87,7 +87,7 @@ export default function ContactSupportPageQA() {
             <form action="https://formsubmit.co/engazia.sa@gmail.com" method="POST" style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
               <input type="hidden" name="_subject" value={text.subject} />
               <input type="hidden" name="_captcha" value="false" />
-              <input type="hidden" name="_next" value="https://engazia-app.vercel.app/qa/support/contact" />
+              <input type="hidden" name="_next" value="https://engazia-app.vercel.app/om/support/contact" />
               <input type="hidden" name="_template" value="table" />
 
               <div>
@@ -105,7 +105,7 @@ export default function ContactSupportPageQA() {
                 <textarea name="الرسالة" required rows={5} placeholder={text.msgPH} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', outline: 'none', fontFamily: 'inherit', resize: 'vertical', boxSizing: 'border-box', textAlign: lang === 'ar' ? 'right' : 'left' }}></textarea>
               </div>
               
-              <button type="submit" style={{ background: '#8A1538', color: '#fff', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: 900, cursor: 'pointer', fontSize: '15px', fontFamily: 'inherit', transition: 'background 0.3s' }}>
+              <button type="submit" style={{ background: '#C62828', color: '#fff', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: 900, cursor: 'pointer', fontSize: '15px', fontFamily: 'inherit', transition: 'background 0.3s' }}>
                 {text.submitBtn}
               </button>
             </form>
@@ -116,7 +116,7 @@ export default function ContactSupportPageQA() {
               <h2 style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', marginBottom: '15px' }}>{text.directTitle}</h2>
               <div style={{ marginBottom: '20px' }}>
                 <div style={{ fontSize: '13px', color: '#64748b', fontWeight: 700, marginBottom: '5px' }}>{text.emailTitle}</div>
-                <div style={{ fontSize: '16px', fontWeight: 800, color: '#8A1538', direction: 'ltr', display: 'inline-block' }}>engazia.sa@gmail.com</div>
+                <div style={{ fontSize: '16px', fontWeight: 800, color: '#C62828', direction: 'ltr', display: 'inline-block' }}>engazia.sa@gmail.com</div>
               </div>
               <div style={{ marginBottom: '20px' }}>
                 <div style={{ fontSize: '13px', color: '#64748b', fontWeight: 700, marginBottom: '5px' }}>{text.hoursTitle}</div>
@@ -124,9 +124,9 @@ export default function ContactSupportPageQA() {
               </div>
             </div>
             
-            <div style={{ background: '#FAF0F2', padding: '20px', borderRadius: '16px', border: '1px solid #EBB8C6', color: '#6A102B', textAlign: lang === 'ar' ? 'right' : 'left' }}>
+            <div style={{ background: '#FFEBEE', padding: '20px', borderRadius: '16px', border: '1px solid #FFCDD2', color: '#B71C1C', textAlign: lang === 'ar' ? 'right' : 'left' }}>
               <p style={{ margin: 0, fontSize: '14px', fontWeight: 700, lineHeight: '1.6' }}>
-                💡 <b>{text.tipTitle}</b> {text.tipText} <Link href="/qa/support/faq" style={{ color: '#8A1538', textDecoration: 'underline' }}>{text.faqLink}</Link> {text.tipEnd}
+                💡 <b>{text.tipTitle}</b> {text.tipText} <Link href="/om/support/faq" style={{ color: '#C62828', textDecoration: 'underline' }}>{text.faqLink}</Link> {text.tipEnd}
               </p>
             </div>
           </div>
