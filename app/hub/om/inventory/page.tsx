@@ -11,10 +11,10 @@ interface SeasonItem {
   growthRatePercent: number;
   requiredStock: number;
   createdAt?: string;
-  timestamp?: number; // تمت الإضافة للفرز الزمني
+  timestamp?: number;
 }
 
-export default function SeasonalInventoryPlannerQA() {
+export default function SeasonalInventoryPlannerOM() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
   
   const [productName, setProductName] = useState<string>('');
@@ -25,7 +25,7 @@ export default function SeasonalInventoryPlannerQA() {
 
   const [items, setItems] = useState<SeasonItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [dateFilter, setDateFilter] = useState<string>('all'); // الفرز الزمني
+  const [dateFilter, setDateFilter] = useState<string>('all');
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const [isClient, setIsClient] = useState(false);
@@ -35,24 +35,22 @@ export default function SeasonalInventoryPlannerQA() {
 
   useEffect(() => {
     setIsClient(true);
-    setIsActivated(!!localStorage.getItem('merchant_license_key_qa'));
+    setIsActivated(!!localStorage.getItem('merchant_license_key_om'));
 
-    // قراءة اللغة من الصفحة الرئيسية
     const savedLang = localStorage.getItem('seerk_global_lang') as 'ar' | 'en';
     if (savedLang) {
       setLang(savedLang);
     }
     
-    // ضبط الموسم الافتراضي القطري
     if (savedLang === 'en') {
-      setSeasonSelect('Shop Qatar 🛍️');
-      setCustomSeason('Shop Qatar 🛍️');
+      setSeasonSelect('Salalah Khareef 🌴');
+      setCustomSeason('Salalah Khareef 🌴');
     } else {
-      setSeasonSelect('مهرجان قطر للتسوق 🛍️');
-      setCustomSeason('مهرجان قطر للتسوق 🛍️');
+      setSeasonSelect('خريف صلالة 🌴');
+      setCustomSeason('خريف صلالة 🌴');
     }
 
-    const saved = localStorage.getItem('seerk_qa_seasonal_inventory_items');
+    const saved = localStorage.getItem('seerk_om_seasonal_inventory_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
@@ -60,21 +58,19 @@ export default function SeasonalInventoryPlannerQA() {
 
   const saveToLocalStorage = (newItems: SeasonItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_qa_seasonal_inventory_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_om_seasonal_inventory_items', JSON.stringify(newItems));
   };
 
   const sales = typeof normalMonthlySales === 'number' ? normalMonthlySales : 0;
   const growth = typeof growthRatePercent === 'number' ? growthRatePercent : 0;
 
-  // الحساب: الكمية المطلوبة للموسم
   const requiredStock = Math.round(sales + (sales * (growth / 100)));
 
-  // قاموس الترجمة الفوري
   const t = {
     ar: {
       back: '← عودة للمنصة',
-      title: 'مخطط المخزون للمواسم القطرية 📅',
-      desc: 'توقع الكميات المطلوبة لمواسم قطر (مهرجان قطر للتسوق، العيد، اليوم الوطني) لتجنب نفاد المخزون',
+      title: 'مخطط المخزون للمواسم العُمانية 📅',
+      desc: 'توقع الكميات المطلوبة لمواسم عُمان (خريف صلالة، مهرجان مسقط، العيد الوطني) لتجنب نفاد المخزون',
       editRecord: 'تعديل السجل',
       newRecord: 'تخطيط مخزون لموسم جديد',
       clear: '🧹 مسح الحقول',
@@ -82,9 +78,9 @@ export default function SeasonalInventoryPlannerQA() {
       prodName: 'اسم المنتج أو الفئة',
       prodNamePH: 'مثال: عبايات نسائية فاخرة',
       seasonLabel: 'اختر الموسم المستهدف',
-      s_dss: 'مهرجان قطر للتسوق 🛍️',
-      s_national: 'اليوم الوطني القطري 🇶🇦',
-      s_dsf: 'مهرجان الدوحة التجاري ⭐',
+      s_khareef: 'خريف صلالة 🌴',
+      s_national: 'العيد الوطني العُماني 🇴🇲',
+      s_muscat: 'مهرجان مسقط 🎭',
       s_friday: 'الجمعة البيضاء / السوداء 🏷️',
       s_eid: 'موسم رمضان والعيد 🌙',
       s_other: '➕ موسم آخر (كتابة يدوية)',
@@ -137,8 +133,8 @@ export default function SeasonalInventoryPlannerQA() {
     },
     en: {
       back: '→ Back to Hub',
-      title: 'Qatar Seasonal Inventory Planner 📅',
-      desc: 'Forecast required stock for Qatar seasons (Shop Qatar, Eid, National Day) to prevent stockouts',
+      title: 'Oman Seasonal Inventory Planner 📅',
+      desc: 'Forecast required stock for Oman seasons (Salalah Khareef, Muscat Festival, National Day) to prevent stockouts',
       editRecord: 'Edit Record',
       newRecord: 'Plan New Seasonal Inventory',
       clear: '🧹 Clear Fields',
@@ -146,9 +142,9 @@ export default function SeasonalInventoryPlannerQA() {
       prodName: 'Product or Category Name',
       prodNamePH: 'e.g. Luxury Women Abayas',
       seasonLabel: 'Select Target Season',
-      s_dss: 'Shop Qatar 🛍️',
-      s_national: 'Qatar National Day 🇶🇦',
-      s_dsf: 'Doha Trade Festival ⭐',
+      s_khareef: 'Salalah Khareef 🌴',
+      s_national: 'Oman National Day 🇴🇲',
+      s_muscat: 'Muscat Festival 🎭',
       s_friday: 'White / Black Friday 🏷️',
       s_eid: 'Ramadan & Eid Season 🌙',
       s_other: '➕ Other Season (Manual Entry)',
@@ -215,7 +211,7 @@ export default function SeasonalInventoryPlannerQA() {
 
   const handleClearForm = () => {
     setProductName('');
-    const defaultSeason = lang === 'en' ? text.s_dss : text.s_dss;
+    const defaultSeason = lang === 'en' ? text.s_khareef : text.s_khareef;
     setSeasonSelect(defaultSeason);
     setCustomSeason(defaultSeason);
     setNormalMonthlySales('');
@@ -237,7 +233,7 @@ export default function SeasonalInventoryPlannerQA() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const localeStr = lang === 'ar' ? 'ar-QA' : 'en-QA';
+    const localeStr = lang === 'ar' ? 'ar-OM' : 'en-OM';
     const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
 
     if (editingId) {
@@ -265,7 +261,7 @@ export default function SeasonalInventoryPlannerQA() {
         createdAt: formattedDate,
         timestamp: now.getTime()
       };
-      saveToLocalStorage([newItem, ...items]); // حفظ الجديد في الأعلى
+      saveToLocalStorage([newItem, ...items]);
       alert(text.alerts.saveSuccess);
     }
 
@@ -275,17 +271,16 @@ export default function SeasonalInventoryPlannerQA() {
   const handleEdit = (item: SeasonItem) => {
     setProductName(item.productName);
     
-    // محاولة مطابقة الموسم بناءً على نصوص تدل عليه
-    const isDSS = item.seasonName.includes('تسوق') || item.seasonName.includes('Shop') || item.seasonName.includes('DSS');
+    const isKhareef = item.seasonName.includes('خريف') || item.seasonName.includes('صلالة') || item.seasonName.includes('Khareef');
     const isNational = item.seasonName.includes('وطني') || item.seasonName.includes('National');
-    const isDSF = item.seasonName.includes('تجاري') || item.seasonName.includes('Trade') || item.seasonName.includes('DSF');
+    const isMuscat = item.seasonName.includes('مسقط') || item.seasonName.includes('Muscat');
     const isFriday = item.seasonName.includes('جمعة') || item.seasonName.includes('Friday');
     const isEid = item.seasonName.includes('رمضان') || item.seasonName.includes('Eid');
 
     let matchedSeason = '';
-    if (isDSS) matchedSeason = text.s_dss;
+    if (isKhareef) matchedSeason = text.s_khareef;
     else if (isNational) matchedSeason = text.s_national;
-    else if (isDSF) matchedSeason = text.s_dsf;
+    else if (isMuscat) matchedSeason = text.s_muscat;
     else if (isFriday) matchedSeason = text.s_friday;
     else if (isEid) matchedSeason = text.s_eid;
     else matchedSeason = text.s_other;
@@ -305,7 +300,6 @@ export default function SeasonalInventoryPlannerQA() {
     }
   };
 
-  // فلترة النتائج بناءً على البحث والفرز الزمني
   const filteredItems = items.filter(item => {
     const matchesSearch = item.productName.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           item.seasonName.toLowerCase().includes(searchQuery.toLowerCase());
@@ -396,7 +390,7 @@ export default function SeasonalInventoryPlannerQA() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", `enjazya_qa_seasonal_inventory_${dateFilter}.xls`);
+    link.setAttribute("download", `enjazya_om_seasonal_inventory_${dateFilter}.xls`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -455,14 +449,14 @@ export default function SeasonalInventoryPlannerQA() {
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
         .input-wrapper input, .input-wrapper select { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .input-wrapper input.with-currency { padding-${lang === 'ar' ? 'left' : 'right'}: 45px; }
-        .input-wrapper input:focus, .input-wrapper select:focus { border-color: #8A1538; background: #ffffff; }
+        .input-wrapper input:focus, .input-wrapper select:focus { border-color: #C62828; background: #ffffff; }
         .currency-tag { position: absolute; ${lang === 'ar' ? 'left: 14px;' : 'right: 14px;'} color: #64748b; font-weight: 800; font-size: 13px; pointer-events: none; }
         
-        .action-btn { background: #8A1538; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
-        .action-btn:hover { background: #6A102B; }
+        .action-btn { background: #C62828; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
+        .action-btn:hover { background: #B71C1C; }
 
         .result-box { background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .result-box.primary { background: linear-gradient(135deg, #8A1538 0%, #6A102B 100%); color: #fff; border: none; padding: 20px; }
+        .result-box.primary { background: linear-gradient(135deg, #C62828 0%, #B71C1C 100%); color: #fff; border: none; padding: 20px; }
         .result-label { font-size: 13px; font-weight: 700; color: #64748b; }
         .primary .result-label { color: #ffffff; opacity: 0.9; }
         .result-value { font-size: 18px; font-weight: 900; color: #0f172a; direction: ltr; }
@@ -472,14 +466,14 @@ export default function SeasonalInventoryPlannerQA() {
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
         
         .search-input { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; flex-grow: 1; max-width: 350px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .search-input:focus { border-color: #8A1538; }
+        .search-input:focus { border-color: #C62828; }
         
         .filter-select { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; background: #fff; color: #334155; cursor: pointer; min-width: 130px; }
-        .filter-select:focus { border-color: #8A1538; }
+        .filter-select:focus { border-color: #C62828; }
 
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
         .t-btn { padding: 9px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 6px; }
-        .t-btn:hover { background: #f1f5f9; border-color: #8A1538; color: #8A1538; }
+        .t-btn:hover { background: #f1f5f9; border-color: #C62828; color: #C62828; }
 
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 900px; }
@@ -499,7 +493,7 @@ export default function SeasonalInventoryPlannerQA() {
           <h1>{text.title}</h1>
           <p>{text.desc}</p>
         </div>
-        <Link href="/hub/qa" className="back-btn">
+        <Link href="/hub/om" className="back-btn">
           {text.back}
         </Link>
       </div>
@@ -528,9 +522,9 @@ export default function SeasonalInventoryPlannerQA() {
               <label>{text.seasonLabel}</label>
               <div className="input-wrapper" style={{ marginBottom: '8px' }}>
                 <select value={seasonSelect} onChange={handleSelectChange}>
-                  <option value={text.s_dss}>{text.s_dss}</option>
+                  <option value={text.s_khareef}>{text.s_khareef}</option>
                   <option value={text.s_national}>{text.s_national}</option>
-                  <option value={text.s_dsf}>{text.s_dsf}</option>
+                  <option value={text.s_muscat}>{text.s_muscat}</option>
                   <option value={text.s_friday}>{text.s_friday}</option>
                   <option value={text.s_eid}>{text.s_eid}</option>
                   <option value={text.s_other}>{text.s_other}</option>
@@ -592,7 +586,7 @@ export default function SeasonalInventoryPlannerQA() {
 
           <div className="result-box" style={{ background: '#f8fafc' }}>
             <span className="result-label">{text.growthExp}</span>
-            <span className="result-value" style={{ color: '#047857' }}>+{growth}%</span>
+            <span className="result-value" style={{ color: '#C62828' }}>+{growth}%</span>
           </div>
         </div>
       </div>
@@ -659,7 +653,7 @@ export default function SeasonalInventoryPlannerQA() {
                       <div style={{ fontWeight: 900, color: '#0f172a' }}>{item.productName}</div>
                       {item.createdAt && <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', fontWeight: 600 }}>🕒 {item.createdAt}</div>}
                     </td>
-                    <td><span style={{ fontWeight: 800, color: '#8A1538' }}>{item.seasonName}</span></td>
+                    <td><span style={{ fontWeight: 800, color: '#C62828' }}>{item.seasonName}</span></td>
                     <td>{item.normalMonthlySales} {text.unit}</td>
                     <td><span style={{ color: '#047857', fontWeight: 800 }}>+{item.growthRatePercent}%</span></td>
                     <td style={{ fontWeight: 900, color: '#0f172a' }}>{item.requiredStock} {text.unit}</td>
@@ -679,7 +673,7 @@ export default function SeasonalInventoryPlannerQA() {
                   <td colSpan={3} style={{ textAlign: 'center' }}>{text.table.totalLabel}</td>
                   <td>{totalNormalSalesSum} {text.unit}</td>
                   <td>-</td>
-                  <td style={{ color: '#8A1538' }}>{totalRequiredStockSum} {text.unit}</td>
+                  <td style={{ color: '#C62828' }}>{totalRequiredStockSum} {text.unit}</td>
                   <td></td>
                 </tr>
               </tfoot>
