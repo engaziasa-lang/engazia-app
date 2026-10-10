@@ -14,10 +14,10 @@ interface RoasItem {
   roas: number;
   status: string;
   createdAt?: string;
-  timestamp?: number; // تمت الإضافة للفرز الزمني
+  timestamp?: number;
 }
 
-export default function RoasCalculatorQA() {
+export default function RoasCalculatorOM() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
 
   const [campaignName, setCampaignName] = useState<string>('');
@@ -28,7 +28,7 @@ export default function RoasCalculatorQA() {
 
   const [items, setItems] = useState<RoasItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [dateFilter, setDateFilter] = useState<string>('all'); // الفرز الزمني
+  const [dateFilter, setDateFilter] = useState<string>('all');
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -38,9 +38,8 @@ export default function RoasCalculatorQA() {
 
   useEffect(() => {
     setIsClient(true);
-    setIsActivated(!!localStorage.getItem('merchant_license_key_qa'));
+    setIsActivated(!!localStorage.getItem('merchant_license_key_om'));
     
-    // قراءة اللغة من الصفحة الرئيسية
     const savedLang = localStorage.getItem('seerk_global_lang') as 'ar' | 'en';
     if (savedLang) {
       setLang(savedLang);
@@ -49,9 +48,11 @@ export default function RoasCalculatorQA() {
       } else {
         setPlatformInput('تيك توك (TikTok Ads)');
       }
+    } else {
+      setPlatformInput('تيك توك (TikTok Ads)');
     }
 
-    const saved = localStorage.getItem('seerk_qa_roas_calculator_items');
+    const saved = localStorage.getItem('seerk_om_roas_calculator_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
@@ -59,29 +60,27 @@ export default function RoasCalculatorQA() {
 
   const saveToLocalStorage = (newItems: RoasItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_qa_roas_calculator_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_om_roas_calculator_items', JSON.stringify(newItems));
   };
 
   const spend = typeof adSpend === 'number' ? adSpend : 0;
   const orders = typeof ordersGenerated === 'number' ? ordersGenerated : 0;
   const rev = typeof revenueGenerated === 'number' ? revenueGenerated : 0;
 
-  // الحسابات الفعلية
   const cac = orders > 0 ? spend / orders : 0;
   const roas = spend > 0 ? rev / spend : 0;
 
-  // قاموس الترجمة الفوري
   const t = {
     ar: {
       back: '← عودة للمنصة',
       title: 'محلل عائد الإعلانات (ROAS) 📈',
-      desc: 'قس بدقة أداء إعلاناتك وهل تحقق عوائد مجزية أم تستنزف ميزانيتك في متجرك بقطر',
+      desc: 'قس بدقة أداء إعلاناتك وهل تحقق عوائد مجزية أم تستنزف ميزانيتك في متجرك بعُمان',
       editRecord: 'تعديل الحملة',
       newRecord: 'تحليل حملة إعلانية جديدة',
       clear: '🧹 مسح الحقول',
       trial: 'تجريبي',
       campName: 'اسم الحملة الإعلانية',
-      campNamePH: 'مثال: حملة مهرجان قطر للتسوق',
+      campNamePH: 'مثال: حملة مهرجان مسقط / خريف صلالة',
       platformLabel: 'اختيار المنصة (أو كتابتها يدوياً)',
       platTikTok: 'تيك توك (TikTok Ads)',
       platSnap: 'سناب شات (Snapchat Ads)',
@@ -89,11 +88,11 @@ export default function RoasCalculatorQA() {
       platMeta: 'ميتا (Instagram / Meta)',
       platActualPH: 'اسم المنصة الفعلي',
       adSpend: 'الميزانية المنفقة على الحملة (Ad Spend)',
-      adSpendPH: '6000',
+      adSpendPH: '600',
       ordersGen: 'عدد الطلبات المحققة من الحملة',
       ordersGenPH: '120',
       revGen: 'إجمالي العائد المحقق (Revenue)',
-      revGenPH: '24000',
+      revGenPH: '2400',
       saveBtnNew: '+ حفظ التحليل في السجل',
       saveBtnEdit: '💾 حفظ التعديلات',
       analysisTitle: 'مؤشرات الأداء الفورية (KPIs)',
@@ -105,7 +104,7 @@ export default function RoasCalculatorQA() {
       statusGood: 'ممتاز جداً (زيادة الميزانية) 🚀',
       statusWarn: 'جيد (تحتاج تحسين)',
       statusBad: 'خسارة (إيقاف الحملة)',
-      currency: 'ر.ق',
+      currency: 'ر.ع',
       ordersUnit: 'طلب',
       searchPH: '🔍 بحث في الحملات...',
       exportBtn: '📥 تصدير Excel',
@@ -145,13 +144,13 @@ export default function RoasCalculatorQA() {
     en: {
       back: '→ Back to Hub',
       title: 'Return on Ad Spend (ROAS) Analyzer 📈',
-      desc: 'Accurately measure your ad performance and see if they bring profitable returns to your Qatar store',
+      desc: 'Accurately measure your ad performance and see if they bring profitable returns to your Oman store',
       editRecord: 'Edit Campaign',
       newRecord: 'Analyze New Ad Campaign',
       clear: '🧹 Clear Fields',
       trial: 'Trial',
       campName: 'Ad Campaign Name',
-      campNamePH: 'e.g. Shop Qatar Campaign',
+      campNamePH: 'e.g. Muscat Festival Campaign',
       platformLabel: 'Select Platform (or type manually)',
       platTikTok: 'TikTok Ads',
       platSnap: 'Snapchat Ads',
@@ -159,23 +158,23 @@ export default function RoasCalculatorQA() {
       platMeta: 'Meta (Instagram / Facebook)',
       platActualPH: 'Actual Platform Name',
       adSpend: 'Campaign Ad Spend Budget',
-      adSpendPH: '6000',
+      adSpendPH: '600',
       ordersGen: 'Orders Generated from Campaign',
       ordersGenPH: '120',
       revGen: 'Total Revenue Generated',
-      revGenPH: '24000',
+      revGenPH: '2400',
       saveBtnNew: '+ Save Analysis to Log',
       saveBtnEdit: '💾 Save Changes',
       analysisTitle: 'Instant Key Performance Indicators (KPIs)',
       roasLabel: 'Return on Ad Spend (ROAS)',
-      roasSub: 'Revenue generated for every QAR spent',
+      roasSub: 'Revenue generated for every OMR spent',
       cacLabel: 'Customer Acquisition Cost (CAC)',
       totalRevLabel: 'Total Revenue Generated',
       decisionLabel: 'Suggested Campaign Decision:',
       statusGood: 'Excellent (Scale Budget) 🚀',
       statusWarn: 'Good (Needs Optimization)',
       statusBad: 'Loss (Stop Campaign)',
-      currency: 'QAR',
+      currency: 'OMR',
       ordersUnit: 'order(s)',
       searchPH: '🔍 Search campaigns...',
       exportBtn: '📥 Export Excel',
@@ -254,7 +253,7 @@ export default function RoasCalculatorQA() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const localeStr = lang === 'ar' ? 'ar-QA' : 'en-QA';
+    const localeStr = lang === 'ar' ? 'ar-OM' : 'en-OM';
     const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
 
     const dbStatus = roas >= 3 ? 'ممتاز جداً (زيادة الميزانية) 🚀' : roas >= 1.5 ? 'جيد (تحتاج تحسين)' : 'خسارة (إيقاف الحملة)';
@@ -290,7 +289,7 @@ export default function RoasCalculatorQA() {
         createdAt: formattedDate,
         timestamp: now.getTime()
       };
-      saveToLocalStorage([newItem, ...items]); // حفظ الجديد في الأعلى
+      saveToLocalStorage([newItem, ...items]); 
       alert(text.alerts.saveSuccess);
     }
 
@@ -332,7 +331,6 @@ export default function RoasCalculatorQA() {
     }
   };
 
-  // فلترة النتائج بناءً على البحث والفرز الزمني
   const filteredItems = items.filter(item => {
     const matchesSearch = item.campaignName.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           item.platform.toLowerCase().includes(searchQuery.toLowerCase());
@@ -432,7 +430,7 @@ export default function RoasCalculatorQA() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", `enjazya_qa_roas_analysis_${dateFilter}.xls`);
+    link.setAttribute("download", `enjazya_om_roas_analysis_${dateFilter}.xls`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -491,33 +489,31 @@ export default function RoasCalculatorQA() {
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
         .input-wrapper input, .input-wrapper select { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .input-wrapper input.with-currency { padding-${lang === 'ar' ? 'left' : 'right'}: 45px; }
-        .input-wrapper input:focus, .input-wrapper select:focus { border-color: #8A1538; background: #ffffff; }
+        .input-wrapper input:focus, .input-wrapper select:focus { border-color: #C62828; background: #ffffff; }
         .currency-tag { position: absolute; ${lang === 'ar' ? 'left: 14px;' : 'right: 14px;'} color: #64748b; font-weight: 800; font-size: 13px; pointer-events: none; }
         
-        .action-btn { background: #8A1538; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
-        .action-btn:hover { background: #6A102B; }
+        .action-btn { background: #C62828; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
+        .action-btn:hover { background: #B71C1C; }
 
         .result-box { background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .result-box.primary { background: linear-gradient(135deg, #8A1538 0%, #6A102B 100%); color: #fff; border: none; padding: 20px; }
-        .result-box.warning { background: linear-gradient(135deg, #d97706 0%, #b45309 100%); color: #fff; border: none; padding: 20px; }
-        .result-box.danger { background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); color: #fff; border: none; padding: 20px; }
+        .result-box.primary { background: linear-gradient(135deg, #C62828 0%, #B71C1C 100%); color: #fff; border: none; padding: 20px; }
         .result-label { font-size: 13px; font-weight: 700; color: #64748b; }
-        .primary .result-label, .danger .result-label, .warning .result-label { color: #ffffff; opacity: 0.9; }
+        .primary .result-label { color: #ffffff; opacity: 0.9; }
         .result-value { font-size: 18px; font-weight: 900; color: #0f172a; direction: ltr; }
-        .primary .result-value, .danger .result-value, .warning .result-value { font-size: 26px; color: #ffffff; direction: ${lang === 'ar' ? 'rtl' : 'ltr'}; }
+        .primary .result-value { font-size: 26px; color: #ffffff; direction: ${lang === 'ar' ? 'rtl' : 'ltr'}; }
 
         .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
         
         .search-input { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; flex-grow: 1; max-width: 350px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .search-input:focus { border-color: #8A1538; }
+        .search-input:focus { border-color: #C62828; }
         
         .filter-select { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; background: #fff; color: #334155; cursor: pointer; min-width: 130px; }
-        .filter-select:focus { border-color: #8A1538; }
+        .filter-select:focus { border-color: #C62828; }
 
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
         .t-btn { padding: 9px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 6px; }
-        .t-btn:hover { background: #f1f5f9; border-color: #8A1538; color: #8A1538; }
+        .t-btn:hover { background: #f1f5f9; border-color: #C62828; color: #C62828; }
 
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 900px; }
@@ -537,7 +533,7 @@ export default function RoasCalculatorQA() {
           <h1>{text.title}</h1>
           <p>{text.desc}</p>
         </div>
-        <Link href="/hub/qa" className="back-btn">
+        <Link href="/hub/om" className="back-btn">
           {text.back}
         </Link>
       </div>
@@ -565,7 +561,7 @@ export default function RoasCalculatorQA() {
             <div className="input-group">
               <label>{text.platformLabel}</label>
               <div className="input-wrapper" style={{ marginBottom: '8px' }}>
-                <select id="platform-preset" onChange={handlePresetChange} defaultValue={lang === 'en' ? text.platTikTok : text.platTikTok} style={{ padding: '10px' }}>
+                <select id="platform-preset" onChange={handlePresetChange} defaultValue={lang === 'en' ? text.platTikTok : text.platTikTok}>
                   <option value={text.platTikTok}>{text.platTikTok}</option>
                   <option value={text.platSnap}>{text.platSnap}</option>
                   <option value={text.platGoogle}>{text.platGoogle}</option>
@@ -580,23 +576,24 @@ export default function RoasCalculatorQA() {
             <div className="input-group">
               <label>{text.adSpend} ({text.currency})</label>
               <div className="input-wrapper">
-                <input className="with-currency" type="number" min="0" value={adSpend === '' ? '' : adSpend} onChange={(e) => setAdSpend(e.target.value === '' ? '' : Number(e.target.value))} placeholder={text.adSpendPH} required />
+                <input className="with-currency" type="number" step="0.01" min="0" value={adSpend === '' ? '' : adSpend} onChange={(e) => setAdSpend(e.target.value === '' ? '' : Number(e.target.value))} placeholder={text.adSpendPH} required />
                 <span className="currency-tag">{text.currency}</span>
               </div>
             </div>
 
-            <div className="input-group">
-              <label>{text.ordersGen}</label>
-              <div className="input-wrapper">
-                <input type="number" min="0" value={ordersGenerated === '' ? '' : ordersGenerated} onChange={(e) => setOrdersGenerated(e.target.value === '' ? '' : Number(e.target.value))} placeholder={text.ordersGenPH} />
+            <div className="form-row">
+              <div className="input-group">
+                <label>{text.ordersGen}</label>
+                <div className="input-wrapper">
+                  <input type="number" min="0" value={ordersGenerated === '' ? '' : ordersGenerated} onChange={(e) => setOrdersGenerated(e.target.value === '' ? '' : Number(e.target.value))} placeholder={text.ordersGenPH} />
+                </div>
               </div>
-            </div>
-
-            <div className="input-group">
-              <label>{text.revGen} ({text.currency})</label>
-              <div className="input-wrapper">
-                <input className="with-currency" type="number" min="0" value={revenueGenerated === '' ? '' : revenueGenerated} onChange={(e) => setRevenueGenerated(e.target.value === '' ? '' : Number(e.target.value))} placeholder={text.revGenPH} required />
-                <span className="currency-tag">{text.currency}</span>
+              <div className="input-group">
+                <label>{text.revGen} ({text.currency})</label>
+                <div className="input-wrapper">
+                  <input className="with-currency" type="number" step="0.01" min="0" value={revenueGenerated === '' ? '' : revenueGenerated} onChange={(e) => setRevenueGenerated(e.target.value === '' ? '' : Number(e.target.value))} placeholder={text.revGenPH} required />
+                  <span className="currency-tag">{text.currency}</span>
+                </div>
               </div>
             </div>
 
@@ -609,19 +606,19 @@ export default function RoasCalculatorQA() {
         <div className="card">
           <h2 className="card-title">{text.analysisTitle}</h2>
 
-          <div className={`result-box ${roas >= 3 ? 'primary' : roas >= 1.5 ? 'warning' : 'danger'}`}>
+          <div className={`result-box ${roas >= 3 ? 'primary' : ''}`} style={roas < 3 ? { background: roas >= 1.5 ? 'linear-gradient(135deg, #d97706 0%, #b45309 100%)' : 'linear-gradient(135deg, #dc2626 0%, #991b1b 100%)', color: '#fff', border: 'none', padding: '20px' } : {}}>
             <div>
-              <div className="result-label">{text.roasLabel}</div>
-              <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '2px' }}>{text.roasSub}</div>
+              <div className="result-label" style={{ color: '#fff' }}>{text.roasLabel}</div>
+              <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '2px', color: '#fff' }}>{text.roasSub}</div>
             </div>
-            <div className="result-value">
+            <div className="result-value" style={{ fontSize: '26px', color: '#ffffff', direction: 'ltr' }}>
               {roas.toFixed(2)}x
             </div>
           </div>
 
           <div className="result-box">
             <span className="result-label">{text.cacLabel}</span>
-            <span className="result-value" style={{ color: '#8A1538' }}>{cac.toFixed(2)} {text.currency}</span>
+            <span className="result-value" style={{ color: '#C62828' }}>{cac.toFixed(2)} {text.currency}</span>
           </div>
 
           <div className="result-box" style={{ background: '#f8fafc' }}>
@@ -629,9 +626,9 @@ export default function RoasCalculatorQA() {
             <span className="result-value">{rev.toFixed(2)} {text.currency}</span>
           </div>
 
-          <div style={{ marginTop: '20px', padding: '15px', borderRadius: '8px', background: roas >= 3 ? '#ecfdf5' : roas >= 1.5 ? '#fffbeb' : '#fef2f2', border: `1px solid ${roas >= 3 ? '#a7f3d0' : roas >= 1.5 ? '#fde68a' : '#fecaca'}`, textAlign: 'center' }}>
+          <div style={{ marginTop: '20px', padding: '15px', borderRadius: '8px', background: roas >= 3 ? '#FFEBEE' : roas >= 1.5 ? '#fffbeb' : '#fef2f2', border: `1px solid ${roas >= 3 ? '#FFCDD2' : roas >= 1.5 ? '#fde68a' : '#fecaca'}`, textAlign: 'center' }}>
             <div style={{ fontSize: '13px', color: '#475569', marginBottom: '5px', fontWeight: 800 }}>{text.decisionLabel}</div>
-            <div style={{ fontSize: '16px', fontWeight: 900, color: statusColor }}>{statusStr}</div>
+            <div style={{ fontSize: '16px', fontWeight: 900, color: roas >= 3 ? '#C62828' : statusColor }}>{statusStr}</div>
           </div>
         </div>
       </div>
@@ -660,8 +657,12 @@ export default function RoasCalculatorQA() {
           </select>
 
           <div className="table-btns">
-            <button className="t-btn" onClick={handleExportExcel}>{text.exportBtn}</button>
-            <button className="t-btn" onClick={() => fileInputRef.current?.click()}>{text.importBtn}</button>
+            <button className="t-btn" onClick={handleExportExcel}>
+              {lang === 'ar' ? 'تصدير 📥' : 'Export 📥'}
+            </button>
+            <button className="t-btn" onClick={() => fileInputRef.current?.click()}>
+              {lang === 'ar' ? 'استيراد 📂' : 'Import 📂'}
+            </button>
             <input type="file" ref={fileInputRef} onChange={handleImportJson} accept=".json" style={{ display: 'none' }} />
           </div>
         </div>
@@ -672,6 +673,7 @@ export default function RoasCalculatorQA() {
               <tr>
                 <th>{text.table.th1}</th>
                 <th>{text.table.th2}</th>
+                <th>Date / Time</th>
                 <th>{text.table.th3}</th>
                 <th>{text.table.th4}</th>
                 <th>{text.table.th5}</th>
@@ -682,7 +684,7 @@ export default function RoasCalculatorQA() {
             <tbody>
               {filteredItems.length === 0 ? (
                 <tr>
-                  <td colSpan={7} style={{ textAlign: 'center', color: '#94a3b8', padding: '30px 0' }}>
+                  <td colSpan={8} style={{ textAlign: 'center', color: '#94a3b8', padding: '30px 0' }}>
                     {text.table.noRecords}
                   </td>
                 </tr>
@@ -692,9 +694,9 @@ export default function RoasCalculatorQA() {
                     <td>{idx + 1}</td>
                     <td>
                       <div style={{ fontWeight: 900, color: '#0f172a' }}>{item.campaignName}</div>
-                      <div style={{ fontSize: '11px', color: '#8A1538', marginTop: '2px', fontWeight: 800 }}>{item.platform}</div>
-                      {item.createdAt && <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', fontWeight: 600 }}>🕒 {item.createdAt}</div>}
+                      <div style={{ fontSize: '11px', color: '#C62828', marginTop: '2px', fontWeight: 800 }}>{item.platform}</div>
                     </td>
+                    <td>{item.createdAt || '-'}</td>
                     <td style={{ color: '#dc2626' }}>{item.adSpend} {text.currency}</td>
                     <td>
                       <div style={{ fontWeight: 800 }}>{item.ordersGenerated} {text.ordersUnit}</div>
@@ -702,7 +704,7 @@ export default function RoasCalculatorQA() {
                     </td>
                     <td style={{ fontWeight: 900 }}>{item.revenueGenerated} {text.currency}</td>
                     <td>
-                      <span style={{ background: item.roas >= 3 ? '#ecfdf5' : item.roas >= 1.5 ? '#fffbeb' : '#fef2f2', color: item.roas >= 3 ? '#047857' : item.roas >= 1.5 ? '#d97706' : '#dc2626', padding: '4px 8px', borderRadius: '6px', fontWeight: 900, fontSize: '14px', direction: 'ltr', display: 'inline-block' }}>
+                      <span style={{ background: item.roas >= 3 ? '#FFEBEE' : item.roas >= 1.5 ? '#fffbeb' : '#fef2f2', color: item.roas >= 3 ? '#C62828' : item.roas >= 1.5 ? '#d97706' : '#dc2626', padding: '4px 8px', borderRadius: '6px', fontWeight: 900, fontSize: '14px', direction: 'ltr', display: 'inline-block' }}>
                         {item.roas}x
                       </span>
                     </td>
@@ -719,14 +721,14 @@ export default function RoasCalculatorQA() {
             {filteredItems.length > 0 && (
               <tfoot>
                 <tr className="tfoot-row">
-                  <td colSpan={2} style={{ textAlign: 'center' }}>{text.table.totalLabel}</td>
+                  <td colSpan={3} style={{ textAlign: 'center' }}>{text.table.totalLabel}</td>
                   <td style={{ color: '#dc2626' }}>{totalAdSpend.toFixed(2)} {text.currency}</td>
                   <td>
                     <div>{totalOrders} {text.ordersUnit}</div>
                     <div style={{ fontSize: '11px', color: '#64748b' }}>CAC: {overallCac.toFixed(2)} {text.currency}</div>
                   </td>
                   <td>{totalRevenue.toFixed(2)} {text.currency}</td>
-                  <td style={{ color: overallRoas >= 3 ? '#047857' : overallRoas >= 1.5 ? '#d97706' : '#dc2626', direction: 'ltr' }}>{overallRoas.toFixed(2)}x</td>
+                  <td style={{ color: overallRoas >= 3 ? '#C62828' : overallRoas >= 1.5 ? '#d97706' : '#dc2626', direction: 'ltr' }}>{overallRoas.toFixed(2)}x</td>
                   <td></td>
                 </tr>
               </tfoot>
