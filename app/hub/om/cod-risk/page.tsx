@@ -17,13 +17,13 @@ interface CodItem {
   timestamp?: number;
 }
 
-export default function CodAnalyzerQA() {
+export default function CodAnalyzerOM() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
-  const [shippingSelect, setShippingSelect] = useState<string>('بريد قطر (Qatar Post)');
-  const [customShipping, setCustomShipping] = useState<string>('بريد قطر (Qatar Post)');
+  const [shippingSelect, setShippingSelect] = useState<string>('بريد عُمان (Oman Post)');
+  const [customShipping, setCustomShipping] = useState<string>('بريد عُمان (Oman Post)');
   const [totalCodOrders, setTotalCodOrders] = useState<number | ''>('');
   const [avgOrderValue, setAvgOrderValue] = useState<number | ''>('');
-  const [codFeePerOrder, setCodFeePerOrder] = useState<number | ''>(15);
+  const [codFeePerOrder, setCodFeePerOrder] = useState<number | ''>(1.5);
   const [returnRatePercent, setReturnRatePercent] = useState<number | ''>(15);
 
   const [items, setItems] = useState<CodItem[]>([]);
@@ -31,7 +31,6 @@ export default function CodAnalyzerQA() {
   const [dateFilter, setDateFilter] = useState<string>('all');
   const [editingId, setEditingId] = useState<string | null>(null);
 
-  // تم إضافة هذين السطرين لحل مشكلة Vercel
   const [isClient, setIsClient] = useState(false);
   const [isActivated, setIsActivated] = useState(true);
 
@@ -39,14 +38,22 @@ export default function CodAnalyzerQA() {
 
   useEffect(() => {
     setIsClient(true);
-    setIsActivated(!!localStorage.getItem('merchant_license_key_qa'));
+    setIsActivated(!!localStorage.getItem('merchant_license_key_om'));
 
     const savedLang = localStorage.getItem('seerk_global_lang') as 'ar' | 'en';
     if (savedLang) {
       setLang(savedLang);
     }
 
-    const saved = localStorage.getItem('seerk_qa_cod_analyzer_items');
+    if (savedLang === 'en') {
+      setShippingSelect('Oman Post');
+      setCustomShipping('Oman Post');
+    } else {
+      setShippingSelect('بريد عُمان (Oman Post)');
+      setCustomShipping('بريد عُمان (Oman Post)');
+    }
+
+    const saved = localStorage.getItem('seerk_om_cod_analyzer_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
@@ -54,7 +61,7 @@ export default function CodAnalyzerQA() {
 
   const saveToLocalStorage = (newItems: CodItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_qa_cod_analyzer_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_om_cod_analyzer_items', JSON.stringify(newItems));
   };
 
   const orders = typeof totalCodOrders === 'number' ? totalCodOrders : 0;
@@ -64,7 +71,7 @@ export default function CodAnalyzerQA() {
 
   const totalCodFees = orders * fee;
   const rejectedOrdersCount = orders * (retRate / 100);
-  const shippingAndHandlingLossPerReject = 30; // تكلفة الشحن العكسي التقريبية بالريال القطري
+  const shippingAndHandlingLossPerReject = 3; // تكلفة الشحن العكسي التقريبية بالريال العُماني
   const totalReturnLoss = rejectedOrdersCount * shippingAndHandlingLossPerReject;
   const grandTotalCost = totalCodFees + totalReturnLoss;
 
@@ -78,14 +85,19 @@ export default function CodAnalyzerQA() {
       clear: '🧹 مسح الحقول',
       trial: 'تجريبي',
       shippingComp: 'اختر شركة الشحن',
+      compOmanPost: 'بريد عُمان (Oman Post)',
+      compAsyad: 'أسياد إكسبريس (Asyad Express)',
+      compDalilak: 'دليلك (Dalilak)',
+      compAramex: 'أرامكس (Aramex)',
+      compDHL: 'دي إتش إل (DHL)',
       otherComp: '➕ شركة أخرى (كتابة يدوية)',
       otherCompPH: 'اكتب اسم شركة الشحن هنا...',
       ordersLabel: 'عدد طلبات الدفع عند الاستلام',
-      ordersPH: '200',
+      ordersPH: '50',
       avgValLabel: 'متوسط قيمة الطلب',
-      avgValPH: '300',
+      avgValPH: '35',
       feeLabel: 'رسوم خدمة COD للطلب الواحد',
-      feePH: '15',
+      feePH: '1.5',
       retRateLabel: 'نسبة عدم الاستلام / الرفض (%)',
       retRatePH: '15',
       saveBtnNew: '+ حفظ التحليل في السجل',
@@ -95,7 +107,7 @@ export default function CodAnalyzerQA() {
       grandTotalSub: 'مجموع رسوم التحصيل وخسائر الرفض',
       feeTotal: 'إجمالي رسوم خدمة التحصيل',
       retLossTotal: 'خسائر الطلبات المرفوضة (الشحن العكسي والتالف)',
-      currency: 'ر.ق',
+      currency: 'ر.ع',
       searchPH: '🔍 بحث بشركة الشحن...',
       exportBtn: '📥 تصدير Excel',
       importBtn: '📂 استيراد',
@@ -140,14 +152,19 @@ export default function CodAnalyzerQA() {
       clear: '🧹 Clear Fields',
       trial: 'Trial',
       shippingComp: 'Select Shipping Company',
+      compOmanPost: 'Oman Post',
+      compAsyad: 'Asyad Express',
+      compDalilak: 'Dalilak',
+      compAramex: 'Aramex',
+      compDHL: 'DHL',
       otherComp: '➕ Other Company (Manual Entry)',
       otherCompPH: 'Enter shipping company name...',
       ordersLabel: 'Number of COD Orders',
-      ordersPH: '200',
+      ordersPH: '50',
       avgValLabel: 'Average Order Value',
-      avgValPH: '300',
+      avgValPH: '35',
       feeLabel: 'COD Service Fee per Order',
-      feePH: '15',
+      feePH: '1.5',
       retRateLabel: 'Non-Delivery / Return Rate (%)',
       retRatePH: '15',
       saveBtnNew: '+ Save Analysis to Log',
@@ -157,7 +174,7 @@ export default function CodAnalyzerQA() {
       grandTotalSub: 'Sum of collection fees and return losses',
       feeTotal: 'Total Collection Service Fees',
       retLossTotal: 'Losses from Rejected Orders (Reverse Shipping)',
-      currency: 'QAR',
+      currency: 'OMR',
       searchPH: '🔍 Search by shipping company...',
       exportBtn: '📥 Export Excel',
       importBtn: '📂 Import',
@@ -208,11 +225,12 @@ export default function CodAnalyzerQA() {
   };
 
   const handleClearForm = () => {
-    setShippingSelect('بريد قطر (Qatar Post)');
-    setCustomShipping('بريد قطر (Qatar Post)');
+    const defComp = lang === 'en' ? 'Oman Post' : 'بريد عُمان (Oman Post)';
+    setShippingSelect(defComp);
+    setCustomShipping(defComp);
     setTotalCodOrders('');
     setAvgOrderValue('');
-    setCodFeePerOrder(15);
+    setCodFeePerOrder(1.5);
     setReturnRatePercent(15);
     setEditingId(null);
   };
@@ -231,7 +249,7 @@ export default function CodAnalyzerQA() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const localeStr = lang === 'ar' ? 'ar-QA' : 'en-QA';
+    const localeStr = lang === 'ar' ? 'ar-OM' : 'en-OM';
     const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
 
     if (editingId) {
@@ -273,14 +291,22 @@ export default function CodAnalyzerQA() {
   };
 
   const handleEdit = (item: CodItem) => {
-    const standardCompanies = ['بريد قطر (Qatar Post)', 'أرامكس (Aramex)', 'كيو إكسبرس (Q-Express)', 'دي إتش إل (DHL)', 'آي مايل (iMile)'];
-    if (standardCompanies.includes(item.shippingCompany)) {
-      setShippingSelect(item.shippingCompany);
-      setCustomShipping(item.shippingCompany);
-    } else {
-      setShippingSelect('OTHER');
-      setCustomShipping(item.shippingCompany);
-    }
+    const isOmanPost = item.shippingCompany.includes('Oman Post') || item.shippingCompany.includes('بريد عُمان');
+    const isAsyad = item.shippingCompany.includes('Asyad') || item.shippingCompany.includes('أسياد');
+    const isDalilak = item.shippingCompany.includes('Dalilak') || item.shippingCompany.includes('دليلك');
+    const isAramex = item.shippingCompany.includes('Aramex') || item.shippingCompany.includes('أرامكس');
+    const isDHL = item.shippingCompany.includes('DHL') || item.shippingCompany.includes('دي إتش إل');
+
+    let matchedComp = '';
+    if (isOmanPost) matchedComp = text.compOmanPost;
+    else if (isAsyad) matchedComp = text.compAsyad;
+    else if (isDalilak) matchedComp = text.compDalilak;
+    else if (isAramex) matchedComp = text.compAramex;
+    else if (isDHL) matchedComp = text.compDHL;
+    else matchedComp = 'OTHER';
+
+    setShippingSelect(matchedComp);
+    setCustomShipping(item.shippingCompany);
     setTotalCodOrders(item.totalCodOrders);
     setAvgOrderValue(item.avgOrderValue);
     setCodFeePerOrder(item.codFeePerOrder);
@@ -391,7 +417,7 @@ export default function CodAnalyzerQA() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", `enjazya_qa_cod_analysis_${dateFilter}.xls`);
+    link.setAttribute("download", `enjazya_om_cod_analysis_${dateFilter}.xls`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -450,11 +476,11 @@ export default function CodAnalyzerQA() {
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
         .input-wrapper input, .input-wrapper select { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .input-wrapper input.with-currency { padding-${lang === 'ar' ? 'left' : 'right'}: 45px; }
-        .input-wrapper input:focus, .input-wrapper select:focus { border-color: #8A1538; background: #ffffff; }
+        .input-wrapper input:focus, .input-wrapper select:focus { border-color: #C62828; background: #ffffff; }
         .currency-tag { position: absolute; ${lang === 'ar' ? 'left: 14px;' : 'right: 14px;'} color: #64748b; font-weight: 800; font-size: 13px; pointer-events: none; }
         
-        .action-btn { background: #8A1538; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
-        .action-btn:hover { background: #6A102B; }
+        .action-btn { background: #C62828; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
+        .action-btn:hover { background: #B71C1C; }
 
         .result-box { background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .result-box.danger { background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); color: #fff; border: none; padding: 20px; }
@@ -464,17 +490,17 @@ export default function CodAnalyzerQA() {
         .danger .result-value { font-size: 26px; color: #ffffff; direction: ${lang === 'ar' ? 'rtl' : 'ltr'}; }
 
         .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
+        
         .search-input { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; flex-grow: 1; max-width: 350px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .search-input:focus { border-color: #8A1538; }
+        .search-input:focus { border-color: #C62828; }
         
         .filter-select { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; background: #fff; color: #334155; cursor: pointer; min-width: 130px; }
-        .filter-select:focus { border-color: #8A1538; }
+        .filter-select:focus { border-color: #C62828; }
 
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
-        .t-btn { padding: 9px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 6px;}
-        .t-btn:hover { background: #f1f5f9; border-color: #8A1538; color: #8A1538; }
+        .t-btn { padding: 9px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .t-btn:hover { background: #f1f5f9; border-color: #C62828; color: #C62828; }
 
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 900px; }
@@ -494,7 +520,7 @@ export default function CodAnalyzerQA() {
           <h1>{text.title}</h1>
           <p>{text.desc}</p>
         </div>
-        <Link href="/hub/qa" className="back-btn">
+        <Link href="/hub/om" className="back-btn">
           {text.back}
         </Link>
       </div>
@@ -516,11 +542,11 @@ export default function CodAnalyzerQA() {
               <label>{text.shippingComp}</label>
               <div className="input-wrapper" style={{ marginBottom: '8px' }}>
                 <select value={shippingSelect} onChange={handleSelectChange}>
-                  <option value="بريد قطر (Qatar Post)">{lang === 'ar' ? 'بريد قطر (Qatar Post)' : 'Qatar Post'}</option>
-                  <option value="أرامكس (Aramex)">{lang === 'ar' ? 'أرامكس (Aramex)' : 'Aramex'}</option>
-                  <option value="كيو إكسبرس (Q-Express)">{lang === 'ar' ? 'كيو إكسبرس (Q-Express)' : 'Q-Express'}</option>
-                  <option value="دي إتش إل (DHL)">{lang === 'ar' ? 'دي إتش إل (DHL)' : 'DHL'}</option>
-                  <option value="آي مايل (iMile)">{lang === 'ar' ? 'آي مايل (iMile)' : 'iMile'}</option>
+                  <option value={text.compOmanPost}>{text.compOmanPost}</option>
+                  <option value={text.compAsyad}>{text.compAsyad}</option>
+                  <option value={text.compDalilak}>{text.compDalilak}</option>
+                  <option value={text.compAramex}>{text.compAramex}</option>
+                  <option value={text.compDHL}>{text.compDHL}</option>
                   <option value="OTHER">{text.otherComp}</option>
                 </select>
               </div>
