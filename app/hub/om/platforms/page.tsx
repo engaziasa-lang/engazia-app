@@ -12,21 +12,21 @@ interface PlatformItem {
   expectedMonthlyOrders: number;
   costPerOrder: number;
   createdAt?: string;
-  timestamp?: number; // تمت الإضافة للفرز الزمني
+  timestamp?: number;
 }
 
-export default function PlatformFeesCalculatorQA() {
+export default function PlatformFeesCalculatorOM() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
   
   const [storeName, setStoreName] = useState<string>('');
   const [platformType, setPlatformType] = useState<string>('');
   const [packageName, setPackageName] = useState<string>('');
-  const [monthlyFee, setMonthlyFee] = useState<number | ''>(149);
+  const [monthlyFee, setMonthlyFee] = useState<number | ''>(15);
   const [expectedMonthlyOrders, setExpectedMonthlyOrders] = useState<number | ''>(300);
 
   const [items, setItems] = useState<PlatformItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [dateFilter, setDateFilter] = useState<string>('all'); // الفرز الزمني
+  const [dateFilter, setDateFilter] = useState<string>('all');
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const [isClient, setIsClient] = useState(false);
@@ -36,15 +36,13 @@ export default function PlatformFeesCalculatorQA() {
 
   useEffect(() => {
     setIsClient(true);
-    setIsActivated(!!localStorage.getItem('merchant_license_key_qa'));
+    setIsActivated(!!localStorage.getItem('merchant_license_key_om'));
 
-    // قراءة اللغة من الصفحة الرئيسية
     const savedLang = localStorage.getItem('seerk_global_lang') as 'ar' | 'en';
     if (savedLang) {
       setLang(savedLang);
     }
     
-    // إعداد القيم الافتراضية بناءً على اللغة
     if (savedLang === 'en') {
       setStoreName('Enjazya Store');
       setPlatformType('Shopify');
@@ -55,7 +53,7 @@ export default function PlatformFeesCalculatorQA() {
       setPackageName('الباقة القياسية (Basic)');
     }
 
-    const saved = localStorage.getItem('seerk_qa_platform_fees_items');
+    const saved = localStorage.getItem('seerk_om_platform_fees_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
@@ -63,21 +61,19 @@ export default function PlatformFeesCalculatorQA() {
 
   const saveToLocalStorage = (newItems: PlatformItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_qa_platform_fees_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_om_platform_fees_items', JSON.stringify(newItems));
   };
 
   const fee = typeof monthlyFee === 'number' ? monthlyFee : 0;
   const orders = typeof expectedMonthlyOrders === 'number' ? expectedMonthlyOrders : 0;
 
-  // الحساب الفعلي
   const costPerOrder = orders > 0 ? fee / orders : 0;
 
-  // قاموس الترجمة الفوري
   const t = {
     ar: {
       back: '← عودة للمنصة',
       title: 'حاسبة رسوم واشتراكات المنصات (شوبيفاي، ووكومرس) 🛒',
-      desc: 'احسب التكاليف الخفية واشتراكات المنصات العالمية والمحلية بقطر لضمان تسعير منتجاتك بشكل صحيح',
+      desc: 'احسب التكاليف الخفية واشتراكات المنصات العالمية والمحلية بعُمان لضمان تسعير منتجاتك بشكل صحيح',
       editRecord: 'تعديل السجل',
       newRecord: 'حساب رسوم منصة جديدة',
       clear: '🧹 مسح الحقول',
@@ -102,7 +98,7 @@ export default function PlatformFeesCalculatorQA() {
       costPerOrderSub: 'الخصم الفعلي من كل عملية بيع نظير المنصة',
       monthlyFeeLabel: 'الاشتراك الشهري المدفوع',
       totalOrdersLabel: 'إجمالي الطلبات الشهرية المتوقعة',
-      currency: 'ر.ق',
+      currency: 'ر.ع',
       ordersUnit: 'طلب',
       searchPH: '🔍 بحث بالمتجر أو المنصة أو الباقة...',
       exportBtn: '📥 تصدير Excel',
@@ -140,7 +136,7 @@ export default function PlatformFeesCalculatorQA() {
     en: {
       back: '→ Back to Hub',
       title: 'Platform Fees Calculator (Shopify, WooCommerce) 🛒',
-      desc: 'Calculate hidden costs and global platform subscriptions to price your products correctly and fairly in Qatar',
+      desc: 'Calculate hidden costs and global platform subscriptions to price your products correctly and fairly in Oman',
       editRecord: 'Edit Record',
       newRecord: 'Calculate New Platform Fees',
       clear: '🧹 Clear Fields',
@@ -165,7 +161,7 @@ export default function PlatformFeesCalculatorQA() {
       costPerOrderSub: 'Actual deduction from each sale for the platform',
       monthlyFeeLabel: 'Paid Monthly Subscription',
       totalOrdersLabel: 'Total Expected Monthly Orders',
-      currency: 'QAR',
+      currency: 'OMR',
       ordersUnit: 'order(s)',
       searchPH: '🔍 Search by store, platform, or package...',
       exportBtn: '📥 Export Excel',
@@ -208,13 +204,13 @@ export default function PlatformFeesCalculatorQA() {
     setPlatformType(p);
     if (p === text.optShopify) {
       setPackageName(text.pkgShopifyDef);
-      setMonthlyFee(149);
+      setMonthlyFee(15);
     } else if (p === text.optWoo) {
       setPackageName(text.pkgWooDef);
-      setMonthlyFee(99);
+      setMonthlyFee(10);
     } else {
       setPackageName(text.pkgCustomDef);
-      setMonthlyFee(199);
+      setMonthlyFee(20);
     }
   };
 
@@ -222,7 +218,7 @@ export default function PlatformFeesCalculatorQA() {
     setStoreName(lang === 'ar' ? 'متجر إنجازيا' : 'Enjazya Store');
     setPlatformType(text.optShopify);
     setPackageName(lang === 'ar' ? 'الباقة القياسية' : 'Basic Plan');
-    setMonthlyFee(149);
+    setMonthlyFee(15);
     setExpectedMonthlyOrders(300);
     setEditingId(null);
   };
@@ -240,7 +236,7 @@ export default function PlatformFeesCalculatorQA() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const localeStr = lang === 'ar' ? 'ar-QA' : 'en-QA';
+    const localeStr = lang === 'ar' ? 'ar-OM' : 'en-OM';
     const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
 
     if (editingId) {
@@ -270,7 +266,7 @@ export default function PlatformFeesCalculatorQA() {
         createdAt: formattedDate,
         timestamp: now.getTime()
       };
-      saveToLocalStorage([newItem, ...items]); // حفظ الجديد للأعلى
+      saveToLocalStorage([newItem, ...items]); 
       alert(text.alerts.saveSuccess);
     }
 
@@ -303,7 +299,6 @@ export default function PlatformFeesCalculatorQA() {
     }
   };
 
-  // فلترة النتائج بناءً على البحث والفرز الزمني
   const filteredItems = items.filter(item => {
     const matchesSearch = item.storeName.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           item.platformName.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -398,7 +393,7 @@ export default function PlatformFeesCalculatorQA() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", `enjazya_qa_platform_fees_${dateFilter}.xls`);
+    link.setAttribute("download", `enjazya_om_platform_fees_${dateFilter}.xls`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -454,7 +449,7 @@ export default function PlatformFeesCalculatorQA() {
 
         .radio-group-container { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 15px; }
         .radio-box { border: 2px solid #cbd5e1; border-radius: 8px; padding: 10px 5px; text-align: center; cursor: pointer; background: #f8fafc; font-weight: 800; font-size: 13px; color: #475569; transition: all 0.2s; display: flex; align-items: center; justify-content: center; user-select: none; }
-        .radio-box.active { border-color: #8A1538; background: #FAF0F2; color: #8A1538; }
+        .radio-box.active { border-color: #C62828; background: #FFEBEE; color: #C62828; }
         .radio-box input { display: none; }
 
         .input-group { margin-bottom: 15px; width: 100%; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
@@ -462,14 +457,14 @@ export default function PlatformFeesCalculatorQA() {
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
         .input-wrapper input { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .input-wrapper input.with-currency { padding-${lang === 'ar' ? 'left' : 'right'}: 45px; }
-        .input-wrapper input:focus { border-color: #8A1538; background: #ffffff; }
+        .input-wrapper input:focus { border-color: #C62828; background: #ffffff; }
         .currency-tag { position: absolute; ${lang === 'ar' ? 'left: 14px;' : 'right: 14px;'} color: #64748b; font-weight: 800; font-size: 13px; pointer-events: none; }
         
-        .action-btn { background: #8A1538; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
-        .action-btn:hover { background: #6A102B; }
+        .action-btn { background: #C62828; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
+        .action-btn:hover { background: #B71C1C; }
 
         .result-box { background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .result-box.primary { background: linear-gradient(135deg, #8A1538 0%, #6A102B 100%); color: #fff; border: none; padding: 20px; }
+        .result-box.primary { background: linear-gradient(135deg, #C62828 0%, #B71C1C 100%); color: #fff; border: none; padding: 20px; }
         .result-label { font-size: 13px; font-weight: 700; color: #64748b; }
         .primary .result-label { color: #ffffff; opacity: 0.9; }
         .result-value { font-size: 18px; font-weight: 900; color: #0f172a; direction: ltr; }
@@ -479,14 +474,14 @@ export default function PlatformFeesCalculatorQA() {
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
         
         .search-input { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; flex-grow: 1; max-width: 350px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .search-input:focus { border-color: #8A1538; }
+        .search-input:focus { border-color: #C62828; }
         
         .filter-select { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; background: #fff; color: #334155; cursor: pointer; min-width: 130px; }
-        .filter-select:focus { border-color: #8A1538; }
+        .filter-select:focus { border-color: #C62828; }
 
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
         .t-btn { padding: 9px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 6px; }
-        .t-btn:hover { background: #f1f5f9; border-color: #8A1538; color: #8A1538; }
+        .t-btn:hover { background: #f1f5f9; border-color: #C62828; color: #C62828; }
 
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 900px; }
@@ -506,7 +501,7 @@ export default function PlatformFeesCalculatorQA() {
           <h1>{text.title}</h1>
           <p>{text.desc}</p>
         </div>
-        <Link href="/hub/qa" className="back-btn">
+        <Link href="/hub/om" className="back-btn">
           {text.back}
         </Link>
       </div>
@@ -561,7 +556,7 @@ export default function PlatformFeesCalculatorQA() {
               <div className="input-group">
                 <label>{text.feeLabel} ({text.currency})</label>
                 <div className="input-wrapper">
-                  <input className="with-currency" type="number" step="0.01" min="0" value={monthlyFee === '' ? '' : monthlyFee} onChange={(e) => setMonthlyFee(e.target.value === '' ? '' : Number(e.target.value))} placeholder="149" required />
+                  <input className="with-currency" type="number" step="0.01" min="0" value={monthlyFee === '' ? '' : monthlyFee} onChange={(e) => setMonthlyFee(e.target.value === '' ? '' : Number(e.target.value))} placeholder="15" required />
                   <span className="currency-tag">{text.currency}</span>
                 </div>
               </div>
@@ -594,7 +589,7 @@ export default function PlatformFeesCalculatorQA() {
 
           <div className="result-box">
             <span className="result-label">{text.monthlyFeeLabel}</span>
-            <span className="result-value" style={{ color: '#8A1538' }}>{fee.toFixed(2)} {text.currency}</span>
+            <span className="result-value" style={{ color: '#C62828' }}>{fee.toFixed(2)} {text.currency}</span>
           </div>
 
           <div className="result-box" style={{ background: '#f8fafc' }}>
@@ -643,18 +638,20 @@ export default function PlatformFeesCalculatorQA() {
             <thead>
               <tr>
                 <th>{text.table.th1}</th>
-                <th>{text.table.th2}</th>
-                <th>{text.table.th3}</th>
-                <th>{text.table.th4}</th>
+                <th>{text.storeNameLabel}</th>
+                <th>Date / Time</th>
+                <th>{text.table.th3.split(' ')[0]}</th>
+                <th>{text.pkgLabel.split(' ')[0]}</th>
+                <th>{text.table.th4} ({text.currency})</th>
                 <th>{text.table.th5}</th>
-                <th>{text.table.th6}</th>
-                <th>{text.table.th7}</th>
+                <th>{text.table.th6} ({text.currency})</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
               {filteredItems.length === 0 ? (
                 <tr>
-                  <td colSpan={7} style={{ textAlign: 'center', color: '#94a3b8', padding: '30px 0' }}>
+                  <td colSpan={9} style={{ textAlign: 'center', color: '#94a3b8', padding: '30px 0' }}>
                     {text.table.noRecords}
                   </td>
                 </tr>
@@ -662,17 +659,13 @@ export default function PlatformFeesCalculatorQA() {
                 filteredItems.map((item, idx) => (
                   <tr key={item.id}>
                     <td>{idx + 1}</td>
-                    <td>
-                      <div style={{ fontWeight: 900, color: '#0f172a' }}>{item.storeName}</div>
-                      {item.createdAt && <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', fontWeight: 600 }}>🕒 {item.createdAt}</div>}
-                    </td>
-                    <td>
-                      <div style={{ fontWeight: 800, color: '#8A1538' }}>{item.platformName}</div>
-                      <div style={{ fontSize: '11.5px', color: '#64748b' }}>{item.packageName}</div>
-                    </td>
-                    <td>{item.monthlyFee} {text.currency}</td>
-                    <td>{item.expectedMonthlyOrders} {text.ordersUnit}</td>
-                    <td style={{ fontWeight: 900, color: '#d97706' }}>{item.costPerOrder} {text.currency}</td>
+                    <td>{item.storeName}</td>
+                    <td>{item.createdAt || '-'}</td>
+                    <td><span style={{ fontWeight: 800, color: '#C62828' }}>{item.platformName}</span></td>
+                    <td>{item.packageName}</td>
+                    <td>{item.monthlyFee}</td>
+                    <td>{item.expectedMonthlyOrders}</td>
+                    <td style={{ fontWeight: 900, color: '#047857' }}>{item.costPerOrder}</td>
                     <td>
                       <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                         <button className="tb-action-btn btn-edit" onClick={() => handleEdit(item)} title="✏️">✏️</button>
@@ -686,10 +679,10 @@ export default function PlatformFeesCalculatorQA() {
             {filteredItems.length > 0 && (
               <tfoot>
                 <tr className="tfoot-row">
-                  <td colSpan={3} style={{ textAlign: 'center' }}>{text.table.totalLabel}</td>
-                  <td>{totalMonthlyFees.toFixed(2)} {text.currency}</td>
-                  <td>{totalMonthlyOrders} {text.ordersUnit}</td>
-                  <td style={{ color: '#d97706' }}>{avgCostPerOrder.toFixed(2)} {text.currency}</td>
+                  <td colSpan={5} style={{ textAlign: 'center' }}>{text.table.totalLabel}</td>
+                  <td>{totalMonthlyFees.toFixed(2)}</td>
+                  <td>{totalMonthlyOrders}</td>
+                  <td style={{ color: '#047857' }}>{avgCostPerOrder.toFixed(2)} {text.currency}</td>
                   <td></td>
                 </tr>
               </tfoot>
