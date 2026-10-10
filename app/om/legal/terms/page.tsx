@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 
-export default function TermsPageQA() {
+export default function TermsPageOM() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
 
   useEffect(() => {
@@ -12,7 +12,7 @@ export default function TermsPageQA() {
       if (savedLang) {
         setLang(savedLang);
       }
-      document.title = savedLang === 'en' ? 'Enjazya | Terms of Use (Qatar)' : 'إنجازيا | شروط الاستخدام (قطر)';
+      document.title = savedLang === 'en' ? 'Enjazya | Terms of Use (Oman)' : 'إنجازيا | شروط الاستخدام (عُمان)';
     }
   }, []);
 
@@ -20,9 +20,9 @@ export default function TermsPageQA() {
     ar: {
       title: 'شروط الاستخدام ⚖️',
       back: '← عودة للمنصة',
-      intro: 'أهلاً بك في منصة إنجازيا المخصصة للسوق القطري. استخدامك للمنصة يعتبر موافقة صريحة على الالتزام بالشروط والأحكام التالية:',
+      intro: 'أهلاً بك في منصة إنجازيا المخصصة للسوق العُماني. استخدامك للمنصة يعتبر موافقة صريحة على الالتزام بالشروط والأحكام التالية:',
       sec1Title: '1. الترخيص والاستخدام',
-      sec1Desc: 'تمنحك العضوية حقاً فردياً وغير حصري وغير قابل للتحويل لاستخدام الأدوات الخاصة بإدارة وتطوير المتاجر الإلكترونية وفقاً لمتطلبات دولة قطر.',
+      sec1Desc: 'تمنحك العضوية حقاً فردياً وغير حصري وغير قابل للتحويل لاستخدام الأدوات الخاصة بإدارة وتطوير المتاجر الإلكترونية وفقاً لمتطلبات سلطنة عُمان.',
       sec2Title: '2. حماية وتخزين البيانات',
       sec2Desc: 'جميع الحسابات والبيانات تُعالج محلياً داخل متصفحك لضمان أعلى معايير الخصوصية والسرية. المنصة لا تتحمل مسؤولية فقدان البيانات المحلية في حال عدم استخدام ميزة التصدير الدوري (JSON Backup).',
       sec3Title: '3. الاشتراكات والمدفوعات',
@@ -31,9 +31,9 @@ export default function TermsPageQA() {
     en: {
       title: 'Terms of Use ⚖️',
       back: '→ Back to Hub',
-      intro: 'Welcome to the Enjazya platform dedicated to the Qatar market. Your use of the platform constitutes explicit agreement to abide by the following terms and conditions:',
+      intro: 'Welcome to the Enjazya platform dedicated to the Omani market. Your use of the platform constitutes explicit agreement to abide by the following terms and conditions:',
       sec1Title: '1. License and Use',
-      sec1Desc: 'Membership grants you an individual, non-exclusive, non-transferable right to use the tools for managing and developing e-commerce stores in accordance with the requirements of the State of Qatar.',
+      sec1Desc: 'Membership grants you an individual, non-exclusive, non-transferable right to use the tools for managing and developing e-commerce stores in accordance with the requirements of the Sultanate of Oman.',
       sec2Title: '2. Data Protection and Storage',
       sec2Desc: 'All accounts and data are processed locally inside your browser to ensure the highest standards of privacy and confidentiality. The platform is not responsible for the loss of local data if the periodic export feature (JSON Backup) is not used.',
       sec3Title: '3. Subscriptions and Payments',
@@ -50,7 +50,7 @@ export default function TermsPageQA() {
       <div style={{ maxWidth: '800px', margin: '0 auto', background: '#fff', padding: '40px', borderRadius: '16px', border: '1px solid #e2e8f0', textAlign: lang === 'ar' ? 'right' : 'left' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px', flexWrap: 'wrap', gap: '15px', flexDirection: lang === 'ar' ? 'row' : 'row-reverse' }}>
           <h1 style={{ fontSize: '28px', fontWeight: 900, color: '#0f172a', margin: 0 }}>{text.title}</h1>
-          <Link href="/hub/qa" style={{ background: '#FAF0F2', color: '#8A1538', border: '1px solid #EBB8C6', padding: '8px 16px', borderRadius: '8px', textDecoration: 'none', fontWeight: 700, fontSize: '13px' }}>
+          <Link href="/hub/om" style={{ background: '#FFEBEE', color: '#C62828', border: '1px solid #FFCDD2', padding: '8px 16px', borderRadius: '8px', textDecoration: 'none', fontWeight: 700, fontSize: '13px' }}>
             {text.back}
           </Link>
         </div>
