@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 
-export default function PricingQA() {
+export default function PricingOM() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
   const LEMON_CHECKOUT_URL = 'https://enjazya.lemonsqueezy.com/checkout/buy/dce1dd80-3422-43ba-aed5-8ef2dcd38d6d?locale=en';
 
@@ -13,27 +13,27 @@ export default function PricingQA() {
       if (savedLang) {
         setLang(savedLang);
       }
-      document.title = savedLang === 'en' ? 'Enjazya | Pricing Plans (Qatar)' : 'إنجازيا | باقات الاشتراك (قطر)';
+      document.title = savedLang === 'en' ? 'Enjazya | Pricing Plans (Oman)' : 'إنجازيا | باقات الاشتراك (عُمان)';
     }
   }, []);
 
   const t = {
     ar: {
       brand: 'إنجازيا',
-      badge: 'السوق القطري QA',
+      badge: 'السوق العُماني OM',
       back: '← عودة للمنصة',
       title: 'الباقة الشاملة (PRO ULTRA)',
       desc: 'وصول غير محدود لجميع الأدوات الـ 24 والتحديثات المستقبلية وميزات التصدير والاستيراد.',
-      oldPriceUnit: 'ر.ق / شهرياً',
-      newPriceUnit: 'ر.ق',
-      subscribeBtn: 'الاشتراك الآن بـ 49.99 ر.ق',
+      oldPriceUnit: 'ر.ع / شهرياً',
+      newPriceUnit: 'ر.ع',
+      subscribeBtn: 'الاشتراك الآن بـ 4.99 ر.ع',
       features: [
         { text: 'تفعيل فوري لكافة الأدوات الـ 24', icon: '🚀' },
         { text: 'إدارة عملاء واتساب (إنجازيا Pro Max)', icon: '💬' },
         { text: 'أداة جسمل لتحليل ومقارنة الأسعار', icon: '🕷️' },
-        { text: 'حسابات ضريبية للهيئة العامة للضرائب (GTA)', icon: '🏛️' },
+        { text: 'حسابات ضريبية لجهاز الضرائب العُماني (OTA)', icon: '🏛️' },
         { text: 'محلل خسائر المرتجعات والشحن العكسي', icon: '🔄' },
-        { text: 'حاسبة أرباح ونقاط التعادل (بدون ضريبة)', icon: '📊' },
+        { text: 'حاسبة أرباح ونقاط التعادل (بعد الضريبة)', icon: '📊' },
         { text: 'حاسبة رسوم بوابات الدفع الإلكترونية', icon: '💳' },
         { text: 'مجهز بيانات الإقرار الضريبي', icon: '📑' },
         { text: 'أداة استرجاع السلال المتروكة آلياً', icon: '🛒' },
@@ -59,18 +59,18 @@ export default function PricingQA() {
     },
     en: {
       brand: 'Enjazya',
-      badge: 'Qatar Market QA',
+      badge: 'Oman Market OM',
       back: '→ Back to Hub',
       title: 'All-Inclusive Plan (PRO ULTRA)',
       desc: 'Unlimited access to all 24 tools, future updates, and export/import features.',
-      oldPriceUnit: 'QAR / monthly',
-      newPriceUnit: 'QAR',
-      subscribeBtn: 'Subscribe Now for 49.99 QAR',
+      oldPriceUnit: 'OMR / monthly',
+      newPriceUnit: 'OMR',
+      subscribeBtn: 'Subscribe Now for 4.99 OMR',
       features: [
         { text: 'Instant activation of all 24 tools', icon: '🚀' },
         { text: 'WhatsApp CRM Management (Enjazya Pro Max)', icon: '💬' },
         { text: 'Jasml Price Analysis & Comparison Tool', icon: '🕷️' },
-        { text: 'Tax Calculations for Qatar GTA', icon: '🏛️' },
+        { text: 'Tax Calculations for Oman OTA', icon: '🏛️' },
         { text: 'Returns & Reverse Shipping Loss Analyzer', icon: '🔄' },
         { text: 'Profit & Break-Even Calculator', icon: '📊' },
         { text: 'Payment Gateway Fees Calculator', icon: '💳' },
@@ -112,14 +112,14 @@ export default function PricingQA() {
         
         .header { width: 100%; max-width: 1000px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
         .brand { font-size: 24px; font-weight: 900; color: #0f172a; display: flex; align-items: center; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
-        .qa-badge { background: #FAF0F2; color: #8A1538; border: 1px solid #EBB8C6; font-size: 12px; font-weight: 800; padding: 4px 8px; border-radius: 6px; }
+        .om-badge { background: #FFEBEE; color: #C62828; border: 1px solid #FFCDD2; font-size: 12px; font-weight: 800; padding: 4px 8px; border-radius: 6px; }
         
         .back-btn { background: #ffffff; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 8px; color: #475569; font-weight: 700; font-size: 14px; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
         .back-btn:hover { background: #f1f5f9; color: #0f172a; }
 
         .pricing-card {
           background: #ffffff;
-          border: 2px solid #8A1538;
+          border: 2px solid #C62828;
           border-radius: 20px;
           padding: 50px;
           max-width: 900px;
@@ -136,7 +136,7 @@ export default function PricingQA() {
         .old-price { font-size: 24px; font-weight: 800; color: #94a3b8; text-decoration: line-through; display: flex; align-items: center; gap: 5px; }
         .old-price span { font-size: 16px; }
         
-        .new-price { font-size: 64px; font-weight: 900; color: #8A1538; display: flex; align-items: center; gap: 8px; line-height: 1; direction: ltr; }
+        .new-price { font-size: 64px; font-weight: 900; color: #C62828; display: flex; align-items: center; gap: 8px; line-height: 1; direction: ltr; }
         .new-price span { font-size: 24px; font-weight: 800; }
 
         .features-grid {
@@ -148,12 +148,12 @@ export default function PricingQA() {
         }
 
         .feature-item { display: flex; align-items: center; gap: 12px; font-size: 16px; font-weight: 700; color: #1e293b; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; justify-content: flex-end; }
-        .feature-icon-box { background: #8A1538; width: 24px; height: 24px; border-radius: 4px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .feature-icon-box { background: #C62828; width: 24px; height: 24px; border-radius: 4px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         
         .check-svg { width: 14px; height: 14px; fill: none; stroke: white; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
 
         .subscribe-btn {
-          background: #8A1538;
+          background: #C62828;
           color: #ffffff;
           border: none;
           padding: 16px 40px;
@@ -163,11 +163,11 @@ export default function PricingQA() {
           cursor: pointer;
           transition: all 0.3s ease;
           font-family: inherit;
-          box-shadow: 0 4px 15px rgba(138,21,56,0.2);
+          box-shadow: 0 4px 15px rgba(198,40,40,0.2);
           width: 100%;
           max-width: 400px;
         }
-        .subscribe-btn:hover { background: #6A102B; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(138,21,56,0.3); }
+        .subscribe-btn:hover { background: #B71C1C; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(198,40,40,0.3); }
 
         @media(max-width: 768px) {
           .pricing-card { padding: 30px 20px; }
@@ -179,9 +179,9 @@ export default function PricingQA() {
 
       <div className="header">
         <div className="brand">
-          {text.brand} <span className="qa-badge">{text.badge}</span>
+          {text.brand} <span className="om-badge">{text.badge}</span>
         </div>
-        <Link href="/hub/qa" className="back-btn">
+        <Link href="/hub/om" className="back-btn">
           {text.back}
         </Link>
       </div>
@@ -191,8 +191,8 @@ export default function PricingQA() {
         <p className="card-desc">{text.desc}</p>
 
         <div className="price-section">
-          <div className="old-price">299 <span>{text.oldPriceUnit}</span></div>
-          <div className="new-price">49.99 <span>{text.newPriceUnit}</span></div>
+          <div className="old-price">29.99 <span>{text.oldPriceUnit}</span></div>
+          <div className="new-price">4.99 <span>{text.newPriceUnit}</span></div>
         </div>
 
         <div className="features-grid">
