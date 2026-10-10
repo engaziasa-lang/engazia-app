@@ -19,7 +19,7 @@ interface ABTestItem {
   timestamp?: number;
 }
 
-export default function ABTestingCalculatorQA() {
+export default function ABTestingCalculatorOM() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
 
   const [testName, setTestName] = useState<string>('');
@@ -44,14 +44,14 @@ export default function ABTestingCalculatorQA() {
 
   useEffect(() => {
     setIsClient(true);
-    setIsActivated(!!localStorage.getItem('merchant_license_key_qa'));
+    setIsActivated(!!localStorage.getItem('merchant_license_key_om'));
     
     const savedLang = localStorage.getItem('seerk_global_lang') as 'ar' | 'en';
     if (savedLang) {
       setLang(savedLang);
     }
     
-    const saved = localStorage.getItem('seerk_qa_ab_testing_items');
+    const saved = localStorage.getItem('seerk_om_ab_testing_items');
     if (saved) {
       try { 
         const parsedData = JSON.parse(saved);
@@ -86,7 +86,7 @@ export default function ABTestingCalculatorQA() {
       bestCamp: 'الحملة الأفضل بناءً على تكلفة الاستحواذ',
       cpaA: 'تكلفة الطلب (CPA) للحملة (أ)',
       cpaB: 'تكلفة الطلب (CPA) للحملة (ب)',
-      currency: 'ر.ق',
+      currency: 'ر.ع',
       perOrder: 'طلب',
       searchPH: '🔍 بحث باسم الاختبار...',
       exportBtn: '📥 تصدير Excel',
@@ -154,7 +154,7 @@ export default function ABTestingCalculatorQA() {
       bestCamp: 'Best campaign based on Customer Acquisition Cost',
       cpaA: 'Campaign (A) CPA',
       cpaB: 'Campaign (B) CPA',
-      currency: 'QAR',
+      currency: 'OMR',
       perOrder: 'order',
       searchPH: '🔍 Search by test name...',
       exportBtn: '📥 Export Excel',
@@ -203,7 +203,7 @@ export default function ABTestingCalculatorQA() {
 
   const saveToLocalStorage = (newItems: ABTestItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_qa_ab_testing_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_om_ab_testing_items', JSON.stringify(newItems));
   };
 
   const spendA = typeof campASpend === 'number' ? campASpend : 0;
@@ -262,7 +262,7 @@ export default function ABTestingCalculatorQA() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const localeStr = lang === 'ar' ? 'ar-QA' : 'en-QA';
+    const localeStr = lang === 'ar' ? 'ar-OM' : 'en-OM';
     const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
 
     const newItemData = {
@@ -313,13 +313,12 @@ export default function ABTestingCalculatorQA() {
     }
   };
 
-  // فلترة النتائج بناءً على البحث والفرز الزمني
   const filteredItems = items.filter(item => {
     const matchesSearch = (item?.testName || '').toLowerCase().includes((searchQuery || '').toLowerCase());
     let matchesDate = true;
     
     if (dateFilter !== 'all') {
-      const itemTime = item.timestamp || 0; // إذا لم يكن هناك طابع زمني قديم
+      const itemTime = item.timestamp || 0; 
       const now = Date.now();
       const diff = now - itemTime;
       const dayMs = 24 * 60 * 60 * 1000;
@@ -335,7 +334,6 @@ export default function ABTestingCalculatorQA() {
   });
 
   const handleExportExcel = () => {
-    // الاعتماد المباشر على filteredItems لضمان تصدير ما يراه المستخدم فقط
     if (filteredItems.length === 0) {
       alert(text.alerts.noDataExp);
       return;
@@ -397,7 +395,7 @@ export default function ABTestingCalculatorQA() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", `enjazya_qa_ab_testing_${dateFilter}.xls`); // اسم الملف يتغير حسب الفلتر
+    link.setAttribute("download", `enjazya_om_ab_testing_${dateFilter}.xls`); 
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -411,7 +409,6 @@ export default function ABTestingCalculatorQA() {
         try {
           const imported = JSON.parse(event.target?.result as string);
           if (Array.isArray(imported)) {
-            // دمج البيانات الجديدة مع القديمة مع منع التكرار بناءً على الـ ID
             const newItems = imported.filter(imp => !items.find(i => i.id === imp.id));
             saveToLocalStorage([...newItems, ...items]);
             alert(text.alerts.importSuccess);
@@ -457,11 +454,11 @@ export default function ABTestingCalculatorQA() {
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
         .input-wrapper input { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .input-wrapper input.with-currency { padding-${lang === 'ar' ? 'left' : 'right'}: 45px; }
-        .input-wrapper input:focus { border-color: #8A1538; background: #ffffff; }
+        .input-wrapper input:focus { border-color: #C62828; background: #ffffff; }
         .currency-tag { position: absolute; ${lang === 'ar' ? 'left: 14px;' : 'right: 14px;'} color: #64748b; font-weight: 800; font-size: 13px; pointer-events: none; }
         
-        .action-btn { background: #8A1538; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
-        .action-btn:hover { background: #6A102B; }
+        .action-btn { background: #C62828; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
+        .action-btn:hover { background: #B71C1C; }
 
         .result-box { background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .result-box.primary { color: #fff; border: none; padding: 20px; transition: background 0.3s ease; }
@@ -474,14 +471,14 @@ export default function ABTestingCalculatorQA() {
         
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
         .search-input { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; flex-grow: 1; max-width: 350px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .search-input:focus { border-color: #8A1538; }
+        .search-input:focus { border-color: #C62828; }
         
         .filter-select { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; background: #fff; color: #334155; cursor: pointer; min-width: 130px; }
-        .filter-select:focus { border-color: #8A1538; }
+        .filter-select:focus { border-color: #C62828; }
 
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
         .t-btn { padding: 9px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 6px; }
-        .t-btn:hover { background: #f1f5f9; border-color: #8A1538; color: #8A1538; }
+        .t-btn:hover { background: #f1f5f9; border-color: #C62828; color: #C62828; }
 
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 900px; }
@@ -500,7 +497,7 @@ export default function ABTestingCalculatorQA() {
           <h1>{text.title}</h1>
           <p>{text.desc}</p>
         </div>
-        <Link href="/hub/qa" className="back-btn">
+        <Link href="/hub/om" className="back-btn">
           {text.back}
         </Link>
       </div>
