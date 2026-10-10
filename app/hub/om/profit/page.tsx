@@ -13,10 +13,10 @@ interface ProfitItem {
   netProfit: number;
   margin: number;
   createdAt?: string;
-  timestamp?: number; // تمت الإضافة للفرز الزمني
+  timestamp?: number;
 }
 
-export default function ProfitCalculatorQA() {
+export default function ProfitCalculatorOM() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
   const [productName, setProductName] = useState<string>('');
   const [sellingPrice, setSellingPrice] = useState<number | ''>('');
@@ -26,7 +26,7 @@ export default function ProfitCalculatorQA() {
 
   const [items, setItems] = useState<ProfitItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [dateFilter, setDateFilter] = useState<string>('all'); // الفرز الزمني
+  const [dateFilter, setDateFilter] = useState<string>('all');
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const [isClient, setIsClient] = useState(false);
@@ -36,15 +36,14 @@ export default function ProfitCalculatorQA() {
 
   useEffect(() => {
     setIsClient(true);
-    setIsActivated(!!localStorage.getItem('merchant_license_key_qa'));
+    setIsActivated(!!localStorage.getItem('merchant_license_key_om'));
 
-    // قراءة اللغة من الصفحة الرئيسية
     const savedLang = localStorage.getItem('seerk_global_lang') as 'ar' | 'en';
     if (savedLang) {
       setLang(savedLang);
     }
     
-    const saved = localStorage.getItem('seerk_qa_profit_items');
+    const saved = localStorage.getItem('seerk_om_profit_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
@@ -52,7 +51,7 @@ export default function ProfitCalculatorQA() {
 
   const saveToLocalStorage = (newItems: ProfitItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_qa_profit_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_om_profit_items', JSON.stringify(newItems));
   };
 
   const sPrice = typeof sellingPrice === 'number' ? sellingPrice : 0;
@@ -60,19 +59,18 @@ export default function ProfitCalculatorQA() {
   const sCost = typeof shippingCost === 'number' ? shippingCost : 0;
   const gFee = typeof gatewayFeePercent === 'number' ? gatewayFeePercent : 0;
 
-  // الضريبة في قطر (0% للمتاجر الإلكترونية حالياً)
-  const vatAmount = 0; 
+  // الضريبة في عُمان (5%)
+  const vatAmount = sPrice * 0.05; 
   const gatewayFeeAmount = sPrice * (gFee / 100);
   const totalCosts = pCost + sCost + vatAmount + gatewayFeeAmount;
   const netProfit = sPrice - totalCosts;
   const margin = sPrice > 0 ? (netProfit / sPrice) * 100 : 0;
 
-  // قاموس الترجمة الفوري
   const t = {
     ar: {
       back: '← عودة للمنصة',
-      title: 'حاسبة أرباح ونقاط التعادل (قطر) 📊',
-      desc: 'احسب صافي أرباحك بدقة بعد خصم التكاليف، رسوم الشحن، وعمولات بوابات الدفع في السوق القطري',
+      title: 'حاسبة أرباح ونقاط التعادل (عُمان) 📊',
+      desc: 'احسب صافي أرباحك بدقة بعد خصم التكاليف، رسوم الشحن، ضريبة الـ VAT، وعمولات بوابات الدفع في السوق العُماني',
       editRecord: 'تعديل بيانات المنتج',
       newRecord: 'حساب منتج جديد',
       clear: '🧹 مسح الحقول',
@@ -80,22 +78,22 @@ export default function ProfitCalculatorQA() {
       prodName: 'اسم المنتج أو الخدمة',
       prodNamePH: 'مثال: عطر فاخر',
       sellPrice: 'سعر بيع المنتج للعميل',
-      sellPricePH: '200',
+      sellPricePH: '20',
       prodCost: 'تكلفة المنتج الأساسية من المورد',
-      prodCostPH: '60',
+      prodCostPH: '6',
       shipCost: 'تكلفة التوصيل والشحن للطلب',
-      shipCostPH: '25',
+      shipCostPH: '2.5',
       gateFee: 'رسوم بوابة الدفع (%)',
       gateFeePH: '2.5',
       saveBtnNew: '+ حفظ وإضافة المنتج للجدول',
       saveBtnEdit: '💾 حفظ التعديلات',
       analysisTitle: 'التحليل المالي الفوري',
       netProfit: 'صافي الربح الفعلي للقطعة الواحدة',
-      netProfitSub: 'بعد خصم التكلفة، الشحن، ورسوم البوابة',
+      netProfitSub: 'بعد خصم التكلفة، الشحن، الضريبة ورسوم البوابة',
       marginLabel: 'هامش الربح الصافي (%)',
-      vatLabel: 'ضريبة القيمة المضافة (0%)',
+      vatLabel: 'ضريبة القيمة المضافة (5%)',
       totalCostLabel: 'إجمالي التكاليف الشاملة للطلب',
-      currency: 'ر.ق',
+      currency: 'ر.ع',
       searchPH: '🔍 بحث في المنتجات المحفوظة...',
       exportBtn: '📥 تصدير Excel',
       importBtn: '📂 استيراد',
@@ -133,8 +131,8 @@ export default function ProfitCalculatorQA() {
     },
     en: {
       back: '→ Back to Hub',
-      title: 'Profit & Break-Even Calculator (Qatar) 📊',
-      desc: 'Accurately calculate your net profit after deducting costs, shipping fees, and gateway commissions in Qatar',
+      title: 'Profit & Break-Even Calculator (Oman) 📊',
+      desc: 'Accurately calculate your net profit after deducting costs, VAT, shipping fees, and gateway commissions in Oman',
       editRecord: 'Edit Product Data',
       newRecord: 'New Product Calculation',
       clear: '🧹 Clear Fields',
@@ -142,22 +140,22 @@ export default function ProfitCalculatorQA() {
       prodName: 'Product or Service Name',
       prodNamePH: 'e.g. Luxury Perfume',
       sellPrice: 'Selling Price to Customer',
-      sellPricePH: '200',
+      sellPricePH: '20',
       prodCost: 'Base Product Cost from Supplier',
-      prodCostPH: '60',
+      prodCostPH: '6',
       shipCost: 'Shipping & Delivery Cost',
-      shipCostPH: '25',
+      shipCostPH: '2.5',
       gateFee: 'Payment Gateway Fee (%)',
       gateFeePH: '2.5',
       saveBtnNew: '+ Save & Add to Table',
       saveBtnEdit: '💾 Save Changes',
       analysisTitle: 'Instant Financial Analysis',
       netProfit: 'Actual Net Profit per Item',
-      netProfitSub: 'After deducting cost, shipping, and gateway fees',
+      netProfitSub: 'After deducting cost, shipping, VAT, and gateway fees',
       marginLabel: 'Net Profit Margin (%)',
-      vatLabel: 'Value Added Tax (0%)',
+      vatLabel: 'Value Added Tax (5%)',
       totalCostLabel: 'Total Comprehensive Order Cost',
-      currency: 'QAR',
+      currency: 'OMR',
       searchPH: '🔍 Search saved products...',
       exportBtn: '📥 Export Excel',
       importBtn: '📂 Import',
@@ -219,7 +217,7 @@ export default function ProfitCalculatorQA() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const localeStr = lang === 'ar' ? 'ar-QA' : 'en-QA';
+    const localeStr = lang === 'ar' ? 'ar-OM' : 'en-OM';
     const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
 
     if (editingId) {
@@ -251,7 +249,7 @@ export default function ProfitCalculatorQA() {
         createdAt: formattedDate,
         timestamp: now.getTime()
       };
-      saveToLocalStorage([newItem, ...items]); // حفظ الجديد في الأعلى
+      saveToLocalStorage([newItem, ...items]); 
       alert(text.alerts.saveSuccess);
     }
 
@@ -275,7 +273,6 @@ export default function ProfitCalculatorQA() {
     }
   };
 
-  // فلترة النتائج بناءً على البحث والفرز الزمني
   const filteredItems = items.filter(item => {
     const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase());
     let matchesDate = true;
@@ -368,7 +365,7 @@ export default function ProfitCalculatorQA() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", `enjazya_qa_profit_analysis_${dateFilter}.xls`);
+    link.setAttribute("download", `enjazya_om_profit_analysis_${dateFilter}.xls`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -419,37 +416,39 @@ export default function ProfitCalculatorQA() {
         .clear-form-btn { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; display: flex; align-items: center; gap: 5px; }
         .clear-form-btn:hover { background: #fecaca; }
 
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        @media(max-width: 600px) { .form-row { grid-template-columns: 1fr; gap: 0; } }
+
         .input-group { margin-bottom: 15px; width: 100%; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .input-group label { display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 6px; }
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
-        .input-wrapper input { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 15px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .input-wrapper input, .input-wrapper select { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .input-wrapper input.with-currency { padding-${lang === 'ar' ? 'left' : 'right'}: 45px; }
-        .input-wrapper input:focus { border-color: #8A1538; background: #ffffff; }
+        .input-wrapper input:focus, .input-wrapper select:focus { border-color: #C62828; background: #ffffff; }
         .currency-tag { position: absolute; ${lang === 'ar' ? 'left: 14px;' : 'right: 14px;'} color: #64748b; font-weight: 800; font-size: 13px; pointer-events: none; }
         
-        .action-btn { background: #8A1538; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
-        .action-btn:hover { background: #6A102B; }
+        .action-btn { background: #C62828; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
+        .action-btn:hover { background: #B71C1C; }
 
         .result-box { background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .result-box.primary { background: linear-gradient(135deg, #8A1538 0%, #6A102B 100%); color: #fff; border: none; padding: 20px; }
-        .result-box.danger { background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); color: #fff; border: none; padding: 20px; }
+        .result-box.primary { background: linear-gradient(135deg, #C62828 0%, #B71C1C 100%); color: #fff; border: none; padding: 20px; }
         .result-label { font-size: 13px; font-weight: 700; color: #64748b; }
-        .primary .result-label, .danger .result-label { color: #ffffff; opacity: 0.9; }
+        .primary .result-label { color: #ffffff; opacity: 0.9; }
         .result-value { font-size: 18px; font-weight: 900; color: #0f172a; direction: ltr; }
-        .primary .result-value, .danger .result-value { font-size: 26px; color: #ffffff; direction: ${lang === 'ar' ? 'rtl' : 'ltr'}; }
+        .primary .result-value { font-size: 26px; color: #ffffff; direction: ${lang === 'ar' ? 'rtl' : 'ltr'}; }
 
         .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
         
         .search-input { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; flex-grow: 1; max-width: 350px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .search-input:focus { border-color: #8A1538; }
+        .search-input:focus { border-color: #C62828; }
         
         .filter-select { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; background: #fff; color: #334155; cursor: pointer; min-width: 130px; }
-        .filter-select:focus { border-color: #8A1538; }
+        .filter-select:focus { border-color: #C62828; }
 
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
         .t-btn { padding: 9px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 6px; }
-        .t-btn:hover { background: #f1f5f9; border-color: #8A1538; color: #8A1538; }
+        .t-btn:hover { background: #f1f5f9; border-color: #C62828; color: #C62828; }
 
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 900px; }
@@ -469,7 +468,7 @@ export default function ProfitCalculatorQA() {
           <h1>{text.title}</h1>
           <p>{text.desc}</p>
         </div>
-        <Link href="/hub/qa" className="back-btn">
+        <Link href="/hub/om" className="back-btn">
           {text.back}
         </Link>
       </div>
@@ -497,31 +496,32 @@ export default function ProfitCalculatorQA() {
             <div className="input-group">
               <label>{text.sellPrice} ({text.currency})</label>
               <div className="input-wrapper">
-                <input className="with-currency" type="number" min="0" value={sellingPrice === '' ? '' : sellingPrice} onChange={(e) => setSellingPrice(e.target.value === '' ? '' : Number(e.target.value))} placeholder={text.sellPricePH} required />
+                <input className="with-currency" type="number" step="0.01" min="0" value={sellingPrice === '' ? '' : sellingPrice} onChange={(e) => setSellingPrice(e.target.value === '' ? '' : Number(e.target.value))} placeholder={text.sellPricePH} required />
                 <span className="currency-tag">{text.currency}</span>
               </div>
             </div>
 
-            <div className="input-group">
-              <label>{text.prodCost} ({text.currency})</label>
-              <div className="input-wrapper">
-                <input className="with-currency" type="number" min="0" value={productCost === '' ? '' : productCost} onChange={(e) => setProductCost(e.target.value === '' ? '' : Number(e.target.value))} placeholder={text.prodCostPH} required />
-                <span className="currency-tag">{text.currency}</span>
+            <div className="form-row">
+              <div className="input-group">
+                <label>{text.prodCost} ({text.currency})</label>
+                <div className="input-wrapper">
+                  <input className="with-currency" type="number" step="0.01" min="0" value={productCost === '' ? '' : productCost} onChange={(e) => setProductCost(e.target.value === '' ? '' : Number(e.target.value))} placeholder={text.prodCostPH} required />
+                  <span className="currency-tag">{text.currency}</span>
+                </div>
               </div>
-            </div>
-
-            <div className="input-group">
-              <label>{text.shipCost} ({text.currency})</label>
-              <div className="input-wrapper">
-                <input className="with-currency" type="number" min="0" value={shippingCost === '' ? '' : shippingCost} onChange={(e) => setShippingCost(e.target.value === '' ? '' : Number(e.target.value))} placeholder={text.shipCostPH} />
-                <span className="currency-tag">{text.currency}</span>
+              <div className="input-group">
+                <label>{text.shipCost} ({text.currency})</label>
+                <div className="input-wrapper">
+                  <input className="with-currency" type="number" step="0.01" min="0" value={shippingCost === '' ? '' : shippingCost} onChange={(e) => setShippingCost(e.target.value === '' ? '' : Number(e.target.value))} placeholder={text.shipCostPH} required />
+                  <span className="currency-tag">{text.currency}</span>
+                </div>
               </div>
             </div>
 
             <div className="input-group">
               <label>{text.gateFee}</label>
               <div className="input-wrapper">
-                <input className="with-currency" type="number" step="0.1" min="0" value={gatewayFeePercent === '' ? '' : gatewayFeePercent} onChange={(e) => setGatewayFeePercent(e.target.value === '' ? '' : Number(e.target.value))} placeholder={text.gateFeePH} />
+                <input className="with-currency" type="number" step="0.1" min="0" value={gatewayFeePercent === '' ? '' : gatewayFeePercent} onChange={(e) => setGatewayFeePercent(e.target.value === '' ? '' : Number(e.target.value))} placeholder={text.gateFeePH} required />
                 <span className="currency-tag">%</span>
               </div>
             </div>
@@ -535,7 +535,7 @@ export default function ProfitCalculatorQA() {
         <div className="card">
           <h2 className="card-title">{text.analysisTitle}</h2>
 
-          <div className={`result-box ${netProfit > 0 ? 'primary' : 'danger'}`}>
+          <div className="result-box primary">
             <div>
               <div className="result-label">{text.netProfit}</div>
               <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '2px' }}>{text.netProfitSub}</div>
@@ -547,7 +547,7 @@ export default function ProfitCalculatorQA() {
 
           <div className="result-box">
             <span className="result-label">{text.marginLabel}</span>
-            <span className="result-value" style={{ color: margin >= 20 ? '#10b981' : '#d97706' }}>
+            <span className="result-value" style={{ color: margin >= 20 ? '#047857' : '#d97706' }}>
               {margin.toFixed(1)}%
             </span>
           </div>
@@ -626,10 +626,12 @@ export default function ProfitCalculatorQA() {
                       <div style={{ fontWeight: 900, color: '#0f172a' }}>{item.name}</div>
                       {item.createdAt && <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', fontWeight: 600 }}>🕒 {item.createdAt}</div>}
                     </td>
-                    <td>{item.sellingPrice} {text.currency}</td>
-                    <td>{(item.productCost + item.shippingCost).toFixed(2)} {text.currency}</td>
+                    <td><span style={{ fontWeight: 800, color: '#0f172a' }}>{item.sellingPrice} {text.currency}</span></td>
+                    <td style={{ color: '#dc2626' }}>{(item.productCost + item.shippingCost).toFixed(2)} {text.currency}</td>
                     <td style={{ color: item.netProfit > 0 ? '#047857' : '#dc2626', fontWeight: 900 }}>{item.netProfit} {text.currency}</td>
-                    <td>{item.margin}%</td>
+                    <td>
+                      <span style={{ color: item.margin > 0 ? '#047857' : '#dc2626', fontWeight: 900 }}>{item.margin}%</span>
+                    </td>
                     <td>
                       <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                         <button className="tb-action-btn btn-edit" onClick={() => handleEdit(item)} title={text.table.edit}>✏️</button>
@@ -645,7 +647,7 @@ export default function ProfitCalculatorQA() {
                 <tr className="tfoot-row">
                   <td colSpan={2} style={{ textAlign: 'center' }}>{text.table.totalLabel}</td>
                   <td>{totalSellingPrice.toFixed(2)} {text.currency}</td>
-                  <td>{totalCostsValue.toFixed(2)} {text.currency}</td>
+                  <td style={{ color: '#dc2626' }}>{totalCostsValue.toFixed(2)} {text.currency}</td>
                   <td style={{ color: totalNetProfitValue > 0 ? '#047857' : '#dc2626' }}>{totalNetProfitValue.toFixed(2)} {text.currency}</td>
                   <td style={{ color: overallMargin > 0 ? '#047857' : '#dc2626' }}>{overallMargin.toFixed(1)}%</td>
                   <td></td>
