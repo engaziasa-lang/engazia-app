@@ -14,10 +14,10 @@ interface DropshipItem {
   netProfit: number;
   profitMarginPercent: number;
   createdAt?: string;
-  timestamp?: number; // تمت الإضافة للفرز الزمني
+  timestamp?: number;
 }
 
-export default function DropshippingCalculatorQA() {
+export default function DropshippingCalculatorOM() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
   const [productName, setProductName] = useState<string>('');
   const [supplierName, setSupplierName] = useState<string>('');
@@ -28,7 +28,7 @@ export default function DropshippingCalculatorQA() {
 
   const [items, setItems] = useState<DropshipItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [dateFilter, setDateFilter] = useState<string>('all'); // الفرز الزمني
+  const [dateFilter, setDateFilter] = useState<string>('all');
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const [isClient, setIsClient] = useState(false);
@@ -38,22 +38,20 @@ export default function DropshippingCalculatorQA() {
 
   useEffect(() => {
     setIsClient(true);
-    setIsActivated(!!localStorage.getItem('merchant_license_key_qa'));
+    setIsActivated(!!localStorage.getItem('merchant_license_key_om'));
 
-    // قراءة اللغة من الصفحة الرئيسية
     const savedLang = localStorage.getItem('seerk_global_lang') as 'ar' | 'en';
     if (savedLang) {
       setLang(savedLang);
     }
     
-    // ضبط المورد الافتراضي حسب اللغة
     if (savedLang === 'en') {
       setSupplierName('AliExpress / External Supplier');
     } else {
       setSupplierName('AliExpress / مورد خارجي');
     }
 
-    const saved = localStorage.getItem('seerk_qa_dropshipping_items');
+    const saved = localStorage.getItem('seerk_om_dropshipping_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
@@ -61,7 +59,7 @@ export default function DropshippingCalculatorQA() {
 
   const saveToLocalStorage = (newItems: DropshipItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_qa_dropshipping_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_om_dropshipping_items', JSON.stringify(newItems));
   };
 
   const cost = typeof productCost === 'number' ? productCost : 0;
@@ -73,7 +71,6 @@ export default function DropshippingCalculatorQA() {
   const netProfit = price - totalCost;
   const profitMarginPercent = price > 0 ? (netProfit / price) * 100 : 0;
 
-  // قاموس الترجمة الفوري
   const t = {
     ar: {
       back: '← عودة للمنصة',
@@ -91,7 +88,7 @@ export default function DropshippingCalculatorQA() {
       shippingCost: 'تكلفة الشحن الدولي',
       customs: 'الجمارك والضريبة التقديرية',
       sellPrice: 'سعر البيع المستهدف في متجرك',
-      currency: 'ر.ق',
+      currency: 'ر.ع',
       saveBtnNew: '+ حفظ الحساب في السجل',
       saveBtnEdit: '💾 حفظ التعديلات',
       analysisTitle: 'تحليل الربحية الفوري',
@@ -149,7 +146,7 @@ export default function DropshippingCalculatorQA() {
       shippingCost: 'International Shipping Cost',
       customs: 'Estimated Customs & VAT',
       sellPrice: 'Target Selling Price in Store',
-      currency: 'QAR',
+      currency: 'OMR',
       saveBtnNew: '+ Save to Log',
       saveBtnEdit: '💾 Save Changes',
       analysisTitle: 'Instant Profitability Analysis',
@@ -218,7 +215,7 @@ export default function DropshippingCalculatorQA() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const localeStr = lang === 'ar' ? 'ar-QA' : 'en-QA';
+    const localeStr = lang === 'ar' ? 'ar-OM' : 'en-OM';
     const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
 
     if (editingId) {
@@ -252,7 +249,7 @@ export default function DropshippingCalculatorQA() {
         createdAt: formattedDate,
         timestamp: now.getTime()
       };
-      saveToLocalStorage([newItem, ...items]); // حفظ الجديد في الأعلى
+      saveToLocalStorage([newItem, ...items]);
       alert(text.alerts.saveSuccess);
     }
 
@@ -277,7 +274,6 @@ export default function DropshippingCalculatorQA() {
     }
   };
 
-  // فلترة النتائج بناءً على البحث والفرز الزمني
   const filteredItems = items.filter(item => {
     const matchesSearch = item.productName.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           item.supplierName.toLowerCase().includes(searchQuery.toLowerCase());
@@ -299,7 +295,6 @@ export default function DropshippingCalculatorQA() {
     return matchesSearch && matchesDate;
   });
 
-  // تحديث المجاميع لتعكس البيانات المفلترة فقط
   const totalProfitSum = filteredItems.reduce((acc, curr) => acc + curr.netProfit, 0);
   const avgMargin = filteredItems.length > 0 ? filteredItems.reduce((acc, curr) => acc + curr.profitMarginPercent, 0) / filteredItems.length : 0;
 
@@ -374,7 +369,7 @@ export default function DropshippingCalculatorQA() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", `enjazya_qa_dropshipping_profits_${dateFilter}.xls`);
+    link.setAttribute("download", `enjazya_om_dropshipping_profits_${dateFilter}.xls`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -433,14 +428,14 @@ export default function DropshippingCalculatorQA() {
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
         .input-wrapper input { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .input-wrapper input.with-currency { padding-${lang === 'ar' ? 'left' : 'right'}: 45px; }
-        .input-wrapper input:focus { border-color: #8A1538; background: #ffffff; }
+        .input-wrapper input:focus { border-color: #C62828; background: #ffffff; }
         .currency-tag { position: absolute; ${lang === 'ar' ? 'left: 14px;' : 'right: 14px;'} color: #64748b; font-weight: 800; font-size: 13px; pointer-events: none; }
         
-        .action-btn { background: #8A1538; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
-        .action-btn:hover { background: #6A102B; }
+        .action-btn { background: #C62828; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
+        .action-btn:hover { background: #B71C1C; }
 
         .result-box { background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .result-box.primary { background: linear-gradient(135deg, #8A1538 0%, #6A102B 100%); color: #fff; border: none; padding: 20px; }
+        .result-box.primary { background: linear-gradient(135deg, #C62828 0%, #B71C1C 100%); color: #fff; border: none; padding: 20px; }
         .result-label { font-size: 13px; font-weight: 700; color: #64748b; }
         .primary .result-label { color: #ffffff; opacity: 0.9; }
         .result-value { font-size: 18px; font-weight: 900; color: #0f172a; direction: ltr; }
@@ -450,14 +445,14 @@ export default function DropshippingCalculatorQA() {
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
         
         .search-input { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; flex-grow: 1; max-width: 350px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .search-input:focus { border-color: #8A1538; }
+        .search-input:focus { border-color: #C62828; }
         
         .filter-select { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; background: #fff; color: #334155; cursor: pointer; min-width: 130px; }
-        .filter-select:focus { border-color: #8A1538; }
+        .filter-select:focus { border-color: #C62828; }
 
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
         .t-btn { padding: 9px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 6px; }
-        .t-btn:hover { background: #f1f5f9; border-color: #8A1538; color: #8A1538; }
+        .t-btn:hover { background: #f1f5f9; border-color: #C62828; color: #C62828; }
 
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 900px; }
@@ -477,7 +472,7 @@ export default function DropshippingCalculatorQA() {
           <h1>{text.title}</h1>
           <p>{text.desc}</p>
         </div>
-        <Link href="/hub/qa" className="back-btn">
+        <Link href="/hub/om" className="back-btn">
           {text.back}
         </Link>
       </div>
@@ -514,14 +509,14 @@ export default function DropshippingCalculatorQA() {
               <div className="input-group">
                 <label>{text.prodCost} ({text.currency})</label>
                 <div className="input-wrapper">
-                  <input className="with-currency" type="number" step="0.01" min="0" value={productCost === '' ? '' : productCost} onChange={(e) => setProductCost(e.target.value === '' ? '' : Number(e.target.value))} placeholder="45" required />
+                  <input className="with-currency" type="number" step="0.01" min="0" value={productCost === '' ? '' : productCost} onChange={(e) => setProductCost(e.target.value === '' ? '' : Number(e.target.value))} placeholder="4.5" required />
                   <span className="currency-tag">{text.currency}</span>
                 </div>
               </div>
               <div className="input-group">
                 <label>{text.shippingCost} ({text.currency})</label>
                 <div className="input-wrapper">
-                  <input className="with-currency" type="number" step="0.01" min="0" value={shippingCost === '' ? '' : shippingCost} onChange={(e) => setShippingCost(e.target.value === '' ? '' : Number(e.target.value))} placeholder="20" required />
+                  <input className="with-currency" type="number" step="0.01" min="0" value={shippingCost === '' ? '' : shippingCost} onChange={(e) => setShippingCost(e.target.value === '' ? '' : Number(e.target.value))} placeholder="2.5" required />
                   <span className="currency-tag">{text.currency}</span>
                 </div>
               </div>
@@ -531,14 +526,14 @@ export default function DropshippingCalculatorQA() {
               <div className="input-group">
                 <label>{text.customs} ({text.currency})</label>
                 <div className="input-wrapper">
-                  <input className="with-currency" type="number" step="0.01" min="0" value={customsAndVat === '' ? '' : customsAndVat} onChange={(e) => setCustomsAndVat(e.target.value === '' ? '' : Number(e.target.value))} placeholder="10" required />
+                  <input className="with-currency" type="number" step="0.01" min="0" value={customsAndVat === '' ? '' : customsAndVat} onChange={(e) => setCustomsAndVat(e.target.value === '' ? '' : Number(e.target.value))} placeholder="1.2" required />
                   <span className="currency-tag">{text.currency}</span>
                 </div>
               </div>
               <div className="input-group">
                 <label>{text.sellPrice} ({text.currency})</label>
                 <div className="input-wrapper">
-                  <input className="with-currency" type="number" step="0.01" min="0" value={sellingPrice === '' ? '' : sellingPrice} onChange={(e) => setSellingPrice(e.target.value === '' ? '' : Number(e.target.value))} placeholder="199" required />
+                  <input className="with-currency" type="number" step="0.01" min="0" value={sellingPrice === '' ? '' : sellingPrice} onChange={(e) => setSellingPrice(e.target.value === '' ? '' : Number(e.target.value))} placeholder="19.9" required />
                   <span className="currency-tag">{text.currency}</span>
                 </div>
               </div>
@@ -636,7 +631,7 @@ export default function DropshippingCalculatorQA() {
                     <td>{idx + 1}</td>
                     <td>
                       <div style={{ fontWeight: 900, color: '#0f172a' }}>{item.productName}</div>
-                      <div style={{ fontSize: '12px', color: '#8A1538', fontWeight: 700 }}>{item.supplierName}</div>
+                      <div style={{ fontSize: '12px', color: '#C62828', fontWeight: 700 }}>{item.supplierName}</div>
                       {item.createdAt && <div style={{ fontSize: '11px', color: '#64748b', marginTop: '3px', fontWeight: 600 }}>🕒 {item.createdAt}</div>}
                     </td>
                     <td>{item.productCost} {text.currency}</td>
