@@ -11,10 +11,10 @@ interface SupportItem {
   orderNumber: string;
   generatedReply: string;
   createdAt?: string;
-  timestamp?: number; // تمت الإضافة للفرز الزمني
+  timestamp?: number;
 }
 
-export default function SupportTemplatesQA() {
+export default function SupportTemplatesOM() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
 
   const [customerName, setCustomerName] = useState<string>('');
@@ -26,7 +26,7 @@ export default function SupportTemplatesQA() {
 
   const [items, setItems] = useState<SupportItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [dateFilter, setDateFilter] = useState<string>('all'); // الفرز الزمني
+  const [dateFilter, setDateFilter] = useState<string>('all');
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -36,35 +36,33 @@ export default function SupportTemplatesQA() {
 
   useEffect(() => {
     setIsClient(true);
-    setIsActivated(!!localStorage.getItem('merchant_license_key_qa'));
+    setIsActivated(!!localStorage.getItem('merchant_license_key_om'));
     
-    // قراءة اللغة من الصفحة الرئيسية
     const savedLang = localStorage.getItem('seerk_global_lang') as 'ar' | 'en';
     if (savedLang) {
       setLang(savedLang);
     }
     
-    // ضبط القيم الافتراضية للنموذج
     if (savedLang === 'en') {
-      setCustomerName('Khalid');
+      setCustomerName('Ahmed');
       setInquirySelect('Delayed Shipment Inquiry 🚚');
       setCustomInquiryType('Delayed Shipment Inquiry 🚚');
       setOrderNumber('#84920');
     } else {
-      setCustomerName('خالد');
+      setCustomerName('أحمد');
       setInquirySelect('استفسار عن تأخر الشحنة 🚚');
       setCustomInquiryType('استفسار عن تأخر الشحنة 🚚');
       setOrderNumber('#84920');
     }
 
-    const saved = localStorage.getItem('seerk_qa_support_templates_items');
+    const saved = localStorage.getItem('seerk_om_support_templates_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
     
-    const qaStoreName = localStorage.getItem('seerk_qa_store_name');
-    if (qaStoreName) {
-      setStoreName(qaStoreName);
+    const omStoreName = localStorage.getItem('seerk_om_store_name');
+    if (omStoreName) {
+      setStoreName(omStoreName);
     } else {
       setStoreName(savedLang === 'en' ? 'Enjazya Store' : 'متجر إنجازيا');
     }
@@ -74,13 +72,13 @@ export default function SupportTemplatesQA() {
     ar: {
       back: '← عودة للمنصة',
       title: 'قوالب خدمة العملاء السريعة 🎧',
-      desc: 'انسخ ردود احترافية جاهزة للرد على استفسارات العملاء المكررة عبر واتساب لمتجرك بقطر',
+      desc: 'انسخ ردود احترافية جاهزة للرد على استفسارات العملاء المكررة عبر واتساب لمتجرك بعُمان',
       editRecord: 'تعديل القالب',
       newRecord: 'توليد قالب رد جديد',
       clear: '🧹 مسح الحقول',
       trial: 'تجريبي',
       custName: 'اسم العميل',
-      custNamePH: 'مثال: خالد',
+      custNamePH: 'مثال: أحمد',
       inquiryType: 'نوع الاستفسار',
       inqDelayed: 'استفسار عن تأخر الشحنة 🚚',
       inqReturn: 'طلب الاستبدال والاسترجاع 🔄',
@@ -132,13 +130,13 @@ export default function SupportTemplatesQA() {
     en: {
       back: '→ Back to Hub',
       title: 'Quick Customer Support Templates 🎧',
-      desc: 'Copy ready-made professional responses for frequent customer inquiries via WhatsApp for your Qatar store',
+      desc: 'Copy ready-made professional responses for frequent customer inquiries via WhatsApp for your Oman store',
       editRecord: 'Edit Template',
       newRecord: 'Generate New Reply Template',
       clear: '🧹 Clear Fields',
       trial: 'Trial',
       custName: 'Customer Name',
-      custNamePH: 'e.g. Khalid',
+      custNamePH: 'e.g. Ahmed',
       inquiryType: 'Inquiry Type',
       inqDelayed: 'Delayed Shipment Inquiry 🚚',
       inqReturn: 'Return & Exchange Request 🔄',
@@ -192,7 +190,6 @@ export default function SupportTemplatesQA() {
   const text = t[lang];
   const actualInquiryType = inquirySelect === text.inqOther ? customInquiryType : inquirySelect;
 
-  // توليد الرد تلقائياً بناءً على اللغة
   useEffect(() => {
     const cName = customerName.trim() || (lang === 'ar' ? 'عزيزنا العميل' : 'Dear Customer');
     const sName = storeName.trim() || (lang === 'ar' ? 'المتجر' : 'Our Store');
@@ -205,8 +202,8 @@ export default function SupportTemplatesQA() {
     if (lang === 'ar') {
       if (isDelayed) {
         setGeneratedReply(
-          `مرحباً بك يا ${cName} 🌸\n` +
-          `نعتذر منك بشدة عن التأخير البسيط الحاصل في توصيل طلبك رقم (${oNum}). نحن نتابع حالياً مع شركة الشحن لضمان وصول طلبك لأقرب وقت ممكن. شكراً لتفهمك وصبرك معنا!`
+          `حياك الله يا ${cName} 🌸\n` +
+          `نعتذر منك بشدة عن التأخير البسيط الحاصل في توصيل طلبك رقم (${oNum}). نحن نتابع حالياً مع شركة الشحن لضمان وصول طلبك في أسرع وقت. شكراً لتفهمك وصبرك معنا!`
         );
       } else if (isReturn) {
         setGeneratedReply(
@@ -216,7 +213,7 @@ export default function SupportTemplatesQA() {
       } else if (isPayment) {
         setGeneratedReply(
           `مرحباً بك يا ${cName} 💳\n` +
-          `نؤكد لك أن جميع عمليات الدفع الإلكتروني والدفع عند الاستلاستلام في ${sName} آمنة ومحمية بالكامل. طلبك رقم (${oNum}) يتم تجهيزه الآن بكل اهتمام!`
+          `نؤكد لك أن جميع عمليات الدفع الإلكتروني والدفع عند الاستلام في ${sName} آمنة ومحمية بالكامل. طلبك رقم (${oNum}) يتم تجهيزه الآن بكل اهتمام!`
         );
       } else {
         setGeneratedReply(
@@ -251,7 +248,7 @@ export default function SupportTemplatesQA() {
 
   const saveToLocalStorage = (newItems: SupportItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_qa_support_templates_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_om_support_templates_items', JSON.stringify(newItems));
   };
 
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -266,16 +263,16 @@ export default function SupportTemplatesQA() {
 
   const handleClearForm = () => {
     if (lang === 'en') {
-      setCustomerName('Khalid');
+      setCustomerName('Ahmed');
       setInquirySelect(text.inqDelayed);
       setCustomInquiryType(text.inqDelayed);
     } else {
-      setCustomerName('خالد');
+      setCustomerName('أحمد');
       setInquirySelect(text.inqDelayed);
       setCustomInquiryType(text.inqDelayed);
     }
-    const qaStoreName = localStorage.getItem('seerk_qa_store_name');
-    setStoreName(qaStoreName || (lang === 'en' ? 'Enjazya Store' : 'متجر إنجازيا'));
+    const omStoreName = localStorage.getItem('seerk_om_store_name');
+    setStoreName(omStoreName || (lang === 'en' ? 'Enjazya Store' : 'متجر إنجازيا'));
     setOrderNumber('#84920');
     setEditingId(null);
   };
@@ -294,7 +291,7 @@ export default function SupportTemplatesQA() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const localeStr = lang === 'ar' ? 'ar-QA' : 'en-QA';
+    const localeStr = lang === 'ar' ? 'ar-OM' : 'en-OM';
     const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
 
     if (editingId) {
@@ -322,7 +319,7 @@ export default function SupportTemplatesQA() {
         createdAt: formattedDate,
         timestamp: now.getTime()
       };
-      saveToLocalStorage([newItem, ...items]); // حفظ الجديد في الأعلى
+      saveToLocalStorage([newItem, ...items]); 
       alert(text.alerts.saveSuccess);
     }
 
@@ -364,7 +361,6 @@ export default function SupportTemplatesQA() {
     alert(text.alerts.copySuccess);
   };
 
-  // فلترة النتائج بناءً على البحث والفرز الزمني
   const filteredItems = items.filter(item => {
     const matchesSearch = item.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           item.inquiryType.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -449,7 +445,7 @@ export default function SupportTemplatesQA() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", `enjazya_qa_support_templates_${dateFilter}.xls`);
+    link.setAttribute("download", `enjazya_om_support_templates_${dateFilter}.xls`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -507,26 +503,26 @@ export default function SupportTemplatesQA() {
         .input-group label { display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 6px; }
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
         .input-wrapper input, .input-wrapper select, .input-wrapper textarea { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .input-wrapper input:focus, .input-wrapper select:focus, .input-wrapper textarea:focus { border-color: #8A1538; background: #ffffff; }
+        .input-wrapper input:focus, .input-wrapper select:focus, .input-wrapper textarea:focus { border-color: #C62828; background: #ffffff; }
         
-        .action-btn { background: #8A1538; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
-        .action-btn:hover { background: #6A102B; }
+        .action-btn { background: #C62828; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
+        .action-btn:hover { background: #B71C1C; }
         
-        .copy-btn { background: #8A1538; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .copy-btn:hover { background: #6A102B; }
+        .copy-btn { background: #C62828; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .copy-btn:hover { background: #B71C1C; }
 
         .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
         
         .search-input { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; flex-grow: 1; max-width: 350px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .search-input:focus { border-color: #8A1538; }
+        .search-input:focus { border-color: #C62828; }
         
         .filter-select { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; background: #fff; color: #334155; cursor: pointer; min-width: 130px; }
-        .filter-select:focus { border-color: #8A1538; }
+        .filter-select:focus { border-color: #C62828; }
 
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
         .t-btn { padding: 9px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 6px; }
-        .t-btn:hover { background: #f1f5f9; border-color: #8A1538; color: #8A1538; }
+        .t-btn:hover { background: #f1f5f9; border-color: #C62828; color: #C62828; }
 
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 900px; }
@@ -537,8 +533,8 @@ export default function SupportTemplatesQA() {
         .trial-badge { background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 800; }
         
         .tb-action-btn { border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; font-family: inherit;}
-        .btn-wa { background: #FAF0F2; color: #8A1538; border: 1px solid #EBB8C6; }
-        .btn-wa:hover { background: #8A1538; color: #ffffff; }
+        .btn-wa { background: #FFEBEE; color: #C62828; border: 1px solid #FFCDD2; }
+        .btn-wa:hover { background: #C62828; color: #ffffff; }
         .btn-edit { background: #e0f2fe; color: #0369a1; }
         .btn-delete { background: #fee2e2; color: #991b1b; }
       `}</style>
@@ -548,7 +544,7 @@ export default function SupportTemplatesQA() {
           <h1>{text.title}</h1>
           <p>{text.desc}</p>
         </div>
-        <Link href="/hub/qa" className="back-btn">
+        <Link href="/hub/om" className="back-btn">
           {text.back}
         </Link>
       </div>
@@ -566,36 +562,35 @@ export default function SupportTemplatesQA() {
           </h2>
 
           <form onSubmit={handleSaveItem}>
-            <div className="form-row">
-              <div className="input-group">
-                <label>{text.custName}</label>
-                <div className="input-wrapper">
-                  <input type="text" value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder={text.custNamePH} required />
-                </div>
+            <div className="input-group">
+              <label>{text.custName}</label>
+              <div className="input-wrapper">
+                <input type="text" value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder={text.custNamePH} required />
               </div>
-              <div className="input-group">
-                <label>{text.inquiryType}</label>
-                <div className="input-wrapper" style={{ marginBottom: '8px' }}>
-                  <select value={inquirySelect} onChange={handleSelectChange}>
-                    <option value={text.inqDelayed}>{text.inqDelayed}</option>
-                    <option value={text.inqReturn}>{text.inqReturn}</option>
-                    <option value={text.inqPayment}>{text.inqPayment}</option>
-                    <option value={text.inqOther}>{text.inqOther}</option>
-                  </select>
-                </div>
+            </div>
+            
+            <div className="input-group">
+              <label>{text.inquiryType}</label>
+              <div className="input-wrapper" style={{ marginBottom: '8px' }}>
+                <select value={inquirySelect} onChange={handleSelectChange}>
+                  <option value={text.inqDelayed}>{text.inqDelayed}</option>
+                  <option value={text.inqReturn}>{text.inqReturn}</option>
+                  <option value={text.inqPayment}>{text.inqPayment}</option>
+                  <option value={text.inqOther}>{text.inqOther}</option>
+                </select>
+              </div>
 
-                {inquirySelect === text.inqOther && (
-                  <div className="input-wrapper">
-                    <input 
-                      type="text" 
-                      value={customInquiryType} 
-                      onChange={(e) => setCustomInquiryType(e.target.value)} 
-                      placeholder={text.otherPH} 
-                      required 
-                    />
-                  </div>
-                )}
-              </div>
+              {inquirySelect === text.inqOther && (
+                <div className="input-wrapper">
+                  <input 
+                    type="text" 
+                    value={customInquiryType} 
+                    onChange={(e) => setCustomInquiryType(e.target.value)} 
+                    placeholder={text.otherPH} 
+                    required 
+                  />
+                </div>
+              )}
             </div>
 
             <div className="form-row">
@@ -663,8 +658,12 @@ export default function SupportTemplatesQA() {
           </select>
 
           <div className="table-btns">
-            <button className="t-btn" onClick={handleExportExcel}>{text.exportBtn}</button>
-            <button className="t-btn" onClick={() => fileInputRef.current?.click()}>{text.importBtn}</button>
+            <button className="t-btn" onClick={handleExportExcel}>
+              {lang === 'ar' ? 'تصدير 📥' : 'Export 📥'}
+            </button>
+            <button className="t-btn" onClick={() => fileInputRef.current?.click()}>
+              {lang === 'ar' ? 'استيراد 📂' : 'Import 📂'}
+            </button>
             <input type="file" ref={fileInputRef} onChange={handleImportJson} accept=".json" style={{ display: 'none' }} />
           </div>
         </div>
@@ -674,9 +673,9 @@ export default function SupportTemplatesQA() {
             <thead>
               <tr>
                 <th>{text.table.th1}</th>
-                <th>{text.table.th2}</th>
-                <th>{text.table.th3}</th>
-                <th>{text.table.th4}</th>
+                <th>{text.custName}</th>
+                <th>{text.inquiryType}</th>
+                <th>{text.orderNum}</th>
                 <th>{text.table.th5}</th>
               </tr>
             </thead>
@@ -695,7 +694,7 @@ export default function SupportTemplatesQA() {
                       <div style={{ fontWeight: 900, color: '#0f172a' }}>{item.customerName}</div>
                       {item.createdAt && <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', fontWeight: 600 }}>🕒 {item.createdAt}</div>}
                     </td>
-                    <td><span style={{ fontWeight: 800, color: '#8A1538' }}>{item.inquiryType}</span></td>
+                    <td><span style={{ fontWeight: 800, color: '#C62828' }}>{item.inquiryType}</span></td>
                     <td><span style={{ fontWeight: 700, color: '#047857' }}>{item.orderNumber}</span></td>
                     <td>
                       <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
