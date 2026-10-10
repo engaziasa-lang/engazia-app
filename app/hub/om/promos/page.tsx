@@ -15,22 +15,22 @@ interface DiscountItem {
   profitMarginPercent: number;
   isProfitable: boolean;
   createdAt?: string;
-  timestamp?: number; // تمت الإضافة للفرز الزمني
+  timestamp?: number;
 }
 
-export default function DiscountCalculatorQA() {
+export default function DiscountCalculatorOM() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
 
   const [offerName, setOfferName] = useState<string>('');
   const [typeSelect, setTypeSelect] = useState<string>('');
   const [customOfferType, setCustomOfferType] = useState<string>('');
-  const [originalPrice, setOriginalPrice] = useState<number | ''>(200);
-  const [productCost, setProductCost] = useState<number | ''>(80);
+  const [originalPrice, setOriginalPrice] = useState<number | ''>(20);
+  const [productCost, setProductCost] = useState<number | ''>(8);
   const [discountValue, setDiscountValue] = useState<number | ''>(20);
 
   const [items, setItems] = useState<DiscountItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [dateFilter, setDateFilter] = useState<string>('all'); // الفرز الزمني
+  const [dateFilter, setDateFilter] = useState<string>('all');
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const [isClient, setIsClient] = useState(false);
@@ -40,15 +40,13 @@ export default function DiscountCalculatorQA() {
 
   useEffect(() => {
     setIsClient(true);
-    setIsActivated(!!localStorage.getItem('merchant_license_key_qa'));
+    setIsActivated(!!localStorage.getItem('merchant_license_key_om'));
 
-    // قراءة اللغة من الصفحة الرئيسية
     const savedLang = localStorage.getItem('seerk_global_lang') as 'ar' | 'en';
     if (savedLang) {
       setLang(savedLang);
     }
     
-    // ضبط القيم الافتراضية بناءً على اللغة
     if (savedLang === 'en') {
       setOfferName('Discount Code (SAVE20)');
       setTypeSelect('Percentage Discount (%) 📉');
@@ -59,7 +57,7 @@ export default function DiscountCalculatorQA() {
       setCustomOfferType('خصم نسبة مئوية (%) 📉');
     }
 
-    const saved = localStorage.getItem('seerk_qa_discount_calculator_items');
+    const saved = localStorage.getItem('seerk_om_discount_calculator_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
@@ -67,16 +65,15 @@ export default function DiscountCalculatorQA() {
 
   const saveToLocalStorage = (newItems: DiscountItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_qa_discount_calculator_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_om_discount_calculator_items', JSON.stringify(newItems));
   };
 
   const origPrice = typeof originalPrice === 'number' ? originalPrice : 0;
   const cost = typeof productCost === 'number' ? productCost : 0;
   const disc = typeof discountValue === 'number' ? discountValue : 0;
 
-  // الحسابات المالية للعرض
   const isPercent = typeSelect.includes('%') || typeSelect.includes('نسبة') || typeSelect.includes('Percent');
-  const isFixed = typeSelect.includes('مبلغ ثابت') || typeSelect.includes('Fixed') || typeSelect.includes('QAR') || typeSelect.includes('ر.ق');
+  const isFixed = typeSelect.includes('مبلغ ثابت') || typeSelect.includes('Fixed') || typeSelect.includes('OMR') || typeSelect.includes('ر.ع');
   const isBogo = typeSelect.includes('1+1');
 
   let finalSellingPrice = origPrice;
@@ -94,12 +91,11 @@ export default function DiscountCalculatorQA() {
   const profitMarginPercent = finalSellingPrice > 0 ? (netProfitAfterOffer / finalSellingPrice) * 100 : 0;
   const isProfitable = netProfitAfterOffer > 0;
 
-  // قاموس الترجمة الفوري
   const t = {
     ar: {
       back: '← عودة للمنصة',
       title: 'حاسبة جدوى أكواد الخصم والعروض 🎟️',
-      desc: 'تأكد من أن عروضك الترويجية (مثل 1+1 أو الشحن المجاني) لا تسبب لك خسائر مالية مخفية في متجرك بقطر',
+      desc: 'تأكد من أن عروضك الترويجية (مثل 1+1 أو الشحن المجاني) لا تسبب لك خسائر مالية مخفية في متجرك بعُمان',
       editRecord: 'تعديل السجل',
       newRecord: 'حساب جدوى عرض أو كود جديد',
       clear: '🧹 مسح الحقول',
@@ -108,14 +104,14 @@ export default function DiscountCalculatorQA() {
       offerNamePH: 'مثال: كود خصم (SAVE20)',
       offerType: 'نوع العرض أو الخصم',
       optPercent: 'خصم نسبة مئوية (%) 📉',
-      optFixed: 'خصم مبلغ ثابت (ر.ق) 💵',
+      optFixed: 'خصم مبلغ ثابت (ر.ع) 💵',
       optBogo: 'عرض 1+1 مجاناً 🎁',
       optOther: '➕ نوع آخر (كتابة يدوية)',
       otherPH: 'اكتب نوع العرض هنا...',
       origPrice: 'سعر البيع الأصلي',
-      origPricePH: '200',
+      origPricePH: '20',
       prodCost: 'تكلفة المنتج الأساسية',
-      prodCostPH: '80',
+      prodCostPH: '8',
       discValFixed: 'قيمة الخصم',
       discValPercent: 'نسبة الخصم (%)',
       discPH: '20',
@@ -128,7 +124,7 @@ export default function DiscountCalculatorQA() {
       statusLabel: 'حالة جدوى العرض',
       statusProfitable: 'العرض مربح ✅',
       statusLoss: 'العرض يسبب خسارة ⚠️',
-      currency: 'ر.ق',
+      currency: 'ر.ع',
       searchPH: '🔍 بحث باسم العرض أو الكود...',
       exportBtn: '📥 تصدير Excel',
       importBtn: '📂 استيراد',
@@ -169,7 +165,7 @@ export default function DiscountCalculatorQA() {
     en: {
       back: '→ Back to Hub',
       title: 'Discount & Promo Code ROI Calculator 🎟️',
-      desc: 'Ensure your promotional offers (like 1+1 or free shipping) do not cause hidden financial losses in your Qatar store',
+      desc: 'Ensure your promotional offers (like 1+1 or free shipping) do not cause hidden financial losses in your Oman store',
       editRecord: 'Edit Record',
       newRecord: 'Calculate New Offer or Code',
       clear: '🧹 Clear Fields',
@@ -178,14 +174,14 @@ export default function DiscountCalculatorQA() {
       offerNamePH: 'e.g. Discount Code (SAVE20)',
       offerType: 'Offer or Discount Type',
       optPercent: 'Percentage Discount (%) 📉',
-      optFixed: 'Fixed Amount Discount (QAR) 💵',
+      optFixed: 'Fixed Amount Discount (OMR) 💵',
       optBogo: 'Buy 1 Get 1 Free (1+1) 🎁',
       optOther: '➕ Other (Manual Entry)',
       otherPH: 'Type offer type here...',
       origPrice: 'Original Selling Price',
-      origPricePH: '200',
+      origPricePH: '20',
       prodCost: 'Base Product Cost',
-      prodCostPH: '80',
+      prodCostPH: '8',
       discValFixed: 'Discount Value',
       discValPercent: 'Discount Percentage (%)',
       discPH: '20',
@@ -198,7 +194,7 @@ export default function DiscountCalculatorQA() {
       statusLabel: 'Offer Feasibility Status',
       statusProfitable: 'Profitable Offer ✅',
       statusLoss: 'Offer Causes Loss ⚠️',
-      currency: 'QAR',
+      currency: 'OMR',
       searchPH: '🔍 Search by offer name or code...',
       exportBtn: '📥 Export Excel',
       importBtn: '📂 Import',
@@ -261,8 +257,8 @@ export default function DiscountCalculatorQA() {
       setTypeSelect('خصم نسبة مئوية (%) 📉');
       setCustomOfferType('خصم نسبة مئوية (%) 📉');
     }
-    setOriginalPrice(200);
-    setProductCost(80);
+    setOriginalPrice(20);
+    setProductCost(8);
     setDiscountValue(20);
     setEditingId(null);
   };
@@ -280,7 +276,7 @@ export default function DiscountCalculatorQA() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const localeStr = lang === 'ar' ? 'ar-QA' : 'en-QA';
+    const localeStr = lang === 'ar' ? 'ar-OM' : 'en-OM';
     const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
 
     if (editingId) {
@@ -316,7 +312,7 @@ export default function DiscountCalculatorQA() {
         createdAt: formattedDate,
         timestamp: now.getTime()
       };
-      saveToLocalStorage([newItem, ...items]); // حفظ الجديد للأعلى
+      saveToLocalStorage([newItem, ...items]); 
       alert(text.alerts.saveSuccess);
     }
 
@@ -327,7 +323,7 @@ export default function DiscountCalculatorQA() {
     setOfferName(item.offerName);
     
     const itemIsPercent = item.offerType.includes('%') || item.offerType.includes('نسبة');
-    const itemIsFixed = item.offerType.includes('ثابت') || item.offerType.includes('Fixed') || item.offerType.includes('QAR') || item.offerType.includes('ر.ق');
+    const itemIsFixed = item.offerType.includes('ثابت') || item.offerType.includes('Fixed') || item.offerType.includes('OMR') || item.offerType.includes('ر.ع');
     const itemIsBogo = item.offerType.includes('1+1');
 
     let matchedType = '';
@@ -352,7 +348,6 @@ export default function DiscountCalculatorQA() {
     }
   };
 
-  // فلترة النتائج بناءً على البحث والفرز الزمني
   const filteredItems = items.filter(item => {
     const matchesSearch = item.offerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           item.offerType.toLowerCase().includes(searchQuery.toLowerCase());
@@ -446,7 +441,7 @@ export default function DiscountCalculatorQA() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", `enjazya_qa_discount_feasibility_${dateFilter}.xls`);
+    link.setAttribute("download", `enjazya_om_discount_feasibility_${dateFilter}.xls`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -505,32 +500,31 @@ export default function DiscountCalculatorQA() {
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
         .input-wrapper input, .input-wrapper select { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .input-wrapper input.with-currency { padding-${lang === 'ar' ? 'left' : 'right'}: 45px; }
-        .input-wrapper input:focus, .input-wrapper select:focus { border-color: #8A1538; background: #ffffff; }
+        .input-wrapper input:focus, .input-wrapper select:focus { border-color: #C62828; background: #ffffff; }
         .currency-tag { position: absolute; ${lang === 'ar' ? 'left: 14px;' : 'right: 14px;'} color: #64748b; font-weight: 800; font-size: 13px; pointer-events: none; }
         
-        .action-btn { background: #8A1538; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
-        .action-btn:hover { background: #6A102B; }
+        .action-btn { background: #C62828; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
+        .action-btn:hover { background: #B71C1C; }
 
         .result-box { background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .result-box.primary { background: linear-gradient(135deg, #8A1538 0%, #6A102B 100%); color: #fff; border: none; padding: 20px; }
-        .result-box.danger { background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); color: #fff; border: none; padding: 20px; }
+        .result-box.primary { background: linear-gradient(135deg, #C62828 0%, #B71C1C 100%); color: #fff; border: none; padding: 20px; }
         .result-label { font-size: 13px; font-weight: 700; color: #64748b; }
-        .primary .result-label, .danger .result-label { color: #ffffff; opacity: 0.9; }
+        .primary .result-label { color: #ffffff; opacity: 0.9; }
         .result-value { font-size: 18px; font-weight: 900; color: #0f172a; direction: ltr; }
-        .primary .result-value, .danger .result-value { font-size: 26px; color: #ffffff; direction: ${lang === 'ar' ? 'rtl' : 'ltr'}; }
+        .primary .result-value { font-size: 26px; color: #ffffff; direction: ${lang === 'ar' ? 'rtl' : 'ltr'}; }
 
         .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
         
         .search-input { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; flex-grow: 1; max-width: 350px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .search-input:focus { border-color: #8A1538; }
+        .search-input:focus { border-color: #C62828; }
         
         .filter-select { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; background: #fff; color: #334155; cursor: pointer; min-width: 130px; }
-        .filter-select:focus { border-color: #8A1538; }
+        .filter-select:focus { border-color: #C62828; }
 
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
         .t-btn { padding: 9px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 6px; }
-        .t-btn:hover { background: #f1f5f9; border-color: #8A1538; color: #8A1538; }
+        .t-btn:hover { background: #f1f5f9; border-color: #C62828; color: #C62828; }
 
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 900px; }
@@ -550,7 +544,7 @@ export default function DiscountCalculatorQA() {
           <h1>{text.title}</h1>
           <p>{text.desc}</p>
         </div>
-        <Link href="/hub/qa" className="back-btn">
+        <Link href="/hub/om" className="back-btn">
           {text.back}
         </Link>
       </div>
@@ -568,36 +562,34 @@ export default function DiscountCalculatorQA() {
           </h2>
 
           <form onSubmit={handleSaveItem}>
-            <div className="form-row">
-              <div className="input-group">
-                <label>{text.offerName}</label>
-                <div className="input-wrapper">
-                  <input type="text" value={offerName} onChange={(e) => setOfferName(e.target.value)} placeholder={text.offerNamePH} required />
-                </div>
+            <div className="input-group">
+              <label>{text.offerName}</label>
+              <div className="input-wrapper">
+                <input type="text" value={offerName} onChange={(e) => setOfferName(e.target.value)} placeholder={text.offerNamePH} required />
               </div>
-              <div className="input-group">
-                <label>{text.offerType}</label>
-                <div className="input-wrapper" style={{ marginBottom: '8px' }}>
-                  <select value={typeSelect} onChange={handleSelectChange}>
-                    <option value={text.optPercent}>{text.optPercent}</option>
-                    <option value={text.optFixed}>{text.optFixed}</option>
-                    <option value={text.optBogo}>{text.optBogo}</option>
-                    <option value={text.optOther}>{text.optOther}</option>
-                  </select>
-                </div>
+            </div>
+            <div className="input-group">
+              <label>{text.offerType}</label>
+              <div className="input-wrapper" style={{ marginBottom: '8px' }}>
+                <select value={typeSelect} onChange={handleSelectChange}>
+                  <option value={text.optPercent}>{text.optPercent}</option>
+                  <option value={text.optFixed}>{text.optFixed}</option>
+                  <option value={text.optBogo}>{text.optBogo}</option>
+                  <option value={text.optOther}>{text.optOther}</option>
+                </select>
+              </div>
 
-                {typeSelect === text.optOther && (
-                  <div className="input-wrapper">
-                    <input 
-                      type="text" 
-                      value={customOfferType} 
-                      onChange={(e) => setCustomOfferType(e.target.value)} 
-                      placeholder={text.otherPH} 
-                      required 
-                    />
-                  </div>
-                )}
-              </div>
+              {typeSelect === text.optOther && (
+                <div className="input-wrapper">
+                  <input 
+                    type="text" 
+                    value={customOfferType} 
+                    onChange={(e) => setCustomOfferType(e.target.value)} 
+                    placeholder={text.otherPH} 
+                    required 
+                  />
+                </div>
+              )}
             </div>
 
             <div className="form-row">
@@ -635,19 +627,19 @@ export default function DiscountCalculatorQA() {
         <div className="card">
           <h2 className="card-title">{text.analysisTitle}</h2>
 
-          <div className={`result-box ${netProfitAfterOffer > 0 ? 'primary' : 'danger'}`}>
+          <div className={`result-box ${netProfitAfterOffer > 0 ? 'primary' : ''}`} style={netProfitAfterOffer <= 0 ? { background: 'linear-gradient(135deg, #dc2626 0%, #991b1b 100%)', color: '#fff', border: 'none', padding: '20px' } : {}}>
             <div>
-              <div className="result-label">{text.netProfit}</div>
-              <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '2px' }}>{text.netProfitSub}</div>
+              <div className="result-label" style={{ color: '#fff' }}>{text.netProfit}</div>
+              <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '2px', color: '#fff' }}>{text.netProfitSub}</div>
             </div>
-            <div className="result-value">
+            <div className="result-value" style={{ fontSize: '26px', color: '#ffffff', direction: lang === 'ar' ? 'rtl' : 'ltr' }}>
               {netProfitAfterOffer.toFixed(2)} {text.currency}
             </div>
           </div>
 
           <div className="result-box">
             <span className="result-label">{text.finalPriceLabel}</span>
-            <span className="result-value" style={{ color: '#8A1538' }}>{finalSellingPrice.toFixed(2)} {text.currency}</span>
+            <span className="result-value" style={{ color: '#C62828' }}>{finalSellingPrice.toFixed(2)} {text.currency}</span>
           </div>
 
           <div className="result-box" style={{ background: '#f8fafc' }}>
@@ -722,8 +714,8 @@ export default function DiscountCalculatorQA() {
                       <div style={{ fontWeight: 900, color: '#0f172a' }}>{item.offerName}</div>
                       {item.createdAt && <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', fontWeight: 600 }}>🕒 {item.createdAt}</div>}
                     </td>
-                    <td><span style={{ fontWeight: 800, color: '#8A1538' }}>{item.offerType}</span></td>
-                    <td>{item.originalPrice} {text.currency} <span style={{ color: '#64748b', fontSize: '12px' }}>({text.table.costLabel}: {item.productCost})</span></td>
+                    <td><span style={{ fontWeight: 800, color: '#C62828' }}>{item.offerType}</span></td>
+                    <td>{item.originalPrice} {text.currency} <br/><span style={{ color: '#64748b', fontSize: '12px' }}>({text.table.costLabel}: {item.productCost})</span></td>
                     <td style={{ fontWeight: 800 }}>{item.finalSellingPrice} {text.currency}</td>
                     <td style={{ fontWeight: 900, color: item.netProfitAfterOffer > 0 ? '#047857' : '#dc2626' }}>
                       {item.netProfitAfterOffer} {text.currency}
