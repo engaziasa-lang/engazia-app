@@ -12,10 +12,10 @@ interface JasmalItem {
   category: string;
   notes: string;
   createdAt?: string;
-  timestamp?: number; // تمت الإضافة للفرز الزمني
+  timestamp?: number;
 }
 
-export default function JasmalScraperQA() {
+export default function JasmalScraperOM() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
 
   const [competitorName, setCompetitorName] = useState<string>('');
@@ -29,7 +29,7 @@ export default function JasmalScraperQA() {
 
   const [items, setItems] = useState<JasmalItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [dateFilter, setDateFilter] = useState<string>('all'); // الفرز الزمني
+  const [dateFilter, setDateFilter] = useState<string>('all');
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const [isClient, setIsClient] = useState(false);
@@ -39,15 +39,13 @@ export default function JasmalScraperQA() {
 
   useEffect(() => {
     setIsClient(true);
-    setIsActivated(!!localStorage.getItem('merchant_license_key_qa'));
+    setIsActivated(!!localStorage.getItem('merchant_license_key_om'));
 
-    // قراءة اللغة من الصفحة الرئيسية
     const savedLang = localStorage.getItem('seerk_global_lang') as 'ar' | 'en';
     if (savedLang) {
       setLang(savedLang);
     }
     
-    // ضبط القيم الافتراضية بناءً على اللغة
     if (savedLang === 'en') {
       setCategorySelect('Electronics & Tech 💻');
       setCustomCategory('Electronics & Tech 💻');
@@ -58,7 +56,7 @@ export default function JasmalScraperQA() {
       setNotes('منتج منافس قوي في السوق');
     }
 
-    const saved = localStorage.getItem('seerk_qa_jasmal_scraper_items');
+    const saved = localStorage.getItem('seerk_om_jasmal_scraper_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
@@ -66,27 +64,26 @@ export default function JasmalScraperQA() {
 
   const saveToLocalStorage = (newItems: JasmalItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_qa_jasmal_scraper_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_om_jasmal_scraper_items', JSON.stringify(newItems));
   };
 
   const price = typeof productPrice === 'number' ? productPrice : 0;
 
-  // قاموس الترجمة الفوري
   const t = {
     ar: {
       back: '← عودة للمنصة',
       title: 'جاسمال (Jasmal) لاستخراج البيانات 🕷️',
-      desc: 'اسحب بيانات المنتجات والأسعار من المتاجر المنافسة بقطر ورتبها فوراً في ملفات إكسل',
+      desc: 'اسحب بيانات المنتجات والأسعار من المتاجر المنافسة بعُمان ورتبها فوراً في ملفات إكسل',
       editRecord: 'تعديل بيانات المنتج',
       newRecord: 'إضافة منتج منافس جديد',
       clear: '🧹 مسح الحقول',
       trial: 'تجريبي',
       compName: 'اسم المتجر المنافس',
-      compNamePH: 'مثال: طلبات مارت / متجر سنتربوينت قطر',
+      compNamePH: 'مثال: طلبات مارت / متجر سنتربوينت عُمان',
       prodName: 'اسم المنتج المنافس',
       prodNamePH: 'مثال: ساعة يد رجالية جلد',
       priceLabel: 'سعر المنتج المنافس',
-      pricePH: '299',
+      pricePH: '29',
       category: 'التصنيف',
       catTech: 'منتجات إلكترونية وتكنولوجية 💻',
       catFashion: 'أزياء وملابس رجالية/نسائية 👕',
@@ -95,7 +92,7 @@ export default function JasmalScraperQA() {
       catOther: '➕ تصنيف آخر (كتابة يدوية)',
       otherPH: 'اكتب التصنيف المخصص هنا...',
       urlLabel: 'رابط المنتج المنافس (اختياري)',
-      urlPH: 'https://competitor.qa/product/123',
+      urlPH: 'https://competitor.om/product/123',
       notesLabel: 'ملاحظات أو مميزات المنتج',
       notesPH: 'يشمل توصيل مجاني وضمان سنتين',
       saveBtnNew: '+ استخراج وإضافة المنتج للسجل',
@@ -107,7 +104,7 @@ export default function JasmalScraperQA() {
       avgPrice: 'متوسط أسعار المنافسين',
       toolStatus: 'حالة أداة الاستخراج',
       statusActive: 'نشطة وجاهزة للتصدير 🟢',
-      currency: 'ر.ق',
+      currency: 'ر.ع',
       searchPH: '🔍 بحث باسم المتجر أو المنتج...',
       exportBtn: '📥 تصدير Excel',
       importBtn: '📂 استيراد',
@@ -144,18 +141,18 @@ export default function JasmalScraperQA() {
     },
     en: {
       back: '→ Back to Hub',
-      title: 'Jasmal Data Extractor (QA) 🕷️',
-      desc: 'Extract competitor product and pricing data in Qatar and organize it instantly in Excel',
+      title: 'Jasmal Data Extractor (OM) 🕷️',
+      desc: 'Extract competitor product and pricing data in Oman and organize it instantly in Excel',
       editRecord: 'Edit Product Data',
       newRecord: 'Add New Competitor Product',
       clear: '🧹 Clear Fields',
       trial: 'Trial',
       compName: 'Competitor Store Name',
-      compNamePH: 'e.g. Talabat Mart / Centrepoint Qatar',
+      compNamePH: 'e.g. Talabat Mart / Centrepoint Oman',
       prodName: 'Competitor Product Name',
       prodNamePH: 'e.g. Men\'s Leather Watch',
       priceLabel: 'Competitor Product Price',
-      pricePH: '299',
+      pricePH: '29',
       category: 'Category',
       catTech: 'Electronics & Tech 💻',
       catFashion: 'Men/Women Fashion & Clothing 👕',
@@ -164,7 +161,7 @@ export default function JasmalScraperQA() {
       catOther: '➕ Other Category (Manual Entry)',
       otherPH: 'Type custom category here...',
       urlLabel: 'Competitor Product URL (Optional)',
-      urlPH: 'https://competitor.qa/product/123',
+      urlPH: 'https://competitor.om/product/123',
       notesLabel: 'Notes or Product Features',
       notesPH: 'Includes free shipping and 2-year warranty',
       saveBtnNew: '+ Extract & Add Product to Log',
@@ -176,7 +173,7 @@ export default function JasmalScraperQA() {
       avgPrice: 'Average Competitor Price',
       toolStatus: 'Extractor Tool Status',
       statusActive: 'Active & Ready to Export 🟢',
-      currency: 'QAR',
+      currency: 'OMR',
       searchPH: '🔍 Search by store or product...',
       exportBtn: '📥 Export Excel',
       importBtn: '📂 Import',
@@ -256,7 +253,7 @@ export default function JasmalScraperQA() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const localeStr = lang === 'ar' ? 'ar-QA' : 'en-QA';
+    const localeStr = lang === 'ar' ? 'ar-OM' : 'en-OM';
     const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
 
     if (editingId) {
@@ -286,7 +283,7 @@ export default function JasmalScraperQA() {
         createdAt: formattedDate,
         timestamp: now.getTime()
       };
-      saveToLocalStorage([newItem, ...items]); // حفظ الجديد للأعلى
+      saveToLocalStorage([newItem, ...items]);
       alert(text.alerts.saveSuccess);
     }
 
@@ -299,7 +296,6 @@ export default function JasmalScraperQA() {
     setProductPrice(item.productPrice);
     setProductUrl(item.productUrl);
     
-    // مطابقة التصنيفات بذكاء بناءً على المحتوى
     const isTech = item.category.includes('إلكترونية') || item.category.includes('Tech');
     const isFashion = item.category.includes('أزياء') || item.category.includes('Fashion');
     const isPerfume = item.category.includes('عطور') || item.category.includes('Perfume');
@@ -326,7 +322,6 @@ export default function JasmalScraperQA() {
     }
   };
 
-  // فلترة النتائج بناءً على البحث والفرز الزمني
   const filteredItems = items.filter(item => {
     const matchesSearch = item.competitorName.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           item.productName.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -417,7 +412,7 @@ export default function JasmalScraperQA() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", `enjazya_qa_jasmal_extracted_data_${dateFilter}.xls`);
+    link.setAttribute("download", `enjazya_om_jasmal_extracted_data_${dateFilter}.xls`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -476,14 +471,14 @@ export default function JasmalScraperQA() {
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
         .input-wrapper input, .input-wrapper select { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .input-wrapper input.with-currency { padding-${lang === 'ar' ? 'left' : 'right'}: 45px; }
-        .input-wrapper input:focus, .input-wrapper select:focus { border-color: #8A1538; background: #ffffff; }
+        .input-wrapper input:focus, .input-wrapper select:focus { border-color: #C62828; background: #ffffff; }
         .currency-tag { position: absolute; ${lang === 'ar' ? 'left: 14px;' : 'right: 14px;'} color: #64748b; font-weight: 800; font-size: 13px; pointer-events: none; }
         
-        .action-btn { background: #8A1538; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
-        .action-btn:hover { background: #6A102B; }
+        .action-btn { background: #C62828; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
+        .action-btn:hover { background: #B71C1C; }
 
         .result-box { background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .result-box.primary { background: linear-gradient(135deg, #8A1538 0%, #6A102B 100%); color: #fff; border: none; padding: 20px; }
+        .result-box.primary { background: linear-gradient(135deg, #C62828 0%, #B71C1C 100%); color: #fff; border: none; padding: 20px; }
         .result-label { font-size: 13px; font-weight: 700; color: #64748b; }
         .primary .result-label { color: #ffffff; opacity: 0.9; }
         .result-value { font-size: 18px; font-weight: 900; color: #0f172a; direction: ltr; }
@@ -493,14 +488,14 @@ export default function JasmalScraperQA() {
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
         
         .search-input { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; flex-grow: 1; max-width: 350px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .search-input:focus { border-color: #8A1538; }
+        .search-input:focus { border-color: #C62828; }
         
         .filter-select { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; background: #fff; color: #334155; cursor: pointer; min-width: 130px; }
-        .filter-select:focus { border-color: #8A1538; }
+        .filter-select:focus { border-color: #C62828; }
 
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
         .t-btn { padding: 9px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 6px; }
-        .t-btn:hover { background: #f1f5f9; border-color: #8A1538; color: #8A1538; }
+        .t-btn:hover { background: #f1f5f9; border-color: #C62828; color: #C62828; }
 
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 900px; }
@@ -520,7 +515,7 @@ export default function JasmalScraperQA() {
           <h1>{text.title}</h1>
           <p>{text.desc}</p>
         </div>
-        <Link href="/hub/qa" className="back-btn">
+        <Link href="/hub/om" className="back-btn">
           {text.back}
         </Link>
       </div>
@@ -623,7 +618,7 @@ export default function JasmalScraperQA() {
 
           <div className="result-box">
             <span className="result-label">{text.avgPrice}</span>
-            <span className="result-value" style={{ color: '#8A1538' }}>{avgCompetitorPrice.toFixed(2)} {text.currency}</span>
+            <span className="result-value" style={{ color: '#C62828' }}>{avgCompetitorPrice.toFixed(2)} {text.currency}</span>
           </div>
 
           <div className="result-box" style={{ background: '#f8fafc' }}>
@@ -695,7 +690,7 @@ export default function JasmalScraperQA() {
                       {item.createdAt && <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', fontWeight: 600 }}>🕒 {item.createdAt}</div>}
                     </td>
                     <td>
-                      <div style={{ fontWeight: 800, color: '#8A1538' }}>{item.productName}</div>
+                      <div style={{ fontWeight: 800, color: '#C62828' }}>{item.productName}</div>
                       <div style={{ fontSize: '12px', color: '#64748b' }}>{item.category}</div>
                     </td>
                     <td style={{ fontWeight: 900, color: '#0f172a' }}>{item.productPrice} {text.currency}</td>
@@ -721,7 +716,7 @@ export default function JasmalScraperQA() {
               <tfoot>
                 <tr className="tfoot-row">
                   <td colSpan={3} style={{ textAlign: 'center' }}>{text.table.totalLabel}</td>
-                  <td colSpan={3} style={{ color: '#8A1538' }}>{avgCompetitorPrice.toFixed(2)} {text.currency}</td>
+                  <td colSpan={3} style={{ color: '#C62828' }}>{avgCompetitorPrice.toFixed(2)} {text.currency}</td>
                 </tr>
               </tfoot>
             )}
