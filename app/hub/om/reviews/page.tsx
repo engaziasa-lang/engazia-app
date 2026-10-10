@@ -11,10 +11,10 @@ interface ReviewItem {
   productName: string;
   reviewStatus: string;
   createdAt?: string;
-  timestamp?: number; // تمت الإضافة للفرز الزمني
+  timestamp?: number;
 }
 
-export default function AutomatedReviewsQA() {
+export default function AutomatedReviewsOM() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
 
   const [customerName, setCustomerName] = useState<string>('');
@@ -27,7 +27,7 @@ export default function AutomatedReviewsQA() {
 
   const [items, setItems] = useState<ReviewItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [dateFilter, setDateFilter] = useState<string>('all'); // الفرز الزمني
+  const [dateFilter, setDateFilter] = useState<string>('all');
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const [isClient, setIsClient] = useState(false);
@@ -37,15 +37,13 @@ export default function AutomatedReviewsQA() {
 
   useEffect(() => {
     setIsClient(true);
-    setIsActivated(!!localStorage.getItem('merchant_license_key_qa'));
+    setIsActivated(!!localStorage.getItem('merchant_license_key_om'));
 
-    // قراءة اللغة من الصفحة الرئيسية
     const savedLang = localStorage.getItem('seerk_global_lang') as 'ar' | 'en';
     if (savedLang) {
       setLang(savedLang);
     }
     
-    // ضبط القيم الافتراضية
     if (savedLang === 'en') {
       setStatusSelect('Pending 🕒');
       setCustomStatus('Pending 🕒');
@@ -54,7 +52,7 @@ export default function AutomatedReviewsQA() {
       setCustomStatus('في انتظار الإرسال 🕒');
     }
 
-    const saved = localStorage.getItem('seerk_qa_automated_reviews_items');
+    const saved = localStorage.getItem('seerk_om_automated_reviews_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
@@ -62,23 +60,22 @@ export default function AutomatedReviewsQA() {
 
   const saveToLocalStorage = (newItems: ReviewItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_qa_automated_reviews_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_om_automated_reviews_items', JSON.stringify(newItems));
   };
 
-  // قاموس الترجمة الفوري
   const t = {
     ar: {
       back: '← عودة للمنصة',
       title: 'نظام طلب التقييمات الآلي ⭐',
-      desc: 'أرسل رسائل تلقائية للعملاء عبر واتساب بعد الاستلام لجمع التقييمات وبناء الموثوقية في متجرك بقطر',
+      desc: 'أرسل رسائل تلقائية للعملاء عبر واتساب بعد الاستلام لجمع التقييمات وبناء الموثوقية في متجرك بعُمان',
       editRecord: 'تعديل السجل',
       newRecord: 'إضافة عميل لطلب تقييم',
       clear: '🧹 مسح الحقول',
       trial: 'تجريبي',
       custName: 'اسم العميل',
-      custNamePH: 'مثال: ناصر الكبيسي',
-      phone: 'رقم جوال العميل (القطري)',
-      phonePH: '55XXXXXX أو 33XXXXXX',
+      custNamePH: 'مثال: ناصر البلوشي',
+      phone: 'رقم جوال العميل (العُماني)',
+      phonePH: '9XXXXXXX أو 7XXXXXXX',
       orderNum: 'رقم الطلب',
       orderNumPH: 'مثال: #89201',
       prodName: 'اسم المنتج (اختياري)',
@@ -136,15 +133,15 @@ export default function AutomatedReviewsQA() {
     en: {
       back: '→ Back to Hub',
       title: 'Automated Review Request System ⭐',
-      desc: 'Send automated WhatsApp messages to customers after delivery to collect reviews and build trust in your Qatar store',
+      desc: 'Send automated WhatsApp messages to customers after delivery to collect reviews and build trust in your Oman store',
       editRecord: 'Edit Record',
       newRecord: 'Add Customer for Review Request',
       clear: '🧹 Clear Fields',
       trial: 'Trial',
       custName: 'Customer Name',
-      custNamePH: 'e.g. Nasser Al Kubaisi',
-      phone: 'Customer Phone Number (Qatar)',
-      phonePH: '55XXXXXX or 33XXXXXX',
+      custNamePH: 'e.g. Nasser Al Balushi',
+      phone: 'Customer Phone Number (Oman)',
+      phonePH: '9XXXXXXX or 7XXXXXXX',
       orderNum: 'Order Number',
       orderNumPH: 'e.g. #89201',
       prodName: 'Product Name (Optional)',
@@ -238,7 +235,7 @@ export default function AutomatedReviewsQA() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const localeStr = lang === 'ar' ? 'ar-QA' : 'en-QA';
+    const localeStr = lang === 'ar' ? 'ar-OM' : 'en-OM';
     const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
 
     if (editingId) {
@@ -266,7 +263,7 @@ export default function AutomatedReviewsQA() {
         createdAt: formattedDate,
         timestamp: now.getTime()
       };
-      saveToLocalStorage([newItem, ...items]); // حفظ الجديد في الأعلى
+      saveToLocalStorage([newItem, ...items]); 
       alert(text.alerts.saveSuccess);
     }
 
@@ -276,9 +273,9 @@ export default function AutomatedReviewsQA() {
   const handleEdit = (item: ReviewItem) => {
     setCustomerName(item.customerName);
     
-    // إزالة رمز الدولة (974) لتسهيل التعديل
+    // إزالة رمز الدولة (968) لتسهيل التعديل
     let displayPhone = item.phoneNumber;
-    if (displayPhone.startsWith('974')) {
+    if (displayPhone.startsWith('968')) {
       displayPhone = displayPhone.substring(3);
     }
     setPhoneNumber(displayPhone);
@@ -313,11 +310,11 @@ export default function AutomatedReviewsQA() {
   const handleSendWhatsapp = (item: ReviewItem) => {
     let phone = (item.phoneNumber || '').replace(/\D/g, '');
     if (phone.startsWith('0')) {
-      phone = '974' + phone.substring(1);
-    } else if (phone.length === 8 && !phone.startsWith('974')) {
-      phone = '974' + phone;
-    } else if (!phone.startsWith('974')) {
-      phone = '974' + phone;
+      phone = '968' + phone.substring(1);
+    } else if (phone.length === 8 && !phone.startsWith('968')) {
+      phone = '968' + phone;
+    } else if (!phone.startsWith('968')) {
+      phone = '968' + phone;
     }
     
     const prodDisplay = item.productName || (lang === 'ar' ? 'الطلب رقم ' + item.orderNumber : 'Order #' + item.orderNumber);
@@ -326,7 +323,6 @@ export default function AutomatedReviewsQA() {
     window.open(url, '_blank');
   };
 
-  // فلترة النتائج بناءً على البحث والفرز الزمني
   const filteredItems = items.filter(item => {
     const matchesSearch = item.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           item.orderNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -415,7 +411,7 @@ export default function AutomatedReviewsQA() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", `enjazya_qa_automated_reviews_${dateFilter}.xls`);
+    link.setAttribute("download", `enjazya_om_automated_reviews_${dateFilter}.xls`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -457,7 +453,7 @@ export default function AutomatedReviewsQA() {
         .title-box h1 { font-size: 24px; font-weight: 900; color: #0f172a; margin: 0 0 5px 0; }
         .title-box p { color: #64748b; margin: 0; font-size: 14px; }
         
-        .grid-layout { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 30px; margin-bottom: 40px; }
+        .grid-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 40px; }
         @media(max-width: 850px) { .grid-layout { grid-template-columns: 1fr; } }
         
         .card { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
@@ -473,13 +469,13 @@ export default function AutomatedReviewsQA() {
         .input-group label { display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 6px; }
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
         .input-wrapper input, .input-wrapper select { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .input-wrapper input:focus, .input-wrapper select:focus { border-color: #8A1538; background: #ffffff; }
+        .input-wrapper input:focus, .input-wrapper select:focus { border-color: #C62828; background: #ffffff; }
         
-        .action-btn { background: #8A1538; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
-        .action-btn:hover { background: #6A102B; }
+        .action-btn { background: #C62828; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
+        .action-btn:hover { background: #B71C1C; }
 
         .result-box { background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .result-box.primary { background: linear-gradient(135deg, #8A1538 0%, #6A102B 100%); color: #fff; border: none; padding: 20px; }
+        .result-box.primary { background: linear-gradient(135deg, #C62828 0%, #B71C1C 100%); color: #fff; border: none; padding: 20px; }
         .result-label { font-size: 13px; font-weight: 700; color: #64748b; }
         .primary .result-label { color: #ffffff; opacity: 0.9; }
         .result-value { font-size: 18px; font-weight: 900; color: #0f172a; direction: ltr; }
@@ -489,14 +485,14 @@ export default function AutomatedReviewsQA() {
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
         
         .search-input { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; flex-grow: 1; max-width: 350px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .search-input:focus { border-color: #8A1538; }
+        .search-input:focus { border-color: #C62828; }
         
         .filter-select { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; background: #fff; color: #334155; cursor: pointer; min-width: 130px; }
-        .filter-select:focus { border-color: #8A1538; }
+        .filter-select:focus { border-color: #C62828; }
 
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
         .t-btn { padding: 9px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 6px; }
-        .t-btn:hover { background: #f1f5f9; border-color: #8A1538; color: #8A1538; }
+        .t-btn:hover { background: #f1f5f9; border-color: #C62828; color: #C62828; }
 
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 900px; }
@@ -517,7 +513,7 @@ export default function AutomatedReviewsQA() {
           <h1>{text.title}</h1>
           <p>{text.desc}</p>
         </div>
-        <Link href="/hub/qa" className="back-btn">
+        <Link href="/hub/om" className="back-btn">
           {text.back}
         </Link>
       </div>
@@ -535,33 +531,32 @@ export default function AutomatedReviewsQA() {
           </h2>
 
           <form onSubmit={handleSaveItem}>
-            <div className="form-row">
-              <div className="input-group">
-                <label>{text.custName}</label>
-                <div className="input-wrapper">
-                  <input type="text" value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder={text.custNamePH} required />
-                </div>
+            <div className="input-group">
+              <label>{text.custName}</label>
+              <div className="input-wrapper">
+                <input type="text" value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder={text.custNamePH} required />
               </div>
+            </div>
+
+            <div className="form-row">
               <div className="input-group">
                 <label>{text.phone}</label>
                 <div className="input-wrapper">
                   <input type="text" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} placeholder={text.phonePH} required dir="ltr" style={{ textAlign: lang === 'ar' ? 'right' : 'left' }} />
                 </div>
               </div>
-            </div>
-
-            <div className="form-row">
               <div className="input-group">
                 <label>{text.orderNum}</label>
                 <div className="input-wrapper">
                   <input type="text" value={orderNumber} onChange={(e) => setOrderNumber(e.target.value)} placeholder={text.orderNumPH} required />
                 </div>
               </div>
-              <div className="input-group">
-                <label>{text.prodName}</label>
-                <div className="input-wrapper">
-                  <input type="text" value={productName} onChange={(e) => setProductName(e.target.value)} placeholder={text.prodNamePH} />
-                </div>
+            </div>
+
+            <div className="input-group">
+              <label>{text.prodName}</label>
+              <div className="input-wrapper">
+                <input type="text" value={productName} onChange={(e) => setProductName(e.target.value)} placeholder={text.prodNamePH} />
               </div>
             </div>
 
@@ -687,7 +682,7 @@ export default function AutomatedReviewsQA() {
                         {item.createdAt && <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', fontWeight: 600 }}>🕒 {item.createdAt}</div>}
                       </td>
                       <td>
-                        <div style={{ fontWeight: 800, color: '#8A1538' }}>{item.orderNumber}</div>
+                        <div style={{ fontWeight: 800, color: '#C62828' }}>{item.orderNumber}</div>
                         <div style={{ fontSize: '12px', color: '#64748b' }}>{item.productName || text.table.generalOrder}</div>
                       </td>
                       <td style={{ direction: 'ltr', textAlign: lang === 'ar' ? 'right' : 'left', fontWeight: 700 }}>{item.phoneNumber}</td>
