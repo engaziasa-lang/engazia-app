@@ -12,10 +12,10 @@ interface PolicyItem {
   returnDays: number;
   policyContent: string;
   createdAt?: string;
-  timestamp?: number; // تمت الإضافة للفرز الزمني
+  timestamp?: number;
 }
 
-export default function PoliciesGeneratorQA() {
+export default function PoliciesGeneratorOM() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
   const [storeName, setStoreName] = useState<string>('');
   const [policySelect, setPolicySelect] = useState<string>('');
@@ -27,7 +27,7 @@ export default function PoliciesGeneratorQA() {
 
   const [items, setItems] = useState<PolicyItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [dateFilter, setDateFilter] = useState<string>('all'); // الفرز الزمني
+  const [dateFilter, setDateFilter] = useState<string>('all');
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const [isClient, setIsClient] = useState(false);
@@ -37,15 +37,13 @@ export default function PoliciesGeneratorQA() {
 
   useEffect(() => {
     setIsClient(true);
-    setIsActivated(!!localStorage.getItem('merchant_license_key_qa'));
+    setIsActivated(!!localStorage.getItem('merchant_license_key_om'));
 
-    // قراءة اللغة
     const savedLang = localStorage.getItem('seerk_global_lang') as 'ar' | 'en';
     if (savedLang) {
       setLang(savedLang);
     }
     
-    // ضبط القيم الافتراضية بناءً على اللغة
     if (savedLang === 'en') {
       setPolicySelect('Return & Exchange Policy 🔄');
       setCustomPolicyType('Return & Exchange Policy 🔄');
@@ -54,11 +52,11 @@ export default function PoliciesGeneratorQA() {
       setCustomPolicyType('سياسة الاستبدال والاسترجاع 🔄');
     }
 
-    const saved = localStorage.getItem('seerk_qa_policies_generator_items');
+    const saved = localStorage.getItem('seerk_om_policies_generator_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
-    const defaultStore = localStorage.getItem('seerk_qa_store_name');
+    const defaultStore = localStorage.getItem('seerk_om_store_name');
     if (defaultStore) setStoreName(defaultStore);
   }, []);
 
@@ -66,7 +64,7 @@ export default function PoliciesGeneratorQA() {
     ar: {
       back: '← عودة للمنصة',
       title: 'مولد السياسات وقوانين حماية المستهلك ⚖️',
-      desc: 'أنشئ صفحات الاستبدال والاسترجاع، سياسة الخصوصية، أو أي سياسة أخرى مخصصة لمتجرك القطري',
+      desc: 'أنشئ صفحات الاستبدال والاسترجاع، سياسة الخصوصية، أو أي سياسة أخرى مخصصة لمتجرك العُماني',
       editRecord: 'تعديل السياسة',
       newRecord: 'توليد سياسة جديدة',
       clear: '🧹 مسح الحقول',
@@ -80,9 +78,9 @@ export default function PoliciesGeneratorQA() {
       optOther: '➕ سياسة أخرى (كتابة يدوية)',
       otherPH: 'اكتب مسمى السياسة هنا (مثال: سياسة الشحن)...',
       emailLabel: 'البريد الإلكتروني للدعم',
-      emailPH: 'support@yourstore.qa',
+      emailPH: 'support@yourstore.om',
       phoneLabel: 'رقم واتساب الدعم',
-      phonePH: '974XXXXXXX',
+      phonePH: '968XXXXXXX',
       returnDaysLabel: 'مدة الاستبدال والاسترجاع (بالأيام)',
       saveBtnNew: '+ حفظ السياسة في السجل',
       saveBtnEdit: '💾 حفظ التعديلات',
@@ -125,7 +123,7 @@ export default function PoliciesGeneratorQA() {
     en: {
       back: '→ Back to Hub',
       title: 'Store Policies & Consumer Law Generator ⚖️',
-      desc: 'Generate customized return policies, privacy policies, and terms for your Qatar store',
+      desc: 'Generate customized return policies, privacy policies, and terms for your Oman store',
       editRecord: 'Edit Policy',
       newRecord: 'Generate New Policy',
       clear: '🧹 Clear Fields',
@@ -139,9 +137,9 @@ export default function PoliciesGeneratorQA() {
       optOther: '➕ Other Policy (Manual Entry)',
       otherPH: 'Type policy name (e.g. Shipping Policy)...',
       emailLabel: 'Support Email',
-      emailPH: 'support@yourstore.qa',
+      emailPH: 'support@yourstore.om',
       phoneLabel: 'Support WhatsApp/Phone',
-      phonePH: '974XXXXXXX',
+      phonePH: '968XXXXXXX',
       returnDaysLabel: 'Return & Exchange Period (Days)',
       saveBtnNew: '+ Save Policy to Log',
       saveBtnEdit: '💾 Save Changes',
@@ -186,11 +184,10 @@ export default function PoliciesGeneratorQA() {
   const text = t[lang];
   const actualPolicyType = policySelect === text.optOther ? customPolicyType : policySelect;
 
-  // توليد النص تلقائياً بناءً على اللغة المختارة
   useEffect(() => {
     const currentStore = storeName.trim() || (lang === 'ar' ? 'المتجر' : 'The Store');
-    const currentEmail = supportEmail.trim() || 'support@yourstore.qa';
-    const currentPhone = supportPhone.trim() || '974XXXXXXX';
+    const currentEmail = supportEmail.trim() || 'support@yourstore.om';
+    const currentPhone = supportPhone.trim() || '968XXXXXXX';
     const days = returnDays || 7;
 
     const isReturn = policySelect.includes('استرجاع') || policySelect.includes('Return');
@@ -201,7 +198,7 @@ export default function PoliciesGeneratorQA() {
       if (isReturn) {
         setPolicyContent(
           `أهلاً بكم في ${currentStore}. حرصاً منا على خدمتكم بأفضل شكل، فإن سياسة الاستبدال والاسترجاع تخضع للشروط والضوابط التالية:\n\n` +
-          `1. مدة الاستبدال والاسترجاع هي خلال (${days}) أيام من تاريخ استلام الطلب وفقاً لقوانين حماية المستهلك في دولة قطر.\n` +
+          `1. مدة الاستبدال والاسترجاع هي خلال (${days}) أيام من تاريخ استلام الطلب وفقاً لقوانين حماية المستهلك في سلطنة عُمان.\n` +
           `2. يجب أن يكون المنتج بحالته الأصلية، وفي غلافه الأصلي، ولم يتم فتحه أو استخدامُه، مع إرفاق فاتورة الشراء.\n` +
           `3. تتحمل تكاليف الشحن العكسي في حال كان الاسترجاع بسبب رغبة العميل، بينما يتحمل المتجر التكاليف في حال وجود عيب مصنعي أو خطأ في الطلب.\n` +
           `4. للاستفسار أو تقديم طلب استرجاع، يرجى التواصل معنا عبر البريد: ${currentEmail} أو الواتساب: ${currentPhone}.`
@@ -218,7 +215,7 @@ export default function PoliciesGeneratorQA() {
         setPolicyContent(
           `الشروط والأحكام الخاصة بـ ${currentStore}:\n\n` +
           `1. استخدامك للمتجر يعني موافقتك التامة على كافة الشروط والسياسات المعلنة.\n` +
-          `2. الأسعار معروضة بالريال القطري (ر.ق).\n` +
+          `2. الأسعار معروضة بالريال العُماني (ر.ع).\n` +
           `3. يحق للمتجر إلغاء الطلب في حال نفاد الكمية أو عدم إتمام عملية الدفع خلال المدة المحددة، مع إرجاع المبلغ كاملاً للعميل.\n` +
           `4. للتواصل والدعم الفني: ${currentEmail} - هاتف: ${currentPhone}.`
         );
@@ -226,17 +223,16 @@ export default function PoliciesGeneratorQA() {
         if (!editingId || !policyContent) {
           setPolicyContent(
             `نص ${customPolicyType || 'السياسة'} الخاص بـ ${currentStore}:\n\n` +
-            `1. يلتزم المتجر بتقديم أفضل الخدمات وفقاً لهذه السياسة والقوانين المعمول بها في دولة قطر.\n` +
+            `1. يلتزم المتجر بتقديم أفضل الخدمات وفقاً لهذه السياسة والقوانين المعمول بها في سلطنة عُمان.\n` +
             `2. لأي استفسارات أو تفاصيل إضافية، يرجى التواصل معنا عبر البريد: ${currentEmail} أو عبر الواتساب: ${currentPhone}.`
           );
         }
       }
     } else {
-      // English Policies
       if (isReturn) {
         setPolicyContent(
           `Welcome to ${currentStore}. To ensure the best service, our Return and Exchange Policy is subject to the following terms:\n\n` +
-          `1. Returns and exchanges are accepted within (${days}) days of receiving the order, in accordance with Qatar consumer protection laws.\n` +
+          `1. Returns and exchanges are accepted within (${days}) days of receiving the order, in accordance with Oman consumer protection laws.\n` +
           `2. The product must be in its original condition, unopened, unused, and in its original packaging with the purchase receipt.\n` +
           `3. The customer bears the reverse shipping costs if the return is a personal preference. The store covers costs for manufacturing defects or wrong items.\n` +
           `4. For inquiries or return requests, please contact us via Email: ${currentEmail} or WhatsApp: ${currentPhone}.`
@@ -253,7 +249,7 @@ export default function PoliciesGeneratorQA() {
         setPolicyContent(
           `Terms and Conditions for ${currentStore}:\n\n` +
           `1. Your use of this store constitutes your full agreement to all stated terms and policies.\n` +
-          `2. Prices are displayed in Qatari Riyals (QAR).\n` +
+          `2. Prices are displayed in Omani Riyals (OMR).\n` +
           `3. The store reserves the right to cancel an order in case of stock depletion or incomplete payment, with a full refund to the customer.\n` +
           `4. For technical support and contact: ${currentEmail} - Phone: ${currentPhone}.`
         );
@@ -261,7 +257,7 @@ export default function PoliciesGeneratorQA() {
         if (!editingId || !policyContent) {
           setPolicyContent(
             `Text for ${customPolicyType || 'Policy'} of ${currentStore}:\n\n` +
-            `1. The store is committed to providing the best services in accordance with this policy and the applicable laws in the State of Qatar.\n` +
+            `1. The store is committed to providing the best services in accordance with this policy and the applicable laws in Oman.\n` +
             `2. For any inquiries or further details, please contact us via Email: ${currentEmail} or WhatsApp: ${currentPhone}.`
           );
         }
@@ -271,7 +267,7 @@ export default function PoliciesGeneratorQA() {
 
   const saveToLocalStorage = (newItems: PolicyItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_qa_policies_generator_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_om_policies_generator_items', JSON.stringify(newItems));
   };
 
   const days = typeof returnDays === 'number' ? returnDays : 7;
@@ -311,11 +307,10 @@ export default function PoliciesGeneratorQA() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const localeStr = lang === 'ar' ? 'ar-QA' : 'en-QA';
+    const localeStr = lang === 'ar' ? 'ar-OM' : 'en-OM';
     const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
 
-    // حفظ اسم المتجر كمرجع للأدوات الأخرى
-    localStorage.setItem('seerk_qa_store_name', storeName);
+    localStorage.setItem('seerk_om_store_name', storeName);
 
     if (editingId) {
       const updated = items.map(item => item.id === editingId ? {
@@ -344,7 +339,7 @@ export default function PoliciesGeneratorQA() {
         createdAt: formattedDate,
         timestamp: now.getTime()
       };
-      saveToLocalStorage([newItem, ...items]); // حفظ بالأعلى
+      saveToLocalStorage([newItem, ...items]);
       alert(text.alerts.saveSuccess);
     }
 
@@ -386,7 +381,6 @@ export default function PoliciesGeneratorQA() {
     alert(text.alerts.copySuccess);
   };
 
-  // فلترة النتائج بناءً على البحث والفرز الزمني
   const filteredItems = items.filter(item => {
     const matchesSearch = item.storeName.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           item.policyType.toLowerCase().includes(searchQuery.toLowerCase());
@@ -470,7 +464,7 @@ export default function PoliciesGeneratorQA() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", `enjazya_qa_policies_generator_${dateFilter}.xls`);
+    link.setAttribute("download", `enjazya_om_policies_generator_${dateFilter}.xls`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -528,25 +522,25 @@ export default function PoliciesGeneratorQA() {
         .input-group label { display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 6px; }
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
         .input-wrapper input, .input-wrapper select, .input-wrapper textarea { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .input-wrapper input:focus, .input-wrapper select:focus, .input-wrapper textarea:focus { border-color: #8A1538; background: #ffffff; }
+        .input-wrapper input:focus, .input-wrapper select:focus, .input-wrapper textarea:focus { border-color: #C62828; background: #ffffff; }
         
-        .action-btn { background: #8A1538; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
-        .action-btn:hover { background: #6A102B; }
+        .action-btn { background: #C62828; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
+        .action-btn:hover { background: #B71C1C; }
         
-        .copy-btn { background: #8A1538; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .copy-btn:hover { background: #6A102B; }
+        .copy-btn { background: #C62828; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .copy-btn:hover { background: #B71C1C; }
 
         .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
         .search-input { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; flex-grow: 1; max-width: 350px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .search-input:focus { border-color: #8A1538; }
+        .search-input:focus { border-color: #C62828; }
         
         .filter-select { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; background: #fff; color: #334155; cursor: pointer; min-width: 130px; }
-        .filter-select:focus { border-color: #8A1538; }
+        .filter-select:focus { border-color: #C62828; }
 
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
         .t-btn { padding: 9px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 6px; }
-        .t-btn:hover { background: #f1f5f9; border-color: #8A1538; color: #8A1538; }
+        .t-btn:hover { background: #f1f5f9; border-color: #C62828; color: #C62828; }
 
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 900px; }
@@ -557,8 +551,8 @@ export default function PoliciesGeneratorQA() {
         .trial-badge { background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 800; }
         
         .tb-action-btn { border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; font-family: inherit;}
-        .btn-wa { background: #FAF0F2; color: #8A1538; border: 1px solid #EBB8C6; }
-        .btn-wa:hover { background: #8A1538; color: #ffffff; }
+        .btn-wa { background: #FFEBEE; color: #C62828; border: 1px solid #FFCDD2; }
+        .btn-wa:hover { background: #C62828; color: #ffffff; }
         .btn-edit { background: #e0f2fe; color: #0369a1; }
         .btn-delete { background: #fee2e2; color: #991b1b; }
       `}</style>
@@ -568,7 +562,7 @@ export default function PoliciesGeneratorQA() {
           <h1>{text.title}</h1>
           <p>{text.desc}</p>
         </div>
-        <Link href="/hub/qa" className="back-btn">
+        <Link href="/hub/om" className="back-btn">
           {text.back}
         </Link>
       </div>
@@ -727,7 +721,7 @@ export default function PoliciesGeneratorQA() {
                       <div style={{ fontWeight: 900, color: '#0f172a' }}>{item.storeName}</div>
                       {item.createdAt && <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', fontWeight: 600 }}>🕒 {item.createdAt}</div>}
                     </td>
-                    <td><span style={{ fontWeight: 800, color: '#8A1538' }}>{item.policyType}</span></td>
+                    <td><span style={{ fontWeight: 800, color: '#C62828' }}>{item.policyType}</span></td>
                     <td>
                       <div style={{ fontSize: '12.5px', color: '#334155' }}>{item.supportEmail}</div>
                       <div style={{ fontSize: '11.5px', color: '#64748b' }}>{item.supportPhone}</div>
