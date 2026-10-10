@@ -17,7 +17,8 @@ export default function MarketSelector() {
         </p>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: '15px', width: '100%', maxWidth: '1200px' }}>
+      {/* تم التعديل إلى repeat(5, minmax(0, 1fr)) لتستوعب 5 أسواق */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, minmax(0, 1fr))', gap: '15px', width: '100%', maxWidth: '1200px' }}>
         
         {/* بطاقة السوق السعودي */}
         <Link href="/hub/sa" style={{ textDecoration: 'none' }}>
@@ -75,10 +76,30 @@ export default function MarketSelector() {
           </div>
         </Link>
 
+        {/* بطاقة السوق العُماني (الجديدة) */}
+        <Link href="/hub/om" style={{ textDecoration: 'none' }}>
+          <div style={{ background: '#ffffff', border: '2px solid #e2e8f0', borderRadius: '16px', padding: '20px 15px', textAlign: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.03)', transition: 'all 0.3s ease', cursor: 'pointer', height: '100%', boxSizing: 'border-box' }}
+               onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#C62828'; e.currentTarget.style.transform = 'translateY(-3px)'; }}
+               onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.transform = 'translateY(0)'; }}>
+            <div style={{ marginBottom: '10px', display: 'inline-block', borderRadius: '6px', overflow: 'hidden', boxShadow: '0 2px 6px rgba(0,0,0,0.1)' }}>
+              <img src="https://flagcdn.com/w160/om.png" alt="علم سلطنة عُمان" style={{ width: '60px', height: '38px', objectFit: 'cover', display: 'block' }} />
+            </div>
+            <h2 style={{ fontSize: '18px', fontWeight: 900, color: '#0f172a', marginBottom: '8px' }}>السوق العُماني</h2>
+            <p style={{ color: '#64748b', fontSize: '12.5px', fontWeight: 500, margin: '0 0 15px 0', lineHeight: '1.4' }}>متوافق مع جهاز الضرائب (OTA) والريال.</p>
+            <span style={{ display: 'inline-block', background: '#FFEBEE', color: '#C62828', border: '1px solid #FFCDD2', padding: '8px 14px', borderRadius: '8px', fontWeight: 800, fontSize: '12.5px' }}>دخول السوق ←</span>
+          </div>
+        </Link>
+
       </div>
 
       <style jsx>{`
-        @media(max-width: 900px) {
+        /* تعديلات الـ Responsive لتتوافق مع الـ 5 بطاقات بدلاً من 4 */
+        @media(max-width: 1050px) {
+          div :global(div[style*="grid-template-columns"]) {
+            grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+          }
+        }
+        @media(max-width: 768px) {
           div :global(div[style*="grid-template-columns"]) {
             grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
           }
