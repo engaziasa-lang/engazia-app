@@ -11,10 +11,10 @@ interface CopyItem {
   offerText: string;
   generatedScript: string;
   createdAt?: string;
-  timestamp?: number; // تمت الإضافة للفرز الزمني
+  timestamp?: number;
 }
 
-export default function ExploredCopywritingQA() {
+export default function ExploredCopywritingOM() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
   
   const [productName, setProductName] = useState<string>('');
@@ -26,7 +26,7 @@ export default function ExploredCopywritingQA() {
 
   const [items, setItems] = useState<CopyItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [dateFilter, setDateFilter] = useState<string>('all'); // الفرز الزمني
+  const [dateFilter, setDateFilter] = useState<string>('all');
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const [isClient, setIsClient] = useState(false);
@@ -36,14 +36,13 @@ export default function ExploredCopywritingQA() {
 
   useEffect(() => {
     setIsClient(true);
-    setIsActivated(!!localStorage.getItem('merchant_license_key_qa'));
+    setIsActivated(!!localStorage.getItem('merchant_license_key_om'));
 
     const savedLang = localStorage.getItem('seerk_global_lang') as 'ar' | 'en';
     if (savedLang) {
       setLang(savedLang);
     }
     
-    // وضع قيم افتراضية بناءً على اللغة
     if (savedLang === 'en') {
       setProductName('Luxury Enjazya Perfume');
       setContentSelect('TikTok Video Ad (Enthusiastic) 🎬');
@@ -58,7 +57,7 @@ export default function ExploredCopywritingQA() {
       setOfferText('خصم 30% + توصيل مجاني لأول 100 طلب');
     }
 
-    const saved = localStorage.getItem('seerk_qa_copywriting_items');
+    const saved = localStorage.getItem('seerk_om_copywriting_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
@@ -67,7 +66,7 @@ export default function ExploredCopywritingQA() {
   const t = {
     ar: {
       back: '← عودة للمنصة',
-      title: 'مولد نصوص الإكسبلور باللهجة القطرية ✍️',
+      title: 'مولد نصوص الإكسبلور باللهجة العُمانية ✍️',
       desc: 'اصنع سكريبتات تيك توك وإعلانات جذابة باللهجة المحلية لزيادة تفاعل العملاء ومعدل التحويل',
       editTitle: 'تعديل السكريبت',
       newTitle: 'توليد سكريبت إعلاني جديد',
@@ -82,7 +81,7 @@ export default function ExploredCopywritingQA() {
       typeOther: '➕ نوع آخر (كتابة يدوية)',
       otherPH: 'اكتب نوع المحتوى هنا...',
       problem: 'المشكلة التي يحلها المنتج (باللهجة المحلية)',
-      problemPH: 'تدور على عطر فخم يثبت معاك طول اليوم؟',
+      problemPH: 'تدور على عطر غاوي ويثبت معاك طول اليوم؟',
       offer: 'العرض التسويقي الخاص بالمتجر',
       offerPH: 'خصم 30% + توصيل مجاني لأول 100 طلب',
       saveBtnEdit: '💾 حفظ التعديلات',
@@ -125,7 +124,7 @@ export default function ExploredCopywritingQA() {
     },
     en: {
       back: '→ Back to Hub',
-      title: 'Explore Copywriting Generator (QA) ✍️',
+      title: 'Explore Copywriting Generator (OM) ✍️',
       desc: 'Create catchy TikTok scripts and ads to boost engagement and conversions',
       editTitle: 'Edit Script',
       newTitle: 'Generate New Ad Script',
@@ -185,10 +184,9 @@ export default function ExploredCopywritingQA() {
 
   const text = t[lang];
 
-  // تحديد نوع المحتوى النظيف
   const actualContentType = contentSelect === 'نوع آخر (كتابة يدوية)' || contentSelect === '➕ Other (Manual Entry)' ? customContentType : contentSelect;
 
-  // توليد السكريبت تلقائياً عند تغيير المدخلات (معدل للهجة القطرية)
+  // توليد السكريبت تلقائياً عند تغيير المدخلات (معدل للهجة العُمانية)
   useEffect(() => {
     const pName = productName.trim() || (lang === 'ar' ? 'المنتج' : 'the product');
     const prob = problemSolved.trim() || (lang === 'ar' ? 'تدور على الأفضل دايماً؟' : 'always looking for the best?');
@@ -197,12 +195,12 @@ export default function ExploredCopywritingQA() {
     if (lang === 'ar') {
       if (contentSelect.includes('تيك توك')) {
         setGeneratedScript(
-          `🎬 **[سكريبت إعلان تيك توك - باللهجة القطرية]**\n\n` +
+          `🎬 **[سكريبت إعلان تيك توك - باللهجة العُمانية]**\n\n` +
           `🎵 *(موسيقى حماسية وترند في الخلفية)*\n\n` +
           `🗣️ **المشهد الأول (الخطاف - أول 3 ثواني):**\n` +
-          `"يا هلا ومسهلا، إذا ${prob}.. ركزوا وياي للآخر لأن هالشي بيفرق معاكم وايد!"\n\n` +
+          `"حياكم الله! إذا ${prob}.. ركزوا معاي للآخر لأن هالشي بيفك لكم أزمة واجد!"\n\n` +
           `🗣️ **المشهد الثاني (المشكلة والحل):**\n` +
-          `"وايد ندور على الجودة والشي الزين بس نلقى الأسعار نار.. لكن مع (${pName}) طاح الهم! المنتج فخم، عملي، ومصمم خصيصاً عشان يريحكم."\n\n` +
+          `"واجد ندور على الجودة والشي الغاوي بس نلقى الأسعار نار.. لكن مع (${pName}) طاح الهم! المنتج فخم، عملي، ومصمم خصيصاً عشان يريحكم."\n\n` +
           `🗣️ **المشهد الثالث (العرض والطلب من الإكسبلور):**\n` +
           `"واللي جايين من الإكسبلور لهم بشارة طيبة: ${offer}!\n` +
           `الكمية محدودة جداً، الحق اطلب قبل لا يخلص المخزون، الرابط تحت بالفيديو أو بالبايو! 🚀"`
@@ -211,17 +209,17 @@ export default function ExploredCopywritingQA() {
         setGeneratedScript(
           `👻 **[سكريبت سناب شات - تفاعلي وعفوي]**\n\n` +
           `🗣️ **سنابة 1 (جذب الانتباه):**\n` +
-          `"مساكم الله بالخير يا الربع.. وصلني اليوم (${pName}) اللي مكسر الدنيا! تدرون إن ${prob}"\n\n` +
+          `"مو علومكم يا جماعة الخير.. وصلني اليوم (${pName}) اللي مكسر الدنيا! تدرون إن ${prob}"\n\n` +
           `🗣️ **سنابة 2 (استعراض المنتج):**\n` +
-          `"شوفوا وياي الجودة والتفاصيل كيف ما شاء الله. شي فاخر من الآخر ويهدي البال."\n\n` +
+          `"شوفوا معاي الجودة والتفاصيل كيف ما شاء الله. شي فاخر من الآخر ويهدي البال."\n\n` +
           `🗣 **سنابة 3 (Call to Action):**\n` +
           `"وعشانكم غالين علينا، وفرنا لكم: ${offer}.\n` +
-          `ارفع الشاشة لفوق 👆 وطلبك يوصلك لباب بيتك وين ما كنت في قطر!"`
+          `ارفع الشاشة لفوق 👆 وطلبك يوصلك لين باب بيتك وين ما كنت في السلطنة!"`
         );
       } else {
         setGeneratedScript(
           `📢 **[بوست إعلاني جذاب - تسويقي]**\n\n` +
-          `🔥 يا هلا بكل متابع ومتابعـة!\n\n` +
+          `🔥 حياكم الله بكل متابع ومتابعـة!\n\n` +
           `إذا كنت ${prob}، مالك إلا (${pName}).\n\n` +
           `💎 **ليش تختارنا؟**\n` +
           `- جودة عالية تبيض الوجه.\n` +
@@ -252,7 +250,7 @@ export default function ExploredCopywritingQA() {
           `"Just look at this quality and the details. Pure luxury that gives you absolute peace of mind."\n\n` +
           `🗣 **Snap 3 (Call to Action):**\n` +
           `"And because you guys are special, we got you: ${offer}.\n` +
-          `Swipe up 👆 and get it delivered straight to your door anywhere in Qatar!"`
+          `Swipe up 👆 and get it delivered straight to your door anywhere in Oman!"`
         );
       } else {
         setGeneratedScript(
@@ -271,7 +269,7 @@ export default function ExploredCopywritingQA() {
 
   const saveToLocalStorage = (newItems: CopyItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_qa_copywriting_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_om_copywriting_items', JSON.stringify(newItems));
   };
 
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -295,7 +293,7 @@ export default function ExploredCopywritingQA() {
       setProductName('عطر إنجازيا الفاخر');
       setContentSelect('إعلان فيديو تيك توك (حماسي) 🎬');
       setCustomContentType('إعلان فيديو تيك توك (حماسي) 🎬');
-      setProblemSolved('تدور على عطر فخم يثبت معاك طول اليوم وبسعر مناسب؟');
+      setProblemSolved('تدور على عطر غاوي يثبت معاك طول اليوم وبسعر مناسب؟');
       setOfferText('خصم 30% + توصيل مجاني لأول 100 طلب');
     }
     setEditingId(null);
@@ -315,7 +313,7 @@ export default function ExploredCopywritingQA() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const localeStr = lang === 'ar' ? 'ar-QA' : 'en-QA';
+    const localeStr = lang === 'ar' ? 'ar-OM' : 'en-OM';
     const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
 
     if (editingId) {
@@ -384,7 +382,6 @@ export default function ExploredCopywritingQA() {
     alert(text.alerts.copySuccess);
   };
 
-  // فلترة النتائج بناءً على البحث والفرز الزمني
   const filteredItems = items.filter(item => {
     const matchesSearch = item.productName.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           item.contentType.toLowerCase().includes(searchQuery.toLowerCase());
@@ -468,7 +465,7 @@ export default function ExploredCopywritingQA() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", `enjazya_qa_copywriting_${dateFilter}.xls`);
+    link.setAttribute("download", `enjazya_om_copywriting_${dateFilter}.xls`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -526,25 +523,25 @@ export default function ExploredCopywritingQA() {
         .input-group label { display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 6px; }
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
         .input-wrapper input, .input-wrapper select, .input-wrapper textarea { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .input-wrapper input:focus, .input-wrapper select:focus, .input-wrapper textarea:focus { border-color: #8A1538; background: #ffffff; }
+        .input-wrapper input:focus, .input-wrapper select:focus, .input-wrapper textarea:focus { border-color: #C62828; background: #ffffff; }
         
-        .action-btn { background: #8A1538; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
-        .action-btn:hover { background: #6A102B; }
+        .action-btn { background: #C62828; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
+        .action-btn:hover { background: #B71C1C; }
         
-        .copy-btn { background: #8A1538; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .copy-btn:hover { background: #6A102B; }
+        .copy-btn { background: #C62828; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .copy-btn:hover { background: #B71C1C; }
 
         .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
         .search-input { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; flex-grow: 1; max-width: 350px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .search-input:focus { border-color: #8A1538; }
+        .search-input:focus { border-color: #C62828; }
         
         .filter-select { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; background: #fff; color: #334155; cursor: pointer; min-width: 130px; }
-        .filter-select:focus { border-color: #8A1538; }
+        .filter-select:focus { border-color: #C62828; }
 
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
         .t-btn { padding: 9px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 6px; }
-        .t-btn:hover { background: #f1f5f9; border-color: #8A1538; color: #8A1538; }
+        .t-btn:hover { background: #f1f5f9; border-color: #C62828; color: #C62828; }
 
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 900px; }
@@ -555,8 +552,8 @@ export default function ExploredCopywritingQA() {
         .trial-badge { background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 800; }
         
         .tb-action-btn { border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; font-family: inherit;}
-        .btn-wa { background: #FAF0F2; color: #8A1538; border: 1px solid #EBB8C6; }
-        .btn-wa:hover { background: #8A1538; color: #ffffff; }
+        .btn-wa { background: #FFEBEE; color: #C62828; border: 1px solid #FFCDD2; }
+        .btn-wa:hover { background: #C62828; color: #ffffff; }
         .btn-edit { background: #e0f2fe; color: #0369a1; }
         .btn-delete { background: #fee2e2; color: #991b1b; }
       `}</style>
@@ -566,7 +563,7 @@ export default function ExploredCopywritingQA() {
           <h1>{text.title}</h1>
           <p>{text.desc}</p>
         </div>
-        <Link href="/hub/qa" className="back-btn">
+        <Link href="/hub/om" className="back-btn">
           {text.back}
         </Link>
       </div>
@@ -716,8 +713,8 @@ export default function ExploredCopywritingQA() {
                       <div style={{ fontWeight: 900, color: '#0f172a' }}>{item.productName}</div>
                       {item.createdAt && <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', fontWeight: 600 }}>🕒 {item.createdAt}</div>}
                     </td>
-                    <td><span style={{ fontWeight: 800, color: '#8A1538' }}>{item.contentType}</span></td>
-                    <td><span style={{ fontWeight: 700, color: '#6A102B' }}>{item.offerText}</span></td>
+                    <td><span style={{ fontWeight: 800, color: '#C62828' }}>{item.contentType}</span></td>
+                    <td><span style={{ fontWeight: 700, color: '#B71C1C' }}>{item.offerText}</span></td>
                     <td>
                       <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                         <button className="tb-action-btn btn-wa" onClick={() => { navigator.clipboard.writeText(item.generatedScript); alert(text.alerts.copySuccess); }} title={text.table.copy}>{text.table.copy}</button>
