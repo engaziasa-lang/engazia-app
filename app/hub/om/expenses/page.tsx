@@ -11,10 +11,10 @@ interface ExpenseItem {
   amount: number;
   periodOrNote: string;
   createdAt?: string;
-  timestamp?: number; // تمت الإضافة للفرز الزمني الدقيق
+  timestamp?: number;
 }
 
-export default function ExpensesManagerQA() {
+export default function ExpensesManagerOM() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
   const [expenseName, setExpenseName] = useState<string>('');
   const [typeSelect, setTypeSelect] = useState<string>('');
@@ -25,7 +25,7 @@ export default function ExpensesManagerQA() {
 
   const [items, setItems] = useState<ExpenseItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [dateFilter, setDateFilter] = useState<string>('all'); // الفرز الزمني
+  const [dateFilter, setDateFilter] = useState<string>('all');
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const [isClient, setIsClient] = useState(false);
@@ -35,15 +35,13 @@ export default function ExpensesManagerQA() {
 
   useEffect(() => {
     setIsClient(true);
-    setIsActivated(!!localStorage.getItem('merchant_license_key_qa'));
+    setIsActivated(!!localStorage.getItem('merchant_license_key_om'));
 
-    // قراءة اللغة من الصفحة الرئيسية
     const savedLang = localStorage.getItem('seerk_global_lang') as 'ar' | 'en';
     if (savedLang) {
       setLang(savedLang);
     }
     
-    // وضع قيم افتراضية بناءً على اللغة
     if (savedLang === 'en') {
       setTypeSelect('Fixed Expenses 🏢');
       setCustomType('Fixed Expenses 🏢');
@@ -56,7 +54,7 @@ export default function ExpensesManagerQA() {
       setPeriodOrNote('أكتوبر 2026');
     }
 
-    const saved = localStorage.getItem('seerk_qa_expenses_manager_items');
+    const saved = localStorage.getItem('seerk_om_expenses_manager_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
@@ -64,12 +62,11 @@ export default function ExpensesManagerQA() {
 
   const saveToLocalStorage = (newItems: ExpenseItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_qa_expenses_manager_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_om_expenses_manager_items', JSON.stringify(newItems));
   };
 
   const expAmount = typeof amount === 'number' ? amount : 0;
 
-  // قاموس الترجمة الفوري
   const t = {
     ar: {
       back: '← عودة للمنصة',
@@ -95,7 +92,7 @@ export default function ExpensesManagerQA() {
       recYearly: 'سنوي (Yearly)',
       recOneTime: 'مرة واحدة (One-time)',
       amountLabel: 'مبلغ المصروف',
-      amountPH: '1500',
+      amountPH: '150',
       periodLabel: 'الفترة أو ملاحظة',
       periodPH: 'أكتوبر 2026',
       saveBtnNew: '+ حفظ المصروف في السجل',
@@ -105,7 +102,7 @@ export default function ExpensesManagerQA() {
       grandTotalSub: 'مجموع النفقات الخارجة من المتجر',
       fixedTotal: 'المصاريف الثابتة والرواتب',
       varTotal: 'المصاريف المتغيرة والإعلانات',
-      currency: 'ر.ق',
+      currency: 'ر.ع',
       searchPH: '🔍 بحث باسم المصروف أو التكرار...',
       exportBtn: '📥 تصدير Excel',
       importBtn: '📂 استيراد',
@@ -163,7 +160,7 @@ export default function ExpensesManagerQA() {
       recYearly: 'Yearly',
       recOneTime: 'One-time',
       amountLabel: 'Expense Amount',
-      amountPH: '1500',
+      amountPH: '150',
       periodLabel: 'Period or Note',
       periodPH: 'October 2026',
       saveBtnNew: '+ Save Expense to Log',
@@ -173,7 +170,7 @@ export default function ExpensesManagerQA() {
       grandTotalSub: 'Sum of all outgoing store expenses',
       fixedTotal: 'Fixed Expenses & Salaries',
       varTotal: 'Variable Expenses & Ads',
-      currency: 'QAR',
+      currency: 'OMR',
       searchPH: '🔍 Search by expense name or recurrence...',
       exportBtn: '📥 Export Excel',
       importBtn: '📂 Import',
@@ -252,7 +249,7 @@ export default function ExpensesManagerQA() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const localeStr = lang === 'ar' ? 'ar-QA' : 'en-QA';
+    const localeStr = lang === 'ar' ? 'ar-OM' : 'en-OM';
     const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
 
     if (editingId) {
@@ -280,7 +277,7 @@ export default function ExpensesManagerQA() {
         createdAt: formattedDate,
         timestamp: now.getTime()
       };
-      saveToLocalStorage([newItem, ...items]); // أحدث المدخلات تظهر أولاً
+      saveToLocalStorage([newItem, ...items]); 
       alert(text.alerts.saveSuccess);
     }
 
@@ -290,7 +287,6 @@ export default function ExpensesManagerQA() {
   const handleEdit = (item: ExpenseItem) => {
     setExpenseName(item.expenseName);
     
-    // محاولة مطابقة النوع بناء على اللغة
     const isFixed = item.expenseType.includes('ثابتة') || item.expenseType.includes('Fixed');
     const isVar = item.expenseType.includes('متغيرة') || item.expenseType.includes('Variable');
     const isAds = item.expenseType.includes('إعلانات') || item.expenseType.includes('Ads');
@@ -310,7 +306,6 @@ export default function ExpensesManagerQA() {
     setTypeSelect(matchedType);
     setCustomType(item.expenseType);
     
-    // محاولة مطابقة التكرار
     const isMonthly = item.recurrence.includes('شهر') || item.recurrence.includes('Month');
     const isYearly = item.recurrence.includes('سنو') || item.recurrence.includes('Year');
     const isOneTime = item.recurrence.includes('مرة') || item.recurrence.includes('One');
@@ -333,7 +328,6 @@ export default function ExpensesManagerQA() {
     }
   };
 
-  // فلترة النتائج بناءً على البحث والفرز الزمني
   const filteredItems = items.filter(item => {
     const matchesSearch = item.expenseName.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           item.expenseType.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -357,7 +351,6 @@ export default function ExpensesManagerQA() {
     return matchesSearch && matchesDate;
   });
 
-  // حساب المجاميع بناءً على البيانات المفلترة للوحة المؤشرات
   const totalFixedExpenses = filteredItems.filter(i => i.expenseType.includes('ثابتة') || i.expenseType.includes('رواتب') || i.expenseType.includes('اشتراكات') || i.expenseType.includes('Fixed') || i.expenseType.includes('Salaries') || i.expenseType.includes('Software')).reduce((acc, curr) => acc + curr.amount, 0);
   const totalVariableExpenses = filteredItems.filter(i => !i.expenseType.includes('ثابتة') && !i.expenseType.includes('رواتب') && !i.expenseType.includes('اشتراكات') && !i.expenseType.includes('Fixed') && !i.expenseType.includes('Salaries') && !i.expenseType.includes('Software')).reduce((acc, curr) => acc + curr.amount, 0);
   const grandTotalExpenses = filteredItems.reduce((acc, curr) => acc + curr.amount, 0);
@@ -426,7 +419,7 @@ export default function ExpensesManagerQA() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", `enjazya_qa_expenses_manager_${dateFilter}.xls`);
+    link.setAttribute("download", `enjazya_om_expenses_manager_${dateFilter}.xls`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -485,14 +478,14 @@ export default function ExpensesManagerQA() {
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
         .input-wrapper input, .input-wrapper select { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .input-wrapper input.with-currency { padding-${lang === 'ar' ? 'left' : 'right'}: 45px; }
-        .input-wrapper input:focus, .input-wrapper select:focus { border-color: #8A1538; background: #ffffff; }
+        .input-wrapper input:focus, .input-wrapper select:focus { border-color: #C62828; background: #ffffff; }
         .currency-tag { position: absolute; ${lang === 'ar' ? 'left: 14px;' : 'right: 14px;'} color: #64748b; font-weight: 800; font-size: 13px; pointer-events: none; }
         
-        .action-btn { background: #8A1538; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
-        .action-btn:hover { background: #6A102B; }
+        .action-btn { background: #C62828; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
+        .action-btn:hover { background: #B71C1C; }
 
         .result-box { background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .result-box.primary { background: linear-gradient(135deg, #8A1538 0%, #6A102B 100%); color: #fff; border: none; padding: 20px; }
+        .result-box.primary { background: linear-gradient(135deg, #C62828 0%, #B71C1C 100%); color: #fff; border: none; padding: 20px; }
         .result-label { font-size: 13px; font-weight: 700; color: #64748b; }
         .primary .result-label { color: #ffffff; opacity: 0.9; }
         .result-value { font-size: 18px; font-weight: 900; color: #0f172a; direction: ltr; }
@@ -502,14 +495,14 @@ export default function ExpensesManagerQA() {
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
         
         .search-input { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; flex-grow: 1; max-width: 350px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .search-input:focus { border-color: #8A1538; }
+        .search-input:focus { border-color: #C62828; }
         
         .filter-select { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; background: #fff; color: #334155; cursor: pointer; min-width: 130px; }
-        .filter-select:focus { border-color: #8A1538; }
+        .filter-select:focus { border-color: #C62828; }
 
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
         .t-btn { padding: 9px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 6px; }
-        .t-btn:hover { background: #f1f5f9; border-color: #8A1538; color: #8A1538; }
+        .t-btn:hover { background: #f1f5f9; border-color: #C62828; color: #C62828; }
 
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 900px; }
@@ -529,7 +522,7 @@ export default function ExpensesManagerQA() {
           <h1>{text.title}</h1>
           <p>{text.desc}</p>
         </div>
-        <Link href="/hub/qa" className="back-btn">
+        <Link href="/hub/om" className="back-btn">
           {text.back}
         </Link>
       </div>
@@ -706,7 +699,7 @@ export default function ExpensesManagerQA() {
                       <div style={{ fontWeight: 900, color: '#0f172a' }}>{item.expenseName}</div>
                       {item.createdAt && <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', fontWeight: 600 }}>🕒 {item.createdAt}</div>}
                     </td>
-                    <td><span style={{ fontWeight: 800, color: '#8A1538' }}>{item.expenseType}</span></td>
+                    <td><span style={{ fontWeight: 800, color: '#C62828' }}>{item.expenseType}</span></td>
                     <td>
                       <span style={{ fontWeight: 800, color: item.recurrence?.includes('شهري') || item.recurrence?.includes('Month') ? '#047857' : item.recurrence?.includes('سنوي') || item.recurrence?.includes('Year') ? '#d97706' : '#475569', background: '#f8fafc', padding: '3px 8px', borderRadius: '6px', fontSize: '12px' }}>
                         {item.recurrence || (lang === 'ar' ? 'شهري (Monthly)' : 'Monthly')}
