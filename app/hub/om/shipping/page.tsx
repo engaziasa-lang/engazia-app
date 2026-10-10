@@ -11,10 +11,10 @@ interface ShipmentItem {
   shippingCompany: string;
   shipmentStatus: string;
   createdAt?: string;
-  timestamp?: number; // تمت الإضافة للفرز الزمني
+  timestamp?: number;
 }
 
-export default function ShippingTrackerQA() {
+export default function ShippingTrackerOM() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
 
   const [trackingNumber, setTrackingNumber] = useState<string>('');
@@ -26,7 +26,7 @@ export default function ShippingTrackerQA() {
 
   const [items, setItems] = useState<ShipmentItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [dateFilter, setDateFilter] = useState<string>('all'); // الفرز الزمني
+  const [dateFilter, setDateFilter] = useState<string>('all');
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -36,26 +36,24 @@ export default function ShippingTrackerQA() {
 
   useEffect(() => {
     setIsClient(true);
-    setIsActivated(!!localStorage.getItem('merchant_license_key_qa'));
+    setIsActivated(!!localStorage.getItem('merchant_license_key_om'));
     
-    // قراءة اللغة من الصفحة الرئيسية
     const savedLang = localStorage.getItem('seerk_global_lang') as 'ar' | 'en';
     if (savedLang) {
       setLang(savedLang);
     }
     
-    // ضبط القيم الافتراضية
     if (savedLang === 'en') {
-      setShippingSelect('Qatar Post');
-      setCustomShipping('Qatar Post');
+      setShippingSelect('Oman Post');
+      setCustomShipping('Oman Post');
       setShipmentStatus('In Transit 🚚');
     } else {
-      setShippingSelect('بريد قطر (Qatar Post)');
-      setCustomShipping('بريد قطر (Qatar Post)');
+      setShippingSelect('بريد عُمان (Oman Post)');
+      setCustomShipping('بريد عُمان (Oman Post)');
       setShipmentStatus('قيد التوصيل 🚚');
     }
 
-    const saved = localStorage.getItem('seerk_qa_shipping_tracker_items');
+    const saved = localStorage.getItem('seerk_om_shipping_tracker_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
@@ -63,15 +61,14 @@ export default function ShippingTrackerQA() {
 
   const saveToLocalStorage = (newItems: ShipmentItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_qa_shipping_tracker_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_om_shipping_tracker_items', JSON.stringify(newItems));
   };
 
-  // قاموس الترجمة الفوري
   const t = {
     ar: {
       back: '← عودة للمنصة',
       title: 'مدير تتبع الشحنات المحلية 📦',
-      desc: 'تابع حالات الشحنات في قطر وحل استفسارات تأخر التوصيل عبر واتساب بضغطة زر',
+      desc: 'تابع حالات الشحنات في عُمان وحل استفسارات تأخر التوصيل عبر واتساب بضغطة زر',
       editRecord: 'تعديل السجل',
       newRecord: 'إضافة شحنة جديدة للتتبع',
       clear: '🧹 مسح الحقول',
@@ -79,20 +76,20 @@ export default function ShippingTrackerQA() {
       trackNum: 'رقم البوليصة / التتبع',
       trackNumPH: 'مثال: 384920192',
       custName: 'اسم العميل',
-      custNamePH: 'مثال: ناصر الكبيسي',
-      phone: 'رقم جوال العميل (القطري)',
-      phonePH: '55XXXXXX أو 33XXXXXX',
+      custNamePH: 'مثال: أحمد البلوشي',
+      phone: 'رقم جوال العميل (العُماني)',
+      phonePH: '9XXXXXXX أو 7XXXXXXX',
       statusLabel: 'حالة الشحنة',
       statTransit: 'قيد التوصيل 🚚',
       statDelivered: 'تم التوصيل بنجاح ✅',
       statDelayed: 'متأخرة / تحتاج متابعة ⚠️',
       statReturned: 'مرتجعة للمتجر 🔄',
       compLabel: 'شركة الشحن',
-      compQatarPost: 'بريد قطر (Qatar Post)',
+      compOmanPost: 'بريد عُمان (Oman Post)',
       compAramex: 'أرامكس (Aramex)',
-      compQExpress: 'كيو إكسبرس (Q-Express)',
+      compAsyad: 'أسياد إكسبريس (Asyad Express)',
       compDHL: 'دي إتش إل (DHL)',
-      compIMile: 'آي مايل (iMile)',
+      compDalilak: 'دليلك (Dalilak)',
       compOther: '➕ شركة أخرى (كتابة يدوية)',
       otherPH: 'اكتب اسم شركة الشحن هنا...',
       saveBtnNew: '+ حفظ الشحنة في السجل',
@@ -140,7 +137,7 @@ export default function ShippingTrackerQA() {
     en: {
       back: '→ Back to Hub',
       title: 'Local Shipments Tracker 📦',
-      desc: 'Track shipment statuses in Qatar and resolve delayed delivery inquiries via WhatsApp with a single click',
+      desc: 'Track shipment statuses in Oman and resolve delayed delivery inquiries via WhatsApp with a single click',
       editRecord: 'Edit Record',
       newRecord: 'Add New Shipment to Track',
       clear: '🧹 Clear Fields',
@@ -148,20 +145,20 @@ export default function ShippingTrackerQA() {
       trackNum: 'Tracking / Waybill Number',
       trackNumPH: 'e.g. 384920192',
       custName: 'Customer Name',
-      custNamePH: 'e.g. Nasser Al Kubaisi',
-      phone: 'Customer Phone (Qatar)',
-      phonePH: '55XXXXXX or 33XXXXXX',
+      custNamePH: 'e.g. Ahmed Al Balushi',
+      phone: 'Customer Phone (Oman)',
+      phonePH: '9XXXXXXX or 7XXXXXXX',
       statusLabel: 'Shipment Status',
       statTransit: 'In Transit 🚚',
       statDelivered: 'Delivered Successfully ✅',
       statDelayed: 'Delayed / Needs Follow-up ⚠️',
       statReturned: 'Returned to Store 🔄',
       compLabel: 'Shipping Company',
-      compQatarPost: 'Qatar Post',
+      compOmanPost: 'Oman Post',
       compAramex: 'Aramex',
-      compQExpress: 'Q-Express',
+      compAsyad: 'Asyad Express',
       compDHL: 'DHL',
-      compIMile: 'iMile',
+      compDalilak: 'Dalilak',
       compOther: '➕ Other Company (Manual Entry)',
       otherPH: 'Type shipping company name here...',
       saveBtnNew: '+ Save Shipment to Log',
@@ -226,12 +223,12 @@ export default function ShippingTrackerQA() {
     setPhoneNumber('');
     
     if (lang === 'en') {
-      setShippingSelect(text.compQatarPost);
-      setCustomShipping(text.compQatarPost);
+      setShippingSelect(text.compOmanPost);
+      setCustomShipping(text.compOmanPost);
       setShipmentStatus(text.statTransit);
     } else {
-      setShippingSelect(text.compQatarPost);
-      setCustomShipping(text.compQatarPost);
+      setShippingSelect(text.compOmanPost);
+      setCustomShipping(text.compOmanPost);
       setShipmentStatus(text.statTransit);
     }
     setEditingId(null);
@@ -251,7 +248,7 @@ export default function ShippingTrackerQA() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const localeStr = lang === 'ar' ? 'ar-QA' : 'en-QA';
+    const localeStr = lang === 'ar' ? 'ar-OM' : 'en-OM';
     const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
 
     if (editingId) {
@@ -279,7 +276,7 @@ export default function ShippingTrackerQA() {
         createdAt: formattedDate,
         timestamp: now.getTime()
       };
-      saveToLocalStorage([newItem, ...items]); // حفظ الجديد في الأعلى
+      saveToLocalStorage([newItem, ...items]);
       alert(text.alerts.saveSuccess);
     }
 
@@ -291,18 +288,18 @@ export default function ShippingTrackerQA() {
     setCustomerName(item.customerName);
     setPhoneNumber(item.phoneNumber);
     
-    const isQatarPost = item.shippingCompany.includes('Qatar Post') || item.shippingCompany.includes('بريد قطر');
+    const isOmanPost = item.shippingCompany.includes('Oman Post') || item.shippingCompany.includes('بريد عُمان');
     const isAramex = item.shippingCompany.includes('Aramex') || item.shippingCompany.includes('أرامكس');
-    const isQExpress = item.shippingCompany.includes('Q-Express') || item.shippingCompany.includes('كيو');
+    const isAsyad = item.shippingCompany.includes('Asyad') || item.shippingCompany.includes('أسياد');
     const isDHL = item.shippingCompany.includes('DHL') || item.shippingCompany.includes('دي إتش إل');
-    const isIMile = item.shippingCompany.includes('iMile') || item.shippingCompany.includes('آي مايل');
+    const isDalilak = item.shippingCompany.includes('Dalilak') || item.shippingCompany.includes('دليلك');
 
     let matchedComp = '';
-    if (isQatarPost) matchedComp = text.compQatarPost;
+    if (isOmanPost) matchedComp = text.compOmanPost;
     else if (isAramex) matchedComp = text.compAramex;
-    else if (isQExpress) matchedComp = text.compQExpress;
+    else if (isAsyad) matchedComp = text.compAsyad;
     else if (isDHL) matchedComp = text.compDHL;
-    else if (isIMile) matchedComp = text.compIMile;
+    else if (isDalilak) matchedComp = text.compDalilak;
     else matchedComp = text.compOther;
 
     setShippingSelect(matchedComp);
@@ -334,12 +331,14 @@ export default function ShippingTrackerQA() {
 
   const handleSendWhatsapp = (item: ShipmentItem) => {
     let phone = (item.phoneNumber || '').replace(/\D/g, '');
-    if (phone.startsWith('0')) {
-      phone = '974' + phone.substring(1);
-    } else if (phone.length === 8 && !phone.startsWith('974')) {
-      phone = '974' + phone;
-    } else if (!phone.startsWith('974')) {
-      phone = '974' + phone;
+    if (phone.length === 8 && (phone.startsWith('9') || phone.startsWith('7'))) {
+      phone = '968' + phone;
+    } else if (phone.startsWith('00968')) {
+      phone = phone.substring(2);
+    } else if (phone.startsWith('0')) {
+      phone = '968' + phone.substring(1);
+    } else if (!phone.startsWith('968')) {
+      phone = '968' + phone;
     }
     
     const textMsg = text.waMessage(item.customerName, item.trackingNumber, item.shippingCompany, item.shipmentStatus);
@@ -347,7 +346,6 @@ export default function ShippingTrackerQA() {
     window.open(url, '_blank');
   };
 
-  // فلترة النتائج بناءً على البحث والفرز الزمني
   const filteredItems = items.filter(item => {
     const matchesSearch = item.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           item.trackingNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -437,7 +435,7 @@ export default function ShippingTrackerQA() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", `enjazya_qa_shipping_tracker_${dateFilter}.xls`);
+    link.setAttribute("download", `enjazya_om_shipping_tracker_${dateFilter}.xls`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -495,13 +493,13 @@ export default function ShippingTrackerQA() {
         .input-group label { display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 6px; }
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
         .input-wrapper input, .input-wrapper select { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .input-wrapper input:focus, .input-wrapper select:focus { border-color: #8A1538; background: #ffffff; }
+        .input-wrapper input:focus, .input-wrapper select:focus { border-color: #C62828; background: #ffffff; }
         
-        .action-btn { background: #8A1538; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
-        .action-btn:hover { background: #6A102B; }
+        .action-btn { background: #C62828; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
+        .action-btn:hover { background: #B71C1C; }
 
         .result-box { background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .result-box.primary { background: linear-gradient(135deg, #8A1538 0%, #6A102B 100%); color: #fff; border: none; padding: 20px; }
+        .result-box.primary { background: linear-gradient(135deg, #C62828 0%, #B71C1C 100%); color: #fff; border: none; padding: 20px; }
         .result-label { font-size: 13px; font-weight: 700; color: #64748b; }
         .primary .result-label { color: #ffffff; opacity: 0.9; }
         .result-value { font-size: 18px; font-weight: 900; color: #0f172a; direction: ltr; }
@@ -511,14 +509,14 @@ export default function ShippingTrackerQA() {
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
         
         .search-input { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; flex-grow: 1; max-width: 350px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .search-input:focus { border-color: #8A1538; }
+        .search-input:focus { border-color: #C62828; }
         
         .filter-select { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; background: #fff; color: #334155; cursor: pointer; min-width: 130px; }
-        .filter-select:focus { border-color: #8A1538; }
+        .filter-select:focus { border-color: #C62828; }
 
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
         .t-btn { padding: 9px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 6px; }
-        .t-btn:hover { background: #f1f5f9; border-color: #8A1538; color: #8A1538; }
+        .t-btn:hover { background: #f1f5f9; border-color: #C62828; color: #C62828; }
 
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 900px; }
@@ -539,7 +537,7 @@ export default function ShippingTrackerQA() {
           <h1>{text.title}</h1>
           <p>{text.desc}</p>
         </div>
-        <Link href="/hub/qa" className="back-btn">
+        <Link href="/hub/om" className="back-btn">
           {text.back}
         </Link>
       </div>
@@ -596,11 +594,11 @@ export default function ShippingTrackerQA() {
               <label>{text.compLabel}</label>
               <div className="input-wrapper" style={{ marginBottom: '8px' }}>
                 <select value={shippingSelect} onChange={handleSelectChange}>
-                  <option value={text.compQatarPost}>{text.compQatarPost}</option>
+                  <option value={text.compOmanPost}>{text.compOmanPost}</option>
+                  <option value={text.compAsyad}>{text.compAsyad}</option>
+                  <option value={text.compDalilak}>{text.compDalilak}</option>
                   <option value={text.compAramex}>{text.compAramex}</option>
-                  <option value={text.compQExpress}>{text.compQExpress}</option>
                   <option value={text.compDHL}>{text.compDHL}</option>
-                  <option value={text.compIMile}>{text.compIMile}</option>
                   <option value={text.compOther}>{text.compOther}</option>
                 </select>
               </div>
@@ -716,7 +714,7 @@ export default function ShippingTrackerQA() {
                         <div style={{ fontWeight: 800 }}>{item.customerName}</div>
                         <div style={{ fontSize: '12px', color: '#64748b', direction: 'ltr', textAlign: lang === 'ar' ? 'right' : 'left' }}>{item.phoneNumber}</div>
                       </td>
-                      <td><span style={{ fontWeight: 800, color: '#8A1538' }}>{item.shippingCompany}</span></td>
+                      <td><span style={{ fontWeight: 800, color: '#C62828' }}>{item.shippingCompany}</span></td>
                       <td>
                         <span style={{ color: statusColor, background: `${statusColor}15`, padding: '4px 8px', borderRadius: '6px', fontSize: '12px', fontWeight: 800 }}>
                           {item.shipmentStatus}
