@@ -47,14 +47,14 @@ export default function EnjazyaQaHub() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const LEMON_CHECKOUT_URL = 'https://enjazya.lemonsqueezy.com/checkout/buy/dce1dd80-3422-43ba-aed5-8ef2dcd38d6d?locale=en'; // أضف رابط منتج السوق القطري هنا لاحقاً
+  const LEMON_CHECKOUT_URL = 'https://enjazya.lemonsqueezy.com/checkout/buy/dce1dd80-3422-43ba-aed5-8ef2dcd38d6d?locale=en';
 
   useEffect(() => {
     const savedLang = (localStorage.getItem('enjazya_qa_lang') as 'ar' | 'en') || 'ar';
     setLang(savedLang);
 
     localStorage.setItem('seerk_global_lang', savedLang);
-    localStorage.setItem('seerk_global_currency', 'QAR'); // تعيين الريال القطري
+    localStorage.setItem('seerk_global_currency', 'QAR');
 
     const licenseKey = localStorage.getItem('merchant_license_key_qa') || '';
     setLicenseKeyInput(licenseKey);
@@ -164,93 +164,72 @@ export default function EnjazyaQaHub() {
         
         .hub-container { background-color: #f8fafc; min-height: 100vh; font-family: ${lang === 'ar' ? "'Tajawal', sans-serif" : "'Inter', sans-serif"}; padding: 30px 20px 40px; }
         
-        /* Qatar Maroon Color Palette:
-           Primary: #8A1538
-           Hover/Darker: #6A102B
-           Lighter: #A61A44
-           Light Background: #FAF0F2
-           Light Border: #EBB8C6
-        */
-
-        .navbar { max-width: 1250px; margin: 0 auto 20px; padding: 14px 24px; background: #ffffff; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 15px; border-top: 5px solid #8A1538; position: relative; }
+        .navbar { max-width: 1250px; margin: 0 auto 20px; padding: 14px 24px; background: #ffffff; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 15px; border-top: 5px solid #8A1538; }
         .brand { font-size: 26px; font-weight: 900; color: #0f172a; white-space: nowrap; display: flex; align-items: center; gap: 12px; letter-spacing: -0.5px; }
-        .qa-badge { background: #FAF0F2; color: #8A1538; font-size: 12px; font-weight: 800; padding: 5px 10px; border-radius: 6px; letter-spacing: normal; display: inline-flex; align-items: center; border: 1px solid #EBB8C6; }
+        .qa-badge { background: #FAF0F2; color: #8A1538; font-size: 12px; font-weight: 800; padding: 5px 10px; border-radius: 6px; letter-spacing: normal; display: inline-flex; align-items: center; gap: 6px; border: 1px solid #EBB8C6; }
+        .qa-flag { width: 22px; height: 14px; object-fit: cover; border-radius: 2px; display: inline-block; }
         
-        .nav-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; flex-direction: ${lang === 'ar' ? 'row-reverse' : 'row'}; }
+        .nav-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
         
         .lang-toggle-btn {
           background: #f8fafc;
           border: 2px solid #e2e8f0;
           color: #0f172a;
           font-weight: 800;
-          font-size: 14px;
-          padding: 8px 16px;
+          font-size: 13px;
+          padding: 7px 12px;
           border-radius: 8px;
           cursor: pointer;
           transition: all 0.3s ease;
           display: flex;
           align-items: center;
           gap: 6px;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.02);
         }
-        .lang-toggle-btn:hover {
-          background: #f1f5f9;
-          border-color: #cbd5e1;
-        }
+        .lang-toggle-btn:hover { background: #f1f5f9; border-color: #cbd5e1; }
 
         .action-btn-primary { 
           background: linear-gradient(135deg, #8A1538 0%, #6A102B 100%); 
           color: #ffffff !important; 
           border: 1px solid #EBB8C6; 
-          padding: 10px 24px; 
-          border-radius: 10px; 
-          font-weight: 900; 
-          font-size: 15px; 
+          padding: 8px 16px; 
+          border-radius: 8px; 
+          font-weight: 800; 
+          font-size: 13px; 
           cursor: pointer; 
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+          transition: all 0.3s ease; 
           display: inline-flex; 
           align-items: center; 
-          gap: 8px; 
+          gap: 6px; 
           text-decoration: none; 
-          box-shadow: 0 4px 15px rgba(138, 21, 56, 0.4); 
+          box-shadow: 0 4px 12px rgba(138, 21, 56, 0.3); 
           white-space: nowrap; 
-          animation: pulse-maroon 2s infinite; 
         }
-        .action-btn-primary:hover { 
-          background: linear-gradient(135deg, #A61A44 0%, #8A1538 100%); 
-          transform: translateY(-3px) scale(1.02); 
-          box-shadow: 0 8px 25px rgba(138, 21, 56, 0.5); 
-        }
-        @keyframes pulse-maroon {
-          0% { box-shadow: 0 0 0 0 rgba(138, 21, 56, 0.7); }
-          70% { box-shadow: 0 0 0 12px rgba(138, 21, 56, 0); }
-          100% { box-shadow: 0 0 0 0 rgba(138, 21, 56, 0); }
-        }
+        .action-btn-primary:hover { background: linear-gradient(135deg, #A61A44 0%, #8A1538 100%); transform: translateY(-2px); }
 
-        .backup-action-btn { background: #0f172a; color: #fff; border: none; padding: 9px 14px; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+        .backup-action-btn { background: #0f172a; color: #fff; border: none; padding: 8px 12px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
         .backup-action-btn:hover { background: #1e293b; }
-        .restore-action-btn { background: #f8fafc; color: #334155; border: 1px solid #cbd5e1; padding: 9px 14px; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+        .restore-action-btn { background: #f8fafc; color: #334155; border: 1px solid #cbd5e1; padding: 8px 12px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
         .restore-action-btn:hover { background: #e2e8f0; }
         
-        .license-box { display: flex; align-items: center; gap: 8px; background: #ffffff; padding: 6px 12px; border-radius: 8px; border: 1px solid #cbd5e1; flex-direction: ${lang === 'ar' ? 'row' : 'row'}; }
-        .license-input { border: 1px solid #cbd5e1; border-radius: 6px; padding: 7px 10px; font-size: 12px; outline: none; width: 140px; background: #fff; color: #0f172a; transition: all 0.2s; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .license-input:focus { border-color: #8A1538; box-shadow: 0 0 0 2px rgba(138, 21, 56, 0.15); }
+        .license-box { display: flex; align-items: center; gap: 6px; background: #ffffff; padding: 5px 10px; border-radius: 8px; border: 1px solid #cbd5e1; }
+        .license-input { border: 1px solid #cbd5e1; border-radius: 6px; padding: 6px 8px; font-size: 12px; outline: none; width: 110px; background: #fff; color: #0f172a; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .license-input:focus { border-color: #8A1538; }
         
         .backup-warning-bar { max-width: 1250px; margin: 0 auto 25px; background: #fffbeb; border: 1px solid #fde68a; color: #92400e; padding: 10px 18px; border-radius: 10px; font-size: 13px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; border-${lang === 'ar' ? 'right' : 'left'}: 4px solid #8A1538; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         
-        .promo-banner { max-width: 1250px; margin: 0 auto 35px; background: #ffffff; border-radius: 16px; padding: 24px 32px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; box-shadow: 0 15px 35px -5px rgba(138, 21, 56, 0.12); border: 2px solid #EBB8C6; flex-direction: ${lang === 'ar' ? 'row' : 'row'}; }
+        .promo-banner { max-width: 1250px; margin: 0 auto 35px; background: #ffffff; border-radius: 16px; padding: 24px 32px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; box-shadow: 0 15px 35px -5px rgba(138, 21, 56, 0.08); border: 2px solid #EBB8C6; }
         .promo-content { flex: 1 1 min-content; display: flex; flex-direction: column; gap: 8px; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .promo-heading { font-size: 20px; font-weight: 900; margin: 0 0 4px 0; display: flex; align-items: center; gap: 8px; color: #0f172a; }
+        .promo-heading { font-size: 20px; font-weight: 900; margin: 0 0 4px 0; color: #0f172a; }
         .promo-text { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
         .price-tag-old { text-decoration: line-through; color: #64748b; font-size: 15px; font-weight: 500; }
         .price-tag-new { background-color: #FAF0F2; color: #8A1538; padding: 6px 12px; border-radius: 8px; font-weight: 900; font-size: 16px; border: 1px solid #EBB8C6; }
         .discount-badge { background-color: #8A1538; color: #ffffff; padding: 4px 10px; border-radius: 6px; font-size: 13px; font-weight: bold; }
-        .promo-btn { background-color: #8A1538; color: #ffffff; border: none; padding: 14px 28px; border-radius: 10px; font-size: 16px; font-weight: 900; cursor: pointer; box-shadow: 0 8px 20px rgba(138, 21, 56, 0.3); transition: all 0.3s ease; display: flex; align-items: center; gap: 10px; white-space: nowrap; }
-        .promo-btn:hover { background-color: #6A102B; transform: translateY(-2px); box-shadow: 0 12px 25px rgba(138, 21, 56, 0.4); }
+        .promo-btn { background-color: #8A1538; color: #ffffff; border: none; padding: 12px 24px; border-radius: 10px; font-size: 15px; font-weight: 900; cursor: pointer; box-shadow: 0 8px 20px rgba(138, 21, 56, 0.2); transition: all 0.3s ease; white-space: nowrap; }
+        .promo-btn:hover { background-color: #6A102B; transform: translateY(-2px); }
         
         .hero { text-align: center; max-width: 800px; margin: 0 auto 50px; }
         .hero h1 { font-size: 36px; font-weight: 900; color: #0f172a; margin-bottom: 15px; letter-spacing: -0.5px; }
-        .hero h1 span { color: #8A1538; }
+        .hero h1 span { color: #8A1538; border-bottom: 3px solid #8A1538; }
         .hero p { color: #475569; font-size: 16px; line-height: 1.7; font-weight: 500; }
         
         .cards-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; max-width: 1250px; margin: 0 auto 60px; }
@@ -272,10 +251,10 @@ export default function EnjazyaQaHub() {
         .card:hover .card-btn { background: #8A1538; color: #ffffff; border-color: #8A1538; box-shadow: 0 4px 12px rgba(138, 21, 56, 0.25); }
 
         .footer { max-width: 1250px; margin: 0 auto; background: #000000; border-radius: 16px; padding: 40px; color: #f8fafc; border: 2px solid #1e293b; text-align: ${lang === 'ar' ? 'start' : 'left'}; }
-        .footer-content { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 30px; margin-bottom: 30px; border-bottom: 1px solid #222222; padding-bottom: 30px; flex-direction: ${lang === 'ar' ? 'row' : 'row'}; }
+        .footer-content { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 30px; margin-bottom: 30px; border-bottom: 1px solid #222222; padding-bottom: 30px; }
         .footer-brand { max-width: 400px; }
         .footer-brand h3 { font-size: 24px; font-weight: 900; margin-bottom: 15px; color: #ffffff; letter-spacing: -0.5px; }
-        .footer-brand h3 span { color: #8A1538; letter-spacing: normal; }
+        .footer-brand h3 span { color: #EBB8C6; letter-spacing: normal; }
         .footer-brand p { color: #94a3b8; font-size: 14px; line-height: 1.8; font-weight: 500; }
         .footer-links { display: flex; gap: 60px; }
         .links-column h4 { color: #ffffff; font-size: 16px; font-weight: 800; margin-bottom: 20px; border-${lang === 'ar' ? 'right' : 'left'}: 3px solid #8A1538; padding-${lang === 'ar' ? 'right' : 'left'}: 8px; }
@@ -286,15 +265,130 @@ export default function EnjazyaQaHub() {
         .footer-bottom { text-align: center; color: #64748b; font-size: 14px; font-weight: 500; }
 
         @media(max-width: 1024px) { .cards-grid { grid-template-columns: repeat(2, 1fr); } .footer-content { flex-direction: column; } }
-        @media(max-width: 640px) { .cards-grid { grid-template-columns: 1fr; } .hero h1 { font-size: 28px; } .footer-links { flex-direction: column; gap: 30px; } .nav-controls { flex-direction: row; } }
+        @media(max-width: 768px) { .cards-grid { grid-template-columns: 1fr; } .hero h1 { font-size: 28px; } .footer-links { flex-direction: column; gap: 30px; } .navbar { padding: 12px 15px; } .nav-controls { width: 100%; justify-content: flex-start; } }
+      `}`;
+
+  return (
+    <div className="hub-container" style={{ direction: lang === 'ar' ? 'rtl' : 'ltr' }}>
+      <style jsx global>{`
+        a, .clean-link { text-decoration: none !important; color: inherit !important; }
+      `}</style>
+      
+      <style jsx>{`
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap');
+        
+        .hub-container { background-color: #f8fafc; min-height: 100vh; font-family: ${lang === 'ar' ? "'Tajawal', sans-serif" : "'Inter', sans-serif"}; padding: 30px 20px 40px; }
+        
+        .navbar { max-width: 1250px; margin: 0 auto 20px; padding: 14px 24px; background: #ffffff; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 15px; border-top: 5px solid #8A1538; }
+        .brand { font-size: 26px; font-weight: 900; color: #0f172a; white-space: nowrap; display: flex; align-items: center; gap: 12px; letter-spacing: -0.5px; }
+        .qa-badge { background: #FAF0F2; color: #8A1538; font-size: 12px; font-weight: 800; padding: 5px 10px; border-radius: 6px; letter-spacing: normal; display: inline-flex; align-items: center; gap: 6px; border: 1px solid #EBB8C6; }
+        .qa-flag { width: 22px; height: 14px; object-fit: cover; border-radius: 2px; display: inline-block; }
+        
+        .nav-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+        
+        .lang-toggle-btn {
+          background: #f8fafc;
+          border: 2px solid #e2e8f0;
+          color: #0f172a;
+          font-weight: 800;
+          font-size: 13px;
+          padding: 7px 12px;
+          border-radius: 8px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        }
+        .lang-toggle-btn:hover { background: #f1f5f9; border-color: #cbd5e1; }
+
+        .action-btn-primary { 
+          background: linear-gradient(135deg, #8A1538 0%, #6A102B 100%); 
+          color: #ffffff !important; 
+          border: 1px solid #EBB8C6; 
+          padding: 8px 16px; 
+          border-radius: 8px; 
+          font-weight: 800; 
+          font-size: 13px; 
+          cursor: pointer; 
+          transition: all 0.3s ease; 
+          display: inline-flex; 
+          align-items: center; 
+          gap: 6px; 
+          text-decoration: none; 
+          box-shadow: 0 4px 12px rgba(138, 21, 56, 0.3); 
+          white-space: nowrap; 
+        }
+        .action-btn-primary:hover { background: linear-gradient(135deg, #A61A44 0%, #8A1538 100%); transform: translateY(-2px); }
+
+        .backup-action-btn { background: #0f172a; color: #fff; border: none; padding: 8px 12px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+        .backup-action-btn:hover { background: #1e293b; }
+        .restore-action-btn { background: #f8fafc; color: #334155; border: 1px solid #cbd5e1; padding: 8px 12px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+        .restore-action-btn:hover { background: #e2e8f0; }
+        
+        .license-box { display: flex; align-items: center; gap: 6px; background: #ffffff; padding: 5px 10px; border-radius: 8px; border: 1px solid #cbd5e1; }
+        .license-input { border: 1px solid #cbd5e1; border-radius: 6px; padding: 6px 8px; font-size: 12px; outline: none; width: 110px; background: #fff; color: #0f172a; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .license-input:focus { border-color: #8A1538; }
+        
+        .backup-warning-bar { max-width: 1250px; margin: 0 auto 25px; background: #fffbeb; border: 1px solid #fde68a; color: #92400e; padding: 10px 18px; border-radius: 10px; font-size: 13px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; border-${lang === 'ar' ? 'right' : 'left'}: 4px solid #8A1538; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        
+        .promo-banner { max-width: 1250px; margin: 0 auto 35px; background: #ffffff; border-radius: 16px; padding: 24px 32px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; box-shadow: 0 15px 35px -5px rgba(138, 21, 56, 0.08); border: 2px solid #EBB8C6; }
+        .promo-content { flex: 1 1 min-content; display: flex; flex-direction: column; gap: 8px; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .promo-heading { font-size: 20px; font-weight: 900; margin: 0 0 4px 0; color: #0f172a; }
+        .promo-text { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
+        .price-tag-old { text-decoration: line-through; color: #64748b; font-size: 15px; font-weight: 500; }
+        .price-tag-new { background-color: #FAF0F2; color: #8A1538; padding: 6px 12px; border-radius: 8px; font-weight: 900; font-size: 16px; border: 1px solid #EBB8C6; }
+        .discount-badge { background-color: #8A1538; color: #ffffff; padding: 4px 10px; border-radius: 6px; font-size: 13px; font-weight: bold; }
+        .promo-btn { background-color: #8A1538; color: #ffffff; border: none; padding: 12px 24px; border-radius: 10px; font-size: 15px; font-weight: 900; cursor: pointer; box-shadow: 0 8px 20px rgba(138, 21, 56, 0.2); transition: all 0.3s ease; white-space: nowrap; }
+        .promo-btn:hover { background-color: #6A102B; transform: translateY(-2px); }
+        
+        .hero { text-align: center; max-width: 800px; margin: 0 auto 50px; }
+        .hero h1 { font-size: 36px; font-weight: 900; color: #0f172a; margin-bottom: 15px; letter-spacing: -0.5px; }
+        .hero h1 span { color: #8A1538; border-bottom: 3px solid #8A1538; }
+        .hero p { color: #475569; font-size: 16px; line-height: 1.7; font-weight: 500; }
+        
+        .cards-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; max-width: 1250px; margin: 0 auto 60px; }
+        .card { background: #ffffff; border-radius: 12px; padding: 24px; border: 2px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.3s ease; display: flex; flex-direction: column; justify-content: space-between; text-align: ${lang === 'ar' ? 'start' : 'left'}; }
+        .card:hover { transform: translateY(-5px); border-color: #8A1538; box-shadow: 0 15px 30px -5px rgba(138, 21, 56, 0.12); }
+        
+        .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
+        .card-icon { font-size: 28px; background: #f8fafc; width: 55px; height: 55px; display: flex; align-items: center; justify-content: center; border-radius: 10px; border: 1px solid #e2e8f0; transition: all 0.3s ease; }
+        .card:hover .card-icon { background: #FAF0F2; border-color: #EBB8C6; }
+        
+        .card-badge { background: #f1f5f9; color: #475569; font-size: 14px; font-weight: 900; padding: 6px 14px; border-radius: 8px; transition: all 0.3s ease; }
+        .card:hover .card-badge { color: #8A1538; background: #FAF0F2; }
+        
+        .card h3 { font-size: 18px; font-weight: 900; color: #0f172a; margin-bottom: 10px; line-height: 1.4; transition: color 0.3s ease; }
+        .card:hover h3 { color: #8A1538; }
+        .card p { color: #64748b; font-size: 13.5px; line-height: 1.6; font-weight: 500; margin-bottom: 24px; min-height: 50px; }
+        
+        .card-btn { background: #FAF0F2; color: #8A1538; border: 1px solid #EBB8C6; text-align: center; padding: 14px; border-radius: 8px; font-weight: 800; font-size: 14px; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 8px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
+        .card:hover .card-btn { background: #8A1538; color: #ffffff; border-color: #8A1538; box-shadow: 0 4px 12px rgba(138, 21, 56, 0.25); }
+
+        .footer { max-width: 1250px; margin: 0 auto; background: #000000; border-radius: 16px; padding: 40px; color: #f8fafc; border: 2px solid #1e293b; text-align: ${lang === 'ar' ? 'start' : 'left'}; }
+        .footer-content { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 30px; margin-bottom: 30px; border-bottom: 1px solid #222222; padding-bottom: 30px; }
+        .footer-brand { max-width: 400px; }
+        .footer-brand h3 { font-size: 24px; font-weight: 900; margin-bottom: 15px; color: #ffffff; letter-spacing: -0.5px; }
+        .footer-brand h3 span { color: #EBB8C6; letter-spacing: normal; }
+        .footer-brand p { color: #94a3b8; font-size: 14px; line-height: 1.8; font-weight: 500; }
+        .footer-links { display: flex; gap: 60px; }
+        .links-column h4 { color: #ffffff; font-size: 16px; font-weight: 800; margin-bottom: 20px; border-${lang === 'ar' ? 'right' : 'left'}: 3px solid #8A1538; padding-${lang === 'ar' ? 'right' : 'left'}: 8px; }
+        .links-column ul { list-style: none; padding: 0; margin: 0; }
+        .links-column ul li { margin-bottom: 12px; }
+        .links-column ul li a { color: #94a3b8 !important; font-size: 14px; font-weight: 500; transition: color 0.2s; }
+        .links-column ul li a:hover { color: #8A1538 !important; }
+        .footer-bottom { text-align: center; color: #64748b; font-size: 14px; font-weight: 500; }
+
+        @media(max-width: 1024px) { .cards-grid { grid-template-columns: repeat(2, 1fr); } .footer-content { flex-direction: column; } }
+        @media(max-width: 768px) { .cards-grid { grid-template-columns: 1fr; } .hero h1 { font-size: 28px; } .footer-links { flex-direction: column; gap: 30px; } .navbar { padding: 12px 15px; } .nav-controls { width: 100%; justify-content: flex-start; } }
       `}</style>
       
       <div className="navbar">
         <div className="brand">
           {lang === 'ar' ? 'إنجازيا' : 'Enjazya'} 
-          <span className="qa-badge" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-            {lang === 'ar' ? 'السوق القطري' : 'Qatar Market'}
-            <img src="https://flagcdn.com/w20/qa.png" alt="Qatar Flag" style={{ width: '18px', height: '12px', borderRadius: '2px', objectFit: 'cover' }} />
+          <span className="qa-badge">
+            <img src="https://flagcdn.com/w160/qa.png" alt="Qatar Flag" className="qa-flag" />
+            {lang === 'ar' ? 'السوق القطري QA' : 'Qatar Market QA'}
           </span>
         </div>
 
@@ -304,7 +398,7 @@ export default function EnjazyaQaHub() {
           </button>
 
           {!isActivated && (
-            <a href={LEMON_CHECKOUT_URL} target="_blank" rel="noopener noreferrer" className="action-btn-primary" title="ترقية الحساب">
+            <a href={LEMON_CHECKOUTURL} target="_blank" rel="noopener noreferrer" className="action-btn-primary" title="ترقية الحساب">
               ⚡ {lang === 'ar' ? 'ترقية (49.99 ر.ق)' : 'Upgrade (49.99 QAR)'}
             </a>
           )}
@@ -325,18 +419,18 @@ export default function EnjazyaQaHub() {
           />
 
           <div className="license-box">
-            <span style={{ fontSize: '13px', fontWeight: 800, color: '#475569' }}>🔑 PRO:</span>
+            <span style={{ fontSize: '12px', fontWeight: 800, color: '#475569' }}>🔑 PRO:</span>
             {isActivated ? (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '13px', fontWeight: 900, color: '#16a34a', padding: '4px 8px' }}>
-                  {lang === 'ar' ? 'المنصة مفعلة ✓' : 'Activated ✓'}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span style={{ fontSize: '12px', fontWeight: 900, color: '#8A1538' }}>
+                  {lang === 'ar' ? 'مفعل ✓' : 'Active ✓'}
                 </span>
                 <button 
                   onClick={handleDeactivate}
-                  style={{ background: '#fee2e2', color: '#991b1b', border: '1px solid #fca5a5', padding: '4px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}
+                  style={{ background: '#fee2e2', color: '#991b1b', border: '1px solid #fca5a5', padding: '3px 6px', borderRadius: '4px', fontSize: '10px', fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}
                   title={lang === 'ar' ? 'إلغاء التفعيل للعودة للوضع التجريبي' : 'Deactivate account'}
                 >
-                  {lang === 'ar' ? 'إلغاء التفعيل ❌' : 'Deactivate ❌'}
+                  {lang === 'ar' ? 'إلغاء ❌' : 'Off ❌'}
                 </button>
               </div>
             ) : (
@@ -344,16 +438,16 @@ export default function EnjazyaQaHub() {
                 <input 
                   type="text" 
                   className="license-input"
-                  placeholder={lang === 'ar' ? 'مفتاح الاشتراك الرسمي...' : 'License Key...'} 
+                  placeholder={lang === 'ar' ? 'مفتاح الترخيص...' : 'License...'} 
                   value={licenseKeyInput} 
                   onChange={(e) => setLicenseKeyInput(e.target.value)}
                 />
                 <button 
                   onClick={handleActivateLicense}
                   disabled={isLoading}
-                  style={{ background: '#0f172a', color: '#fff', border: 'none', padding: '7px 14px', borderRadius: '6px', fontSize: '12px', fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit', opacity: isLoading ? 0.7 : 1 }}
+                  style={{ background: '#0f172a', color: '#fff', border: 'none', padding: '6px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit', opacity: isLoading ? 0.7 : 1 }}
                 >
-                  {isLoading ? '...' : (lang === 'ar' ? 'تفعيل' : 'Activate')}
+                  {isLoading ? '...' : (lang === 'ar' ? 'تفعيل' : 'OK')}
                 </button>
               </>
             )}
@@ -386,8 +480,8 @@ export default function EnjazyaQaHub() {
       )}
 
       <div className="hero">
-        <h1>{lang === 'ar' ? 'منصة إنجازيا ' : 'Enjazya Platform '}<span>{lang === 'ar' ? 'ULTRA MAX للسوق القطري' : 'ULTRA MAX Qatar Market'}</span></h1>
-        <p>{lang === 'ar' ? 'الترسانة السحابية المتكاملة بـ 24 أداة دقيقة، صُممت خصيصاً لتمكين وتطوير المتاجر الإلكترونية في دولة قطر بالريال القطري (ر.ق) ومتوافقة مع المتطلبات التنظيمية المحلية.' : 'The integrated cloud arsenal with 24 precise tools designed specifically to empower and scale e-commerce stores in Qatar in Qatari Riyals (QAR) and compliant with local regulations.'}</p>
+        <h1>{lang === 'ar' ? 'منصة إنجازيا ' : 'Enjazya Platform '}<span>{lang === 'ar' ? 'للسوق القطري' : 'Qatar Market'}</span></h1>
+        <p>{lang === 'ar' ? 'الترسانة السحابية المتكاملة بـ 24 أداة دقيقة، صُممت خصيصاً لتمكين وتطوير المتاجر الإلكترونية في دولة قطر بالريال القطري (ر.ق) ومتوافقة تماماً مع السوق المحلي.' : 'The integrated cloud arsenal with 24 precise tools designed specifically to empower and scale e-commerce stores in Qatar in Qatari Riyals (QAR).'}</p>
       </div>
 
       <div className="cards-grid">
@@ -412,14 +506,8 @@ export default function EnjazyaQaHub() {
       <footer className="footer">
         <div className="footer-content">
           <div className="footer-brand">
-            <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              {lang === 'ar' ? 'إنجازيا ' : 'Enjazya '}
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-                {lang === 'ar' ? 'قطر' : 'Qatar'}
-                <img src="https://flagcdn.com/w40/qa.png" alt="Qatar Flag" style={{ width: '26px', height: '18px', borderRadius: '3px', objectFit: 'cover', marginTop: '2px' }} />
-              </span>
-            </h3>
-            <p>{lang === 'ar' ? 'المنصة السحابية الأولى المخصصة لتمكين تجار التجارة الإلكترونية في دولة قطر. أدوات دقيقة، حسابات متوافقة مع القوانين القطرية، وأرباح مضاعفة.' : 'The premier cloud platform dedicated to empowering e-commerce merchants in Qatar. Precise tools, compliant calculations with Qatari laws, and multiplied profits.'}</p>
+            <h3>{lang === 'ar' ? 'إنجازيا ' : 'Enjazya '}<span>{lang === 'ar' ? 'قطر 🇶🇦' : 'Qatar 🇶🇦'}</span></h3>
+            <p>{lang === 'ar' ? 'المنصة السحابية الأولى المخصصة لتمكين تجار التجارة الإلكترونية في دولة قطر. أدوات دقيقة، تقارير مالية محلية، وأرباح مضاعفة.' : 'The premier cloud platform dedicated to empowering e-commerce merchants in Qatar. Precise tools, local financial reports, and multiplied profits.'}</p>
           </div>
           
           <div className="footer-links">
@@ -442,7 +530,7 @@ export default function EnjazyaQaHub() {
               <h4>{lang === 'ar' ? 'الأنظمة والقوانين' : 'Legal'}</h4>
               <ul>
                 <li><Link href="/qa/legal/terms">{lang === 'ar' ? 'شروط الاستخدام' : 'Terms of Use'}</Link></li>
-                <li><Link href="/qa/legal/privacy">{lang === 'ar' ? 'سياسة الخصوصية' : 'Privacy Policy'}</Link></li>
+                <li><Link href="/qa/legal/privacy">{lang ===/hub/qa سياسة الخصوصية' : 'Privacy Policy'}</Link></li>
               </ul>
             </div>
           </div>
