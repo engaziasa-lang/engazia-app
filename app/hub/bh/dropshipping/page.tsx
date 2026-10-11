@@ -17,7 +17,7 @@ interface DropshipItem {
   timestamp?: number;
 }
 
-export default function DropshippingCalculatorOM() {
+export default function DropshippingCalculatorBH() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
   const [productName, setProductName] = useState<string>('');
   const [supplierName, setSupplierName] = useState<string>('');
@@ -38,7 +38,7 @@ export default function DropshippingCalculatorOM() {
 
   useEffect(() => {
     setIsClient(true);
-    setIsActivated(!!localStorage.getItem('merchant_license_key_om'));
+    setIsActivated(!!localStorage.getItem('merchant_license_key_bh'));
 
     const savedLang = localStorage.getItem('seerk_global_lang') as 'ar' | 'en';
     if (savedLang) {
@@ -51,7 +51,7 @@ export default function DropshippingCalculatorOM() {
       setSupplierName('AliExpress / مورد خارجي');
     }
 
-    const saved = localStorage.getItem('seerk_om_dropshipping_items');
+    const saved = localStorage.getItem('seerk_bh_dropshipping_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
@@ -59,7 +59,7 @@ export default function DropshippingCalculatorOM() {
 
   const saveToLocalStorage = (newItems: DropshipItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_om_dropshipping_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_bh_dropshipping_items', JSON.stringify(newItems));
   };
 
   const cost = typeof productCost === 'number' ? productCost : 0;
@@ -75,7 +75,7 @@ export default function DropshippingCalculatorOM() {
     ar: {
       back: '← عودة للمنصة',
       title: 'حاسبة أرباح الدروبشيبينغ 🌍',
-      desc: 'احسب هوامش الربح للمنتجات المستوردة مع أخذ رسوم الجمارك والشحن الدولي في الحسبان',
+      desc: 'احسب هوامش الربح للمنتجات المستوردة مع أخذ رسوم الجمارك والشحن الدولي في الحسبان في البحرين',
       editRecord: 'تعديل السجل',
       newRecord: 'حساب أرباح منتج دروبشيبينغ جديد',
       clear: '🧹 مسح الحقول',
@@ -88,7 +88,7 @@ export default function DropshippingCalculatorOM() {
       shippingCost: 'تكلفة الشحن الدولي',
       customs: 'الجمارك والضريبة التقديرية',
       sellPrice: 'سعر البيع المستهدف في متجرك',
-      currency: 'ر.ع',
+      currency: 'د.ب',
       saveBtnNew: '+ حفظ الحساب في السجل',
       saveBtnEdit: '💾 حفظ التعديلات',
       analysisTitle: 'تحليل الربحية الفوري',
@@ -133,7 +133,7 @@ export default function DropshippingCalculatorOM() {
     en: {
       back: '→ Back to Hub',
       title: 'Dropshipping Profit Calculator 🌍',
-      desc: 'Calculate profit margins for imported products factoring in custom duties and international shipping',
+      desc: 'Calculate profit margins for imported products factoring in custom duties and international shipping in Bahrain',
       editRecord: 'Edit Record',
       newRecord: 'New Dropshipping Calculation',
       clear: '🧹 Clear Fields',
@@ -146,7 +146,7 @@ export default function DropshippingCalculatorOM() {
       shippingCost: 'International Shipping Cost',
       customs: 'Estimated Customs & VAT',
       sellPrice: 'Target Selling Price in Store',
-      currency: 'OMR',
+      currency: 'BHD',
       saveBtnNew: '+ Save to Log',
       saveBtnEdit: '💾 Save Changes',
       analysisTitle: 'Instant Profitability Analysis',
@@ -215,7 +215,7 @@ export default function DropshippingCalculatorOM() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const localeStr = lang === 'ar' ? 'ar-OM' : 'en-OM';
+    const localeStr = lang === 'ar' ? 'ar-BH' : 'en-BH';
     const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
 
     if (editingId) {
@@ -369,7 +369,7 @@ export default function DropshippingCalculatorOM() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", `enjazya_om_dropshipping_profits_${dateFilter}.xls`);
+    link.setAttribute("download", `enjazya_bh_dropshipping_profits_${dateFilter}.xls`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -428,14 +428,14 @@ export default function DropshippingCalculatorOM() {
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
         .input-wrapper input { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .input-wrapper input.with-currency { padding-${lang === 'ar' ? 'left' : 'right'}: 45px; }
-        .input-wrapper input:focus { border-color: #C62828; background: #ffffff; }
+        .input-wrapper input:focus { border-color: #CE1126; background: #ffffff; }
         .currency-tag { position: absolute; ${lang === 'ar' ? 'left: 14px;' : 'right: 14px;'} color: #64748b; font-weight: 800; font-size: 13px; pointer-events: none; }
         
-        .action-btn { background: #C62828; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
-        .action-btn:hover { background: #B71C1C; }
+        .action-btn { background: #CE1126; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
+        .action-btn:hover { background: #A60E1E; }
 
         .result-box { background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .result-box.primary { background: linear-gradient(135deg, #C62828 0%, #B71C1C 100%); color: #fff; border: none; padding: 20px; }
+        .result-box.primary { background: linear-gradient(135deg, #CE1126 0%, #A60E1E 100%); color: #fff; border: none; padding: 20px; }
         .result-label { font-size: 13px; font-weight: 700; color: #64748b; }
         .primary .result-label { color: #ffffff; opacity: 0.9; }
         .result-value { font-size: 18px; font-weight: 900; color: #0f172a; direction: ltr; }
@@ -445,14 +445,14 @@ export default function DropshippingCalculatorOM() {
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
         
         .search-input { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; flex-grow: 1; max-width: 350px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .search-input:focus { border-color: #C62828; }
+        .search-input:focus { border-color: #CE1126; }
         
         .filter-select { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; background: #fff; color: #334155; cursor: pointer; min-width: 130px; }
-        .filter-select:focus { border-color: #C62828; }
+        .filter-select:focus { border-color: #CE1126; }
 
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
         .t-btn { padding: 9px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 6px; }
-        .t-btn:hover { background: #f1f5f9; border-color: #C62828; color: #C62828; }
+        .t-btn:hover { background: #f1f5f9; border-color: #CE1126; color: #CE1126; }
 
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 900px; }
@@ -472,7 +472,7 @@ export default function DropshippingCalculatorOM() {
           <h1>{text.title}</h1>
           <p>{text.desc}</p>
         </div>
-        <Link href="/hub/om" className="back-btn">
+        <Link href="/hub/bh" className="back-btn">
           {text.back}
         </Link>
       </div>
@@ -589,7 +589,7 @@ export default function DropshippingCalculatorOM() {
             <option value="day">{text.filters.day}</option>
             <option value="week">{text.filters.week}</option>
             <option value="month">{text.filters.month}</option>
-            <option value="6months">{text.filters.sixMonths}</option>
+            <option value="sixMonths">{text.filters.sixMonths}</option>
             <option value="year">{text.filters.year}</option>
           </select>
 
@@ -631,7 +631,7 @@ export default function DropshippingCalculatorOM() {
                     <td>{idx + 1}</td>
                     <td>
                       <div style={{ fontWeight: 900, color: '#0f172a' }}>{item.productName}</div>
-                      <div style={{ fontSize: '12px', color: '#C62828', fontWeight: 700 }}>{item.supplierName}</div>
+                      <div style={{ fontSize: '12px', color: '#CE1126', fontWeight: 700 }}>{item.supplierName}</div>
                       {item.createdAt && <div style={{ fontSize: '11px', color: '#64748b', marginTop: '3px', fontWeight: 600 }}>🕒 {item.createdAt}</div>}
                     </td>
                     <td>{item.productCost} {text.currency}</td>
