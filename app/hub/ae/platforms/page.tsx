@@ -29,9 +29,15 @@ export default function PlatformFeesCalculatorAE() {
   const [timeFilter, setTimeFilter] = useState<'all' | 'day' | 'week' | 'month' | '6months' | 'year'>('all');
   const [editingId, setEditingId] = useState<string | null>(null);
 
+  const [isClient, setIsClient] = useState(false);
+  const [isActivated, setIsActivated] = useState(true);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    setIsClient(true);
+    setIsActivated(!!localStorage.getItem('merchant_license_key'));
+    
     // قراءة اللغة من الصفحة الرئيسية
     const savedLang = localStorage.getItem('seerk_global_lang') as 'ar' | 'en';
     if (savedLang) {
@@ -59,8 +65,6 @@ export default function PlatformFeesCalculatorAE() {
     setItems(newItems);
     localStorage.setItem('seerk_ae_platform_fees_items', JSON.stringify(newItems));
   };
-
-  const isActivated = typeof window !== 'undefined' && !!localStorage.getItem('merchant_license_key');
 
   const fee = typeof monthlyFee === 'number' ? monthlyFee : 0;
   const orders = typeof expectedMonthlyOrders === 'number' ? expectedMonthlyOrders : 0;
