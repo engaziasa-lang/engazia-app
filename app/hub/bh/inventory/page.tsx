@@ -14,7 +14,7 @@ interface SeasonItem {
   timestamp?: number;
 }
 
-export default function SeasonalInventoryPlannerOM() {
+export default function SeasonalInventoryPlannerBH() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
   
   const [productName, setProductName] = useState<string>('');
@@ -35,7 +35,7 @@ export default function SeasonalInventoryPlannerOM() {
 
   useEffect(() => {
     setIsClient(true);
-    setIsActivated(!!localStorage.getItem('merchant_license_key_om'));
+    setIsActivated(!!localStorage.getItem('merchant_license_key_bh'));
 
     const savedLang = localStorage.getItem('seerk_global_lang') as 'ar' | 'en';
     if (savedLang) {
@@ -43,14 +43,14 @@ export default function SeasonalInventoryPlannerOM() {
     }
     
     if (savedLang === 'en') {
-      setSeasonSelect('Salalah Khareef 🌴');
-      setCustomSeason('Salalah Khareef 🌴');
+      setSeasonSelect('Formula 1 Grand Prix 🏎️');
+      setCustomSeason('Formula 1 Grand Prix 🏎️');
     } else {
-      setSeasonSelect('خريف صلالة 🌴');
-      setCustomSeason('خريف صلالة 🌴');
+      setSeasonSelect('سباق الفورمولا 1 🏎️');
+      setCustomSeason('سباق الفورمولا 1 🏎️');
     }
 
-    const saved = localStorage.getItem('seerk_om_seasonal_inventory_items');
+    const saved = localStorage.getItem('seerk_bh_seasonal_inventory_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
@@ -58,7 +58,7 @@ export default function SeasonalInventoryPlannerOM() {
 
   const saveToLocalStorage = (newItems: SeasonItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_om_seasonal_inventory_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_bh_seasonal_inventory_items', JSON.stringify(newItems));
   };
 
   const sales = typeof normalMonthlySales === 'number' ? normalMonthlySales : 0;
@@ -69,18 +69,18 @@ export default function SeasonalInventoryPlannerOM() {
   const t = {
     ar: {
       back: '← عودة للمنصة',
-      title: 'مخطط المخزون للمواسم العُمانية 📅',
-      desc: 'توقع الكميات المطلوبة لمواسم عُمان (خريف صلالة، مهرجان مسقط، العيد الوطني) لتجنب نفاد المخزون',
+      title: 'مخطط المخزون للمواسم البحرينية 📅',
+      desc: 'توقع الكميات المطلوبة لمواسم البحرين (سباق الفورمولا 1، العيد الوطني، مهرجان التسوق) لتجنب نفاد المخزون',
       editRecord: 'تعديل السجل',
       newRecord: 'تخطيط مخزون لموسم جديد',
       clear: '🧹 مسح الحقول',
       trial: 'تجريبي',
       prodName: 'اسم المنتج أو الفئة',
-      prodNamePH: 'مثال: عبايات نسائية فاخرة',
+      prodNamePH: 'مثال: أزياء وإكسسوارات',
       seasonLabel: 'اختر الموسم المستهدف',
-      s_khareef: 'خريف صلالة 🌴',
-      s_national: 'العيد الوطني العُماني 🇴🇲',
-      s_muscat: 'مهرجان مسقط 🎭',
+      s_f1: 'سباق الفورمولا 1 🏎️',
+      s_national: 'العيد الوطني البحريني 🇧🇭',
+      s_shopping: 'موسم التسوق والتخفيضات 🛍️',
       s_friday: 'الجمعة البيضاء / السوداء 🏷️',
       s_eid: 'موسم رمضان والعيد 🌙',
       s_other: '➕ موسم آخر (كتابة يدوية)',
@@ -133,18 +133,18 @@ export default function SeasonalInventoryPlannerOM() {
     },
     en: {
       back: '→ Back to Hub',
-      title: 'Oman Seasonal Inventory Planner 📅',
-      desc: 'Forecast required stock for Oman seasons (Salalah Khareef, Muscat Festival, National Day) to prevent stockouts',
+      title: 'Bahrain Seasonal Inventory Planner 📅',
+      desc: 'Forecast required stock for Bahrain seasons (Formula 1 Grand Prix, National Day, Shopping Festival) to prevent stockouts',
       editRecord: 'Edit Record',
       newRecord: 'Plan New Seasonal Inventory',
       clear: '🧹 Clear Fields',
       trial: 'Trial',
       prodName: 'Product or Category Name',
-      prodNamePH: 'e.g. Luxury Women Abayas',
+      prodNamePH: 'e.g. Fashion & Accessories',
       seasonLabel: 'Select Target Season',
-      s_khareef: 'Salalah Khareef 🌴',
-      s_national: 'Oman National Day 🇴🇲',
-      s_muscat: 'Muscat Festival 🎭',
+      s_f1: 'Formula 1 Grand Prix 🏎️',
+      s_national: 'Bahrain National Day 🇧🇭',
+      s_shopping: 'Shopping & Sales Season 🛍️',
       s_friday: 'White / Black Friday 🏷️',
       s_eid: 'Ramadan & Eid Season 🌙',
       s_other: '➕ Other Season (Manual Entry)',
@@ -211,7 +211,7 @@ export default function SeasonalInventoryPlannerOM() {
 
   const handleClearForm = () => {
     setProductName('');
-    const defaultSeason = lang === 'en' ? text.s_khareef : text.s_khareef;
+    const defaultSeason = text.s_f1;
     setSeasonSelect(defaultSeason);
     setCustomSeason(defaultSeason);
     setNormalMonthlySales('');
@@ -233,7 +233,7 @@ export default function SeasonalInventoryPlannerOM() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const localeStr = lang === 'ar' ? 'ar-OM' : 'en-OM';
+    const localeStr = lang === 'ar' ? 'ar-BH' : 'en-BH';
     const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
 
     if (editingId) {
@@ -271,16 +271,16 @@ export default function SeasonalInventoryPlannerOM() {
   const handleEdit = (item: SeasonItem) => {
     setProductName(item.productName);
     
-    const isKhareef = item.seasonName.includes('خريف') || item.seasonName.includes('صلالة') || item.seasonName.includes('Khareef');
+    const isF1 = item.seasonName.includes('فورمولا') || item.seasonName.includes('Formula');
     const isNational = item.seasonName.includes('وطني') || item.seasonName.includes('National');
-    const isMuscat = item.seasonName.includes('مسقط') || item.seasonName.includes('Muscat');
+    const isShopping = item.seasonName.includes('تسوق') || item.seasonName.includes('Shopping');
     const isFriday = item.seasonName.includes('جمعة') || item.seasonName.includes('Friday');
     const isEid = item.seasonName.includes('رمضان') || item.seasonName.includes('Eid');
 
     let matchedSeason = '';
-    if (isKhareef) matchedSeason = text.s_khareef;
+    if (isF1) matchedSeason = text.s_f1;
     else if (isNational) matchedSeason = text.s_national;
-    else if (isMuscat) matchedSeason = text.s_muscat;
+    else if (isShopping) matchedSeason = text.s_shopping;
     else if (isFriday) matchedSeason = text.s_friday;
     else if (isEid) matchedSeason = text.s_eid;
     else matchedSeason = text.s_other;
@@ -390,7 +390,7 @@ export default function SeasonalInventoryPlannerOM() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", `enjazya_om_seasonal_inventory_${dateFilter}.xls`);
+    link.setAttribute("download", `enjazya_bh_seasonal_inventory_${dateFilter}.xls`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -449,14 +449,14 @@ export default function SeasonalInventoryPlannerOM() {
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
         .input-wrapper input, .input-wrapper select { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .input-wrapper input.with-currency { padding-${lang === 'ar' ? 'left' : 'right'}: 45px; }
-        .input-wrapper input:focus, .input-wrapper select:focus { border-color: #C62828; background: #ffffff; }
+        .input-wrapper input:focus, .input-wrapper select:focus { border-color: #CE1126; background: #ffffff; }
         .currency-tag { position: absolute; ${lang === 'ar' ? 'left: 14px;' : 'right: 14px;'} color: #64748b; font-weight: 800; font-size: 13px; pointer-events: none; }
         
-        .action-btn { background: #C62828; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
-        .action-btn:hover { background: #B71C1C; }
+        .action-btn { background: #CE1126; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
+        .action-btn:hover { background: #A60E1E; }
 
         .result-box { background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .result-box.primary { background: linear-gradient(135deg, #C62828 0%, #B71C1C 100%); color: #fff; border: none; padding: 20px; }
+        .result-box.primary { background: linear-gradient(135deg, #CE1126 0%, #A60E1E 100%); color: #fff; border: none; padding: 20px; }
         .result-label { font-size: 13px; font-weight: 700; color: #64748b; }
         .primary .result-label { color: #ffffff; opacity: 0.9; }
         .result-value { font-size: 18px; font-weight: 900; color: #0f172a; direction: ltr; }
@@ -466,14 +466,14 @@ export default function SeasonalInventoryPlannerOM() {
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
         
         .search-input { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; flex-grow: 1; max-width: 350px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .search-input:focus { border-color: #C62828; }
+        .search-input:focus { border-color: #CE1126; }
         
         .filter-select { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; background: #fff; color: #334155; cursor: pointer; min-width: 130px; }
-        .filter-select:focus { border-color: #C62828; }
+        .filter-select:focus { border-color: #CE1126; }
 
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
         .t-btn { padding: 9px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 6px; }
-        .t-btn:hover { background: #f1f5f9; border-color: #C62828; color: #C62828; }
+        .t-btn:hover { background: #f1f5f9; border-color: #CE1126; color: #CE1126; }
 
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 900px; }
@@ -493,7 +493,7 @@ export default function SeasonalInventoryPlannerOM() {
           <h1>{text.title}</h1>
           <p>{text.desc}</p>
         </div>
-        <Link href="/hub/om" className="back-btn">
+        <Link href="/hub/bh" className="back-btn">
           {text.back}
         </Link>
       </div>
@@ -522,9 +522,9 @@ export default function SeasonalInventoryPlannerOM() {
               <label>{text.seasonLabel}</label>
               <div className="input-wrapper" style={{ marginBottom: '8px' }}>
                 <select value={seasonSelect} onChange={handleSelectChange}>
-                  <option value={text.s_khareef}>{text.s_khareef}</option>
+                  <option value={text.s_f1}>{text.s_f1}</option>
                   <option value={text.s_national}>{text.s_national}</option>
-                  <option value={text.s_muscat}>{text.s_muscat}</option>
+                  <option value={text.s_shopping}>{text.s_shopping}</option>
                   <option value={text.s_friday}>{text.s_friday}</option>
                   <option value={text.s_eid}>{text.s_eid}</option>
                   <option value={text.s_other}>{text.s_other}</option>
@@ -586,7 +586,7 @@ export default function SeasonalInventoryPlannerOM() {
 
           <div className="result-box" style={{ background: '#f8fafc' }}>
             <span className="result-label">{text.growthExp}</span>
-            <span className="result-value" style={{ color: '#C62828' }}>+{growth}%</span>
+            <span className="result-value" style={{ color: '#CE1126' }}>+{growth}%</span>
           </div>
         </div>
       </div>
@@ -610,7 +610,7 @@ export default function SeasonalInventoryPlannerOM() {
             <option value="day">{text.filters.day}</option>
             <option value="week">{text.filters.week}</option>
             <option value="month">{text.filters.month}</option>
-            <option value="6months">{text.filters.sixMonths}</option>
+            <option value="sixMonths">{text.filters.sixMonths}</option>
             <option value="year">{text.filters.year}</option>
           </select>
 
@@ -653,7 +653,7 @@ export default function SeasonalInventoryPlannerOM() {
                       <div style={{ fontWeight: 900, color: '#0f172a' }}>{item.productName}</div>
                       {item.createdAt && <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', fontWeight: 600 }}>🕒 {item.createdAt}</div>}
                     </td>
-                    <td><span style={{ fontWeight: 800, color: '#C62828' }}>{item.seasonName}</span></td>
+                    <td><span style={{ fontWeight: 800, color: '#CE1126' }}>{item.seasonName}</span></td>
                     <td>{item.normalMonthlySales} {text.unit}</td>
                     <td><span style={{ color: '#047857', fontWeight: 800 }}>+{item.growthRatePercent}%</span></td>
                     <td style={{ fontWeight: 900, color: '#0f172a' }}>{item.requiredStock} {text.unit}</td>
@@ -673,7 +673,7 @@ export default function SeasonalInventoryPlannerOM() {
                   <td colSpan={3} style={{ textAlign: 'center' }}>{text.table.totalLabel}</td>
                   <td>{totalNormalSalesSum} {text.unit}</td>
                   <td>-</td>
-                  <td style={{ color: '#C62828' }}>{totalRequiredStockSum} {text.unit}</td>
+                  <td style={{ color: '#CE1126' }}>{totalRequiredStockSum} {text.unit}</td>
                   <td></td>
                 </tr>
               </tfoot>
