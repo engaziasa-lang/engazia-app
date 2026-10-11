@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 
-export default function FAQPageOM() {
+export default function FAQPageBH() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
   const LEMON_CHECKOUT_URL = 'https://enjazya.lemonsqueezy.com/checkout/buy/dce1dd80-3422-43ba-aed5-8ef2dcd38d6d';
 
@@ -13,19 +13,19 @@ export default function FAQPageOM() {
       if (savedLang) {
         setLang(savedLang);
       }
-      document.title = savedLang === 'en' ? 'Enjazya | FAQ (Oman)' : 'إنجازيا | الأسئلة الشائعة (عُمان)';
+      document.title = savedLang === 'en' ? 'Enjazya | FAQ (Bahrain)' : 'إنجازيا | الأسئلة الشائعة (البحرين)';
     }
   }, []);
 
   const t = {
     ar: {
       title: 'الأسئلة الشائعة 💡',
-      desc: 'إجابات وافية عن كل ما تحتاج لمعرفته حول منصة إنجازيا (عُمان)',
+      desc: 'إجابات وافية عن كل ما تحتاج لمعرفته حول منصة إنجازيا (البحرين)',
       back: '← عودة للمنصة',
       otherTitle: 'هل لديك استفسار آخر؟',
       otherDesc: 'فريق الدعم الفني جاهز لمساعدتك في أي وقت.',
       contactBtn: 'تواصل معنا 🎧',
-      subBtn: 'اشترك بـ 4.99 ر.ع ⚡',
+      subBtn: 'اشترك بـ 4.99 د.ب ⚡',
       faqs: [
         {
           q: 'كيف تعمل أدوات منصة إنجازيا ومن المسؤول عن حماية بيانات متجري؟',
@@ -37,7 +37,7 @@ export default function FAQPageOM() {
         },
         {
           q: 'كم سعر الاشتراك الشهري وهل يشمل جميع الأدوات؟',
-          a: 'الاشتراك يمنحك وصولاً كاملاً وغير محدود لجميع الأدوات. العرض الساري حالياً يتيح لك الاشتراك بـ 4.99 ر.ع شهرياً بدلاً من السعر السابق (بتخفيض حصري لفترة محدودة).'
+          a: 'الاشتراك يمنحك وصولاً كاملاً وغير محدود لجميع الأدوات. العرض الساري حالياً يتيح لك الاشتراك بـ 4.99 د.ب شهرياً بدلاً من السعر السابق (بتخفيض حصري لفترة محدودة).'
         },
         {
           q: 'هل يمكنني استعادة بياناتي أو نقلها بين الأجهزة؟',
@@ -47,12 +47,12 @@ export default function FAQPageOM() {
     },
     en: {
       title: 'Frequently Asked Questions 💡',
-      desc: 'Comprehensive answers to everything you need to know about the Enjazya platform (Oman)',
+      desc: 'Comprehensive answers to everything you need to know about the Enjazya platform (Bahrain)',
       back: '→ Back to Hub',
       otherTitle: 'Have another question?',
       otherDesc: 'Our technical support team is ready to help you at any time.',
       contactBtn: 'Contact Us 🎧',
-      subBtn: 'Subscribe for 4.99 OMR ⚡',
+      subBtn: 'Subscribe for 4.99 BHD ⚡',
       faqs: [
         {
           q: 'How do Enjazya tools work and who is responsible for protecting my store data?',
@@ -64,7 +64,7 @@ export default function FAQPageOM() {
         },
         {
           q: 'How much is the monthly subscription and does it include all tools?',
-          a: 'The subscription grants you full and unlimited access to all tools. The current active offer allows you to subscribe for 4.99 OMR monthly instead of the regular price (exclusive discount for a limited time).'
+          a: 'The subscription grants you full and unlimited access to all tools. The current active offer allows you to subscribe for 4.99 BHD monthly instead of the regular price (exclusive discount for a limited time).'
         },
         {
           q: 'Can I restore my data or transfer it between devices?',
@@ -86,7 +86,7 @@ export default function FAQPageOM() {
             <h1 style={{ fontSize: '32px', fontWeight: 900, color: '#0f172a', margin: '0 0 10px 0' }}>{text.title}</h1>
             <p style={{ color: '#64748b', fontSize: '15px', margin: 0 }}>{text.desc}</p>
           </div>
-          <Link href="/hub/om" style={{ background: '#FFEBEE', border: '1px solid #FFCDD2', color: '#C62828', padding: '10px 20px', borderRadius: '8px', textDecoration: 'none', fontWeight: 700, fontSize: '14px', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
+          <Link href="/hub/bh" style={{ background: '#FDECEE', border: '1px solid #F9C9CE', color: '#CE1126', padding: '10px 20px', borderRadius: '8px', textDecoration: 'none', fontWeight: 700, fontSize: '14px', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
             {text.back}
           </Link>
         </div>
@@ -100,12 +100,12 @@ export default function FAQPageOM() {
           ))}
         </div>
 
-        <div style={{ background: '#FFEBEE', border: '1px solid #FFCDD2', padding: '30px', borderRadius: '16px', textAlign: 'center' }}>
-          <h3 style={{ color: '#B71C1C', fontSize: '20px', fontWeight: 900, marginBottom: '10px' }}>{text.otherTitle}</h3>
-          <p style={{ color: '#C62828', fontSize: '15px', marginBottom: '20px', fontWeight: 700 }}>{text.otherDesc}</p>
+        <div style={{ background: '#FDECEE', border: '1px solid #F9C9CE', padding: '30px', borderRadius: '16px', textAlign: 'center' }}>
+          <h3 style={{ color: '#A60E1E', fontSize: '20px', fontWeight: 900, marginBottom: '10px' }}>{text.otherTitle}</h3>
+          <p style={{ color: '#CE1126', fontSize: '15px', marginBottom: '20px', fontWeight: 700 }}>{text.otherDesc}</p>
           <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', flexWrap: 'wrap', flexDirection: lang === 'ar' ? 'row' : 'row-reverse' }}>
-            <Link href="/om/support/contact" style={{ background: '#C62828', color: '#fff', padding: '12px 24px', borderRadius: '8px', textDecoration: 'none', fontWeight: 900, fontSize: '14px' }}>{text.contactBtn}</Link>
-            <a href={LEMON_CHECKOUT_URL} target="_blank" rel="noopener noreferrer" style={{ background: '#B71C1C', color: '#fff', padding: '12px 24px', borderRadius: '8px', textDecoration: 'none', fontWeight: 900, fontSize: '14px' }}>{text.subBtn}</a>
+            <Link href="/bh/support/contact" style={{ background: '#CE1126', color: '#fff', padding: '12px 24px', borderRadius: '8px', textDecoration: 'none', fontWeight: 900, fontSize: '14px' }}>{text.contactBtn}</Link>
+            <a href={LEMON_CHECKOUT_URL} target="_blank" rel="noopener noreferrer" style={{ background: '#A60E1E', color: '#fff', padding: '12px 24px', borderRadius: '8px', textDecoration: 'none', fontWeight: 900, fontSize: '14px' }}>{text.subBtn}</a>
           </div>
         </div>
       </div>
