@@ -181,7 +181,8 @@ export default function EnjazyaSaudiHub() {
         
         .navbar { max-width: 1250px; margin: 0 auto 20px; padding: 14px 24px; background: #ffffff; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 15px; border-top: 5px solid #047857; position: relative; }
         .brand { font-size: 26px; font-weight: 900; color: #0f172a; white-space: nowrap; display: flex; align-items: center; gap: 12px; letter-spacing: -0.5px; }
-        .sa-badge { background: #dcfce7; color: #166534; font-size: 12px; font-weight: 800; padding: 5px 10px; border-radius: 6px; letter-spacing: normal; display: inline-flex; align-items: center; border: 1px solid #a7f3d0; }
+        .sa-badge { background: #dcfce7; color: #166534; font-size: 12px; font-weight: 800; padding: 5px 10px; border-radius: 6px; letter-spacing: normal; display: inline-flex; align-items: center; gap: 6px; border: 1px solid #a7f3d0; }
+        .sa-flag { width: 22px; height: 14px; object-fit: cover; border-radius: 2px; display: inline-block; }
         
         .nav-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; flex-direction: ${lang === 'ar' ? 'row-reverse' : 'row'}; }
         
@@ -298,7 +299,11 @@ export default function EnjazyaSaudiHub() {
       
       <div className="navbar">
         <div className="brand">
-          {lang === 'ar' ? 'إنجازيا' : 'Enjazya'} <span className="sa-badge">{lang === 'ar' ? 'السوق السعودي SA 🇸🇦' : 'Saudi Market 🇸🇦'}</span>
+          {lang === 'ar' ? 'إنجازيا' : 'Enjazya'} 
+          <span className="sa-badge">
+            <img src="https://flagcdn.com/w160/sa.png" alt="Saudi Flag" className="sa-flag" />
+            {lang === 'ar' ? 'السوق السعودي SA' : 'Saudi Market SA'}
+          </span>
         </div>
 
         <div className="nav-controls">
