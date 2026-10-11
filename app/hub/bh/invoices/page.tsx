@@ -23,11 +23,11 @@ interface InvoiceItem {
   timestamp?: number;
 }
 
-export default function InvoiceGeneratorOM() {
+export default function InvoiceGeneratorBH() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
 
   const [storeName, setStoreName] = useState<string>('');
-  const [vatNumber, setVatNumber] = useState<string>('100000000000003');
+  const [vatNumber, setVatNumber] = useState<string>('200000000000002');
   
   const [invoiceNumber, setInvoiceNumber] = useState<string>('INV-2026-001');
   const [customerName, setCustomerName] = useState<string>('');
@@ -49,20 +49,20 @@ export default function InvoiceGeneratorOM() {
 
   useEffect(() => {
     setIsClient(true);
-    setIsActivated(!!localStorage.getItem('merchant_license_key_om'));
+    setIsActivated(!!localStorage.getItem('merchant_license_key_bh'));
 
     const savedLang = localStorage.getItem('seerk_global_lang') as 'ar' | 'en';
     if (savedLang) {
       setLang(savedLang);
     }
     
-    const savedItems = localStorage.getItem('seerk_om_invoices_items');
+    const savedItems = localStorage.getItem('seerk_bh_invoices_items');
     if (savedItems) {
       try { setItems(JSON.parse(savedItems)); } catch (e) { }
     }
 
-    const savedStoreName = localStorage.getItem('seerk_om_store_name');
-    const savedVatNumber = localStorage.getItem('seerk_om_vat_number');
+    const savedStoreName = localStorage.getItem('seerk_bh_store_name');
+    const savedVatNumber = localStorage.getItem('seerk_bh_vat_number');
     if (savedStoreName) {
       setStoreName(savedStoreName);
     } else {
@@ -73,22 +73,22 @@ export default function InvoiceGeneratorOM() {
 
   const saveToLocalStorage = (newItems: InvoiceItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_om_invoices_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_bh_invoices_items', JSON.stringify(newItems));
   };
 
   const amt = currentProducts.reduce((acc, curr) => acc + (curr.price * curr.qty), 0);
-  const vatAmt = amt * 0.05; // 5% VAT in Oman
+  const vatAmt = amt * 0.10; // 10% VAT in Bahrain (NBR)
 
   const nowDisplay = new Date();
   const timeOptionsDisplay: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-  const localeStr = lang === 'ar' ? 'ar-OM' : 'en-OM';
+  const localeStr = lang === 'ar' ? 'ar-BH' : 'en-BH';
   const currentFormattedDate = `${nowDisplay.toLocaleDateString(localeStr)} - ${nowDisplay.toLocaleTimeString(localeStr, timeOptionsDisplay)}`;
 
   const t = {
     ar: {
       back: '← عودة للمنصة',
       title: 'مولد الفواتير الإلكترونية (نظام الكاشير المصغر) 🧾',
-      desc: 'أنشئ فواتير مبسطة برمز الاستجابة السريعة (QR Code) متوافقة مع متطلبات جهاز الضرائب العُماني (OTA)',
+      desc: 'أنشئ فواتير مبسطة برمز الاستجابة السريعة (QR Code) متوافقة مع متطلبات الجهاز الوطني للإيرادات (NBR)',
       editRecord: 'تعديل الفاتورة',
       newRecord: 'إصدار فاتورة جديدة',
       clear: '🧹 مسح الفاتورة',
@@ -97,7 +97,7 @@ export default function InvoiceGeneratorOM() {
       vatNumLabel: 'الرقم الضريبي / السجل التجاري',
       invNumLabel: 'رقم الفاتورة',
       custNameLabel: 'اسم العميل',
-      custNamePH: 'مثال: محمد البلوشي',
+      custNamePH: 'مثال: أحمد الدوسري',
       cashCust: 'عميل نقدي',
       cartTitle: 'سلة منتجات الفاتورة',
       prodNamePH: 'اسم المنتج',
@@ -114,10 +114,10 @@ export default function InvoiceGeneratorOM() {
       clientLabel: 'العميل:',
       itemsCountLabel: 'عدد الأصناف:',
       itemsWord: 'منتجات',
-      vatLabel: 'ضريبة القيمة المضافة (5%):',
+      vatLabel: 'ضريبة القيمة المضافة (10%):',
       grandTotal: 'الإجمالي الشامل (متضمن الضريبة):',
       printBtn: '🖨️ طباعة الفاتورة الحالية',
-      currency: 'ر.ع',
+      currency: 'د.ب',
       searchPH: '🔍 بحث برقم الفاتورة أو العميل...',
       exportBtn: '📥 تصدير Excel',
       importBtn: '📂 استيراد',
@@ -141,7 +141,7 @@ export default function InvoiceGeneratorOM() {
         th2: 'الفاتورة والتاريخ',
         th3: 'العميل والأصناف',
         th4: 'الإجمالي الشامل',
-        th5: 'الضريبة (5%)',
+        th5: 'الضريبة (10%)',
         th6: 'الإجراءات',
         print: '🖨️ طباعة',
         itemsReg: 'أصناف مسجلة',
@@ -171,7 +171,7 @@ export default function InvoiceGeneratorOM() {
         th4: 'سعر الوحدة',
         th5: 'المجموع',
         subTotal: 'الإجمالي (غير شامل الضريبة)',
-        vatAmount: 'الضريبة (5%)',
+        vatAmount: 'الضريبة (10%)',
         grandTotal: 'المبلغ الإجمالي الشامل',
         thanks: 'شكراً لتسوقكم معنا في'
       }
@@ -179,7 +179,7 @@ export default function InvoiceGeneratorOM() {
     en: {
       back: '→ Back to Hub',
       title: 'Electronic Invoicing Generator (Mini POS) 🧾',
-      desc: 'Create simplified tax invoices with QR Code compliant with Oman Tax Authority (OTA) requirements',
+      desc: 'Create simplified tax invoices with QR Code compliant with National Bureau of Revenue (NBR) requirements',
       editRecord: 'Edit Invoice',
       newRecord: 'Issue New Invoice',
       clear: '🧹 Clear Invoice',
@@ -205,10 +205,10 @@ export default function InvoiceGeneratorOM() {
       clientLabel: 'Customer:',
       itemsCountLabel: 'Total Items:',
       itemsWord: 'items',
-      vatLabel: 'VAT (5%):',
+      vatLabel: 'VAT (10%):',
       grandTotal: 'Grand Total (Inc. VAT):',
       printBtn: '🖨️ Print Current Invoice',
-      currency: 'OMR',
+      currency: 'BHD',
       searchPH: '🔍 Search by invoice number or customer...',
       exportBtn: '📥 Export Excel',
       importBtn: '📂 Import',
@@ -232,7 +232,7 @@ export default function InvoiceGeneratorOM() {
         th2: 'Invoice & Date',
         th3: 'Customer & Items',
         th4: 'Grand Total',
-        th5: 'Tax (5%)',
+        th5: 'Tax (10%)',
         th6: 'Actions',
         print: '🖨️ Print',
         itemsReg: 'registered items',
@@ -262,7 +262,7 @@ export default function InvoiceGeneratorOM() {
         th4: 'Unit Price',
         th5: 'Total',
         subTotal: 'Subtotal',
-        vatAmount: 'VAT (5%)',
+        vatAmount: 'VAT (10%)',
         grandTotal: 'Grand Total Amount',
         thanks: 'Thank you for shopping with us at'
       }
@@ -330,8 +330,8 @@ export default function InvoiceGeneratorOM() {
       return;
     }
 
-    localStorage.setItem('seerk_om_store_name', storeName);
-    localStorage.setItem('seerk_om_vat_number', vatNumber);
+    localStorage.setItem('seerk_bh_store_name', storeName);
+    localStorage.setItem('seerk_bh_vat_number', vatNumber);
 
     const now = new Date();
     const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptionsDisplay)}`;
@@ -465,7 +465,7 @@ export default function InvoiceGeneratorOM() {
           
           .totals-calc { width: 60%; text-align: ${lang === 'ar' ? 'left' : 'right'}; }
           .totals-row { display: flex; justify-content: space-between; padding: 10px; font-size: 14px; font-weight: bold; border-bottom: 1px solid #e2e8f0; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
-          .totals-row.grand { background: #C62828; color: white; border-radius: 8px; font-size: 16px; margin-top: 10px; border: none; }
+          .totals-row.grand { background: #CE1126; color: white; border-radius: 8px; font-size: 16px; margin-top: 10px; border: none; }
           
           @media print { body { background: #fff; padding: 0; } .invoice-box { box-shadow: none; border: none; max-width: 100%; } }
         </style>
@@ -585,7 +585,7 @@ export default function InvoiceGeneratorOM() {
                 <th>Customer</th>
                 <th>Products</th>
                 <th>Grand Total (${text.currency})</th>
-                <th>Tax 5% (${text.currency})</th>
+                <th>Tax 10% (${text.currency})</th>
               </tr>
             </thead>
             <tbody>
@@ -627,7 +627,7 @@ export default function InvoiceGeneratorOM() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", `enjazya_om_invoices_${dateFilter}.xls`);
+    link.setAttribute("download", `enjazya_bh_invoices_${dateFilter}.xls`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -682,10 +682,10 @@ export default function InvoiceGeneratorOM() {
         .input-group label { display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 6px; }
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
         .input-wrapper input { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 15px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .input-wrapper input:focus { border-color: #C62828; background: #ffffff; }
+        .input-wrapper input:focus { border-color: #CE1126; background: #ffffff; }
         
-        .action-btn { background: #C62828; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
-        .action-btn:hover { background: #B71C1C; }
+        .action-btn { background: #CE1126; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
+        .action-btn:hover { background: #A60E1E; }
 
         .add-prod-box { background: #f1f5f9; padding: 15px; border-radius: 8px; border: 1px dashed #cbd5e1; margin-bottom: 20px; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .mini-btn { background: #0f172a; color: white; padding: 8px 15px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-family: inherit; }
@@ -702,21 +702,21 @@ export default function InvoiceGeneratorOM() {
         .qr-box { margin: 15px auto; width: 130px; height: 130px; background: #fff; padding: 5px; border-radius: 8px; border: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: center; }
         .qr-box img { width: 120px; height: 120px; }
         
-        .print-btn { background: #FFEBEE; color: #C62828; border: 1px solid #FFCDD2; padding: 10px; width: 100%; border-radius: 8px; font-weight: 800; font-size: 14px; cursor: pointer; margin-top: 15px; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s;}
-        .print-btn:hover { background: #C62828; color: #ffffff; }
+        .print-btn { background: #FDECEE; color: #CE1126; border: 1px solid #F9C9CE; padding: 10px; width: 100%; border-radius: 8px; font-weight: 800; font-size: 14px; cursor: pointer; margin-top: 15px; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s;}
+        .print-btn:hover { background: #CE1126; color: #ffffff; }
 
         .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
         
         .search-input { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; flex-grow: 1; max-width: 350px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .search-input:focus { border-color: #C62828; }
+        .search-input:focus { border-color: #CE1126; }
         
         .filter-select { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; background: #fff; color: #334155; cursor: pointer; min-width: 130px; }
-        .filter-select:focus { border-color: #C62828; }
+        .filter-select:focus { border-color: #CE1126; }
 
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
         .t-btn { padding: 9px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 6px; }
-        .t-btn:hover { background: #f1f5f9; border-color: #C62828; color: #C62828; }
+        .t-btn:hover { background: #f1f5f9; border-color: #CE1126; color: #CE1126; }
 
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 850px; }
@@ -729,8 +729,8 @@ export default function InvoiceGeneratorOM() {
         .tb-action-btn { border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; font-family: inherit;}
         .btn-edit { background: #e0f2fe; color: #0369a1; }
         .btn-delete { background: #fee2e2; color: #991b1b; }
-        .btn-print-tb { background: #FFEBEE; color: #C62828; border: 1px solid #FFCDD2; }
-        .btn-print-tb:hover { background: #C62828; color: #fff; }
+        .btn-print-tb { background: #FDECEE; color: #CE1126; border: 1px solid #F9C9CE; }
+        .btn-print-tb:hover { background: #CE1126; color: #fff; }
       `}</style>
 
       <div className="header">
@@ -738,7 +738,7 @@ export default function InvoiceGeneratorOM() {
           <h1>{text.title}</h1>
           <p>{text.desc}</p>
         </div>
-        <Link href="/hub/om" className="back-btn">
+        <Link href="/hub/bh" className="back-btn">
           {text.back}
         </Link>
       </div>
@@ -834,7 +834,7 @@ export default function InvoiceGeneratorOM() {
             </div>
 
             <div className="qr-box">
-              <img src={qrCodeUrl} alt="OTA QR Code" />
+              <img src={qrCodeUrl} alt="NBR QR Code" />
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: 700, padding: '8px 10px', background: '#fff', borderRadius: '6px', border: '1px solid #e2e8f0', marginTop: '10px', flexDirection: lang === 'ar' ? 'row' : 'row-reverse' }}>
@@ -842,7 +842,7 @@ export default function InvoiceGeneratorOM() {
               <span style={{ color: '#047857' }}>{vatAmt.toFixed(2)} {text.currency}</span>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '15px', fontWeight: 900, padding: '10px', background: '#C62828', color: '#fff', borderRadius: '6px', marginTop: '8px', flexDirection: lang === 'ar' ? 'row' : 'row-reverse' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '15px', fontWeight: 900, padding: '10px', background: '#CE1126', color: '#fff', borderRadius: '6px', marginTop: '8px', flexDirection: lang === 'ar' ? 'row' : 'row-reverse' }}>
               <span>{text.grandTotal}</span>
               <span>{grandTotalAmt.toFixed(2)} {text.currency}</span>
             </div>
@@ -873,7 +873,7 @@ export default function InvoiceGeneratorOM() {
             <option value="day">{text.filters.day}</option>
             <option value="week">{text.filters.week}</option>
             <option value="month">{text.filters.month}</option>
-            <option value="6months">{text.filters.sixMonths}</option>
+            <option value="sixMonths">{text.filters.sixMonths}</option>
             <option value="year">{text.filters.year}</option>
           </select>
 
