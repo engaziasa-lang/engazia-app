@@ -251,21 +251,34 @@ export default function EnjazyaBhHub() {
         .card:hover .card-btn { background: #CE1126; color: #ffffff; border-color: #CE1126; box-shadow: 0 4px 12px rgba(206, 17, 38, 0.25); }
 
         .footer { max-width: 1250px; margin: 0 auto; background: #000000; border-radius: 16px; padding: 40px; color: #f8fafc; border: 2px solid #1e293b; text-align: ${lang === 'ar' ? 'start' : 'left'}; }
-        .footer-content { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 30px; margin-bottom: 30px; border-bottom: 1px solid #222222; padding-bottom: 30px; }
+        .footer-content { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 30px; margin-bottom: 30px; border-bottom: 1px solid #1e293b; padding-bottom: 30px; }
         .footer-brand { max-width: 400px; }
         .footer-brand h3 { font-size: 24px; font-weight: 900; margin-bottom: 15px; color: #ffffff; letter-spacing: -0.5px; }
         .footer-brand h3 span { color: #F9C9CE; letter-spacing: normal; }
         .footer-brand p { color: #94a3b8; font-size: 14px; line-height: 1.8; font-weight: 500; }
         .footer-links { display: flex; gap: 60px; }
-        .links-column h4 { color: #ffffff; font-size: 16px; font-weight: 800; margin-bottom: 20px; border-${lang === 'ar' ? 'right' : 'left'}: 3px solid #CE1126; padding-${lang === 'ar' ? 'right' : 'left'}: 8px; }
+        .links-column h4 { color: #ffffff; font-size: 16px; font-weight: 800; margin-bottom: 20px; border-${lang === 'ar' ? 'right' : 'left'}: 3px solid #F9C9CE; padding-${lang === 'ar' ? 'right' : 'left'}: 8px; }
         .links-column ul { list-style: none; padding: 0; margin: 0; }
         .links-column ul li { margin-bottom: 12px; }
         .links-column ul li a { color: #94a3b8 !important; font-size: 14px; font-weight: 500; transition: color 0.2s; }
         .links-column ul li a:hover { color: #ffffff !important; }
-        .footer-bottom { text-align: center; color: #64748b; font-size: 14px; font-weight: 500; }
+        
+        .footer-bottom { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; border-top: 1px solid #1e293b; padding-top: 25px; }
+        .footer-bottom p { color: #94a3b8; font-size: 13.5px; font-weight: 500; margin: 0; }
+        
+        .payment-icons { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .pay-badge { font-size: 11px; font-weight: 800; padding: 6px 12px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; letter-spacing: 0.5px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: transform 0.2s ease; }
+        .pay-badge:hover { transform: translateY(-2px); }
+        .pay-badge.visa { background: linear-gradient(135deg, #1a1f71 0%, #0d1244 100%); color: #ffffff; border: 1px solid #2e358f; }
+        .pay-badge.mc { background: linear-gradient(135deg, #111111 0%, #222222 100%); color: #ffffff; border: 1px solid #333333; }
+        .pay-badge.amex { background: linear-gradient(135deg, #006fcf 0%, #004b91 100%); color: #ffffff; border: 1px solid #1282ec; }
+        .pay-badge.discover { background: linear-gradient(135deg, #ff6600 0%, #cc5200 100%); color: #ffffff; border: 1px solid #ff8533; }
+        .pay-badge.paypal { background: linear-gradient(135deg, #003087 0%, #001f5c 100%); color: #ffffff; border: 1px solid #0045c2; font-weight: 900; }
+        .pay-badge.gpay { background: #ffffff; color: #1e293b; border: 1px solid #cbd5e1; font-weight: 900; }
+        .pay-badge.cashapp { background: linear-gradient(135deg, #00D632 0%, #00a827 100%); color: #000000; border: 1px solid #00b029; font-weight: 900; }
 
         @media(max-width: 1024px) { .cards-grid { grid-template-columns: repeat(2, 1fr); } .footer-content { flex-direction: column; } }
-        @media(max-width: 768px) { .cards-grid { grid-template-columns: 1fr; } .hero h1 { font-size: 28px; } .footer-links { flex-direction: column; gap: 30px; } .navbar { padding: 12px 15px; } .nav-controls { width: 100%; justify-content: flex-start; } }
+        @media(max-width: 768px) { .cards-grid { grid-template-columns: 1fr; } .hero h1 { font-size: 28px; } .footer-links { flex-direction: column; gap: 30px; } .navbar { padding: 12px 15px; } .nav-controls { width: 100%; justify-content: flex-start; } .footer-bottom { flex-direction: column; text-align: center; justify-content: center; } }
       `}</style>
       
       <div className="navbar">
@@ -420,8 +433,18 @@ export default function EnjazyaBhHub() {
             </div>
           </div>
         </div>
+        
         <div className="footer-bottom">
           <p>{lang === 'ar' ? 'جميع الحقوق محفوظة © 2026 منصة إنجازيا لتمكين التجارة الإلكترونية في مملكة البحرين' : 'All rights reserved © 2026 Enjazya Platform Bahrain'}</p>
+          <div className="payment-icons">
+            <span className="pay-badge visa">VISA</span>
+            <span className="pay-badge mc">Mastercard</span>
+            <span className="pay-badge amex">AMEX</span>
+            <span className="pay-badge discover">DISCOVER</span>
+            <span className="pay-badge paypal">PayPal</span>
+            <span className="pay-badge gpay">GPay</span>
+            <span className="pay-badge cashapp">Cash App</span>
+          </div>
         </div>
       </footer>
     </div>
