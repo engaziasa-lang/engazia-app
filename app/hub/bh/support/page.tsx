@@ -14,7 +14,7 @@ interface SupportItem {
   timestamp?: number;
 }
 
-export default function SupportTemplatesOM() {
+export default function SupportTemplatesBH() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
 
   const [customerName, setCustomerName] = useState<string>('');
@@ -36,7 +36,7 @@ export default function SupportTemplatesOM() {
 
   useEffect(() => {
     setIsClient(true);
-    setIsActivated(!!localStorage.getItem('merchant_license_key_om'));
+    setIsActivated(!!localStorage.getItem('merchant_license_key_bh'));
     
     const savedLang = localStorage.getItem('seerk_global_lang') as 'ar' | 'en';
     if (savedLang) {
@@ -55,14 +55,14 @@ export default function SupportTemplatesOM() {
       setOrderNumber('#84920');
     }
 
-    const saved = localStorage.getItem('seerk_om_support_templates_items');
+    const saved = localStorage.getItem('seerk_bh_support_templates_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
     
-    const omStoreName = localStorage.getItem('seerk_om_store_name');
-    if (omStoreName) {
-      setStoreName(omStoreName);
+    const bhStoreName = localStorage.getItem('seerk_bh_store_name');
+    if (bhStoreName) {
+      setStoreName(bhStoreName);
     } else {
       setStoreName(savedLang === 'en' ? 'Enjazya Store' : 'متجر إنجازيا');
     }
@@ -72,7 +72,7 @@ export default function SupportTemplatesOM() {
     ar: {
       back: '← عودة للمنصة',
       title: 'قوالب خدمة العملاء السريعة 🎧',
-      desc: 'انسخ ردود احترافية جاهزة للرد على استفسارات العملاء المكررة عبر واتساب لمتجرك بعُمان',
+      desc: 'انسخ ردود احترافية جاهزة للرد على استفسارات العملاء المكررة عبر واتساب لمتجرك بمملكة البحرين',
       editRecord: 'تعديل القالب',
       newRecord: 'توليد قالب رد جديد',
       clear: '🧹 مسح الحقول',
@@ -130,7 +130,7 @@ export default function SupportTemplatesOM() {
     en: {
       back: '→ Back to Hub',
       title: 'Quick Customer Support Templates 🎧',
-      desc: 'Copy ready-made professional responses for frequent customer inquiries via WhatsApp for your Oman store',
+      desc: 'Copy ready-made professional responses for frequent customer inquiries via WhatsApp for your Bahrain store',
       editRecord: 'Edit Template',
       newRecord: 'Generate New Reply Template',
       clear: '🧹 Clear Fields',
@@ -213,7 +213,7 @@ export default function SupportTemplatesOM() {
       } else if (isPayment) {
         setGeneratedReply(
           `مرحباً بك يا ${cName} 💳\n` +
-          `نؤكد لك أن جميع عمليات الدفع الإلكتروني والدفع عند الاستلام في ${sName} آمنة ومحمية بالكامل. طلبك رقم (${oNum}) يتم تجهيزه الآن بكل اهتمام!`
+          `نؤكد لك أن جميع عمليات الدفع الإلكتروني والدفع عند الاستلاستلام في ${sName} آمنة ومحمية بالكامل. طلبك رقم (${oNum}) يتم تجهيزه الآن بكل اهتمام!`
         );
       } else {
         setGeneratedReply(
@@ -248,7 +248,7 @@ export default function SupportTemplatesOM() {
 
   const saveToLocalStorage = (newItems: SupportItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_om_support_templates_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_bh_support_templates_items', JSON.stringify(newItems));
   };
 
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -271,8 +271,8 @@ export default function SupportTemplatesOM() {
       setInquirySelect(text.inqDelayed);
       setCustomInquiryType(text.inqDelayed);
     }
-    const omStoreName = localStorage.getItem('seerk_om_store_name');
-    setStoreName(omStoreName || (lang === 'en' ? 'Enjazya Store' : 'متجر إنجازيا'));
+    const bhStoreName = localStorage.getItem('seerk_bh_store_name');
+    setStoreName(bhStoreName || (lang === 'en' ? 'Enjazya Store' : 'متجر إنجازيا'));
     setOrderNumber('#84920');
     setEditingId(null);
   };
@@ -291,7 +291,7 @@ export default function SupportTemplatesOM() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const localeStr = lang === 'ar' ? 'ar-OM' : 'en-OM';
+    const localeStr = lang === 'ar' ? 'ar-BH' : 'en-BH';
     const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
 
     if (editingId) {
@@ -432,8 +432,8 @@ export default function SupportTemplatesOM() {
             </tbody>
             <tfoot>
               <tr class="tfoot-row">
-                <td colspan="5">${text.table.totalLabel}</td>
-                <td>${filteredItems.length} ${text.table.templatesCount}</td>
+                <td colSpan={5}>${text.table.totalLabel}</td>
+                <td colSpan={1}>${filteredItems.length} ${text.table.templatesCount}</td>
               </tr>
             </tfoot>
           </table>
@@ -445,7 +445,7 @@ export default function SupportTemplatesOM() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", `enjazya_om_support_templates_${dateFilter}.xls`);
+    link.setAttribute("download", `enjazya_bh_support_templates_${dateFilter}.xls`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -503,26 +503,26 @@ export default function SupportTemplatesOM() {
         .input-group label { display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 6px; }
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
         .input-wrapper input, .input-wrapper select, .input-wrapper textarea { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .input-wrapper input:focus, .input-wrapper select:focus, .input-wrapper textarea:focus { border-color: #C62828; background: #ffffff; }
+        .input-wrapper input:focus, .input-wrapper select:focus, .input-wrapper textarea:focus { border-color: #CE1126; background: #ffffff; }
         
-        .action-btn { background: #C62828; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
-        .action-btn:hover { background: #B71C1C; }
+        .action-btn { background: #CE1126; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
+        .action-btn:hover { background: #A60E1E; }
         
-        .copy-btn { background: #C62828; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .copy-btn:hover { background: #B71C1C; }
+        .copy-btn { background: #CE1126; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .copy-btn:hover { background: #A60E1E; }
 
         .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
         
         .search-input { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; flex-grow: 1; max-width: 350px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .search-input:focus { border-color: #C62828; }
+        .search-input:focus { border-color: #CE1126; }
         
         .filter-select { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; background: #fff; color: #334155; cursor: pointer; min-width: 130px; }
-        .filter-select:focus { border-color: #C62828; }
+        .filter-select:focus { border-color: #CE1126; }
 
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
         .t-btn { padding: 9px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 6px; }
-        .t-btn:hover { background: #f1f5f9; border-color: #C62828; color: #C62828; }
+        .t-btn:hover { background: #f1f5f9; border-color: #CE1126; color: #CE1126; }
 
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 900px; }
@@ -533,8 +533,8 @@ export default function SupportTemplatesOM() {
         .trial-badge { background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 800; }
         
         .tb-action-btn { border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; font-family: inherit;}
-        .btn-wa { background: #FFEBEE; color: #C62828; border: 1px solid #FFCDD2; }
-        .btn-wa:hover { background: #C62828; color: #ffffff; }
+        .btn-wa { background: #FFEBEE; color: #CE1126; border: 1px solid #FFCDD2; }
+        .btn-wa:hover { background: #CE1126; color: #ffffff; }
         .btn-edit { background: #e0f2fe; color: #0369a1; }
         .btn-delete { background: #fee2e2; color: #991b1b; }
       `}</style>
@@ -544,7 +544,7 @@ export default function SupportTemplatesOM() {
           <h1>{text.title}</h1>
           <p>{text.desc}</p>
         </div>
-        <Link href="/hub/om" className="back-btn">
+        <Link href="/hub/bh" className="back-btn">
           {text.back}
         </Link>
       </div>
@@ -673,9 +673,9 @@ export default function SupportTemplatesOM() {
             <thead>
               <tr>
                 <th>{text.table.th1}</th>
-                <th>{text.custName}</th>
-                <th>{text.inquiryType}</th>
-                <th>{text.orderNum}</th>
+                <th>{text.table.th2}</th>
+                <th>{text.table.th3}</th>
+                <th>{text.table.th4}</th>
                 <th>{text.table.th5}</th>
               </tr>
             </thead>
@@ -694,7 +694,7 @@ export default function SupportTemplatesOM() {
                       <div style={{ fontWeight: 900, color: '#0f172a' }}>{item.customerName}</div>
                       {item.createdAt && <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', fontWeight: 600 }}>🕒 {item.createdAt}</div>}
                     </td>
-                    <td><span style={{ fontWeight: 800, color: '#C62828' }}>{item.inquiryType}</span></td>
+                    <td><span style={{ fontWeight: 800, color: '#CE1126' }}>{item.inquiryType}</span></td>
                     <td><span style={{ fontWeight: 700, color: '#047857' }}>{item.orderNumber}</span></td>
                     <td>
                       <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
