@@ -14,7 +14,7 @@ interface LtvItem {
   timestamp?: number;
 }
 
-export default function LtvCalculatorOM() {
+export default function LtvCalculatorBH() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
 
   const [segmentName, setSegmentName] = useState<string>('');
@@ -34,14 +34,14 @@ export default function LtvCalculatorOM() {
 
   useEffect(() => {
     setIsClient(true);
-    setIsActivated(!!localStorage.getItem('merchant_license_key_om'));
+    setIsActivated(!!localStorage.getItem('merchant_license_key_bh'));
     
     const savedLang = localStorage.getItem('seerk_global_lang') as 'ar' | 'en';
     if (savedLang) {
       setLang(savedLang);
     }
     
-    const saved = localStorage.getItem('seerk_om_ltv_calculator_items');
+    const saved = localStorage.getItem('seerk_bh_ltv_calculator_items');
     if (saved) {
       try { 
         const parsedData = JSON.parse(saved);
@@ -52,7 +52,7 @@ export default function LtvCalculatorOM() {
 
   const saveToLocalStorage = (newItems: LtvItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_om_ltv_calculator_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_bh_ltv_calculator_items', JSON.stringify(newItems));
   };
 
   const orderVal = typeof avgOrderValue === 'number' ? avgOrderValue : 0;
@@ -65,7 +65,7 @@ export default function LtvCalculatorOM() {
     ar: {
       back: '← عودة للمنصة',
       title: 'حاسبة القيمة الدائمة للعميل (LTV) 🎯',
-      desc: 'احسب القيمة الإجمالية للعميل على مدار طوال فترة تعامله مع متجرك بعُمان لضبط استراتيجيات الإعلانات',
+      desc: 'احسب القيمة الإجمالية للعميل على مدار طوال فترة تعامله مع متجرك بمملكة البحرين لضبط استراتيجيات الإعلانات',
       editRecord: 'تعديل السجل',
       newRecord: 'حساب قيمة LTV جديدة',
       clear: '🧹 مسح الحقول',
@@ -86,8 +86,8 @@ export default function LtvCalculatorOM() {
       annualSpend: 'معدل الإنفاق السنوي للعميل',
       retentionEfficiency: 'كفاءة الاحتفاظ بالعملاء',
       retentionGood: 'ممتازة 🟢',
-      currency: 'ر.ع',
-      currencyPerYear: 'ر.ع/سنة',
+      currency: 'د.ب',
+      currencyPerYear: 'د.ب/سنة',
       searchPH: '🔍 بحث باسم الشريحة...',
       exportBtn: '📥 تصدير Excel',
       importBtn: '📂 استيراد',
@@ -126,7 +126,7 @@ export default function LtvCalculatorOM() {
     en: {
       back: '→ Back to Hub',
       title: 'Customer Lifetime Value (LTV) Calculator 🎯',
-      desc: 'Calculate total revenue expected from a customer over their relationship with your Oman store',
+      desc: 'Calculate total revenue expected from a customer over their relationship with your Bahrain store',
       editRecord: 'Edit Record',
       newRecord: 'Calculate New LTV',
       clear: '🧹 Clear Fields',
@@ -147,8 +147,8 @@ export default function LtvCalculatorOM() {
       annualSpend: 'Annual Spending Rate per Customer',
       retentionEfficiency: 'Customer Retention Efficiency',
       retentionGood: 'Excellent 🟢',
-      currency: 'OMR',
-      currencyPerYear: 'OMR/yr',
+      currency: 'BHD',
+      currencyPerYear: 'BHD/yr',
       searchPH: '🔍 Search by segment name...',
       exportBtn: '📥 Export Excel',
       importBtn: '📂 Import',
@@ -209,7 +209,7 @@ export default function LtvCalculatorOM() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const localeStr = lang === 'ar' ? 'ar-OM' : 'en-OM';
+    const localeStr = lang === 'ar' ? 'ar-BH' : 'en-BH';
     const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
 
     if (editingId) {
@@ -346,7 +346,7 @@ export default function LtvCalculatorOM() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", `enjazya_om_ltv_calculator_${dateFilter}.xls`);
+    link.setAttribute("download", `enjazya_bh_ltv_calculator_${dateFilter}.xls`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -405,14 +405,14 @@ export default function LtvCalculatorOM() {
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
         .input-wrapper input { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .input-wrapper input.with-currency { padding-${lang === 'ar' ? 'left' : 'right'}: 45px; }
-        .input-wrapper input:focus { border-color: #C62828; background: #ffffff; }
+        .input-wrapper input:focus { border-color: #CE1126; background: #ffffff; }
         .currency-tag { position: absolute; ${lang === 'ar' ? 'left: 14px;' : 'right: 14px;'} color: #64748b; font-weight: 800; font-size: 13px; pointer-events: none; }
         
-        .action-btn { background: #C62828; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
-        .action-btn:hover { background: #B71C1C; }
+        .action-btn { background: #CE1126; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
+        .action-btn:hover { background: #A60E1E; }
 
         .result-box { background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .result-box.primary { background: linear-gradient(135deg, #C62828 0%, #B71C1C 100%); color: #fff; border: none; padding: 20px; }
+        .result-box.primary { background: linear-gradient(135deg, #CE1126 0%, #A60E1E 100%); color: #fff; border: none; padding: 20px; }
         .result-label { font-size: 13px; font-weight: 700; color: #64748b; }
         .primary .result-label { color: #ffffff; opacity: 0.9; }
         .result-value { font-size: 18px; font-weight: 900; color: #0f172a; direction: ltr; }
@@ -422,14 +422,14 @@ export default function LtvCalculatorOM() {
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
         
         .search-input { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; flex-grow: 1; max-width: 350px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .search-input:focus { border-color: #C62828; }
+        .search-input:focus { border-color: #CE1126; }
         
         .filter-select { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; background: #fff; color: #334155; cursor: pointer; min-width: 130px; }
-        .filter-select:focus { border-color: #C62828; }
+        .filter-select:focus { border-color: #CE1126; }
 
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
         .t-btn { padding: 9px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 6px; }
-        .t-btn:hover { background: #f1f5f9; border-color: #C62828; color: #C62828; }
+        .t-btn:hover { background: #f1f5f9; border-color: #CE1126; color: #CE1126; }
 
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 900px; }
@@ -449,7 +449,7 @@ export default function LtvCalculatorOM() {
           <h1>{text.title}</h1>
           <p>{text.desc}</p>
         </div>
-        <Link href="/hub/om" className="back-btn">
+        <Link href="/hub/bh" className="back-btn">
           {text.back}
         </Link>
       </div>
@@ -518,7 +518,7 @@ export default function LtvCalculatorOM() {
 
           <div className="result-box">
             <span className="result-label">{text.annualSpend}</span>
-            <span className="result-value" style={{ color: '#C62828' }}>{(orderVal * freq).toFixed(2)} {text.currencyPerYear}</span>
+            <span className="result-value" style={{ color: '#CE1126' }}>{(orderVal * freq).toFixed(2)} {text.currencyPerYear}</span>
           </div>
 
           <div className="result-box" style={{ background: '#f8fafc' }}>
@@ -547,7 +547,7 @@ export default function LtvCalculatorOM() {
             <option value="day">{text.filters.day}</option>
             <option value="week">{text.filters.week}</option>
             <option value="month">{text.filters.month}</option>
-            <option value="6months">{text.filters.sixMonths}</option>
+            <option value="sixMonths">{text.filters.sixMonths}</option>
             <option value="year">{text.filters.year}</option>
           </select>
 
@@ -593,7 +593,7 @@ export default function LtvCalculatorOM() {
                     <td>{item.avgOrderValue} {text.currency}</td>
                     <td>{item.purchaseFrequency} {text.table.timesCount}</td>
                     <td>{item.customerLifespan} {text.table.yearsCount}</td>
-                    <td style={{ fontWeight: 900, color: '#C62828' }}>{item.ltvValue} {text.currency}</td>
+                    <td style={{ fontWeight: 900, color: '#CE1126' }}>{item.ltvValue} {text.currency}</td>
                     <td>
                       <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                         <button className="tb-action-btn btn-edit" onClick={() => handleEdit(item)} title="✏️">✏️</button>
@@ -608,7 +608,7 @@ export default function LtvCalculatorOM() {
               <tfoot>
                 <tr className="tfoot-row">
                   <td colSpan={5} style={{ textAlign: 'center' }}>{text.table.totalLabel}</td>
-                  <td colSpan={2} style={{ color: '#C62828' }}>{avgLtv.toFixed(2)} {text.currency}</td>
+                  <td colSpan={2} style={{ color: '#CE1126' }}>{avgLtv.toFixed(2)} {text.currency}</td>
                 </tr>
               </tfoot>
             )}
