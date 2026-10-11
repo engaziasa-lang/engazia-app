@@ -164,126 +164,117 @@ export default function EnjazyaUaeHub() {
         
         .hub-container { background-color: #f8fafc; min-height: 100vh; font-family: ${lang === 'ar' ? "'Tajawal', sans-serif" : "'Inter', sans-serif"}; padding: 30px 20px 40px; }
         
-        .navbar { max-width: 1250px; margin: 0 auto 20px; padding: 14px 24px; background: #ffffff; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 15px; border-top: 5px solid #ce1126; position: relative; }
+        .navbar { max-width: 1250px; margin: 0 auto 20px; padding: 14px 24px; background: #ffffff; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 15px; border-top: 5px solid #0f172a; }
         .brand { font-size: 26px; font-weight: 900; color: #0f172a; white-space: nowrap; display: flex; align-items: center; gap: 12px; letter-spacing: -0.5px; }
-        .ae-badge { background: #fef2f2; color: #ce1126; font-size: 12px; font-weight: 800; padding: 5px 10px; border-radius: 6px; letter-spacing: normal; display: inline-flex; align-items: center; border: 1px solid #fecaca; }
+        .ae-badge { background: #f1f5f9; color: #0f172a; font-size: 12px; font-weight: 800; padding: 5px 10px; border-radius: 6px; letter-spacing: normal; display: inline-flex; align-items: center; gap: 6px; border: 1px solid #cbd5e1; }
+        .ae-flag { width: 22px; height: 14px; object-fit: cover; border-radius: 2px; display: inline-block; }
         
-        .nav-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; flex-direction: ${lang === 'ar' ? 'row-reverse' : 'row'}; }
+        .nav-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
         
         .lang-toggle-btn {
           background: #f8fafc;
           border: 2px solid #e2e8f0;
           color: #0f172a;
           font-weight: 800;
-          font-size: 14px;
-          padding: 8px 16px;
+          font-size: 13px;
+          padding: 7px 12px;
           border-radius: 8px;
           cursor: pointer;
           transition: all 0.3s ease;
           display: flex;
           align-items: center;
           gap: 6px;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.02);
         }
-        .lang-toggle-btn:hover {
-          background: #f1f5f9;
-          border-color: #cbd5e1;
-        }
+        .lang-toggle-btn:hover { background: #f1f5f9; border-color: #cbd5e1; }
 
         .action-btn-primary { 
-          background: linear-gradient(135deg, #ce1126 0%, #991b1b 100%); 
+          background: linear-gradient(135deg, #0f172a 0%, #000000 100%); 
           color: #ffffff !important; 
-          border: 1px solid #fecaca; 
-          padding: 10px 24px; 
-          border-radius: 10px; 
-          font-weight: 900; 
-          font-size: 15px; 
+          border: 1px solid #334155; 
+          padding: 8px 16px; 
+          border-radius: 8px; 
+          font-weight: 800; 
+          font-size: 13px; 
           cursor: pointer; 
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+          transition: all 0.3s ease; 
           display: inline-flex; 
           align-items: center; 
-          gap: 8px; 
+          gap: 6px; 
           text-decoration: none; 
-          box-shadow: 0 4px 15px rgba(206, 17, 38, 0.4); 
+          box-shadow: 0 4px 12px rgba(15, 23, 42, 0.3); 
           white-space: nowrap; 
-          animation: pulse-red 2s infinite; 
         }
-        .action-btn-primary:hover { 
-          background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); 
-          transform: translateY(-3px) scale(1.02); 
-          box-shadow: 0 8px 25px rgba(206, 17, 38, 0.5); 
-        }
-        @keyframes pulse-red {
-          0% { box-shadow: 0 0 0 0 rgba(206, 17, 38, 0.7); }
-          70% { box-shadow: 0 0 0 12px rgba(206, 17, 38, 0); }
-          100% { box-shadow: 0 0 0 0 rgba(206, 17, 38, 0); }
-        }
+        .action-btn-primary:hover { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); transform: translateY(-2px); }
 
-        .backup-action-btn { background: #0f172a; color: #fff; border: none; padding: 9px 14px; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+        .backup-action-btn { background: #0f172a; color: #fff; border: none; padding: 8px 12px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
         .backup-action-btn:hover { background: #1e293b; }
-        .restore-action-btn { background: #f8fafc; color: #334155; border: 1px solid #cbd5e1; padding: 9px 14px; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+        .restore-action-btn { background: #f8fafc; color: #334155; border: 1px solid #cbd5e1; padding: 8px 12px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
         .restore-action-btn:hover { background: #e2e8f0; }
         
-        .license-box { display: flex; align-items: center; gap: 8px; background: #ffffff; padding: 6px 12px; border-radius: 8px; border: 1px solid #cbd5e1; flex-direction: ${lang === 'ar' ? 'row' : 'row'}; }
-        .license-input { border: 1px solid #cbd5e1; border-radius: 6px; padding: 7px 10px; font-size: 12px; outline: none; width: 140px; background: #fff; color: #0f172a; transition: all 0.2s; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .license-input:focus { border-color: #ce1126; box-shadow: 0 0 0 2px rgba(206, 17, 38, 0.15); }
+        .license-box { display: flex; align-items: center; gap: 6px; background: #ffffff; padding: 5px 10px; border-radius: 8px; border: 1px solid #cbd5e1; }
+        .license-input { border: 1px solid #cbd5e1; border-radius: 6px; padding: 6px 8px; font-size: 12px; outline: none; width: 110px; background: #fff; color: #0f172a; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .license-input:focus { border-color: #0f172a; }
         
-        .backup-warning-bar { max-width: 1250px; margin: 0 auto 25px; background: #fffbeb; border: 1px solid #fde68a; color: #92400e; padding: 10px 18px; border-radius: 10px; font-size: 13px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; border-${lang === 'ar' ? 'right' : 'left'}: 4px solid #ce1126; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .backup-warning-bar { max-width: 1250px; margin: 0 auto 25px; background: #f8fafc; border: 1px solid #cbd5e1; color: #334155; padding: 10px 18px; border-radius: 10px; font-size: 13px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; border-${lang === 'ar' ? 'right' : 'left'}: 4px solid #0f172a; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         
-        .promo-banner { max-width: 1250px; margin: 0 auto 35px; background: #ffffff; border-radius: 16px; padding: 24px 32px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; box-shadow: 0 15px 35px -5px rgba(206, 17, 38, 0.12); border: 2px solid #fecaca; flex-direction: ${lang === 'ar' ? 'row' : 'row'}; }
+        .promo-banner { max-width: 1250px; margin: 0 auto 35px; background: #ffffff; border-radius: 16px; padding: 24px 32px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; box-shadow: 0 15px 35px -5px rgba(15, 23, 42, 0.08); border: 2px solid #cbd5e1; }
         .promo-content { flex: 1 1 min-content; display: flex; flex-direction: column; gap: 8px; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .promo-heading { font-size: 20px; font-weight: 900; margin: 0 0 4px 0; display: flex; align-items: center; gap: 8px; color: #0f172a; }
+        .promo-heading { font-size: 20px; font-weight: 900; margin: 0 0 4px 0; color: #0f172a; }
         .promo-text { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
         .price-tag-old { text-decoration: line-through; color: #64748b; font-size: 15px; font-weight: 500; }
-        .price-tag-new { background-color: #fef2f2; color: #ce1126; padding: 6px 12px; border-radius: 8px; font-weight: 900; font-size: 16px; border: 1px solid #fecaca; }
-        .discount-badge { background-color: #ce1126; color: #ffffff; padding: 4px 10px; border-radius: 6px; font-size: 13px; font-weight: bold; }
-        .promo-btn { background-color: #ce1126; color: #ffffff; border: none; padding: 14px 28px; border-radius: 10px; font-size: 16px; font-weight: 900; cursor: pointer; box-shadow: 0 8px 20px rgba(206, 17, 38, 0.3); transition: all 0.3s ease; display: flex; align-items: center; gap: 10px; white-space: nowrap; }
-        .promo-btn:hover { background-color: #a80d1e; transform: translateY(-2px); box-shadow: 0 12px 25px rgba(206, 17, 38, 0.4); }
+        .price-tag-new { background-color: #f1f5f9; color: #0f172a; padding: 6px 12px; border-radius: 8px; font-weight: 900; font-size: 16px; border: 1px solid #cbd5e1; }
+        .discount-badge { background-color: #0f172a; color: #ffffff; padding: 4px 10px; border-radius: 6px; font-size: 13px; font-weight: bold; }
+        .promo-btn { background-color: #0f172a; color: #ffffff; border: none; padding: 12px 24px; border-radius: 10px; font-size: 15px; font-weight: 900; cursor: pointer; box-shadow: 0 8px 20px rgba(15, 23, 42, 0.2); transition: all 0.3s ease; white-space: nowrap; }
+        .promo-btn:hover { background-color: #000000; transform: translateY(-2px); }
         
         .hero { text-align: center; max-width: 800px; margin: 0 auto 50px; }
         .hero h1 { font-size: 36px; font-weight: 900; color: #0f172a; margin-bottom: 15px; letter-spacing: -0.5px; }
-        .hero h1 span { color: #ce1126; }
+        .hero h1 span { color: #0f172a; border-bottom: 3px solid #0f172a; }
         .hero p { color: #475569; font-size: 16px; line-height: 1.7; font-weight: 500; }
         
         .cards-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; max-width: 1250px; margin: 0 auto 60px; }
         .card { background: #ffffff; border-radius: 12px; padding: 24px; border: 2px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.3s ease; display: flex; flex-direction: column; justify-content: space-between; text-align: ${lang === 'ar' ? 'start' : 'left'}; }
-        .card:hover { transform: translateY(-5px); border-color: #ce1126; box-shadow: 0 15px 30px -5px rgba(206, 17, 38, 0.12); }
+        .card:hover { transform: translateY(-5px); border-color: #0f172a; box-shadow: 0 15px 30px -5px rgba(15, 23, 42, 0.12); }
         
         .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
         .card-icon { font-size: 28px; background: #f8fafc; width: 55px; height: 55px; display: flex; align-items: center; justify-content: center; border-radius: 10px; border: 1px solid #e2e8f0; transition: all 0.3s ease; }
-        .card:hover .card-icon { background: #fef2f2; border-color: #fecaca; }
+        .card:hover .card-icon { background: #f1f5f9; border-color: #cbd5e1; }
         
         .card-badge { background: #f1f5f9; color: #475569; font-size: 14px; font-weight: 900; padding: 6px 14px; border-radius: 8px; transition: all 0.3s ease; }
-        .card:hover .card-badge { color: #ce1126; background: #fef2f2; }
+        .card:hover .card-badge { color: #0f172a; background: #e2e8f0; }
         
         .card h3 { font-size: 18px; font-weight: 900; color: #0f172a; margin-bottom: 10px; line-height: 1.4; transition: color 0.3s ease; }
-        .card:hover h3 { color: #ce1126; }
+        .card:hover h3 { color: #0f172a; }
         .card p { color: #64748b; font-size: 13.5px; line-height: 1.6; font-weight: 500; margin-bottom: 24px; min-height: 50px; }
         
-        .card-btn { background: #fef2f2; color: #ce1126; border: 1px solid #fecaca; text-align: center; padding: 14px; border-radius: 8px; font-weight: 800; font-size: 14px; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 8px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
-        .card:hover .card-btn { background: #ce1126; color: #ffffff; border-color: #ce1126; box-shadow: 0 4px 12px rgba(206, 17, 38, 0.25); }
+        .card-btn { background: #f1f5f9; color: #0f172a; border: 1px solid #cbd5e1; text-align: center; padding: 14px; border-radius: 8px; font-weight: 800; font-size: 14px; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 8px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
+        .card:hover .card-btn { background: #0f172a; color: #ffffff; border-color: #0f172a; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.25); }
 
         .footer { max-width: 1250px; margin: 0 auto; background: #000000; border-radius: 16px; padding: 40px; color: #f8fafc; border: 2px solid #1e293b; text-align: ${lang === 'ar' ? 'start' : 'left'}; }
-        .footer-content { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 30px; margin-bottom: 30px; border-bottom: 1px solid #222222; padding-bottom: 30px; flex-direction: ${lang === 'ar' ? 'row' : 'row'}; }
+        .footer-content { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 30px; margin-bottom: 30px; border-bottom: 1px solid #222222; padding-bottom: 30px; }
         .footer-brand { max-width: 400px; }
         .footer-brand h3 { font-size: 24px; font-weight: 900; margin-bottom: 15px; color: #ffffff; letter-spacing: -0.5px; }
-        .footer-brand h3 span { color: #ce1126; letter-spacing: normal; }
+        .footer-brand h3 span { color: #94a3b8; letter-spacing: normal; }
         .footer-brand p { color: #94a3b8; font-size: 14px; line-height: 1.8; font-weight: 500; }
         .footer-links { display: flex; gap: 60px; }
-        .links-column h4 { color: #ffffff; font-size: 16px; font-weight: 800; margin-bottom: 20px; border-${lang === 'ar' ? 'right' : 'left'}: 3px solid #ce1126; padding-${lang === 'ar' ? 'right' : 'left'}: 8px; }
+        .links-column h4 { color: #ffffff; font-size: 16px; font-weight: 800; margin-bottom: 20px; border-${lang === 'ar' ? 'right' : 'left'}: 3px solid #cbd5e1; padding-${lang === 'ar' ? 'right' : 'left'}: 8px; }
         .links-column ul { list-style: none; padding: 0; margin: 0; }
         .links-column ul li { margin-bottom: 12px; }
         .links-column ul li a { color: #94a3b8 !important; font-size: 14px; font-weight: 500; transition: color 0.2s; }
-        .links-column ul li a:hover { color: #ce1126 !important; }
+        .links-column ul li a:hover { color: #ffffff !important; }
         .footer-bottom { text-align: center; color: #64748b; font-size: 14px; font-weight: 500; }
 
         @media(max-width: 1024px) { .cards-grid { grid-template-columns: repeat(2, 1fr); } .footer-content { flex-direction: column; } }
-        @media(max-width: 640px) { .cards-grid { grid-template-columns: 1fr; } .hero h1 { font-size: 28px; } .footer-links { flex-direction: column; gap: 30px; } .nav-controls { flex-direction: row; } }
+        @media(max-width: 768px) { .cards-grid { grid-template-columns: 1fr; } .hero h1 { font-size: 28px; } .footer-links { flex-direction: column; gap: 30px; } .navbar { padding: 12px 15px; } .nav-controls { width: 100%; justify-content: flex-start; } }
       `}</style>
       
       <div className="navbar">
         <div className="brand">
-          {lang === 'ar' ? 'إنجازيا' : 'Enjazya'} <span className="ae-badge">{lang === 'ar' ? 'السوق الإماراتي AE 🇦🇪' : 'UAE Market 🇦🇪'}</span>
+          {lang === 'ar' ? 'إنجازيا' : 'Enjazya'} 
+          <span className="ae-badge">
+            <img src="https://flagcdn.com/w160/ae.png" alt="UAE Flag" className="ae-flag" />
+            {lang === 'ar' ? 'السوق الإماراتي AE' : 'UAE Market AE'}
+          </span>
         </div>
 
         <div className="nav-controls">
@@ -313,18 +304,18 @@ export default function EnjazyaUaeHub() {
           />
 
           <div className="license-box">
-            <span style={{ fontSize: '13px', fontWeight: 800, color: '#475569' }}>🔑 PRO:</span>
+            <span style={{ fontSize: '12px', fontWeight: 800, color: '#475569' }}>🔑 PRO:</span>
             {isActivated ? (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '13px', fontWeight: 900, color: '#16a34a', padding: '4px 8px' }}>
-                  {lang === 'ar' ? 'المنصة مفعلة ✓' : 'Activated ✓'}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span style={{ fontSize: '12px', fontWeight: 900, color: '#16a34a' }}>
+                  {lang === 'ar' ? 'مفعل ✓' : 'Active ✓'}
                 </span>
                 <button 
                   onClick={handleDeactivate}
-                  style={{ background: '#fee2e2', color: '#991b1b', border: '1px solid #fca5a5', padding: '4px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}
+                  style={{ background: '#fee2e2', color: '#991b1b', border: '1px solid #fca5a5', padding: '3px 6px', borderRadius: '4px', fontSize: '10px', fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}
                   title={lang === 'ar' ? 'إلغاء التفعيل للعودة للوضع التجريبي' : 'Deactivate account'}
                 >
-                  {lang === 'ar' ? 'إلغاء التفعيل ❌' : 'Deactivate ❌'}
+                  {lang === 'ar' ? 'إلغاء ❌' : 'Off ❌'}
                 </button>
               </div>
             ) : (
@@ -332,16 +323,16 @@ export default function EnjazyaUaeHub() {
                 <input 
                   type="text" 
                   className="license-input"
-                  placeholder={lang === 'ar' ? 'مفتاح الاشتراك الرسمي...' : 'License Key...'} 
+                  placeholder={lang === 'ar' ? 'مفتاح الترخيص...' : 'License...'} 
                   value={licenseKeyInput} 
                   onChange={(e) => setLicenseKeyInput(e.target.value)}
                 />
                 <button 
                   onClick={handleActivateLicense}
                   disabled={isLoading}
-                  style={{ background: '#0f172a', color: '#fff', border: 'none', padding: '7px 14px', borderRadius: '6px', fontSize: '12px', fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit', opacity: isLoading ? 0.7 : 1 }}
+                  style={{ background: '#0f172a', color: '#fff', border: 'none', padding: '6px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit', opacity: isLoading ? 0.7 : 1 }}
                 >
-                  {isLoading ? '...' : (lang === 'ar' ? 'تفعيل' : 'Activate')}
+                  {isLoading ? '...' : (lang === 'ar' ? 'تفعيل' : 'OK')}
                 </button>
               </>
             )}
