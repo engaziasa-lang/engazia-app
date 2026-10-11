@@ -11,9 +11,10 @@ interface CodItem {
   codFeePerOrder: number;
   returnRatePercent: number;
   totalCodFees: number;
-  totalReturnLoss: number;
-  grandTotalCost: number;
+  totalReturnLoss: number;        
+  grandTotalCost: number;     
   createdAt?: string;
+  createdAtTimestamp?: number; // للفرز الزمني
 }
 
 export default function CodAnalyzerAE() {
@@ -27,12 +28,12 @@ export default function CodAnalyzerAE() {
 
   const [items, setItems] = useState<CodItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [timeFilter, setTimeFilter] = useState<'all' | 'day' | 'week' | 'month' | '6months' | 'year'>('all');
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    // قراءة اللغة من الصفحة الرئيسية
     const savedLang = localStorage.getItem('seerk_global_lang') as 'ar' | 'en';
     if (savedLang) {
       setLang(savedLang);
@@ -56,14 +57,12 @@ export default function CodAnalyzerAE() {
   const fee = typeof codFeePerOrder === 'number' ? codFeePerOrder : 0;
   const retRate = typeof returnRatePercent === 'number' ? returnRatePercent : 0;
 
-  // الحسابات
   const totalCodFees = orders * fee;
   const rejectedOrdersCount = orders * (retRate / 100);
-  const shippingAndHandlingLossPerReject = 25; // تكلفة الشحن العكسي التقريبية
+  const shippingAndHandlingLossPerReject = 25; 
   const totalReturnLoss = rejectedOrdersCount * shippingAndHandlingLossPerReject;
   const grandTotalCost = totalCodFees + totalReturnLoss;
 
-  // قاموس الترجمة الفوري
   const t = {
     ar: {
       back: '← عودة للمنصة',
@@ -95,8 +94,16 @@ export default function CodAnalyzerAE() {
       searchPH: '🔍 بحث بشركة الشحن...',
       exportBtn: '📥 تصدير Excel',
       importBtn: '📂 استيراد',
+      filter: {
+        all: 'الكل',
+        day: 'يوم',
+        week: 'أسبوع',
+        month: 'شهر',
+        sixMonths: '6 أشهر',
+        year: 'سنة'
+      },
       table: {
-        noRecords: 'لا توجد سجلات تكاليف COD مسجلة حالياً.',
+        noRecords: 'لا توجد سجلات تكاليف COD تطابق بحثك حالياً.',
         th1: '#',
         th2: 'شركة الشحن والتاريخ',
         th3: 'طلبات COD',
@@ -149,8 +156,16 @@ export default function CodAnalyzerAE() {
       searchPH: '🔍 Search by shipping company...',
       exportBtn: '📥 Export Excel',
       importBtn: '📂 Import',
+      filter: {
+        all: 'All',
+        day: '1 Day',
+        week: '1 Week',
+        month: '1 Month',
+        sixMonths: '6 Months',
+        year: '1 Year'
+      },
       table: {
-        noRecords: 'No COD cost records currently saved.',
+        noRecords: 'No COD cost records found matching your search.',
         th1: '#',
         th2: 'Shipping Company & Date',
         th3: 'COD Orders',
@@ -213,6 +228,7 @@ export default function CodAnalyzerAE() {
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
     const localeStr = lang === 'ar' ? 'ar-AE' : 'en-AE';
     const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
+    const currentTimestamp = Date.now();
 
     if (editingId) {
       const updated = items.map(item => item.id === editingId ? {
@@ -225,7 +241,8 @@ export default function CodAnalyzerAE() {
         totalCodFees: Number(totalCodFees.toFixed(2)),
         totalReturnLoss: Number(totalReturnLoss.toFixed(2)),
         grandTotalCost: Number(grandTotalCost.toFixed(2)),
-        createdAt: item.createdAt || formattedDate
+        createdAt: item.createdAt || formattedDate,
+        createdAtTimestamp: item.createdAtTimestamp || currentTimestamp
       } : item);
       saveToLocalStorage(updated);
       setEditingId(null);
@@ -241,7 +258,8 @@ export default function CodAnalyzerAE() {
         totalCodFees: Number(totalCodFees.toFixed(2)),
         totalReturnLoss: Number(totalReturnLoss.toFixed(2)),
         grandTotalCost: Number(grandTotalCost.toFixed(2)),
-        createdAt: formattedDate
+        createdAt: formattedDate,
+        createdAtTimestamp: currentTimestamp
       };
       saveToLocalStorage([...items, newItem]);
       alert(text.alerts.saveSuccess);
@@ -274,13 +292,34 @@ export default function CodAnalyzerAE() {
     }
   };
 
-  const totalOrdersSum = items.reduce((acc, curr) => acc + curr.totalCodOrders, 0);
-  const totalCodFeesSum = items.reduce((acc, curr) => acc + curr.totalCodFees, 0);
-  const totalReturnLossSum = items.reduce((acc, curr) => acc + curr.totalReturnLoss, 0);
-  const grandTotalCostSum = items.reduce((acc, curr) => acc + curr.grandTotalCost, 0);
+  // الفرز الزمني والبحث
+  const filteredItems = items.filter(item => {
+    const matchesSearch = item.shippingCompany.toLowerCase().includes(searchQuery.toLowerCase());
+    if (!matchesSearch) return false;
+
+    if (timeFilter === 'all') return true;
+    if (!item.createdAtTimestamp) return true;
+
+    const now = Date.now();
+    const diff = now - item.createdAtTimestamp;
+    const dayMs = 24 * 60 * 60 * 1000;
+
+    if (timeFilter === 'day') return diff <= dayMs;
+    if (timeFilter === 'week') return diff <= 7 * dayMs;
+    if (timeFilter === 'month') return diff <= 30 * dayMs;
+    if (timeFilter === '6months') return diff <= 180 * dayMs;
+    if (timeFilter === 'year') return diff <= 365 * dayMs;
+
+    return true;
+  });
+
+  const totalOrdersSum = filteredItems.reduce((acc, curr) => acc + curr.totalCodOrders, 0);
+  const totalCodFeesSum = filteredItems.reduce((acc, curr) => acc + curr.totalCodFees, 0);
+  const totalReturnLossSum = filteredItems.reduce((acc, curr) => acc + curr.totalReturnLoss, 0);
+  const grandTotalCostSum = filteredItems.reduce((acc, curr) => acc + curr.grandTotalCost, 0);
 
   const handleExportExcel = () => {
-    if (items.length === 0) {
+    if (filteredItems.length === 0) {
       alert(text.alerts.noDataExp);
       return;
     }
@@ -313,7 +352,7 @@ export default function CodAnalyzerAE() {
             <tbody>
     `;
 
-    items.forEach((row, idx) => {
+    filteredItems.forEach((row, idx) => {
       tableHtml += `
         <tr>
           <td>${idx + 1}</td>
@@ -373,10 +412,6 @@ export default function CodAnalyzerAE() {
     }
   };
 
-  const filteredItems = items.filter(item => 
-    item.shippingCompany.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
   return (
     <div className="tool-container" style={{ direction: lang === 'ar' ? 'rtl' : 'ltr' }}>
       <style jsx global>{`
@@ -425,8 +460,16 @@ export default function CodAnalyzerAE() {
         .danger .result-value { font-size: 26px; color: #ffffff; direction: ${lang === 'ar' ? 'rtl' : 'ltr'}; }
 
         .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        
+        /* أدوات الفرز والبحث */
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
-        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 250px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        
+        .filter-row { display: flex; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 4px; gap: 4px; overflow-x: auto; flex: 1; justify-content: center; min-width: 300px;}
+        .filter-btn { background: transparent; border: none; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 700; color: #64748b; cursor: pointer; transition: 0.2s; font-family: inherit; white-space: nowrap; }
+        .filter-btn:hover { color: #0f172a; background: #e2e8f0; }
+        .filter-btn.active { background: #ffffff; color: #0f172a; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
         .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; }
         .t-btn:hover { background: #f1f5f9; }
@@ -566,6 +609,16 @@ export default function CodAnalyzerAE() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
+
+          <div className="filter-row">
+            <button className={`filter-btn ${timeFilter === 'all' ? 'active' : ''}`} onClick={() => setTimeFilter('all')}>{text.filter.all}</button>
+            <button className={`filter-btn ${timeFilter === 'day' ? 'active' : ''}`} onClick={() => setTimeFilter('day')}>{text.filter.day}</button>
+            <button className={`filter-btn ${timeFilter === 'week' ? 'active' : ''}`} onClick={() => setTimeFilter('week')}>{text.filter.week}</button>
+            <button className={`filter-btn ${timeFilter === 'month' ? 'active' : ''}`} onClick={() => setTimeFilter('month')}>{text.filter.month}</button>
+            <button className={`filter-btn ${timeFilter === '6months' ? 'active' : ''}`} onClick={() => setTimeFilter('6months')}>{text.filter.sixMonths}</button>
+            <button className={`filter-btn ${timeFilter === 'year' ? 'active' : ''}`} onClick={() => setTimeFilter('year')}>{text.filter.year}</button>
+          </div>
+
           <div className="table-btns">
             <button className="t-btn" onClick={handleExportExcel}>{text.exportBtn}</button>
             <button className="t-btn" onClick={() => fileInputRef.current?.click()}>{text.importBtn}</button>
