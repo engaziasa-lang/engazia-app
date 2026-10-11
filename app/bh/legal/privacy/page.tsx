@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 
-export default function PrivacyPageOM() {
+export default function PrivacyPageBH() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
 
   useEffect(() => {
@@ -12,7 +12,7 @@ export default function PrivacyPageOM() {
       if (savedLang) {
         setLang(savedLang);
       }
-      document.title = savedLang === 'en' ? 'Enjazya | Privacy Policy (Oman)' : 'إنجازيا | سياسة الخصوصية (عُمان)';
+      document.title = savedLang === 'en' ? 'Enjazya | Privacy Policy (Bahrain)' : 'إنجازيا | سياسة الخصوصية (البحرين)';
     }
   }, []);
 
@@ -20,7 +20,7 @@ export default function PrivacyPageOM() {
     ar: {
       title: 'سياسة الخصوصية 🔒',
       back: '← عودة للمنصة',
-      intro: 'نحن في منصة إنجازيا نولي اهتماماً بالغاً بخصوصية بياناتك التجارية والشخصية وفقاً للقوانين المعمول بها في سلطنة عُمان.',
+      intro: 'نحن في منصة إنجازيا نولي اهتماماً بالغاً بخصوصية بياناتك التجارية والشخصية وفقاً للقوانين المعمول بها في مملكة البحرين.',
       sec1Title: '1. سرية البيانات',
       sec1Desc: 'تعتمد أدواتنا على التخزين المحلي (Local Storage)، مما يعني أن بيانات مبيعاتك، حساباتك، وعملاء متجرك تبقى مخزنة في متصفحك الخاص ولا يتم رفعها لخوادم خارجية.',
       sec2Title: '2. المعلومات التي نجمعها',
@@ -29,7 +29,7 @@ export default function PrivacyPageOM() {
     en: {
       title: 'Privacy Policy 🔒',
       back: '→ Back to Hub',
-      intro: 'At Enjazya, we place great importance on the privacy of your business and personal data in accordance with the laws applicable in the Sultanate of Oman.',
+      intro: 'At Enjazya, we place great importance on the privacy of your business and personal data in accordance with the laws applicable in the Kingdom of Bahrain.',
       sec1Title: '1. Data Confidentiality',
       sec1Desc: 'Our tools rely on Local Storage, meaning your sales data, accounts, and store customers remain stored in your private browser and are never uploaded to external servers.',
       sec2Title: '2. Information We Collect',
@@ -46,7 +46,7 @@ export default function PrivacyPageOM() {
       <div style={{ maxWidth: '800px', margin: '0 auto', background: '#fff', padding: '40px', borderRadius: '16px', border: '1px solid #e2e8f0', textAlign: lang === 'ar' ? 'right' : 'left' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px', flexWrap: 'wrap', gap: '15px', flexDirection: lang === 'ar' ? 'row' : 'row-reverse' }}>
           <h1 style={{ fontSize: '28px', fontWeight: 900, color: '#0f172a', margin: 0 }}>{text.title}</h1>
-          <Link href="/hub/om" style={{ background: '#FFEBEE', color: '#C62828', border: '1px solid #FFCDD2', padding: '8px 16px', borderRadius: '8px', textDecoration: 'none', fontWeight: 700, fontSize: '13px' }}>
+          <Link href="/hub/bh" style={{ background: '#FDECEE', color: '#CE1126', border: '1px solid #F9C9CE', padding: '8px 16px', borderRadius: '8px', textDecoration: 'none', fontWeight: 700, fontSize: '13px' }}>
             {text.back}
           </Link>
         </div>
