@@ -18,7 +18,7 @@ interface DiscountItem {
   timestamp?: number;
 }
 
-export default function DiscountCalculatorOM() {
+export default function DiscountCalculatorBH() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
 
   const [offerName, setOfferName] = useState<string>('');
@@ -40,7 +40,7 @@ export default function DiscountCalculatorOM() {
 
   useEffect(() => {
     setIsClient(true);
-    setIsActivated(!!localStorage.getItem('merchant_license_key_om'));
+    setIsActivated(!!localStorage.getItem('merchant_license_key_bh'));
 
     const savedLang = localStorage.getItem('seerk_global_lang') as 'ar' | 'en';
     if (savedLang) {
@@ -57,7 +57,7 @@ export default function DiscountCalculatorOM() {
       setCustomOfferType('خصم نسبة مئوية (%) 📉');
     }
 
-    const saved = localStorage.getItem('seerk_om_discount_calculator_items');
+    const saved = localStorage.getItem('seerk_bh_discount_calculator_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
@@ -65,7 +65,7 @@ export default function DiscountCalculatorOM() {
 
   const saveToLocalStorage = (newItems: DiscountItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_om_discount_calculator_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_bh_discount_calculator_items', JSON.stringify(newItems));
   };
 
   const origPrice = typeof originalPrice === 'number' ? originalPrice : 0;
@@ -73,7 +73,7 @@ export default function DiscountCalculatorOM() {
   const disc = typeof discountValue === 'number' ? discountValue : 0;
 
   const isPercent = typeSelect.includes('%') || typeSelect.includes('نسبة') || typeSelect.includes('Percent');
-  const isFixed = typeSelect.includes('مبلغ ثابت') || typeSelect.includes('Fixed') || typeSelect.includes('OMR') || typeSelect.includes('ر.ع');
+  const isFixed = typeSelect.includes('مبلغ ثابت') || typeSelect.includes('Fixed') || typeSelect.includes('BHD') || typeSelect.includes('د.ب');
   const isBogo = typeSelect.includes('1+1');
 
   let finalSellingPrice = origPrice;
@@ -95,7 +95,7 @@ export default function DiscountCalculatorOM() {
     ar: {
       back: '← عودة للمنصة',
       title: 'حاسبة جدوى أكواد الخصم والعروض 🎟️',
-      desc: 'تأكد من أن عروضك الترويجية (مثل 1+1 أو الشحن المجاني) لا تسبب لك خسائر مالية مخفية في متجرك بعُمان',
+      desc: 'تأكد من أن عروضك الترويجية (مثل 1+1 أو الشحن المجاني) لا تسبب لك خسائر مالية مخفية في متجرك بمملكة البحرين',
       editRecord: 'تعديل السجل',
       newRecord: 'حساب جدوى عرض أو كود جديد',
       clear: '🧹 مسح الحقول',
@@ -104,7 +104,7 @@ export default function DiscountCalculatorOM() {
       offerNamePH: 'مثال: كود خصم (SAVE20)',
       offerType: 'نوع العرض أو الخصم',
       optPercent: 'خصم نسبة مئوية (%) 📉',
-      optFixed: 'خصم مبلغ ثابت (ر.ع) 💵',
+      optFixed: 'خصم مبلغ ثابت (د.ب) 💵',
       optBogo: 'عرض 1+1 مجاناً 🎁',
       optOther: '➕ نوع آخر (كتابة يدوية)',
       otherPH: 'اكتب نوع العرض هنا...',
@@ -124,7 +124,7 @@ export default function DiscountCalculatorOM() {
       statusLabel: 'حالة جدوى العرض',
       statusProfitable: 'العرض مربح ✅',
       statusLoss: 'العرض يسبب خسارة ⚠️',
-      currency: 'ر.ع',
+      currency: 'د.ب',
       searchPH: '🔍 بحث باسم العرض أو الكود...',
       exportBtn: '📥 تصدير Excel',
       importBtn: '📂 استيراد',
@@ -165,7 +165,7 @@ export default function DiscountCalculatorOM() {
     en: {
       back: '→ Back to Hub',
       title: 'Discount & Promo Code ROI Calculator 🎟️',
-      desc: 'Ensure your promotional offers (like 1+1 or free shipping) do not cause hidden financial losses in your Oman store',
+      desc: 'Ensure your promotional offers (like 1+1 or free shipping) do not cause hidden financial losses in your Bahrain store',
       editRecord: 'Edit Record',
       newRecord: 'Calculate New Offer or Code',
       clear: '🧹 Clear Fields',
@@ -174,7 +174,7 @@ export default function DiscountCalculatorOM() {
       offerNamePH: 'e.g. Discount Code (SAVE20)',
       offerType: 'Offer or Discount Type',
       optPercent: 'Percentage Discount (%) 📉',
-      optFixed: 'Fixed Amount Discount (OMR) 💵',
+      optFixed: 'Fixed Amount Discount (BHD) 💵',
       optBogo: 'Buy 1 Get 1 Free (1+1) 🎁',
       optOther: '➕ Other (Manual Entry)',
       otherPH: 'Type offer type here...',
@@ -194,7 +194,7 @@ export default function DiscountCalculatorOM() {
       statusLabel: 'Offer Feasibility Status',
       statusProfitable: 'Profitable Offer ✅',
       statusLoss: 'Offer Causes Loss ⚠️',
-      currency: 'OMR',
+      currency: 'BHD',
       searchPH: '🔍 Search by offer name or code...',
       exportBtn: '📥 Export Excel',
       importBtn: '📂 Import',
@@ -276,7 +276,7 @@ export default function DiscountCalculatorOM() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const localeStr = lang === 'ar' ? 'ar-OM' : 'en-OM';
+    const localeStr = lang === 'ar' ? 'ar-BH' : 'en-BH';
     const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
 
     if (editingId) {
@@ -323,7 +323,7 @@ export default function DiscountCalculatorOM() {
     setOfferName(item.offerName);
     
     const itemIsPercent = item.offerType.includes('%') || item.offerType.includes('نسبة');
-    const itemIsFixed = item.offerType.includes('ثابت') || item.offerType.includes('Fixed') || item.offerType.includes('OMR') || item.offerType.includes('ر.ع');
+    const itemIsFixed = item.offerType.includes('ثابت') || item.offerType.includes('Fixed') || item.offerType.includes('BHD') || item.offerType.includes('د.ب');
     const itemIsBogo = item.offerType.includes('1+1');
 
     let matchedType = '';
@@ -441,7 +441,7 @@ export default function DiscountCalculatorOM() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", `enjazya_om_discount_feasibility_${dateFilter}.xls`);
+    link.setAttribute("download", `enjazya_bh_discount_feasibility_${dateFilter}.xls`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -500,14 +500,14 @@ export default function DiscountCalculatorOM() {
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
         .input-wrapper input, .input-wrapper select { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .input-wrapper input.with-currency { padding-${lang === 'ar' ? 'left' : 'right'}: 45px; }
-        .input-wrapper input:focus, .input-wrapper select:focus { border-color: #C62828; background: #ffffff; }
+        .input-wrapper input:focus, .input-wrapper select:focus { border-color: #CE1126; background: #ffffff; }
         .currency-tag { position: absolute; ${lang === 'ar' ? 'left: 14px;' : 'right: 14px;'} color: #64748b; font-weight: 800; font-size: 13px; pointer-events: none; }
         
-        .action-btn { background: #C62828; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
-        .action-btn:hover { background: #B71C1C; }
+        .action-btn { background: #CE1126; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
+        .action-btn:hover { background: #A60E1E; }
 
         .result-box { background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .result-box.primary { background: linear-gradient(135deg, #C62828 0%, #B71C1C 100%); color: #fff; border: none; padding: 20px; }
+        .result-box.primary { background: linear-gradient(135deg, #CE1126 0%, #A60E1E 100%); color: #fff; border: none; padding: 20px; }
         .result-label { font-size: 13px; font-weight: 700; color: #64748b; }
         .primary .result-label { color: #ffffff; opacity: 0.9; }
         .result-value { font-size: 18px; font-weight: 900; color: #0f172a; direction: ltr; }
@@ -517,14 +517,14 @@ export default function DiscountCalculatorOM() {
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
         
         .search-input { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; flex-grow: 1; max-width: 350px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .search-input:focus { border-color: #C62828; }
+        .search-input:focus { border-color: #CE1126; }
         
         .filter-select { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; background: #fff; color: #334155; cursor: pointer; min-width: 130px; }
-        .filter-select:focus { border-color: #C62828; }
+        .filter-select:focus { border-color: #CE1126; }
 
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
         .t-btn { padding: 9px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 6px; }
-        .t-btn:hover { background: #f1f5f9; border-color: #C62828; color: #C62828; }
+        .t-btn:hover { background: #f1f5f9; border-color: #CE1126; color: #CE1126; }
 
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 900px; }
@@ -544,7 +544,7 @@ export default function DiscountCalculatorOM() {
           <h1>{text.title}</h1>
           <p>{text.desc}</p>
         </div>
-        <Link href="/hub/om" className="back-btn">
+        <Link href="/hub/bh" className="back-btn">
           {text.back}
         </Link>
       </div>
@@ -639,7 +639,7 @@ export default function DiscountCalculatorOM() {
 
           <div className="result-box">
             <span className="result-label">{text.finalPriceLabel}</span>
-            <span className="result-value" style={{ color: '#C62828' }}>{finalSellingPrice.toFixed(2)} {text.currency}</span>
+            <span className="result-value" style={{ color: '#CE1126' }}>{finalSellingPrice.toFixed(2)} {text.currency}</span>
           </div>
 
           <div className="result-box" style={{ background: '#f8fafc' }}>
@@ -670,7 +670,7 @@ export default function DiscountCalculatorOM() {
             <option value="day">{text.filters.day}</option>
             <option value="week">{text.filters.week}</option>
             <option value="month">{text.filters.month}</option>
-            <option value="6months">{text.filters.sixMonths}</option>
+            <option value="sixMonths">{text.filters.sixMonths}</option>
             <option value="year">{text.filters.year}</option>
           </select>
 
@@ -714,7 +714,7 @@ export default function DiscountCalculatorOM() {
                       <div style={{ fontWeight: 900, color: '#0f172a' }}>{item.offerName}</div>
                       {item.createdAt && <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', fontWeight: 600 }}>🕒 {item.createdAt}</div>}
                     </td>
-                    <td><span style={{ fontWeight: 800, color: '#C62828' }}>{item.offerType}</span></td>
+                    <td><span style={{ fontWeight: 800, color: '#CE1126' }}>{item.offerType}</span></td>
                     <td>{item.originalPrice} {text.currency} <br/><span style={{ color: '#64748b', fontSize: '12px' }}>({text.table.costLabel}: {item.productCost})</span></td>
                     <td style={{ fontWeight: 800 }}>{item.finalSellingPrice} {text.currency}</td>
                     <td style={{ fontWeight: 900, color: item.netProfitAfterOffer > 0 ? '#047857' : '#dc2626' }}>
@@ -738,8 +738,8 @@ export default function DiscountCalculatorOM() {
             {filteredItems.length > 0 && (
               <tfoot>
                 <tr className="tfoot-row">
-                  <td colSpan={5} style={{ textAlign: 'center' }}>{text.table.totalLabel}</td>
-                  <td colSpan={3} style={{ color: '#047857' }}>{totalProfitSum.toFixed(2)} {text.currency}</td>
+                  <td colSpan={7} style={{ textAlign: 'center' }}>{text.table.totalLabel}</td>
+                  <td colspan="3" style={{ color: '#047857' }}>{totalProfitSum.toFixed(2)} {text.currency}</td>
                 </tr>
               </tfoot>
             )}
