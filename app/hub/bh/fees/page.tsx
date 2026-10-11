@@ -15,7 +15,7 @@ interface FeeItem {
   timestamp?: number;
 }
 
-export default function GatewayFeesCalculatorOM() {
+export default function GatewayFeesCalculatorBH() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
   
   const [orderAmount, setOrderAmount] = useState<number | ''>('');
@@ -35,19 +35,19 @@ export default function GatewayFeesCalculatorOM() {
 
   useEffect(() => {
     setIsClient(true);
-    setIsActivated(!!localStorage.getItem('merchant_license_key_om'));
+    setIsActivated(!!localStorage.getItem('merchant_license_key_bh'));
 
     const savedLang = localStorage.getItem('seerk_global_lang') as 'ar' | 'en';
     if (savedLang) {
       setLang(savedLang);
     }
 
-    setOrderAmount(10);
-    setGatewayName(savedLang === 'en' ? 'Thawani' : 'ثواني (Thawani)');
-    setFeePercent(2.0);
-    setFeeFixed(0.10);
+    setOrderAmount(25);
+    setGatewayName(savedLang === 'en' ? 'BenefitPay' : 'بنفت بي (BenefitPay)');
+    setFeePercent(1.5);
+    setFeeFixed(0.050);
 
-    const saved = localStorage.getItem('seerk_om_gateway_fees_items');
+    const saved = localStorage.getItem('seerk_bh_gateway_fees_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
@@ -55,7 +55,7 @@ export default function GatewayFeesCalculatorOM() {
 
   const saveToLocalStorage = (newItems: FeeItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_om_gateway_fees_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_bh_gateway_fees_items', JSON.stringify(newItems));
   };
 
   const amt = typeof orderAmount === 'number' ? orderAmount : 0;
@@ -68,20 +68,20 @@ export default function GatewayFeesCalculatorOM() {
   const t = {
     ar: {
       back: '← عودة للمنصة',
-      title: 'حاسبة رسوم بوابات الدفع (ثواني، تابي، باي بال) 💳',
-      desc: 'احسب بدقة عمولات بوابات الدفع المحلية والعالمية وتأثيرها المباشر على حسابك',
+      title: 'حاسبة رسوم بوابات الدفع (بنفت بي، تابي، باي بال) 💳',
+      desc: 'احسب بدقة عمولات بوابات الدفع المحلية والعالمية وتأثيرها المباشر على حسابك في البحرين',
       editRecord: 'تعديل السجل',
       newRecord: 'حساب رسوم جديدة',
       clear: '🧹 مسح الحقول',
       trial: 'تجريبي',
       orderAmt: 'قيمة طلب العميل الإجمالية',
       presetLabel: 'اختيار البوابة لملء البيانات التلقائي (اختياري)',
-      optThawani: 'ثواني (Thawani) - (2.0% + 0.100 ر.ع)',
-      optPaypal: 'باي بال (PayPal) - (3.4% + 0.150 ر.ع)',
-      optTabby: 'التقسيط (تابي Tabby) - (4.0% + 0.200 ر.ع)',
+      optBenefit: 'بنفت بي (BenefitPay) - (1.5% + 0.050 د.ب)',
+      optPaypal: 'باي بال (PayPal) - (3.4% + 0.150 د.ب)',
+      optTabby: 'التقسيط (تابي Tabby) - (4.0% + 0.200 د.ب)',
       optCustom: 'تفريغ الحقول (إدخال يدوي بالكامل)',
       gwName: 'اسم البوابة (قابل للتعديل)',
-      gwNamePH: 'مثال: ثواني',
+      gwNamePH: 'مثال: بنفت بي',
       percent: 'النسبة (%)',
       fixedFee: 'رسوم ثابتة',
       saveBtnNew: '+ حفظ العملية في الجدول',
@@ -91,7 +91,7 @@ export default function GatewayFeesCalculatorOM() {
       netSub: 'بعد خصم عمولة ورسوم البوابة',
       totalDeducted: 'إجمالي الرسوم المقتطعة',
       effectiveRate: 'النسبة المؤثرة الفعلية من قيمة الطلب',
-      currency: 'ر.ع',
+      currency: 'د.ب',
       searchPH: '🔍 بحث في السجلات المحفوظة...',
       exportBtn: '📥 تصدير Excel',
       importBtn: '📂 استيراد',
@@ -130,19 +130,19 @@ export default function GatewayFeesCalculatorOM() {
     en: {
       back: '→ Back to Hub',
       title: 'Payment Gateway Fees Calculator 💳',
-      desc: 'Calculate local and global payment gateway commissions and their direct impact on your payout',
+      desc: 'Calculate local and global payment gateway commissions and their direct impact on your payout in Bahrain',
       editRecord: 'Edit Record',
       newRecord: 'Calculate New Fees',
       clear: '🧹 Clear Fields',
       trial: 'Trial',
       orderAmt: 'Total Customer Order Amount',
       presetLabel: 'Select gateway to autofill data (Optional)',
-      optThawani: 'Thawani - (2.0% + 0.100 OMR)',
-      optPaypal: 'PayPal - (3.4% + 0.150 OMR)',
-      optTabby: 'Installments (Tabby) - (4.0% + 0.200 OMR)',
+      optBenefit: 'BenefitPay - (1.5% + 0.050 BHD)',
+      optPaypal: 'PayPal - (3.4% + 0.150 BHD)',
+      optTabby: 'Installments (Tabby) - (4.0% + 0.200 BHD)',
       optCustom: 'Clear fields (Full manual entry)',
       gwName: 'Gateway Name (Editable)',
-      gwNamePH: 'e.g. Thawani',
+      gwNamePH: 'e.g. BenefitPay',
       percent: 'Percentage (%)',
       fixedFee: 'Fixed Fee',
       saveBtnNew: '+ Save Transaction to Table',
@@ -152,7 +152,7 @@ export default function GatewayFeesCalculatorOM() {
       netSub: 'After deducting gateway commission and fees',
       totalDeducted: 'Total Fees Deducted',
       effectiveRate: 'Effective Fee Percentage of Order Value',
-      currency: 'OMR',
+      currency: 'BHD',
       searchPH: '🔍 Search saved records...',
       exportBtn: '📥 Export Excel',
       importBtn: '📂 Import',
@@ -194,10 +194,10 @@ export default function GatewayFeesCalculatorOM() {
 
   const handlePresetChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const val = e.target.value;
-    if (val === 'thawani') {
-      setGatewayName(lang === 'ar' ? 'ثواني (Thawani)' : 'Thawani');
-      setFeePercent(2.0);
-      setFeeFixed(0.100);
+    if (val === 'benefit') {
+      setGatewayName(lang === 'ar' ? 'بنفت بي (BenefitPay)' : 'BenefitPay');
+      setFeePercent(1.5);
+      setFeeFixed(0.050);
     } else if (val === 'paypal') {
       setGatewayName(lang === 'ar' ? 'باي بال (PayPal)' : 'PayPal');
       setFeePercent(3.4);
@@ -215,12 +215,12 @@ export default function GatewayFeesCalculatorOM() {
 
   const handleClearForm = () => {
     setOrderAmount('');
-    setGatewayName(lang === 'ar' ? 'ثواني (Thawani)' : 'Thawani');
-    setFeePercent(2.0);
-    setFeeFixed(0.10);
+    setGatewayName(lang === 'ar' ? 'بنفت بي (BenefitPay)' : 'BenefitPay');
+    setFeePercent(1.5);
+    setFeeFixed(0.050);
     setEditingId(null);
     const selectEl = document.getElementById('gateway-preset') as HTMLSelectElement;
-    if (selectEl) selectEl.value = 'thawani';
+    if (selectEl) selectEl.value = 'benefit';
   };
 
   const handleSaveItem = (e: React.FormEvent) => {
@@ -236,7 +236,7 @@ export default function GatewayFeesCalculatorOM() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const localeStr = lang === 'ar' ? 'ar-OM' : 'en-OM';
+    const localeStr = lang === 'ar' ? 'ar-BH' : 'en-BH';
     const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
 
     if (editingId) {
@@ -386,7 +386,7 @@ export default function GatewayFeesCalculatorOM() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", `enjazya_om_gateway_fees_${dateFilter}.xls`);
+    link.setAttribute("download", `enjazya_bh_gateway_fees_${dateFilter}.xls`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -437,19 +437,22 @@ export default function GatewayFeesCalculatorOM() {
         .clear-form-btn { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; display: flex; align-items: center; gap: 5px; }
         .clear-form-btn:hover { background: #fecaca; }
 
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        @media(max-width: 600px) { .form-row { grid-template-columns: 1fr; gap: 0; } }
+
         .input-group { margin-bottom: 15px; width: 100%; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .input-group label { display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 6px; }
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
         .input-wrapper input, .input-wrapper select { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 15px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .input-wrapper input.with-currency { padding-${lang === 'ar' ? 'left' : 'right'}: 45px; }
-        .input-wrapper input:focus, .input-wrapper select:focus { border-color: #C62828; background: #ffffff; }
+        .input-wrapper input:focus, .input-wrapper select:focus { border-color: #CE1126; background: #ffffff; }
         .currency-tag { position: absolute; ${lang === 'ar' ? 'left: 14px;' : 'right: 14px;'} color: #64748b; font-weight: 800; font-size: 13px; pointer-events: none; }
         
-        .action-btn { background: #C62828; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
-        .action-btn:hover { background: #B71C1C; }
+        .action-btn { background: #CE1126; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
+        .action-btn:hover { background: #A60E1E; }
 
         .result-box { background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .result-box.primary { background: linear-gradient(135deg, #C62828 0%, #B71C1C 100%); color: #fff; border: none; padding: 20px; }
+        .result-box.primary { background: linear-gradient(135deg, #CE1126 0%, #A60E1E 100%); color: #fff; border: none; padding: 20px; }
         .result-label { font-size: 13px; font-weight: 700; color: #64748b; }
         .primary .result-label { color: #ffffff; opacity: 0.9; }
         .result-value { font-size: 18px; font-weight: 900; color: #0f172a; direction: ltr; }
@@ -459,14 +462,14 @@ export default function GatewayFeesCalculatorOM() {
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
         
         .search-input { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; flex-grow: 1; max-width: 350px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .search-input:focus { border-color: #C62828; }
+        .search-input:focus { border-color: #CE1126; }
         
         .filter-select { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; background: #fff; color: #334155; cursor: pointer; min-width: 130px; }
-        .filter-select:focus { border-color: #C62828; }
+        .filter-select:focus { border-color: #CE1126; }
 
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
         .t-btn { padding: 9px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 6px; }
-        .t-btn:hover { background: #f1f5f9; border-color: #C62828; color: #C62828; }
+        .t-btn:hover { background: #f1f5f9; border-color: #CE1126; color: #CE1126; }
 
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 700px; }
@@ -482,7 +485,7 @@ export default function GatewayFeesCalculatorOM() {
           <h1>{text.title}</h1>
           <p>{text.desc}</p>
         </div>
-        <Link href="/hub/om" className="back-btn">
+        <Link href="/hub/bh" className="back-btn">
           {text.back}
         </Link>
       </div>
@@ -503,7 +506,7 @@ export default function GatewayFeesCalculatorOM() {
             <div className="input-group">
               <label>{text.orderAmt}</label>
               <div className="input-wrapper">
-                <input className="with-currency" type="number" min="0" value={orderAmount === '' ? '' : orderAmount} onChange={(e) => setOrderAmount(e.target.value === '' ? '' : Number(e.target.value))} placeholder="10" required />
+                <input className="with-currency" type="number" min="0" value={orderAmount === '' ? '' : orderAmount} onChange={(e) => setOrderAmount(e.target.value === '' ? '' : Number(e.target.value))} placeholder="25" required />
                 <span className="currency-tag">{text.currency}</span>
               </div>
             </div>
@@ -511,8 +514,8 @@ export default function GatewayFeesCalculatorOM() {
             <div className="input-group">
               <label>{text.presetLabel}</label>
               <div className="input-wrapper">
-                <select id="gateway-preset" onChange={handlePresetChange} defaultValue="thawani">
-                  <option value="thawani">{text.optThawani}</option>
+                <select id="gateway-preset" onChange={handlePresetChange} defaultValue="benefit">
+                  <option value="benefit">{text.optBenefit}</option>
                   <option value="paypal">{text.optPaypal}</option>
                   <option value="tabby">{text.optTabby}</option>
                   <option value="custom">{text.optCustom}</option>
@@ -594,7 +597,7 @@ export default function GatewayFeesCalculatorOM() {
             <option value="day">{text.filters.day}</option>
             <option value="week">{text.filters.week}</option>
             <option value="month">{text.filters.month}</option>
-            <option value="6months">{text.filters.sixMonths}</option>
+            <option value="sixMonths">{text.filters.sixMonths}</option>
             <option value="year">{text.filters.year}</option>
           </select>
 
