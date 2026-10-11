@@ -413,7 +413,7 @@ export default function RoasCalculatorBH() {
             </tbody>
             <tfoot>
               <tr class="tfoot-row">
-                <td colspan="4">${text.table.totalLabel}</td>
+                <td colSpan={4}>${text.table.totalLabel}</td>
                 <td>${totalAdSpend.toFixed(2)}</td>
                 <td>${totalOrders}</td>
                 <td>${totalRevenue.toFixed(2)}</td>
