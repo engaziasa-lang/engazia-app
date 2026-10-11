@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 
-export default function UpdatesPageOM() {
+export default function UpdatesPageBH() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
 
   useEffect(() => {
@@ -12,7 +12,7 @@ export default function UpdatesPageOM() {
       if (savedLang) {
         setLang(savedLang);
       }
-      document.title = savedLang === 'en' ? 'Enjazya | What’s New (Oman)' : 'إنجازيا | التحديثات الجديدة (عُمان)';
+      document.title = savedLang === 'en' ? 'Enjazya | What’s New (Bahrain)' : 'إنجازيا | التحديثات الجديدة (البحرين)';
     }
   }, []);
 
@@ -23,9 +23,9 @@ export default function UpdatesPageOM() {
       back: '← عودة للمنصة',
       updates: [
         {
-          version: 'الإصدار 3.2.0 (عُمان)',
+          version: 'الإصدار 3.2.0 (البحرين)',
           date: 'أكتوبر 2026',
-          desc: 'إطلاق النسخة المخصصة للسوق العُماني بأدوات متكاملة، وحاسبات ضريبية متوافقة مع جهاز الضرائب العُماني (OTA) ودعم العمل بالريال العُماني (ر.ع).'
+          desc: 'إطلاق النسخة المخصصة للسوق البحريني بأدوات متكاملة، وحاسبات ضريبية متوافقة مع الجهاز الوطني للإيرادات (NBR) ودعم العمل بالدينار البحريني (د.ب).'
         },
         {
           version: 'الإصدار 3.1.0',
@@ -40,9 +40,9 @@ export default function UpdatesPageOM() {
       back: '→ Back to Hub',
       updates: [
         {
-          version: 'Version 3.2.0 (Oman)',
+          version: 'Version 3.2.0 (Bahrain)',
           date: 'October 2026',
-          desc: 'Launch of the Oman market edition featuring integrated tools, tax calculators compliant with Oman OTA, and OMR currency support.'
+          desc: 'Launch of the Bahrain market edition featuring integrated tools, tax calculators compliant with Bahrain NBR, and BHD currency support.'
         },
         {
           version: 'Version 3.1.0',
@@ -65,7 +65,7 @@ export default function UpdatesPageOM() {
             <h1 style={{ fontSize: '32px', fontWeight: 900, color: '#0f172a', margin: '0 0 10px 0' }}>{text.title}</h1>
             <p style={{ color: '#64748b', fontSize: '15px', margin: 0 }}>{text.desc}</p>
           </div>
-          <Link href="/hub/om" style={{ background: '#FFEBEE', border: '1px solid #FFCDD2', color: '#C62828', padding: '10px 20px', borderRadius: '8px', textDecoration: 'none', fontWeight: 700, fontSize: '14px' }}>
+          <Link href="/hub/bh" style={{ background: '#FDECEE', border: '1px solid #F9C9CE', color: '#CE1126', padding: '10px 20px', borderRadius: '8px', textDecoration: 'none', fontWeight: 700, fontSize: '14px' }}>
             {text.back}
           </Link>
         </div>
@@ -74,7 +74,7 @@ export default function UpdatesPageOM() {
           {text.updates.map((item, idx) => (
             <div key={idx} style={{ background: '#fff', padding: '30px', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 2px 4px rgba(0,0,0,0.02)', textAlign: lang === 'ar' ? 'right' : 'left' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', flexWrap: 'wrap', gap: '10px', flexDirection: lang === 'ar' ? 'row' : 'row-reverse' }}>
-                <h3 style={{ fontSize: '18px', fontWeight: 900, color: '#C62828', margin: 0 }}>{item.version}</h3>
+                <h3 style={{ fontSize: '18px', fontWeight: 900, color: '#CE1126', margin: 0 }}>{item.version}</h3>
                 <span style={{ fontSize: '13px', fontWeight: 700, color: '#64748b', background: '#f1f5f9', padding: '4px 10px', borderRadius: '6px' }}>{item.date}</span>
               </div>
               <p style={{ color: '#475569', fontSize: '15px', lineHeight: '1.7', margin: 0, fontWeight: 500 }}>{item.desc}</p>
