@@ -13,7 +13,7 @@ interface WaLinkItem {
   timestamp?: number;
 }
 
-export default function WaLinkGeneratorOM() {
+export default function WaLinkGeneratorBH() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
 
   const [campaignName, setCampaignName] = useState<string>('');
@@ -32,14 +32,14 @@ export default function WaLinkGeneratorOM() {
 
   useEffect(() => {
     setIsClient(true);
-    setIsActivated(!!localStorage.getItem('merchant_license_key_om'));
+    setIsActivated(!!localStorage.getItem('merchant_license_key_bh'));
     
     const savedLang = localStorage.getItem('seerk_global_lang') as 'ar' | 'en';
     if (savedLang) {
       setLang(savedLang);
     }
     
-    const saved = localStorage.getItem('seerk_om_wa_link_items');
+    const saved = localStorage.getItem('seerk_bh_wa_link_items');
     if (saved) {
       try { 
         const parsedData = JSON.parse(saved);
@@ -50,17 +50,17 @@ export default function WaLinkGeneratorOM() {
 
   const saveToLocalStorage = (newItems: WaLinkItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_om_wa_link_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_bh_wa_link_items', JSON.stringify(newItems));
   };
 
-  // معالجة رقم الجوال لعُمان (+968)
+  // معالجة رقم الجوال للبحرين (+973)
   let formattedPhone = phoneNumber.replace(/\D/g, ''); 
   if (formattedPhone.startsWith('0')) {
-    formattedPhone = '968' + formattedPhone.substring(1);
-  } else if (formattedPhone.length === 8 && !formattedPhone.startsWith('968')) {
-    formattedPhone = '968' + formattedPhone;
-  } else if (formattedPhone.length > 8 && !formattedPhone.startsWith('968')) {
-    formattedPhone = '968' + formattedPhone;
+    formattedPhone = '973' + formattedPhone.substring(1);
+  } else if (formattedPhone.length === 8 && !formattedPhone.startsWith('973')) {
+    formattedPhone = '973' + formattedPhone;
+  } else if (formattedPhone.length > 8 && !formattedPhone.startsWith('973')) {
+    formattedPhone = '973' + formattedPhone;
   }
 
   const liveLink = formattedPhone 
@@ -71,17 +71,17 @@ export default function WaLinkGeneratorOM() {
     ar: {
       back: '← عودة للمنصة',
       title: 'صانع روابط واتساب السريعة 🔗',
-      desc: 'أنشئ روابط مخصصة برسائل جاهزة لبيو تيك توك أو تمريرها في حملات الانستقرام في عُمان',
+      desc: 'أنشئ روابط مخصصة برسائل جاهزة لبيو تيك توك أو تمريرها في حملات الانستقرام في البحرين',
       editRecord: 'تعديل الرابط',
       newRecord: 'إنشاء رابط واتساب جديد',
       clear: '🧹 مسح الحقول',
       trial: 'تجريبي',
       campName: 'اسم الحملة أو الرابط (للتمييز الداخلي)',
       campNamePH: 'مثال: رابط بايو تيك توك',
-      phone: 'رقم الواتساب (العُماني)',
-      phonePH: '9XXXXXXX أو 7XXXXXXX',
+      phone: 'رقم الواتساب (البحريني)',
+      phonePH: '3XXXXXXX أو 6XXXXXXX',
       message: 'الرسالة الجاهزة (اختياري)',
-      messagePH: 'مثال: أهلاً، أريد الاستفسار عن عرض العطور...',
+      messagePH: 'مثال: أهلاً، أريد الاستفسار عن عرض المتجر...',
       saveBtnEdit: '💾 حفظ التعديلات',
       saveBtnNew: '+ حفظ الرابط في السجل',
       previewTitle: 'معاينة الرابط الحي',
@@ -128,17 +128,17 @@ export default function WaLinkGeneratorOM() {
     en: {
       back: '→ Back to Hub',
       title: 'Quick WhatsApp Link Generator 🔗',
-      desc: 'Create custom links with pre-filled messages for TikTok bios or Instagram campaigns in Oman',
+      desc: 'Create custom links with pre-filled messages for TikTok bios or Instagram campaigns in Bahrain',
       editRecord: 'Edit Link',
       newRecord: 'Create New WhatsApp Link',
       clear: '🧹 Clear Fields',
       trial: 'Trial',
       campName: 'Campaign or Link Name (Internal)',
       campNamePH: 'e.g. TikTok Bio Link',
-      phone: 'WhatsApp Number (Oman)',
-      phonePH: '9XXXXXXX or 7XXXXXXX',
+      phone: 'WhatsApp Number (Bahrain)',
+      phonePH: '3XXXXXXX or 6XXXXXXX',
       message: 'Pre-filled Message (Optional)',
-      messagePH: 'e.g. Hello, I want to inquire about the perfume offer...',
+      messagePH: 'e.g. Hello, I want to inquire about the store offer...',
       saveBtnEdit: '💾 Save Changes',
       saveBtnNew: '+ Save Link to Log',
       previewTitle: 'Live Link Preview',
@@ -206,7 +206,7 @@ export default function WaLinkGeneratorOM() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const localeStr = lang === 'ar' ? 'ar-OM' : 'en-OM';
+    const localeStr = lang === 'ar' ? 'ar-BH' : 'en-BH';
     const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
 
     if (editingId) {
@@ -244,7 +244,7 @@ export default function WaLinkGeneratorOM() {
     
     // إزالة رمز الدولة (968) لتسهيل التعديل
     let displayPhone = item.phoneNumber;
-    if (displayPhone.startsWith('968')) {
+    if (displayPhone.startsWith('973')) {
       displayPhone = displayPhone.substring(3);
     }
     setPhoneNumber(displayPhone);
@@ -352,7 +352,7 @@ export default function WaLinkGeneratorOM() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", `enjazya_om_wa_links_${dateFilter}.xls`);
+    link.setAttribute("download", `enjazya_bh_wa_links_${dateFilter}.xls`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -403,34 +403,37 @@ export default function WaLinkGeneratorOM() {
         .clear-form-btn { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; display: flex; align-items: center; gap: 5px; }
         .clear-form-btn:hover { background: #fecaca; }
 
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        @media(max-width: 600px) { .form-row { grid-template-columns: 1fr; gap: 0; } }
+
         .input-group { margin-bottom: 15px; width: 100%; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .input-group label { display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 6px; }
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
         .input-wrapper input, .input-wrapper textarea { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .input-wrapper input:focus, .input-wrapper textarea:focus { border-color: #C62828; background: #ffffff; }
+        .input-wrapper input:focus, .input-wrapper textarea:focus { border-color: #CE1126; background: #ffffff; }
         
-        .action-btn { background: #C62828; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
-        .action-btn:hover { background: #B71C1C; }
+        .action-btn { background: #CE1126; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
+        .action-btn:hover { background: #A60E1E; }
         
-        .copy-btn { background: #C62828; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .copy-btn:hover { background: #B71C1C; }
+        .copy-btn { background: #CE1126; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .copy-btn:hover { background: #A60E1E; }
 
         .test-btn { background: #f8fafc; color: #0f172a; border: 1px solid #cbd5e1; width: 100%; padding: 12px; border-radius: 8px; font-weight: 800; font-size: 14px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none;}
         .test-btn:hover { background: #f1f5f9; }
 
-        .link-preview-box { background: #FFEBEE; border: 1px dashed #FFCDD2; padding: 15px; border-radius: 8px; margin-bottom: 15px; direction: ltr; text-align: left; word-break: break-all; font-family: monospace; font-size: 13px; color: #C62828; line-height: 1.5; min-height: 50px;}
+        .link-preview-box { background: #FDECEE; border: 1px dashed #F9C9CE; padding: 15px; border-radius: 8px; margin-bottom: 15px; direction: ltr; text-align: left; word-break: break-all; font-family: monospace; font-size: 13px; color: #CE1126; line-height: 1.5; min-height: 50px;}
 
         .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
         .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .search-input:focus { border-color: #C62828; }
+        .search-input:focus { border-color: #CE1126; }
         
         .filter-select { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; background: #fff; color: #334155; cursor: pointer; min-width: 130px; }
-        .filter-select:focus { border-color: #C62828; }
+        .filter-select:focus { border-color: #CE1126; }
 
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
         .t-btn { padding: 9px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 6px; }
-        .t-btn:hover { background: #f1f5f9; border-color: #C62828; color: #C62828; }
+        .t-btn:hover { background: #f1f5f9; border-color: #CE1126; color: #CE1126; }
 
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 900px; }
@@ -441,8 +444,8 @@ export default function WaLinkGeneratorOM() {
         .trial-badge { background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 800; }
         
         .tb-action-btn { border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; font-family: inherit;}
-        .btn-wa { background: #FFEBEE; color: #C62828; border: 1px solid #FFCDD2; }
-        .btn-wa:hover { background: #C62828; color: #ffffff; }
+        .btn-wa { background: #FDECEE; color: #CE1126; border: 1px solid #F9C9CE; }
+        .btn-wa:hover { background: #CE1126; color: #ffffff; }
         .btn-edit { background: #e0f2fe; color: #0369a1; }
         .btn-delete { background: #fee2e2; color: #991b1b; }
       `}</style>
@@ -452,7 +455,7 @@ export default function WaLinkGeneratorOM() {
           <h1>{text.title}</h1>
           <p>{text.desc}</p>
         </div>
-        <Link href="/hub/om" className="back-btn">
+        <Link href="/hub/bh" className="back-btn">
           {text.back}
         </Link>
       </div>
@@ -550,7 +553,7 @@ export default function WaLinkGeneratorOM() {
             <option value="day">{text.filters.day}</option>
             <option value="week">{text.filters.week}</option>
             <option value="month">{text.filters.month}</option>
-            <option value="6months">{text.filters.sixMonths}</option>
+            <option value="sixMonths">{text.filters.sixMonths}</option>
             <option value="year">{text.filters.year}</option>
           </select>
 
@@ -592,7 +595,7 @@ export default function WaLinkGeneratorOM() {
                       <div style={{ fontWeight: 900, color: '#0f172a' }}>{item.campaignName}</div>
                       {item.createdAt && <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', fontWeight: 600 }}>🕒 {item.createdAt}</div>}
                     </td>
-                    <td dir="ltr" style={{ textAlign: lang === 'ar' ? 'right' : 'left', fontWeight: 700, color: '#C62828' }}>{item.phoneNumber}</td>
+                    <td dir="ltr" style={{ textAlign: lang === 'ar' ? 'right' : 'left', fontWeight: 700, color: '#CE1126' }}>{item.phoneNumber}</td>
                     <td style={{ maxWidth: '300px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontSize: '12px' }}>
                       {item.presetMessage || <span style={{ color: '#94a3b8' }}>{text.table.noMsg}</span>}
                     </td>
@@ -610,7 +613,7 @@ export default function WaLinkGeneratorOM() {
             {filteredItems.length > 0 && (
               <tfoot>
                 <tr className="tfoot-row">
-                  <td colSpan={4} style={{ textAlign: 'center' }}>{text.table.totalLabel}</td>
+                  <td colSpan={5} style={{ textAlign: 'center' }}>{text.table.totalLabel}</td>
                   <td>{filteredItems.length} {text.table.linksCount}</td>
                 </tr>
               </tfoot>
