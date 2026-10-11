@@ -350,10 +350,10 @@ export default function ReturnsAnalyzerBH() {
             </tbody>
             <tfoot>
               <tr class="tfoot-row">
-                <td colSpan={3}>${text.table.totalLabel}</td>
+                <td colspan="3">${text.table.totalLabel}</td>
                 <td>${sumReturns}</td>
                 <td>${sumLostRev.toFixed(2)}</td>
-                <td colSpan={2}></td>
+                <td colspan="2"></td>
                 <td>${sumActualLoss.toFixed(2)} ${text.currency}</td>
               </tr>
             </tfoot>
@@ -615,7 +615,7 @@ export default function ReturnsAnalyzerBH() {
                   </td>
                 </tr>
               ) : (
-                filteredItems.log ? null : filteredItems.map((item, idx) => (
+                filteredItems.map((item, idx) => (
                   <tr key={item.id}>
                     <td>{idx + 1}</td>
                     <td>
@@ -624,7 +624,7 @@ export default function ReturnsAnalyzerBH() {
                     </td>
                     <td style={{ fontWeight: 800 }}>{item.returnedOrders} {text.table.ordersCount}</td>
                     <td style={{ color: '#d97706', fontWeight: 800 }}>{item.totalLostRevenue} {text.currency}</td>
-                    <td style={{ fontSize: '12px', textAlign: lang === 'ar' ? 'right' : 'left' }}>
+                    <td style={{ fontSize: '12.5px', textAlign: lang === 'ar' ? 'right' : 'left' }}>
                       <div style={{ color: '#475569' }}>{text.table.shipCost} {item.reverseShippingCost} {text.currency}</div>
                       <div style={{ color: '#64748b' }}>{text.table.dmgCost} {item.damageCost} {text.currency}</div>
                     </td>
