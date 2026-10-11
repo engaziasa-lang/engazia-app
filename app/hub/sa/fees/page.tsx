@@ -12,6 +12,7 @@ interface FeeItem {
   netReceived: number;
   totalFee: number;
   createdAt?: string;
+  createdAtTimestamp?: number; // للفرز الزمني
 }
 
 export default function GatewayFeesCalculatorSA() {
@@ -24,6 +25,7 @@ export default function GatewayFeesCalculatorSA() {
 
   const [items, setItems] = useState<FeeItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [timeFilter, setTimeFilter] = useState<'all' | 'day' | 'week' | 'month' | '6months' | 'year'>('all');
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -58,7 +60,7 @@ export default function GatewayFeesCalculatorSA() {
     ar: {
       back: '← عودة للمنصة',
       title: 'حاسبة رسوم بوابات الدفع (تابي، تمارا، مدى) 💳',
-      desc: 'احسب بدقة عمولات وبوابات الدفع المحلية مع رسوم الضريبة (15%) على العمولة وتأثيرها على حسابك في السوق السعودي',
+      desc: 'احسب بدقة عمولات بوابات الدفع المحلية مع رسوم الضريبة (15%) على العمولة وتأثيرها على حسابك في السوق السعودي',
       editRecord: 'تعديل السجل',
       newRecord: 'حساب رسوم جديدة',
       clear: '🧹 مسح الحقول',
@@ -84,8 +86,16 @@ export default function GatewayFeesCalculatorSA() {
       searchPH: '🔍 بحث في السجلات المحفوظة...',
       exportBtn: '📥 تصدير Excel',
       importBtn: '📂 استيراد',
+      filter: {
+        all: 'الكل',
+        day: 'يوم',
+        week: 'أسبوع',
+        month: 'شهر',
+        sixMonths: '6 أشهر',
+        year: 'سنة'
+      },
       table: {
-        noRecords: 'لا توجد سجلات بوابات دفع مسجلة في الجدول حالياً.',
+        noRecords: 'لا توجد سجلات بوابات دفع مسجلة تطابق بحثك حالياً.',
         th1: '#',
         th2: 'بوابة الدفع والتاريخ',
         th3: 'قيمة الطلب',
@@ -137,8 +147,16 @@ export default function GatewayFeesCalculatorSA() {
       searchPH: '🔍 Search saved records...',
       exportBtn: '📥 Export Excel',
       importBtn: '📂 Import',
+      filter: {
+        all: 'All',
+        day: '1 Day',
+        week: '1 Week',
+        month: '1 Month',
+        sixMonths: '6 Months',
+        year: '1 Year'
+      },
       table: {
-        noRecords: 'No payment gateway records currently registered in the table.',
+        noRecords: 'No payment gateway records found matching your search.',
         th1: '#',
         th2: 'Gateway & Date',
         th3: 'Order Amount',
@@ -217,6 +235,7 @@ export default function GatewayFeesCalculatorSA() {
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
     const localeStr = lang === 'ar' ? 'ar-SA' : 'en-US';
     const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
+    const currentTimestamp = Date.now();
 
     if (editingId) {
       const updated = items.map(item => item.id === editingId ? {
@@ -227,7 +246,8 @@ export default function GatewayFeesCalculatorSA() {
         feeFixed: fxd,
         netReceived: Number(netReceived.toFixed(2)),
         totalFee: Number(totalFeeWithVat.toFixed(2)),
-        createdAt: item.createdAt || formattedDate
+        createdAt: item.createdAt || formattedDate,
+        createdAtTimestamp: item.createdAtTimestamp || currentTimestamp
       } : item);
       saveToLocalStorage(updated);
       setEditingId(null);
@@ -241,7 +261,8 @@ export default function GatewayFeesCalculatorSA() {
         feeFixed: fxd,
         netReceived: Number(netReceived.toFixed(2)),
         totalFee: Number(totalFeeWithVat.toFixed(2)),
-        createdAt: formattedDate
+        createdAt: formattedDate,
+        createdAtTimestamp: currentTimestamp
       };
       saveToLocalStorage([...items, newItem]);
       alert(text.alerts.saveSuccess);
@@ -266,16 +287,36 @@ export default function GatewayFeesCalculatorSA() {
     }
   };
 
+  const filteredItems = items.filter(item => {
+    const matchesSearch = item.gatewayName.toLowerCase().includes(searchQuery.toLowerCase());
+    if (!matchesSearch) return false;
+
+    if (timeFilter === 'all') return true;
+    if (!item.createdAtTimestamp) return true;
+
+    const now = Date.now();
+    const diff = now - item.createdAtTimestamp;
+    const dayMs = 24 * 60 * 60 * 1000;
+
+    if (timeFilter === 'day') return diff <= dayMs;
+    if (timeFilter === 'week') return diff <= 7 * dayMs;
+    if (timeFilter === 'month') return diff <= 30 * dayMs;
+    if (timeFilter === '6months') return diff <= 180 * dayMs;
+    if (timeFilter === 'year') return diff <= 365 * dayMs;
+
+    return true;
+  });
+
+  const totalOrderAmount = filteredItems.reduce((acc, curr) => acc + curr.orderAmount, 0);
+  const totalFees = filteredItems.reduce((acc, curr) => acc + curr.totalFee, 0);
+  const totalNetReceived = filteredItems.reduce((acc, curr) => acc + curr.netReceived, 0);
+  const overallFeePercent = totalOrderAmount > 0 ? (totalFees / totalOrderAmount) * 100 : 0;
+
   const handleExportExcel = () => {
-    if (items.length === 0) {
+    if (filteredItems.length === 0) {
       alert(text.alerts.noDataExp);
       return;
     }
-
-    const totalOrderAmount = items.reduce((acc, curr) => acc + curr.orderAmount, 0);
-    const totalFees = items.reduce((acc, curr) => acc + curr.totalFee, 0);
-    const totalNetReceived = items.reduce((acc, curr) => acc + curr.netReceived, 0);
-    const overallFeePercent = totalOrderAmount > 0 ? (totalFees / totalOrderAmount) * 100 : 0;
 
     let tableHtml = `
       <html dir="${lang === 'ar' ? 'rtl' : 'ltr'}" lang="${lang}">
@@ -303,7 +344,7 @@ export default function GatewayFeesCalculatorSA() {
             <tbody>
     `;
 
-    items.forEach((row, idx) => {
+    filteredItems.forEach((row, idx) => {
       const feePct = row.orderAmount > 0 ? (row.totalFee / row.orderAmount) * 100 : 0;
       tableHtml += `
         <tr>
@@ -352,13 +393,6 @@ export default function GatewayFeesCalculatorSA() {
     }
   };
 
-  const filteredItems = items.filter(item => item.gatewayName.toLowerCase().includes(searchQuery.toLowerCase()));
-
-  const totalOrderAmount = filteredItems.reduce((acc, curr) => acc + curr.orderAmount, 0);
-  const totalFees = filteredItems.reduce((acc, curr) => acc + curr.totalFee, 0);
-  const totalNetReceived = filteredItems.reduce((acc, curr) => acc + curr.netReceived, 0);
-  const overallFeePercent = totalOrderAmount > 0 ? (totalFees / totalOrderAmount) * 100 : 0;
-
   return (
     <div className="tool-container" style={{ direction: lang === 'ar' ? 'rtl' : 'ltr' }}>
       <style jsx global>{`
@@ -404,8 +438,16 @@ export default function GatewayFeesCalculatorSA() {
         .primary .result-value { font-size: 24px; color: #ffffff; direction: ltr; }
 
         .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        
+        /* أدوات الفرز والبحث */
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
-        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 250px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        
+        .filter-row { display: flex; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 4px; gap: 4px; overflow-x: auto; flex: 1; justify-content: center; min-width: 300px;}
+        .filter-btn { background: transparent; border: none; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 700; color: #64748b; cursor: pointer; transition: 0.2s; font-family: inherit; white-space: nowrap; }
+        .filter-btn:hover { color: #0f172a; background: #e2e8f0; }
+        .filter-btn.active { background: #ffffff; color: #0f172a; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
         .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; }
         .t-btn:hover { background: #f1f5f9; }
@@ -530,6 +572,16 @@ export default function GatewayFeesCalculatorSA() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
+
+          <div className="filter-row">
+            <button className={`filter-btn ${timeFilter === 'all' ? 'active' : ''}`} onClick={() => setTimeFilter('all')}>{text.filter.all}</button>
+            <button className={`filter-btn ${timeFilter === 'day' ? 'active' : ''}`} onClick={() => setTimeFilter('day')}>{text.filter.day}</button>
+            <button className={`filter-btn ${timeFilter === 'week' ? 'active' : ''}`} onClick={() => setTimeFilter('week')}>{text.filter.week}</button>
+            <button className={`filter-btn ${timeFilter === 'month' ? 'active' : ''}`} onClick={() => setTimeFilter('month')}>{text.filter.month}</button>
+            <button className={`filter-btn ${timeFilter === '6months' ? 'active' : ''}`} onClick={() => setTimeFilter('6months')}>{text.filter.sixMonths}</button>
+            <button className={`filter-btn ${timeFilter === 'year' ? 'active' : ''}`} onClick={() => setTimeFilter('year')}>{text.filter.year}</button>
+          </div>
+
           <div className="table-btns">
             <button className="t-btn" onClick={handleExportExcel}>{text.exportBtn}</button>
             <button className="t-btn" onClick={() => fileInputRef.current?.click()}>{text.importBtn}</button>
