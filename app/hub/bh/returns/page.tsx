@@ -350,10 +350,10 @@ export default function ReturnsAnalyzerBH() {
             </tbody>
             <tfoot>
               <tr class="tfoot-row">
-                <td colspan="3">${text.table.totalLabel}</td>
+                <td colSpan={3}>${text.table.totalLabel}</td>
                 <td>${sumReturns}</td>
                 <td>${sumLostRev.toFixed(2)}</td>
-                <td colspan="2"></td>
+                <td colSpan={2}></td>
                 <td>${sumActualLoss.toFixed(2)} ${text.currency}</td>
               </tr>
             </tfoot>
@@ -615,7 +615,7 @@ export default function ReturnsAnalyzerBH() {
                   </td>
                 </tr>
               ) : (
-                filteredItems.map((item, idx) => (
+                filteredItems.log ? null : filteredItems.map((item, idx) => (
                   <tr key={item.id}>
                     <td>{idx + 1}</td>
                     <td>
