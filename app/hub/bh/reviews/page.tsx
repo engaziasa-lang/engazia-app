@@ -273,7 +273,6 @@ export default function AutomatedReviewsBH() {
   const handleEdit = (item: ReviewItem) => {
     setCustomerName(item.customerName);
     
-    // إزالة رمز الدولة (973) لتسهيل التعديل
     let displayPhone = item.phoneNumber;
     if (displayPhone.startsWith('973')) {
       displayPhone = displayPhone.substring(3);
@@ -398,8 +397,8 @@ export default function AutomatedReviewsBH() {
             </tbody>
             <tfoot>
               <tr class="tfoot-row">
-                <td colspan="6">${text.table.totalLabel}</td>
-                <td>${filteredItems.length} ${text.table.custUnit}</td>
+                <td colSpan={5}>${text.table.totalLabel}</td>
+                <td colSpan={2}>${filteredItems.length} ${text.table.custUnit}</td>
               </tr>
             </tfoot>
           </table>
