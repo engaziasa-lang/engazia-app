@@ -13,7 +13,7 @@ interface GrowthItem {
   timestamp?: number;
 }
 
-export default function StoreGrowthSecretsOM() {
+export default function StoreGrowthSecretsBH() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
 
   const [strategyName, setStrategyName] = useState<string>('');
@@ -35,7 +35,7 @@ export default function StoreGrowthSecretsOM() {
 
   useEffect(() => {
     setIsClient(true);
-    setIsActivated(!!localStorage.getItem('merchant_license_key_om'));
+    setIsActivated(!!localStorage.getItem('merchant_license_key_bh'));
     
     const savedLang = localStorage.getItem('seerk_global_lang') as 'ar' | 'en';
     if (savedLang) {
@@ -50,7 +50,7 @@ export default function StoreGrowthSecretsOM() {
       setExecutionStatus('لم تبدأ ⏸️');
     }
 
-    const saved = localStorage.getItem('seerk_om_growth_secrets_items');
+    const saved = localStorage.getItem('seerk_bh_growth_secrets_items');
     if (saved) {
       try { 
         const parsedData = JSON.parse(saved);
@@ -61,20 +61,20 @@ export default function StoreGrowthSecretsOM() {
 
   const saveToLocalStorage = (newItems: GrowthItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_om_growth_secrets_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_bh_growth_secrets_items', JSON.stringify(newItems));
   };
 
   const t = {
     ar: {
       back: '← عودة للمنصة',
-      title: 'أسرار نمو المتاجر العُمانية 💡',
-      desc: 'مكتبة استراتيجيات حصرية لزيادة التحويل ورفع ولاء العملاء في السوق العُماني',
+      title: 'أسرار نمو المتاجر البحرينية 💡',
+      desc: 'مكتبة استراتيجيات حصرية لزيادة التحويل ورفع ولاء العملاء في السوق البحريني',
       editRecord: 'تعديل خطة النمو',
       newRecord: 'إضافة استراتيجية نمو جديدة',
       clear: '🧹 مسح الحقول',
       trial: 'تجريبي',
       stratName: 'اسم الاستراتيجية / الفكرة الترويجية',
-      stratNamePH: 'مثال: تفعيل الدفع بـ تابـي أو برنامج ولاء النقاط',
+      stratNamePH: 'مثال: تفعيل الدفع بـ تابي / تمارا أو برنامج ولاء النقاط',
       category: 'تصنيف الاستراتيجية',
       catConversion: 'زيادة معدل التحويل 🚀',
       catLoyalty: 'رفع ولاء العملاء 🤝',
@@ -130,14 +130,14 @@ export default function StoreGrowthSecretsOM() {
     },
     en: {
       back: '→ Back to Hub',
-      title: 'Oman Store Growth Secrets 💡',
-      desc: 'Exclusive library of strategies to increase conversions and boost customer loyalty in the Omani market',
+      title: 'Bahrain Store Growth Secrets 💡',
+      desc: 'Exclusive library of strategies to increase conversions and boost customer loyalty in the Bahrain market',
       editRecord: 'Edit Growth Plan',
       newRecord: 'Add New Growth Strategy',
       clear: '🧹 Clear Fields',
       trial: 'Trial',
       stratName: 'Strategy / Promo Idea Name',
-      stratNamePH: 'e.g. Activate Tabby payments or Loyalty Points',
+      stratNamePH: 'e.g. Activate Tabby/Tamara payments or Loyalty Points',
       category: 'Strategy Category',
       catConversion: 'Increase Conversion Rate 🚀',
       catLoyalty: 'Boost Customer Loyalty 🤝',
@@ -231,7 +231,7 @@ export default function StoreGrowthSecretsOM() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const localeStr = lang === 'ar' ? 'ar-OM' : 'en-OM';
+    const localeStr = lang === 'ar' ? 'ar-BH' : 'en-BH';
     const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
 
     if (editingId) {
@@ -389,7 +389,7 @@ export default function StoreGrowthSecretsOM() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", `enjazya_om_store_growth_secrets_${dateFilter}.xls`);
+    link.setAttribute("download", `enjazya_bh_store_growth_secrets_${dateFilter}.xls`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -447,13 +447,13 @@ export default function StoreGrowthSecretsOM() {
         .input-group label { display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 6px; }
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
         .input-wrapper input, .input-wrapper select, .input-wrapper textarea { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .input-wrapper input:focus, .input-wrapper select:focus, .input-wrapper textarea:focus { border-color: #C62828; background: #ffffff; }
+        .input-wrapper input:focus, .input-wrapper select:focus, .input-wrapper textarea:focus { border-color: #CE1126; background: #ffffff; }
         
-        .action-btn { background: #C62828; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
-        .action-btn:hover { background: #B71C1C; }
+        .action-btn { background: #CE1126; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
+        .action-btn:hover { background: #A60E1E; }
 
         .result-box { background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .result-box.primary { background: linear-gradient(135deg, #C62828 0%, #B71C1C 100%); color: #fff; border: none; padding: 20px; }
+        .result-box.primary { background: linear-gradient(135deg, #CE1126 0%, #A60E1E 100%); color: #fff; border: none; padding: 20px; }
         .result-label { font-size: 13px; font-weight: 700; color: #64748b; }
         .primary .result-label { color: #ffffff; opacity: 0.9; }
         .result-value { font-size: 18px; font-weight: 900; color: #0f172a; direction: ltr; }
@@ -463,14 +463,14 @@ export default function StoreGrowthSecretsOM() {
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
         
         .search-input { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; flex-grow: 1; max-width: 350px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .search-input:focus { border-color: #C62828; }
+        .search-input:focus { border-color: #CE1126; }
         
         .filter-select { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; background: #fff; color: #334155; cursor: pointer; min-width: 130px; }
-        .filter-select:focus { border-color: #C62828; }
+        .filter-select:focus { border-color: #CE1126; }
 
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
         .t-btn { padding: 9px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 6px; }
-        .t-btn:hover { background: #f1f5f9; border-color: #C62828; color: #C62828; }
+        .t-btn:hover { background: #f1f5f9; border-color: #CE1126; color: #CE1126; }
 
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 900px; }
@@ -490,7 +490,7 @@ export default function StoreGrowthSecretsOM() {
           <h1>{text.title}</h1>
           <p>{text.desc}</p>
         </div>
-        <Link href="/hub/om" className="back-btn">
+        <Link href="/hub/bh" className="back-btn">
           {text.back}
         </Link>
       </div>
@@ -661,7 +661,7 @@ export default function StoreGrowthSecretsOM() {
                         <div style={{ fontWeight: 900, color: '#0f172a' }}>{item.strategyName}</div>
                         {item.createdAt && <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', fontWeight: 600 }}>🕒 {item.createdAt}</div>}
                       </td>
-                      <td><span style={{ fontWeight: 800, color: '#C62828' }}>{item.category}</span></td>
+                      <td><span style={{ fontWeight: 800, color: '#CE1126' }}>{item.category}</span></td>
                       <td>
                         <span style={{ color: statusColor, background: statusBg, padding: '4px 8px', borderRadius: '6px', fontSize: '12px', fontWeight: 800 }}>
                           {item.executionStatus}
@@ -685,8 +685,8 @@ export default function StoreGrowthSecretsOM() {
             {filteredItems.length > 0 && (
               <tfoot>
                 <tr className="tfoot-row">
-                  <td colSpan={5} style={{ textAlign: 'center' }}>{text.table.totalLabel}</td>
-                  <td colSpan={2}>{filteredItems.length} {text.table.planUnit}</td>
+                  <td colSpan={6} style={{ textAlign: 'center' }}>{text.table.totalLabel}</td>
+                  <td>{filteredItems.length} {text.table.planUnit}</td>
                 </tr>
               </tfoot>
             )}
