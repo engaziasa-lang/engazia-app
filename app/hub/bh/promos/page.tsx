@@ -428,8 +428,8 @@ export default function DiscountCalculatorBH() {
             </tbody>
             <tfoot>
               <tr class="tfoot-row">
-                <td colspan="7">${text.table.totalLabel}</td>
-                <td colspan="3">${totalProfitSum.toFixed(2)} ${text.currency}</td>
+                <td colSpan={7}>${text.table.totalLabel}</td>
+                <td colSpan={3}>${totalProfitSum.toFixed(2)} ${text.currency}</td>
               </tr>
             </tfoot>
           </table>
@@ -738,8 +738,8 @@ export default function DiscountCalculatorBH() {
             {filteredItems.length > 0 && (
               <tfoot>
                 <tr className="tfoot-row">
-                  <td colSpan={5} style={{ textAlign: 'center' }}>{text.table.totalLabel}</td>
-                  <td colspan="3" style={{ color: '#047857' }}>{totalProfitSum.toFixed(2)} {text.currency}</td>
+                  <td colSpan={7} style={{ textAlign: 'center' }}>{text.table.totalLabel}</td>
+                  <td colSpan={3} style={{ color: '#047857' }}>{totalProfitSum.toFixed(2)} {text.currency}</td>
                 </tr>
               </tfoot>
             )}
