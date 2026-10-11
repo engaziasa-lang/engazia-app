@@ -16,12 +16,12 @@ interface ABTestItem {
   campBCpa: number;
   winner: string;
   createdAt?: string;
+  createdAtTimestamp?: number; // للفرز الزمني
 }
 
 export default function ABTestingCalculatorAE() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
 
-  // تفريغ الحقول بالكامل كقيمة ابتدائية
   const [testName, setTestName] = useState<string>('');
   
   const [campAName, setCampAName] = useState<string>('');
@@ -34,6 +34,7 @@ export default function ABTestingCalculatorAE() {
 
   const [items, setItems] = useState<ABTestItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [timeFilter, setTimeFilter] = useState<'all' | 'day' | 'week' | 'month' | '6months' | 'year'>('all');
   const [editingId, setEditingId] = useState<string | null>(null);
   
   const [isClient, setIsClient] = useState(false);
@@ -45,7 +46,6 @@ export default function ABTestingCalculatorAE() {
     setIsClient(true);
     setIsActivated(!!localStorage.getItem('merchant_license_key'));
     
-    // قراءة اللغة من الصفحة الرئيسية
     const savedLang = localStorage.getItem('seerk_global_lang') as 'ar' | 'en';
     if (savedLang) {
       setLang(savedLang);
@@ -60,7 +60,6 @@ export default function ABTestingCalculatorAE() {
     }
   }, []);
 
-  // قاموس الترجمة
   const t = {
     ar: {
       back: '← عودة للمنصة',
@@ -92,6 +91,14 @@ export default function ABTestingCalculatorAE() {
       searchPH: '🔍 بحث باسم الاختبار...',
       exportBtn: '📥 تصدير Excel',
       importBtn: '📂 استيراد',
+      filter: {
+        all: 'الكل',
+        day: 'يوم',
+        week: 'أسبوع',
+        month: 'شهر',
+        sixMonths: '6 أشهر',
+        year: 'سنة'
+      },
       alerts: {
         limit: '🔒 عذراً، لقد استهلكت الحد التجريبي (3 سجلات). يرجى ترقية حسابك لفتح السعة الكاملة بلا حدود!',
         fillErr: 'الرجاء التأكد من تعبئة اسم الاختبار والمصروفات للحملتين بشكل صحيح.',
@@ -103,7 +110,7 @@ export default function ABTestingCalculatorAE() {
         importErr: '❌ ملف غير صالح.',
       },
       table: {
-        noTests: 'لا توجد اختبارات A/B مسجلة حالياً.',
+        noTests: 'لا توجد اختبارات A/B مسجلة تطابق بحثك حالياً.',
         th1: 'م',
         th2: 'اسم الاختبار',
         th3: 'الحملة (أ)',
@@ -152,6 +159,14 @@ export default function ABTestingCalculatorAE() {
       searchPH: '🔍 Search by test name...',
       exportBtn: '📥 Export Excel',
       importBtn: '📂 Import',
+      filter: {
+        all: 'All',
+        day: '1 Day',
+        week: '1 Week',
+        month: '1 Month',
+        sixMonths: '6 Months',
+        year: '1 Year'
+      },
       alerts: {
         limit: '🔒 Sorry, you have reached the trial limit (3 records). Please upgrade to unlock unlimited access!',
         fillErr: 'Please ensure the test name and expenses for both campaigns are filled correctly.',
@@ -163,7 +178,7 @@ export default function ABTestingCalculatorAE() {
         importErr: '❌ Invalid file.',
       },
       table: {
-        noTests: 'No A/B tests recorded currently.',
+        noTests: 'No A/B tests found matching your search.',
         th1: '#',
         th2: 'Test Name',
         th3: 'Campaign (A)',
@@ -249,6 +264,7 @@ export default function ABTestingCalculatorAE() {
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
     const localeStr = lang === 'ar' ? 'ar-AE' : 'en-AE';
     const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
+    const currentTimestamp = Date.now();
 
     const newItemData = {
       testName,
@@ -260,17 +276,26 @@ export default function ABTestingCalculatorAE() {
       campBSpend: spendB,
       campBOrders: ordersB,
       campBCpa: Number(cpaB.toFixed(2)),
-      winner: winnerText.replace('🏆 الفائز: ', '').replace('🏆 Winner: ', ''),
-      createdAt: formattedDate
+      winner: winnerText.replace('🏆 الفائز: ', '').replace('🏆 Winner: ', '')
     };
 
     if (editingId) {
-      const updated = items.map(item => item.id === editingId ? { ...item, ...newItemData, createdAt: item.createdAt || formattedDate } : item);
+      const updated = items.map(item => item.id === editingId ? { 
+        ...item, 
+        ...newItemData, 
+        createdAt: item.createdAt || formattedDate,
+        createdAtTimestamp: item.createdAtTimestamp || currentTimestamp
+      } : item);
       saveToLocalStorage(updated);
       setEditingId(null);
       alert(text.alerts.updateSuccess);
     } else {
-      const newItem: ABTestItem = { id: Date.now().toString(), ...newItemData };
+      const newItem: ABTestItem = { 
+        id: Date.now().toString(), 
+        ...newItemData, 
+        createdAt: formattedDate,
+        createdAtTimestamp: currentTimestamp
+      };
       saveToLocalStorage([...items, newItem]);
       alert(text.alerts.saveSuccess);
     }
@@ -297,8 +322,29 @@ export default function ABTestingCalculatorAE() {
     }
   };
 
+  // الفرز الزمني والبحث
+  const filteredItems = items.filter(item => {
+    const matchesSearch = (item?.testName || '').toLowerCase().includes((searchQuery || '').toLowerCase());
+    if (!matchesSearch) return false;
+
+    if (timeFilter === 'all') return true;
+    if (!item.createdAtTimestamp) return true;
+
+    const now = Date.now();
+    const diff = now - item.createdAtTimestamp;
+    const dayMs = 24 * 60 * 60 * 1000;
+
+    if (timeFilter === 'day') return diff <= dayMs;
+    if (timeFilter === 'week') return diff <= 7 * dayMs;
+    if (timeFilter === 'month') return diff <= 30 * dayMs;
+    if (timeFilter === '6months') return diff <= 180 * dayMs;
+    if (timeFilter === 'year') return diff <= 365 * dayMs;
+
+    return true;
+  });
+
   const handleExportExcel = () => {
-    if (items.length === 0) {
+    if (filteredItems.length === 0) {
       alert(text.alerts.noDataExp);
       return;
     }
@@ -334,7 +380,7 @@ export default function ABTestingCalculatorAE() {
             <tbody>
     `;
 
-    items.forEach((row, idx) => {
+    filteredItems.forEach((row, idx) => {
       tableHtml += `
         <tr>
           <td>${idx + 1}</td>
@@ -383,10 +429,6 @@ export default function ABTestingCalculatorAE() {
     }
   };
 
-  const filteredItems = items.filter(item => 
-    (item?.testName || '').toLowerCase().includes((searchQuery || '').toLowerCase())
-  );
-
   return (
     <div className="tool-container" style={{ direction: lang === 'ar' ? 'rtl' : 'ltr' }}>
       <style jsx global>{`
@@ -420,9 +462,7 @@ export default function ABTestingCalculatorAE() {
         .input-group label { display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 6px; }
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
         .input-wrapper input { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .input-wrapper input.with-currency { padding-${lang === 'ar' ? 'left' : 'right'}: 45px; }
         .input-wrapper input:focus { border-color: #047857; background: #ffffff; }
-        .currency-tag { position: absolute; ${lang === 'ar' ? 'left: 14px;' : 'right: 14px;'} color: #64748b; font-weight: 800; font-size: 13px; pointer-events: none; }
         
         .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
         .action-btn:hover { background: #065f46; }
@@ -435,8 +475,16 @@ export default function ABTestingCalculatorAE() {
         .primary .result-value { font-size: 22px; color: #ffffff; direction: ${lang === 'ar' ? 'rtl' : 'ltr'}; }
 
         .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); margin-top: 20px; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        
+        /* أدوات الفرز والبحث */
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
-        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 250px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        
+        .filter-row { display: flex; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 4px; gap: 4px; overflow-x: auto; flex: 1; justify-content: center; min-width: 300px;}
+        .filter-btn { background: transparent; border: none; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 700; color: #64748b; cursor: pointer; transition: 0.2s; font-family: inherit; white-space: nowrap; }
+        .filter-btn:hover { color: #0f172a; background: #e2e8f0; }
+        .filter-btn.active { background: #ffffff; color: #0f172a; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
         .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; }
         .t-btn:hover { background: #f1f5f9; }
@@ -571,6 +619,16 @@ export default function ABTestingCalculatorAE() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
+
+          <div className="filter-row">
+            <button className={`filter-btn ${timeFilter === 'all' ? 'active' : ''}`} onClick={() => setTimeFilter('all')}>{text.filter.all}</button>
+            <button className={`filter-btn ${timeFilter === 'day' ? 'active' : ''}`} onClick={() => setTimeFilter('day')}>{text.filter.day}</button>
+            <button className={`filter-btn ${timeFilter === 'week' ? 'active' : ''}`} onClick={() => setTimeFilter('week')}>{text.filter.week}</button>
+            <button className={`filter-btn ${timeFilter === 'month' ? 'active' : ''}`} onClick={() => setTimeFilter('month')}>{text.filter.month}</button>
+            <button className={`filter-btn ${timeFilter === '6months' ? 'active' : ''}`} onClick={() => setTimeFilter('6months')}>{text.filter.sixMonths}</button>
+            <button className={`filter-btn ${timeFilter === 'year' ? 'active' : ''}`} onClick={() => setTimeFilter('year')}>{text.filter.year}</button>
+          </div>
+
           <div className="table-btns">
             <button className="t-btn" onClick={handleExportExcel}>{text.exportBtn}</button>
             <button className="t-btn" onClick={() => fileInputRef.current?.click()}>{text.importBtn}</button>
