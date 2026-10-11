@@ -15,7 +15,7 @@ interface TaxItem {
   timestamp?: number;
 }
 
-export default function TaxReturnPreparerOM() {
+export default function TaxReturnPreparerBH() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
 
   const [invoiceDate, setInvoiceDate] = useState<string>('');
@@ -36,7 +36,7 @@ export default function TaxReturnPreparerOM() {
 
   useEffect(() => {
     setIsClient(true);
-    setIsActivated(!!localStorage.getItem('merchant_license_key_om'));
+    setIsActivated(!!localStorage.getItem('merchant_license_key_bh'));
     
     const savedLang = localStorage.getItem('seerk_global_lang') as 'ar' | 'en';
     if (savedLang) {
@@ -49,7 +49,7 @@ export default function TaxReturnPreparerOM() {
       setTransactionType('مبيعات (ضريبة محصلة) ↗');
     }
     
-    const saved = localStorage.getItem('seerk_om_tax_return_items');
+    const saved = localStorage.getItem('seerk_bh_tax_return_items');
     if (saved) {
       try { 
         const parsedData = JSON.parse(saved);
@@ -60,7 +60,7 @@ export default function TaxReturnPreparerOM() {
 
   const saveToLocalStorage = (newItems: TaxItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_om_tax_return_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_bh_tax_return_items', JSON.stringify(newItems));
   };
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -71,8 +71,8 @@ export default function TaxReturnPreparerOM() {
     } else {
       const numVal = Number(val);
       setAmountBeforeVat(numVal);
-      // حساب الضريبة تلقائيا بنسبة 5% المطبقة في عُمان
-      setVatAmount(Number((numVal * 0.05).toFixed(3))); 
+      // حساب الضريبة تلقائيا بنسبة 10% المطبقة في مملكة البحرين
+      setVatAmount(Number((numVal * 0.10).toFixed(3))); 
     }
   };
 
@@ -80,7 +80,7 @@ export default function TaxReturnPreparerOM() {
     ar: {
       back: '← عودة للمنصة',
       title: 'مجهز بيانات الإقرار الضريبي 📄',
-      desc: 'اجمع ورتب بيانات مبيعاتك ومشترياتك لتسهيل رفع الإقرار الضريبي لجهاز الضرائب العُماني (OTA) بدون أخطاء',
+      desc: 'اجمع ورتب بيانات مبيعاتك ومشترياتك لتسهيل رفع الإقرار الضريبي للجهاز الوطني للإيرادات (NBR) بدون أخطاء',
       editRecord: 'تعديل الفاتورة',
       newRecord: 'إضافة فاتورة جديدة للسجل',
       clear: '🧹 مسح الحقول',
@@ -92,17 +92,17 @@ export default function TaxReturnPreparerOM() {
       optSales: 'مبيعات (ضريبة محصلة) ↗',
       optPurchases: 'مشتريات (ضريبة مدفوعة) ↙️',
       amtBefore: 'المبلغ قبل الضريبة',
-      vatAmt: 'قيمة الضريبة المضافة (5% آلياً)',
+      vatAmt: 'قيمة الضريبة المضافة (10% آلياً)',
       vatNote: '* يمكنك تعديل المبلغ يدوياً إذا اختلف عن الفاتورة الأصلية.',
       saveBtnNew: '+ حفظ الفاتورة في السجل',
       saveBtnEdit: '💾 حفظ التعديلات',
       analysisTitle: 'مؤشرات الإقرار الضريبي الحية',
-      netVatDue: 'صافي الضريبة المستحقة (OTA)',
+      netVatDue: 'صافي الضريبة المستحقة (NBR)',
       netVatPos: 'مبلغ واجب السداد للجهاز',
       netVatNeg: 'رصيد دائن مسترد لك',
       totalSalesVat: 'إجمالي ضريبة المبيعات المحصلة',
       totalPurchVat: 'إجمالي ضريبة المشتريات المدفوعة',
-      currency: 'ر.ع',
+      currency: 'د.ب',
       searchPH: '🔍 بحث برقم الفاتورة أو النوع...',
       exportBtn: '📥 تصدير الإقرار (Excel)',
       importBtn: '📂 استيراد',
@@ -124,13 +124,13 @@ export default function TaxReturnPreparerOM() {
         th5: 'الضريبة',
         th6: 'الإجمالي',
         th7: 'الإجراءات',
-        netDue: 'الصافي المستحق (OTA)'
+        netDue: 'الصافي المستحق (NBR)'
       },
       export: {
         title: 'تقرير الإقرار الضريبي المبدئي',
         salesVat: 'إجمالي ضريبة المبيعات',
         purchVat: 'إجمالي ضريبة المشتريات',
-        netVat: 'صافي الضريبة المستحقة (OTA)',
+        netVat: 'صافي الضريبة المستحقة (NBR)',
         thDate: 'تاريخ الفاتورة',
         thInvNum: 'رقم الفاتورة',
         thType: 'نوع المعاملة',
@@ -153,7 +153,7 @@ export default function TaxReturnPreparerOM() {
     en: {
       back: '→ Back to Hub',
       title: 'Tax Return Preparer 📄',
-      desc: 'Collect and organize your sales and purchases to easily file your tax return with Oman Tax Authority (OTA) without errors',
+      desc: 'Collect and organize your sales and purchases to easily file your tax return with National Bureau for Revenue (NBR) without errors',
       editRecord: 'Edit Invoice',
       newRecord: 'Add New Invoice to Log',
       clear: '🧹 Clear Fields',
@@ -165,17 +165,17 @@ export default function TaxReturnPreparerOM() {
       optSales: 'Sales (Collected Tax) ↗',
       optPurchases: 'Purchases (Paid Tax) ↙️',
       amtBefore: 'Amount Before VAT',
-      vatAmt: 'VAT Amount (Auto 5%)',
+      vatAmt: 'VAT Amount (Auto 10%)',
       vatNote: '* You can manually edit the amount if it differs from the original invoice.',
       saveBtnNew: '+ Save Invoice to Log',
       saveBtnEdit: '💾 Save Changes',
       analysisTitle: 'Live Tax Return Indicators',
-      netVatDue: 'Net VAT Due (OTA)',
+      netVatDue: 'Net VAT Due (NBR)',
       netVatPos: 'Amount payable to the authority',
       netVatNeg: 'Creditor balance refundable to you',
       totalSalesVat: 'Total Sales VAT Collected',
       totalPurchVat: 'Total Purchases VAT Paid',
-      currency: 'OMR',
+      currency: 'BHD',
       searchPH: '🔍 Search by invoice number or type...',
       exportBtn: '📥 Export Return (Excel)',
       importBtn: '📂 Import',
@@ -197,13 +197,13 @@ export default function TaxReturnPreparerOM() {
         th5: 'VAT',
         th6: 'Total',
         th7: 'Actions',
-        netDue: 'Net Due (OTA)'
+        netDue: 'Net Due (NBR)'
       },
       export: {
         title: 'Preliminary Tax Return Report',
         salesVat: 'Total Sales VAT',
         purchVat: 'Total Purchases VAT',
-        netVat: 'Net VAT Due (OTA)',
+        netVat: 'Net VAT Due (NBR)',
         thDate: 'Invoice Date',
         thInvNum: 'Invoice Number',
         thType: 'Transaction Type',
@@ -254,7 +254,7 @@ export default function TaxReturnPreparerOM() {
     const totalAmount = amtBefore + vat;
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const localeStr = lang === 'ar' ? 'ar-OM' : 'en-OM';
+    const localeStr = lang === 'ar' ? 'ar-BH' : 'en-BH';
     const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
 
     if (editingId) {
@@ -405,7 +405,7 @@ export default function TaxReturnPreparerOM() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", `enjazya_om_tax_return_data_${dateFilter}.xls`);
+    link.setAttribute("download", `enjazya_bh_tax_return_data_${dateFilter}.xls`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -464,11 +464,11 @@ export default function TaxReturnPreparerOM() {
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
         .input-wrapper input, .input-wrapper select { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .input-wrapper input.with-currency { padding-${lang === 'ar' ? 'left' : 'right'}: 45px; }
-        .input-wrapper input:focus, .input-wrapper select:focus { border-color: #C62828; background: #ffffff; }
+        .input-wrapper input:focus, .input-wrapper select:focus { border-color: #CE1126; background: #ffffff; }
         .currency-tag { position: absolute; ${lang === 'ar' ? 'left: 14px;' : 'right: 14px;'} color: #64748b; font-weight: 800; font-size: 13px; pointer-events: none; }
         
-        .action-btn { background: #C62828; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
-        .action-btn:hover { background: #B71C1C; }
+        .action-btn { background: #CE1126; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
+        .action-btn:hover { background: #A60E1E; }
 
         .result-box { background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .result-label { font-size: 13px; font-weight: 700; color: #64748b; }
@@ -478,14 +478,14 @@ export default function TaxReturnPreparerOM() {
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
         
         .search-input { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; flex-grow: 1; max-width: 350px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .search-input:focus { border-color: #C62828; }
+        .search-input:focus { border-color: #CE1126; }
         
         .filter-select { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; background: #fff; color: #334155; cursor: pointer; min-width: 130px; }
-        .filter-select:focus { border-color: #C62828; }
+        .filter-select:focus { border-color: #CE1126; }
 
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
         .t-btn { padding: 9px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 6px; }
-        .t-btn:hover { background: #f1f5f9; border-color: #C62828; color: #C62828; }
+        .t-btn:hover { background: #f1f5f9; border-color: #CE1126; color: #CE1126; }
 
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 900px; }
@@ -505,7 +505,7 @@ export default function TaxReturnPreparerOM() {
           <h1>{text.title}</h1>
           <p>{text.desc}</p>
         </div>
-        <Link href="/hub/om" className="back-btn">
+        <Link href="/hub/bh" className="back-btn">
           {text.back}
         </Link>
       </div>
@@ -529,7 +529,7 @@ export default function TaxReturnPreparerOM() {
                 <div className="input-wrapper">
                   <input 
                     type="date" 
-                    lang={lang === 'ar' ? 'ar-OM' : 'en-US'} 
+                    lang={lang === 'ar' ? 'ar-BH' : 'en-US'} 
                     value={invoiceDate} 
                     onChange={(e) => setInvoiceDate(e.target.value)} 
                     required 
@@ -566,7 +566,7 @@ export default function TaxReturnPreparerOM() {
             <div className="input-group">
               <label>{text.vatAmt} ({text.currency})</label>
               <div className="input-wrapper">
-                <input className="with-currency" type="number" step="0.01" min="0" value={vatAmount === '' ? '' : vatAmount} onChange={(e) => setVatAmount(e.target.value === '' ? '' : Number(e.target.value))} placeholder="5" required />
+                <input className="with-currency" type="number" step="0.01" min="0" value={vatAmount === '' ? '' : vatAmount} onChange={(e) => setVatAmount(e.target.value === '' ? '' : Number(e.target.value))} placeholder="10" required />
                 <span className="currency-tag">{text.currency}</span>
               </div>
               <small style={{ color: '#64748b', fontSize: '11px', display: 'block', marginTop: '4px' }}>{text.vatNote}</small>
@@ -581,7 +581,7 @@ export default function TaxReturnPreparerOM() {
         <div className="card">
           <h2 className="card-title">{text.analysisTitle}</h2>
 
-          <div className="result-box" style={{ background: netVatDue >= 0 ? 'linear-gradient(135deg, #C62828 0%, #B71C1C 100%)' : 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)', color: '#fff' }}>
+          <div className="result-box" style={{ background: netVatDue >= 0 ? 'linear-gradient(135deg, #CE1126 0%, #A60E1E 100%)' : 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)', color: '#fff' }}>
             <div>
               <div className="result-label" style={{ color: '#fff' }}>{text.netVatDue}</div>
               <div style={{ fontSize: '11px', opacity: 0.9, marginTop: '2px' }}>{netVatDue >= 0 ? text.netVatPos : text.netVatNeg}</div>
@@ -591,9 +591,9 @@ export default function TaxReturnPreparerOM() {
             </div>
           </div>
 
-          <div className="result-box" style={{ borderRight: lang === 'ar' ? '4px solid #C62828' : 'none', borderLeft: lang === 'en' ? '4px solid #C62828' : 'none' }}>
+          <div className="result-box" style={{ borderRight: lang === 'ar' ? '4px solid #CE1126' : 'none', borderLeft: lang === 'en' ? '4px solid #CE1126' : 'none' }}>
             <span className="result-label">{text.totalSalesVat}</span>
-            <span className="result-value" style={{ color: '#C62828' }}>{totalSalesVat.toFixed(3)} {text.currency}</span>
+            <span className="result-value" style={{ color: '#CE1126' }}>{totalSalesVat.toFixed(3)} {text.currency}</span>
           </div>
 
           <div className="result-box" style={{ borderRight: lang === 'ar' ? '4px solid #d97706' : 'none', borderLeft: lang === 'en' ? '4px solid #d97706' : 'none', background: '#f8fafc' }}>
@@ -664,12 +664,12 @@ export default function TaxReturnPreparerOM() {
                         <div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px', fontWeight: 600 }}>📅 {item.invoiceDate}</div>
                       </td>
                       <td>
-                        <span style={{ color: isSales ? '#C62828' : '#d97706', background: isSales ? '#FFEBEE' : '#fffbeb', padding: '4px 8px', borderRadius: '6px', fontSize: '12px', fontWeight: 800 }}>
+                        <span style={{ color: isSales ? '#CE1126' : '#d97706', background: isSales ? '#FFEBEE' : '#fffbeb', padding: '4px 8px', borderRadius: '6px', fontSize: '12px', fontWeight: 800 }}>
                           {item.transactionType}
                         </span>
                       </td>
                       <td style={{ fontWeight: 700 }}>{item.amountBeforeVat} {text.currency}</td>
-                      <td style={{ fontWeight: 800, color: isSales ? '#C62828' : '#d97706' }}>{item.vatAmount} {text.currency}</td>
+                      <td style={{ fontWeight: 800, color: isSales ? '#CE1126' : '#d97706' }}>{item.vatAmount} {text.currency}</td>
                       <td style={{ fontWeight: 900 }}>{item.totalAmount} {text.currency}</td>
                       <td>
                         <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
@@ -686,7 +686,7 @@ export default function TaxReturnPreparerOM() {
               <tfoot>
                 <tr className="tfoot-row">
                   <td colSpan={3} style={{ textAlign: 'center' }}>{text.table.netDue}</td>
-                  <td colSpan={4} style={{ color: netVatDue >= 0 ? '#C62828' : '#0284c7', fontSize: '15px' }} dir="ltr">{netVatDue >= 0 ? netVatDue.toFixed(3) : `(${Math.abs(netVatDue).toFixed(3)})`} {text.currency}</td>
+                  <td colSpan={4} style={{ color: netVatDue >= 0 ? '#CE1126' : '#0284c7', fontSize: '15px' }} dir="ltr">{netVatDue >= 0 ? netVatDue.toFixed(3) : `(${Math.abs(netVatDue).toFixed(3)})`} {text.currency}</td>
                 </tr>
               </tfoot>
             )}
