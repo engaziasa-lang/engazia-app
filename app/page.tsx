@@ -17,8 +17,8 @@ export default function MarketSelector() {
         </p>
       </div>
 
-      {/* تم التعديل إلى repeat(5, minmax(0, 1fr)) لتستوعب 5 أسواق */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, minmax(0, 1fr))', gap: '15px', width: '100%', maxWidth: '1200px' }}>
+      {/* تم التعديل إلى repeat(6, minmax(0, 1fr)) لتستوعب 6 أسواق */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, minmax(0, 1fr))', gap: '15px', width: '100%', maxWidth: '1400px' }}>
         
         {/* بطاقة السوق السعودي */}
         <Link href="/hub/sa" style={{ textDecoration: 'none' }}>
@@ -76,7 +76,7 @@ export default function MarketSelector() {
           </div>
         </Link>
 
-        {/* بطاقة السوق العُماني (الجديدة) */}
+        {/* بطاقة السوق العُماني */}
         <Link href="/hub/om" style={{ textDecoration: 'none' }}>
           <div style={{ background: '#ffffff', border: '2px solid #e2e8f0', borderRadius: '16px', padding: '20px 15px', textAlign: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.03)', transition: 'all 0.3s ease', cursor: 'pointer', height: '100%', boxSizing: 'border-box' }}
                onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#C62828'; e.currentTarget.style.transform = 'translateY(-3px)'; }}
@@ -90,11 +90,25 @@ export default function MarketSelector() {
           </div>
         </Link>
 
+        {/* بطاقة السوق البحريني (الجديدة) */}
+        <Link href="/hub/bh" style={{ textDecoration: 'none' }}>
+          <div style={{ background: '#ffffff', border: '2px solid #e2e8f0', borderRadius: '16px', padding: '20px 15px', textAlign: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.03)', transition: 'all 0.3s ease', cursor: 'pointer', height: '100%', boxSizing: 'border-box' }}
+               onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#CE1126'; e.currentTarget.style.transform = 'translateY(-3px)'; }}
+               onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.transform = 'translateY(0)'; }}>
+            <div style={{ marginBottom: '10px', display: 'inline-block', borderRadius: '6px', overflow: 'hidden', boxShadow: '0 2px 6px rgba(0,0,0,0.1)' }}>
+              <img src="https://flagcdn.com/w160/bh.png" alt="علم مملكة البحرين" style={{ width: '60px', height: '38px', objectFit: 'cover', display: 'block' }} />
+            </div>
+            <h2 style={{ fontSize: '18px', fontWeight: 900, color: '#0f172a', marginBottom: '8px' }}>السوق البحريني</h2>
+            <p style={{ color: '#64748b', fontSize: '12.5px', fontWeight: 500, margin: '0 0 15px 0', lineHeight: '1.4' }}>متوافق مع الجهاز الوطني للإيرادات (NBR) والدينار.</p>
+            <span style={{ display: 'inline-block', background: '#FDECEE', color: '#CE1126', border: '1px solid #F9C9CE', padding: '8px 14px', borderRadius: '8px', fontWeight: 800, fontSize: '12.5px' }}>دخول السوق ←</span>
+          </div>
+        </Link>
+
       </div>
 
       <style jsx>{`
-        /* تعديلات الـ Responsive لتتوافق مع الـ 5 بطاقات بدلاً من 4 */
-        @media(max-width: 1050px) {
+        /* تعديلات الـ Responsive لتتوافق مع الـ 6 بطاقات */
+        @media(max-width: 1200px) {
           div :global(div[style*="grid-template-columns"]) {
             grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
           }
