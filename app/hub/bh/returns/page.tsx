@@ -16,7 +16,7 @@ interface ReturnItem {
   timestamp?: number;
 }
 
-export default function ReturnsAnalyzerOM() {
+export default function ReturnsAnalyzerBH() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
 
   const [productName, setProductName] = useState<string>('');
@@ -37,14 +37,14 @@ export default function ReturnsAnalyzerOM() {
 
   useEffect(() => {
     setIsClient(true);
-    setIsActivated(!!localStorage.getItem('merchant_license_key_om'));
+    setIsActivated(!!localStorage.getItem('merchant_license_key_bh'));
 
     const savedLang = localStorage.getItem('seerk_global_lang') as 'ar' | 'en';
     if (savedLang) {
       setLang(savedLang);
     }
 
-    const saved = localStorage.getItem('seerk_om_returns_analysis_items');
+    const saved = localStorage.getItem('seerk_bh_returns_analysis_items');
     if (saved) {
       try { setItems(JSON.parse(saved)); } catch (e) { }
     }
@@ -52,7 +52,7 @@ export default function ReturnsAnalyzerOM() {
 
   const saveToLocalStorage = (newItems: ReturnItem[]) => {
     setItems(newItems);
-    localStorage.setItem('seerk_om_returns_analysis_items', JSON.stringify(newItems));
+    localStorage.setItem('seerk_bh_returns_analysis_items', JSON.stringify(newItems));
   };
 
   const returnsCount = typeof returnedOrders === 'number' ? returnedOrders : 0;
@@ -68,7 +68,7 @@ export default function ReturnsAnalyzerOM() {
     ar: {
       back: '← عودة للمنصة',
       title: 'محلل خسائر المرتجعات والشحن العكسي 🔄',
-      desc: 'قس تأثير الاسترجاع والاستبدال على صافي أرباحك الشهرية وتدفقك النقدي في متجرك بعُمان',
+      desc: 'قس تأثير الاسترجاع والاستبدال على صافي أرباحك الشهرية وتدفقك النقدي في متجرك بمملكة البحرين',
       editRecord: 'تعديل السجل',
       newRecord: 'حساب خسائر منتج جديد',
       clear: '🧹 مسح الحقول',
@@ -91,7 +91,7 @@ export default function ReturnsAnalyzerOM() {
       lostRev: 'إجمالي المبيعات المفقودة',
       lostRevSub: 'إيرادات طارت بسبب الاسترجاع',
       lossPerOrder: 'الخسارة التشغيلية للطلب الواحد',
-      currency: 'ر.ع',
+      currency: 'د.ب',
       searchPH: '🔍 بحث في المنتجات المسترجعة...',
       exportBtn: '📥 تصدير Excel',
       importBtn: '📂 استيراد',
@@ -131,7 +131,7 @@ export default function ReturnsAnalyzerOM() {
     en: {
       back: '→ Back to Hub',
       title: 'Returns & Reverse Shipping Loss Analyzer 🔄',
-      desc: 'Measure the impact of returns and exchanges on your monthly net profit and cash flow in your Oman store',
+      desc: 'Measure the impact of returns and exchanges on your monthly net profit and cash flow in your Bahrain store',
       editRecord: 'Edit Record',
       newRecord: 'Calculate New Product Losses',
       clear: '🧹 Clear Fields',
@@ -154,7 +154,7 @@ export default function ReturnsAnalyzerOM() {
       lostRev: 'Total Lost Sales Revenue',
       lostRevSub: 'Revenues lost due to returns',
       lossPerOrder: 'Operational Loss per Order',
-      currency: 'OMR',
+      currency: 'BHD',
       searchPH: '🔍 Search returned products...',
       exportBtn: '📥 Export Excel',
       importBtn: '📂 Import',
@@ -217,7 +217,7 @@ export default function ReturnsAnalyzerOM() {
 
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const localeStr = lang === 'ar' ? 'ar-OM' : 'en-OM';
+    const localeStr = lang === 'ar' ? 'ar-BH' : 'en-BH';
     const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
 
     if (editingId) {
@@ -366,7 +366,7 @@ export default function ReturnsAnalyzerOM() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", `enjazya_om_returns_analysis_${dateFilter}.xls`);
+    link.setAttribute("download", `enjazya_bh_returns_analysis_${dateFilter}.xls`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -425,11 +425,11 @@ export default function ReturnsAnalyzerOM() {
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
         .input-wrapper input { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; background: #f8fafc; color: #0f172a; font-weight: 600; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .input-wrapper input.with-currency { padding-${lang === 'ar' ? 'left' : 'right'}: 45px; }
-        .input-wrapper input:focus { border-color: #C62828; background: #ffffff; }
+        .input-wrapper input:focus { border-color: #CE1126; background: #ffffff; }
         .currency-tag { position: absolute; ${lang === 'ar' ? 'left: 14px;' : 'right: 14px;'} color: #64748b; font-weight: 800; font-size: 13px; pointer-events: none; }
         
-        .action-btn { background: #C62828; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
-        .action-btn:hover { background: #B71C1C; }
+        .action-btn { background: #CE1126; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
+        .action-btn:hover { background: #A60E1E; }
 
         .result-box { background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .result-box.danger { background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); color: #fff; border: none; padding: 20px; }
@@ -443,14 +443,14 @@ export default function ReturnsAnalyzerOM() {
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
         
         .search-input { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; flex-grow: 1; max-width: 350px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .search-input:focus { border-color: #C62828; }
+        .search-input:focus { border-color: #CE1126; }
         
         .filter-select { padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; background: #fff; color: #334155; cursor: pointer; min-width: 130px; }
-        .filter-select:focus { border-color: #C62828; }
+        .filter-select:focus { border-color: #CE1126; }
 
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
         .t-btn { padding: 9px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 6px; }
-        .t-btn:hover { background: #f1f5f9; border-color: #C62828; color: #C62828; }
+        .t-btn:hover { background: #f1f5f9; border-color: #CE1126; color: #CE1126; }
 
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 900px; }
@@ -470,7 +470,7 @@ export default function ReturnsAnalyzerOM() {
           <h1>{text.title}</h1>
           <p>{text.desc}</p>
         </div>
-        <Link href="/hub/om" className="back-btn">
+        <Link href="/hub/bh" className="back-btn">
           {text.back}
         </Link>
       </div>
@@ -583,7 +583,7 @@ export default function ReturnsAnalyzerOM() {
             <option value="day">{text.filters.day}</option>
             <option value="week">{text.filters.week}</option>
             <option value="month">{text.filters.month}</option>
-            <option value="6months">{text.filters.sixMonths}</option>
+            <option value="sixMonths">{text.filters.sixMonths}</option>
             <option value="year">{text.filters.year}</option>
           </select>
 
