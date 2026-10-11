@@ -20,20 +20,18 @@ interface InvoiceItem {
   totalAmount: number;
   vatAmount: number;
   createdAt?: string;
+  createdAtTimestamp?: number; // للفرز الزمني
 }
 
 export default function FtaInvoiceGeneratorAE() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
 
-  // البيانات الثابتة الافتراضية
   const [storeName, setStoreName] = useState<string>('');
   const [vatNumber, setVatNumber] = useState<string>('100000000000003');
   
-  // بيانات الفاتورة
   const [invoiceNumber, setInvoiceNumber] = useState<string>('INV-2026-001');
   const [customerName, setCustomerName] = useState<string>('');
   
-  // نظام سلة المنتجات للفاتورة الحالية
   const [currentProducts, setCurrentProducts] = useState<InvoiceProduct[]>([]);
   const [prodName, setProdName] = useState<string>('');
   const [prodPrice, setProdPrice] = useState<number | ''>('');
@@ -41,24 +39,22 @@ export default function FtaInvoiceGeneratorAE() {
 
   const [items, setItems] = useState<InvoiceItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [timeFilter, setTimeFilter] = useState<'all' | 'day' | 'week' | 'month' | '6months' | 'year'>('all');
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    // قراءة اللغة من الصفحة الرئيسية
     const savedLang = localStorage.getItem('seerk_global_lang') as 'ar' | 'en';
     if (savedLang) {
       setLang(savedLang);
     }
     
-    // استرجاع سجل الفواتير
     const savedItems = localStorage.getItem('seerk_ae_fta_invoices_items');
     if (savedItems) {
       try { setItems(JSON.parse(savedItems)); } catch (e) { }
     }
 
-    // استرجاع بيانات المتجر
     const savedStoreName = localStorage.getItem('seerk_ae_store_name');
     const savedVatNumber = localStorage.getItem('seerk_ae_vat_number');
     if (savedStoreName) {
@@ -121,6 +117,14 @@ export default function FtaInvoiceGeneratorAE() {
       searchPH: '🔍 بحث برقم الفاتورة أو العميل...',
       exportBtn: '📥 تصدير Excel',
       importBtn: '📂 استيراد',
+      filter: {
+        all: 'الكل',
+        day: 'يوم',
+        week: 'أسبوع',
+        month: 'شهر',
+        sixMonths: '6 أشهر',
+        year: 'سنة'
+      },
       qrStore: 'المتجر',
       qrVat: 'الرقم الضريبي',
       qrDate: 'التاريخ',
@@ -128,7 +132,7 @@ export default function FtaInvoiceGeneratorAE() {
       qrVatAmt: 'الضريبة',
       miscProducts: 'منتجات متنوعة',
       table: {
-        noRecords: 'لا توجد فواتير مسجلة في السجل حالياً.',
+        noRecords: 'لا توجد فواتير مسجلة تطابق بحثك حالياً.',
         th1: '#',
         th2: 'الفاتورة والتاريخ',
         th3: 'العميل والأصناف',
@@ -204,6 +208,14 @@ export default function FtaInvoiceGeneratorAE() {
       searchPH: '🔍 Search by invoice number or customer...',
       exportBtn: '📥 Export Excel',
       importBtn: '📂 Import',
+      filter: {
+        all: 'All',
+        day: '1 Day',
+        week: '1 Week',
+        month: '1 Month',
+        sixMonths: '6 Months',
+        year: '1 Year'
+      },
       qrStore: 'Store',
       qrVat: 'VAT No',
       qrDate: 'Date',
@@ -211,7 +223,7 @@ export default function FtaInvoiceGeneratorAE() {
       qrVatAmt: 'VAT',
       miscProducts: 'Various Products',
       table: {
-        noRecords: 'No invoices currently saved in the log.',
+        noRecords: 'No invoices found matching your search.',
         th1: '#',
         th2: 'Invoice & Date',
         th3: 'Customer & Items',
@@ -317,6 +329,7 @@ export default function FtaInvoiceGeneratorAE() {
 
     const now = new Date();
     const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptionsDisplay)}`;
+    const currentTimestamp = Date.now();
 
     if (editingId) {
       const updated = items.map(item => item.id === editingId ? {
@@ -329,6 +342,7 @@ export default function FtaInvoiceGeneratorAE() {
         totalAmount: amt,
         vatAmount: Number(vatAmt.toFixed(2)),
         createdAt: item.createdAt || formattedDate,
+        createdAtTimestamp: item.createdAtTimestamp || currentTimestamp
       } : item);
       saveToLocalStorage(updated);
       setEditingId(null);
@@ -344,6 +358,7 @@ export default function FtaInvoiceGeneratorAE() {
         totalAmount: amt,
         vatAmount: Number(vatAmt.toFixed(2)),
         createdAt: formattedDate,
+        createdAtTimestamp: currentTimestamp
       };
       saveToLocalStorage([...items, newItem]);
       alert(text.alerts.saveSuccess);
@@ -512,14 +527,36 @@ export default function FtaInvoiceGeneratorAE() {
     printWindow.document.close();
   };
 
+  // الفرز الزمني والبحث
+  const filteredItems = items.filter(item => {
+    const matchesSearch = item.invoiceNumber.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          item.customerName.toLowerCase().includes(searchQuery.toLowerCase());
+    if (!matchesSearch) return false;
+
+    if (timeFilter === 'all') return true;
+    if (!item.createdAtTimestamp) return true;
+
+    const now = Date.now();
+    const diff = now - item.createdAtTimestamp;
+    const dayMs = 24 * 60 * 60 * 1000;
+
+    if (timeFilter === 'day') return diff <= dayMs;
+    if (timeFilter === 'week') return diff <= 7 * dayMs;
+    if (timeFilter === 'month') return diff <= 30 * dayMs;
+    if (timeFilter === '6months') return diff <= 180 * dayMs;
+    if (timeFilter === 'year') return diff <= 365 * dayMs;
+
+    return true;
+  });
+
+  const totalInvoicesAmount = filteredItems.reduce((acc, curr) => acc + curr.totalAmount, 0);
+  const totalVatValue = filteredItems.reduce((acc, curr) => acc + curr.vatAmount, 0);
+
   const handleExportExcel = () => {
-    if (items.length === 0) {
+    if (filteredItems.length === 0) {
       alert(text.alerts.noDataExp);
       return;
     }
-
-    const totalInvoicesAmount = items.reduce((acc, curr) => acc + curr.totalAmount, 0);
-    const totalVatValue = items.reduce((acc, curr) => acc + curr.vatAmount, 0);
 
     let tableHtml = `
       <html dir="${lang === 'ar' ? 'rtl' : 'ltr'}" lang="${lang}">
@@ -548,7 +585,7 @@ export default function FtaInvoiceGeneratorAE() {
             <tbody>
     `;
 
-    items.forEach((row, idx) => {
+    filteredItems.forEach((row, idx) => {
       const prodsText = row.products 
         ? row.products.map(p => `${p.name} (${text.print.th3} ${p.qty})`).join('، ')
         : (row as any).orderDescription || '';
@@ -608,14 +645,6 @@ export default function FtaInvoiceGeneratorAE() {
     }
   };
 
-  const filteredItems = items.filter(item => 
-    item.invoiceNumber.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    item.customerName.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const totalInvoicesAmount = filteredItems.reduce((acc, curr) => acc + curr.totalAmount, 0);
-  const totalVatValue = filteredItems.reduce((acc, curr) => acc + curr.vatAmount, 0);
-
   return (
     <div className="tool-container" style={{ direction: lang === 'ar' ? 'rtl' : 'ltr' }}>
       <style jsx global>{`
@@ -670,8 +699,16 @@ export default function FtaInvoiceGeneratorAE() {
         .print-btn:hover { background: #fde047; }
 
         .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
+        
+        /* أدوات الفرز والبحث */
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
-        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 250px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        
+        .filter-row { display: flex; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 4px; gap: 4px; overflow-x: auto; flex: 1; justify-content: center; min-width: 300px;}
+        .filter-btn { background: transparent; border: none; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 700; color: #64748b; cursor: pointer; transition: 0.2s; font-family: inherit; white-space: nowrap; }
+        .filter-btn:hover { color: #0f172a; background: #e2e8f0; }
+        .filter-btn.active { background: #ffffff; color: #0f172a; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
         .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; }
         .t-btn:hover { background: #f1f5f9; }
@@ -820,6 +857,16 @@ export default function FtaInvoiceGeneratorAE() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
+
+          <div className="filter-row">
+            <button className={`filter-btn ${timeFilter === 'all' ? 'active' : ''}`} onClick={() => setTimeFilter('all')}>{text.filter.all}</button>
+            <button className={`filter-btn ${timeFilter === 'day' ? 'active' : ''}`} onClick={() => setTimeFilter('day')}>{text.filter.day}</button>
+            <button className={`filter-btn ${timeFilter === 'week' ? 'active' : ''}`} onClick={() => setTimeFilter('week')}>{text.filter.week}</button>
+            <button className={`filter-btn ${timeFilter === 'month' ? 'active' : ''}`} onClick={() => setTimeFilter('month')}>{text.filter.month}</button>
+            <button className={`filter-btn ${timeFilter === '6months' ? 'active' : ''}`} onClick={() => setTimeFilter('6months')}>{text.filter.sixMonths}</button>
+            <button className={`filter-btn ${timeFilter === 'year' ? 'active' : ''}`} onClick={() => setTimeFilter('year')}>{text.filter.year}</button>
+          </div>
+
           <div className="table-btns">
             <button className="t-btn" onClick={handleExportExcel}>{text.exportBtn}</button>
             <button className="t-btn" onClick={() => fileInputRef.current?.click()}>{text.importBtn}</button>
@@ -872,7 +919,7 @@ export default function FtaInvoiceGeneratorAE() {
                         </div>
                       </td>
                     </tr>
-                  )
+                  );
                 })
               )}
             </tbody>
