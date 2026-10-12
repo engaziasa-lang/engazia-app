@@ -11,6 +11,7 @@ interface ShipmentItem {
   shippingCompany: string;
   shipmentStatus: string;
   createdAt?: string;
+  createdAtTimestamp?: number; // للفرز الزمني
 }
 
 export default function ShippingTrackerAE() {
@@ -25,6 +26,7 @@ export default function ShippingTrackerAE() {
 
   const [items, setItems] = useState<ShipmentItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [timeFilter, setTimeFilter] = useState<'all' | 'day' | 'week' | 'month' | '6months' | 'year'>('all');
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -103,8 +105,16 @@ export default function ShippingTrackerAE() {
       searchPH: '🔍 بحث برقم البوليصة أو اسم العميل...',
       exportBtn: '📥 تصدير Excel',
       importBtn: '📂 استيراد',
+      filter: {
+        all: 'الكل',
+        day: 'يوم',
+        week: 'أسبوع',
+        month: 'شهر',
+        sixMonths: '6 أشهر',
+        year: 'سنة'
+      },
       table: {
-        noRecords: 'لا توجد شحنات مسجلة للتتبع حالياً.',
+        noRecords: 'لا توجد شحنات مسجلة تطابق بحثك حالياً.',
         th1: '#',
         th2: 'رقم البوليصة والتاريخ',
         th3: 'العميل ورقم الجوال',
@@ -164,8 +174,16 @@ export default function ShippingTrackerAE() {
       searchPH: '🔍 Search by tracking number or customer...',
       exportBtn: '📥 Export Excel',
       importBtn: '📂 Import',
+      filter: {
+        all: 'All',
+        day: '1 Day',
+        week: '1 Week',
+        month: '1 Month',
+        sixMonths: '6 Months',
+        year: '1 Year'
+      },
       table: {
-        noRecords: 'No shipments currently registered for tracking.',
+        noRecords: 'No shipments found matching your search.',
         th1: '#',
         th2: 'Tracking No. & Date',
         th3: 'Customer & Phone',
@@ -235,6 +253,7 @@ export default function ShippingTrackerAE() {
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
     const localeStr = lang === 'ar' ? 'ar-AE' : 'en-AE';
     const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
+    const currentTimestamp = Date.now();
 
     if (editingId) {
       const updated = items.map(item => item.id === editingId ? {
@@ -244,7 +263,8 @@ export default function ShippingTrackerAE() {
         phoneNumber,
         shippingCompany: finalCompany,
         shipmentStatus,
-        createdAt: item.createdAt || formattedDate
+        createdAt: item.createdAt || formattedDate,
+        createdAtTimestamp: item.createdAtTimestamp || currentTimestamp
       } : item);
       saveToLocalStorage(updated);
       setEditingId(null);
@@ -257,7 +277,8 @@ export default function ShippingTrackerAE() {
         phoneNumber,
         shippingCompany: finalCompany,
         shipmentStatus,
-        createdAt: formattedDate
+        createdAt: formattedDate,
+        createdAtTimestamp: currentTimestamp
       };
       saveToLocalStorage([...items, newItem]);
       alert(text.alerts.saveSuccess);
@@ -271,7 +292,6 @@ export default function ShippingTrackerAE() {
     setCustomerName(item.customerName);
     setPhoneNumber(item.phoneNumber);
     
-    // مطابقة اسم الشركة
     const isAramex = item.shippingCompany.includes('Aramex') || item.shippingCompany.includes('أرامكس');
     const isFedEx = item.shippingCompany.includes('FedEx') || item.shippingCompany.includes('فيديكس');
     const isEmpost = item.shippingCompany.includes('Emirates') || item.shippingCompany.includes('إمبوست');
@@ -287,9 +307,8 @@ export default function ShippingTrackerAE() {
     else matchedComp = text.compOther;
 
     setShippingSelect(matchedComp);
-    setCustomShipping(item.shippingCompany); // احتفظ بالقيمة الفعلية
+    setCustomShipping(item.shippingCompany); 
 
-    // مطابقة حالة الشحنة
     const isTransit = item.shipmentStatus.includes('قيد') || item.shipmentStatus.includes('Transit');
     const isDelivered = item.shipmentStatus.includes('بنجاح') || item.shipmentStatus.includes('Delivered');
     const isDelayed = item.shipmentStatus.includes('متأخر') || item.shipmentStatus.includes('Delayed');
@@ -322,14 +341,39 @@ export default function ShippingTrackerAE() {
       phone = '971' + phone;
     }
     
-    // تمرير رسالة مترجمة
     const textMsg = text.waMessage(item.customerName, item.trackingNumber, item.shippingCompany, item.shipmentStatus);
     const url = `https://wa.me/${phone}?text=${encodeURIComponent(textMsg)}`;
     window.open(url, '_blank');
   };
 
+  // الفرز الزمني والبحث
+  const filteredItems = items.filter(item => {
+    const matchesSearch = item.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          item.trackingNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          item.shippingCompany.toLowerCase().includes(searchQuery.toLowerCase());
+    if (!matchesSearch) return false;
+
+    if (timeFilter === 'all') return true;
+    if (!item.createdAtTimestamp) return true;
+
+    const now = Date.now();
+    const diff = now - item.createdAtTimestamp;
+    const dayMs = 24 * 60 * 60 * 1000;
+
+    if (timeFilter === 'day') return diff <= dayMs;
+    if (timeFilter === 'week') return diff <= 7 * dayMs;
+    if (timeFilter === 'month') return diff <= 30 * dayMs;
+    if (timeFilter === '6months') return diff <= 180 * dayMs;
+    if (timeFilter === 'year') return diff <= 365 * dayMs;
+
+    return true;
+  });
+
+  const deliveredCount = filteredItems.filter(i => i.shipmentStatus.includes('بنجاح') || i.shipmentStatus.includes('Delivered')).length;
+  const delayedCount = filteredItems.filter(i => i.shipmentStatus.includes('متأخر') || i.shipmentStatus.includes('Delayed')).length;
+
   const handleExportExcel = () => {
-    if (items.length === 0) {
+    if (filteredItems.length === 0) {
       alert(text.alerts.noDataExp);
       return;
     }
@@ -361,7 +405,7 @@ export default function ShippingTrackerAE() {
             <tbody>
     `;
 
-    items.forEach((row, idx) => {
+    filteredItems.forEach((row, idx) => {
       tableHtml += `
         <tr>
           <td>${idx + 1}</td>
@@ -380,7 +424,7 @@ export default function ShippingTrackerAE() {
             <tfoot>
               <tr class="tfoot-row">
                 <td colspan="6">${text.table.totalLabel}</td>
-                <td>${items.length} ${text.table.shipUnit}</td>
+                <td>${filteredItems.length} ${text.table.shipUnit}</td>
               </tr>
             </tfoot>
           </table>
@@ -415,15 +459,6 @@ export default function ShippingTrackerAE() {
       };
     }
   };
-
-  const filteredItems = items.filter(item => 
-    item.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.trackingNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.shippingCompany.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const deliveredCount = filteredItems.filter(i => i.shipmentStatus.includes('بنجاح') || i.shipmentStatus.includes('Delivered')).length;
-  const delayedCount = filteredItems.filter(i => i.shipmentStatus.includes('متأخر') || i.shipmentStatus.includes('Delayed')).length;
 
   return (
     <div className="tool-container" style={{ direction: lang === 'ar' ? 'rtl' : 'ltr' }}>
@@ -471,8 +506,16 @@ export default function ShippingTrackerAE() {
         .primary .result-value { font-size: 26px; color: #ffffff; direction: ${lang === 'ar' ? 'rtl' : 'ltr'}; }
 
         .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        
+        /* أدوات الفرز والبحث */
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
-        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 250px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        
+        .filter-row { display: flex; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 4px; gap: 4px; overflow-x: auto; flex: 1; justify-content: center; min-width: 300px;}
+        .filter-btn { background: transparent; border: none; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 700; color: #64748b; cursor: pointer; transition: 0.2s; font-family: inherit; white-space: nowrap; }
+        .filter-btn:hover { color: #0f172a; background: #e2e8f0; }
+        .filter-btn.active { background: #ffffff; color: #0f172a; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
         .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; }
         .t-btn:hover { background: #f1f5f9; }
@@ -590,7 +633,7 @@ export default function ShippingTrackerAE() {
               <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '2px' }}>{text.totalTrackedSub}</div>
             </div>
             <div className="result-value">
-              {items.length} {text.table.shipUnit}
+              {filteredItems.length} {text.table.shipUnit}
             </div>
           </div>
 
@@ -615,6 +658,16 @@ export default function ShippingTrackerAE() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
+
+          <div className="filter-row">
+            <button className={`filter-btn ${timeFilter === 'all' ? 'active' : ''}`} onClick={() => setTimeFilter('all')}>{text.filter.all}</button>
+            <button className={`filter-btn ${timeFilter === 'day' ? 'active' : ''}`} onClick={() => setTimeFilter('day')}>{text.filter.day}</button>
+            <button className={`filter-btn ${timeFilter === 'week' ? 'active' : ''}`} onClick={() => setTimeFilter('week')}>{text.filter.week}</button>
+            <button className={`filter-btn ${timeFilter === 'month' ? 'active' : ''}`} onClick={() => setTimeFilter('month')}>{text.filter.month}</button>
+            <button className={`filter-btn ${timeFilter === '6months' ? 'active' : ''}`} onClick={() => setTimeFilter('6months')}>{text.filter.sixMonths}</button>
+            <button className={`filter-btn ${timeFilter === 'year' ? 'active' : ''}`} onClick={() => setTimeFilter('year')}>{text.filter.year}</button>
+          </div>
+
           <div className="table-btns">
             <button className="t-btn" onClick={handleExportExcel}>{text.exportBtn}</button>
             <button className="t-btn" onClick={() => fileInputRef.current?.click()}>{text.importBtn}</button>
@@ -673,7 +726,7 @@ export default function ShippingTrackerAE() {
                         </div>
                       </td>
                     </tr>
-                  )
+                  );
                 })
               )}
             </tbody>
