@@ -99,8 +99,8 @@ export default function ABTestingCalculatorKW() {
       searchPH: '🔍 بحث باسم الاختبار...',
       exportBtn: '📥 تصدير Excel',
       importBtn: '📂 استيراد',
-      fromDate: 'من تاريخ',
-      toDate: 'إلى تاريخ',
+      fromDate: 'من',
+      toDate: 'إلى',
       filter: {
         all: 'الكل',
         day: 'يوم',
@@ -167,8 +167,8 @@ export default function ABTestingCalculatorKW() {
       searchPH: '🔍 Search by test name...',
       exportBtn: '📥 Export Excel',
       importBtn: '📂 Import',
-      fromDate: 'From Date',
-      toDate: 'To Date',
+      fromDate: 'From',
+      toDate: 'To',
       filter: {
         all: 'All',
         day: '1 Day',
@@ -494,21 +494,22 @@ export default function ABTestingCalculatorKW() {
 
         .table-section { background: #ffffff; border-radius: 20px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.03); margin-top: 20px; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         
-        /* أدوات الفرز والبحث */
-        .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
-        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 10px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 200px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; transition: all 0.2s; }
+        /* شريط الأدوات بصف واحد متناسق */
+        .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: nowrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; overflow-x: auto; padding-bottom: 5px; }
+        
+        .search-input { padding: 7px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 12px; outline: none; width: 140px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; transition: all 0.2s; flex-shrink: 0; }
         .search-input:focus { border-color: #0284c7; box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15); }
 
-        .date-filter-box { display: flex; align-items: center; gap: 6px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px; padding: 4px 10px; font-size: 12px; font-weight: 700; color: #475569; }
-        .date-filter-box input[type="date"] { border: 1px solid #cbd5e1; border-radius: 6px; padding: 4px 6px; font-family: inherit; font-size: 12px; outline: none; background: #ffffff; color: #0f172a; }
+        .date-filter-box { display: flex; align-items: center; gap: 4px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 4px 8px; font-size: 11px; font-weight: 700; color: #475569; flex-shrink: 0; }
+        .date-filter-box input[type="date"] { border: 1px solid #cbd5e1; border-radius: 6px; padding: 2px 4px; font-family: inherit; font-size: 11px; outline: none; background: #ffffff; color: #0f172a; width: 110px; }
 
-        .filter-row { display: flex; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 4px; gap: 4px; overflow-x: auto; justify-content: center; }
-        .filter-btn { background: transparent; border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 700; color: #64748b; cursor: pointer; transition: 0.2s; font-family: inherit; white-space: nowrap; }
+        .filter-row { display: flex; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 3px; gap: 3px; flex-shrink: 0; }
+        .filter-btn { background: transparent; border: none; padding: 5px 10px; border-radius: 6px; font-size: 11.5px; font-weight: 700; color: #64748b; cursor: pointer; transition: 0.2s; font-family: inherit; white-space: nowrap; }
         .filter-btn:hover { color: #0f172a; background: #e2e8f0; }
         .filter-btn.active { background: #ffffff; color: #0284c7; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
 
-        .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
-        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .table-btns { display: flex; gap: 6px; flex-wrap: nowrap; flex-shrink: 0; }
+        .t-btn { padding: 7px 12px; border-radius: 8px; font-weight: 700; font-size: 12px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; transition: all 0.2s; white-space: nowrap; }
         .t-btn:hover { background: #f1f5f9; color: #0284c7; border-color: #0284c7; }
 
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; border-radius: 12px; border: 1px solid #e2e8f0; }
@@ -662,7 +663,7 @@ export default function ABTestingCalculatorKW() {
               <button 
                 type="button" 
                 onClick={() => { setStartDate(''); setEndDate(''); }} 
-                style={{ background: '#fee2e2', border: 'none', color: '#991b1b', borderRadius: '4px', padding: '2px 6px', cursor: 'pointer', fontSize: '11px', fontWeight: 800 }}
+                style={{ background: '#fee2e2', border: 'none', color: '#991b1b', borderRadius: '4px', padding: '1px 5px', cursor: 'pointer', fontSize: '10px', fontWeight: 800 }}
               >
                 ✕
               </button>
