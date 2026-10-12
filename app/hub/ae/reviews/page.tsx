@@ -11,6 +11,7 @@ interface ReviewItem {
   productName: string;
   reviewStatus: string;
   createdAt?: string;
+  createdAtTimestamp?: number; // للفرز الزمني
 }
 
 export default function AutomatedReviewsAE() {
@@ -26,11 +27,18 @@ export default function AutomatedReviewsAE() {
 
   const [items, setItems] = useState<ReviewItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [timeFilter, setTimeFilter] = useState<'all' | 'day' | 'week' | 'month' | '6months' | 'year'>('all');
   const [editingId, setEditingId] = useState<string | null>(null);
+
+  const [isClient, setIsClient] = useState(false);
+  const [isActivated, setIsActivated] = useState(true);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    setIsClient(true);
+    setIsActivated(!!localStorage.getItem('merchant_license_key'));
+    
     // قراءة اللغة من الصفحة الرئيسية
     const savedLang = localStorage.getItem('seerk_global_lang') as 'ar' | 'en';
     if (savedLang) {
@@ -56,8 +64,6 @@ export default function AutomatedReviewsAE() {
     setItems(newItems);
     localStorage.setItem('seerk_ae_automated_reviews_items', JSON.stringify(newItems));
   };
-
-  const isActivated = typeof window !== 'undefined' && !!localStorage.getItem('merchant_license_key');
 
   // قاموس الترجمة الفوري
   const t = {
@@ -94,8 +100,16 @@ export default function AutomatedReviewsAE() {
       searchPH: '🔍 بحث باسم العميل أو رقم الطلب...',
       exportBtn: '📥 تصدير Excel',
       importBtn: '📂 استيراد',
+      filter: {
+        all: 'الكل',
+        day: 'يوم',
+        week: 'أسبوع',
+        month: 'شهر',
+        sixMonths: '6 أشهر',
+        year: 'سنة'
+      },
       table: {
-        noRecords: 'لا توجد سجلات تقييمات مسجلة حالياً.',
+        noRecords: 'لا توجد سجلات تقييمات مسجلة تطابق بحثك حالياً.',
         th1: '#',
         th2: 'العميل والتاريخ',
         th3: 'رقم الطلب والمنتج',
@@ -152,8 +166,16 @@ export default function AutomatedReviewsAE() {
       searchPH: '🔍 Search by customer name or order number...',
       exportBtn: '📥 Export Excel',
       importBtn: '📂 Import',
+      filter: {
+        all: 'All',
+        day: '1 Day',
+        week: '1 Week',
+        month: '1 Month',
+        sixMonths: '6 Months',
+        year: '1 Year'
+      },
       table: {
-        noRecords: 'No review records currently saved.',
+        noRecords: 'No review records found matching your search.',
         th1: '#',
         th2: 'Customer & Date',
         th3: 'Order No. & Product',
@@ -218,6 +240,7 @@ export default function AutomatedReviewsAE() {
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
     const localeStr = lang === 'ar' ? 'ar-AE' : 'en-AE';
     const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
+    const currentTimestamp = Date.now();
 
     if (editingId) {
       const updated = items.map(item => item.id === editingId ? {
@@ -227,7 +250,8 @@ export default function AutomatedReviewsAE() {
         orderNumber,
         productName,
         reviewStatus: finalReviewStatus,
-        createdAt: item.createdAt || formattedDate
+        createdAt: item.createdAt || formattedDate,
+        createdAtTimestamp: item.createdAtTimestamp || currentTimestamp
       } : item);
       saveToLocalStorage(updated);
       setEditingId(null);
@@ -240,7 +264,8 @@ export default function AutomatedReviewsAE() {
         orderNumber,
         productName,
         reviewStatus: finalReviewStatus,
-        createdAt: formattedDate
+        createdAt: formattedDate,
+        createdAtTimestamp: currentTimestamp
       };
       saveToLocalStorage([...items, newItem]);
       alert(text.alerts.saveSuccess);
@@ -255,7 +280,6 @@ export default function AutomatedReviewsAE() {
     setOrderNumber(item.orderNumber);
     setProductName(item.productName);
     
-    // مطابقة الحالة بذكاء
     const isPending = item.reviewStatus.includes('انتظار') || item.reviewStatus.includes('Pending');
     const isSent = item.reviewStatus.includes('إرسال') || item.reviewStatus.includes('Sent');
     const isDone = item.reviewStatus.includes('بنجاح') || item.reviewStatus.includes('Successfully');
@@ -295,8 +319,33 @@ export default function AutomatedReviewsAE() {
     window.open(url, '_blank');
   };
 
+  // الفرز الزمني والبحث
+  const filteredItems = items.filter(item => {
+    const matchesSearch = item.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          item.orderNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          item.phoneNumber.includes(searchQuery);
+    if (!matchesSearch) return false;
+
+    if (timeFilter === 'all') return true;
+    if (!item.createdAtTimestamp) return true;
+
+    const now = Date.now();
+    const diff = now - item.createdAtTimestamp;
+    const dayMs = 24 * 60 * 60 * 1000;
+
+    if (timeFilter === 'day') return diff <= dayMs;
+    if (timeFilter === 'week') return diff <= 7 * dayMs;
+    if (timeFilter === 'month') return diff <= 30 * dayMs;
+    if (timeFilter === '6months') return diff <= 180 * dayMs;
+    if (timeFilter === 'year') return diff <= 365 * dayMs;
+
+    return true;
+  });
+
+  const completedReviews = filteredItems.filter(i => i.reviewStatus.includes('⭐') || i.reviewStatus.includes('بنجاح') || i.reviewStatus.includes('Successfully')).length;
+
   const handleExportExcel = () => {
-    if (items.length === 0) {
+    if (filteredItems.length === 0) {
       alert(text.alerts.noDataExp);
       return;
     }
@@ -328,7 +377,7 @@ export default function AutomatedReviewsAE() {
             <tbody>
     `;
 
-    items.forEach((row, idx) => {
+    filteredItems.forEach((row, idx) => {
       tableHtml += `
         <tr>
           <td>${idx + 1}</td>
@@ -347,7 +396,7 @@ export default function AutomatedReviewsAE() {
             <tfoot>
               <tr class="tfoot-row">
                 <td colspan="6">${text.table.totalLabel}</td>
-                <td>${items.length} ${text.table.custUnit}</td>
+                <td>${filteredItems.length} ${text.table.custUnit}</td>
               </tr>
             </tfoot>
           </table>
@@ -382,14 +431,6 @@ export default function AutomatedReviewsAE() {
       };
     }
   };
-
-  const filteredItems = items.filter(item => 
-    item.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.orderNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.phoneNumber.includes(searchQuery)
-  );
-
-  const completedReviews = filteredItems.filter(i => i.reviewStatus.includes('⭐') || i.reviewStatus.includes('بنجاح') || i.reviewStatus.includes('Successfully')).length;
 
   return (
     <div className="tool-container" style={{ direction: lang === 'ar' ? 'rtl' : 'ltr' }}>
@@ -437,8 +478,16 @@ export default function AutomatedReviewsAE() {
         .primary .result-value { font-size: 26px; color: #ffffff; direction: ${lang === 'ar' ? 'rtl' : 'ltr'}; }
 
         .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        
+        /* أدوات الفرز والبحث */
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
-        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 250px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        
+        .filter-row { display: flex; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 4px; gap: 4px; overflow-x: auto; flex: 1; justify-content: center; min-width: 300px;}
+        .filter-btn { background: transparent; border: none; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 700; color: #64748b; cursor: pointer; transition: 0.2s; font-family: inherit; white-space: nowrap; }
+        .filter-btn:hover { color: #0f172a; background: #e2e8f0; }
+        .filter-btn.active { background: #ffffff; color: #0f172a; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
         .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; }
         .t-btn:hover { background: #f1f5f9; }
@@ -476,7 +525,7 @@ export default function AutomatedReviewsAE() {
                 {text.clear}
               </button>
             </div>
-            {!isActivated && <span className="trial-badge">{text.trial}: {items.length}/3</span>}
+            {isClient && !isActivated && <span className="trial-badge">{text.trial}: {items.length}/3</span>}
           </h2>
 
           <form onSubmit={handleSaveItem}>
@@ -550,7 +599,7 @@ export default function AutomatedReviewsAE() {
               <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '2px' }}>{text.totalTargetSub}</div>
             </div>
             <div className="result-value">
-              {items.length} {text.table.custUnit}
+              {filteredItems.length} {text.table.custUnit}
             </div>
           </div>
 
@@ -562,7 +611,7 @@ export default function AutomatedReviewsAE() {
           <div className="result-box" style={{ background: '#f8fafc' }}>
             <span className="result-label">{text.responseRate}</span>
             <span className="result-value" style={{ color: '#d97706' }}>
-              {items.length > 0 ? ((completedReviews / items.length) * 100).toFixed(1) : 0}%
+              {filteredItems.length > 0 ? ((completedReviews / filteredItems.length) * 100).toFixed(1) : 0}%
             </span>
           </div>
         </div>
@@ -577,6 +626,16 @@ export default function AutomatedReviewsAE() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
+
+          <div className="filter-row">
+            <button className={`filter-btn ${timeFilter === 'all' ? 'active' : ''}`} onClick={() => setTimeFilter('all')}>{text.filter.all}</button>
+            <button className={`filter-btn ${timeFilter === 'day' ? 'active' : ''}`} onClick={() => setTimeFilter('day')}>{text.filter.day}</button>
+            <button className={`filter-btn ${timeFilter === 'week' ? 'active' : ''}`} onClick={() => setTimeFilter('week')}>{text.filter.week}</button>
+            <button className={`filter-btn ${timeFilter === 'month' ? 'active' : ''}`} onClick={() => setTimeFilter('month')}>{text.filter.month}</button>
+            <button className={`filter-btn ${timeFilter === '6months' ? 'active' : ''}`} onClick={() => setTimeFilter('6months')}>{text.filter.sixMonths}</button>
+            <button className={`filter-btn ${timeFilter === 'year' ? 'active' : ''}`} onClick={() => setTimeFilter('year')}>{text.filter.year}</button>
+          </div>
+
           <div className="table-btns">
             <button className="t-btn" onClick={handleExportExcel}>{text.exportBtn}</button>
             <button className="t-btn" onClick={() => fileInputRef.current?.click()}>{text.importBtn}</button>
@@ -635,7 +694,7 @@ export default function AutomatedReviewsAE() {
                         </div>
                       </td>
                     </tr>
-                  )
+                  );
                 })
               )}
             </tbody>
