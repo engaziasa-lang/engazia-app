@@ -16,6 +16,7 @@ interface ABTestItem {
   campBCpa: number;
   winner: string;
   createdAt?: string;
+  createdAtTimestamp?: number; // للفرز الزمني
 }
 
 export default function ABTestingCalculatorKW() {
@@ -33,6 +34,7 @@ export default function ABTestingCalculatorKW() {
 
   const [items, setItems] = useState<ABTestItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [timeFilter, setTimeFilter] = useState<'all' | 'day' | 'week' | 'month' | '6months' | 'year'>('all');
   const [editingId, setEditingId] = useState<string | null>(null);
   
   const [isClient, setIsClient] = useState(false);
@@ -95,8 +97,16 @@ export default function ABTestingCalculatorKW() {
       searchPH: '🔍 بحث باسم الاختبار...',
       exportBtn: '📥 تصدير Excel',
       importBtn: '📂 استيراد',
+      filter: {
+        all: 'الكل',
+        day: 'يوم',
+        week: 'أسبوع',
+        month: 'شهر',
+        sixMonths: '6 أشهر',
+        year: 'سنة'
+      },
       table: {
-        noRecords: 'لا توجد اختبارات A/B مسجلة حالياً.',
+        noRecords: 'لا توجد اختبارات A/B مسجلة تطابق بحثك حالياً.',
         th1: 'م',
         th2: 'اسم الاختبار',
         campAHeader: 'الحملة (أ)',
@@ -105,7 +115,9 @@ export default function ABTestingCalculatorKW() {
         colSpendOrders: 'التكلفة/الطلبات',
         colCpa: 'تكلفة الطلب',
         winnerCol: 'الحملة الفائزة',
-        actions: 'الإجراءات'
+        actions: 'الإجراءات',
+        totalLabel: 'إجمالي الاختبارات المسجلة',
+        testsCount: 'اختبار'
       },
       alerts: {
         limit: '🔒 عذراً، لقد استهلكت الحد التجريبي (3 سجلات). يرجى ترقية حسابك لفتح السعة الكاملة بلا حدود!',
@@ -151,8 +163,16 @@ export default function ABTestingCalculatorKW() {
       searchPH: '🔍 Search by test name...',
       exportBtn: '📥 Export Excel',
       importBtn: '📂 Import',
+      filter: {
+        all: 'All',
+        day: '1 Day',
+        week: '1 Week',
+        month: '1 Month',
+        sixMonths: '6 Months',
+        year: '1 Year'
+      },
       table: {
-        noRecords: 'No A/B tests currently registered.',
+        noRecords: 'No A/B tests found matching your search.',
         th1: '#',
         th2: 'Test Name',
         campAHeader: 'Campaign (A)',
@@ -161,7 +181,9 @@ export default function ABTestingCalculatorKW() {
         colSpendOrders: 'Spend/Orders',
         colCpa: 'CPA',
         winnerCol: 'Winning Campaign',
-        actions: 'Actions'
+        actions: 'Actions',
+        totalLabel: 'Total Saved Tests',
+        testsCount: 'test(s)'
       },
       alerts: {
         limit: '🔒 Sorry, you reached the trial limit (3 records). Please upgrade to unlock unlimited access!',
@@ -194,10 +216,10 @@ export default function ABTestingCalculatorKW() {
     if (cpaA > 0 && cpaB > 0) {
       if (cpaA < cpaB) {
         winnerText = `${text.winnerA} - ${campAName || (lang === 'ar' ? 'بدون اسم' : 'Unnamed')}`;
-        winnerColor = '#0284c7'; // الأزرق الكويتي للحملة أ
+        winnerColor = '#0284c7'; 
       } else if (cpaB < cpaA) {
         winnerText = `${text.winnerB} - ${campBName || (lang === 'ar' ? 'بدون اسم' : 'Unnamed')}`;
-        winnerColor = '#6d28d9'; // البنفسجي للحملة ب
+        winnerColor = '#6d28d9'; 
       } else {
         winnerText = text.tie;
         winnerColor = '#d97706';
@@ -237,6 +259,7 @@ export default function ABTestingCalculatorKW() {
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
     const localeStr = lang === 'ar' ? 'ar-KW' : 'en-KW';
     const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
+    const currentTimestamp = Date.now();
 
     const newItemData = {
       testName,
@@ -249,16 +272,16 @@ export default function ABTestingCalculatorKW() {
       campBOrders: ordersB,
       campBCpa: Number(cpaB.toFixed(2)),
       winner: winnerText.replace('🏆 الفائز: ', '').replace('🏆 Winner: ', ''),
-      createdAt: formattedDate
+      createdAtTimestamp: currentTimestamp
     };
 
     if (editingId) {
-      const updated = items.map(item => item.id === editingId ? { ...item, ...newItemData, createdAt: item.createdAt || formattedDate } : item);
+      const updated = items.map(item => item.id === editingId ? { ...item, ...newItemData, createdAt: item.createdAt || formattedDate, createdAtTimestamp: item.createdAtTimestamp || currentTimestamp } : item);
       saveToLocalStorage(updated);
       setEditingId(null);
       alert(text.alerts.updateSuccess);
     } else {
-      const newItem: ABTestItem = { id: Date.now().toString(), ...newItemData };
+      const newItem: ABTestItem = { id: Date.now().toString(), ...newItemData, createdAt: formattedDate };
       saveToLocalStorage([...items, newItem]);
       alert(text.alerts.saveSuccess);
     }
@@ -285,8 +308,29 @@ export default function ABTestingCalculatorKW() {
     }
   };
 
+  // الفرز الزمني والبحث
+  const filteredItems = items.filter(item => {
+    const matchesSearch = (item?.testName || '').toLowerCase().includes((searchQuery || '').toLowerCase());
+    if (!matchesSearch) return false;
+
+    if (timeFilter === 'all') return true;
+    if (!item.createdAtTimestamp) return true;
+
+    const now = Date.now();
+    const diff = now - item.createdAtTimestamp;
+    const dayMs = 24 * 60 * 60 * 1000;
+
+    if (timeFilter === 'day') return diff <= dayMs;
+    if (timeFilter === 'week') return diff <= 7 * dayMs;
+    if (timeFilter === 'month') return diff <= 30 * dayMs;
+    if (timeFilter === '6months') return diff <= 180 * dayMs;
+    if (timeFilter === 'year') return diff <= 365 * dayMs;
+
+    return true;
+  });
+
   const handleExportExcel = () => {
-    if (items.length === 0) {
+    if (filteredItems.length === 0) {
       alert(text.alerts.noDataExp);
       return;
     }
@@ -299,6 +343,7 @@ export default function ABTestingCalculatorKW() {
             table { border-collapse: collapse; width: 100%; font-family: sans-serif; }
             th, td { border: 1px solid #cbd5e1; padding: 8px; text-align: center; }
             th { background-color: #f8fafc; font-weight: bold; color: #334155; }
+            .tfoot-row td { background-color: #f1f5f9; font-weight: bold; color: #0f172a; }
           </style>
         </head>
         <body>
@@ -308,6 +353,7 @@ export default function ABTestingCalculatorKW() {
               <tr>
                 <th>${text.table.th1}</th>
                 <th>${text.table.th2}</th>
+                <th>Date / Time</th>
                 <th>A Name</th>
                 <th>A Spend</th>
                 <th>A Orders</th>
@@ -322,11 +368,12 @@ export default function ABTestingCalculatorKW() {
             <tbody>
     `;
 
-    items.forEach((row, idx) => {
+    filteredItems.forEach((row, idx) => {
       tableHtml += `
         <tr>
           <td>${idx + 1}</td>
           <td>${row.testName}</td>
+          <td>${row.createdAt || '-'}</td>
           <td>${row.campAName}</td>
           <td>${row.campASpend}</td>
           <td>${row.campAOrders}</td>
@@ -342,6 +389,12 @@ export default function ABTestingCalculatorKW() {
 
     tableHtml += `
             </tbody>
+            <tfoot>
+              <tr class="tfoot-row">
+                <td colspan="11">${text.table.totalLabel}</td>
+                <td>${filteredItems.length} ${text.table.testsCount}</td>
+              </tr>
+            </tfoot>
           </table>
         </body>
       </html>
@@ -374,10 +427,6 @@ export default function ABTestingCalculatorKW() {
       };
     }
   };
-
-  const filteredItems = items.filter(item => 
-    (item?.testName || '').toLowerCase().includes((searchQuery || '').toLowerCase())
-  );
 
   return (
     <div className="tool-container" style={{ direction: lang === 'ar' ? 'rtl' : 'ltr' }}>
@@ -425,9 +474,17 @@ export default function ABTestingCalculatorKW() {
         .primary .result-value { font-size: 20px; color: #ffffff; direction: ltr; }
 
         .table-section { background: #ffffff; border-radius: 20px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.03); margin-top: 20px; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        
+        /* أدوات الفرز والبحث */
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
-        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 10px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; transition: all 0.2s; }
+        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 10px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 220px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; transition: all 0.2s; }
         .search-input:focus { border-color: #0284c7; box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15); }
+
+        .filter-row { display: flex; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 4px; gap: 4px; overflow-x: auto; flex: 1; justify-content: center; min-width: 300px; }
+        .filter-btn { background: transparent; border: none; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 700; color: #64748b; cursor: pointer; transition: 0.2s; font-family: inherit; white-space: nowrap; }
+        .filter-btn:hover { color: #0f172a; background: #e2e8f0; }
+        .filter-btn.active { background: #ffffff; color: #0284c7; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
         .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
         .t-btn:hover { background: #f1f5f9; color: #0284c7; border-color: #0284c7; }
@@ -436,6 +493,7 @@ export default function ABTestingCalculatorKW() {
         .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 900px; }
         .data-table th { background: #f8fafc; padding: 12px; text-align: center; border-bottom: 2px solid #cbd5e1; font-weight: 800; color: #334155; white-space: nowrap; }
         .data-table td { padding: 12px; border-bottom: 1px solid #e2e8f0; color: #0f172a; font-weight: 600; vertical-align: middle; text-align: center; }
+        .data-table tfoot td { background: #f1f5f9; font-weight: 900; color: #0f172a; border-top: 2px solid #cbd5e1; }
         
         .trial-badge { background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: 800; }
         
@@ -564,6 +622,16 @@ export default function ABTestingCalculatorKW() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
+
+          <div className="filter-row">
+            <button className={`filter-btn ${timeFilter === 'all' ? 'active' : ''}`} onClick={() => setTimeFilter('all')}>{text.filter.all}</button>
+            <button className={`filter-btn ${timeFilter === 'day' ? 'active' : ''}`} onClick={() => setTimeFilter('day')}>{text.filter.day}</button>
+            <button className={`filter-btn ${timeFilter === 'week' ? 'active' : ''}`} onClick={() => setTimeFilter('week')}>{text.filter.week}</button>
+            <button className={`filter-btn ${timeFilter === 'month' ? 'active' : ''}`} onClick={() => setTimeFilter('month')}>{text.filter.month}</button>
+            <button className={`filter-btn ${timeFilter === '6months' ? 'active' : ''}`} onClick={() => setTimeFilter('6months')}>{text.filter.sixMonths}</button>
+            <button className={`filter-btn ${timeFilter === 'year' ? 'active' : ''}`} onClick={() => setTimeFilter('year')}>{text.filter.year}</button>
+          </div>
+
           <div className="table-btns">
             <button className="t-btn" onClick={handleExportExcel}>{text.exportBtn}</button>
             <button className="t-btn" onClick={() => fileInputRef.current?.click()}>{text.importBtn}</button>
@@ -608,11 +676,11 @@ export default function ABTestingCalculatorKW() {
                     </td>
                     <td style={{ fontWeight: 800, color: '#0284c7', background: '#f8fafc' }}>{item.campAName}</td>
                     <td style={{ background: '#f8fafc', fontSize: '12.5px' }}>{item.campASpend} {text.currency} <br/> <span style={{ color: '#64748b' }}>({item.campAOrders} orders)</span></td>
-                    <td style={{ fontWeight: 900, background: '#f8fafc', color: '#0f172a' }}>{item.campACpa}</td>
+                    <td style={{ fontWeight: 900, background: '#f8fafc', color: '#0f172a' }}>{item.campACpa} {text.currency}</td>
                     
                     <td style={{ fontWeight: 800, color: '#6d28d9' }}>{item.campBName}</td>
                     <td style={{ fontSize: '12.5px' }}>{item.campBSpend} {text.currency} <br/> <span style={{ color: '#64748b' }}>({item.campBOrders} orders)</span></td>
-                    <td style={{ fontWeight: 900, color: '#0f172a' }}>{item.campBCpa}</td>
+                    <td style={{ fontWeight: 900, color: '#0f172a' }}>{item.campBCpa} {text.currency}</td>
                     
                     <td>
                       <span style={{ color: '#fff', background: item.winner.includes('(أ)') || item.winner.includes('A') ? '#0284c7' : item.winner.includes('(ب)') || item.winner.includes('B') ? '#6d28d9' : '#d97706', padding: '4px 8px', borderRadius: '6px', fontSize: '12px', fontWeight: 800 }}>
@@ -629,6 +697,14 @@ export default function ABTestingCalculatorKW() {
                 ))
               )}
             </tbody>
+            {filteredItems.length > 0 && (
+              <tfoot>
+                <tr className="tfoot-row">
+                  <td colSpan={11} style={{ textAlign: 'center' }}>{text.table.totalLabel}</td>
+                  <td>{filteredItems.length} {text.table.testsCount}</td>
+                </tr>
+              </tfoot>
+            )}
           </table>
         </div>
       </div>
