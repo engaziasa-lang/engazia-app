@@ -494,21 +494,21 @@ export default function ABTestingCalculatorKW() {
 
         .table-section { background: #ffffff; border-radius: 20px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.03); margin-top: 20px; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         
-        /* شريط الأدوات بصف واحد متناسق تماماً */
+        /* شريط الأدوات بصف واحد مرتب تماماً حسب الطلب */
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: nowrap; gap: 8px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; overflow-x: auto; padding-bottom: 5px; }
         
+        .search-input-wrapper { position: relative; display: flex; align-items: center; flex-shrink: 0; width: 135px; }
+        .search-input-wrapper span { position: absolute; ${lang === 'ar' ? 'right: 8px' : 'left: 8px'}; font-size: 12px; pointer-events: none; }
+        .search-input { padding: 6px 8px; ${lang === 'ar' ? 'padding-right: 28px' : 'padding-left: 28px'}; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 11.5px; outline: none; width: 100%; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; transition: all 0.2s; }
+        .search-input:focus { border-color: #0284c7; box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15); }
+
         .filter-row { display: flex; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 3px; gap: 2px; flex-shrink: 0; }
-        .filter-btn { background: transparent; border: none; padding: 5px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; color: #64748b; cursor: pointer; transition: 0.2s; font-family: inherit; white-space: nowrap; }
+        .filter-btn { background: transparent; border: none; padding: 5px 7px; border-radius: 6px; font-size: 11px; font-weight: 700; color: #64748b; cursor: pointer; transition: 0.2s; font-family: inherit; white-space: nowrap; }
         .filter-btn:hover { color: #0f172a; background: #e2e8f0; }
         .filter-btn.active { background: #ffffff; color: #0284c7; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
 
         .date-filter-box { display: flex; align-items: center; gap: 4px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 4px 6px; font-size: 11px; font-weight: 700; color: #475569; flex-shrink: 0; }
-        .date-filter-box input[type="date"] { border: 1px solid #cbd5e1; border-radius: 6px; padding: 2px 4px; font-family: inherit; font-size: 10.5px; outline: none; background: #ffffff; color: #0f172a; width: 105px; }
-
-        .search-input-wrapper { position: relative; display: flex; align-items: center; flex-shrink: 0; width: 140px; }
-        .search-input-wrapper span { position: absolute; ${lang === 'ar' ? 'right: 10px' : 'left: 10px'}; font-size: 13px; pointer-events: none; }
-        .search-input { padding: 6px 10px; ${lang === 'ar' ? 'padding-right: 32px' : 'padding-left: 32px'}; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 12px; outline: none; width: 100%; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; transition: all 0.2s; }
-        .search-input:focus { border-color: #0284c7; box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15); }
+        .date-filter-box input[type="date"] { border: 1px solid #cbd5e1; border-radius: 6px; padding: 2px 4px; font-family: inherit; font-size: 10px; outline: none; background: #ffffff; color: #0f172a; width: 100px; }
 
         .table-btns { display: flex; gap: 6px; flex-wrap: nowrap; flex-shrink: 0; }
         .t-btn { padding: 6px 10px; border-radius: 8px; font-weight: 700; font-size: 11.5px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; transition: all 0.2s; white-space: nowrap; }
@@ -640,6 +640,17 @@ export default function ABTestingCalculatorKW() {
 
       <div className="table-section">
         <div className="table-toolbar">
+          <div className="search-input-wrapper">
+            <span>🔍</span>
+            <input 
+              type="text" 
+              className="search-input" 
+              placeholder={text.searchPH.replace('🔍 ', '')} 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+
           <div className="filter-row">
             <button className={`filter-btn ${timeFilter === 'all' ? 'active' : ''}`} onClick={() => setTimeFilter('all')}>{text.filter.all}</button>
             <button className={`filter-btn ${timeFilter === 'day' ? 'active' : ''}`} onClick={() => setTimeFilter('day')}>{text.filter.day}</button>
@@ -671,17 +682,6 @@ export default function ABTestingCalculatorKW() {
                 ✕
               </button>
             )}
-          </div>
-
-          <div className="search-input-wrapper">
-            <span>🔍</span>
-            <input 
-              type="text" 
-              className="search-input" 
-              placeholder={text.searchPH.replace('🔍 ', '')} 
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
           </div>
 
           <div className="table-btns">
