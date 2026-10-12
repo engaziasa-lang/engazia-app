@@ -5,7 +5,7 @@ import Link from 'next/link';
 
 export default function PricingQA() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
-  const LEMON_CHECKOUT_URL = 'https://enjazya.lemonsqueezy.com/checkout/buy/dce1dd80-3422-43ba-aed5-8ef2dcd38d6d?locale=en';
+  const LEMON_CHECKOUT_URL = 'https://enjazya.lemonsqueezy.com/checkout/buy/160af01d-3c7e-4062-8b9d-29cb595c4be4';
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
