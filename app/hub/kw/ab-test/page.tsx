@@ -35,6 +35,8 @@ export default function ABTestingCalculatorKW() {
   const [items, setItems] = useState<ABTestItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [timeFilter, setTimeFilter] = useState<'all' | 'day' | 'week' | 'month' | '6months' | 'year'>('all');
+  const [startDate, setStartDate] = useState<string>('');
+  const [endDate, setEndDate] = useState<string>('');
   const [editingId, setEditingId] = useState<string | null>(null);
   
   const [isClient, setIsClient] = useState(false);
@@ -97,6 +99,8 @@ export default function ABTestingCalculatorKW() {
       searchPH: '🔍 بحث باسم الاختبار...',
       exportBtn: '📥 تصدير Excel',
       importBtn: '📂 استيراد',
+      fromDate: 'من تاريخ',
+      toDate: 'إلى تاريخ',
       filter: {
         all: 'الكل',
         day: 'يوم',
@@ -106,7 +110,7 @@ export default function ABTestingCalculatorKW() {
         year: 'سنة'
       },
       table: {
-        noRecords: 'لا توجد اختبارات A/B مسجلة تطابق بحثك حالياً.',
+        noRecords: 'لا توجد اختبارات A/B مسجلة تطابق بحثك والفترة المحددة.',
         th1: 'م',
         th2: 'اسم الاختبار',
         campAHeader: 'الحملة (أ)',
@@ -163,6 +167,8 @@ export default function ABTestingCalculatorKW() {
       searchPH: '🔍 Search by test name...',
       exportBtn: '📥 Export Excel',
       importBtn: '📂 Import',
+      fromDate: 'From Date',
+      toDate: 'To Date',
       filter: {
         all: 'All',
         day: '1 Day',
@@ -172,7 +178,7 @@ export default function ABTestingCalculatorKW() {
         year: '1 Year'
       },
       table: {
-        noRecords: 'No A/B tests found matching your search.',
+        noRecords: 'No A/B tests found matching your search and date range.',
         th1: '#',
         th2: 'Test Name',
         campAHeader: 'Campaign (A)',
@@ -308,10 +314,23 @@ export default function ABTestingCalculatorKW() {
     }
   };
 
-  // الفرز الزمني والبحث
+  // تصفية النتائج بناءً على البحث، نطاق التاريخ (من وإلى)، والفترة الزمنية السريعة
   const filteredItems = items.filter(item => {
     const matchesSearch = (item?.testName || '').toLowerCase().includes((searchQuery || '').toLowerCase());
     if (!matchesSearch) return false;
+
+    if (item.createdAtTimestamp) {
+      if (startDate) {
+        const start = new Date(startDate);
+        start.setHours(0, 0, 0, 0);
+        if (item.createdAtTimestamp < start.getTime()) return false;
+      }
+      if (endDate) {
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999);
+        if (item.createdAtTimestamp > end.getTime()) return false;
+      }
+    }
 
     if (timeFilter === 'all') return true;
     if (!item.createdAtTimestamp) return true;
@@ -477,11 +496,14 @@ export default function ABTestingCalculatorKW() {
         
         /* أدوات الفرز والبحث */
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
-        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 10px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 220px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; transition: all 0.2s; }
+        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 10px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 200px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; transition: all 0.2s; }
         .search-input:focus { border-color: #0284c7; box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15); }
 
-        .filter-row { display: flex; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 4px; gap: 4px; overflow-x: auto; flex: 1; justify-content: center; min-width: 300px; }
-        .filter-btn { background: transparent; border: none; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 700; color: #64748b; cursor: pointer; transition: 0.2s; font-family: inherit; white-space: nowrap; }
+        .date-filter-box { display: flex; align-items: center; gap: 6px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px; padding: 4px 10px; font-size: 12px; font-weight: 700; color: #475569; }
+        .date-filter-box input[type="date"] { border: 1px solid #cbd5e1; border-radius: 6px; padding: 4px 6px; font-family: inherit; font-size: 12px; outline: none; background: #ffffff; color: #0f172a; }
+
+        .filter-row { display: flex; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 4px; gap: 4px; overflow-x: auto; justify-content: center; }
+        .filter-btn { background: transparent; border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 700; color: #64748b; cursor: pointer; transition: 0.2s; font-family: inherit; white-space: nowrap; }
         .filter-btn:hover { color: #0f172a; background: #e2e8f0; }
         .filter-btn.active { background: #ffffff; color: #0284c7; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
 
@@ -622,6 +644,30 @@ export default function ABTestingCalculatorKW() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
+
+          <div className="date-filter-box">
+            <span>{text.fromDate}:</span>
+            <input 
+              type="date" 
+              value={startDate} 
+              onChange={(e) => setStartDate(e.target.value)} 
+            />
+            <span>{text.toDate}:</span>
+            <input 
+              type="date" 
+              value={endDate} 
+              onChange={(e) => setEndDate(e.target.value)} 
+            />
+            {(startDate || endDate) && (
+              <button 
+                type="button" 
+                onClick={() => { setStartDate(''); setEndDate(''); }} 
+                style={{ background: '#fee2e2', border: 'none', color: '#991b1b', borderRadius: '4px', padding: '2px 6px', cursor: 'pointer', fontSize: '11px', fontWeight: 800 }}
+              >
+                ✕
+              </button>
+            )}
+          </div>
 
           <div className="filter-row">
             <button className={`filter-btn ${timeFilter === 'all' ? 'active' : ''}`} onClick={() => setTimeFilter('all')}>{text.filter.all}</button>
