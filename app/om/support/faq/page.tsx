@@ -5,7 +5,7 @@ import Link from 'next/link';
 
 export default function FAQPageOM() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
-  const LEMON_CHECKOUT_URL = 'https://enjazya.lemonsqueezy.com/checkout/buy/dce1dd80-3422-43ba-aed5-8ef2dcd38d6d';
+  const LEMON_CHECKOUT_URL = 'https://enjazya.lemonsqueezy.com/checkout/buy/6a512e3a-d5f9-4417-9244-662fc843e32a';
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
