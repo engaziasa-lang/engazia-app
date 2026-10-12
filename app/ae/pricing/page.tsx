@@ -5,7 +5,7 @@ import Link from 'next/link';
 
 export default function PricingAE() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
-  const LEMON_CHECKOUT_URL = 'https://enjazya.lemonsqueezy.com/checkout/buy/dce1dd80-3422-43ba-aed5-8ef2dcd38d6d?locale=en';
+  const LEMON_CHECKOUT_URL = 'https://enjazya.lemonsqueezy.com/checkout/buy/955cc401-0193-4a99-a3a4-515cf7be616c';
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -46,7 +46,7 @@ export default function PricingAE() {
         { text: 'نظام طلب التقييمات الآلي', icon: '⭐' },
         { text: 'حاسبة جدوى إعلانات المشاهير', icon: '🤳' },
         { text: 'حاسبة أرباح الدروبشيبينغ', icon: '🌍' },
-        { text: 'محلل تكاليف الدفع عند الاستلاستلام', icon: '🚚' },
+        { text: 'محلل تكاليف الدفع عند الاستلام', icon: '🚚' },
         { text: 'قوالب خدمة العملاء السريعة', icon: '🎧' },
         { text: 'مدير النفقات والمصاريف التشغيلية', icon: '💸' },
         { text: 'حاسبة جدوى أكواد الخصم والعروض', icon: '🎟️' },
