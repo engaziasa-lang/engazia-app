@@ -13,7 +13,7 @@ interface ProfitItem {
   netProfit: number;
   margin: number;
   createdAt?: string;
-  createdAtTimestamp?: number; // للفرز الزمني
+  createdAtTimestamp?: number;
 }
 
 export default function ProfitCalculatorAE() {
@@ -29,10 +29,15 @@ export default function ProfitCalculatorAE() {
   const [timeFilter, setTimeFilter] = useState<'all' | 'day' | 'week' | 'month' | '6months' | 'year'>('all');
   const [editingId, setEditingId] = useState<string | null>(null);
 
+  const [isClient, setIsClient] = useState(false);
+  const [isActivated, setIsActivated] = useState(true);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    // قراءة اللغة من الصفحة الرئيسية
+    setIsClient(true);
+    setIsActivated(!!localStorage.getItem('merchant_license_key'));
+    
     const savedLang = localStorage.getItem('seerk_global_lang') as 'ar' | 'en';
     if (savedLang) {
       setLang(savedLang);
@@ -49,21 +54,17 @@ export default function ProfitCalculatorAE() {
     localStorage.setItem('seerk_ae_profit_items', JSON.stringify(newItems));
   };
 
-  const isActivated = typeof window !== 'undefined' && !!localStorage.getItem('merchant_license_key');
-
   const sPrice = typeof sellingPrice === 'number' ? sellingPrice : 0;
   const pCost = typeof productCost === 'number' ? productCost : 0;
   const sCost = typeof shippingCost === 'number' ? shippingCost : 0;
   const gFee = typeof gatewayFeePercent === 'number' ? gatewayFeePercent : 0;
 
-  // الضريبة في الإمارات (5%)
   const vatAmount = sPrice - (sPrice / 1.05);
   const gatewayFeeAmount = sPrice * (gFee / 100);
   const totalCosts = pCost + sCost + vatAmount + gatewayFeeAmount;
   const netProfit = sPrice - totalCosts;
   const margin = sPrice > 0 ? (netProfit / sPrice) * 100 : 0;
 
-  // قاموس الترجمة الفوري
   const t = {
     ar: {
       back: '← عودة للمنصة',
