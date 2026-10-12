@@ -5,7 +5,7 @@ import Link from 'next/link';
 
 export default function PricingKW() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
-  const LEMON_CHECKOUT_URL = 'https://enjazya.lemonsqueezy.com/checkout/buy/dce1dd80-3422-43ba-aed5-8ef2dcd38d6d?locale=en';
+  const LEMON_CHECKOUT_URL = 'https://enjazya.lemonsqueezy.com/checkout/buy/dd90e8cb-d852-4911-b10f-18f267a2ab43';
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
