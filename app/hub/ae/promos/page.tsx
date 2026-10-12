@@ -15,6 +15,7 @@ interface DiscountItem {
   profitMarginPercent: number;
   isProfitable: boolean;
   createdAt?: string;
+  createdAtTimestamp?: number; // للفرز الزمني
 }
 
 export default function DiscountCalculatorAE() {
@@ -29,11 +30,18 @@ export default function DiscountCalculatorAE() {
 
   const [items, setItems] = useState<DiscountItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [timeFilter, setTimeFilter] = useState<'all' | 'day' | 'week' | 'month' | '6months' | 'year'>('all');
   const [editingId, setEditingId] = useState<string | null>(null);
+
+  const [isClient, setIsClient] = useState(false);
+  const [isActivated, setIsActivated] = useState(true);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    setIsClient(true);
+    setIsActivated(!!localStorage.getItem('merchant_license_key'));
+    
     // قراءة اللغة من الصفحة الرئيسية
     const savedLang = localStorage.getItem('seerk_global_lang') as 'ar' | 'en';
     if (savedLang) {
@@ -61,8 +69,6 @@ export default function DiscountCalculatorAE() {
     setItems(newItems);
     localStorage.setItem('seerk_ae_discount_calculator_items', JSON.stringify(newItems));
   };
-
-  const isActivated = typeof window !== 'undefined' && !!localStorage.getItem('merchant_license_key');
 
   const origPrice = typeof originalPrice === 'number' ? originalPrice : 0;
   const cost = typeof productCost === 'number' ? productCost : 0;
@@ -126,8 +132,16 @@ export default function DiscountCalculatorAE() {
       searchPH: '🔍 بحث باسم العرض أو الكود...',
       exportBtn: '📥 تصدير Excel',
       importBtn: '📂 استيراد',
+      filter: {
+        all: 'الكل',
+        day: 'يوم',
+        week: 'أسبوع',
+        month: 'شهر',
+        sixMonths: '6 أشهر',
+        year: 'سنة'
+      },
       table: {
-        noRecords: 'لا توجد حسابات جدوى عروض مسجلة حالياً.',
+        noRecords: 'لا توجد حسابات جدوى عروض مسجلة تطابق بحثك حالياً.',
         th1: '#',
         th2: 'العرض والكود والتاريخ',
         th3: 'نوع العرض',
@@ -188,8 +202,16 @@ export default function DiscountCalculatorAE() {
       searchPH: '🔍 Search by offer name or code...',
       exportBtn: '📥 Export Excel',
       importBtn: '📂 Import',
+      filter: {
+        all: 'All',
+        day: '1 Day',
+        week: '1 Week',
+        month: '1 Month',
+        sixMonths: '6 Months',
+        year: '1 Year'
+      },
       table: {
-        noRecords: 'No offer feasibility calculations currently saved.',
+        noRecords: 'No offer feasibility calculations found matching your search.',
         th1: '#',
         th2: 'Offer, Code & Date',
         th3: 'Offer Type',
@@ -260,6 +282,7 @@ export default function DiscountCalculatorAE() {
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
     const localeStr = lang === 'ar' ? 'ar-AE' : 'en-AE';
     const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
+    const currentTimestamp = Date.now();
 
     if (editingId) {
       const updated = items.map(item => item.id === editingId ? {
@@ -273,7 +296,8 @@ export default function DiscountCalculatorAE() {
         netProfitAfterOffer: Number(netProfitAfterOffer.toFixed(2)),
         profitMarginPercent: Number(profitMarginPercent.toFixed(2)),
         isProfitable,
-        createdAt: item.createdAt || formattedDate
+        createdAt: item.createdAt || formattedDate,
+        createdAtTimestamp: item.createdAtTimestamp || currentTimestamp
       } : item);
       saveToLocalStorage(updated);
       setEditingId(null);
@@ -290,7 +314,8 @@ export default function DiscountCalculatorAE() {
         netProfitAfterOffer: Number(netProfitAfterOffer.toFixed(2)),
         profitMarginPercent: Number(profitMarginPercent.toFixed(2)),
         isProfitable,
-        createdAt: formattedDate
+        createdAt: formattedDate,
+        createdAtTimestamp: currentTimestamp
       };
       saveToLocalStorage([...items, newItem]);
       alert(text.alerts.saveSuccess);
@@ -302,7 +327,6 @@ export default function DiscountCalculatorAE() {
   const handleEdit = (item: DiscountItem) => {
     setOfferName(item.offerName);
     
-    // مطابقة نوع العرض
     const itemIsPercent = item.offerType.includes('%') || item.offerType.includes('نسبة');
     const itemIsFixed = item.offerType.includes('ثابت') || item.offerType.includes('Fixed') || item.offerType.includes('AED') || item.offerType.includes('د.إ');
     const itemIsBogo = item.offerType.includes('1+1');
@@ -329,10 +353,32 @@ export default function DiscountCalculatorAE() {
     }
   };
 
-  const totalProfitSum = items.reduce((acc, curr) => acc + curr.netProfitAfterOffer, 0);
+  // الفرز الزمني والبحث
+  const filteredItems = items.filter(item => {
+    const matchesSearch = item.offerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          item.offerType.toLowerCase().includes(searchQuery.toLowerCase());
+    if (!matchesSearch) return false;
+
+    if (timeFilter === 'all') return true;
+    if (!item.createdAtTimestamp) return true;
+
+    const now = Date.now();
+    const diff = now - item.createdAtTimestamp;
+    const dayMs = 24 * 60 * 60 * 1000;
+
+    if (timeFilter === 'day') return diff <= dayMs;
+    if (timeFilter === 'week') return diff <= 7 * dayMs;
+    if (timeFilter === 'month') return diff <= 30 * dayMs;
+    if (timeFilter === '6months') return diff <= 180 * dayMs;
+    if (timeFilter === 'year') return diff <= 365 * dayMs;
+
+    return true;
+  });
+
+  const totalProfitSum = filteredItems.reduce((acc, curr) => acc + curr.netProfitAfterOffer, 0);
 
   const handleExportExcel = () => {
-    if (items.length === 0) {
+    if (filteredItems.length === 0) {
       alert(text.alerts.noDataExp);
       return;
     }
@@ -367,7 +413,7 @@ export default function DiscountCalculatorAE() {
             <tbody>
     `;
 
-    items.forEach((row, idx) => {
+    filteredItems.forEach((row, idx) => {
       tableHtml += `
         <tr>
           <td>${idx + 1}</td>
@@ -425,11 +471,6 @@ export default function DiscountCalculatorAE() {
     }
   };
 
-  const filteredItems = items.filter(item => 
-    item.offerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.offerType.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
   return (
     <div className="tool-container" style={{ direction: lang === 'ar' ? 'rtl' : 'ltr' }}>
       <style jsx global>{`
@@ -479,8 +520,16 @@ export default function DiscountCalculatorAE() {
         .primary .result-value, .danger .result-value { font-size: 26px; color: #ffffff; direction: ${lang === 'ar' ? 'rtl' : 'ltr'}; }
 
         .table-section { background: #ffffff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        
+        /* أدوات الفرز والبحث */
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
-        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 250px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        
+        .filter-row { display: flex; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 4px; gap: 4px; overflow-x: auto; flex: 1; justify-content: center; min-width: 300px;}
+        .filter-btn { background: transparent; border: none; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 700; color: #64748b; cursor: pointer; transition: 0.2s; font-family: inherit; white-space: nowrap; }
+        .filter-btn:hover { color: #0f172a; background: #e2e8f0; }
+        .filter-btn.active { background: #ffffff; color: #0f172a; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+
         .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
         .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; }
         .t-btn:hover { background: #f1f5f9; }
@@ -517,7 +566,7 @@ export default function DiscountCalculatorAE() {
                 {text.clear}
               </button>
             </div>
-            {!isActivated && <span className="trial-badge">{text.trial}: {items.length}/3</span>}
+            {isClient && !isActivated && <span className="trial-badge">{text.trial}: {items.length}/3</span>}
           </h2>
 
           <form onSubmit={handleSaveItem}>
@@ -588,7 +637,7 @@ export default function DiscountCalculatorAE() {
         <div className="card">
           <h2 className="card-title">{text.analysisTitle}</h2>
 
-          <div className="result-box primary">
+          <div className={`result-box ${netProfitAfterOffer > 0 ? 'primary' : 'danger'}`}>
             <div>
               <div className="result-label">{text.netProfit}</div>
               <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '2px' }}>{text.netProfitSub}</div>
@@ -621,6 +670,16 @@ export default function DiscountCalculatorAE() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
+
+          <div className="filter-row">
+            <button className={`filter-btn ${timeFilter === 'all' ? 'active' : ''}`} onClick={() => setTimeFilter('all')}>{text.filter.all}</button>
+            <button className={`filter-btn ${timeFilter === 'day' ? 'active' : ''}`} onClick={() => setTimeFilter('day')}>{text.filter.day}</button>
+            <button className={`filter-btn ${timeFilter === 'week' ? 'active' : ''}`} onClick={() => setTimeFilter('week')}>{text.filter.week}</button>
+            <button className={`filter-btn ${timeFilter === 'month' ? 'active' : ''}`} onClick={() => setTimeFilter('month')}>{text.filter.month}</button>
+            <button className={`filter-btn ${timeFilter === '6months' ? 'active' : ''}`} onClick={() => setTimeFilter('6months')}>{text.filter.sixMonths}</button>
+            <button className={`filter-btn ${timeFilter === 'year' ? 'active' : ''}`} onClick={() => setTimeFilter('year')}>{text.filter.year}</button>
+          </div>
+
           <div className="table-btns">
             <button className="t-btn" onClick={handleExportExcel}>{text.exportBtn}</button>
             <button className="t-btn" onClick={() => fileInputRef.current?.click()}>{text.importBtn}</button>
