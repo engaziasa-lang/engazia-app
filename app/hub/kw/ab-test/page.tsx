@@ -494,12 +494,12 @@ export default function ABTestingCalculatorKW() {
 
         .table-section { background: #ffffff; border-radius: 20px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.03); margin-top: 20px; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         
-        /* شريط الأدوات بصف واحد مرتب تماماً حسب الطلب */
+        /* شريط الأدوات بالترتيب الدقيق: بحث -> فلترة سريعة -> فرز تاريخ -> تصدير/استيراد */
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: nowrap; gap: 8px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; overflow-x: auto; padding-bottom: 5px; }
         
-        .search-input-wrapper { position: relative; display: flex; align-items: center; flex-shrink: 0; width: 135px; }
-        .search-input-wrapper span { position: absolute; ${lang === 'ar' ? 'right: 8px' : 'left: 8px'}; font-size: 12px; pointer-events: none; }
-        .search-input { padding: 6px 8px; ${lang === 'ar' ? 'padding-right: 28px' : 'padding-left: 28px'}; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 11.5px; outline: none; width: 100%; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; transition: all 0.2s; }
+        .search-input-wrapper { position: relative; display: flex; align-items: center; flex-shrink: 0; width: 155px; }
+        .search-input-wrapper span { position: absolute; ${lang === 'ar' ? 'right: 10px' : 'left: 10px'}; font-size: 12px; pointer-events: none; }
+        .search-input { padding: 6px 10px; ${lang === 'ar' ? 'padding-right: 32px' : 'padding-left: 32px'}; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 11.5px; outline: none; width: 100%; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; transition: all 0.2s; }
         .search-input:focus { border-color: #0284c7; box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15); }
 
         .filter-row { display: flex; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 3px; gap: 2px; flex-shrink: 0; }
