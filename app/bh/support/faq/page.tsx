@@ -5,7 +5,7 @@ import Link from 'next/link';
 
 export default function FAQPageBH() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
-  const LEMON_CHECKOUT_URL = 'https://enjazya.lemonsqueezy.com/checkout/buy/dce1dd80-3422-43ba-aed5-8ef2dcd38d6d';
+  const LEMON_CHECKOUT_URL = 'https://enjazya.lemonsqueezy.com/checkout/buy/7d6c87f2-f37d-4c46-9192-fee11bbafcec';
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
