@@ -505,7 +505,9 @@ export default function ABTestingCalculatorKW() {
         .date-filter-box { display: flex; align-items: center; gap: 4px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 4px 6px; font-size: 11px; font-weight: 700; color: #475569; flex-shrink: 0; }
         .date-filter-box input[type="date"] { border: 1px solid #cbd5e1; border-radius: 6px; padding: 2px 4px; font-family: inherit; font-size: 10.5px; outline: none; background: #ffffff; color: #0f172a; width: 105px; }
 
-        .search-input { padding: 6px 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 12px; outline: none; width: 130px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; transition: all 0.2s; flex-shrink: 0; }
+        .search-input-wrapper { position: relative; display: flex; align-items: center; flex-shrink: 0; width: 140px; }
+        .search-input-wrapper span { position: absolute; ${lang === 'ar' ? 'right: 10px' : 'left: 10px'}; font-size: 13px; pointer-events: none; }
+        .search-input { padding: 6px 10px; ${lang === 'ar' ? 'padding-right: 32px' : 'padding-left: 32px'}; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 12px; outline: none; width: 100%; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; transition: all 0.2s; }
         .search-input:focus { border-color: #0284c7; box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15); }
 
         .table-btns { display: flex; gap: 6px; flex-wrap: nowrap; flex-shrink: 0; }
@@ -671,13 +673,16 @@ export default function ABTestingCalculatorKW() {
             )}
           </div>
 
-          <input 
-            type="text" 
-            className="search-input" 
-            placeholder={text.searchPH} 
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
+          <div className="search-input-wrapper">
+            <span>🔍</span>
+            <input 
+              type="text" 
+              className="search-input" 
+              placeholder={text.searchPH.replace('🔍 ', '')} 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
 
           <div className="table-btns">
             <button className="t-btn" onClick={handleExportExcel}>{text.exportBtn}</button>
