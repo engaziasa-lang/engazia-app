@@ -8,7 +8,6 @@ export default function SallaCalculatorPage() {
   const [gatewayFeePercent, setGatewayFeePercent] = useState<number | string>('2.2');
   const [fixedFee, setFixedFee] = useState<number | string>('1');
 
-  // حساب الأرباح والرسوم بدقة بالهللة
   const numCost = Number(costPrice) || 0;
   const numSelling = Number(sellingPrice) || 0;
   const numGatewayPercent = Number(gatewayFeePercent) || 0;
@@ -19,92 +18,92 @@ export default function SallaCalculatorPage() {
   const profitMargin = numSelling > 0 ? (netProfit / numSelling) * 100 : 0;
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 flex flex-col items-center justify-center font-sans" dir="rtl">
-      <div className="max-w-xl w-full bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
+    <div style={{ minHeight: '100vh', backgroundColor: '#f9fafb', padding: '24px', display: 'flex', justifyContent: 'center', alignItems: 'center', fontFamily: 'Tajawal, sans-serif' }} dir="rtl">
+      <div style={{ maxWidth: '600px', width: '100%', backgroundColor: '#ffffff', borderRadius: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.08)', padding: '32px', border: '1px solid #e5e7eb' }}>
         
         {/* هيدر التطبيق */}
-        <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-800">حاسبة رسوم وأرباح سلة</h1>
-          <p className="text-sm text-gray-500 mt-2">
+        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+          <h1 style={{ fontSize: '22px', fontWeight: 'bold', color: '#1f2937', margin: '0 0 8px 0' }}>حاسبة رسوم وأرباح سلة</h1>
+          <p style={{ fontSize: '13px', color: '#6b7280', margin: 0 }}>
             احسب صافي ربحك بدقة بالهللة واكتشف تأثير بوابات الدفع على تسعير منتجاتك.
           </p>
         </div>
 
-        {/* حقول الإدخال اليدوية الآمنة */}
-        <div className="space-y-4">
+        {/* حقول الإدخال */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">سعر تكلفة المنتج (ريال)</label>
+            <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: '#374151', marginBottom: '6px' }}>سعر تكلفة المنتج (ريال)</label>
             <input
               type="number"
               value={costPrice}
               onChange={(e) => setCostPrice(e.target.value === '' ? '' : Number(e.target.value))}
               placeholder="مثال: 50"
-              className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+              style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none', fontSize: '14px', boxSizing: 'border-box' }}
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">سعر بيع المنتج للعميل (ريال)</label>
+            <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: '#374151', marginBottom: '6px' }}>سعر بيع المنتج للعميل (ريال)</label>
             <input
               type="number"
               value={sellingPrice}
               onChange={(e) => setSellingPrice(e.target.value === '' ? '' : Number(e.target.value))}
               placeholder="مثال: 120"
-              className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+              style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none', fontSize: '14px', boxSizing: 'border-box' }}
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">نسبة بوابة الدفع (%)</label>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: '#374151', marginBottom: '6px' }}>نسبة بوابة الدفع (%)</label>
               <input
                 type="number"
                 value={gatewayFeePercent}
                 onChange={(e) => setGatewayFeePercent(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none', fontSize: '14px', boxSizing: 'border-box' }}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">رسوم ثابتة لكل طلب (ريال)</label>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: '#374151', marginBottom: '6px' }}>رسوم ثابتة لكل طلب (ريال)</label>
               <input
                 type="number"
                 value={fixedFee}
                 onChange={(e) => setFixedFee(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none', fontSize: '14px', boxSizing: 'border-box' }}
               />
             </div>
           </div>
         </div>
 
-        {/* صندوق النتائج الحية */}
-        <div className="mt-8 p-6 bg-gray-50 rounded-xl border border-gray-200 space-y-3">
-          <div className="flex justify-between text-sm">
-            <span className="text-gray-600">إجمالي رسوم بوابة الدفع:</span>
-            <span className="font-semibold text-red-600">{gatewayTotalFee.toFixed(2)} ر.س</span>
+        {/* صندوق النتائج */}
+        <div style={{ marginTop: '24px', padding: '16px', backgroundColor: '#f3f4f6', borderRadius: '12px', border: '1px solid #e5e7eb', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
+            <span style={{ color: '#4b5563' }}>إجمالي رسوم بوابة الدفع:</span>
+            <span style={{ fontWeight: '600', color: '#dc2626' }}>{gatewayTotalFee.toFixed(2)} ر.س</span>
           </div>
-          <div className="flex justify-between text-sm">
-            <span className="text-gray-600">صافي الربح الفعلي:</span>
-            <span className={`font-bold ${netProfit >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
+            <span style={{ color: '#4b5563' }}>صافي الربح الفعلي:</span>
+            <span style={{ fontWeight: 'bold', color: netProfit >= 0 ? '#059669' : '#dc2626' }}>
               {netProfit.toFixed(2)} ر.س
             </span>
           </div>
-          <div className="flex justify-between text-sm border-t pt-2">
-            <span className="text-gray-600">هامش الربح:</span>
-            <span className="font-bold text-gray-800">{profitMargin.toFixed(1)}%</span>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', borderTop: '1px solid #e5e7eb', paddingTop: '8px' }}>
+            <span style={{ color: '#4b5563' }}>هامش الربح:</span>
+            <span style={{ fontWeight: 'bold', color: '#1f2937' }}>{profitMargin.toFixed(1)}%</span>
           </div>
         </div>
 
-        {/* مصيدة الاشتراكات: الجسر الذكي للتوجه لموقعك الأساسي وأنت نائم */}
-        <div className="mt-8 p-5 bg-emerald-50 rounded-xl border border-emerald-200 text-center space-y-3">
-          <h3 className="font-bold text-emerald-900 text-base">هل لديك مئات المنتجات وتخشى تكرار الحسابات؟</h3>
-          <p className="text-xs text-emerald-700 leading-relaxed">
+        {/* مصيدة الاشتراكات */}
+        <div style={{ marginTop: '24px', padding: '16px', backgroundColor: '#ecfdf5', borderRadius: '12px', border: '1px solid #a7f3d0', textAlign: 'center' }}>
+          <h3 style={{ fontWeight: 'bold', color: '#065f46', fontSize: '14px', margin: '0 0 6px 0' }}>هل لديك مئات المنتجات وتخشى تكرار الحسابات؟</h3>
+          <p style={{ fontSize: '12px', color: '#047857', margin: '0 0 14px 0', lineHeight: '1.5' }}>
             أنشئ حسابك الشامل على منصة إنجازيا لربط متجرك، جرد المخزون، وأتمتة تسعير كافة منتجاتك بضغطة زر واحدة.
           </p>
           <a
             href="https://engazia.sa/pricing" 
             target="_blank"
             rel="noopener noreferrer"
-            className="block w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-3 rounded-xl transition shadow-md text-sm"
+            style={{ display: 'block', width: '100%', backgroundColor: '#059669', color: '#ffffff', fontWeight: '500', padding: '12px', borderRadius: '10px', textDecoration: 'none', fontSize: '13px', boxSizing: 'border-box' }}
           >
             انتقل إلى إنجازيا وفعّل الباقة الكاملة (12.99$) 🚀
           </a>
