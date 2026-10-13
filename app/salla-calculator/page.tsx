@@ -93,19 +93,19 @@ export default function SallaCalculatorPage() {
           </div>
         </div>
 
-        {/* مصيدة الاشتراكات */}
+        {/* مصيدة الاشتراكات وتوجيه لمزيد من الأدوات */}
         <div style={{ marginTop: '24px', padding: '16px', backgroundColor: '#ecfdf5', borderRadius: '12px', border: '1px solid #a7f3d0', textAlign: 'center' }}>
-          <h3 style={{ fontWeight: 'bold', color: '#065f46', fontSize: '14px', margin: '0 0 6px 0' }}>هل لديك مئات المنتجات وتخشى تكرار الحسابات؟</h3>
-          <p style={{ fontSize: '12px', color: '#047857', margin: '0 0 14px 0', lineHeight: '1.5' }}>
-            أنشئ حسابك الشامل على منصة إنجازيا لربط متجرك، جرد المخزون، وأتمتة تسعير كافة منتجاتك بضغطة زر واحدة.
+          <h3 style={{ fontWeight: 'bold', color: '#065f46', fontSize: '14px', margin: '0 0 6px 0' }}>احصل على أكثر من 24 أداة ذكية لإدارة متجرك!</h3>
+          <p style={{ fontSize: '12px', color: '#047857', margin: '0 0 14px 0', lineHeight: '1.6' }}>
+            لا حاجة لربط متجرك برمزيّاً؛ الإدخال يدوي وآمن ويحفظ تلقائياً في سجل منتجاتك. انضم الآن لمنصة إنجازيا.
           </p>
           <a
-            href="https://engazia.sa/pricing" 
+            href="https://engazia-app.vercel.app/hub/sa" 
             target="_blank"
             rel="noopener noreferrer"
             style={{ display: 'block', width: '100%', backgroundColor: '#059669', color: '#ffffff', fontWeight: '500', padding: '12px', borderRadius: '10px', textDecoration: 'none', fontSize: '13px', boxSizing: 'border-box' }}
           >
-            انتقل إلى إنجازيا وفعّل الباقة الكاملة (12.99$) 🚀
+            استعرض أكثر من 24 أداة على منصة إنجازيا (12.99$) 🚀
           </a>
         </div>
 
