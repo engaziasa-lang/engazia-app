@@ -93,11 +93,11 @@ export default function SallaCalculatorPage() {
           </div>
         </div>
 
-        {/* مصيدة الاشتراكات وتوجيه لمزيد من الأدوات */}
+        {/* مصيدة الاشتراكات */}
         <div style={{ marginTop: '24px', padding: '16px', backgroundColor: '#ecfdf5', borderRadius: '12px', border: '1px solid #a7f3d0', textAlign: 'center' }}>
           <h3 style={{ fontWeight: 'bold', color: '#065f46', fontSize: '14px', margin: '0 0 6px 0' }}>احصل على أكثر من 24 أداة ذكية لإدارة متجرك!</h3>
-          <p style={{ fontSize: '12px', color: '#047857', margin: '0 0 14px 0', lineHeight: '1.6' }}>
-            لا حاجة لربط متجرك برمزيّاً؛ الإدخال يدوي وآمن ويحفظ تلقائياً في سجل منتجاتك. انضم الآن لمنصة إنجازيا.
+          <p style={{ fontSize: '12px', color: '#047857', margin: '0 0 14px 0', lineHeight: '1.5' }}>
+            انضم الآن لمنصة إنجازيا وفعل جميع الأدوات.
           </p>
           <a
             href="https://engazia-app.vercel.app/hub/sa" 
