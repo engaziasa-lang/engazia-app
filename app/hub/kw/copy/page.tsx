@@ -11,6 +11,7 @@ interface CopyItem {
   offerText: string;
   generatedScript: string;
   createdAt?: string;
+  createdAtTimestamp?: number; // للفرز الزمني
 }
 
 export default function ExploredCopywritingKW() {
@@ -25,6 +26,9 @@ export default function ExploredCopywritingKW() {
 
   const [items, setItems] = useState<CopyItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [timeFilter, setTimeFilter] = useState<'all' | 'day' | 'week' | 'month' | '6months' | 'year'>('all');
+  const [startDate, setStartDate] = useState<string>('');
+  const [endDate, setEndDate] = useState<string>('');
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -200,8 +204,18 @@ export default function ExploredCopywritingKW() {
       searchPH: '🔍 بحث باسم المنتج أو نوع المحتوى...',
       exportBtn: '📥 تصدير Excel',
       importBtn: '📂 استيراد',
+      fromDate: 'من',
+      toDate: 'إلى',
+      filter: {
+        all: 'الكل',
+        day: 'يوم',
+        week: 'أسبوع',
+        month: 'شهر',
+        sixMonths: '6 أشهر',
+        year: 'سنة'
+      },
       table: {
-        noRecords: 'لا توجد سكريبتات مسجلة حالياً.',
+        noRecords: 'لا توجد سكريبتات مسجلة تطابق بحثك والفترة المحددة.',
         th1: '#',
         th2: 'المنتج والتاريخ',
         th3: 'نوع المحتوى',
@@ -250,8 +264,18 @@ export default function ExploredCopywritingKW() {
       searchPH: '🔍 Search by product name or content type...',
       exportBtn: '📥 Export Excel',
       importBtn: '📂 Import',
+      fromDate: 'From',
+      toDate: 'To',
+      filter: {
+        all: 'All',
+        day: '1 Day',
+        week: '1 Week',
+        month: '1 Month',
+        sixMonths: '6 Months',
+        year: '1 Year'
+      },
       table: {
-        noRecords: 'No scripts currently registered.',
+        noRecords: 'No scripts found matching your search and date range.',
         th1: '#',
         th2: 'Product & Date',
         th3: 'Content Type',
@@ -293,6 +317,7 @@ export default function ExploredCopywritingKW() {
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
     const localeStr = lang === 'ar' ? 'ar-KW' : 'en-KW';
     const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
+    const currentTimestamp = Date.now();
 
     if (editingId) {
       const updated = items.map(item => item.id === editingId ? {
@@ -302,7 +327,8 @@ export default function ExploredCopywritingKW() {
         problemSolved,
         offerText,
         generatedScript,
-        createdAt: item.createdAt || formattedDate
+        createdAt: item.createdAt || formattedDate,
+        createdAtTimestamp: item.createdAtTimestamp || currentTimestamp
       } : item);
       saveToLocalStorage(updated);
       setEditingId(null);
@@ -315,7 +341,8 @@ export default function ExploredCopywritingKW() {
         problemSolved,
         offerText,
         generatedScript,
-        createdAt: formattedDate
+        createdAt: formattedDate,
+        createdAtTimestamp: currentTimestamp
       };
       saveToLocalStorage([...items, newItem]);
       alert(text.alerts.saveSuccess);
@@ -353,8 +380,43 @@ export default function ExploredCopywritingKW() {
     alert(text.alerts.copySuccess);
   };
 
+  // تصفية النتائج بناءً على البحث، نطاق التاريخ، والفرز السريع
+  const filteredItems = items.filter(item => {
+    const matchesSearch = (item.productName || '').toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          (item.contentType || '').toLowerCase().includes(searchQuery.toLowerCase());
+    if (!matchesSearch) return false;
+
+    if (item.createdAtTimestamp) {
+      if (startDate) {
+        const start = new Date(startDate);
+        start.setHours(0, 0, 0, 0);
+        if (item.createdAtTimestamp < start.getTime()) return false;
+      }
+      if (endDate) {
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999);
+        if (item.createdAtTimestamp > end.getTime()) return false;
+      }
+    }
+
+    if (timeFilter === 'all') return true;
+    if (!item.createdAtTimestamp) return true;
+
+    const now = Date.now();
+    const diff = now - item.createdAtTimestamp;
+    const dayMs = 24 * 60 * 60 * 1000;
+
+    if (timeFilter === 'day') return diff <= dayMs;
+    if (timeFilter === 'week') return diff <= 7 * dayMs;
+    if (timeFilter === 'month') return diff <= 30 * dayMs;
+    if (timeFilter === '6months') return diff <= 180 * dayMs;
+    if (timeFilter === 'year') return diff <= 365 * dayMs;
+
+    return true;
+  });
+
   const handleExportExcel = () => {
-    if (items.length === 0) {
+    if (filteredItems.length === 0) {
       alert(text.alerts.noDataExp);
       return;
     }
@@ -383,7 +445,7 @@ export default function ExploredCopywritingKW() {
             <tbody>
     `;
 
-    items.forEach((row, idx) => {
+    filteredItems.forEach((row, idx) => {
       tableHtml += `
         <tr>
           <td>${idx + 1}</td>
@@ -429,11 +491,6 @@ export default function ExploredCopywritingKW() {
     }
   };
 
-  const filteredItems = items.filter(item => 
-    item.productName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.contentType.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
   return (
     <div className="tool-container" style={{ direction: lang === 'ar' ? 'rtl' : 'ltr' }}>
       <style jsx global>{`
@@ -476,11 +533,25 @@ export default function ExploredCopywritingKW() {
         .copy-btn:hover { background: #1e293b; transform: translateY(-2px); }
 
         .table-section { background: #ffffff; border-radius: 20px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.03); text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
-        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 10px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; transition: all 0.2s; }
-        .search-input:focus { border-color: #0284c7; box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15); }
-        .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
-        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        
+        /* شريط الأدوات بالترتيب الدقيق: بحث -> فرز سريع -> فرز تاريخ -> أزرار الاستيراد والتصدير في صف واحد متناسق بدون تباعدات */
+        .table-toolbar { display: flex; justify-content: flex-start; align-items: center; margin-bottom: 20px; flex-wrap: nowrap; gap: 8px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; overflow-x: auto; padding-bottom: 5px; }
+        
+        .search-input-wrapper { position: relative; display: flex; align-items: center; flex-shrink: 0; width: 155px; }
+        .search-input-wrapper span { position: absolute; ${lang === 'ar' ? 'right: 10px' : 'left: 10px'}; font-size: 12px; pointer-events: none; }
+        .search-input { padding: 6px 10px; ${lang === 'ar' ? 'padding-right: 32px' : 'padding-left: 32px'}; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 11.5px; outline: none; width: 100%; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; transition: all 0.2s; background: #f8fafc; color: #0f172a; font-weight: 600; }
+        .search-input:focus { border-color: #0284c7; background: #ffffff; box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15); }
+
+        .filter-row { display: flex; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 3px; gap: 2px; flex-shrink: 0; }
+        .filter-btn { background: transparent; border: none; padding: 5px 7px; border-radius: 6px; font-size: 11px; font-weight: 700; color: #64748b; cursor: pointer; transition: 0.2s; font-family: inherit; white-space: nowrap; }
+        .filter-btn:hover { color: #0f172a; background: #e2e8f0; }
+        .filter-btn.active { background: #ffffff; color: #0284c7; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+
+        .date-filter-box { display: flex; align-items: center; gap: 4px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 4px 6px; font-size: 11px; font-weight: 700; color: #475569; flex-shrink: 0; }
+        .date-filter-box input[type="date"] { border: 1px solid #cbd5e1; border-radius: 6px; padding: 2px 4px; font-family: inherit; font-size: 10px; outline: none; background: #ffffff; color: #0f172a; width: 100px; }
+
+        .table-btns { display: flex; gap: 6px; flex-wrap: nowrap; flex-shrink: 0; ${lang === 'ar' ? 'margin-right: auto;' : 'margin-left: auto;'} }
+        .t-btn { padding: 6px 10px; border-radius: 8px; font-weight: 700; font-size: 11.5px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; transition: all 0.2s; white-space: nowrap; }
         .t-btn:hover { background: #f1f5f9; color: #0284c7; border-color: #0284c7; }
 
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; border-radius: 12px; border: 1px solid #e2e8f0; }
@@ -597,16 +668,54 @@ export default function ExploredCopywritingKW() {
 
       <div className="table-section">
         <div className="table-toolbar">
-          <input 
-            type="text" 
-            className="search-input" 
-            placeholder={text.searchPH} 
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
+          <div className="search-input-wrapper">
+            <span>🔍</span>
+            <input 
+              type="text" 
+              className="search-input" 
+              placeholder={text.searchPH.replace('🔍 ', '')} 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+
+          <div className="filter-row">
+            <button className={`filter-btn ${timeFilter === 'all' ? 'active' : ''}`} onClick={() => setTimeFilter('all')}>{text.filter.all}</button>
+            <button className={`filter-btn ${timeFilter === 'day' ? 'active' : ''}`} onClick={() => setTimeFilter('day')}>{text.filter.day}</button>
+            <button className={`filter-btn ${timeFilter === 'week' ? 'active' : ''}`} onClick={() => setTimeFilter('week')}>{text.filter.week}</button>
+            <button className={`filter-btn ${timeFilter === 'month' ? 'active' : ''}`} onClick={() => setTimeFilter('month')}>{text.filter.month}</button>
+            <button className={`filter-btn ${timeFilter === '6months' ? 'active' : ''}`} onClick={() => setTimeFilter('6months')}>{text.filter.sixMonths}</button>
+            <button className={`filter-btn ${timeFilter === 'year' ? 'active' : ''}`} onClick={() => setTimeFilter('year')}>{text.filter.year}</button>
+          </div>
+
+          <div className="date-filter-box">
+            <span>{text.fromDate}:</span>
+            <input 
+              type="date" 
+              value={startDate} 
+              onChange={(e) => setStartDate(e.target.value)} 
+            />
+            <span>{text.toDate}:</span>
+            <input 
+              type="date" 
+              value={endDate} 
+              onChange={(e) => setEndDate(e.target.value)} 
+            />
+            {(startDate || endDate) && (
+              <button 
+                type="button" 
+                onClick={() => { setStartDate(''); setEndDate(''); }} 
+                style={{ background: '#fee2e2', border: 'none', color: '#991b1b', borderRadius: '4px', padding: '1px 5px', cursor: 'pointer', fontSize: '10px', fontWeight: 800 }}
+                title="إلغاء تصفية التاريخ"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+
           <div className="table-btns">
-            <button className="t-btn" onClick={handleExportExcel}>{text.exportBtn}</button>
-            <button className="t-btn" onClick={() => fileInputRef.current?.click()}>{text.importBtn}</button>
+            <button className="t-btn" onClick={handleExportExcel}>📥 {text.exportBtn.replace('📥 ', '')}</button>
+            <button className="t-btn" onClick={() => fileInputRef.current?.click()}>📂 {text.importBtn.replace('📂 ', '')}</button>
             <input type="file" ref={fileInputRef} onChange={handleImportJson} accept=".json" style={{ display: 'none' }} />
           </div>
         </div>
@@ -654,7 +763,7 @@ export default function ExploredCopywritingKW() {
               <tfoot>
                 <tr className="tfoot-row">
                   <td colSpan={4} style={{ textAlign: 'center' }}>{text.table.totalLabel}</td>
-                  <td>{items.length} {text.table.scriptUnit}</td>
+                  <td>{filteredItems.length} {text.table.scriptUnit}</td>
                 </tr>
               </tfoot>
             )}
