@@ -302,7 +302,7 @@ export default function CodAnalyzerKW() {
     }
   };
 
-  // تصفية النتائج بناءً على البحث، نطاق التاريخ، والفترة الزمنية
+  // تصفية النتائج بناءً على البحث، نطاق التاريخ، والفترة الزمنية السريعة
   const filteredItems = items.filter(item => {
     const matchesSearch = item.shippingCompany.toLowerCase().includes(searchQuery.toLowerCase());
     if (!matchesSearch) return false;
@@ -474,7 +474,7 @@ export default function CodAnalyzerKW() {
 
         .table-section { background: #ffffff; border-radius: 20px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.03); text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         
-        /* شريط الأدوات بالترتيب الاحترافي المطلوب بصف واحد متناسق */
+        /* شريط الأدوات بالترتيب الاحترافي بصف واحد متناسق تماماً */
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: nowrap; gap: 8px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; overflow-x: auto; padding-bottom: 5px; }
         
         .search-input-wrapper { position: relative; display: flex; align-items: center; flex-shrink: 0; width: 155px; }
@@ -661,7 +661,7 @@ export default function CodAnalyzerKW() {
               <button 
                 type="button" 
                 onClick={() => { setStartDate(''); setEndDate(''); }} 
-                style={{ background: '#fee2e2', border: 'none', color: '#991b1b', borderRadius: '4px', padding: '1px 4px', cursor: 'pointer', fontSize: '10px', fontWeight: 800 }}
+                style={{ background: '#fee2e2', border: 'none', color: '#991b1b', borderRadius: '4px', padding: '1px 5px', cursor: 'pointer', fontSize: '10px', fontWeight: 800 }}
               >
                 ✕
               </button>
