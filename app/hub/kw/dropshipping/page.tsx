@@ -14,6 +14,7 @@ interface DropshipItem {
   netProfit: number;
   profitMarginPercent: number;
   createdAt?: string;
+  createdAtTimestamp?: number; // للفرز الزمني
 }
 
 export default function DropshippingCalculatorKW() {
@@ -28,6 +29,9 @@ export default function DropshippingCalculatorKW() {
 
   const [items, setItems] = useState<DropshipItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [timeFilter, setTimeFilter] = useState<'all' | 'day' | 'week' | 'month' | '6months' | 'year'>('all');
+  const [startDate, setStartDate] = useState<string>('');
+  const [endDate, setEndDate] = useState<string>('');
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -86,8 +90,18 @@ export default function DropshippingCalculatorKW() {
       searchPH: '🔍 بحث باسم المنتج أو المورد...',
       exportBtn: '📥 تصدير Excel',
       importBtn: '📂 استيراد',
+      fromDate: 'من',
+      toDate: 'إلى',
+      filter: {
+        all: 'الكل',
+        day: 'يوم',
+        week: 'أسبوع',
+        month: 'شهر',
+        sixMonths: '6 أشهر',
+        year: 'سنة'
+      },
       table: {
-        noRecords: 'لا توجد منتجات دروبشيبينغ مسجلة حالياً.',
+        noRecords: 'لا توجد منتجات دروبشيبينغ مسجلة تطابق بحثك والفترة المحددة.',
         th1: '#',
         th2: 'المنتج والمورد والتاريخ',
         th3: 'تكلفة الشراء',
@@ -136,8 +150,18 @@ export default function DropshippingCalculatorKW() {
       searchPH: '🔍 Search by product name or supplier...',
       exportBtn: '📥 Export Excel',
       importBtn: '📂 Import',
+      fromDate: 'From',
+      toDate: 'To',
+      filter: {
+        all: 'All',
+        day: '1 Day',
+        week: '1 Week',
+        month: '1 Month',
+        sixMonths: '6 Months',
+        year: '1 Year'
+      },
       table: {
-        noRecords: 'No dropshipping products currently registered.',
+        noRecords: 'No dropshipping products found matching your search and date range.',
         th1: '#',
         th2: 'Product, Supplier & Date',
         th3: 'Purchase Cost',
@@ -197,6 +221,7 @@ export default function DropshippingCalculatorKW() {
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
     const localeStr = lang === 'ar' ? 'ar-KW' : 'en-KW';
     const formattedDate = `${now.toLocaleDateString(localeStr)} - ${now.toLocaleTimeString(localeStr, timeOptions)}`;
+    const currentTimestamp = Date.now();
 
     if (editingId) {
       const updated = items.map(item => item.id === editingId ? {
@@ -209,7 +234,8 @@ export default function DropshippingCalculatorKW() {
         sellingPrice: price,
         netProfit: Number(netProfit.toFixed(2)),
         profitMarginPercent: Number(profitMarginPercent.toFixed(2)),
-        createdAt: item.createdAt || formattedDate
+        createdAt: item.createdAt || formattedDate,
+        createdAtTimestamp: item.createdAtTimestamp || currentTimestamp
       } : item);
       saveToLocalStorage(updated);
       setEditingId(null);
@@ -225,7 +251,8 @@ export default function DropshippingCalculatorKW() {
         sellingPrice: price,
         netProfit: Number(netProfit.toFixed(2)),
         profitMarginPercent: Number(profitMarginPercent.toFixed(2)),
-        createdAt: formattedDate
+        createdAt: formattedDate,
+        createdAtTimestamp: currentTimestamp
       };
       saveToLocalStorage([...items, newItem]);
       alert(text.alerts.saveSuccess);
@@ -252,11 +279,46 @@ export default function DropshippingCalculatorKW() {
     }
   };
 
-  const totalProfitSum = items.reduce((acc, curr) => acc + curr.netProfit, 0);
-  const avgMargin = items.length > 0 ? items.reduce((acc, curr) => acc + curr.profitMarginPercent, 0) / items.length : 0;
+  // تصفية النتائج بناءً على البحث، نطاق التاريخ، والفرز السريع
+  const filteredItems = items.filter(item => {
+    const matchesSearch = (item?.productName || '').toLowerCase().includes((searchQuery || '').toLowerCase()) ||
+                          (item?.supplierName || '').toLowerCase().includes((searchQuery || '').toLowerCase());
+    if (!matchesSearch) return false;
+
+    if (item.createdAtTimestamp) {
+      if (startDate) {
+        const start = new Date(startDate);
+        start.setHours(0, 0, 0, 0);
+        if (item.createdAtTimestamp < start.getTime()) return false;
+      }
+      if (endDate) {
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999);
+        if (item.createdAtTimestamp > end.getTime()) return false;
+      }
+    }
+
+    if (timeFilter === 'all') return true;
+    if (!item.createdAtTimestamp) return true;
+
+    const now = Date.now();
+    const diff = now - item.createdAtTimestamp;
+    const dayMs = 24 * 60 * 60 * 1000;
+
+    if (timeFilter === 'day') return diff <= dayMs;
+    if (timeFilter === 'week') return diff <= 7 * dayMs;
+    if (timeFilter === 'month') return diff <= 30 * dayMs;
+    if (timeFilter === '6months') return diff <= 180 * dayMs;
+    if (timeFilter === 'year') return diff <= 365 * dayMs;
+
+    return true;
+  });
+
+  const totalProfitSum = filteredItems.reduce((acc, curr) => acc + curr.netProfit, 0);
+  const avgMargin = filteredItems.length > 0 ? filteredItems.reduce((acc, curr) => acc + curr.profitMarginPercent, 0) / filteredItems.length : 0;
 
   const handleExportExcel = () => {
-    if (items.length === 0) {
+    if (filteredItems.length === 0) {
       alert(text.alerts.noDataExp);
       return;
     }
@@ -288,7 +350,7 @@ export default function DropshippingCalculatorKW() {
             <tbody>
     `;
 
-    items.forEach((row, idx) => {
+    filteredItems.forEach((row, idx) => {
       tableHtml += `
         <tr>
           <td>${idx + 1}</td>
@@ -336,11 +398,6 @@ export default function DropshippingCalculatorKW() {
       };
     }
   };
-
-  const filteredItems = items.filter(item => 
-    item.productName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.supplierName.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   return (
     <div className="tool-container" style={{ direction: lang === 'ar' ? 'rtl' : 'ltr' }}>
@@ -390,12 +447,26 @@ export default function DropshippingCalculatorKW() {
         .primary .result-value { font-size: 24px; color: #ffffff; direction: ltr; }
 
         .table-section { background: #ffffff; border-radius: 20px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.03); text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
-        .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 10px; font-family: inherit; font-size: 13px; outline: none; width: 100%; max-width: 300px; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; transition: all 0.2s; }
-        .search-input:focus { border-color: #0284c7; box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15); }
-        .table-btns { display: flex; gap: 10px; flex-wrap: wrap; }
-        .t-btn { padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
-        .t-btn:hover { background: #f1f5f9; color: #0284c7; border-color: #0284c7; }
+        
+        /* شريط الأدوات بترتيب احترافي بصف واحد متناسق تماماً بدون فراغات مزعجة */
+        .table-toolbar { display: flex; justify-content: flex-start; align-items: center; margin-bottom: 20px; flex-wrap: nowrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; overflow-x: auto; padding-bottom: 8px; }
+        
+        .search-input-wrapper { position: relative; display: flex; align-items: center; flex-shrink: 0; width: 175px; }
+        .search-input-wrapper span { position: absolute; ${lang === 'ar' ? 'right: 12px' : 'left: 12px'}; font-size: 13px; pointer-events: none; }
+        .search-input { padding: 8px 12px; ${lang === 'ar' ? 'padding-right: 34px' : 'padding-left: 34px'}; border: 1px solid #cbd5e1; border-radius: 10px; font-family: inherit; font-size: 12.5px; outline: none; width: 100%; box-sizing: border-box; text-align: ${lang === 'ar' ? 'right' : 'left'}; transition: all 0.2s; background: #ffffff; color: #0f172a; font-weight: 600; }
+        .search-input:focus { border-color: #0284c7; background: #f8fafc; box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15); }
+
+        .filter-row { display: flex; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 10px; padding: 4px; gap: 3px; flex-shrink: 0; }
+        .filter-btn { background: transparent; border: none; padding: 6px 10px; border-radius: 7px; font-size: 12px; font-weight: 700; color: #64748b; cursor: pointer; transition: 0.2s; font-family: inherit; white-space: nowrap; }
+        .filter-btn:hover { color: #0f172a; background: #f1f5f9; }
+        .filter-btn.active { background: #f8fafc; color: #0284c7; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e2e8f0;}
+
+        .date-filter-box { display: flex; align-items: center; gap: 6px; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 10px; padding: 6px 10px; font-size: 12px; font-weight: 700; color: #475569; flex-shrink: 0; }
+        .date-filter-box input[type="date"] { border: 1px solid #cbd5e1; border-radius: 6px; padding: 3px 6px; font-family: inherit; font-size: 11.5px; outline: none; background: #f8fafc; color: #0f172a; width: 115px; cursor: pointer;}
+
+        .table-btns { display: flex; gap: 8px; flex-wrap: nowrap; flex-shrink: 0; ${lang === 'ar' ? 'margin-right: auto;' : 'margin-left: auto;'} }
+        .t-btn { padding: 8px 14px; border-radius: 10px; font-weight: 700; font-size: 12.5px; cursor: pointer; border: 1px solid #cbd5e1; background: #ffffff; color: #334155; font-family: inherit; display: flex; align-items: center; justify-content: center; transition: all 0.2s; white-space: nowrap; gap: 6px; }
+        .t-btn:hover { background: #f8fafc; color: #0284c7; border-color: #0284c7; }
 
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; border-radius: 12px; border: 1px solid #e2e8f0; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 900px; }
@@ -517,16 +588,54 @@ export default function DropshippingCalculatorKW() {
 
       <div className="table-section">
         <div className="table-toolbar">
-          <input 
-            type="text" 
-            className="search-input" 
-            placeholder={text.searchPH} 
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
+          <div className="search-input-wrapper">
+            <span>🔍</span>
+            <input 
+              type="text" 
+              className="search-input" 
+              placeholder={text.searchPH.replace('🔍 ', '')} 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+
+          <div className="filter-row">
+            <button className={`filter-btn ${timeFilter === 'all' ? 'active' : ''}`} onClick={() => setTimeFilter('all')}>{text.filter.all}</button>
+            <button className={`filter-btn ${timeFilter === 'day' ? 'active' : ''}`} onClick={() => setTimeFilter('day')}>{text.filter.day}</button>
+            <button className={`filter-btn ${timeFilter === 'week' ? 'active' : ''}`} onClick={() => setTimeFilter('week')}>{text.filter.week}</button>
+            <button className={`filter-btn ${timeFilter === 'month' ? 'active' : ''}`} onClick={() => setTimeFilter('month')}>{text.filter.month}</button>
+            <button className={`filter-btn ${timeFilter === '6months' ? 'active' : ''}`} onClick={() => setTimeFilter('6months')}>{text.filter.sixMonths}</button>
+            <button className={`filter-btn ${timeFilter === 'year' ? 'active' : ''}`} onClick={() => setTimeFilter('year')}>{text.filter.year}</button>
+          </div>
+
+          <div className="date-filter-box">
+            <span>{text.fromDate}:</span>
+            <input 
+              type="date" 
+              value={startDate} 
+              onChange={(e) => setStartDate(e.target.value)} 
+            />
+            <span>{text.toDate}:</span>
+            <input 
+              type="date" 
+              value={endDate} 
+              onChange={(e) => setEndDate(e.target.value)} 
+            />
+            {(startDate || endDate) && (
+              <button 
+                type="button" 
+                onClick={() => { setStartDate(''); setEndDate(''); }} 
+                style={{ background: '#fee2e2', border: 'none', color: '#991b1b', borderRadius: '4px', padding: '1px 5px', cursor: 'pointer', fontSize: '10px', fontWeight: 800 }}
+                title="إلغاء تصفية التاريخ"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+
           <div className="table-btns">
-            <button className="t-btn" onClick={handleExportExcel}>{text.exportBtn}</button>
-            <button className="t-btn" onClick={() => fileInputRef.current?.click()}>{text.importBtn}</button>
+            <button className="t-btn" onClick={handleExportExcel}>📥 {text.exportBtn.replace('📥 ', '')}</button>
+            <button className="t-btn" onClick={() => fileInputRef.current?.click()}>📂 {text.importBtn.replace('📂 ', '')}</button>
             <input type="file" ref={fileInputRef} onChange={handleImportJson} accept=".json" style={{ display: 'none' }} />
           </div>
         </div>
