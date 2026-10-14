@@ -30,7 +30,7 @@ interface ProfitItem {
 }
 
 // ==========================================
-// 2. مصفوفة الأدوات الـ 23 (تم استبعاد الحاسبة لتكون الأداة المجانية الرئيسية)
+// 2. مصفوفة الأدوات الـ 23
 // ==========================================
 const saTools: ToolInfo[] = [
   { id: 'whatsapp', titleAr: 'إدارة عملاء واتساب (إنجازيا Pro Max)', titleEn: 'WhatsApp CRM', descAr: 'إدارة السلال المتروكة، إرسال روابط الدفع السريعة، وتصنيف عملاء المتجر.', descEn: 'Manage abandoned carts and send quick payment links via WhatsApp.', icon: '💬', link: '/hub/sa/whatsapp' },
@@ -325,7 +325,7 @@ function FreeProfitCalculatorSA({ lang, isActivated }: { lang: 'ar' | 'en', isAc
       <div className="hero-badge">✨ {lang === 'ar' ? 'أداة مجانية للتجربة' : 'Free Trial Tool'}</div>
       
       <style jsx>{`
-        .hero-tool-container { background: #ffffff; border-radius: 20px; padding: 35px 25px; border: 2px solid #047857; box-shadow: 0 15px 35px -5px rgba(4,120,87,0.15); margin-bottom: 50px; position: relative; overflow: hidden; width: 100%; box-sizing: border-box;}
+        .hero-tool-container { background: #ffffff; border-radius: 20px; padding: 35px 25px; border: 2px solid #047857; box-shadow: 0 15px 35px -5px rgba(4,120,87,0.15); margin-bottom: 0px; position: relative; overflow: hidden; width: 100%; box-sizing: border-box;}
         .hero-badge { position: absolute; top: 0; ${lang === 'ar' ? 'left: 0' : 'right: 0'}; background: #047857; color: white; padding: 6px 16px; border-bottom-${lang === 'ar' ? 'right' : 'left'}-radius: 15px; font-weight: bold; font-size: 13px; z-index: 2;}
         
         .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
@@ -651,7 +651,7 @@ export default function EnjazyaSaudiHub() {
 
         /* نافذة التفعيل العائمة (Overlay) */
         .activation-overlay {
-          position: absolute; top: 15%; left: 50%; transform: translate(-50%, 0);
+          position: absolute; top: -15px; left: 50%; transform: translate(-50%, 0);
           background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);
           padding: 40px; border-radius: 20px; box-shadow: 0 25px 50px -12px rgba(4, 120, 87, 0.25);
           border: 2px solid #a7f3d0; text-align: center; width: 90%; max-width: 500px; z-index: 10;
@@ -671,7 +671,7 @@ export default function EnjazyaSaudiHub() {
         .overlay-btn-buy:hover { background: #065f46; transform: translateY(-2px); box-shadow: 0 10px 20px rgba(4,120,87,0.3); }
 
         @media(max-width: 1024px) { .cards-grid { grid-template-columns: repeat(2, 1fr); } }
-        @media(max-width: 768px) { .cards-grid { grid-template-columns: 1fr; } .activation-overlay { top: 5%; padding: 25px; } }
+        @media(max-width: 768px) { .cards-grid { grid-template-columns: 1fr; } .activation-overlay { top: -10px; padding: 25px; } }
       `}</style>
 
       <div className="navbar">
