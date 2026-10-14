@@ -1,3 +1,8 @@
 {
-  "redirects": []
+  "crons": [
+    {
+      "path": "/api/cron-index",
+      "schedule": "0 3 * * *"
+    }
+  ]
 }
