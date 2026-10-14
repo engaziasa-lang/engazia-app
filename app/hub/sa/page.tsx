@@ -353,9 +353,11 @@ function FreeProfitCalculatorSA({ lang, isActivated }: { lang: 'ar' | 'en', isAc
         .input-wrapper input:focus, .input-wrapper select:focus { border-color: #047857; background: #ffffff; }
         .currency-tag { position: absolute; ${lang === 'ar' ? 'left: 14px;' : 'right: 14px;'} color: #64748b; font-weight: 800; font-size: 13px; pointer-events: none; }
         
+        /* تحسين مظهر الزر ليصبح مرناً ومتجاوباً */
         .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; display: block; text-align: center; }
         .action-btn:hover { background: #065f46; }
-
+        
+        /* إظهار الزر أسفل التحليل المالي في وضع الجوال وإخفائه في سطح المكتب */
         .mobile-btn-container { display: none; }
         .desktop-btn-container { display: block; }
 
@@ -765,6 +767,32 @@ export default function EnjazyaSaudiHub() {
         .pb-input:focus { border-color: #34d399; }
         .pb-btn-activate { background: #334155; color: #ffffff; padding: 12px 20px; border: 1px solid #475569; border-radius: 10px; font-weight: 800; font-size: 14px; cursor: pointer; transition: 0.3s; font-family: inherit; white-space: nowrap;}
         .pb-btn-activate:hover { background: #475569; color: #34d399; }
+
+        /* ====== تصميم الفوتر الأسود القديم (Old Black Footer CSS) ====== */
+        .footer-dark { background: #0b0f19; border-top: 3px solid #1e293b; color: #cbd5e1; padding: 50px 20px 20px; margin-top: auto; font-family: ${lang === 'ar' ? "'Tajawal', sans-serif" : "'Inter', sans-serif"}; box-sizing: border-box; width: 100%; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .footer-dark-inner { max-width: 1250px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 40px; }
+        
+        .footer-col-dark h4 { font-size: 16px; font-weight: 800; color: #ffffff; margin: 0 0 20px 0; display: inline-flex; align-items: center; gap: 8px; border-bottom: 2px solid #334155; padding-bottom: 8px; }
+        .footer-col-dark p { font-size: 13.5px; line-height: 1.6; margin: 0 0 15px 0; color: #94a3b8; }
+        .footer-col-dark ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 14px; }
+        .footer-col-dark ul li a { font-size: 14px; color: #94a3b8; transition: 0.2s; font-weight: 600; text-decoration: none; display: flex; align-items: center; gap: 8px; }
+        .footer-col-dark ul li a:hover { color: #ffffff; transform: translateX(${lang === 'ar' ? '-5px' : '5px'}); }
+
+        .footer-brand { font-size: 24px; font-weight: 900; color: #ffffff; display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+        .footer-brand span { color: #94a3b8; font-weight: 600; font-size: 18px; }
+        
+        .footer-dark-bottom { max-width: 1250px; margin: 40px auto 0; padding-top: 25px; border-top: 1px solid #1e293b; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; font-size: 13px; font-weight: 600; color: #64748b; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
+        
+        .payment-icons { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .pay-badge { font-size: 11px; font-weight: 800; padding: 6px 12px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; letter-spacing: 0.5px; transition: transform 0.2s ease; }
+        .pay-badge:hover { transform: translateY(-2px); }
+        .pay-badge.cashapp { background: #00D632; color: #000; }
+        .pay-badge.gpay { background: #ffffff; color: #1e293b; border: 1px solid #cbd5e1; }
+        .pay-badge.paypal { background: #003087; color: #ffffff; }
+        .pay-badge.discover { background: #ff6600; color: #ffffff; }
+        .pay-badge.amex { background: #006fcf; color: #ffffff; }
+        .pay-badge.mc { background: #222222; color: #ffffff; border: 1px solid #333; }
+        .pay-badge.visa { background: #1a1f71; color: #ffffff; }
 
         @media(max-width: 1024px) { .cards-grid { grid-template-columns: repeat(2, 1fr); } }
         @media(max-width: 900px) { .footer-dark-inner { grid-template-columns: repeat(2, 1fr); gap: 30px; } }
