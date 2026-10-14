@@ -865,7 +865,7 @@ export default function EnjazyaSaudiHub() {
               <ul className="pb-features">
                 <li><span>✓</span> {lang === 'ar' ? 'وصول لامحدود لجميع الأدوات الـ 24' : 'Unlimited access to all 24 tools'}</li>
                 <li><span>✓</span> {lang === 'ar' ? 'رخصة صالحة لعام كامل بدون رسوم شهرية' : 'Valid for 1 year with no monthly fees'}</li>
-                <li><span>✓</span> {lang === 'ar' ? 'حماية كاملة لخوارزميات متجرك وتسعيرك' : 'Full protection for your store algorithms'}</li>
+                <li><span>✓</span> {lang === 'ar' ? 'تحديثات مستمرة وإضافة أدوات جديدة مجاناً' : 'Continuous updates and new tools added for free'}</li>
               </ul>
 
               <div className="pb-price-wrap">
