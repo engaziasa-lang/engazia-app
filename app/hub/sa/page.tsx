@@ -353,11 +353,9 @@ function FreeProfitCalculatorSA({ lang, isActivated }: { lang: 'ar' | 'en', isAc
         .input-wrapper input:focus, .input-wrapper select:focus { border-color: #047857; background: #ffffff; }
         .currency-tag { position: absolute; ${lang === 'ar' ? 'left: 14px;' : 'right: 14px;'} color: #64748b; font-weight: 800; font-size: 13px; pointer-events: none; }
         
-        /* تحسين مظهر الزر ليصبح مرناً ومتجاوباً */
         .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; display: block; text-align: center; }
         .action-btn:hover { background: #065f46; }
-        
-        /* إظهار الزر أسفل التحليل المالي في وضع الجوال وإخفائه في سطح المكتب */
+
         .mobile-btn-container { display: none; }
         .desktop-btn-container { display: block; }
 
@@ -744,10 +742,12 @@ export default function EnjazyaSaudiHub() {
         .pb-features li { color: #cbd5e1; font-size: 15px; display: flex; align-items: center; gap: 10px; font-weight: 600; }
         .pb-features li span { color: #34d399; font-weight: 900; font-size: 18px; }
         
-        .pb-price-wrap { display: flex; align-items: center; gap: 15px; background: rgba(255,255,255,0.03); padding: 15px 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); display: inline-flex;}
-        .pb-old { text-decoration: line-through; color: #64748b; font-size: 16px; font-weight: bold;}
-        .pb-new { color: #34d399; font-size: 32px; font-weight: 900; display: flex; align-items: baseline; gap: 5px; }
-        .pb-new span { font-size: 14px; font-weight: 600; color: #94a3b8; }
+        .pb-price-wrap { display: flex; align-items: center; justify-content: center; gap: 15px; background: rgba(255,255,255,0.03); padding: 15px 25px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); display: inline-flex; }
+        .pb-old { text-decoration: line-through; color: #64748b; font-size: 18px; font-weight: bold; display: flex; align-items: center; gap: 4px;}
+        .pb-new { color: #34d399; display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; }
+        .pb-new .amount { font-size: 40px; font-weight: 900; line-height: 1; }
+        .pb-new .currency { font-size: 20px; font-weight: 800; }
+        .pb-new .duration { font-size: 15px; font-weight: 600; color: #94a3b8; }
         
         .pb-action-panel { flex: 1; min-width: 320px; z-index: 1; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 25px; display: flex; flex-direction: column; gap: 25px; }
         
@@ -766,35 +766,28 @@ export default function EnjazyaSaudiHub() {
         .pb-btn-activate { background: #334155; color: #ffffff; padding: 12px 20px; border: 1px solid #475569; border-radius: 10px; font-weight: 800; font-size: 14px; cursor: pointer; transition: 0.3s; font-family: inherit; white-space: nowrap;}
         .pb-btn-activate:hover { background: #475569; color: #34d399; }
 
-        /* ====== تصميم الفوتر الأسود القديم (Old Black Footer CSS) ====== */
-        .footer-dark { background: #0b0f19; border-top: 3px solid #1e293b; color: #cbd5e1; padding: 50px 20px 20px; margin-top: auto; font-family: ${lang === 'ar' ? "'Tajawal', sans-serif" : "'Inter', sans-serif"}; box-sizing: border-box; width: 100%; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .footer-dark-inner { max-width: 1250px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 40px; }
-        
-        .footer-col-dark h4 { font-size: 16px; font-weight: 800; color: #ffffff; margin: 0 0 20px 0; display: inline-flex; align-items: center; gap: 8px; border-bottom: 2px solid #334155; padding-bottom: 8px; }
-        .footer-col-dark p { font-size: 13.5px; line-height: 1.6; margin: 0 0 15px 0; color: #94a3b8; }
-        .footer-col-dark ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 14px; }
-        .footer-col-dark ul li a { font-size: 14px; color: #94a3b8; transition: 0.2s; font-weight: 600; text-decoration: none; display: flex; align-items: center; gap: 8px; }
-        .footer-col-dark ul li a:hover { color: #ffffff; transform: translateX(${lang === 'ar' ? '-5px' : '5px'}); }
-
-        .footer-brand { font-size: 24px; font-weight: 900; color: #ffffff; display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
-        .footer-brand span { color: #94a3b8; font-weight: 600; font-size: 18px; }
-        
-        .footer-dark-bottom { max-width: 1250px; margin: 40px auto 0; padding-top: 25px; border-top: 1px solid #1e293b; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; font-size: 13px; font-weight: 600; color: #64748b; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
-        
-        .payment-icons { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-        .pay-badge { font-size: 11px; font-weight: 800; padding: 6px 12px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; letter-spacing: 0.5px; transition: transform 0.2s ease; }
-        .pay-badge:hover { transform: translateY(-2px); }
-        .pay-badge.cashapp { background: #00D632; color: #000; }
-        .pay-badge.gpay { background: #ffffff; color: #1e293b; border: 1px solid #cbd5e1; }
-        .pay-badge.paypal { background: #003087; color: #ffffff; }
-        .pay-badge.discover { background: #ff6600; color: #ffffff; }
-        .pay-badge.amex { background: #006fcf; color: #ffffff; }
-        .pay-badge.mc { background: #222222; color: #ffffff; border: 1px solid #333; }
-        .pay-badge.visa { background: #1a1f71; color: #ffffff; }
-
         @media(max-width: 1024px) { .cards-grid { grid-template-columns: repeat(2, 1fr); } }
         @media(max-width: 900px) { .footer-dark-inner { grid-template-columns: repeat(2, 1fr); gap: 30px; } }
-        @media(max-width: 768px) { .cards-grid { grid-template-columns: 1fr; } .premium-banner { padding: 25px; flex-direction: column; gap: 30px; } .pb-input-group { flex-direction: column; } .pb-action-panel { width: 100%; box-sizing: border-box; } }
+        
+        /* ====== تعديلات النسخة المتجاوبة للجوال (Mobile Responsive Fixes) ====== */
+        @media(max-width: 768px) { 
+          .cards-grid { grid-template-columns: 1fr; } 
+          .premium-banner { padding: 30px 20px; flex-direction: column; gap: 30px; text-align: center; } 
+          .pb-content { text-align: center !important; display: flex; flex-direction: column; align-items: center; }
+          .pb-title { justify-content: center; }
+          .pb-features { align-items: center; }
+          .pb-features li { justify-content: center; text-align: center; }
+          
+          /* إصلاح مشكلة تكسر السعر في الجوال */
+          .pb-price-wrap { flex-direction: column; width: 100%; padding: 20px; gap: 8px; justify-content: center; }
+          .pb-old { font-size: 20px; margin-bottom: -5px; }
+          .pb-new { flex-wrap: wrap; justify-content: center; }
+          
+          .pb-input-group { flex-direction: column; } 
+          .pb-action-panel { width: 100%; box-sizing: border-box; text-align: center; }
+          .pb-buy-box p, .pb-activate-box p { text-align: center !important; }
+        }
+        
         @media(max-width: 600px) { .footer-dark-inner { grid-template-columns: 1fr; } .footer-dark-bottom { flex-direction: column; text-align: center; justify-content: center; } }
       `}</style>
 
@@ -868,9 +861,17 @@ export default function EnjazyaSaudiHub() {
                 <li><span>✓</span> {lang === 'ar' ? 'تحديثات مستمرة وإضافة أدوات جديدة مجاناً' : 'Continuous updates and new tools added for free'}</li>
               </ul>
 
-              <div className="pb-price-wrap">
-                <span className="pb-old">{lang === 'ar' ? '299 ر.س' : '299 SAR'}</span>
-                <div className="pb-new">{lang === 'ar' ? '49.99 ر.س' : '49.99 SAR'} <span>{lang === 'ar' ? '/ سنوياً' : '/ Year'}</span></div>
+              {/* تم إصلاح اتجاه الحاوية لتجنب تكسر النصوص في الجوال */}
+              <div className="pb-price-wrap" dir="ltr">
+                <div className="pb-old">
+                  <span style={{ textDecoration: 'line-through' }}>299</span> 
+                  <span>{lang === 'ar' ? 'ر.س' : 'SAR'}</span>
+                </div>
+                <div className="pb-new">
+                  <span className="amount">49.99</span> 
+                  <span className="currency">{lang === 'ar' ? 'ر.س' : 'SAR'}</span> 
+                  <span className="duration">{lang === 'ar' ? ' / سنوياً' : ' / Year'}</span>
+                </div>
               </div>
             </div>
             
