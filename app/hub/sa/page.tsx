@@ -122,7 +122,7 @@ function FreeProfitCalculatorSA({ lang, isActivated }: { lang: 'ar' | 'en', isAc
         editBtn: 'تعديل', delBtn: 'حذف', totalLabel: 'الإجمالي الكلي / المتوسط'
       },
       alerts: {
-        limit: '🔒 عذراً، لقد استهلكت الحد التجريبي (3 منتجات). يرجى تفعيل حسابك من الأعلى لفتح السعة الكاملة بلا حدود!',
+        limit: '🔒 عذراً، لقد استهلكت الحد التجريبي (3 منتجات). يرجى تفعيل رخصتك من الأعلى لفتح السعة الكاملة بلا حدود!',
         fillErr: 'الرجاء إدخال اسم المنتج وسعر بيع صحيح.',
         updateSuccess: '✨ تم تحديث بيانات المنتج بنجاح!',
         saveSuccess: '✅ تمت إضافة المنتج إلى جدول التحليل بنجاح!',
@@ -164,7 +164,7 @@ function FreeProfitCalculatorSA({ lang, isActivated }: { lang: 'ar' | 'en', isAc
         editBtn: 'Edit', delBtn: 'Delete', totalLabel: 'Grand Total / Average'
       },
       alerts: {
-        limit: '🔒 Sorry, you reached the trial limit (3 products). Please activate your account to unlock unlimited access!',
+        limit: '🔒 Sorry, you reached the trial limit (3 products). Please activate your license above to unlock unlimited access!',
         fillErr: 'Please enter a valid product name and selling price.',
         updateSuccess: '✨ Product data updated successfully!',
         saveSuccess: '✅ Product added to analysis table successfully!',
@@ -322,10 +322,10 @@ function FreeProfitCalculatorSA({ lang, isActivated }: { lang: 'ar' | 'en', isAc
 
   return (
     <div className="hero-tool-container" style={{ direction: lang === 'ar' ? 'rtl' : 'ltr' }}>
-      <div className="hero-badge">✨ {lang === 'ar' ? 'أداة مجانية للتجربة' : 'Free Trial Tool'}</div>
+      <div className="hero-badge">✨ {lang === 'ar' ? 'متاح للتجربة' : 'Trial Available'}</div>
       
       <style jsx>{`
-        .hero-tool-container { background: #ffffff; border-radius: 20px; padding: 35px 25px; border: 2px solid #047857; box-shadow: 0 15px 35px -5px rgba(4,120,87,0.15); margin-bottom: 0px; position: relative; overflow: hidden; width: 100%; box-sizing: border-box;}
+        .hero-tool-container { background: #ffffff; border-radius: 20px; padding: 35px 25px; border: 2px solid #047857; box-shadow: 0 15px 35px -5px rgba(4,120,87,0.15); margin-bottom: 40px; position: relative; overflow: hidden; width: 100%; box-sizing: border-box;}
         .hero-badge { position: absolute; top: 0; ${lang === 'ar' ? 'left: 0' : 'right: 0'}; background: #047857; color: white; padding: 6px 16px; border-bottom-${lang === 'ar' ? 'right' : 'left'}-radius: 15px; font-weight: bold; font-size: 13px; z-index: 2;}
         
         .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
@@ -557,9 +557,8 @@ function FreeProfitCalculatorSA({ lang, isActivated }: { lang: 'ar' | 'en', isAc
   );
 }
 
-
 // ==========================================
-// 4. المكون الرئيسي للمنصة (الشبكة الضبابية)
+// 4. المكون الرئيسي للمنصة (الشبكة المفتوحة مع لافتة الترقية)
 // ==========================================
 export default function EnjazyaSaudiHub() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
@@ -601,7 +600,7 @@ export default function EnjazyaSaudiHub() {
       if (data.valid) {
         localStorage.setItem('merchant_license_key', cleanKey);
         setIsActivated(true);
-        alert(lang === 'en' ? '✨ Platform unlocked!' : '✨ تم التفعيل وانقشاع الضباب بنجاح!');
+        alert(lang === 'en' ? '✨ Platform unlocked! You have unlimited access.' : '✨ تم تفعيل حسابك بنجاح! جميع القيود تم رفعها.');
       } else {
         alert(lang === 'en' ? '❌ Invalid key.' : '❌ مفتاح الترخيص غير صالح أو منتهي.');
       }
@@ -609,6 +608,7 @@ export default function EnjazyaSaudiHub() {
       if (cleanKey.length >= 10 && cleanKey.includes('-')) {
         localStorage.setItem('merchant_license_key', cleanKey);
         setIsActivated(true);
+        alert(lang === 'en' ? '✨ Platform unlocked!' : '✨ تم التفعيل بنجاح!');
       } else {
         alert(lang === 'en' ? '❌ Invalid key.' : '❌ مفتاح غير صالح.');
       }
@@ -639,39 +639,39 @@ export default function EnjazyaSaudiHub() {
         .hero-text h1 { font-size: 32px; font-weight: 900; color: #0f172a; margin-bottom: 10px; }
         .hero-text h1 span { color: #047857; }
         
-        /* التأثير الضبابي والشبكة */
-        .locked-section-wrapper { position: relative; max-width: 1250px; margin: 0 auto; }
-        .cards-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; transition: all 0.4s ease; }
-        .blurred-grid { filter: blur(7px); pointer-events: none; user-select: none; opacity: 0.6; }
-        
-        .card { background: #ffffff; border-radius: 12px; padding: 24px; border: 2px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.02); display: flex; flex-direction: column; justify-content: space-between; }
+        .cards-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; max-width: 1250px; margin: 0 auto; }
+        .card { background: #ffffff; border-radius: 12px; padding: 24px; border: 2px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.02); display: flex; flex-direction: column; justify-content: space-between; transition: 0.3s; }
+        .card:hover { border-color: #047857; box-shadow: 0 10px 20px rgba(4,120,87,0.1); transform: translateY(-3px); }
         .card-icon { font-size: 28px; background: #f8fafc; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border-radius: 10px; margin-bottom: 15px; }
         .card h3 { font-size: 17px; font-weight: 900; color: #0f172a; margin-bottom: 10px; }
         .card p { color: #64748b; font-size: 13.5px; line-height: 1.6; font-weight: 500; }
 
-        /* نافذة التفعيل العائمة (Overlay) */
-        .activation-overlay {
-          position: absolute; top: -15px; left: 50%; transform: translate(-50%, 0);
-          background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);
-          padding: 40px; border-radius: 20px; box-shadow: 0 25px 50px -12px rgba(4, 120, 87, 0.25);
-          border: 2px solid #a7f3d0; text-align: center; width: 90%; max-width: 500px; z-index: 10;
+        /* لافتة الترقية الاحترافية الجديدة بدلاً من المربع المزعج */
+        .premium-banner {
+          max-width: 1250px; margin: 0 auto 40px;
+          background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+          border-radius: 20px; padding: 35px 40px;
+          display: flex; justify-content: space-between; align-items: center;
+          flex-wrap: wrap; gap: 30px; box-shadow: 0 15px 35px -5px rgba(15,23,42,0.3);
+          border: 2px solid #334155;
         }
-        .lock-icon { font-size: 40px; margin-bottom: 15px; }
-        .overlay-title { font-size: 24px; font-weight: 900; color: #0f172a; margin-bottom: 10px; }
-        .overlay-desc { color: #475569; font-size: 15px; margin-bottom: 25px; line-height: 1.5; font-weight: 600; }
-        .price-box { background: #ecfdf5; border: 1px dashed #047857; padding: 15px; border-radius: 12px; margin-bottom: 25px; }
-        .price-old { text-decoration: line-through; color: #64748b; font-size: 14px; display: block; }
-        .price-new { color: #047857; font-size: 28px; font-weight: 900; }
+        .pb-content { flex: 1; min-width: 300px; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .pb-title { font-size: 24px; font-weight: 900; color: #ffffff; margin: 0 0 10px 0; display: flex; align-items: center; gap: 10px; }
+        .pb-desc { color: #94a3b8; font-size: 15px; margin: 0 0 20px 0; line-height: 1.6; }
+        .pb-price { display: flex; align-items: center; gap: 15px; }
+        .pb-old { text-decoration: line-through; color: #64748b; font-size: 15px; }
+        .pb-new { color: #34d399; font-size: 28px; font-weight: 900; }
         
-        .overlay-input { width: 100%; padding: 14px; border: 2px solid #cbd5e1; border-radius: 10px; font-size: 16px; margin-bottom: 15px; text-align: center; font-family: inherit; font-weight: bold; outline: none; }
-        .overlay-input:focus { border-color: #047857; }
-        .overlay-btn-activate { background: #0f172a; color: white; width: 100%; padding: 14px; border: none; border-radius: 10px; font-weight: 900; font-size: 16px; cursor: pointer; transition: 0.3s; margin-bottom: 10px; }
-        .overlay-btn-activate:hover { background: #1e293b; }
-        .overlay-btn-buy { background: #047857; color: white; display: block; width: 100%; padding: 14px; border-radius: 10px; font-weight: 900; font-size: 16px; cursor: pointer; transition: 0.3s; box-sizing: border-box; text-decoration: none;}
-        .overlay-btn-buy:hover { background: #065f46; transform: translateY(-2px); box-shadow: 0 10px 20px rgba(4,120,87,0.3); }
+        .pb-actions { display: flex; flex-direction: column; gap: 15px; min-width: 300px; }
+        .pb-input { width: 100%; padding: 14px 20px; border: 2px solid #475569; border-radius: 10px; font-size: 15px; background: #0f172a; color: white; outline: none; transition: 0.3s; }
+        .pb-input:focus { border-color: #34d399; }
+        .pb-btn-activate { background: #34d399; color: #0f172a; width: 100%; padding: 14px; border: none; border-radius: 10px; font-weight: 900; font-size: 15px; cursor: pointer; transition: 0.3s; }
+        .pb-btn-activate:hover { background: #10b981; }
+        .pb-btn-buy { background: transparent; color: #ffffff; border: 2px solid #475569; width: 100%; padding: 12px; border-radius: 10px; font-weight: 800; font-size: 15px; cursor: pointer; transition: 0.3s; text-align: center; text-decoration: none; box-sizing: border-box; }
+        .pb-btn-buy:hover { border-color: #94a3b8; color: #34d399; }
 
         @media(max-width: 1024px) { .cards-grid { grid-template-columns: repeat(2, 1fr); } }
-        @media(max-width: 768px) { .cards-grid { grid-template-columns: 1fr; } .activation-overlay { top: -10px; padding: 25px; } }
+        @media(max-width: 768px) { .cards-grid { grid-template-columns: 1fr; } .premium-banner { padding: 25px; } .pb-actions { min-width: 100%; } }
       `}</style>
 
       <div className="navbar">
@@ -692,64 +692,57 @@ export default function EnjazyaSaudiHub() {
       <div className="hero-text">
         <h1>{lang === 'ar' ? 'منصة إنجازيا ' : 'Enjazya Platform '}<span>ULTRA MAX</span></h1>
         <p style={{color: '#64748b', fontSize: '16px', fontWeight: 600}}>
-          {lang === 'ar' ? 'أقوى ترسانة حاسبات وأدوات لحماية وتطوير المتاجر الإلكترونية.' : 'The ultimate arsenal of calculators and tools to scale e-commerce stores.'}
+          {lang === 'ar' ? 'تصفح وجرب أدوات حماية وتطوير المتاجر الإلكترونية مجاناً.' : 'Browse and test e-commerce protection tools for free.'}
         </p>
       </div>
 
-      {/* المكون الأول: أداة الأرباح المكشوفة والمجانية */}
       <div style={{ maxWidth: '1250px', margin: '0 auto' }}>
          <FreeProfitCalculatorSA lang={lang} isActivated={isActivated} />
       </div>
 
-      {/* المكون الثاني: الشبكة المغلقة بالضباب */}
-      <div className="locked-section-wrapper">
-        <div className={`cards-grid ${!isActivated ? 'blurred-grid' : ''}`}>
-          {saTools.map((tool) => (
-            <div key={tool.id} className="card">
-              <div>
-                <div className="card-icon">{tool.icon}</div>
-                <h3>{lang === 'ar' ? tool.titleAr : tool.titleEn}</h3>
-                <p>{lang === 'ar' ? tool.descAr : tool.descEn}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* نافذة التفعيل (تظهر فقط إذا لم يتم التفعيل) */}
-        {!isActivated && (
-          <div className="activation-overlay">
-            <div className="lock-icon">🔒</div>
-            <h3 className="overlay-title">
-              {lang === 'ar' ? 'افتح الترسانة الكاملة' : 'Unlock Full Arsenal'}
-            </h3>
-            <p className="overlay-desc">
+      {!isActivated && (
+        <div className="premium-banner">
+          <div className="pb-content">
+            <h3 className="pb-title">🚀 {lang === 'ar' ? 'ارفع القيود وافتح الترسانة الكاملة' : 'Remove Limits & Unlock Full Arsenal'}</h3>
+            <p className="pb-desc">
               {lang === 'ar' 
-                ? 'احصل على رخصة الوصول لجميع الأدوات الـ 23 المتبقية لمدة عام كامل عبر متصفحك.' 
-                : 'Get access to the remaining 23 tools for a full year directly in your browser.'}
+                ? 'رصيدك التجريبي محدود في كل أداة. احصل على رخصة الوصول اللامحدود لجميع الأدوات الـ 24 لمدة عام كامل لتأمين متجرك ومضاعفة مبيعاتك.' 
+                : 'Your trial limits are active on all tools. Get unlimited access to all 24 tools for a full year to secure your store and multiply sales.'}
             </p>
-            
-            <div className="price-box">
-              <span className="price-old">{lang === 'ar' ? 'السعر السابق: 299 ر.س' : 'Old Price: 299 SAR'}</span>
-              <span className="price-new">{lang === 'ar' ? '49.99 ر.س / سنوياً' : '49.99 SAR / Year'}</span>
+            <div className="pb-price">
+              <span className="pb-old">{lang === 'ar' ? '299 ر.س' : '299 SAR'}</span>
+              <span className="pb-new">{lang === 'ar' ? '49.99 ر.س / سنوياً' : '49.99 SAR / Year'}</span>
             </div>
-
+          </div>
+          
+          <div className="pb-actions">
             <input 
               type="text" 
-              className="overlay-input" 
+              className="pb-input" 
               placeholder={lang === 'ar' ? 'أدخل مفتاح الترخيص هنا...' : 'Enter License Key...'}
               value={licenseKeyInput}
               onChange={(e) => setLicenseKeyInput(e.target.value)}
             />
-            
-            <button className="overlay-btn-activate" onClick={() => handleActivateLicense(licenseKeyInput)} disabled={isLoading}>
-              {isLoading ? '...' : (lang === 'ar' ? 'التحقق وفتح الأدوات ✨' : 'Verify & Unlock ✨')}
+            <button className="pb-btn-activate" onClick={() => handleActivateLicense(licenseKeyInput)} disabled={isLoading}>
+              {isLoading ? '...' : (lang === 'ar' ? 'تفعيل الوصول اللامحدود ✨' : 'Activate Unlimited Access ✨')}
             </button>
-
-            <a href={LEMON_CHECKOUT_URL} target="_blank" rel="noopener noreferrer" className="overlay-btn-buy">
-               {lang === 'ar' ? 'شراء مفتاح التفعيل الآن 🛒' : 'Buy License Key Now 🛒'}
+            <a href={LEMON_CHECKOUT_URL} target="_blank" rel="noopener noreferrer" className="pb-btn-buy">
+               {lang === 'ar' ? 'أو اضغط هنا لشراء مفتاح التفعيل 🛒' : 'Or click here to buy a key 🛒'}
             </a>
           </div>
-        )}
+        </div>
+      )}
+
+      <div className="cards-grid">
+        {saTools.map((tool) => (
+          <Link href={tool.link} key={tool.id} className="card clean-link">
+            <div>
+              <div className="card-icon">{tool.icon}</div>
+              <h3>{lang === 'ar' ? tool.titleAr : tool.titleEn}</h3>
+              <p>{lang === 'ar' ? tool.descAr : tool.descEn}</p>
+            </div>
+          </Link>
+        ))}
       </div>
 
     </div>
