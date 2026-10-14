@@ -19,10 +19,6 @@ export default function SupportContact() {
       back: '← عودة للمنصة',
       title: 'الدعم الفني والمساعدة',
       desc: 'نحن هنا لمساعدتك في أي استفسار أو مشكلة تواجهك في استخدام منصة إنجازيا برو ماكس',
-      quickChannels: 'قنوات التواصل السريعة',
-      directEmail: 'البريد الإلكتروني المباشر:',
-      workHours: 'مواعيد العمل:',
-      hoursText: 'من الأحد إلى الخميس\n(9:00 صباحاً - 5:00 مساءً)',
       sendMsgTitle: 'أرسل رسالة للدعم',
       nameLabel: 'الاسم الكريم',
       namePH: 'اكتب اسمك هنا...',
@@ -36,10 +32,6 @@ export default function SupportContact() {
       back: '→ Back to Hub',
       title: 'Technical Support & Help',
       desc: 'We are here to help you with any inquiry or issue you face while using Enjazya Pro Max',
-      quickChannels: 'Quick Communication Channels',
-      directEmail: 'Direct Email:',
-      workHours: 'Working Hours:',
-      hoursText: 'Sunday to Thursday\n(9:00 AM - 5:00 PM)',
       sendMsgTitle: 'Send a Support Message',
       nameLabel: 'Your Name',
       namePH: 'Type your name here...',
@@ -90,38 +82,16 @@ export default function SupportContact() {
           </p>
         </div>
 
-        {/* شبكة المحتوى (قسم قنوات التواصل وقسم إرسال الرسالة) */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '32px' }}>
-          
-          {/* قسم قنوات التواصل السريعة */}
-          <div style={{ backgroundColor: '#f8fafc', padding: '24px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
-            <h3 style={{ fontSize: '20px', fontWeight: 'bold', color: '#1e293b', marginBottom: '20px' }}>
-              {text.quickChannels}
-            </h3>
-            <p style={{ color: '#64748b', fontSize: '14px', marginBottom: '8px' }}>
-              {text.directEmail}
-            </p>
-            <a href="mailto:engazia.sa@gmail.com" style={{ display: 'block', fontSize: '18px', fontWeight: 'bold', color: '#059669', marginBottom: '24px', textDecoration: 'none', direction: 'ltr', textAlign: lang === 'ar' ? 'right' : 'left' }}>
-              engazia.sa@gmail.com
-            </a>
-
-            <p style={{ color: '#64748b', fontSize: '14px', marginBottom: '8px' }}>
-              {text.workHours}
-            </p>
-            <p style={{ fontSize: '16px', fontWeight: '700', color: '#334155', lineHeight: '1.6', whiteSpace: 'pre-line' }}>
-              {text.hoursText}
-            </p>
-          </div>
-
-          {/* قسم إرسال رسالة للدعم */}
-          <div style={{ backgroundColor: '#f8fafc', padding: '24px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
-            <h3 style={{ fontSize: '20px', fontWeight: 'bold', color: '#1e293b', marginBottom: '20px' }}>
+        {/* حاوية نموذج إرسال الرسالة (متوسطة في الصفحة) */}
+        <div style={{ maxWidth: '600px', margin: '0 auto' }}>
+          <div style={{ backgroundColor: '#f8fafc', padding: '32px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+            <h3 style={{ fontSize: '20px', fontWeight: 'bold', color: '#1e293b', marginBottom: '24px', textAlign: 'center' }}>
               {text.sendMsgTitle}
             </h3>
             
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '14px', fontWeight: 'bold', color: '#334155', marginBottom: '6px' }}>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: 'bold', color: '#334155', marginBottom: '8px' }}>
                   {text.nameLabel}
                 </label>
                 <input 
@@ -129,13 +99,13 @@ export default function SupportContact() {
                   value={userName}
                   onChange={(e) => setUserName(e.target.value)}
                   placeholder={text.namePH} 
-                  style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', outline: 'none', backgroundColor: '#ffffff', fontFamily: 'inherit', boxSizing: 'border-box' }} 
+                  style={{ width: '100%', padding: '14px', borderRadius: '8px', border: '1px solid #cbd5e1', outline: 'none', backgroundColor: '#ffffff', fontFamily: 'inherit', boxSizing: 'border-box' }} 
                   required
                 />
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '14px', fontWeight: 'bold', color: '#334155', marginBottom: '6px' }}>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: 'bold', color: '#334155', marginBottom: '8px' }}>
                   {text.emailLabel}
                 </label>
                 <input 
@@ -143,31 +113,30 @@ export default function SupportContact() {
                   value={userEmail}
                   onChange={(e) => setUserEmail(e.target.value)}
                   placeholder="example@domain.com" 
-                  style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', outline: 'none', backgroundColor: '#ffffff', fontFamily: 'inherit', boxSizing: 'border-box', direction: 'ltr', textAlign: lang === 'ar' ? 'right' : 'left' }} 
+                  style={{ width: '100%', padding: '14px', borderRadius: '8px', border: '1px solid #cbd5e1', outline: 'none', backgroundColor: '#ffffff', fontFamily: 'inherit', boxSizing: 'border-box', direction: 'ltr', textAlign: lang === 'ar' ? 'right' : 'left' }} 
                   required
                 />
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '14px', fontWeight: 'bold', color: '#334155', marginBottom: '6px' }}>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: 'bold', color: '#334155', marginBottom: '8px' }}>
                   {text.msgLabel}
                 </label>
                 <textarea 
-                  rows={4} 
+                  rows={5} 
                   value={userMessage}
                   onChange={(e) => setUserMessage(e.target.value)}
                   placeholder={text.msgPH} 
-                  style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', outline: 'none', backgroundColor: '#ffffff', resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box' }}
+                  style={{ width: '100%', padding: '14px', borderRadius: '8px', border: '1px solid #cbd5e1', outline: 'none', backgroundColor: '#ffffff', resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box' }}
                   required
                 ></textarea>
               </div>
 
-              <button type="submit" style={{ backgroundColor: '#059669', color: '#ffffff', border: 'none', padding: '14px', borderRadius: '8px', fontWeight: 'bold', fontSize: '16px', cursor: 'pointer', marginTop: '8px', fontFamily: 'inherit' }}>
+              <button type="submit" style={{ backgroundColor: '#059669', color: '#ffffff', border: 'none', padding: '16px', borderRadius: '8px', fontWeight: 'bold', fontSize: '16px', cursor: 'pointer', marginTop: '8px', fontFamily: 'inherit', transition: '0.3s' }}>
                 {text.sendBtn}
               </button>
             </form>
           </div>
-
         </div>
 
       </div>
