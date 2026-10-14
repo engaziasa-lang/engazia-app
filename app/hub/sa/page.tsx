@@ -122,7 +122,7 @@ function FreeProfitCalculatorSA({ lang, isActivated }: { lang: 'ar' | 'en', isAc
         editBtn: 'تعديل', delBtn: 'حذف', totalLabel: 'الإجمالي الكلي / المتوسط'
       },
       alerts: {
-        limit: '🔒 عذراً، لقد استهلكت الحد التجريبي (3 منتجات). يرجى تفعيل رخصتك من الأعلى لفتح السعة الكاملة بلا حدود!',
+        limit: '🔒 عذراً، لقد استهلكت الحد التجريبي (3 منتجات). يرجى تفعيل رخصتك من الأسفل لفتح السعة الكاملة بلا حدود!',
         fillErr: 'الرجاء إدخال اسم المنتج وسعر بيع صحيح.',
         updateSuccess: '✨ تم تحديث بيانات المنتج بنجاح!',
         saveSuccess: '✅ تمت إضافة المنتج إلى جدول التحليل بنجاح!',
@@ -164,7 +164,7 @@ function FreeProfitCalculatorSA({ lang, isActivated }: { lang: 'ar' | 'en', isAc
         editBtn: 'Edit', delBtn: 'Delete', totalLabel: 'Grand Total / Average'
       },
       alerts: {
-        limit: '🔒 Sorry, you reached the trial limit (3 products). Please activate your license above to unlock unlimited access!',
+        limit: '🔒 Sorry, you reached the trial limit (3 products). Please activate your license below to unlock unlimited access!',
         fillErr: 'Please enter a valid product name and selling price.',
         updateSuccess: '✨ Product data updated successfully!',
         saveSuccess: '✅ Product added to analysis table successfully!',
@@ -558,7 +558,7 @@ function FreeProfitCalculatorSA({ lang, isActivated }: { lang: 'ar' | 'en', isAc
 }
 
 // ==========================================
-// 4. المكون الرئيسي للمنصة (الشبكة المفتوحة مع لافتة الترقية)
+// 4. المكون الرئيسي للمنصة (الشبكة المفتوحة مع لافتة الترقية الاحترافية)
 // ==========================================
 export default function EnjazyaSaudiHub() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
@@ -646,32 +646,52 @@ export default function EnjazyaSaudiHub() {
         .card h3 { font-size: 17px; font-weight: 900; color: #0f172a; margin-bottom: 10px; }
         .card p { color: #64748b; font-size: 13.5px; line-height: 1.6; font-weight: 500; }
 
-        /* لافتة الترقية الاحترافية الجديدة بدلاً من المربع المزعج */
+        /* ====== تصميم لافتة الترقية الاحترافية ====== */
         .premium-banner {
           max-width: 1250px; margin: 0 auto 40px;
-          background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-          border-radius: 20px; padding: 35px 40px;
+          background: linear-gradient(135deg, #020617 0%, #0f172a 100%);
+          border-radius: 20px; padding: 40px;
           display: flex; justify-content: space-between; align-items: center;
-          flex-wrap: wrap; gap: 30px; box-shadow: 0 15px 35px -5px rgba(15,23,42,0.3);
-          border: 2px solid #334155;
+          flex-wrap: wrap; gap: 40px; box-shadow: 0 20px 40px -10px rgba(4, 120, 87, 0.3);
+          border: 1px solid #1e293b; position: relative; overflow: hidden;
         }
-        .pb-content { flex: 1; min-width: 300px; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .pb-title { font-size: 24px; font-weight: 900; color: #ffffff; margin: 0 0 10px 0; display: flex; align-items: center; gap: 10px; }
-        .pb-desc { color: #94a3b8; font-size: 15px; margin: 0 0 20px 0; line-height: 1.6; }
-        .pb-price { display: flex; align-items: center; gap: 15px; }
-        .pb-old { text-decoration: line-through; color: #64748b; font-size: 15px; }
-        .pb-new { color: #34d399; font-size: 28px; font-weight: 900; }
+        .premium-banner::before {
+          content: ''; position: absolute; top: -50px; left: -50px; width: 200px; height: 200px;
+          background: radial-gradient(circle, rgba(4,120,87,0.2) 0%, rgba(0,0,0,0) 70%); z-index: 0;
+        }
+        .pb-content { flex: 1.5; min-width: 320px; z-index: 1; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         
-        .pb-actions { display: flex; flex-direction: column; gap: 15px; min-width: 300px; }
-        .pb-input { width: 100%; padding: 14px 20px; border: 2px solid #475569; border-radius: 10px; font-size: 15px; background: #0f172a; color: white; outline: none; transition: 0.3s; }
+        .pb-badge { display: inline-block; background: rgba(52, 211, 153, 0.1); color: #34d399; font-size: 13px; font-weight: 800; padding: 6px 12px; border-radius: 8px; margin-bottom: 15px; border: 1px solid rgba(52, 211, 153, 0.2); }
+        .pb-title { font-size: 28px; font-weight: 900; color: #ffffff; margin: 0 0 20px 0; line-height: 1.4; }
+        
+        .pb-features { list-style: none; padding: 0; margin: 0 0 25px 0; display: flex; flex-direction: column; gap: 12px; }
+        .pb-features li { color: #cbd5e1; font-size: 15px; display: flex; align-items: center; gap: 10px; font-weight: 600; }
+        .pb-features li span { color: #34d399; font-weight: 900; font-size: 18px; }
+        
+        .pb-price-wrap { display: flex; align-items: center; gap: 15px; background: rgba(255,255,255,0.03); padding: 15px 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); display: inline-flex;}
+        .pb-old { text-decoration: line-through; color: #64748b; font-size: 16px; font-weight: bold;}
+        .pb-new { color: #34d399; font-size: 32px; font-weight: 900; display: flex; align-items: baseline; gap: 5px; }
+        .pb-new span { font-size: 14px; font-weight: 600; color: #94a3b8; }
+        
+        .pb-action-panel { flex: 1; min-width: 320px; z-index: 1; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 25px; display: flex; flex-direction: column; gap: 25px; }
+        
+        .pb-buy-box p, .pb-activate-box p { margin: 0 0 10px 0; color: #e2e8f0; font-size: 14px; font-weight: 700; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        
+        .pb-btn-buy { background: linear-gradient(135deg, #047857 0%, #059669 100%); color: white; display: block; width: 100%; padding: 16px; border-radius: 12px; font-weight: 900; font-size: 16px; cursor: pointer; transition: 0.3s; text-align: center; text-decoration: none; box-shadow: 0 4px 15px rgba(4, 120, 87, 0.4); border: 1px solid #10b981;}
+        .pb-btn-buy:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(4, 120, 87, 0.6); background: linear-gradient(135deg, #059669 0%, #10b981 100%); }
+
+        .pb-divider { text-align: center; color: #64748b; font-size: 12px; font-weight: bold; position: relative; }
+        .pb-divider::before, .pb-divider::after { content: ''; position: absolute; top: 50%; width: 40%; height: 1px; background: rgba(255,255,255,0.1); }
+        .pb-divider::before { left: 0; } .pb-divider::after { right: 0; }
+
+        .pb-input-group { display: flex; gap: 10px; }
+        .pb-input { flex: 1; padding: 12px 15px; border: 1px solid #334155; border-radius: 10px; font-size: 14px; background: #0f172a; color: white; outline: none; transition: 0.3s; font-family: inherit;}
         .pb-input:focus { border-color: #34d399; }
-        .pb-btn-activate { background: #34d399; color: #0f172a; width: 100%; padding: 14px; border: none; border-radius: 10px; font-weight: 900; font-size: 15px; cursor: pointer; transition: 0.3s; }
-        .pb-btn-activate:hover { background: #10b981; }
-        .pb-btn-buy { background: transparent; color: #ffffff; border: 2px solid #475569; width: 100%; padding: 12px; border-radius: 10px; font-weight: 800; font-size: 15px; cursor: pointer; transition: 0.3s; text-align: center; text-decoration: none; box-sizing: border-box; }
-        .pb-btn-buy:hover { border-color: #94a3b8; color: #34d399; }
+        .pb-btn-activate { background: #334155; color: #ffffff; padding: 12px 20px; border: 1px solid #475569; border-radius: 10px; font-weight: 800; font-size: 14px; cursor: pointer; transition: 0.3s; font-family: inherit; white-space: nowrap;}
+        .pb-btn-activate:hover { background: #475569; color: #34d399; }
 
         @media(max-width: 1024px) { .cards-grid { grid-template-columns: repeat(2, 1fr); } }
-        @media(max-width: 768px) { .cards-grid { grid-template-columns: 1fr; } .premium-banner { padding: 25px; } .pb-actions { min-width: 100%; } }
+        @media(max-width: 768px) { .cards-grid { grid-template-columns: 1fr; } .premium-banner { padding: 25px; flex-direction: column; gap: 30px; } .pb-input-group { flex-direction: column; } .pb-action-panel { width: 100%; box-sizing: border-box; } }
       `}</style>
 
       <div className="navbar">
@@ -703,32 +723,48 @@ export default function EnjazyaSaudiHub() {
       {!isActivated && (
         <div className="premium-banner">
           <div className="pb-content">
-            <h3 className="pb-title">🚀 {lang === 'ar' ? 'ارفع القيود وافتح الترسانة الكاملة' : 'Remove Limits & Unlock Full Arsenal'}</h3>
-            <p className="pb-desc">
-              {lang === 'ar' 
-                ? 'رصيدك التجريبي محدود في كل أداة. احصل على رخصة الوصول اللامحدود لجميع الأدوات الـ 24 لمدة عام كامل لتأمين متجرك ومضاعفة مبيعاتك.' 
-                : 'Your trial limits are active on all tools. Get unlimited access to all 24 tools for a full year to secure your store and multiply sales.'}
-            </p>
-            <div className="pb-price">
+            <div className="pb-badge">🌟 {lang === 'ar' ? 'إنجازيا ULTRA MAX' : 'Enjazya ULTRA MAX'}</div>
+            <h3 className="pb-title">
+              {lang === 'ar' ? 'ارفع القيود وافتح الترسانة الكاملة' : 'Remove Limits & Unlock Full Arsenal'}
+            </h3>
+            
+            <ul className="pb-features">
+              <li><span>✓</span> {lang === 'ar' ? 'وصول لامحدود لجميع الأدوات الـ 24' : 'Unlimited access to all 24 tools'}</li>
+              <li><span>✓</span> {lang === 'ar' ? 'رخصة صالحة لعام كامل بدون رسوم شهرية' : 'Valid for 1 year with no monthly fees'}</li>
+              <li><span>✓</span> {lang === 'ar' ? 'حماية كاملة لخوارزميات متجرك وتسعيرك' : 'Full protection for your store algorithms'}</li>
+            </ul>
+
+            <div className="pb-price-wrap">
               <span className="pb-old">{lang === 'ar' ? '299 ر.س' : '299 SAR'}</span>
-              <span className="pb-new">{lang === 'ar' ? '49.99 ر.س / سنوياً' : '49.99 SAR / Year'}</span>
+              <div className="pb-new">{lang === 'ar' ? '49.99 ر.س' : '49.99 SAR'} <span>{lang === 'ar' ? '/ سنوياً' : '/ Year'}</span></div>
             </div>
           </div>
           
-          <div className="pb-actions">
-            <input 
-              type="text" 
-              className="pb-input" 
-              placeholder={lang === 'ar' ? 'أدخل مفتاح الترخيص هنا...' : 'Enter License Key...'}
-              value={licenseKeyInput}
-              onChange={(e) => setLicenseKeyInput(e.target.value)}
-            />
-            <button className="pb-btn-activate" onClick={() => handleActivateLicense(licenseKeyInput)} disabled={isLoading}>
-              {isLoading ? '...' : (lang === 'ar' ? 'تفعيل الوصول اللامحدود ✨' : 'Activate Unlimited Access ✨')}
-            </button>
-            <a href={LEMON_CHECKOUT_URL} target="_blank" rel="noopener noreferrer" className="pb-btn-buy">
-               {lang === 'ar' ? 'أو اضغط هنا لشراء مفتاح التفعيل 🛒' : 'Or click here to buy a key 🛒'}
-            </a>
+          <div className="pb-action-panel">
+            <div className="pb-buy-box">
+              <p>{lang === 'ar' ? 'ليس لديك رخصة؟' : 'Don\'t have a license?'}</p>
+              <a href={LEMON_CHECKOUT_URL} target="_blank" rel="noopener noreferrer" className="pb-btn-buy">
+                 {lang === 'ar' ? 'شراء مفتاح التفعيل الآن 🛒' : 'Buy License Key Now 🛒'}
+              </a>
+            </div>
+            
+            <div className="pb-divider">{lang === 'ar' ? 'أو' : 'OR'}</div>
+            
+            <div className="pb-activate-box">
+              <p>{lang === 'ar' ? 'لديك مفتاح بالفعل؟' : 'Already have a key?'}</p>
+              <div className="pb-input-group">
+                <input 
+                  type="text" 
+                  className="pb-input" 
+                  placeholder={lang === 'ar' ? 'أدخل المفتاح هنا...' : 'Enter key here...'}
+                  value={licenseKeyInput}
+                  onChange={(e) => setLicenseKeyInput(e.target.value)}
+                />
+                <button className="pb-btn-activate" onClick={() => handleActivateLicense(licenseKeyInput)} disabled={isLoading}>
+                  {isLoading ? '...' : (lang === 'ar' ? 'تفعيل ✨' : 'Activate ✨')}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
