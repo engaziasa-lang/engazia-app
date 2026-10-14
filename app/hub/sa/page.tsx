@@ -586,7 +586,7 @@ export default function EnjazyaSaudiHub() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const globalFileInputRef = useRef<HTMLInputElement>(null);
 
-  const LEMON_CHECKOUT_URL = 'https://enjazya.lemonsqueezy.com/checkout/buy/55d16a28-3c2d-4688-a98d-7168e50a5f44';
+  const LEMON_CHECKOUT_URL = 'https://enjazya.lemonsqueezy.com/checkout/buy/c909e54c-812c-469b-8e17-49f926ca2233';
 
   useEffect(() => {
     const savedLang = (localStorage.getItem('enjazya_sa_lang') as 'ar' | 'en') || 'ar';
