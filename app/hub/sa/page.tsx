@@ -970,7 +970,7 @@ export default function EnjazyaSaudiHub() {
           <span>
             © {new Date().getFullYear()} {lang === 'ar' ? 'منصة إنجازيا ULTRA MAX' : 'Enjazya ULTRA MAX Platform'}. {lang === 'ar' ? 'جميع الحقوق محفوظة.' : 'All rights reserved.'}
           </span>
-          <span style={{ color: '#10b981', display: 'inline-flex', align-items: 'center', gap: '5px' }}>
+          <span style={{ color: '#10b981', display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
             {lang === 'ar' ? 'صُنع بفخر في المملكة العربية السعودية 🇸🇦' : 'Proudly crafted in Saudi Arabia 🇸🇦'}
           </span>
         </div>
