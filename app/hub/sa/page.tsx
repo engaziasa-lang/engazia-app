@@ -355,7 +355,7 @@ function FreeProfitCalculatorSA({ lang, isActivated }: { lang: 'ar' | 'en', isAc
         
         .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; display: block; text-align: center; }
         .action-btn:hover { background: #065f46; }
-
+        
         .mobile-btn-container { display: none; }
         .desktop-btn-container { display: block; }
 
@@ -764,27 +764,36 @@ export default function EnjazyaSaudiHub() {
         .pb-btn-activate { background: #334155; color: #ffffff; padding: 12px 20px; border: 1px solid #475569; border-radius: 10px; font-weight: 800; font-size: 14px; cursor: pointer; transition: 0.3s; font-family: inherit; white-space: nowrap;}
         .pb-btn-activate:hover { background: #475569; color: #34d399; }
 
-        /* ====== تصميم الفوتر الاحترافي (Footer CSS) ====== */
-        .footer { background: #0f172a; border-top: 4px solid #047857; color: #94a3b8; padding: 60px 20px 20px; margin-top: auto; font-family: ${lang === 'ar' ? "'Tajawal', sans-serif" : "'Inter', sans-serif"}; box-sizing: border-box; width: 100%; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
-        .footer-inner { max-width: 1250px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 40px; }
-        .footer-col h4 { font-size: 16px; font-weight: 800; color: #ffffff; margin: 0 0 20px 0; border-bottom: 2px solid #1e293b; padding-bottom: 8px; display: inline-block; }
-        .footer-col p { font-size: 13.5px; line-height: 1.6; margin: 0 0 15px 0; }
-        .footer-logo { font-size: 22px; font-weight: 900; color: #ffffff; display: flex; align-items: center; gap: 8px; margin-bottom: 15px; }
-        .footer-col ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px; }
-        .footer-col ul li a { font-size: 13.5px; color: #94a3b8; transition: 0.2s; font-weight: 600; text-decoration: none; display: flex; align-items: center; gap: 6px; }
-        .footer-col ul li a:hover { color: #34d399; transform: translateX(${lang === 'ar' ? '-4px' : '4px'}); }
+        /* ====== تصميم الفوتر الأسود القديم (Old Black Footer CSS) ====== */
+        .footer-dark { background: #0b0f19; border-top: 3px solid #1e293b; color: #cbd5e1; padding: 50px 20px 20px; margin-top: auto; font-family: ${lang === 'ar' ? "'Tajawal', sans-serif" : "'Inter', sans-serif"}; box-sizing: border-box; width: 100%; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .footer-dark-inner { max-width: 1250px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 40px; }
         
-        .footer-badge { background: #1e293b; color: #ffffff; display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: bold; border: 1px solid #334155; margin-bottom: 15px; }
-        .footer-socials { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 15px; }
-        .footer-social-btn { background: #1e293b; color: #ffffff !important; width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; border: 1px solid #334155; transition: 0.3s; }
-        .footer-social-btn:hover { background: #047857; color: #ffffff !important; transform: translateY(-3px); }
+        .footer-col-dark h4 { font-size: 16px; font-weight: 800; color: #ffffff; margin: 0 0 20px 0; display: inline-flex; align-items: center; gap: 8px; border-bottom: 2px solid #334155; padding-bottom: 8px; }
+        .footer-col-dark p { font-size: 13.5px; line-height: 1.6; margin: 0 0 15px 0; color: #94a3b8; }
+        .footer-col-dark ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 14px; }
+        .footer-col-dark ul li a { font-size: 14px; color: #94a3b8; transition: 0.2s; font-weight: 600; text-decoration: none; display: flex; align-items: center; gap: 8px; }
+        .footer-col-dark ul li a:hover { color: #ffffff; transform: translateX(${lang === 'ar' ? '-5px' : '5px'}); }
 
-        .footer-bottom { max-width: 1250px; margin: 40px auto 0; padding-top: 20px; border-top: 1px solid #1e293b; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; font-size: 13px; font-weight: 600; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
+        .footer-brand { font-size: 24px; font-weight: 900; color: #ffffff; display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+        .footer-brand span { color: #94a3b8; font-weight: 600; font-size: 18px; }
         
+        .footer-dark-bottom { max-width: 1250px; margin: 40px auto 0; padding-top: 25px; border-top: 1px solid #1e293b; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; font-size: 13px; font-weight: 600; color: #64748b; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
+        
+        .payment-icons { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .pay-badge { font-size: 11px; font-weight: 800; padding: 6px 12px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; letter-spacing: 0.5px; transition: transform 0.2s ease; }
+        .pay-badge:hover { transform: translateY(-2px); }
+        .pay-badge.cashapp { background: #00D632; color: #000; }
+        .pay-badge.gpay { background: #ffffff; color: #1e293b; border: 1px solid #cbd5e1; }
+        .pay-badge.paypal { background: #003087; color: #ffffff; }
+        .pay-badge.discover { background: #ff6600; color: #ffffff; }
+        .pay-badge.amex { background: #006fcf; color: #ffffff; }
+        .pay-badge.mc { background: #222222; color: #ffffff; border: 1px solid #333; }
+        .pay-badge.visa { background: #1a1f71; color: #ffffff; }
+
         @media(max-width: 1024px) { .cards-grid { grid-template-columns: repeat(2, 1fr); } }
-        @media(max-width: 900px) { .footer-inner { grid-template-columns: repeat(2, 1fr); gap: 30px; } }
+        @media(max-width: 900px) { .footer-dark-inner { grid-template-columns: repeat(2, 1fr); gap: 30px; } }
         @media(max-width: 768px) { .cards-grid { grid-template-columns: 1fr; } .premium-banner { padding: 25px; flex-direction: column; gap: 30px; } .pb-input-group { flex-direction: column; } .pb-action-panel { width: 100%; box-sizing: border-box; } }
-        @media(max-width: 600px) { .footer-inner { grid-template-columns: 1fr; } .footer-bottom { flex-direction: column; text-align: center; } }
+        @media(max-width: 600px) { .footer-dark-inner { grid-template-columns: 1fr; } .footer-dark-bottom { flex-direction: column; text-align: center; justify-content: center; } }
       `}</style>
 
       <div className="content-wrap">
@@ -859,119 +868,4 @@ export default function EnjazyaSaudiHub() {
 
               <div className="pb-price-wrap">
                 <span className="pb-old">{lang === 'ar' ? '299 ر.س' : '299 SAR'}</span>
-                <div className="pb-new">{lang === 'ar' ? '49.99 ر.س' : '49.99 SAR'} <span>{lang === 'ar' ? '/ سنوياً' : '/ Year'}</span></div>
-              </div>
-            </div>
-            
-            <div className="pb-action-panel">
-              <div className="pb-buy-box">
-                <p>{lang === 'ar' ? 'ليس لديك رخصة؟' : 'Don\'t have a license?'}</p>
-                <a href={LEMON_CHECKOUT_URL} target="_blank" rel="noopener noreferrer" className="pb-btn-buy">
-                   {lang === 'ar' ? 'شراء مفتاح التفعيل الآن 🛒' : 'Buy License Key Now 🛒'}
-                </a>
-              </div>
-              
-              <div className="pb-divider">{lang === 'ar' ? 'أو' : 'OR'}</div>
-              
-              <div className="pb-activate-box">
-                <p>{lang === 'ar' ? 'لديك مفتاح بالفعل؟' : 'Already have a key?'}</p>
-                <div className="pb-input-group">
-                  <input 
-                    type="text" 
-                    className="pb-input" 
-                    placeholder={lang === 'ar' ? 'أدخل المفتاح هنا...' : 'Enter key here...'}
-                    value={licenseKeyInput}
-                    onChange={(e) => setLicenseKeyInput(e.target.value)}
-                  />
-                  <button className="pb-btn-activate" onClick={() => handleActivateLicense(licenseKeyInput)} disabled={isLoading}>
-                    {isLoading ? '...' : (lang === 'ar' ? 'تفعيل ✨' : 'Activate ✨')}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* الشبكة تظهر دائماً، وفيها جميع الأدوات */}
-        <div className="cards-grid">
-          {saTools.map((tool) => {
-            // منع تكرار ظهور الأداة في الشبكة إذا كانت ظاهرة في الأعلى (أي قبل التفعيل)
-            if (!isActivated && tool.id === 'profit') return null;
-            
-            return (
-              <Link href={tool.link} key={tool.id} className="card clean-link">
-                <div>
-                  <div className="card-icon">{tool.icon}</div>
-                  <h3>{lang === 'ar' ? tool.titleAr : tool.titleEn}</h3>
-                  <p>{lang === 'ar' ? tool.descAr : tool.descEn}</p>
-                </div>
-              </Link>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* ==========================================
-          5. الفوتر الاحترافي والنهائي (Professional Footer)
-          ========================================== */}
-      <footer className="footer">
-        <div className="footer-inner">
-          <div className="footer-col" style={{ gridColumn: 'span 1' }}>
-            <div className="footer-logo">
-              📊 {lang === 'ar' ? 'إنجازيا' : 'Enjazya'}
-            </div>
-            <div className="footer-badge">🇸🇦 {lang === 'ar' ? 'السوق السعودي' : 'Saudi Market'}</div>
-            <p>
-              {lang === 'ar' 
-                ? 'الترسانة والمنصة الرقمية الأولى المتكاملة لمساعدة وتأمين وتطوير متاجر التجزئة والتجارة الإلكترونية في المملكة العربية السعودية.' 
-                : 'The premier integrated digital platform to help, secure, and grow retail & e-commerce stores in Saudi Arabia.'}
-            </p>
-            <div className="footer-socials">
-              <a href="https://x.com" target="_blank" rel="noopener noreferrer" className="footer-social-btn" title="X (Twitter)">𝕏</a>
-              <a href="https://wa.me/966550000000" target="_blank" rel="noopener noreferrer" className="footer-social-btn" title="WhatsApp">💬</a>
-            </div>
-          </div>
-
-          <div className="footer-col">
-            <h4>{lang === 'ar' ? 'أدوات التجارة' : 'Commerce Tools'}</h4>
-            <ul>
-              <li><Link href="/hub/sa/profit">📊 {lang === 'ar' ? 'حاسبة الأرباح' : 'Profit Calculator'}</Link></li>
-              <li><Link href="/hub/sa/fees">💳 {lang === 'ar' ? 'رسوم بوابات الدفع' : 'Payment Gateways'}</Link></li>
-              <li><Link href="/hub/sa/platforms">🛒 {lang === 'ar' ? 'رسوم سلة وزد' : 'Salla & Zid Fees'}</Link></li>
-              <li><Link href="/hub/sa/invoices">🧾 {lang === 'ar' ? 'الفواتير الإلكترونية' : 'E-Invoices (ZATCA)'}</Link></li>
-            </ul>
-          </div>
-
-          <div className="footer-col">
-            <h4>{lang === 'ar' ? 'المعرفة القانونية' : 'Legal & Safety'}</h4>
-            <ul>
-              <li><Link href="/hub/sa/legal">⚖️ {lang === 'ar' ? 'سياسات وزارة التجارة' : 'Commerce Policies'}</Link></li>
-              <li><Link href="/hub/sa/vat-report">📑 {lang === 'ar' ? 'الإقرار الضريبي زاتكا' : 'VAT Reports (ZATCA)'}</Link></li>
-              <li><Link href="/hub/sa/cod-risk">🚚 {lang === 'ar' ? 'محلل الدفع عند الاستلام' : 'COD Risk Analyzer'}</Link></li>
-              <li><Link href="/hub/sa/returns">🔄 {lang === 'ar' ? 'خسائر المرتجعات' : 'Return Loss Analyzer'}</Link></li>
-            </ul>
-          </div>
-
-          <div className="footer-col">
-            <h4>{lang === 'ar' ? 'دعم ومساعدة' : 'Support & Legal'}</h4>
-            <ul>
-              <li><Link href="#contact">📞 {lang === 'ar' ? 'اتصل بنا' : 'Contact Us'}</Link></li>
-              <li><Link href="/privacy">🔒 {lang === 'ar' ? 'سياسة الخصوصية' : 'Privacy Policy'}</Link></li>
-              <li><Link href="/terms">📝 {lang === 'ar' ? 'شروط الاستخدام' : 'Terms of Service'}</Link></li>
-              <li><span style={{ fontSize: '13px', color: '#64748b', fontWeight: 'bold' }}>📍 {lang === 'ar' ? 'الرياض، المملكة العربية السعودية' : 'Riyadh, Saudi Arabia'}</span></li>
-            </ul>
-          </div>
-        </div>
-
-        <div className="footer-bottom">
-          <span>
-            © {new Date().getFullYear()} {lang === 'ar' ? 'منصة إنجازيا ULTRA MAX' : 'Enjazya ULTRA MAX Platform'}. {lang === 'ar' ? 'جميع الحقوق محفوظة.' : 'All rights reserved.'}
-          </span>
-          <span style={{ color: '#10b981', display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
-            {lang === 'ar' ? 'صُنع بفخر في المملكة العربية السعودية 🇸🇦' : 'Proudly crafted in Saudi Arabia 🇸🇦'}
-          </span>
-        </div>
-      </footer>
-    </div>
-  );
-}
+                <div className="pb-new">{lang === 'ar' ? '49.99 ر.س' : '49.99
