@@ -1,18 +1,15 @@
 import { NextResponse } from 'next/server';
 import { google } from 'googleapis';
 
-// الحد الأقصى للروابط في كل تشغيل (حسب سياسة جوجل)
 const BATCH_SIZE = 200;
 
 export async function GET(request: Request) {
-  // 1. التحقق من أن الطلب قادم من Vercel Cron
   const authHeader = request.headers.get('authorization');
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
     return new Response('غير مصرح', { status: 401 });
   }
 
   try {
-    // 2. قراءة خريطة الموقع الخاصة بك
     const sitemapUrl = 'https://engazia-app.vercel.app/sitemap.xml';
     const sitemapResponse = await fetch(sitemapUrl);
     
@@ -21,8 +18,6 @@ export async function GET(request: Request) {
     }
 
     const sitemapXml = await sitemapResponse.text();
-    
-    // استخراج جميع الروابط من الخريطة باستخدام تعبير نمطي بسيط
     const urlMatches = sitemapXml.match(/<loc>(.*?)<\/loc>/g);
     let allUrls: string[] = [];
     
@@ -31,15 +26,12 @@ export async function GET(request: Request) {
     }
 
     if (allUrls.length === 0) {
-         return NextResponse.json({ message: 'لم يتم العثور على روابط في خريطة الموقع' });
+         console.log('لم يتم العثور على روابط.');
+         return NextResponse.json({ message: 'لم يتم العثور على روابط' });
     }
 
-    // هنا نحن نأخذ أول 200 رابط. 
-    // في نظام متقدم، سنحتاج لربط هذا بقاعدة بيانات لمعرفة الروابط التي تم إرسالها سابقاً.
-    // لكن للبدء، سنرسل الـ 200 رابط.
     const urlsToIndex = allUrls.slice(0, BATCH_SIZE);
 
-    // 3. إعداد الاتصال بجوجل
     const clientEmail = process.env.GOOGLE_CLIENT_EMAIL;
     const privateKey = process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n');
 
@@ -58,33 +50,32 @@ export async function GET(request: Request) {
     await jwtClient.authorize();
     const indexing = google.indexing({ version: 'v3', auth: jwtClient });
 
-    // 4. إرسال الروابط لجوجل (بشكل متزامن لتجنب الحظر)
     let successCount = 0;
     let failCount = 0;
 
-    for (const url of urlsToIndex) {
-        try {
-            await indexing.urlNotifications.publish({
-                requestBody: { url: url, type: 'URL_UPDATED' },
-            });
-            successCount++;
-        } catch (e) {
-            console.error(`فشل أرشفة ${url}:`, e);
-            failCount++;
-        }
-    }
+    // التنفيذ المتوازي لتجنب تجاوز الوقت المحدد في Vercel
+    const publishPromises = urlsToIndex.map(async (url) => {
+      try {
+        await indexing.urlNotifications.publish({
+          requestBody: { url: url, type: 'URL_UPDATED' },
+        });
+        successCount++;
+      } catch (e) {
+        failCount++;
+      }
+    });
+
+    await Promise.all(publishPromises);
+
+    console.log(`✅ اكتملت الأرشفة: نجاح ${successCount}، فشل ${failCount}`);
 
     return NextResponse.json({
       success: true,
-      message: `اكتملت العملية الآلية. تم إرسال ${successCount} رابط بنجاح. فشل ${failCount}.`,
-      processedUrls: urlsToIndex.length
+      message: `تم إرسال ${successCount} رابط بنجاح.`,
     });
 
   } catch (error: any) {
-    return NextResponse.json({
-      success: false,
-      error: 'حدث خطأ في النظام الآلي',
-      details: error.message,
-    }, { status: 500 });
+    console.error('❌ خطأ شامل:', error.message);
+    return NextResponse.json({ error: 'حدث خطأ' }, { status: 500 });
   }
 }
