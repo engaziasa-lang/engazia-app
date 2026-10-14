@@ -5,7 +5,7 @@ import Link from 'next/link';
 
 export default function PricingSA() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
-  const LEMON_CHECKOUT_URL = 'https://enjazya.lemonsqueezy.com/checkout/buy/55d16a28-3c2d-4688-a98d-7168e50a5f44';
+  const LEMON_CHECKOUT_URL = 'https://enjazya.lemonsqueezy.com/checkout/buy/c909e54c-812c-469b-8e17-49f926ca2233';
 
   useEffect(() => {
     const savedLang = (localStorage.getItem('seerk_global_lang') as 'ar' | 'en') || 'ar';
@@ -51,7 +51,6 @@ export default function PricingSA() {
         { text: 'نظام إدارة وتتبع حركة المخزون', icon: '📋' },
         { text: 'مقيم مخاطر الدفع عند الاستلام (COD)', icon: '⚠️' },
         { text: 'محلل أداء حملات المشاهير (Influencers)', icon: '🌟' },
-        { text: 'إمكانية التفعيل على 3 أجهزة للموظفين', icon: '💻' },
         { text: 'نسخ احتياطي وتصدير كامل للبيانات بصيغة JSON', icon: '💾' }
       ]
     },
@@ -90,7 +89,6 @@ export default function PricingSA() {
         { text: 'Inventory movement management & tracking system', icon: '📋' },
         { text: 'Cash on Delivery (COD) risk assessor', icon: '⚠️' },
         { text: 'Influencer campaign performance analyst', icon: '🌟' },
-        { text: 'Activation on up to 3 employee devices', icon: '💻' },
         { text: 'Full data backup and export in JSON format', icon: '💾' }
       ]
     }
