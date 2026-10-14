@@ -2,43 +2,48 @@ import { NextResponse } from 'next/server';
 import { google } from 'googleapis';
 
 export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const urlToIndex = searchParams.get('url');
+
+  if (!urlToIndex) {
+    return NextResponse.json({ error: 'يرجى توفير رابط للأرشفة عبر المعلمة ?url=' }, { status: 400 });
+  }
+
   try {
     const clientEmail = process.env.GOOGLE_CLIENT_EMAIL;
     const privateKey = process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n');
 
-    const jwtClient = new google.auth.JWT(
-      clientEmail, undefined, privateKey,
-      ['https://www.googleapis.com/auth/siteverification'], undefined
-    );
-    await jwtClient.authorize();
-
-    const siteVerification = google.siteVerification({ version: 'v1', auth: jwtClient });
-    const { searchParams } = new URL(request.url);
-
-    // الخطوة الثانية: تأكيد الملكية
-    if (searchParams.get('step') === '2') {
-      const insertResponse = await siteVerification.webResource.insert({
-        verificationMethod: 'FILE',
-        requestBody: { site: { identifier: 'https://engazia-app.vercel.app/', type: 'SITE' } }
-      });
-      return NextResponse.json({ success: true, message: '🎉 مبروك! أصبح حساب الخدمة مالكاً بنجاح.' });
+    if (!clientEmail || !privateKey) {
+      return NextResponse.json({ error: 'متغيرات البيئة غير مكتملة في Vercel' }, { status: 500 });
     }
 
-    // الخطوة الأولى: جلب ملف التوثيق
-    const tokenResponse = await siteVerification.webResource.getToken({
-      requestBody: {
-        verificationMethod: 'FILE',
-        site: { identifier: 'https://engazia-app.vercel.app/', type: 'SITE' }
-      }
+    const jwtClient = new google.auth.JWT(
+      clientEmail,
+      undefined,
+      privateKey,
+      ['https://www.googleapis.com/auth/indexing'],
+      undefined
+    );
+
+    await jwtClient.authorize();
+
+    const indexing = google.indexing({ version: 'v3', auth: jwtClient });
+
+    const response = await indexing.urlNotifications.publish({
+      requestBody: { url: urlToIndex, type: 'URL_UPDATED' },
     });
 
     return NextResponse.json({
-      message: 'انسخ اسم الملف والمحتوى، وأنشئه داخل مجلد public في مشروعك.',
-      fileName: tokenResponse.data.token,
-      fileContent: `google-site-verification: ${tokenResponse.data.token}`
+      success: true,
+      message: 'تم إرسال الرابط لأرشفة جوجل بنجاح!',
+      data: response.data,
     });
 
   } catch (error: any) {
-    return NextResponse.json({ error: 'حدث خطأ', details: error.message }, { status: 500 });
+    return NextResponse.json({
+      success: false,
+      error: 'فشل في أرشفة الرابط',
+      details: error.message,
+    }, { status: 500 });
   }
 }
