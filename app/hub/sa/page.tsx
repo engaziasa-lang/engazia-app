@@ -353,9 +353,11 @@ function FreeProfitCalculatorSA({ lang, isActivated }: { lang: 'ar' | 'en', isAc
         .input-wrapper input:focus, .input-wrapper select:focus { border-color: #047857; background: #ffffff; }
         .currency-tag { position: absolute; ${lang === 'ar' ? 'left: 14px;' : 'right: 14px;'} color: #64748b; font-weight: 800; font-size: 13px; pointer-events: none; }
         
+        /* تحسين مظهر الزر ليصبح مرناً ومتجاوباً */
         .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; display: block; text-align: center; }
         .action-btn:hover { background: #065f46; }
         
+        /* إظهار الزر أسفل التحليل المالي في وضع الجوال وإخفائه في سطح المكتب */
         .mobile-btn-container { display: none; }
         .desktop-btn-container { display: block; }
 
@@ -868,4 +870,115 @@ export default function EnjazyaSaudiHub() {
 
               <div className="pb-price-wrap">
                 <span className="pb-old">{lang === 'ar' ? '299 ر.س' : '299 SAR'}</span>
-                <div className="pb-new">{lang === 'ar' ? '49.99 ر.س' : '49.99
+                <div className="pb-new">{lang === 'ar' ? '49.99 ر.س' : '49.99 SAR'} <span>{lang === 'ar' ? '/ سنوياً' : '/ Year'}</span></div>
+              </div>
+            </div>
+            
+            <div className="pb-action-panel">
+              <div className="pb-buy-box">
+                <p>{lang === 'ar' ? 'ليس لديك رخصة؟' : 'Don\'t have a license?'}</p>
+                <a href={LEMON_CHECKOUT_URL} target="_blank" rel="noopener noreferrer" className="pb-btn-buy">
+                   {lang === 'ar' ? 'شراء مفتاح التفعيل الآن 🛒' : 'Buy License Key Now 🛒'}
+                </a>
+              </div>
+              
+              <div className="pb-divider">{lang === 'ar' ? 'أو' : 'OR'}</div>
+              
+              <div className="pb-activate-box">
+                <p>{lang === 'ar' ? 'لديك مفتاح بالفعل؟' : 'Already have a key?'}</p>
+                <div className="pb-input-group">
+                  <input 
+                    type="text" 
+                    className="pb-input" 
+                    placeholder={lang === 'ar' ? 'أدخل المفتاح هنا...' : 'Enter key here...'}
+                    value={licenseKeyInput}
+                    onChange={(e) => setLicenseKeyInput(e.target.value)}
+                  />
+                  <button className="pb-btn-activate" onClick={() => handleActivateLicense(licenseKeyInput)} disabled={isLoading}>
+                    {isLoading ? '...' : (lang === 'ar' ? 'تفعيل ✨' : 'Activate ✨')}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* الشبكة تظهر دائماً، وفيها جميع الأدوات */}
+        <div className="cards-grid">
+          {saTools.map((tool) => {
+            // منع تكرار ظهور الأداة في الشبكة إذا كانت ظاهرة في الأعلى (أي قبل التفعيل)
+            if (!isActivated && tool.id === 'profit') return null;
+            
+            return (
+              <Link href={tool.link} key={tool.id} className="card clean-link">
+                <div>
+                  <div className="card-icon">{tool.icon}</div>
+                  <h3>{lang === 'ar' ? tool.titleAr : tool.titleEn}</h3>
+                  <p>{lang === 'ar' ? tool.descAr : tool.descEn}</p>
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* ==========================================
+          5. الفوتر الأسود القديم (Old Black Footer) المخصص للسعودية
+          ========================================== */}
+      <footer className="footer-dark">
+        <div className="footer-dark-inner">
+          <div className="footer-col-dark" style={{ gridColumn: 'span 1' }}>
+            <div className="footer-brand">
+              {lang === 'ar' ? 'إنجازيا' : 'Enjazya'} <span>SA</span>
+            </div>
+            <p>
+              {lang === 'ar' 
+                ? 'المنصة السحابية الأولى المخصصة لتمكين تجار التجارة الإلكترونية في المملكة العربية السعودية. أدوات دقيقة، حسابات ضريبية متوافقة مع هيئة الزكاة والضريبة والجمارك، وأرباح مضاعفة.' 
+                : 'The premier cloud platform dedicated to empowering e-commerce merchants in Saudi Arabia. Precise tools, ZATCA-compliant tax calculations, and multiplied profits.'}
+            </p>
+          </div>
+
+          <div className="footer-col-dark">
+            <h4>{lang === 'ar' ? 'المنصة' : 'Platform'}</h4>
+            <ul>
+              <li><Link href="/hub/sa">📊 {lang === 'ar' ? 'جميع الأدوات (24)' : 'All Tools (24)'}</Link></li>
+              <li><Link href="#pricing">🏷️ {lang === 'ar' ? 'أسعار الباقات' : 'Pricing Plans'}</Link></li>
+              <li><Link href="/updates">✨ {lang === 'ar' ? 'التحديثات الجديدة' : 'Latest Updates'}</Link></li>
+            </ul>
+          </div>
+
+          <div className="footer-col-dark">
+            <h4>{lang === 'ar' ? 'الدعم والمساعدة' : 'Support'}</h4>
+            <ul>
+              <li><Link href="/support/contact">🎧 {lang === 'ar' ? 'الدعم الفني' : 'Technical Support'}</Link></li>
+              <li><Link href="/support/faq">❓ {lang === 'ar' ? 'الأسئلة الشائعة' : 'FAQs'}</Link></li>
+            </ul>
+          </div>
+
+          <div className="footer-col-dark">
+            <h4>{lang === 'ar' ? 'الأنظمة والقوانين' : 'Legal'}</h4>
+            <ul>
+              <li><Link href="/legal/terms">📝 {lang === 'ar' ? 'شروط الاستخدام' : 'Terms of Use'}</Link></li>
+              <li><Link href="/legal/privacy">🔒 {lang === 'ar' ? 'سياسة الخصوصية' : 'Privacy Policy'}</Link></li>
+            </ul>
+          </div>
+        </div>
+
+        <div className="footer-dark-bottom">
+          <div className="payment-icons">
+            <span className="pay-badge cashapp">Cash App</span>
+            <span className="pay-badge gpay">GPay</span>
+            <span className="pay-badge paypal">PayPal</span>
+            <span className="pay-badge discover">DISCOVER</span>
+            <span className="pay-badge amex">AMEX</span>
+            <span className="pay-badge mc">Mastercard</span>
+            <span className="pay-badge visa">VISA</span>
+          </div>
+          <span style={{ color: '#94a3b8' }}>
+            {lang === 'ar' ? 'صُنع بفخر في المملكة العربية السعودية 🇸🇦' : 'Proudly crafted in Saudi Arabia 🇸🇦'} | {lang === 'ar' ? 'جميع الحقوق محفوظة © 2026 منصة إنجازيا ULTRA MAX' : 'All rights reserved © 2026 Enjazya ULTRA MAX Platform'}
+          </span>
+        </div>
+      </footer>
+    </div>
+  );
+}
