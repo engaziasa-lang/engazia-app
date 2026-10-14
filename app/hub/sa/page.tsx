@@ -697,7 +697,9 @@ export default function EnjazyaSaudiHub() {
       <style jsx>{`
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap');
         
-        .hub-container { padding: 30px 20px 40px; min-height: 100vh; }
+        .hub-container { padding: 30px 20px 0; min-height: 100vh; display: flex; flex-direction: column; }
+        .content-wrap { flex: 1; max-width: 1250px; margin: 0 auto; width: 100%; box-sizing: border-box;}
+        
         .navbar { max-width: 1250px; margin: 0 auto ${isActivated ? '10px' : '40px'}; padding: 14px 24px; background: #ffffff; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); border: 1px solid #e2e8f0; border-top: 5px solid #047857; flex-wrap: wrap; gap: 15px;}
         .brand { font-size: 26px; font-weight: 900; color: #0f172a; display: flex; align-items: center; gap: 12px; }
         .sa-badge { background: #dcfce7; color: #166534; font-size: 12px; font-weight: 800; padding: 5px 10px; border-radius: 6px; display: inline-flex; align-items: center; gap: 6px; border: 1px solid #a7f3d0; }
@@ -715,7 +717,7 @@ export default function EnjazyaSaudiHub() {
         .hero-text h1 { font-size: 32px; font-weight: 900; color: #0f172a; margin-bottom: 10px; }
         .hero-text h1 span { color: #047857; }
         
-        .cards-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; max-width: 1250px; margin: 0 auto; }
+        .cards-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; max-width: 1250px; margin: 0 auto 40px; }
         .card { background: #ffffff; border-radius: 12px; padding: 24px; border: 2px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.02); display: flex; flex-direction: column; justify-content: space-between; transition: 0.3s; }
         .card:hover { border-color: #047857; box-shadow: 0 10px 20px rgba(4,120,87,0.1); transform: translateY(-3px); }
         .card-icon { font-size: 28px; background: #f8fafc; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border-radius: 10px; margin-bottom: 15px; }
@@ -765,132 +767,214 @@ export default function EnjazyaSaudiHub() {
         .pb-btn-activate { background: #334155; color: #ffffff; padding: 12px 20px; border: 1px solid #475569; border-radius: 10px; font-weight: 800; font-size: 14px; cursor: pointer; transition: 0.3s; font-family: inherit; white-space: nowrap;}
         .pb-btn-activate:hover { background: #475569; color: #34d399; }
 
+        /* ====== تصميم الفوتر الاحترافي (Footer CSS) ====== */
+        .footer { background: #0f172a; border-top: 4px solid #047857; color: #94a3b8; padding: 60px 20px 20px; margin-top: auto; font-family: ${lang === 'ar' ? "'Tajawal', sans-serif" : "'Inter', sans-serif"}; box-sizing: border-box; width: 100%; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+        .footer-inner { max-width: 1250px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 40px; }
+        .footer-col h4 { font-size: 16px; font-weight: 800; color: #ffffff; margin: 0 0 20px 0; border-bottom: 2px solid #1e293b; padding-bottom: 8px; display: inline-block; }
+        .footer-col p { font-size: 13.5px; line-height: 1.6; margin: 0 0 15px 0; }
+        .footer-logo { font-size: 22px; font-weight: 900; color: #ffffff; display: flex; align-items: center; gap: 8px; margin-bottom: 15px; }
+        .footer-col ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px; }
+        .footer-col ul li a { font-size: 13.5px; color: #94a3b8; transition: 0.2s; font-weight: 600; text-decoration: none; display: flex; align-items: center; gap: 6px; }
+        .footer-col ul li a:hover { color: #34d399; transform: translateX(${lang === 'ar' ? '-4px' : '4px'}); }
+        
+        .footer-badge { background: #1e293b; color: #ffffff; display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: bold; border: 1px solid #334155; margin-bottom: 15px; }
+        .footer-socials { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 15px; }
+        .footer-social-btn { background: #1e293b; color: #ffffff !important; width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; border: 1px solid #334155; transition: 0.3s; }
+        .footer-social-btn:hover { background: #047857; color: #ffffff !important; transform: translateY(-3px); }
+
+        .footer-bottom { max-width: 1250px; margin: 40px auto 0; padding-top: 20px; border-top: 1px solid #1e293b; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; font-size: 13px; font-weight: 600; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; }
+        
         @media(max-width: 1024px) { .cards-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media(max-width: 900px) { .footer-inner { grid-template-columns: repeat(2, 1fr); gap: 30px; } }
         @media(max-width: 768px) { .cards-grid { grid-template-columns: 1fr; } .premium-banner { padding: 25px; flex-direction: column; gap: 30px; } .pb-input-group { flex-direction: column; } .pb-action-panel { width: 100%; box-sizing: border-box; } }
+        @media(max-width: 600px) { .footer-inner { grid-template-columns: 1fr; } .footer-bottom { flex-direction: column; text-align: center; } }
       `}</style>
 
-      <div className="navbar">
-        <div className="brand">
-          {lang === 'ar' ? 'إنجازيا' : 'Enjazya'} 
-          <span className="sa-badge">🇸🇦 {lang === 'ar' ? 'السوق السعودي' : 'Saudi Market'}</span>
-        </div>
-        <div className="nav-controls">
-          <button onClick={toggleLanguage} className="lang-toggle-btn">{lang === 'ar' ? 'English' : 'العربية'}</button>
-          
-          {isActivated && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-              <button onClick={handleExportAllData} className="backup-action-btn">
-                 {lang === 'ar' ? 'تصدير البيانات 💾' : 'Export Data 💾'}
-              </button>
-              <button onClick={() => globalFileInputRef.current?.click()} className="restore-action-btn">
-                 {lang === 'ar' ? 'استعادة 📂' : 'Restore 📂'}
-              </button>
-              <input type="file" ref={globalFileInputRef} onChange={handleImportAllData} accept=".json" style={{ display: 'none' }} />
-
-              <span style={{background: '#dcfce7', color: '#16a34a', padding: '6px 12px', borderRadius: '8px', fontWeight: 'bold', fontSize: '13px', border: '1px solid #bbf7d0'}}>
-                 {lang === 'ar' ? '🔓 النسخة الكاملة مفعلة' : '🔓 Pro Activated'}
-              </span>
-              <button 
-                onClick={handleDeactivate}
-                style={{ background: '#fee2e2', color: '#991b1b', border: '1px solid #fca5a5', padding: '6px 10px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', fontFamily: 'inherit' }}
-                title={lang === 'ar' ? 'تسجيل الخروج والعودة للنسخة التجريبية' : 'Logout to Free Trial'}
-              >
-                {lang === 'ar' ? 'خروج ❌' : 'Logout ❌'}
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* تنبيه الخصوصية والحفظ يظهر فقط للمشتركين أسفل البار العلوي */}
-      {isActivated && (
-        <div className="backup-warning-bar">
-          <span>⚠ {lang === 'ar' ? 'تنبيه مهم: جميع مدخلاتك وحساباتك تُحفظ محلياً في متصفحك لضمان سرية أرقامك. احرص على استخدام زر "تصدير البيانات" بالأعلى دورياً لحفظها واستعادتها بأي وقت.' : 'Important Note: Your inputs are saved locally in your browser. Use "Export Data" above periodically to backup your inputs and restore them anytime.'}</span>
-        </div>
-      )}
-
-      <div className="hero-text">
-        <h1>{lang === 'ar' ? 'منصة إنجازيا ' : 'Enjazya Platform '}<span>ULTRA MAX</span></h1>
-        <p style={{color: '#64748b', fontSize: '16px', fontWeight: 600}}>
-          {lang === 'ar' ? 'تصفح وجرب أدوات حماية وتطوير المتاجر الإلكترونية مجاناً.' : 'Browse and test e-commerce protection tools for free.'}
-        </p>
-      </div>
-
-      {/* المكون الأول: إخفاء الأداة المكشوفة إذا تم التفعيل لتجنب الازدحام */}
-      {!isActivated && (
-        <div style={{ maxWidth: '1250px', margin: '0 auto' }}>
-           <FreeProfitCalculatorSA lang={lang} isActivated={isActivated} />
-        </div>
-      )}
-
-      {/* المكون الثاني: لافتة الترقية (تظهر فقط في النسخة التجريبية) */}
-      {!isActivated && (
-        <div className="premium-banner">
-          <div className="pb-content">
-            <div className="pb-badge">🌟 {lang === 'ar' ? 'إنجازيا ULTRA MAX' : 'Enjazya ULTRA MAX'}</div>
-            <h3 className="pb-title">
-              {lang === 'ar' ? 'ارفع القيود وافتح الترسانة الكاملة' : 'Remove Limits & Unlock Full Arsenal'}
-            </h3>
-            
-            <ul className="pb-features">
-              <li><span>✓</span> {lang === 'ar' ? 'وصول لامحدود لجميع الأدوات الـ 24' : 'Unlimited access to all 24 tools'}</li>
-              <li><span>✓</span> {lang === 'ar' ? 'رخصة صالحة لعام كامل بدون رسوم شهرية' : 'Valid for 1 year with no monthly fees'}</li>
-              <li><span>✓</span> {lang === 'ar' ? 'حماية كاملة لخوارزميات متجرك وتسعيرك' : 'Full protection for your store algorithms'}</li>
-            </ul>
-
-            <div className="pb-price-wrap">
-              <span className="pb-old">{lang === 'ar' ? '299 ر.س' : '299 SAR'}</span>
-              <div className="pb-new">{lang === 'ar' ? '49.99 ر.س' : '49.99 SAR'} <span>{lang === 'ar' ? '/ سنوياً' : '/ Year'}</span></div>
-            </div>
+      <div className="content-wrap">
+        <div className="navbar">
+          <div className="brand">
+            {lang === 'ar' ? 'إنجازيا' : 'Enjazya'} 
+            <span className="sa-badge">🇸🇦 {lang === 'ar' ? 'السوق السعودي' : 'Saudi Market'}</span>
           </div>
-          
-          <div className="pb-action-panel">
-            <div className="pb-buy-box">
-              <p>{lang === 'ar' ? 'ليس لديك رخصة؟' : 'Don\'t have a license?'}</p>
-              <a href={LEMON_CHECKOUT_URL} target="_blank" rel="noopener noreferrer" className="pb-btn-buy">
-                 {lang === 'ar' ? 'شراء مفتاح التفعيل الآن 🛒' : 'Buy License Key Now 🛒'}
-              </a>
-            </div>
+          <div className="nav-controls">
+            <button onClick={toggleLanguage} className="lang-toggle-btn">{lang === 'ar' ? 'English' : 'العربية'}</button>
             
-            <div className="pb-divider">{lang === 'ar' ? 'أو' : 'OR'}</div>
-            
-            <div className="pb-activate-box">
-              <p>{lang === 'ar' ? 'لديك مفتاح بالفعل؟' : 'Already have a key?'}</p>
-              <div className="pb-input-group">
-                <input 
-                  type="text" 
-                  className="pb-input" 
-                  placeholder={lang === 'ar' ? 'أدخل المفتاح هنا...' : 'Enter key here...'}
-                  value={licenseKeyInput}
-                  onChange={(e) => setLicenseKeyInput(e.target.value)}
-                />
-                <button className="pb-btn-activate" onClick={() => handleActivateLicense(licenseKeyInput)} disabled={isLoading}>
-                  {isLoading ? '...' : (lang === 'ar' ? 'تفعيل ✨' : 'Activate ✨')}
+            {isActivated && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                <button onClick={handleExportAllData} className="backup-action-btn">
+                   {lang === 'ar' ? 'تصدير البيانات 💾' : 'Export Data 💾'}
+                </button>
+                <button onClick={() => globalFileInputRef.current?.click()} className="restore-action-btn">
+                   {lang === 'ar' ? 'استعادة 📂' : 'Restore 📂'}
+                </button>
+                <input type="file" ref={globalFileInputRef} onChange={handleImportAllData} accept=".json" style={{ display: 'none' }} />
+
+                <span style={{background: '#dcfce7', color: '#16a34a', padding: '6px 12px', borderRadius: '8px', fontWeight: 'bold', fontSize: '13px', border: '1px solid #bbf7d0'}}>
+                   {lang === 'ar' ? '🔓 النسخة الكاملة مفعلة' : '🔓 Pro Activated'}
+                </span>
+                <button 
+                  onClick={handleDeactivate}
+                  style={{ background: '#fee2e2', color: '#991b1b', border: '1px solid #fca5a5', padding: '6px 10px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', fontFamily: 'inherit' }}
+                  title={lang === 'ar' ? 'تسجيل الخروج والعودة للنسخة التجريبية' : 'Logout to Free Trial'}
+                >
+                  {lang === 'ar' ? 'خروج ❌' : 'Logout ❌'}
                 </button>
               </div>
-            </div>
+            )}
           </div>
         </div>
-      )}
 
-      {/* الشبكة تظهر دائماً، وفيها جميع الأدوات */}
-      <div className="cards-grid">
-        {saTools.map((tool) => {
-          // منع تكرار ظهور الأداة في الشبكة إذا كانت ظاهرة في الأعلى (أي قبل التفعيل)
-          if (!isActivated && tool.id === 'profit') return null;
-          
-          return (
-            <Link href={tool.link} key={tool.id} className="card clean-link">
-              <div>
-                <div className="card-icon">{tool.icon}</div>
-                <h3>{lang === 'ar' ? tool.titleAr : tool.titleEn}</h3>
-                <p>{lang === 'ar' ? tool.descAr : tool.descEn}</p>
+        {/* تنبيه الخصوصية والحفظ يظهر فقط للمشتركين أسفل البار العلوي */}
+        {isActivated && (
+          <div className="backup-warning-bar">
+            <span>⚠ {lang === 'ar' ? 'تنبيه مهم: جميع مدخلاتك وحساباتك تُحفظ محلياً في متصفحك لضمان سرية أرقامك. احرص على استخدام زر "تصدير البيانات" بالأعلى دورياً لحفظها واستعادتها بأي وقت.' : 'Important Note: Your inputs are saved locally in your browser. Use "Export Data" above periodically to backup your inputs and restore them anytime.'}</span>
+          </div>
+        )}
+
+        <div className="hero-text">
+          <h1>{lang === 'ar' ? 'منصة إنجازيا ' : 'Enjazya Platform '}<span>ULTRA MAX</span></h1>
+          <p style={{color: '#64748b', fontSize: '16px', fontWeight: 600}}>
+            {lang === 'ar' ? 'تصفح وجرب أدوات حماية وتطوير المتاجر الإلكترونية مجاناً.' : 'Browse and test e-commerce protection tools for free.'}
+          </p>
+        </div>
+
+        {/* المكون الأول: إخفاء الأداة المكشوفة إذا تم التفعيل لتجنب الازدحام */}
+        {!isActivated && (
+          <div style={{ maxWidth: '1250px', margin: '0 auto' }}>
+             <FreeProfitCalculatorSA lang={lang} isActivated={isActivated} />
+          </div>
+        )}
+
+        {/* المكون الثاني: لافتة الترقية (تظهر فقط في النسخة التجريبية) */}
+        {!isActivated && (
+          <div className="premium-banner">
+            <div className="pb-content">
+              <div className="pb-badge">🌟 {lang === 'ar' ? 'إنجازيا ULTRA MAX' : 'Enjazya ULTRA MAX'}</div>
+              <h3 className="pb-title">
+                {lang === 'ar' ? 'ارفع القيود وافتح الترسانة الكاملة' : 'Remove Limits & Unlock Full Arsenal'}
+              </h3>
+              
+              <ul className="pb-features">
+                <li><span>✓</span> {lang === 'ar' ? 'وصول لامحدود لجميع الأدوات الـ 24' : 'Unlimited access to all 24 tools'}</li>
+                <li><span>✓</span> {lang === 'ar' ? 'رخصة صالحة لعام كامل بدون رسوم شهرية' : 'Valid for 1 year with no monthly fees'}</li>
+                <li><span>✓</span> {lang === 'ar' ? 'حماية كاملة لخوارزميات متجرك وتسعيرك' : 'Full protection for your store algorithms'}</li>
+              </ul>
+
+              <div className="pb-price-wrap">
+                <span className="pb-old">{lang === 'ar' ? '299 ر.س' : '299 SAR'}</span>
+                <div className="pb-new">{lang === 'ar' ? '49.99 ر.س' : '49.99 SAR'} <span>{lang === 'ar' ? '/ سنوياً' : '/ Year'}</span></div>
               </div>
-            </Link>
-          );
-        })}
+            </div>
+            
+            <div className="pb-action-panel">
+              <div className="pb-buy-box">
+                <p>{lang === 'ar' ? 'ليس لديك رخصة؟' : 'Don\'t have a license?'}</p>
+                <a href={LEMON_CHECKOUT_URL} target="_blank" rel="noopener noreferrer" className="pb-btn-buy">
+                   {lang === 'ar' ? 'شراء مفتاح التفعيل الآن 🛒' : 'Buy License Key Now 🛒'}
+                </a>
+              </div>
+              
+              <div className="pb-divider">{lang === 'ar' ? 'أو' : 'OR'}</div>
+              
+              <div className="pb-activate-box">
+                <p>{lang === 'ar' ? 'لديك مفتاح بالفعل؟' : 'Already have a key?'}</p>
+                <div className="pb-input-group">
+                  <input 
+                    type="text" 
+                    className="pb-input" 
+                    placeholder={lang === 'ar' ? 'أدخل المفتاح هنا...' : 'Enter key here...'}
+                    value={licenseKeyInput}
+                    onChange={(e) => setLicenseKeyInput(e.target.value)}
+                  />
+                  <button className="pb-btn-activate" onClick={() => handleActivateLicense(licenseKeyInput)} disabled={isLoading}>
+                    {isLoading ? '...' : (lang === 'ar' ? 'تفعيل ✨' : 'Activate ✨')}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* الشبكة تظهر دائماً، وفيها جميع الأدوات */}
+        <div className="cards-grid">
+          {saTools.map((tool) => {
+            // منع تكرار ظهور الأداة في الشبكة إذا كانت ظاهرة في الأعلى (أي قبل التفعيل)
+            if (!isActivated && tool.id === 'profit') return null;
+            
+            return (
+              <Link href={tool.link} key={tool.id} className="card clean-link">
+                <div>
+                  <div className="card-icon">{tool.icon}</div>
+                  <h3>{lang === 'ar' ? tool.titleAr : tool.titleEn}</h3>
+                  <p>{lang === 'ar' ? tool.descAr : tool.descEn}</p>
+                </div>
+              </Link>
+            );
+          })}
+        </div>
       </div>
 
+      {/* ==========================================
+          5. الفوتر الاحترافي والنهائي (Professional Footer)
+          ========================================== */}
+      <footer className="footer">
+        <div className="footer-inner">
+          <div className="footer-col" style={{ gridColumn: 'span 1' }}>
+            <div className="footer-logo">
+              📊 {lang === 'ar' ? 'إنجازيا' : 'Enjazya'}
+            </div>
+            <div className="footer-badge">🇸🇦 {lang === 'ar' ? 'السوق السعودي' : 'Saudi Market'}</div>
+            <p>
+              {lang === 'ar' 
+                ? 'الترسانة والمنصة الرقمية الأولى المتكاملة لمساعدة وتأمين وتطوير متاجر التجزئة والتجارة الإلكترونية في المملكة العربية السعودية.' 
+                : 'The premier integrated digital platform to help, secure, and grow retail & e-commerce stores in Saudi Arabia.'}
+            </p>
+            <div className="footer-socials">
+              <a href="https://x.com" target="_blank" rel="noopener noreferrer" className="footer-social-btn" title="X (Twitter)">𝕏</a>
+              <a href="https://wa.me/966550000000" target="_blank" rel="noopener noreferrer" className="footer-social-btn" title="WhatsApp">💬</a>
+            </div>
+          </div>
+
+          <div className="footer-col">
+            <h4>{lang === 'ar' ? 'أدوات التجارة' : 'Commerce Tools'}</h4>
+            <ul>
+              <li><Link href="/hub/sa/profit">📊 {lang === 'ar' ? 'حاسبة الأرباح' : 'Profit Calculator'}</Link></li>
+              <li><Link href="/hub/sa/fees">💳 {lang === 'ar' ? 'رسوم بوابات الدفع' : 'Payment Gateways'}</Link></li>
+              <li><Link href="/hub/sa/platforms">🛒 {lang === 'ar' ? 'رسوم سلة وزد' : 'Salla & Zid Fees'}</Link></li>
+              <li><Link href="/hub/sa/invoices">🧾 {lang === 'ar' ? 'الفواتير الإلكترونية' : 'E-Invoices (ZATCA)'}</Link></li>
+            </ul>
+          </div>
+
+          <div className="footer-col">
+            <h4>{lang === 'ar' ? 'المعرفة القانونية' : 'Legal & Safety'}</h4>
+            <ul>
+              <li><Link href="/hub/sa/legal">⚖️ {lang === 'ar' ? 'سياسات وزارة التجارة' : 'Commerce Policies'}</Link></li>
+              <li><Link href="/hub/sa/vat-report">📑 {lang === 'ar' ? 'الإقرار الضريبي زاتكا' : 'VAT Reports (ZATCA)'}</Link></li>
+              <li><Link href="/hub/sa/cod-risk">🚚 {lang === 'ar' ? 'محلل الدفع عند الاستلام' : 'COD Risk Analyzer'}</Link></li>
+              <li><Link href="/hub/sa/returns">🔄 {lang === 'ar' ? 'خسائر المرتجعات' : 'Return Loss Analyzer'}</Link></li>
+            </ul>
+          </div>
+
+          <div className="footer-col">
+            <h4>{lang === 'ar' ? 'دعم ومساعدة' : 'Support & Legal'}</h4>
+            <ul>
+              <li><Link href="#contact">📞 {lang === 'ar' ? 'اتصل بنا' : 'Contact Us'}</Link></li>
+              <li><Link href="/privacy">🔒 {lang === 'ar' ? 'سياسة الخصوصية' : 'Privacy Policy'}</Link></li>
+              <li><Link href="/terms">📝 {lang === 'ar' ? 'شروط الاستخدام' : 'Terms of Service'}</Link></li>
+              <li><span style={{ fontSize: '13px', color: '#64748b', fontWeight: 'bold' }}>📍 {lang === 'ar' ? 'الرياض، المملكة العربية السعودية' : 'Riyadh, Saudi Arabia'}</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div className="footer-bottom">
+          <span>
+            © {new Date().getFullYear()} {lang === 'ar' ? 'منصة إنجازيا ULTRA MAX' : 'Enjazya ULTRA MAX Platform'}. {lang === 'ar' ? 'جميع الحقوق محفوظة.' : 'All rights reserved.'}
+          </span>
+          <span style={{ color: '#10b981', display: 'inline-flex', align-items: 'center', gap: '5px' }}>
+            {lang === 'ar' ? 'صُنع بفخر في المملكة العربية السعودية 🇸🇦' : 'Proudly crafted in Saudi Arabia 🇸🇦'}
+          </span>
+        </div>
+      </footer>
     </div>
   );
 }
