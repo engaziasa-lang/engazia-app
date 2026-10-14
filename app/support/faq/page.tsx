@@ -5,7 +5,7 @@ import Link from 'next/link';
 
 export default function FAQPage() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
-  const LEMON_CHECKOUT_URL = 'https://enjazya.lemonsqueezy.com/checkout/buy/55d16a28-3c2d-4688-a98d-7168e50a5f44';
+  const LEMON_CHECKOUT_URL = 'https://enjazya.lemonsqueezy.com/checkout/buy/c909e54c-812c-469b-8e17-49f926ca2233';
 
   useEffect(() => {
     const savedLang = (localStorage.getItem('seerk_global_lang') as 'ar' | 'en') || 'ar';
@@ -34,8 +34,8 @@ export default function FAQPage() {
           a: 'بمجرد إتمام عملية الدفع بنجاح عبر بوابة الدفع الآمنة، سيقوم النظام فوراً بإرسال مفتاح الترخيص (License Key) إلى بريدك الإلكتروني المسجل.'
         },
         {
-          q: 'كم سعر الاشتراك الشهري وهل يشمل جميع الأدوات؟',
-          a: 'الاشتراك يمنحك وصولاً كاملاً وغير محدود لجميع الأدوات الـ 24. العرض الساري حالياً يتيح لك الاشتراك بـ 49.99 ر.س شهرياً بدلاً من السعر السابق 299 ر.س (بتخفيض حصري 83% لفترة محدودة).'
+          q: 'كم سعر الاشتراك السنوي وهل يشمل جميع الأدوات؟',
+          a: 'الاشتراك يمنحك وصولاً كاملاً وغير محدود لجميع الأدوات الـ 24. العرض الساري حالياً يتيح لك الاشتراك بـ 49.99 ر.س سنوياً بدلاً من السعر السابق 299 ر.س (بتخفيض حصري 83% لفترة محدودة).'
         },
         {
           q: 'هل يمكنني استعادة بياناتي أو نقلها بين الأجهزة؟',
@@ -61,8 +61,8 @@ export default function FAQPage() {
           a: 'Once the payment is successfully processed through the secure payment gateway, the system will instantly send the License Key to your registered email.'
         },
         {
-          q: 'How much is the monthly subscription and does it include all tools?',
-          a: 'The subscription grants you full and unlimited access to all 24 tools. The current active offer lets you subscribe for 49.99 SAR monthly instead of the previous 299 SAR (exclusive 83% discount for a limited time).'
+          q: 'How much is the yearly subscription and does it include all tools?',
+          a: 'The subscription grants you full and unlimited access to all 24 tools. The current active offer lets you subscribe for 49.99 SAR yearly instead of the previous 299 SAR (exclusive 83% discount for a limited time).'
         },
         {
           q: 'Can I restore my data or transfer it between devices?',
