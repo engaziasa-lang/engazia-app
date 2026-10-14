@@ -30,9 +30,10 @@ interface ProfitItem {
 }
 
 // ==========================================
-// 2. مصفوفة الأدوات الـ 23
+// 2. مصفوفة الأدوات الـ 24 كاملة (تم إعادة حاسبة الأرباح لتصطف هنا)
 // ==========================================
 const saTools: ToolInfo[] = [
+  { id: 'profit', titleAr: 'حاسبة أرباح ونقاط التعادل (15% ضريبة)', titleEn: 'Profit & Break-Even Calculator', descAr: 'احسب صافي أرباحك بدقة بعد خصم التكاليف، رسوم الشحن، وضريبة القيمة المضافة.', descEn: 'Calculate your net profit accurately after deducting costs, shipping fees, and VAT.', icon: '📊', link: '/hub/sa/profit' },
   { id: 'whatsapp', titleAr: 'إدارة عملاء واتساب (إنجازيا Pro Max)', titleEn: 'WhatsApp CRM', descAr: 'إدارة السلال المتروكة، إرسال روابط الدفع السريعة، وتصنيف عملاء المتجر.', descEn: 'Manage abandoned carts and send quick payment links via WhatsApp.', icon: '💬', link: '/hub/sa/whatsapp' },
   { id: 'fees', titleAr: 'حاسبة رسوم بوابات الدفع (تابي، تمارا، مدى)', titleEn: 'Payment Gateway Fee Calculator', descAr: 'احسب نسب بوابات الدفع المحلية وتأثيرها الفعلي على هوامش أرباح متجرك.', descEn: 'Calculate local payment gateway rates and their actual impact on your store margins.', icon: '💳', link: '/hub/sa/fees' },
   { id: 'invoices', titleAr: 'مولد الفواتير الإلكترونية (زاتكا)', titleEn: 'E-Invoicing Generator (ZATCA)', descAr: 'أنشئ فواتير مبيعات نظامية مبسطة متوافقة مع متطلبات هيئة الزكاة والضريبة.', descEn: 'Generate simplified sales invoices compliant with ZATCA requirements.', icon: '🧾', link: '/hub/sa/invoices' },
@@ -122,7 +123,7 @@ function FreeProfitCalculatorSA({ lang, isActivated }: { lang: 'ar' | 'en', isAc
         editBtn: 'تعديل', delBtn: 'حذف', totalLabel: 'الإجمالي الكلي / المتوسط'
       },
       alerts: {
-        limit: '🔒 عذراً، لقد استهلكت الحد التجريبي (3 منتجات). يرجى تفعيل رخصتك من الأسفل لفتح السعة الكاملة بلا حدود!',
+        limit: '🔒 عذراً، لقد استهلكت الحد التجريبي (3 منتجات). يرجى تفعيل رخصتك لفتح السعة الكاملة بلا حدود!',
         fillErr: 'الرجاء إدخال اسم المنتج وسعر بيع صحيح.',
         updateSuccess: '✨ تم تحديث بيانات المنتج بنجاح!',
         saveSuccess: '✅ تمت إضافة المنتج إلى جدول التحليل بنجاح!',
@@ -164,7 +165,7 @@ function FreeProfitCalculatorSA({ lang, isActivated }: { lang: 'ar' | 'en', isAc
         editBtn: 'Edit', delBtn: 'Delete', totalLabel: 'Grand Total / Average'
       },
       alerts: {
-        limit: '🔒 Sorry, you reached the trial limit (3 products). Please activate your license below to unlock unlimited access!',
+        limit: '🔒 Sorry, you reached the trial limit (3 products). Please activate your license to unlock unlimited access!',
         fillErr: 'Please enter a valid product name and selling price.',
         updateSuccess: '✨ Product data updated successfully!',
         saveSuccess: '✅ Product added to analysis table successfully!',
@@ -617,6 +618,15 @@ export default function EnjazyaSaudiHub() {
     }
   };
 
+  // دالة تسجيل الخروج (إلغاء التفعيل للعودة للنسخة المجانية)
+  const handleDeactivate = () => {
+    if (confirm(lang === 'ar' ? 'هل أنت متأكد من تسجيل الخروج من النسخة المدفوعة والعودة للنسخة التجريبية؟' : 'Are you sure you want to deactivate and return to trial?')) {
+      localStorage.removeItem('merchant_license_key');
+      setIsActivated(false);
+      setLicenseKeyInput('');
+    }
+  };
+
   return (
     <div className="hub-container" style={{ direction: lang === 'ar' ? 'rtl' : 'ltr' }}>
       <style jsx global>{`
@@ -646,7 +656,6 @@ export default function EnjazyaSaudiHub() {
         .card h3 { font-size: 17px; font-weight: 900; color: #0f172a; margin-bottom: 10px; }
         .card p { color: #64748b; font-size: 13.5px; line-height: 1.6; font-weight: 500; }
 
-        /* ====== تصميم لافتة الترقية الاحترافية ====== */
         .premium-banner {
           max-width: 1250px; margin: 0 auto 40px;
           background: linear-gradient(135deg, #020617 0%, #0f172a 100%);
@@ -701,11 +710,23 @@ export default function EnjazyaSaudiHub() {
         </div>
         <div className="nav-controls">
           <button onClick={toggleLanguage} className="lang-toggle-btn">{lang === 'ar' ? 'English' : 'العربية'}</button>
+          
+          {/* تم إضافة زر تسجيل الخروج هنا */}
           {isActivated && (
-            <span style={{background: '#dcfce7', color: '#16a34a', padding: '6px 12px', borderRadius: '8px', fontWeight: 'bold', fontSize: '13px', border: '1px solid #bbf7d0'}}>
-               {lang === 'ar' ? '🔓 النسخة الكاملة مفعلة' : '🔓 Pro Activated'}
-            </span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{background: '#dcfce7', color: '#16a34a', padding: '6px 12px', borderRadius: '8px', fontWeight: 'bold', fontSize: '13px', border: '1px solid #bbf7d0'}}>
+                 {lang === 'ar' ? '🔓 النسخة الكاملة مفعلة' : '🔓 Pro Activated'}
+              </span>
+              <button 
+                onClick={handleDeactivate}
+                style={{ background: '#fee2e2', color: '#991b1b', border: '1px solid #fca5a5', padding: '6px 10px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', fontFamily: 'inherit' }}
+                title={lang === 'ar' ? 'تسجيل الخروج والعودة للنسخة المجانية' : 'Logout to Free Trial'}
+              >
+                {lang === 'ar' ? 'خروج ❌' : 'Logout ❌'}
+              </button>
+            </div>
           )}
+
         </div>
       </div>
 
@@ -716,10 +737,14 @@ export default function EnjazyaSaudiHub() {
         </p>
       </div>
 
-      <div style={{ maxWidth: '1250px', margin: '0 auto' }}>
-         <FreeProfitCalculatorSA lang={lang} isActivated={isActivated} />
-      </div>
+      {/* المكون الأول: إخفاء الأداة المكشوفة إذا تم التفعيل لتجنب الازدحام */}
+      {!isActivated && (
+        <div style={{ maxWidth: '1250px', margin: '0 auto' }}>
+           <FreeProfitCalculatorSA lang={lang} isActivated={isActivated} />
+        </div>
+      )}
 
+      {/* المكون الثاني: لافتة الترقية (تظهر فقط في النسخة التجريبية) */}
       {!isActivated && (
         <div className="premium-banner">
           <div className="pb-content">
@@ -769,16 +794,22 @@ export default function EnjazyaSaudiHub() {
         </div>
       )}
 
+      {/* الشبكة تظهر دائماً، وفيها جميع الأدوات */}
       <div className="cards-grid">
-        {saTools.map((tool) => (
-          <Link href={tool.link} key={tool.id} className="card clean-link">
-            <div>
-              <div className="card-icon">{tool.icon}</div>
-              <h3>{lang === 'ar' ? tool.titleAr : tool.titleEn}</h3>
-              <p>{lang === 'ar' ? tool.descAr : tool.descEn}</p>
-            </div>
-          </Link>
-        ))}
+        {saTools.map((tool) => {
+          // منع تكرار ظهور الأداة في الشبكة إذا كانت ظاهرة في الأعلى (أي قبل التفعيل)
+          if (!isActivated && tool.id === 'profit') return null;
+          
+          return (
+            <Link href={tool.link} key={tool.id} className="card clean-link">
+              <div>
+                <div className="card-icon">{tool.icon}</div>
+                <h3>{lang === 'ar' ? tool.titleAr : tool.titleEn}</h3>
+                <p>{lang === 'ar' ? tool.descAr : tool.descEn}</p>
+              </div>
+            </Link>
+          );
+        })}
       </div>
 
     </div>
