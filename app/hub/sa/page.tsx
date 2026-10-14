@@ -353,11 +353,9 @@ function FreeProfitCalculatorSA({ lang, isActivated }: { lang: 'ar' | 'en', isAc
         .input-wrapper input:focus, .input-wrapper select:focus { border-color: #047857; background: #ffffff; }
         .currency-tag { position: absolute; ${lang === 'ar' ? 'left: 14px;' : 'right: 14px;'} color: #64748b; font-weight: 800; font-size: 13px; pointer-events: none; }
         
-        /* تحسين مظهر الزر ليصبح مرناً ومتجاوباً */
         .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; display: block; text-align: center; }
         .action-btn:hover { background: #065f46; }
-        
-        /* إظهار الزر أسفل التحليل المالي في وضع الجوال وإخفائه في سطح المكتب */
+
         .mobile-btn-container { display: none; }
         .desktop-btn-container { display: block; }
 
@@ -404,7 +402,6 @@ function FreeProfitCalculatorSA({ lang, isActivated }: { lang: 'ar' | 'en', isAc
         </div>
       </div>
 
-      {/* نموذج الإدخال الرئيسي */}
       <form id="profit-calc-form" onSubmit={handleSaveItem}>
         <div className="grid-layout">
           <div className="card">
