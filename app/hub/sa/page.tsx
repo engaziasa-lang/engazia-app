@@ -30,7 +30,7 @@ interface ProfitItem {
 }
 
 // ==========================================
-// 2. مصفوفة الأدوات الـ 24 كاملة (تم إعادة حاسبة الأرباح لتصطف هنا)
+// 2. مصفوفة الأدوات الـ 24
 // ==========================================
 const saTools: ToolInfo[] = [
   { id: 'profit', titleAr: 'حاسبة أرباح ونقاط التعادل (15% ضريبة)', titleEn: 'Profit & Break-Even Calculator', descAr: 'احسب صافي أرباحك بدقة بعد خصم التكاليف، رسوم الشحن، وضريبة القيمة المضافة.', descEn: 'Calculate your net profit accurately after deducting costs, shipping fees, and VAT.', icon: '📊', link: '/hub/sa/profit' },
@@ -123,7 +123,7 @@ function FreeProfitCalculatorSA({ lang, isActivated }: { lang: 'ar' | 'en', isAc
         editBtn: 'تعديل', delBtn: 'حذف', totalLabel: 'الإجمالي الكلي / المتوسط'
       },
       alerts: {
-        limit: '🔒 عذراً، لقد استهلكت الحد التجريبي (3 منتجات). يرجى تفعيل رخصتك لفتح السعة الكاملة بلا حدود!',
+        limit: '🔒 عذراً، لقد استهلكت الحد التجريبي (3 منتجات). يرجى تفعيل رخصتك من الأسفل لفتح السعة الكاملة بلا حدود!',
         fillErr: 'الرجاء إدخال اسم المنتج وسعر بيع صحيح.',
         updateSuccess: '✨ تم تحديث بيانات المنتج بنجاح!',
         saveSuccess: '✅ تمت إضافة المنتج إلى جدول التحليل بنجاح!',
@@ -165,7 +165,7 @@ function FreeProfitCalculatorSA({ lang, isActivated }: { lang: 'ar' | 'en', isAc
         editBtn: 'Edit', delBtn: 'Delete', totalLabel: 'Grand Total / Average'
       },
       alerts: {
-        limit: '🔒 Sorry, you reached the trial limit (3 products). Please activate your license to unlock unlimited access!',
+        limit: '🔒 Sorry, you reached the trial limit (3 products). Please activate your license below to unlock unlimited access!',
         fillErr: 'Please enter a valid product name and selling price.',
         updateSuccess: '✨ Product data updated successfully!',
         saveSuccess: '✅ Product added to analysis table successfully!',
@@ -566,6 +566,7 @@ export default function EnjazyaSaudiHub() {
   const [licenseKeyInput, setLicenseKeyInput] = useState<string>('');
   const [isActivated, setIsActivated] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const globalFileInputRef = useRef<HTMLInputElement>(null);
 
   const LEMON_CHECKOUT_URL = 'https://enjazya.lemonsqueezy.com/checkout/buy/55d16a28-3c2d-4688-a98d-7168e50a5f44';
 
@@ -618,12 +619,53 @@ export default function EnjazyaSaudiHub() {
     }
   };
 
-  // دالة تسجيل الخروج (إلغاء التفعيل للعودة للنسخة المجانية)
   const handleDeactivate = () => {
     if (confirm(lang === 'ar' ? 'هل أنت متأكد من تسجيل الخروج من النسخة المدفوعة والعودة للنسخة التجريبية؟' : 'Are you sure you want to deactivate and return to trial?')) {
       localStorage.removeItem('merchant_license_key');
       setIsActivated(false);
       setLicenseKeyInput('');
+    }
+  };
+
+  // دوال التصدير والاستيراد الشاملة
+  const handleExportAllData = () => {
+    try {
+      const allData: Record<string, string> = {};
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && (key.startsWith('seerk_') || key.startsWith('enjazya_') || key === 'merchant_license_key')) {
+          allData[key] = localStorage.getItem(key) || '';
+        }
+      }
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(allData, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `enjazya_saudi_backup_${new Date().toISOString().slice(0, 10)}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+      alert(lang === 'en' ? '📥 Data exported successfully!' : '📥 تم سحب وتصدير كافة بيانات مدخلات الأدوات بنجاح!');
+    } catch (error) {
+      alert(lang === 'en' ? 'Export failed.' : 'حدث خطأ أثناء تصدير البيانات.');
+    }
+  };
+
+  const handleImportAllData = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const fileReader = new FileReader();
+    if (event.target.files && event.target.files[0]) {
+      fileReader.readAsText(event.target.files[0], "UTF-8");
+      fileReader.onload = (e) => {
+        try {
+          const parsedData = JSON.parse(e.target?.result as string);
+          Object.keys(parsedData).forEach((key) => {
+            localStorage.setItem(key, parsedData[key]);
+          });
+          alert(lang === 'en' ? '✨ Data restored successfully! Page will reload.' : '✨ تم إدخال واستعادة البيانات بنجاح! سيتم تحديث الصفحة الآن.');
+          window.location.reload();
+        } catch (error) {
+          alert(lang === 'en' ? '❌ Invalid backup file.' : '❌ ملف النسخة الاحتياطية غير صالح أو تالف.');
+        }
+      };
     }
   };
 
@@ -638,13 +680,19 @@ export default function EnjazyaSaudiHub() {
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap');
         
         .hub-container { padding: 30px 20px 40px; min-height: 100vh; }
-        .navbar { max-width: 1250px; margin: 0 auto 40px; padding: 14px 24px; background: #ffffff; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); border: 1px solid #e2e8f0; border-top: 5px solid #047857; flex-wrap: wrap; gap: 15px;}
+        .navbar { max-width: 1250px; margin: 0 auto ${isActivated ? '10px' : '40px'}; padding: 14px 24px; background: #ffffff; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); border: 1px solid #e2e8f0; border-top: 5px solid #047857; flex-wrap: wrap; gap: 15px;}
         .brand { font-size: 26px; font-weight: 900; color: #0f172a; display: flex; align-items: center; gap: 12px; }
         .sa-badge { background: #dcfce7; color: #166534; font-size: 12px; font-weight: 800; padding: 5px 10px; border-radius: 6px; display: inline-flex; align-items: center; gap: 6px; border: 1px solid #a7f3d0; }
         
         .nav-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
         .lang-toggle-btn { background: #f8fafc; border: 2px solid #e2e8f0; font-weight: 800; padding: 7px 12px; border-radius: 8px; cursor: pointer; transition: 0.3s; }
         
+        .backup-action-btn { background: #0f172a; color: #fff; border: none; padding: 6px 12px; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-right: 5px;}
+        .backup-action-btn:hover { background: #1e293b; }
+        .restore-action-btn { background: #f8fafc; color: #334155; border: 1px solid #cbd5e1; padding: 6px 12px; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-right: 5px;}
+        .restore-action-btn:hover { background: #e2e8f0; }
+        .backup-warning-bar { max-width: 1250px; margin: 0 auto 30px; background: #fffbeb; border: 1px solid #fde68a; color: #92400e; padding: 12px 18px; border-radius: 10px; font-size: 13.5px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; gap: 10px; border-${lang === 'ar' ? 'right' : 'left'}: 4px solid #047857; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
+
         .hero-text { text-align: center; max-width: 800px; margin: 0 auto 40px; }
         .hero-text h1 { font-size: 32px; font-weight: 900; color: #0f172a; margin-bottom: 10px; }
         .hero-text h1 span { color: #047857; }
@@ -711,24 +759,37 @@ export default function EnjazyaSaudiHub() {
         <div className="nav-controls">
           <button onClick={toggleLanguage} className="lang-toggle-btn">{lang === 'ar' ? 'English' : 'العربية'}</button>
           
-          {/* تم إضافة زر تسجيل الخروج هنا */}
           {isActivated && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+              <button onClick={handleExportAllData} className="backup-action-btn">
+                 {lang === 'ar' ? 'تصدير البيانات 💾' : 'Export Data 💾'}
+              </button>
+              <button onClick={() => globalFileInputRef.current?.click()} className="restore-action-btn">
+                 {lang === 'ar' ? 'استعادة 📂' : 'Restore 📂'}
+              </button>
+              <input type="file" ref={globalFileInputRef} onChange={handleImportAllData} accept=".json" style={{ display: 'none' }} />
+
               <span style={{background: '#dcfce7', color: '#16a34a', padding: '6px 12px', borderRadius: '8px', fontWeight: 'bold', fontSize: '13px', border: '1px solid #bbf7d0'}}>
                  {lang === 'ar' ? '🔓 النسخة الكاملة مفعلة' : '🔓 Pro Activated'}
               </span>
               <button 
                 onClick={handleDeactivate}
                 style={{ background: '#fee2e2', color: '#991b1b', border: '1px solid #fca5a5', padding: '6px 10px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', fontFamily: 'inherit' }}
-                title={lang === 'ar' ? 'تسجيل الخروج والعودة للنسخة المجانية' : 'Logout to Free Trial'}
+                title={lang === 'ar' ? 'تسجيل الخروج والعودة للنسخة التجريبية' : 'Logout to Free Trial'}
               >
                 {lang === 'ar' ? 'خروج ❌' : 'Logout ❌'}
               </button>
             </div>
           )}
-
         </div>
       </div>
+
+      {/* تنبيه الخصوصية والحفظ يظهر فقط للمشتركين أسفل البار العلوي */}
+      {isActivated && (
+        <div className="backup-warning-bar">
+          <span>⚠ {lang === 'ar' ? 'تنبيه مهم: جميع مدخلاتك وحساباتك تُحفظ محلياً في متصفحك لضمان سرية أرقامك. احرص على استخدام زر "تصدير البيانات" بالأعلى دورياً لحفظها واستعادتها بأي وقت.' : 'Important Note: Your inputs are saved locally in your browser. Use "Export Data" above periodically to backup your inputs and restore them anytime.'}</span>
+        </div>
+      )}
 
       <div className="hero-text">
         <h1>{lang === 'ar' ? 'منصة إنجازيا ' : 'Enjazya Platform '}<span>ULTRA MAX</span></h1>
