@@ -353,8 +353,18 @@ function FreeProfitCalculatorSA({ lang, isActivated }: { lang: 'ar' | 'en', isAc
         .input-wrapper input:focus, .input-wrapper select:focus { border-color: #047857; background: #ffffff; }
         .currency-tag { position: absolute; ${lang === 'ar' ? 'left: 14px;' : 'right: 14px;'} color: #64748b; font-weight: 800; font-size: 13px; pointer-events: none; }
         
-        .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; }
+        /* تحسين مظهر الزر ليصبح مرناً ومتجاوباً */
+        .action-btn { background: #047857; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 10px; box-sizing: border-box; display: block; text-align: center; }
         .action-btn:hover { background: #065f46; }
+        
+        /* إظهار الزر أسفل التحليل المالي في وضع الجوال وإخفائه في سطح المكتب */
+        .mobile-btn-container { display: none; }
+        .desktop-btn-container { display: block; }
+
+        @media(max-width: 850px) {
+          .desktop-btn-container { display: none; }
+          .mobile-btn-container { display: block; margin-top: 20px; width: 100%; }
+        }
 
         .result-box { background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px; flex-direction: ${lang === 'ar' ? 'row' : 'row-reverse'}; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         .result-box.primary { background: linear-gradient(135deg, #047857 0%, #065f46 100%); color: #fff; border: none; padding: 20px; }
@@ -394,17 +404,18 @@ function FreeProfitCalculatorSA({ lang, isActivated }: { lang: 'ar' | 'en', isAc
         </div>
       </div>
 
-      <div className="grid-layout">
-        <div className="card">
-          <h2 className="card-title">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', flexDirection: lang === 'ar' ? 'row' : 'row-reverse' }}>
-              <span>{editingId ? text.editRecord : text.newRecord}</span>
-              <button type="button" className="clear-form-btn" onClick={handleClearForm}>{text.clear}</button>
-            </div>
-            {isClient && !isActivated && <span className="trial-badge">{text.trial}: {items.length}/3</span>}
-          </h2>
+      {/* نموذج الإدخال الرئيسي */}
+      <form id="profit-calc-form" onSubmit={handleSaveItem}>
+        <div className="grid-layout">
+          <div className="card">
+            <h2 className="card-title">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', flexDirection: lang === 'ar' ? 'row' : 'row-reverse' }}>
+                <span>{editingId ? text.editRecord : text.newRecord}</span>
+                <button type="button" className="clear-form-btn" onClick={handleClearForm}>{text.clear}</button>
+              </div>
+              {isClient && !isActivated && <span className="trial-badge">{text.trial}: {items.length}/3</span>}
+            </h2>
 
-          <form onSubmit={handleSaveItem}>
             <div className="input-group">
               <label>{text.prodNameLabel}</label>
               <div className="input-wrapper">
@@ -445,43 +456,51 @@ function FreeProfitCalculatorSA({ lang, isActivated }: { lang: 'ar' | 'en', isAc
               </div>
             </div>
 
-            <button type="submit" className="action-btn">
-              {editingId ? text.saveBtnEdit : text.saveBtnNew}
-            </button>
-          </form>
-        </div>
-
-        <div className="card">
-          <h2 className="card-title">{text.resultsTitle}</h2>
-
-          <div className={`result-box ${netProfit > 0 ? 'primary' : 'danger'}`}>
-            <div>
-              <div className="result-label">{text.netProfitLabel}</div>
-              <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '2px' }}>{text.netProfitSub}</div>
-            </div>
-            <div className="result-value">
-              {netProfit.toFixed(2)} {text.currency}
+            <div className="desktop-btn-container">
+              <button type="submit" className="action-btn">
+                {editingId ? text.saveBtnEdit : text.saveBtnNew}
+              </button>
             </div>
           </div>
 
-          <div className="result-box" style={{ borderRight: lang === 'ar' ? '4px solid #047857' : 'none', borderLeft: lang === 'en' ? '4px solid #047857' : 'none' }}>
-            <span className="result-label">{text.marginLabel}</span>
-            <span className="result-value" style={{ color: margin >= 20 ? '#10b981' : '#d97706' }}>
-              {margin.toFixed(1)}%
-            </span>
-          </div>
+          <div className="card">
+            <h2 className="card-title">{text.resultsTitle}</h2>
 
-          <div className="result-box" style={{ borderRight: lang === 'ar' ? '4px solid #0369a1' : 'none', borderLeft: lang === 'en' ? '4px solid #0369a1' : 'none' }}>
-            <span className="result-label">{text.vatLabel}</span>
-            <span className="result-value" style={{ color: '#0369a1' }}>{vatAmount.toFixed(2)} {text.currency}</span>
-          </div>
+            <div className={`result-box ${netProfit > 0 ? 'primary' : 'danger'}`}>
+              <div>
+                <div className="result-label">{text.netProfitLabel}</div>
+                <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '2px' }}>{text.netProfitSub}</div>
+              </div>
+              <div className="result-value">
+                {netProfit.toFixed(2)} {text.currency}
+              </div>
+            </div>
 
-          <div className="result-box" style={{ borderRight: lang === 'ar' ? '4px solid #dc2626' : 'none', borderLeft: lang === 'en' ? '4px solid #dc2626' : 'none', background: '#f8fafc' }}>
-            <span className="result-label">{text.totalCostLabel}</span>
-            <span className="result-value" style={{ color: '#dc2626' }}>{totalCosts.toFixed(2)} {text.currency}</span>
+            <div className="result-box" style={{ borderRight: lang === 'ar' ? '4px solid #047857' : 'none', borderLeft: lang === 'en' ? '4px solid #047857' : 'none' }}>
+              <span className="result-label">{text.marginLabel}</span>
+              <span className="result-value" style={{ color: margin >= 20 ? '#10b981' : '#d97706' }}>
+                {margin.toFixed(1)}%
+              </span>
+            </div>
+
+            <div className="result-box" style={{ borderRight: lang === 'ar' ? '4px solid #0369a1' : 'none', borderLeft: lang === 'en' ? '4px solid #0369a1' : 'none' }}>
+              <span className="result-label">{text.vatLabel}</span>
+              <span className="result-value" style={{ color: '#0369a1' }}>{vatAmount.toFixed(2)} {text.currency}</span>
+            </div>
+
+            <div className="result-box" style={{ borderRight: lang === 'ar' ? '4px solid #dc2626' : 'none', borderLeft: lang === 'en' ? '4px solid #dc2626' : 'none', background: '#f8fafc' }}>
+              <span className="result-label">{text.totalCostLabel}</span>
+              <span className="result-value" style={{ color: '#dc2626' }}>{totalCosts.toFixed(2)} {text.currency}</span>
+            </div>
+
+            <div className="mobile-btn-container">
+              <button type="submit" className="action-btn" style={{ background: '#047857' }}>
+                {editingId ? text.saveBtnEdit : text.saveBtnNew}
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      </form>
 
       <div className="table-section">
         <div className="table-toolbar">
@@ -627,7 +646,6 @@ export default function EnjazyaSaudiHub() {
     }
   };
 
-  // دوال التصدير والاستيراد الشاملة
   const handleExportAllData = () => {
     try {
       const allData: Record<string, string> = {};
