@@ -755,7 +755,7 @@ export default function EnjazyaSaudiHub() {
         
         .pb-buy-box p, .pb-activate-box p { margin: 0 0 10px 0; color: #e2e8f0; font-size: 14px; font-weight: 700; text-align: ${lang === 'ar' ? 'right' : 'left'}; }
         
-        .pb-btn-buy { background: linear-gradient(135deg, #047857 0%, #059669 100%); color: white; display: block; width: 100%; padding: 16px; border-radius: 12px; font-weight: 900; font-size: 16px; cursor: pointer; transition: 0.3s; text-align: center; text-decoration: none; box-shadow: 0 4px 15px rgba(4, 120, 87, 0.4); border: 1px solid #10b981;}
+        .pb-btn-buy { background: linear-gradient(135deg, #047857 0%, #059669 100%); color: white; display: inline-block; max-width: 250px; margin: 0 auto; padding: 12px 20px; border-radius: 10px; font-weight: 800; font-size: 14px; cursor: pointer; transition: 0.3s; text-align: center; text-decoration: none; box-shadow: 0 4px 15px rgba(4, 120, 87, 0.4); border: 1px solid #10b981;}
         .pb-btn-buy:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(4, 120, 87, 0.6); background: linear-gradient(135deg, #059669 0%, #10b981 100%); }
 
         .pb-divider { text-align: center; color: #64748b; font-size: 12px; font-weight: bold; position: relative; }
@@ -885,7 +885,7 @@ export default function EnjazyaSaudiHub() {
               
               <ul className="pb-features">
                 <li><span>✓</span> {lang === 'ar' ? 'وصول لامحدود لجميع الأدوات الـ 24' : 'Unlimited access to all 24 tools'}</li>
-                <li><span>✓</span> {lang === 'ar' ? 'رخصة صالحة لعام كامل بدون رسوم شهرية' : 'Valid for 1 year with no monthly fees'}</li>
+                <li><span>✓</span> {lang === 'ar' ? 'رخصة صالحة لعام كامل' : 'Valid for 1 year'}</li>
                 <li><span>✓</span> {lang === 'ar' ? 'تحديثات مستمرة وإضافة أدوات جديدة مجاناً' : 'Continuous updates and new tools added for free'}</li>
               </ul>
 
@@ -904,8 +904,8 @@ export default function EnjazyaSaudiHub() {
             </div>
             
             <div className="pb-action-panel">
-              <div className="pb-buy-box">
-                <p>{lang === 'ar' ? 'ليس لديك رخصة؟' : 'Don\'t have a license?'}</p>
+              <div className="pb-buy-box" style={{ textAlign: 'center' }}>
+                <p style={{ marginBottom: '10px' }}>{lang === 'ar' ? 'ليس لديك رخصة؟' : 'Don\'t have a license?'}</p>
                 <a href={LEMON_CHECKOUT_URL} target="_blank" rel="noopener noreferrer" className="pb-btn-buy">
                    {lang === 'ar' ? 'شراء مفتاح التفعيل الآن 🛒' : 'Buy License Key Now 🛒'}
                 </a>
