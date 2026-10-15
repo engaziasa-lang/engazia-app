@@ -22,7 +22,8 @@ export async function GET(request: Request) {
     let allUrls: string[] = [];
     
     if (urlMatches) {
-        allUrls = urlMatches.map(match => match.replace(/<\/?loc>/g, ''));
+        // استخراج الروابط مع تنظيفها من أي مسافات مخفية
+        allUrls = urlMatches.map(match => match.replace(/<\/?loc>/g, '').trim());
     }
 
     if (allUrls.length === 0) {
@@ -53,14 +54,15 @@ export async function GET(request: Request) {
     let successCount = 0;
     let failCount = 0;
 
-    // التنفيذ المتوازي لتجنب تجاوز الوقت المحدد في Vercel
     const publishPromises = urlsToIndex.map(async (url) => {
       try {
         await indexing.urlNotifications.publish({
           requestBody: { url: url, type: 'URL_UPDATED' },
         });
         successCount++;
-      } catch (e) {
+      } catch (e: any) {
+        // هنا سيتم طباعة الرابط الذي فشل والسبب الحرفي من جوجل
+        console.error(`❌ فشل الرابط ${url} - السبب: ${e.message}`);
         failCount++;
       }
     });
