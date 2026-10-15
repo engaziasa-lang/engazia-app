@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { google } from 'googleapis';
 
-const BATCH_SIZE = 200;
+const BATCH_SIZE = 50;
 
 export async function GET(request: Request) {
   const authHeader = request.headers.get('authorization');
