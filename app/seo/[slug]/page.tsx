@@ -1,16 +1,27 @@
 /* eslint-disable @next/next/no-img-element */
 import React from 'react';
 import Link from 'next/link';
+// استدعاء المحرك الذي أنشأناه في الخطوة الأولى
 import { generateSeoContent } from '@/lib/seoEngine';
 
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
+export async function generateMetadata({ params }: PageProps) {
+  const resolvedParams = await params;
+  const pageData = generateSeoContent(resolvedParams.slug);
+  return {
+    title: pageData.title,
+    description: pageData.subtitle,
+  };
+}
+
 export default async function ProgrammaticSeoPage({ params }: PageProps) {
   const resolvedParams = await params;
   const slug = resolvedParams.slug;
   
+  // سحب البيانات من المحرك بناءً على الرابط
   const pageData = generateSeoContent(slug);
 
   return (
