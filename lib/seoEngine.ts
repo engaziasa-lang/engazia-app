@@ -89,3 +89,5 @@ export function generateSeoContent(slug: string): SeoPageData {
   const nicheDetails: Record<string, { title: string, keywordIntent: string, problem: string, solution: string, deepContext: string }> = {
     perfume: { title: "متاجر العطور والروائح", keywordIntent: "تسعير زجاجات العطور، حساب تكلفة التغليف الفاخر", problem: "التهام تكاليف العبوات الزجاجية وأجور الشحن المبرد لأجزاء ضخمة من الأرباح", solution: "معادلة تسعير دقيقة تضمن هامش ربح صافي يحمي التاجر من تلف الشحنات", deepContext: "سوق العطور في المملكة يشهد تنافسية ضخمة تتطلب من التاجر حساب كل هللة تتعلق بثمن الزجاج والمضخة." },
     abaya: { title: "متاجر العبايات والأز
+
+            
