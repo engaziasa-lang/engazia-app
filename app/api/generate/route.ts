@@ -11,7 +11,8 @@ export async function POST(req: Request) {
 
     const prompt = `You are an expert freelance copywriter. Write a highly-converting, concise, and engaging Upwork proposal based on the user's job description. Tone: ${tone}. Highlight these skills: ${skills}. Do not use robotic language. Keep it natural and professional. Job Description: ${jobDescription}`;
 
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+    // تم تحديث اسم النموذج هنا إلى gemini-1.5-flash-latest
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -25,7 +26,6 @@ export async function POST(req: Request) {
 
     const data = await response.json();
     
-    // إذا رفض جوجل الطلب، سنرسل رسالة الرفض حرفياً لتظهر على الشاشة
     if (!response.ok) {
        return NextResponse.json({ 
          result: `❌ رفض من سيرفر جوجل (Gemini API Error):\n\n${data.error?.message || 'خطأ غير معروف'}` 
