@@ -7,11 +7,12 @@ export default function ProposalAI() {
   const [tone, setTone] = useState('Professional');
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedProposal, setGeneratedProposal] = useState('');
-  const [freeCredits, setFreeCredits] = useState(5); // رفعنا الرصيد لـ 5 للتجربة
+  // وضعنا الرصيد المجاني 3 محاولات (يمكنك تغييره لاحقاً)
+  const [freeCredits, setFreeCredits] = useState(3); 
 
   const handleGenerate = async () => {
     if (freeCredits <= 0) {
-      return; // جدار الدفع سيظهر تلقائياً
+      return; // منع التوليد إذا انتهى الرصيد ليظهر جدار الدفع
     }
     
     if (!jobDescription) return;
@@ -19,7 +20,6 @@ export default function ProposalAI() {
     setIsGenerating(true);
     
     try {
-      // الاتصال السري بالعقل المدبر الذي يكلم Gemini
       const response = await fetch('/api/generate', {
         method: 'POST',
         headers: {
@@ -32,9 +32,9 @@ export default function ProposalAI() {
 
       if (data.result) {
         setGeneratedProposal(data.result);
-        setFreeCredits(freeCredits - 1); // خصم محاولة واحدة
+        setFreeCredits(freeCredits - 1); // خصم محاولة واحدة بعد النجاح
       } else {
-        alert("Error: Make sure API keys are added in Vercel.");
+        alert("Error: Something went wrong.");
       }
     } catch (error) {
       console.error("Error fetching AI:", error);
@@ -46,10 +46,12 @@ export default function ProposalAI() {
 
   return (
     <>
+      {/* استدعاء Tailwind في حال لم يكن معرفاً مسبقاً في المشروع */}
       <script src="https://cdn.tailwindcss.com"></script>
       
       <div className="min-h-screen bg-slate-900 text-slate-200 font-sans selection:bg-indigo-500 selection:text-white" dir="ltr">
         
+        {/* الشريط العلوي */}
         <nav className="border-b border-slate-800 bg-slate-950/50 backdrop-blur-md sticky top-0 z-50">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -64,6 +66,7 @@ export default function ProposalAI() {
 
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           
+          {/* عنوان الصفحة */}
           <div className="text-center mb-12">
             <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-4 tracking-tight">
               Win More Jobs on <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-500">Upwork</span> & <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-500 to-green-300">Fiverr</span>
@@ -75,6 +78,7 @@ export default function ProposalAI() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             
+            {/* قسم الإدخال */}
             <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700 shadow-xl h-fit">
               <div className="mb-6">
                 <label className="block text-sm font-medium text-slate-300 mb-2 flex justify-between">
@@ -138,6 +142,7 @@ export default function ProposalAI() {
               </button>
             </div>
 
+            {/* قسم النتيجة وجدار الدفع */}
             <div className="bg-slate-800/30 rounded-2xl p-6 border border-slate-700/50 flex flex-col relative overflow-hidden min-h-[400px]">
               <h3 className="text-lg font-semibold text-slate-300 mb-4 flex items-center gap-2 z-10 relative">
                 <svg className="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
@@ -146,21 +151,30 @@ export default function ProposalAI() {
               
               {generatedProposal ? (
                 <div className="flex-1 flex flex-col relative">
-                  <div className="bg-slate-900 border border-slate-700 rounded-xl p-5 text-slate-300 whitespace-pre-wrap flex-1 text-sm leading-relaxed overflow-y-auto">
+                  <div className="bg-slate-900 border border-slate-700 rounded-xl p-5 text-slate-300 whitespace-pre-wrap flex-1 text-sm leading-relaxed overflow-y-auto max-h-[500px]">
                     {generatedProposal}
                   </div>
                   
-                  {freeCredits === 0 && (
+                  {/* جدار الدفع - يظهر فقط عندما يصبح الرصيد 0 */}
+                  {freeCredits <= 0 && (
                     <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center rounded-xl flex-col p-6 text-center border border-indigo-500/30 z-20">
                       <div className="w-16 h-16 bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-full flex items-center justify-center mb-4 shadow-[0_0_30px_rgba(79,70,229,0.5)]">
                         <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
                       </div>
                       <h4 className="text-2xl font-bold text-white mb-2">Unlock Unlimited Proposals</h4>
                       <p className="text-slate-300 mb-6 max-w-xs text-sm">You've seen the magic. Now scale your freelance business and win more clients daily.</p>
-                      <button className="w-full bg-white text-indigo-900 font-bold py-3 rounded-lg hover:bg-slate-100 transition-colors shadow-lg text-lg">
-                        Upgrade for $5 / month
-                      </button>
-                      <p className="text-slate-500 text-xs mt-3">Cancel anytime. Billed securely via Stripe.</p>
+                      
+                      {/* زر الاشتراك الفعلي المربوط برابط Lemon Squeezy */}
+                      <a 
+                        href="https://enjazya.lemonsqueezy.com/checkout/buy/0c9b6d67-9a87-4e8c-a45d-19c9b0e429cb" 
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full bg-white text-indigo-900 font-bold py-3 rounded-lg hover:bg-slate-100 transition-colors shadow-lg text-lg flex items-center justify-center cursor-pointer"
+                      >
+                        Upgrade for $4.99 / month
+                      </a>
+                      
+                      <p className="text-slate-500 text-xs mt-3">Cancel anytime. Billed securely via Lemon Squeezy.</p>
                     </div>
                   )}
                 </div>
