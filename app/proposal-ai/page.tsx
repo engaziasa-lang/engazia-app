@@ -63,13 +63,12 @@ export default function ProposalAI() {
       const data = await response.json();
 
       if (data.result) {
-        // مصفاة تنظيف النص وتنسيقه
+        // مصفاة قوية وجذرية لتنظيف النص
         let cleanText = data.result.replace(/\*\*/g, ''); // إزالة الخط العريض
-        cleanText = cleanText.replace(/### /g, ''); // إزالة العناوين الكبيرة
+        cleanText = cleanText.replace(/### /g, ''); // إزالة العناوين
         cleanText = cleanText.replace(/## /g, '');
-        // تحويل النجمة في بداية السطر (القوائم) إلى نقطة دائرية احترافية
-        cleanText = cleanText.replace(/^\s*\*\s/gm, '• ');
-        cleanText = cleanText.replace(/^\s*-\s/gm, '• '); // للتعامل مع الشرطات أيضاً إن وُجدت
+        // استبدال أي نجمة مفردة * بنقطة دائرية • بشكل جذري
+        cleanText = cleanText.replace(/\*/g, '•'); 
         
         setGeneratedProposal(cleanText);
         if (!isPro) setFreeCredits(freeCredits - 1); 
