@@ -6,13 +6,13 @@ export async function POST(req: Request) {
     const apiKey = process.env.GEMINI_API_KEY;
 
     if (!apiKey) {
-      return NextResponse.json({ result: "⚠️ خطأ: مفتاح GEMINI_API_KEY غير موجود في Vercel." });
+      return NextResponse.json({ result: "⚠️ خطأ: مفتاح GEMINI_API_KEY غير موجود في Vercel إطلاقاً." });
     }
 
     const prompt = `You are an expert freelance copywriter. Write a highly-converting, concise, and engaging Upwork proposal based on the user's job description. Tone: ${tone}. Highlight these skills: ${skills}. Do not use robotic language. Keep it natural and professional. Job Description: ${jobDescription}`;
 
-    // استخدمنا النموذج المستقر gemini-pro
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`, {
+    // تم التحديث هنا إلى الجيل الأحدث والأسرع من جوجل: gemini-2.5-flash
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -28,7 +28,7 @@ export async function POST(req: Request) {
     
     if (!response.ok) {
        return NextResponse.json({ 
-         result: `❌ رفض من سيرفر جوجل:\n\n${data.error?.message || 'خطأ غير معروف'}` 
+         result: `❌ رفض من سيرفر جوجل (Gemini API Error):\n\n${data.error?.message || 'خطأ غير معروف'}` 
        });
     }
 
