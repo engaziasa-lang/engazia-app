@@ -14,7 +14,6 @@ export default function ProposalAI() {
   const [keyError, setKeyError] = useState('');
   const [isActivating, setIsActivating] = useState(false);
   
-  // حالة زر النسخ
   const [isCopied, setIsCopied] = useState(false);
 
   const handleActivate = async () => {
@@ -64,7 +63,13 @@ export default function ProposalAI() {
       const data = await response.json();
 
       if (data.result) {
-        setGeneratedProposal(data.result);
+        // مصفاة ذكية لإزالة النجمات وعلامات الخط العريض من الذكاء الاصطناعي
+        let cleanText = data.result.replace(/\*\*/g, '');
+        // إزالة علامة المربع إذا أرسل الذكاء الاصطناعي عناوين
+        cleanText = cleanText.replace(/### /g, '');
+        cleanText = cleanText.replace(/## /g, '');
+        
+        setGeneratedProposal(cleanText);
         if (!isPro) setFreeCredits(freeCredits - 1); 
       } else {
         alert("Something went wrong.");
@@ -76,7 +81,6 @@ export default function ProposalAI() {
     }
   };
 
-  // دالة نسخ النص
   const handleCopy = () => {
     if (!generatedProposal) return;
     navigator.clipboard.writeText(generatedProposal);
@@ -88,7 +92,8 @@ export default function ProposalAI() {
     <>
       <script src="https://cdn.tailwindcss.com"></script>
       
-      <div className="min-h-screen bg-slate-900 text-slate-200 font-sans selection:bg-indigo-500 selection:text-white" dir="ltr">
+      {/* جعلنا الحاوية الرئيسية flex و min-h-screen لكي يلتصق الفوتر بالأسفل دائماً */}
+      <div className="min-h-screen bg-slate-900 text-slate-200 font-sans selection:bg-indigo-500 selection:text-white flex flex-col" dir="ltr">
         
         <nav className="border-b border-slate-800 bg-slate-950/50 backdrop-blur-md sticky top-0 z-50">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -106,7 +111,8 @@ export default function ProposalAI() {
           </div>
         </nav>
 
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {/* أضفنا flex-grow هنا ليتمدد المحتوى ويدفع الفوتر للأسفل */}
+        <main className="flex-grow max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 w-full">
           
           <div className="text-center mb-12">
             <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-4 tracking-tight">
@@ -235,7 +241,6 @@ export default function ProposalAI() {
                     className="w-full h-full bg-slate-900 border border-slate-700 rounded-xl p-5 text-slate-300 text-sm leading-relaxed focus:ring-2 focus:ring-indigo-500 outline-none resize-none flex-1 pb-16"
                   ></textarea>
                   
-                  {/* زر النسخ العائم */}
                   <div className="absolute bottom-4 right-4 z-20">
                     <button 
                       onClick={handleCopy}
@@ -263,7 +268,29 @@ export default function ProposalAI() {
               )}
             </div>
           </div>
-        </div>
+        </main>
+
+        {/* الفوتر الجديد - بسيط وأنيق */}
+        <footer className="border-t border-slate-800 bg-slate-950 mt-auto">
+          <div className="max-w-6xl mx-auto px-4 py-8 flex flex-col md:flex-row items-center justify-between text-slate-500 text-sm">
+            
+            <div className="flex items-center gap-2 mb-4 md:mb-0">
+              <div className="w-6 h-6 bg-indigo-600 rounded flex items-center justify-center font-bold text-white text-xs shadow-sm">AI</div>
+              <span className="font-semibold text-slate-300 tracking-wide">ProposalGenius</span>
+            </div>
+            
+            <p className="mb-4 md:mb-0 text-slate-400">
+              © {new Date().getFullYear()} ProposalGenius. Built to help freelancers win.
+            </p>
+            
+            <div className="flex gap-6">
+              <a href="#" className="hover:text-indigo-400 transition-colors">Terms of Service</a>
+              <a href="#" className="hover:text-indigo-400 transition-colors">Privacy Policy</a>
+            </div>
+            
+          </div>
+        </footer>
+
       </div>
     </>
   );
