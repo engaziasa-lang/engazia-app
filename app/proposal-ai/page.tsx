@@ -13,10 +13,13 @@ export default function ProposalAI() {
   const [activationKey, setActivationKey] = useState('');
   const [keyError, setKeyError] = useState('');
   const [isActivating, setIsActivating] = useState(false);
+  
+  // حالة زر النسخ
+  const [isCopied, setIsCopied] = useState(false);
 
   const handleActivate = async () => {
     if (!activationKey.trim()) {
-      setKeyError("الرجاء إدخال مفتاح الترخيص.");
+      setKeyError("Please enter a license key.");
       return;
     }
 
@@ -34,12 +37,12 @@ export default function ProposalAI() {
 
       if (data.valid) {
         setIsPro(true);
-        alert("تم التفعيل بنجاح! حسابك الآن Pro.");
+        alert("Success! Your account is now Pro.");
       } else {
-        setKeyError("مفتاح غير صالح أو منتهي.");
+        setKeyError("Invalid or expired key.");
       }
     } catch (error) {
-      setKeyError("خطأ في الاتصال، يرجى المحاولة مرة أخرى.");
+      setKeyError("Connection error, please try again.");
     } finally {
       setIsActivating(false);
     }
@@ -64,13 +67,21 @@ export default function ProposalAI() {
         setGeneratedProposal(data.result);
         if (!isPro) setFreeCredits(freeCredits - 1); 
       } else {
-        alert("حدث خطأ.");
+        alert("Something went wrong.");
       }
     } catch (error) {
-      alert("فشل الاتصال بالخادم.");
+      alert("Failed to connect to the server.");
     } finally {
       setIsGenerating(false);
     }
+  };
+
+  // دالة نسخ النص
+  const handleCopy = () => {
+    if (!generatedProposal) return;
+    navigator.clipboard.writeText(generatedProposal);
+    setIsCopied(true);
+    setTimeout(() => setIsCopied(false), 2000);
   };
 
   return (
@@ -174,11 +185,10 @@ export default function ProposalAI() {
                   )}
                 </button>
               ) : (
-                <div className="bg-slate-800/80 p-5 rounded-xl border border-indigo-500/30 text-center animate-fade-in" dir="rtl">
-                  <h4 className="text-lg font-bold text-white mb-2">انتهت المحاولات المجانية</h4>
-                  <p className="text-slate-400 text-sm mb-4">للتحصول على استخدام غير محدود، يرجى الترقية الآن.</p>
+                <div className="bg-slate-800/80 p-5 rounded-xl border border-indigo-500/30 text-center animate-fade-in">
+                  <h4 className="text-lg font-bold text-white mb-2">Free Credits Exhausted</h4>
+                  <p className="text-slate-400 text-sm mb-4">To unlock unlimited proposals, please upgrade your plan.</p>
                   
-                  {/* زر الترقية بدون سعر */}
                   <a 
                     href="https://enjazya.lemonsqueezy.com/checkout/buy/0c9b6d67-9a87-4e8c-a45d-19c9b0e429cb" 
                     target="_blank"
@@ -186,46 +196,67 @@ export default function ProposalAI() {
                     className="w-full bg-yellow-500 hover:bg-yellow-400 text-slate-900 font-black py-3 rounded-lg transition-colors shadow-lg text-lg flex items-center justify-center gap-2 cursor-pointer mb-4"
                   >
                      <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.381z" clipRule="evenodd"></path></svg>
-                    ترقية 
+                    Upgrade Now
                   </a>
 
-                  <div className="flex items-center gap-2 bg-slate-900 p-1.5 rounded-lg border border-slate-600">
+                  <div className="flex items-center gap-2 bg-slate-900 p-1.5 rounded-lg border border-slate-600 text-left">
+                    <span className="text-amber-400 font-bold pl-2 flex items-center gap-1">PRO <span className="text-xl">🔑</span></span>
+                    <input 
+                      type="text" 
+                      value={activationKey}
+                      onChange={(e) => setActivationKey(e.target.value)}
+                      placeholder="License key..."
+                      className="flex-1 bg-transparent border-none px-2 text-white text-sm focus:ring-0 outline-none placeholder:text-slate-500"
+                    />
                     <button 
                       onClick={handleActivate}
                       disabled={isActivating}
                       className="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-md text-sm font-bold transition-colors disabled:opacity-50"
                     >
-                      {isActivating ? "جاري..." : "تفعيل"}
+                      {isActivating ? "Checking..." : "Activate"}
                     </button>
-                    <input 
-                      type="text" 
-                      value={activationKey}
-                      onChange={(e) => setActivationKey(e.target.value)}
-                      placeholder="...مفتاح الترخيص"
-                      className="flex-1 bg-transparent border-none text-right px-2 text-white text-sm focus:ring-0 outline-none placeholder:text-slate-500"
-                      dir="rtl"
-                    />
-                    <span className="text-amber-400 font-bold pr-2">:PRO <span className="text-xl">🔑</span></span>
                   </div>
-                  {keyError && <p className="text-red-400 text-xs mt-2">{keyError}</p>}
+                  {keyError && <p className="text-red-400 text-xs mt-2 text-left">{keyError}</p>}
                 </div>
               )}
             </div>
 
-            <div className="bg-slate-800/30 rounded-2xl p-6 border border-slate-700/50 flex flex-col relative overflow-hidden min-h-[400px]">
-              <h3 className="text-lg font-semibold text-slate-300 mb-4 flex items-center gap-2 z-10 relative">
+            <div className="bg-slate-800/30 rounded-2xl p-6 border border-slate-700/50 flex flex-col relative overflow-hidden h-[600px]">
+              <h3 className="text-lg font-semibold text-slate-300 mb-4 flex items-center gap-2 z-10 relative shrink-0">
                 <svg className="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                 Generated Result
               </h3>
               
               {generatedProposal ? (
-                <div className="flex-1 flex flex-col relative">
-                  <div className="bg-slate-900 border border-slate-700 rounded-xl p-5 text-slate-300 whitespace-pre-wrap flex-1 text-sm leading-relaxed overflow-y-auto max-h-[500px]">
-                    {generatedProposal}
+                <div className="flex-1 flex flex-col relative h-full">
+                  <textarea 
+                    value={generatedProposal}
+                    onChange={(e) => setGeneratedProposal(e.target.value)}
+                    className="w-full h-full bg-slate-900 border border-slate-700 rounded-xl p-5 text-slate-300 text-sm leading-relaxed focus:ring-2 focus:ring-indigo-500 outline-none resize-none flex-1 pb-16"
+                  ></textarea>
+                  
+                  {/* زر النسخ العائم */}
+                  <div className="absolute bottom-4 right-4 z-20">
+                    <button 
+                      onClick={handleCopy}
+                      className="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-lg flex items-center gap-2"
+                    >
+                      {isCopied ? (
+                        <>
+                          <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
+                          Copied!
+                        </>
+                      ) : (
+                        <>
+                          <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                          Copy Text
+                        </>
+                      )}
+                    </button>
                   </div>
                 </div>
               ) : (
-                <div className="flex-1 border-2 border-dashed border-slate-700 rounded-xl flex items-center justify-center text-slate-500 flex-col gap-3">
+                <div className="flex-1 border-2 border-dashed border-slate-700 rounded-xl flex items-center justify-center text-slate-500 flex-col gap-3 h-full">
                   <svg className="w-12 h-12 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002 2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
                   <p>Your AI-crafted proposal will appear here</p>
                 </div>
