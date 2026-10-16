@@ -7,36 +7,49 @@ export default function ProposalAI() {
   const [tone, setTone] = useState('Professional');
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedProposal, setGeneratedProposal] = useState('');
-  const [freeCredits, setFreeCredits] = useState(1);
+  const [freeCredits, setFreeCredits] = useState(5); // رفعنا الرصيد لـ 5 للتجربة
 
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
     if (freeCredits <= 0) {
-      alert("You've used your free trial. Please upgrade to Pro for $5/month.");
-      return;
+      return; // جدار الدفع سيظهر تلقائياً
     }
     
     if (!jobDescription) return;
 
     setIsGenerating(true);
     
-    // محاكاة لعملية الذكاء الاصطناعي التي سنبرمجها لاحقاً
-    setTimeout(() => {
-      setGeneratedProposal(
-        `Hi there,\n\nI just read your job posting regarding the need for a specialist with [${skills || 'your required skills'}]. I have successfully completed similar projects in the past, focusing on delivering high-quality results within tight deadlines.\n\nMy approach is highly ${tone.toLowerCase()}, ensuring that your exact requirements are met without constant back-and-forth.\n\nI would love to jump on a quick 5-minute call to discuss how we can get this done for you efficiently.\n\nBest regards,\n[Your Name]`
-      );
+    try {
+      // الاتصال السري بالعقل المدبر الذي يكلم Gemini
+      const response = await fetch('/api/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ jobDescription, skills, tone }),
+      });
+
+      const data = await response.json();
+
+      if (data.result) {
+        setGeneratedProposal(data.result);
+        setFreeCredits(freeCredits - 1); // خصم محاولة واحدة
+      } else {
+        alert("Error: Make sure API keys are added in Vercel.");
+      }
+    } catch (error) {
+      console.error("Error fetching AI:", error);
+      alert("Failed to connect to the server.");
+    } finally {
       setIsGenerating(false);
-      setFreeCredits(0); // استنفاذ الرصيد المجاني
-    }, 1500);
+    }
   };
 
   return (
     <>
-      {/* استدعاء تصميم Tailwind فوراً */}
       <script src="https://cdn.tailwindcss.com"></script>
       
       <div className="min-h-screen bg-slate-900 text-slate-200 font-sans selection:bg-indigo-500 selection:text-white" dir="ltr">
         
-        {/* شريط التنقل العلوي */}
         <nav className="border-b border-slate-800 bg-slate-950/50 backdrop-blur-md sticky top-0 z-50">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -51,7 +64,6 @@ export default function ProposalAI() {
 
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           
-          {/* عنوان الأداة */}
           <div className="text-center mb-12">
             <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-4 tracking-tight">
               Win More Jobs on <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-500">Upwork</span> & <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-500 to-green-300">Fiverr</span>
@@ -63,8 +75,7 @@ export default function ProposalAI() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             
-            {/* القسم الأيسر: الإدخال */}
-            <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700 shadow-xl">
+            <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700 shadow-xl h-fit">
               <div className="mb-6">
                 <label className="block text-sm font-medium text-slate-300 mb-2 flex justify-between">
                   <span>1. Paste Job Description</span>
@@ -106,9 +117,9 @@ export default function ProposalAI() {
 
               <button 
                 onClick={handleGenerate}
-                disabled={isGenerating || !jobDescription}
+                disabled={isGenerating || !jobDescription || freeCredits <= 0}
                 className={`w-full py-4 rounded-xl font-bold text-lg flex items-center justify-center gap-2 transition-all ${
-                  !jobDescription 
+                  (!jobDescription || freeCredits <= 0)
                     ? 'bg-slate-700 text-slate-500 cursor-not-allowed' 
                     : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-[0_0_20px_rgba(79,70,229,0.4)] hover:shadow-[0_0_30px_rgba(79,70,229,0.6)]'
                 }`}
@@ -127,22 +138,20 @@ export default function ProposalAI() {
               </button>
             </div>
 
-            {/* القسم الأيمن: النتيجة ونافذة الدفع */}
-            <div className="bg-slate-800/30 rounded-2xl p-6 border border-slate-700/50 flex flex-col relative overflow-hidden">
-              <h3 className="text-lg font-semibold text-slate-300 mb-4 flex items-center gap-2">
+            <div className="bg-slate-800/30 rounded-2xl p-6 border border-slate-700/50 flex flex-col relative overflow-hidden min-h-[400px]">
+              <h3 className="text-lg font-semibold text-slate-300 mb-4 flex items-center gap-2 z-10 relative">
                 <svg className="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                 Generated Result
               </h3>
               
               {generatedProposal ? (
                 <div className="flex-1 flex flex-col relative">
-                  <div className="bg-slate-900 border border-slate-700 rounded-xl p-5 text-slate-300 whitespace-pre-wrap flex-1 text-sm leading-relaxed">
+                  <div className="bg-slate-900 border border-slate-700 rounded-xl p-5 text-slate-300 whitespace-pre-wrap flex-1 text-sm leading-relaxed overflow-y-auto">
                     {generatedProposal}
                   </div>
                   
-                  {/* جدار الدفع (Paywall) يظهر بعد استنفاد الرصيد */}
                   {freeCredits === 0 && (
-                    <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center rounded-xl flex-col p-6 text-center border border-indigo-500/30">
+                    <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center rounded-xl flex-col p-6 text-center border border-indigo-500/30 z-20">
                       <div className="w-16 h-16 bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-full flex items-center justify-center mb-4 shadow-[0_0_30px_rgba(79,70,229,0.5)]">
                         <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
                       </div>
