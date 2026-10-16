@@ -1,6 +1,5 @@
 "use client";
 import React, { useState } from 'react';
-// تم استيراد مكون Link من Next.js لضمان تنقل سريع وبدون إعادة تحميل للصفحة
 import Link from 'next/link';
 
 export default function ProposalAI() {
@@ -269,7 +268,6 @@ export default function ProposalAI() {
           </div>
         </main>
 
-        {/* الفوتر المُحدّث - إزالة الإيميل وتجهيز الروابط (استخدام <Link> من Next.js) */}
         <footer className="border-t border-slate-800 bg-slate-950 mt-auto pt-16 pb-8">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12 text-sm">
@@ -287,17 +285,22 @@ export default function ProposalAI() {
               <div>
                 <h4 className="text-white font-bold mb-4 tracking-wider uppercase text-xs">Product</h4>
                 <ul className="space-y-3 text-slate-400">
-                  {/* هنا يمكننا لاحقاً إضافة مسارات أخرى إذا أردت */}
-                  <li><span className="hover:text-indigo-400 transition-colors cursor-pointer">Pricing</span></li>
-                  <li><span className="hover:text-indigo-400 transition-colors cursor-pointer">How it Works</span></li>
-                  <li><span className="hover:text-indigo-400 transition-colors cursor-pointer">Affiliate Program</span></li>
+                  <li>
+                    <a href="https://enjazya.lemonsqueezy.com/checkout/buy/0c9b6d67-9a87-4e8c-a45d-19c9b0e429cb" target="_blank" rel="noopener noreferrer" className="hover:text-indigo-400 transition-colors">
+                      Pricing (Pro)
+                    </a>
+                  </li>
+                  <li>
+                    <Link href="/proposal-ai" className="hover:text-indigo-400 transition-colors">
+                      How it Works
+                    </Link>
+                  </li>
                 </ul>
               </div>
 
               <div>
                 <h4 className="text-white font-bold mb-4 tracking-wider uppercase text-xs">Legal</h4>
                 <ul className="space-y-3 text-slate-400">
-                  {/* مسارات الصفحات القانونية جاهزة باستخدام Link */}
                   <li><Link href="/privacy" className="hover:text-indigo-400 transition-colors">Privacy Policy</Link></li>
                   <li><Link href="/terms" className="hover:text-indigo-400 transition-colors">Terms of Service</Link></li>
                   <li><Link href="/refund" className="hover:text-indigo-400 transition-colors">Refund Policy</Link></li>
