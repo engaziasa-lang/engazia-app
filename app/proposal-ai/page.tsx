@@ -65,9 +65,9 @@ export default function ProposalAI() {
       if (data.result) {
         // مصفاة قوية وجذرية لتنظيف النص
         let cleanText = data.result.replace(/\*\*/g, ''); // إزالة الخط العريض
-        cleanText = cleanText.replace(/### /g, ''); // إزالة العناوين
-        cleanText = cleanText.replace(/## /g, '');
-        // استبدال أي نجمة مفردة * بنقطة دائرية • بشكل جذري
+        cleanText = cleanText.replace(/### /g, ''); // إزالة العناوين الكبيرة
+        cleanText = cleanText.replace(/## /g, ''); // إزالة العناوين المتوسطة
+        // استبدال أي نجمة مفردة * بنقطة دائرية • بشكل جذري للقوائم
         cleanText = cleanText.replace(/\*/g, '•'); 
         
         setGeneratedProposal(cleanText);
@@ -76,7 +76,7 @@ export default function ProposalAI() {
         alert("Something went wrong.");
       }
     } catch (error) {
-      alert("Failed to connect to the server.");
+      alert("Failed to connect to the server. Please try again.");
     } finally {
       setIsGenerating(false);
     }
@@ -95,6 +95,7 @@ export default function ProposalAI() {
       
       <div className="min-h-screen bg-slate-900 text-slate-200 font-sans selection:bg-indigo-500 selection:text-white flex flex-col" dir="ltr">
         
+        {/* شريط التصفح العلوي */}
         <nav className="border-b border-slate-800 bg-slate-950/50 backdrop-blur-md sticky top-0 z-50">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -111,6 +112,7 @@ export default function ProposalAI() {
           </div>
         </nav>
 
+        {/* المحتوى الرئيسي */}
         <main className="flex-grow max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 w-full">
           
           <div className="text-center mb-12">
@@ -124,6 +126,7 @@ export default function ProposalAI() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             
+            {/* القسم الأيسر: الإدخالات */}
             <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700 shadow-xl h-fit">
               <div className="mb-6">
                 <label className="block text-sm font-medium text-slate-300 mb-2 flex justify-between">
@@ -226,6 +229,7 @@ export default function ProposalAI() {
               )}
             </div>
 
+            {/* القسم الأيمن: النتيجة */}
             <div className="bg-slate-800/30 rounded-2xl p-6 border border-slate-700/50 flex flex-col relative overflow-hidden h-[600px]">
               <h3 className="text-lg font-semibold text-slate-300 mb-4 flex items-center gap-2 z-10 relative shrink-0">
                 <svg className="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
@@ -240,6 +244,7 @@ export default function ProposalAI() {
                     className="w-full h-full bg-slate-900 border border-slate-700 rounded-xl p-5 text-slate-300 text-sm leading-relaxed focus:ring-2 focus:ring-indigo-500 outline-none resize-none flex-1 pb-16"
                   ></textarea>
                   
+                  {/* زر النسخ */}
                   <div className="absolute bottom-4 right-4 z-20">
                     <button 
                       onClick={handleCopy}
@@ -269,23 +274,54 @@ export default function ProposalAI() {
           </div>
         </main>
 
-        <footer className="border-t border-slate-800 bg-slate-950 mt-auto">
-          <div className="max-w-6xl mx-auto px-4 py-8 flex flex-col md:flex-row items-center justify-between text-slate-500 text-sm">
-            
-            <div className="flex items-center gap-2 mb-4 md:mb-0">
-              <div className="w-6 h-6 bg-indigo-600 rounded flex items-center justify-center font-bold text-white text-xs shadow-sm">AI</div>
-              <span className="font-semibold text-slate-300 tracking-wide">ProposalGenius</span>
+        {/* الفوتر الاحترافي الجديد */}
+        <footer className="border-t border-slate-800 bg-slate-950 mt-auto pt-16 pb-8">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12 text-sm">
+              
+              {/* العمود الأول: العلامة التجارية */}
+              <div className="col-span-1 md:col-span-2">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="w-6 h-6 bg-indigo-600 rounded flex items-center justify-center font-bold text-white text-xs shadow-sm">AI</div>
+                  <span className="font-semibold text-slate-200 tracking-wide text-lg">Proposal<span className="text-indigo-400">Genius</span></span>
+                </div>
+                <p className="text-slate-400 max-w-sm mb-6 leading-relaxed">
+                  The smartest way to win freelance jobs. We help top-rated freelancers on Upwork & Fiverr automate their outreach and scale their income.
+                </p>
+                <a href="mailto:support@proposalgenius.com" className="text-slate-300 hover:text-indigo-400 transition-colors font-medium flex items-center gap-2">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                  support@proposalgenius.com
+                </a>
+              </div>
+
+              {/* العمود الثاني: المنتج */}
+              <div>
+                <h4 className="text-white font-bold mb-4 tracking-wider uppercase text-xs">Product</h4>
+                <ul className="space-y-3 text-slate-400">
+                  <li><a href="#" className="hover:text-indigo-400 transition-colors">Pricing</a></li>
+                  <li><a href="#" className="hover:text-indigo-400 transition-colors">How it Works</a></li>
+                  <li><a href="#" className="hover:text-indigo-400 transition-colors">Affiliate Program</a></li>
+                </ul>
+              </div>
+
+              {/* العمود الثالث: قانوني */}
+              <div>
+                <h4 className="text-white font-bold mb-4 tracking-wider uppercase text-xs">Legal</h4>
+                <ul className="space-y-3 text-slate-400">
+                  <li><a href="/privacy" className="hover:text-indigo-400 transition-colors">Privacy Policy</a></li>
+                  <li><a href="/terms" className="hover:text-indigo-400 transition-colors">Terms of Service</a></li>
+                  <li><a href="/refund" className="hover:text-indigo-400 transition-colors">Refund Policy</a></li>
+                </ul>
+              </div>
             </div>
-            
-            <p className="mb-4 md:mb-0 text-slate-400">
-              © {new Date().getFullYear()} ProposalGenius. Built to help freelancers win.
-            </p>
-            
-            <div className="flex gap-6">
-              <a href="#" className="hover:text-indigo-400 transition-colors">Terms of Service</a>
-              <a href="#" className="hover:text-indigo-400 transition-colors">Privacy Policy</a>
+
+            {/* الحقوق */}
+            <div className="pt-8 border-t border-slate-800/60 flex flex-col md:flex-row items-center justify-between text-slate-500 text-xs">
+              <p>© {new Date().getFullYear()} ProposalGenius. All rights reserved.</p>
+              <div className="flex gap-4 mt-4 md:mt-0">
+                <a href="#" className="hover:text-white transition-colors">Twitter (X)</a>
+              </div>
             </div>
-            
           </div>
         </footer>
 
