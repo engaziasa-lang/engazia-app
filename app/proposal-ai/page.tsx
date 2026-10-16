@@ -14,10 +14,9 @@ export default function ProposalAI() {
   const [keyError, setKeyError] = useState('');
   const [isActivating, setIsActivating] = useState(false);
 
-  // دالة التحقق من المفتاح 
   const handleActivate = async () => {
     if (!activationKey.trim()) {
-      setKeyError("Please enter your license key.");
+      setKeyError("الرجاء إدخال مفتاح الترخيص.");
       return;
     }
 
@@ -25,7 +24,6 @@ export default function ProposalAI() {
     setKeyError('');
 
     try {
-      // هنا سيقوم موقعك بالاتصال بالخلفية للتحقق من المفتاح عبر Lemon Squeezy
       const response = await fetch('/api/verify-key', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -36,12 +34,12 @@ export default function ProposalAI() {
 
       if (data.valid) {
         setIsPro(true);
-        alert("Success! Your Pro account is activated.");
+        alert("تم التفعيل بنجاح! حسابك الآن Pro.");
       } else {
-        setKeyError("Invalid or expired key. Please check your email.");
+        setKeyError("مفتاح غير صالح أو منتهي.");
       }
     } catch (error) {
-      setKeyError("Connection error. Please try again.");
+      setKeyError("خطأ في الاتصال، يرجى المحاولة مرة أخرى.");
     } finally {
       setIsActivating(false);
     }
@@ -66,10 +64,10 @@ export default function ProposalAI() {
         setGeneratedProposal(data.result);
         if (!isPro) setFreeCredits(freeCredits - 1); 
       } else {
-        alert("Error: Something went wrong.");
+        alert("حدث خطأ.");
       }
     } catch (error) {
-      alert("Failed to connect to the server.");
+      alert("فشل الاتصال بالخادم.");
     } finally {
       setIsGenerating(false);
     }
@@ -121,6 +119,7 @@ export default function ProposalAI() {
                   onChange={(e) => setJobDescription(e.target.value)}
                   placeholder="e.g. I need a Next.js developer to build a landing page..."
                   className="w-full bg-slate-900 border border-slate-700 rounded-xl p-4 text-slate-200 focus:ring-2 focus:ring-indigo-500 outline-none transition-all h-48 resize-none placeholder:text-slate-600"
+                  disabled={!isPro && freeCredits <= 0} 
                 ></textarea>
               </div>
 
@@ -133,6 +132,7 @@ export default function ProposalAI() {
                     onChange={(e) => setSkills(e.target.value)}
                     placeholder="e.g. React, UI/UX"
                     className="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-slate-200 focus:ring-2 focus:ring-indigo-500 outline-none transition-all placeholder:text-slate-600"
+                    disabled={!isPro && freeCredits <= 0}
                   />
                 </div>
                 <div>
@@ -141,6 +141,7 @@ export default function ProposalAI() {
                     value={tone}
                     onChange={(e) => setTone(e.target.value)}
                     className="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-slate-200 focus:ring-2 focus:ring-indigo-500 outline-none transition-all appearance-none"
+                    disabled={!isPro && freeCredits <= 0}
                   >
                     <option>Professional</option>
                     <option>Conversational</option>
@@ -150,27 +151,65 @@ export default function ProposalAI() {
                 </div>
               </div>
 
-              <button 
-                onClick={handleGenerate}
-                disabled={isGenerating || !jobDescription || (!isPro && freeCredits <= 0)}
-                className={`w-full py-4 rounded-xl font-bold text-lg flex items-center justify-center gap-2 transition-all ${
-                  (!jobDescription || (!isPro && freeCredits <= 0))
-                    ? 'bg-slate-700 text-slate-500 cursor-not-allowed' 
-                    : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-[0_0_20px_rgba(79,70,229,0.4)] hover:shadow-[0_0_30px_rgba(79,70,229,0.6)]'
-                }`}
-              >
-                {isGenerating ? (
-                  <span className="flex items-center gap-2">
-                    <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                    Writing Magic...
-                  </span>
-                ) : (
-                  <>
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                    {isPro ? "Generate Proposal (Unlimited)" : `Generate Proposal (${freeCredits} Free Left)`}
-                  </>
-                )}
-              </button>
+              {(isPro || freeCredits > 0) ? (
+                <button 
+                  onClick={handleGenerate}
+                  disabled={isGenerating || !jobDescription}
+                  className={`w-full py-4 rounded-xl font-bold text-lg flex items-center justify-center gap-2 transition-all ${
+                    (!jobDescription)
+                      ? 'bg-slate-700 text-slate-500 cursor-not-allowed' 
+                      : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-[0_0_20px_rgba(79,70,229,0.4)] hover:shadow-[0_0_30px_rgba(79,70,229,0.6)]'
+                  }`}
+                >
+                  {isGenerating ? (
+                    <span className="flex items-center gap-2">
+                      <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                      Writing Magic...
+                    </span>
+                  ) : (
+                    <>
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                      {isPro ? "Generate Proposal (Unlimited)" : `Generate Proposal (${freeCredits} Free Left)`}
+                    </>
+                  )}
+                </button>
+              ) : (
+                <div className="bg-slate-800/80 p-5 rounded-xl border border-indigo-500/30 text-center animate-fade-in" dir="rtl">
+                  <h4 className="text-lg font-bold text-white mb-2">انتهت المحاولات المجانية</h4>
+                  <p className="text-slate-400 text-sm mb-4">للتحصول على استخدام غير محدود، يرجى الترقية الآن.</p>
+                  
+                  {/* زر الترقية بدون سعر */}
+                  <a 
+                    href="https://enjazya.lemonsqueezy.com/checkout/buy/0c9b6d67-9a87-4e8c-a45d-19c9b0e429cb" 
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full bg-yellow-500 hover:bg-yellow-400 text-slate-900 font-black py-3 rounded-lg transition-colors shadow-lg text-lg flex items-center justify-center gap-2 cursor-pointer mb-4"
+                  >
+                     <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.381z" clipRule="evenodd"></path></svg>
+                    ترقية 
+                  </a>
+
+                  <div className="flex items-center gap-2 bg-slate-900 p-1.5 rounded-lg border border-slate-600">
+                    <button 
+                      onClick={handleActivate}
+                      disabled={isActivating}
+                      className="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-md text-sm font-bold transition-colors disabled:opacity-50"
+                    >
+                      {isActivating ? "جاري..." : "تفعيل"}
+                    </button>
+                    <input 
+                      type="text" 
+                      value={activationKey}
+                      onChange={(e) => setActivationKey(e.target.value)}
+                      placeholder="...مفتاح الترخيص"
+                      className="flex-1 bg-transparent border-none text-right px-2 text-white text-sm focus:ring-0 outline-none placeholder:text-slate-500"
+                      dir="rtl"
+                    />
+                    <span className="text-amber-400 font-bold pr-2">:PRO <span className="text-xl">🔑</span></span>
+                  </div>
+                  {keyError && <p className="text-red-400 text-xs mt-2">{keyError}</p>}
+                </div>
+              )}
             </div>
 
             <div className="bg-slate-800/30 rounded-2xl p-6 border border-slate-700/50 flex flex-col relative overflow-hidden min-h-[400px]">
@@ -184,49 +223,6 @@ export default function ProposalAI() {
                   <div className="bg-slate-900 border border-slate-700 rounded-xl p-5 text-slate-300 whitespace-pre-wrap flex-1 text-sm leading-relaxed overflow-y-auto max-h-[500px]">
                     {generatedProposal}
                   </div>
-                  
-                  {/* جدار الدفع يظهر إذا انتهى الرصيد */}
-                  {(!isPro && freeCredits <= 0) && (
-                    <div className="absolute inset-0 bg-slate-900/95 backdrop-blur-md flex items-center justify-center rounded-xl flex-col p-6 text-center border border-indigo-500/30 z-20">
-                      
-                      <div className="w-12 h-12 bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-full flex items-center justify-center mb-3 shadow-[0_0_30px_rgba(79,70,229,0.5)]">
-                        <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-                      </div>
-                      <h4 className="text-xl font-bold text-white mb-2">Unlock Unlimited Proposals</h4>
-                      <p className="text-slate-300 mb-4 max-w-xs text-xs">Get your license key instantly after upgrading.</p>
-                      
-                      <a 
-                        href="https://enjazya.lemonsqueezy.com/checkout/buy/0c9b6d67-9a87-4e8c-a45d-19c9b0e429cb" 
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="w-full bg-white text-indigo-900 font-bold py-2.5 rounded-lg hover:bg-slate-100 transition-colors shadow-lg text-sm flex items-center justify-center cursor-pointer mb-5"
-                      >
-                        Upgrade for $4.99 / month
-                      </a>
-
-                      <div className="w-full pt-4 border-t border-slate-700/50">
-                        <p className="text-slate-400 text-xs mb-2 text-left">Have a license key?</p>
-                        <div className="flex gap-2">
-                          <input 
-                            type="text" 
-                            value={activationKey}
-                            onChange={(e) => setActivationKey(e.target.value)}
-                            placeholder="Paste your key here..."
-                            className="flex-1 bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
-                          />
-                          <button 
-                            onClick={handleActivate}
-                            disabled={isActivating}
-                            className="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg text-sm font-bold transition-colors disabled:opacity-50"
-                          >
-                            {isActivating ? "Checking..." : "Activate"}
-                          </button>
-                        </div>
-                        {keyError && <p className="text-red-400 text-xs mt-2 text-left">{keyError}</p>}
-                      </div>
-
-                    </div>
-                  )}
                 </div>
               ) : (
                 <div className="flex-1 border-2 border-dashed border-slate-700 rounded-xl flex items-center justify-center text-slate-500 flex-col gap-3">
