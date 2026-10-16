@@ -63,11 +63,13 @@ export default function ProposalAI() {
       const data = await response.json();
 
       if (data.result) {
-        // مصفاة ذكية لإزالة النجمات وعلامات الخط العريض من الذكاء الاصطناعي
-        let cleanText = data.result.replace(/\*\*/g, '');
-        // إزالة علامة المربع إذا أرسل الذكاء الاصطناعي عناوين
-        cleanText = cleanText.replace(/### /g, '');
+        // مصفاة تنظيف النص وتنسيقه
+        let cleanText = data.result.replace(/\*\*/g, ''); // إزالة الخط العريض
+        cleanText = cleanText.replace(/### /g, ''); // إزالة العناوين الكبيرة
         cleanText = cleanText.replace(/## /g, '');
+        // تحويل النجمة في بداية السطر (القوائم) إلى نقطة دائرية احترافية
+        cleanText = cleanText.replace(/^\s*\*\s/gm, '• ');
+        cleanText = cleanText.replace(/^\s*-\s/gm, '• '); // للتعامل مع الشرطات أيضاً إن وُجدت
         
         setGeneratedProposal(cleanText);
         if (!isPro) setFreeCredits(freeCredits - 1); 
@@ -92,7 +94,6 @@ export default function ProposalAI() {
     <>
       <script src="https://cdn.tailwindcss.com"></script>
       
-      {/* جعلنا الحاوية الرئيسية flex و min-h-screen لكي يلتصق الفوتر بالأسفل دائماً */}
       <div className="min-h-screen bg-slate-900 text-slate-200 font-sans selection:bg-indigo-500 selection:text-white flex flex-col" dir="ltr">
         
         <nav className="border-b border-slate-800 bg-slate-950/50 backdrop-blur-md sticky top-0 z-50">
@@ -111,7 +112,6 @@ export default function ProposalAI() {
           </div>
         </nav>
 
-        {/* أضفنا flex-grow هنا ليتمدد المحتوى ويدفع الفوتر للأسفل */}
         <main className="flex-grow max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 w-full">
           
           <div className="text-center mb-12">
@@ -270,7 +270,6 @@ export default function ProposalAI() {
           </div>
         </main>
 
-        {/* الفوتر الجديد - بسيط وأنيق */}
         <footer className="border-t border-slate-800 bg-slate-950 mt-auto">
           <div className="max-w-6xl mx-auto px-4 py-8 flex flex-col md:flex-row items-center justify-between text-slate-500 text-sm">
             
