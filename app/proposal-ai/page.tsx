@@ -291,7 +291,8 @@ export default function ProposalAI() {
                     </a>
                   </li>
                   <li>
-                    <Link href="/proposal-ai" className="hover:text-indigo-400 transition-colors">
+                    {/* تم تحديث مسار صفحة How it works هنا */}
+                    <Link href="/how-it-works" className="hover:text-indigo-400 transition-colors">
                       How it Works
                     </Link>
                   </li>
@@ -310,9 +311,7 @@ export default function ProposalAI() {
 
             <div className="pt-8 border-t border-slate-800/60 flex flex-col md:flex-row items-center justify-between text-slate-500 text-xs">
               <p>© {new Date().getFullYear()} ProposalGenius. All rights reserved.</p>
-              <div className="flex gap-4 mt-4 md:mt-0">
-                <a href="#" className="hover:text-white transition-colors">Twitter (X)</a>
-              </div>
+              {/* تم إزالة رابط وأيقونة منصة إكس (Twitter) بالكامل من هنا بناءً على طلبك */}
             </div>
           </div>
         </footer>
