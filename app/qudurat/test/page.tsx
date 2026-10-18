@@ -13,7 +13,6 @@ function ExamContent() {
 
   const [activeExamId, setActiveExamId] = useState(initialExamId);
   const [isUserSubscribed, setIsUserSubscribed] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // حالة فتح قائمة الجوال
 
   const currentExam = EXAMS_DATA.find((e) => e.id === activeExamId) || EXAMS_DATA[0];
   const isLocked = !currentExam.isFree && !isUserSubscribed;
@@ -57,9 +56,9 @@ function ExamContent() {
     setCurrentIndex(0);
     setSelectedAnswers({});
     setIsFinished(false);
-    setIsMobileMenuOpen(false); // إغلاق القائمة في الجوال عند الاختيار
   };
 
+  // شاشة قفل الاختبارات المدفوعة المباشرة
   if (isLocked) {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-6" dir="rtl">
@@ -90,29 +89,60 @@ function ExamContent() {
     );
   }
 
+  // شاشة نهاية الاختبار مع إبراز الاختبار الثاني المقفل وعرض ملاحظة الترقية
   if (isFinished) {
     const nextExamId = activeExamId + 1;
     const hasNextExam = nextExamId <= 10;
     const nextExam = hasNextExam ? EXAMS_DATA.find(e => e.id === nextExamId) : null;
+    const isNextLocked = nextExam && !nextExam.isFree && !isUserSubscribed;
 
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center p-6" dir="rtl">
-        <div className="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full text-center">
-          <h1 className="text-3xl font-bold text-green-600 mb-2">🎉 أحسنت! أنهيت الاختبار</h1>
-          <p className="text-gray-600 mb-6">أكملت بنجاح {examQuestions.length} سؤالاً في {currentExam.title}.</p>
+        <div className="bg-white p-8 rounded-2xl shadow-xl max-w-lg w-full text-center">
+          <h1 className="text-3xl font-bold text-green-600 mb-2">🎉 أحسنت! أنهيت {currentExam.title}</h1>
+          <p className="text-gray-600 mb-6">لقد أكملت بنجاح {examQuestions.length} سؤالاً.</p>
+
+          {/* ملاحظة ترويجية تسويقية */}
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6 text-right">
+            <p className="text-sm font-bold text-blue-900 mb-1">💡 ملاحظة هامة:</p>
+            <p className="text-xs text-blue-700 leading-relaxed">
+              لقد أتممت الاختبار التجريبي الأول (المجاني). منصة كليك قدرات تحتوي على <strong>9 اختبارات إضافية شاملة</strong> مصممة خصيصاً لضمان تفوقك وكسر رهبة الاختبار الحقيقي. اشترك الآن وافتح كافة الباقات!
+            </p>
+          </div>
           
           <div className="space-y-3">
             {hasNextExam && nextExam && (
+              <div className={`p-4 rounded-xl border-2 transition-all flex justify-between items-center ${isNextLocked ? 'border-yellow-300 bg-yellow-50/50' : 'border-blue-200 bg-blue-50'}`}>
+                <div className="text-right">
+                  <h3 className="font-bold text-gray-800 text-sm">{nextExam.title} {isNextLocked ? '🔒' : ''}</h3>
+                  <p className="text-xs text-gray-500">{nextExam.description}</p>
+                </div>
+                <button
+                  onClick={() => handleSwitchExam(nextExam.id)}
+                  className={`px-4 py-2 rounded-lg font-bold text-xs text-white transition-all cursor-pointer ${
+                    isNextLocked ? 'bg-yellow-600 hover:bg-yellow-700' : 'bg-blue-600 hover:bg-blue-700'
+                  }`}
+                >
+                  {isNextLocked ? 'اشترك لفتحه' : 'ابدأ الآن'}
+                </button>
+              </div>
+            )}
+
+            {isNextLocked && (
               <button
-                onClick={() => handleSwitchExam(nextExam.id)}
-                className="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition-all shadow-md cursor-pointer"
+                onClick={() => {
+                  setIsUserSubscribed(true);
+                  alert("🎉 تم تفعيل الاشتراك بنجاح تجريبياً!");
+                }}
+                className="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition-all shadow-md cursor-pointer text-sm"
               >
-                الانتقال إلى {nextExam.title} {nextExam.isFree ? '' : '🔒'}
+                ترقية الحساب وفتح جميع الاختبارات الـ 9 🚀
               </button>
             )}
+
             <a 
               href="/qudurat/exams" 
-              className="block w-full bg-gray-200 text-gray-700 font-bold py-3 rounded-xl hover:bg-gray-300 transition-all text-center"
+              className="block w-full bg-gray-200 text-gray-700 font-bold py-3 rounded-xl hover:bg-gray-300 transition-all text-center text-sm"
             >
               العودة للوحة الرئيسية
             </a>
@@ -123,70 +153,22 @@ function ExamContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 p-4 md:p-8 relative" dir="rtl">
-      {/* شريط علوي متجاوب */}
+    <div className="min-h-screen bg-gray-100 p-4 md:p-8" dir="rtl">
+      {/* شريط ملاحظة ترويجية في أعلى الصفحة يوضح أن هذا مجاني وأن هناك 9 اختبارات تحتاج اشتراك */}
+      <div className="max-w-4xl mx-auto mb-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-3 rounded-xl shadow-sm flex flex-col sm:flex-row justify-between items-center text-xs md:text-sm font-medium gap-2">
+        <span>✨ أنت الآن تختبر في <strong>{currentExam.title} (مجاني بالكامل)</strong></span>
+        <span className="bg-white/20 px-3 py-1 rounded-lg">لديك 9 اختبارات أخرى متقدمة بانتظار اشتراكك 🔒</span>
+      </div>
+
+      {/* الشريط العلوي الكلاسيكي النظيف */}
       <header className="bg-white shadow-sm rounded-2xl p-4 mb-6 max-w-4xl mx-auto w-full flex justify-between items-center border border-gray-100">
         <div>
           <h1 className="font-bold text-blue-900 text-base md:text-lg">{currentExam.title}</h1>
           <span className="text-xs text-gray-500">السؤال {currentIndex + 1} من {examQuestions.length}</span>
         </div>
 
-        {/* 1. للشاشات الكبيرة (Desktop): عرض الأزرار أفقياً */}
-        <div className="hidden lg:flex items-center gap-1.5">
-          {EXAMS_DATA.map((exam) => {
-            const isCurrent = exam.id === activeExamId;
-            const lockedIndicator = !exam.isFree && !isUserSubscribed;
-            return (
-              <button
-                key={exam.id}
-                onClick={() => handleSwitchExam(exam.id)}
-                className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
-                  isCurrent 
-                    ? 'bg-blue-600 text-white shadow-md scale-105' 
-                    : lockedIndicator 
-                    ? 'bg-gray-100 text-gray-400 hover:bg-gray-200 border border-gray-200' 
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                }`}
-              >
-                اختبار {exam.id} {lockedIndicator ? '🔒' : ''}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* 2. للجوال والتابليت (Mobile & Tablet): زر منسق يفتح القائمة */}
-        <div className="lg:hidden relative">
-          <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="bg-blue-50 text-blue-700 px-4 py-2 rounded-xl text-xs font-bold border border-blue-200 flex items-center gap-2 cursor-pointer shadow-sm"
-          >
-            <span>قائمة الاختبارات ({activeExamId}/10)</span>
-            <span>▼</span>
-          </button>
-
-          {/* قائمة منسدلة للجوال */}
-          {isMobileMenuOpen && (
-            <div className="absolute left-0 mt-2 w-56 bg-white rounded-xl shadow-2xl border border-gray-200 p-2 z-50 space-y-1">
-              {EXAMS_DATA.map((exam) => {
-                const isCurrent = exam.id === activeExamId;
-                const lockedIndicator = !exam.isFree && !isUserSubscribed;
-                return (
-                  <button
-                    key={exam.id}
-                    onClick={() => handleSwitchExam(exam.id)}
-                    className={`w-full text-right px-3 py-2 rounded-lg text-xs font-bold transition-all flex justify-between items-center cursor-pointer ${
-                      isCurrent 
-                        ? 'bg-blue-600 text-white' 
-                        : 'hover:bg-gray-100 text-gray-700'
-                    }`}
-                  >
-                    <span>{exam.title}</span>
-                    <span>{lockedIndicator ? '🔒' : ''}</span>
-                  </button>
-                );
-              })}
-            </div>
-          )}
+        <div className="text-xs font-bold text-gray-600 bg-gray-100 px-3 py-1.5 rounded-lg">
+          اختبار {activeExamId} من 10
         </div>
       </header>
 
