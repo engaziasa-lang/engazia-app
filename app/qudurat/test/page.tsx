@@ -2,23 +2,36 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import questionsData from '../data/questions.json'; // استدعاء ملف الأسئلة
+import allQuestionsData from '../data/questions.json';
 
 export default function QuduratTestSimulator() {
   const router = useRouter();
+  const [questions, setQuestions] = useState<any[]>([]);
   const [currentQIndex, setCurrentQIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [timeLeft, setTimeLeft] = useState(25 * 60);
+  const [isLoaded, setIsLoaded] = useState(false);
 
-  // تشغيل العداد الزمني وإنهاء الاختبار تلقائياً عند انتهاء الوقت
+  // خوارزمية الخلط والسحب العشوائي عند بدء الاختبار
   useEffect(() => {
+    // 1. نسخ كل الأسئلة وخلطها عشوائياً
+    const shuffled = [...allQuestionsData].sort(() => 0.5 - Math.random());
+    // 2. سحب 5 أسئلة فقط لمحاكاة هذا القسم (يمكننا رفعها لـ 25 لاحقاً)
+    const selected = shuffled.slice(0, 5);
+    
+    setQuestions(selected);
+    setIsLoaded(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isLoaded) return;
     if (timeLeft <= 0) {
       finishTest();
       return;
     }
     const timerId = setInterval(() => setTimeLeft((prev) => prev - 1), 1000);
     return () => clearInterval(timerId);
-  }, [timeLeft]);
+  }, [timeLeft, isLoaded]);
 
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60).toString().padStart(2, '0');
@@ -30,17 +43,20 @@ export default function QuduratTestSimulator() {
     setAnswers({ ...answers, [currentQIndex]: optionIndex });
   };
 
-  // دالة إنهاء الاختبار وحفظ الإجابات للانتقال للنتيجة
   const finishTest = () => {
+    // حفظ الأسئلة العشوائية التي ظهرت للطالب مع إجاباته ليتم تصحيحها
+    sessionStorage.setItem('qudurat_questions', JSON.stringify(questions));
     sessionStorage.setItem('qudurat_answers', JSON.stringify(answers));
     router.push('/qudurat/result');
   };
 
-  const currentQ = questionsData[currentQIndex];
-  const isLastQ = currentQIndex === questionsData.length - 1;
-  const isFirstQ = currentQIndex === 0;
+  if (!isLoaded || questions.length === 0) {
+    return <div className="min-h-screen flex items-center justify-center text-2xl font-bold text-blue-800">جاري تجهيز نموذج الاختبار العشوائي...</div>;
+  }
 
-  if (!currentQ) return <div className="p-10 text-center">جاري تحميل الأسئلة...</div>;
+  const currentQ = questions[currentQIndex];
+  const isLastQ = currentQIndex === questions.length - 1;
+  const isFirstQ = currentQIndex === 0;
 
   return (
     <div className="min-h-screen bg-[#f3f4f6] font-sans selection:bg-blue-200" dir="rtl">
@@ -52,12 +68,10 @@ export default function QuduratTestSimulator() {
             <div className="text-sm text-slate-500">رقم الهوية: 10****2345</div>
           </div>
         </div>
-
         <div className="text-center font-bold text-lg">
           <div>القسم 1 (تطبيقي)</div>
-          <div className="text-blue-700">السؤال {currentQIndex + 1} من {questionsData.length}</div>
+          <div className="text-blue-700">السؤال {currentQIndex + 1} من {questions.length}</div>
         </div>
-
         <div className="flex items-center gap-3">
           <span className="font-bold">الوقت المتبقي:</span>
           <div className={`text-2xl font-black px-4 py-1 rounded ${timeLeft < 300 ? 'bg-red-100 text-red-700 animate-pulse' : 'bg-slate-100 text-slate-800'}`}>
@@ -73,9 +87,8 @@ export default function QuduratTestSimulator() {
             {currentQ.text}
           </h2>
         </div>
-
         <div className="w-full md:w-1/2 p-8 bg-slate-50 flex flex-col justify-center space-y-4">
-          {currentQ.options.map((option, idx) => (
+          {currentQ.options.map((option: string, idx: number) => (
             <label key={idx} className={`flex items-center gap-4 p-4 border-2 rounded cursor-pointer transition-colors ${answers[currentQIndex] === idx ? 'border-blue-600 bg-blue-50' : 'border-slate-300 hover:border-blue-400 bg-white'}`}>
               <input type="radio" name={`question-${currentQIndex}`} checked={answers[currentQIndex] === idx} onChange={() => handleOptionSelect(idx)} className="w-5 h-5 text-blue-600 focus:ring-blue-500 cursor-pointer" />
               <span className="text-xl font-medium text-slate-700">{option}</span>
