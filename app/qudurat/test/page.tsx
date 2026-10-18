@@ -2,25 +2,21 @@
 'use client';
 export const dynamic = 'force-dynamic';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import questionsData from '../data/questions.json';
 import { EXAMS_DATA } from '../lib/examsConfig';
 
-export default function ExamTestPage() {
+function ExamContent() {
   const searchParams = useSearchParams();
   const initialExamId = Number(searchParams.get('examId')) || 1;
 
   const [activeExamId, setActiveExamId] = useState(initialExamId);
-  const [isUserSubscribed, setIsUserSubscribed] = useState(false); // حالة الاشتراك (تتغير لـ true عند الدفع)
+  const [isUserSubscribed, setIsUserSubscribed] = useState(false);
 
-  // معلومات الاختبار الحالي
   const currentExam = EXAMS_DATA.find((e) => e.id === activeExamId) || EXAMS_DATA[0];
-  
-  // التحقق من صلاحية الدخول للاختبار
   const isLocked = !currentExam.isFree && !isUserSubscribed;
 
-  // جلب الـ 125 سؤالاً الخاصة بهذا الاختبار
   const examQuestions = questionsData.slice(currentExam.startIndex, currentExam.endIndex);
 
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -50,7 +46,6 @@ export default function ExamTestPage() {
     }
   };
 
-  // تغيير الاختبار من القائمة العلوية
   const handleSwitchExam = (targetId: number) => {
     const targetExam = EXAMS_DATA.find((e) => e.id === targetId);
     if (targetExam && !targetExam.isFree && !isUserSubscribed) {
@@ -63,7 +58,6 @@ export default function ExamTestPage() {
     setIsFinished(false);
   };
 
-  // شاشة قفل الاختبارات المدفوعة
   if (isLocked) {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-6" dir="rtl">
@@ -75,7 +69,6 @@ export default function ExamTestPage() {
           <div className="space-y-3">
             <button
               onClick={() => {
-                // محاكاة عملية الاشتراك التجريبي
                 setIsUserSubscribed(true);
                 alert("🎉 تم تفعيل الاشتراك بنجاح تجريبياً! يمكنك الآن الدخول لجميع الاختبارات.");
               }}
@@ -95,7 +88,6 @@ export default function ExamTestPage() {
     );
   }
 
-  // شاشة نهاية الاختبار مع خيار الانتقال للاختبار التالي
   if (isFinished) {
     const nextExamId = activeExamId + 1;
     const hasNextExam = nextExamId <= 10;
@@ -130,14 +122,12 @@ export default function ExamTestPage() {
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col justify-between p-4 md:p-8" dir="rtl">
-      {/* شريط التنقل العلوي بين الاختبارات */}
       <header className="bg-white shadow-sm rounded-xl p-4 mb-6 max-w-4xl mx-auto w-full flex flex-col md:flex-row justify-between items-center gap-4">
         <div>
           <h1 className="font-bold text-blue-900 text-lg">{currentExam.title}</h1>
           <span className="text-xs text-gray-500">السؤال {currentIndex + 1} من {examQuestions.length}</span>
         </div>
 
-        {/* أزرار سريعة لتغيير الاختبار */}
         <div className="flex items-center gap-1 overflow-x-auto max-w-full pb-2 md:pb-0">
           {EXAMS_DATA.map((exam) => {
             const isCurrent = exam.id === activeExamId;
@@ -161,7 +151,6 @@ export default function ExamTestPage() {
         </div>
       </header>
 
-      {/* صندوق عرض الأسئلة والخيارات */}
       <main className="bg-white shadow-md rounded-2xl p-6 md:p-10 max-w-4xl mx-auto w-full flex-grow flex flex-col justify-between">
         <div>
           <div className="flex justify-between items-center mb-4">
@@ -196,7 +185,6 @@ export default function ExamTestPage() {
           </div>
         </div>
 
-        {/* أزرار التنقل بين الأسئلة */}
         <div className="flex justify-between items-center mt-10 pt-6 border-t border-gray-100">
           <button
             onClick={handlePrev}
@@ -217,5 +205,13 @@ export default function ExamTestPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function ExamTestPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center font-bold text-blue-600">جاري تحميل الاختبار...</div>}>
+      <ExamContent />
+    </Suspense>
   );
 }
