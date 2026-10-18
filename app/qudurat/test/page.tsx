@@ -9,10 +9,32 @@ import { EXAMS_DATA } from '../lib/examsConfig';
 
 function ExamContent() {
   const searchParams = useSearchParams();
-  const initialExamId = Number(searchParams.get('examId')) || 1;
+  const urlExamId = Number(searchParams.get('examId')) || 1;
 
-  const [activeExamId, setActiveExamId] = useState(initialExamId);
-  const [isUserSubscribed, setIsUserSubscribed] = useState(false);
+  // 1. استخدام localStorage لحفظ واسترجاع حالة الاشتراك والاختبار الحالي حتى بعد تحديث الصفحة (Refresh)
+  const [activeExamId, setActiveExamId] = useState<number>(() => {
+    if (typeof window !== 'undefined') {
+      const savedExamId = localStorage.getItem('qudurat_active_exam');
+      return savedExamId ? Number(savedExamId) : urlExamId;
+    }
+    return urlExamId;
+  });
+
+  const [isUserSubscribed, setIsUserSubscribed] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('qudurat_subscribed') === 'true';
+    }
+    return false;
+  });
+
+  // حفظ التغييرات في localStorage تلقائياً
+  useEffect(() => {
+    localStorage.setItem('qudurat_active_exam', activeExamId.toString());
+  }, [activeExamId]);
+
+  useEffect(() => {
+    localStorage.setItem('qudurat_subscribed', isUserSubscribed.toString());
+  }, [isUserSubscribed]);
 
   const currentExam = EXAMS_DATA.find((e) => e.id === activeExamId) || EXAMS_DATA[0];
   const isLocked = !currentExam.isFree && !isUserSubscribed;
@@ -120,7 +142,7 @@ function ExamContent() {
             <button
               onClick={() => {
                 setIsUserSubscribed(true);
-                alert("🎉 تم تفعيل الاشتراك بنجاح تجريبياً!");
+                alert("🎉 تم تفعيل الاشتراك بنجاح!");
               }}
               className="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition-all shadow-md cursor-pointer text-sm"
             >
@@ -138,7 +160,7 @@ function ExamContent() {
     );
   }
 
-  // شاشة نهاية الاختبار مع العبارة المهنية الجديدة (تخلي المسؤولية وتدعم تطوير المهارات)
+  // شاشة نهاية الاختبار
   if (isFinished) {
     const nextExamId = activeExamId + 1;
     const hasNextExam = nextExamId <= 10;
@@ -153,11 +175,10 @@ function ExamContent() {
           <h1 className="text-3xl font-bold text-blue-900 mb-2">🎉 أنهيت أقسام الاختبار بنجاح!</h1>
           <p className="text-gray-600 mb-6 text-sm">أكملت {correctAnswersCount} إجابة من أصل 125 سؤالاً.</p>
 
-          {/* العبارة المهنية الجديدة المعدلة */}
           <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6 text-right">
             <p className="text-sm font-bold text-blue-900 mb-1">💡 ملاحظة هامة:</p>
             <p className="text-xs text-blue-700 leading-relaxed">
-              لقد أتممت الاختبار التجريبي الأول (المجاني). منصة كليك قدرات توفر <strong>9 اختبارات إضافية شاملة</strong> مصممة بعناية لمساعدتك على تطوير قدراتك وتحسين مهاراتك ورفع جاهزيتك للاختبار الحقيقي. اشترك الآن وافتح كافة الباقات!
+              لقد أتممت الاختبار التجريبي (المجاني). منصة كليك قدرات توفر <strong>9 اختبارات إضافية شاملة</strong> مصممة بعناية لمساعدتك على تطوير قدراتك وتحسين مهاراتك ورفع جاهزيتك للاختبار الحقيقي. اشترك الآن وافتح كافة الباقات!
             </p>
           </div>
           
@@ -183,7 +204,7 @@ function ExamContent() {
               <button
                 onClick={() => {
                   setIsUserSubscribed(true);
-                  alert("🎉 تم تفعيل الاشتراك بنجاح تجريبياً!");
+                  alert("🎉 تم تفعيل الاشتراك بنجاح!");
                 }}
                 className="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition-all shadow-md cursor-pointer text-sm"
               >
