@@ -138,23 +138,26 @@ function ExamContent() {
     );
   }
 
-  // شاشة نهاية الاختبار
+  // شاشة نهاية الاختبار مع العبارة المهنية الجديدة (تخلي المسؤولية وتدعم تطوير المهارات)
   if (isFinished) {
     const nextExamId = activeExamId + 1;
     const hasNextExam = nextExamId <= 10;
     const nextExam = hasNextExam ? EXAMS_DATA.find(e => e.id === nextExamId) : null;
     const isNextLocked = nextExam && !nextExam.isFree && !isUserSubscribed;
 
+    const correctAnswersCount = Object.keys(selectedAnswers).length;
+
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center p-6" dir="rtl">
-        <div className="bg-white p-8 rounded-2xl shadow-xl max-w-lg w-full text-center">
+        <div className="bg-white p-8 rounded-2xl shadow-xl max-w-lg w-full text-center border border-gray-200">
           <h1 className="text-3xl font-bold text-blue-900 mb-2">🎉 أنهيت أقسام الاختبار بنجاح!</h1>
-          <p className="text-gray-600 mb-6 text-sm">أكملت بنجاح {Object.keys(selectedAnswers).length} إجابة من أصل 125 سؤالاً.</p>
+          <p className="text-gray-600 mb-6 text-sm">أكملت {correctAnswersCount} إجابة من أصل 125 سؤالاً.</p>
 
+          {/* العبارة المهنية الجديدة المعدلة */}
           <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6 text-right">
             <p className="text-sm font-bold text-blue-900 mb-1">💡 ملاحظة هامة:</p>
             <p className="text-xs text-blue-700 leading-relaxed">
-              لقد أتممت الاختبار التجريبي الأول (المجاني). منصة كليك قدرات تحتوي على <strong>9 اختبارات إضافية شاملة</strong> مصممة خصيصاً لضمان تفوقك. اشترك الآن وافتح كافة الباقات!
+              لقد أتممت الاختبار التجريبي الأول (المجاني). منصة كليك قدرات توفر <strong>9 اختبارات إضافية شاملة</strong> مصممة بعناية لمساعدتك على تطوير قدراتك وتحسين مهاراتك ورفع جاهزيتك للاختبار الحقيقي. اشترك الآن وافتح كافة الباقات!
             </p>
           </div>
           
