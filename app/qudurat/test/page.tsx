@@ -7,23 +7,30 @@ import allQuestionsData from '../data/questions.json';
 export default function QuduratTestSimulator() {
   const router = useRouter();
   const [sections, setSections] = useState<any[][]>([]);
-  const [currentSection, setCurrentSection] = useState(0); // الأقسام من 0 إلى 4 (خمسة أقسام)
+  const [currentSection, setCurrentSection] = useState(0); 
   const [currentQIndex, setCurrentQIndex] = useState(0); 
   const [answers, setAnswers] = useState<Record<number, number>>({});
-  const [timeLeft, setTimeLeft] = useState(25 * 60); // 25 دقيقة لكل قسم
+  const [timeLeft, setTimeLeft] = useState(25 * 60); 
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // خوارزمية السحب العشوائي وتقسيم الاختبار إلى 5 أقسام
   useEffect(() => {
-    // خلط جميع الأسئلة في بنك المعلومات
-    const shuffled = [...allQuestionsData].sort(() => 0.5 - Math.random());
+    if (!allQuestionsData || allQuestionsData.length === 0) return;
+
+    // 1. خلط بنك الأسئلة بالكامل أولاً
+    const shuffledBank = [...allQuestionsData].sort(() => 0.5 - Math.random());
     
-    // سحب حد أقصى 125 سؤال (لأن 5 أقسام × 25 سؤال = 125)
-    const selected = shuffled.slice(0, 125);
+    // 2. خوارزمية الملء الذكي: إذا كانت الأسئلة أقل من 125، نقوم بتكرارها للتجربة فقط
+    let testData: any[] = [];
+    while (testData.length < 125) {
+      testData = [...testData, ...shuffledBank];
+    }
     
-    // توزيع الأسئلة المسحوبة على 5 أقسام بالتساوي
+    // 3. قص 125 سؤال بالضبط لتوزيعها
+    const final125 = testData.slice(0, 125);
+    
+    // 4. توزيع 125 سؤال على 5 أقسام (ينتج 25 سؤال بالضبط لكل قسم)
     const distributedSections: any[][] = [[], [], [], [], []];
-    selected.forEach((q, i) => {
+    final125.forEach((q, i) => {
       distributedSections[i % 5].push(q);
     });
     
@@ -31,12 +38,11 @@ export default function QuduratTestSimulator() {
     setIsLoaded(true);
   }, []);
 
-  // تشغيل العداد الزمني لكل قسم بشكل مستقل
   useEffect(() => {
     if (!isLoaded || sections.length === 0) return;
     
     if (timeLeft <= 0) {
-      handleSectionEnd(); // إذا انتهى الوقت ننتقل للقسم التالي إجبارياً
+      handleSectionEnd();
       return;
     }
     
@@ -44,16 +50,13 @@ export default function QuduratTestSimulator() {
     return () => clearInterval(timerId);
   }, [timeLeft, isLoaded, currentSection]);
 
-  // دالة التعامل مع انتهاء القسم (إما بالوقت أو بضغط الطالب)
   const handleSectionEnd = () => {
     if (currentSection < 4) {
-      // الانتقال للقسم التالي وتصفير العداد إلى 25 دقيقة
       setCurrentSection(prev => prev + 1);
       setCurrentQIndex(0);
       setTimeLeft(25 * 60);
-      window.scrollTo(0, 0); // رفع الشاشة للأعلى للقسم الجديد
+      window.scrollTo(0, 0);
     } else {
-      // إذا كان هذا القسم الخامس والأخير، ننهي الاختبار
       finishTest();
     }
   };
@@ -64,7 +67,6 @@ export default function QuduratTestSimulator() {
     return `${m}:${s}`;
   };
 
-  // إيجاد الرقم المرجعي للسؤال ليتم تصحيحه بشكل دقيق في صفحة النتيجة
   const getGlobalIndex = () => {
     let globalIdx = 0;
     for (let i = 0; i < currentSection; i++) {
@@ -79,7 +81,6 @@ export default function QuduratTestSimulator() {
   };
 
   const finishTest = () => {
-    // دمج الأقسام مرة أخرى في مصفوفة واحدة لحساب النتيجة
     const flatQuestions = sections.flat();
     sessionStorage.setItem('qudurat_questions', JSON.stringify(flatQuestions));
     sessionStorage.setItem('qudurat_answers', JSON.stringify(answers));
@@ -87,20 +88,10 @@ export default function QuduratTestSimulator() {
   };
 
   if (!isLoaded || sections.length === 0) {
-    return <div className="min-h-screen flex items-center justify-center text-2xl font-bold text-blue-800">جاري إعداد الأقسام الخمسة...</div>;
+    return <div className="min-h-screen flex items-center justify-center text-2xl font-bold text-blue-800">جاري إنشاء نموذج الاختبار (125 سؤال)...</div>;
   }
 
   const currentSectionData = sections[currentSection];
-  
-  if (!currentSectionData || currentSectionData.length === 0) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50">
-        <h2 className="text-2xl font-bold mb-4 text-slate-700">هذا القسم فارغ مؤقتاً (بانتظار إضافة المزيد من الأسئلة)</h2>
-        <button onClick={handleSectionEnd} className="bg-blue-600 text-white px-8 py-3 rounded font-bold hover:bg-blue-700">تخطي إلى القسم التالي</button>
-      </div>
-    );
-  }
-
   const currentQ = currentSectionData[currentQIndex];
   const isLastQ = currentQIndex === currentSectionData.length - 1;
   const isFirstQ = currentQIndex === 0;
@@ -108,8 +99,6 @@ export default function QuduratTestSimulator() {
 
   return (
     <div className="min-h-screen bg-[#f3f4f6] font-sans selection:bg-blue-200" dir="rtl">
-      
-      {/* الشريط العلوي */}
       <header className="bg-white border-b-4 border-blue-800 shadow-sm px-4 md:px-6 py-4 flex flex-col md:flex-row justify-between items-center text-slate-800 gap-4">
         <div className="flex items-center gap-4 w-full md:w-auto">
           <div className="w-12 h-12 bg-slate-200 rounded-full flex items-center justify-center font-bold text-sm shrink-0">صورة</div>
@@ -132,9 +121,7 @@ export default function QuduratTestSimulator() {
         </div>
       </header>
 
-      {/* منطقة السؤال والخيارات */}
       <main className="max-w-5xl mx-auto mt-6 md:mt-10 bg-white shadow-md rounded-sm border border-slate-200 min-h-[400px] flex flex-col md:flex-row">
-        
         <div className="w-full md:w-1/2 p-6 md:p-8 border-b md:border-b-0 md:border-l border-slate-100 flex flex-col justify-center">
           <span className="text-sm font-bold text-blue-600 mb-4 bg-blue-50 w-fit px-3 py-1 rounded-full">
             {currentQ.category || 'عام'}
@@ -154,7 +141,6 @@ export default function QuduratTestSimulator() {
         </div>
       </main>
 
-      {/* أزرار التنقل السفلية */}
       <footer className="max-w-5xl mx-auto mt-6 flex justify-between p-4 md:p-0 pb-10">
         <button 
           onClick={() => !isFirstQ && setCurrentQIndex(prev => prev - 1)} 
@@ -171,7 +157,6 @@ export default function QuduratTestSimulator() {
           {isLastQ ? (currentSection === 4 ? 'إنهاء الاختبار' : 'إنهاء القسم') : 'التالي'}
         </button>
       </footer>
-
     </div>
   );
 }
