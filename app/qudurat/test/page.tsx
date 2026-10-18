@@ -17,13 +17,19 @@ function ExamContent() {
   const currentExam = EXAMS_DATA.find((e) => e.id === activeExamId) || EXAMS_DATA[0];
   const isLocked = !currentExam.isFree && !isUserSubscribed;
 
+  // جلب الـ 125 سؤالاً الخاصة بالاختبار الحالي
   const examQuestions = questionsData.slice(currentExam.startIndex, currentExam.endIndex);
 
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [selectedAnswers, setSelectedAnswers] = useState<{ [key: number]: string }>({});
+  // تقسيم الـ 125 سؤالاً إلى 5 أقسام (كل قسم 25 سؤالاً)
+  const TOTAL_SECTIONS = 5;
+  const QUESTIONS_PER_SECTION = 25;
+  
+  const [currentSectionIndex, setCurrentSectionIndex] = useState(0); // من 0 إلى 4 (أي 5 أقسام)
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0); // من 0 إلى 24 داخل القسم
+  const [selectedAnswers, setSelectedAnswers] + useState<{ [key: number]: string }>({});
   const [isFinished, setIsFinished] = useState(false);
 
-  // مؤقت زمني تنازلي 25 دقيقة (1500 ثانية)
+  // مؤقت زمني لكل قسم 25 دقيقة (1500 ثانية)
   const [timeLeft, setTimeLeft] = useState(1500);
 
   useEffect(() => {
@@ -32,14 +38,15 @@ function ExamContent() {
       setTimeLeft((prev) => {
         if (prev <= 1) {
           clearInterval(timer);
-          setIsFinished(true);
+          // عند انتهاء وقت القسم، ننتقل تلقائياً للقسم التالي أو ننهي الاختبار إذا كان الأخير
+          handleNextSectionOrFinish();
           return 0;
         }
         return prev - 1;
       });
     }, 1000);
     return () => clearInterval(timer);
-  }, [isFinished, isLocked]);
+  }, [currentSectionIndex, isFinished, isLocked]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -47,7 +54,13 @@ function ExamContent() {
     return `${mins < 10 ? '0' : ''}${mins}:${secs < 10 ? '0' : ''}${secs}`;
   };
 
-  const currentQuestion = examQuestions[currentIndex];
+  // استخراج أسئلة القسم الحالي فقط (25 سؤالاً)
+  const currentSectionQuestions = examQuestions.slice(
+    currentSectionIndex * QUESTIONS_PER_SECTION,
+    (currentSectionIndex + 1) * QUESTIONS_PER_SECTION
+  );
+
+  const currentQuestion = currentSectionQuestions[currentQuestionIndex];
 
   const handleSelectOption = (option: string) => {
     setSelectedAnswers({
@@ -57,16 +70,31 @@ function ExamContent() {
   };
 
   const handleNext = () => {
-    if (currentIndex < examQuestions.length - 1) {
-      setCurrentIndex(currentIndex + 1);
+    if (currentQuestionIndex < currentSectionQuestions.length - 1) {
+      // الانتقال للسؤال التالي داخل نفس القسم
+      setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
-      setIsFinished(true);
+      // انتهت أسئلة هذا القسم (الـ 25 سؤالاً)، ننتقل للقسم التالي أو ننهي الاختبار
+      handleNextSectionOrFinish();
     }
   };
 
   const handlePrev = () => {
-    if (currentIndex > 0) {
-      setCurrentIndex(currentIndex - 1);
+    if (currentQuestionIndex > 0) {
+      setCurrentQuestionIndex(currentQuestionIndex - 1);
+    }
+  };
+
+  const handleNextSectionOrFinish = () => {
+    if (currentSectionIndex < TOTAL_SECTIONS - 1) {
+      // الانتقال للقسم التالي وإعادة ضبط المؤقت والأسئلة
+      setCurrentSectionIndex(currentSectionIndex + 1);
+      setCurrentQuestionIndex(0);
+      setTimeLeft(1500);
+      alert(`🎉 انتهى وقت القسم ${currentSectionIndex + 1}! جاري الانتقال للقسم ${currentSectionIndex + 2}`);
+    } else {
+      // انتهت الأقسام الخمسة بالكامل
+      setIsFinished(true);
     }
   };
 
@@ -77,7 +105,8 @@ function ExamContent() {
       return;
     }
     setActiveExamId(targetId);
-    setCurrentIndex(0);
+    setCurrentSectionIndex(0);
+    setCurrentQuestionIndex(0);
     setSelectedAnswers({});
     setIsFinished(false);
     setTimeLeft(1500);
@@ -124,8 +153,8 @@ function ExamContent() {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center p-6" dir="rtl">
         <div className="bg-white p-8 rounded-2xl shadow-xl max-w-lg w-full text-center">
-          <h1 className="text-3xl font-bold text-blue-900 mb-2">🎉 انقضى وقت القسم!</h1>
-          <p className="text-gray-600 mb-6 text-sm">أكملت بنجاح {Object.keys(selectedAnswers).length} إجابة من أصل {examQuestions.length} سؤالاً.</p>
+          <h1 className="text-3xl font-bold text-blue-900 mb-2">🎉 أنهيت أقسام الاختبار بنجاح!</h1>
+          <p className="text-gray-600 mb-6 text-sm">أكملت بنجاح {Object.keys(selectedAnswers).length} إجابة من أصل 125 سؤالاً.</p>
 
           <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6 text-right">
             <p className="text-sm font-bold text-blue-900 mb-1">💡 ملاحظة هامة:</p>
@@ -179,20 +208,20 @@ function ExamContent() {
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col justify-between p-4 md:p-6" dir="rtl">
       
-      {/* البطاقة العلوية المعدلة (صورة الطالب فوق بياناته، والمؤقت بجانبها لتقليل العرض) */}
+      {/* البطاقة العلوية المعدلة بدقة لاختبار قياس (القسم + السؤال + المؤقت + صورة الطالب) */}
       <header className="bg-white shadow-sm rounded-2xl p-4 md:p-5 max-w-5xl mx-auto w-full mb-6 border border-gray-200">
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
           
-          {/* الجانب الأيمن: اسم الاختبار ورقم السؤال */}
+          {/* الجانب الأيمن: اسم الاختبار، رقم القسم، ورقم السؤال */}
           <div className="text-center sm:text-right">
-            <h2 className="font-bold text-gray-800 text-base">
-              {currentExam.title} — السؤال {currentIndex + 1} من {examQuestions.length}
+            <h2 className="font-bold text-gray-800 text-sm md:text-base">
+              {currentExam.title} — القسم {currentSectionIndex + 1} من {TOTAL_SECTIONS} — السؤال {currentQuestionIndex + 1} من {QUESTIONS_PER_SECTION}
             </h2>
           </div>
 
-          {/* الجانب الأيسر: المؤقت + بيانات الطالب وتحسها أيقونة الصورة */}
+          {/* الجانب الأيسر: المؤقت + بيانات الطالب مع أيقونة الصورة فوقه */}
           <div className="flex items-center gap-4">
-            {/* المؤقت الزمني المدمج */}
+            {/* المؤقت الزمني 25 دقيقة */}
             <div className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-2 shadow-sm text-center">
               <span className="font-mono font-bold text-xl text-blue-900 tracking-widest">{formatTime(timeLeft)}</span>
             </div>
@@ -261,9 +290,11 @@ function ExamContent() {
         <div className="flex justify-between items-center pt-6 border-t border-gray-100">
           <button
             onClick={handlePrev}
-            disabled={currentIndex === 0}
+            disabled={currentQuestionIndex === 0 && currentSectionIndex === 0}
             className={`px-6 py-2.5 rounded-xl font-bold transition-all ${
-              currentIndex === 0 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-gray-200 text-gray-700 hover:bg-gray-300 cursor-pointer'
+              currentQuestionIndex === 0 && currentSectionIndex === 0 
+                ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                : 'bg-gray-200 text-gray-700 hover:bg-gray-300 cursor-pointer'
             }`}
           >
             السابق
@@ -273,7 +304,9 @@ function ExamContent() {
             onClick={handleNext}
             className="px-8 py-2.5 rounded-xl font-bold bg-blue-600 hover:bg-blue-700 text-white shadow-md transition-all cursor-pointer"
           >
-            {currentIndex === examQuestions.length - 1 ? 'إنهاء الاختبار' : 'التالي'}
+            {currentSectionIndex === TOTAL_SECTIONS - 1 && currentQuestionIndex === currentSectionQuestions.length - 1 
+              ? 'إنهاء الاختبار' 
+              : 'التالي'}
           </button>
         </div>
       </main>
