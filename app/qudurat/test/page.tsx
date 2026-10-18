@@ -13,6 +13,7 @@ function ExamContent() {
 
   const [activeExamId, setActiveExamId] = useState(initialExamId);
   const [isUserSubscribed, setIsUserSubscribed] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // حالة فتح قائمة الجوال
 
   const currentExam = EXAMS_DATA.find((e) => e.id === activeExamId) || EXAMS_DATA[0];
   const isLocked = !currentExam.isFree && !isUserSubscribed;
@@ -56,6 +57,7 @@ function ExamContent() {
     setCurrentIndex(0);
     setSelectedAnswers({});
     setIsFinished(false);
+    setIsMobileMenuOpen(false); // إغلاق القائمة في الجوال عند الاختيار
   };
 
   if (isLocked) {
@@ -121,14 +123,16 @@ function ExamContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col justify-between p-4 md:p-8" dir="rtl">
-      <header className="bg-white shadow-sm rounded-xl p-4 mb-6 max-w-4xl mx-auto w-full flex flex-col md:flex-row justify-between items-center gap-4">
+    <div className="min-h-screen bg-gray-100 p-4 md:p-8 relative" dir="rtl">
+      {/* شريط علوي متجاوب */}
+      <header className="bg-white shadow-sm rounded-2xl p-4 mb-6 max-w-4xl mx-auto w-full flex justify-between items-center border border-gray-100">
         <div>
-          <h1 className="font-bold text-blue-900 text-lg">{currentExam.title}</h1>
+          <h1 className="font-bold text-blue-900 text-base md:text-lg">{currentExam.title}</h1>
           <span className="text-xs text-gray-500">السؤال {currentIndex + 1} من {examQuestions.length}</span>
         </div>
 
-        <div className="flex items-center gap-1 overflow-x-auto max-w-full pb-2 md:pb-0">
+        {/* 1. للشاشات الكبيرة (Desktop): عرض الأزرار أفقياً */}
+        <div className="hidden lg:flex items-center gap-1.5">
           {EXAMS_DATA.map((exam) => {
             const isCurrent = exam.id === activeExamId;
             const lockedIndicator = !exam.isFree && !isUserSubscribed;
@@ -136,11 +140,11 @@ function ExamContent() {
               <button
                 key={exam.id}
                 onClick={() => handleSwitchExam(exam.id)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+                className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
                   isCurrent 
-                    ? 'bg-blue-600 text-white shadow-sm' 
+                    ? 'bg-blue-600 text-white shadow-md scale-105' 
                     : lockedIndicator 
-                    ? 'bg-gray-100 text-gray-400 border border-gray-200' 
+                    ? 'bg-gray-100 text-gray-400 hover:bg-gray-200 border border-gray-200' 
                     : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                 }`}
               >
@@ -149,43 +153,77 @@ function ExamContent() {
             );
           })}
         </div>
+
+        {/* 2. للجوال والتابليت (Mobile & Tablet): زر منسق يفتح القائمة */}
+        <div className="lg:hidden relative">
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="bg-blue-50 text-blue-700 px-4 py-2 rounded-xl text-xs font-bold border border-blue-200 flex items-center gap-2 cursor-pointer shadow-sm"
+          >
+            <span>قائمة الاختبارات ({activeExamId}/10)</span>
+            <span>▼</span>
+          </button>
+
+          {/* قائمة منسدلة للجوال */}
+          {isMobileMenuOpen && (
+            <div className="absolute left-0 mt-2 w-56 bg-white rounded-xl shadow-2xl border border-gray-200 p-2 z-50 space-y-1">
+              {EXAMS_DATA.map((exam) => {
+                const isCurrent = exam.id === activeExamId;
+                const lockedIndicator = !exam.isFree && !isUserSubscribed;
+                return (
+                  <button
+                    key={exam.id}
+                    onClick={() => handleSwitchExam(exam.id)}
+                    className={`w-full text-right px-3 py-2 rounded-lg text-xs font-bold transition-all flex justify-between items-center cursor-pointer ${
+                      isCurrent 
+                        ? 'bg-blue-600 text-white' 
+                        : 'hover:bg-gray-100 text-gray-700'
+                    }`}
+                  >
+                    <span>{exam.title}</span>
+                    <span>{lockedIndicator ? '🔒' : ''}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </header>
 
-      <main className="bg-white shadow-md rounded-2xl p-6 md:p-10 max-w-4xl mx-auto w-full flex-grow flex flex-col justify-between">
-        <div>
-          <div className="flex justify-between items-center mb-4">
-            <span className="inline-block bg-blue-50 text-blue-700 text-xs px-3 py-1 rounded-full font-semibold">
-              {currentQuestion.category}
-            </span>
-            <span className="text-xs text-gray-400 font-mono">ID: {currentQuestion.id}</span>
-          </div>
-
-          <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-8 leading-relaxed">
-            {currentQuestion.text}
-          </h2>
-
-          <div className="space-y-4">
-            {currentQuestion.options.map((option, idx) => {
-              const isSelected = selectedAnswers[currentQuestion.id] === option;
-              return (
-                <button
-                  key={idx}
-                  onClick={() => handleSelectOption(option)}
-                  className={`w-full text-right p-4 rounded-xl border-2 font-medium transition-all cursor-pointer ${
-                    isSelected 
-                      ? 'border-blue-600 bg-blue-50 text-blue-900 shadow-sm' 
-                      : 'border-gray-200 hover:border-gray-300 bg-white text-gray-700'
-                  }`}
-                >
-                  <span className="inline-block w-8 font-bold text-gray-400">({idx + 1})</span>
-                  {option}
-                </button>
-              );
-            })}
-          </div>
+      {/* صندوق عرض الأسئلة والخيارات */}
+      <main className="bg-white shadow-md rounded-2xl p-6 md:p-10 max-w-4xl mx-auto w-full border border-gray-100">
+        <div className="flex justify-between items-center mb-6">
+          <span className="inline-block bg-blue-50 text-blue-700 text-xs px-3 py-1 rounded-full font-semibold">
+            {currentQuestion.category}
+          </span>
+          <span className="text-xs text-gray-400 font-mono">ID: {currentQuestion.id}</span>
         </div>
 
-        <div className="flex justify-between items-center mt-10 pt-6 border-t border-gray-100">
+        <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-8 leading-relaxed">
+          {currentQuestion.text}
+        </h2>
+
+        <div className="space-y-4 mb-10">
+          {currentQuestion.options.map((option, idx) => {
+            const isSelected = selectedAnswers[currentQuestion.id] === option;
+            return (
+              <button
+                key={idx}
+                onClick={() => handleSelectOption(option)}
+                className={`w-full text-right p-4 rounded-xl border-2 font-medium transition-all cursor-pointer ${
+                  isSelected 
+                    ? 'border-blue-600 bg-blue-50 text-blue-900 shadow-sm' 
+                    : 'border-gray-200 hover:border-gray-300 bg-white text-gray-700'
+                }`}
+              >
+                <span className="inline-block w-8 font-bold text-gray-400">({idx + 1})</span>
+                {option}
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="flex justify-between items-center pt-6 border-t border-gray-100">
           <button
             onClick={handlePrev}
             disabled={currentIndex === 0}
