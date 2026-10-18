@@ -274,10 +274,24 @@ function ExamContent() {
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col justify-between p-4 md:p-6" dir="rtl">
       
-      {/* شريط الملاحظة العلوي الهادئ */}
-      <div className="max-w-5xl mx-auto w-full mb-3 text-center text-xs text-gray-500 font-normal tracking-wide">
-        أنت تختبر الآن في <span className="font-semibold text-gray-700">{currentExam.title} (نسخة تجريبية مجانية)</span> — تتوفر 9 اختبارات إضافية متقدمة للمشتركين لرفع جاهزيتك.
-      </div>
+      {/* 💡 شريط الملاحظة العلوي: هادئ، أنيق، وغير مشتت مع زر اشتراك لطيف */}
+      {!isUserSubscribed && (
+        <div className="max-w-5xl mx-auto w-full mb-4 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs md:text-sm shadow-sm transition-all hover:border-slate-300">
+          <div className="text-slate-600 font-medium flex items-center gap-2">
+            <span className="text-blue-500 text-lg">✨</span>
+            <span>
+              أنت تختبر الآن في <span className="font-bold text-slate-800">{currentExam.title}</span> (نسخة مجانية)
+            </span>
+          </div>
+          <a
+            href="/qudurat/exams"
+            className="flex items-center gap-1.5 bg-white border border-blue-200 text-blue-700 hover:bg-blue-50 hover:text-blue-800 font-bold px-3 py-1.5 rounded-lg transition-all shadow-sm cursor-pointer text-xs"
+          >
+            <span>🔓</span>
+            <span>افتح 9 اختبارات إضافية</span>
+          </a>
+        </div>
+      )}
 
       {/* البطاقة العلوية المنسقة بدقة (الصورة واسم الطالب يمين، المؤقت وسط، اسم الاختبار والقسم يسار) */}
       <header className="bg-white shadow-sm rounded-2xl p-4 md:p-5 max-w-5xl mx-auto w-full mb-6 border border-gray-200">
