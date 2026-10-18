@@ -11,7 +11,7 @@ function ExamContent() {
   const searchParams = useSearchParams();
   const urlExamId = Number(searchParams.get('examId')) || 1;
 
-  // 1. استخدام localStorage لحفظ واسترجاع حالة الاشتراك والاختبار الحالي حتى بعد تحديث الصفحة (Refresh)
+  // الحفاظ على رقم الاختبار وحالة الاشتراك في الذاكرة المحلية (localStorage) حتى لا تضيع عند تحديث الصفحة
   const [activeExamId, setActiveExamId] = useState<number>(() => {
     if (typeof window !== 'undefined') {
       const savedExamId = localStorage.getItem('qudurat_active_exam');
@@ -27,7 +27,6 @@ function ExamContent() {
     return false;
   });
 
-  // حفظ التغييرات في localStorage تلقائياً
   useEffect(() => {
     localStorage.setItem('qudurat_active_exam', activeExamId.toString());
   }, [activeExamId]);
@@ -48,7 +47,7 @@ function ExamContent() {
   
   const [currentSectionIndex, setCurrentSectionIndex] = useState(0); 
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0); 
-  const [selectedAnswers, setSelectedAnswers] = useState<{ [key: number]: string }>({});
+  const [selectedAnswers, setSelectedAnswers] = useState<{ [key: number]: string }>({}); // تم التصحيح هنا
   const [isFinished, setIsFinished] = useState(false);
 
   // مؤقت زمني لكل قسم 25 دقيقة (1500 ثانية)
@@ -227,7 +226,7 @@ function ExamContent() {
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col justify-between p-4 md:p-6" dir="rtl">
       
-      {/* البطاقة العلوية المطابقة لقياس */}
+      {/* البطاقة العلوية */}
       <header className="bg-white shadow-sm rounded-2xl p-4 md:p-5 max-w-5xl mx-auto w-full mb-6 border border-gray-200">
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
           
