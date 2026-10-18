@@ -16,22 +16,30 @@ export default function QuduratTestSimulator() {
   useEffect(() => {
     if (!allQuestionsData || allQuestionsData.length === 0) return;
 
-    // 1. خلط بنك الأسئلة بالكامل أولاً
-    const shuffledBank = [...allQuestionsData].sort(() => 0.5 - Math.random());
-    
-    // 2. خوارزمية الملء الذكي (تكرار الأسئلة إذا كانت أقل من 125)
-    let testData: any[] = [];
-    while (testData.length < 125) {
-      testData = [...testData, ...shuffledBank];
+    // 1. استرجاع معرفات الأسئلة التي تم حلها سابقاً من ذاكرة المتصفح الدائمة
+    const solvedIds = JSON.parse(localStorage.getItem('qudurat_solved_history') || '[]');
+
+    // 2. فلترة بنك الأسئلة (حذف أي سؤال شاهده الطالب في اختبارات سابقة)
+    const freshQuestions = allQuestionsData.filter(q => !solvedIds.includes(q.id));
+
+    // 3. إذا أنهى الطالب كل الأسئلة الموجودة في بنك المنصة
+    if (freshQuestions.length === 0) {
+      alert("مبروك! لقد أتممت جميع الأسئلة المتاحة في المنصة حالياً. سيتم تصفير سجلك لتبدأ التدرب من جديد.");
+      localStorage.removeItem('qudurat_solved_history');
+      window.location.reload();
+      return;
     }
+
+    // 4. خلط الأسئلة الجديدة المتبقية عشوائياً
+    const shuffledBank = [...freshQuestions].sort(() => 0.5 - Math.random());
     
-    // 3. أخذ 125 سؤال بالضبط
-    const final125 = testData.slice(0, 125);
+    // 5. أخذ 125 سؤال كحد أقصى للاختبار الواحد (بدون أي تكرار إطلاقاً)
+    const finalQuestions = shuffledBank.slice(0, 125);
     
-    // 4. التوزيع الصحيح والآمن (قص 25 سؤال لكل قسم بدون تناوب يسبب التكرار)
+    // 6. توزيع الأسئلة على 5 أقسام (كل قسم يأخذ 25 سؤال بحد أقصى)
     const distributedSections: any[][] = [];
     for (let i = 0; i < 5; i++) {
-      distributedSections.push(final125.slice(i * 25, (i + 1) * 25));
+      distributedSections.push(finalQuestions.slice(i * 25, (i + 1) * 25));
     }
     
     setSections(distributedSections);
@@ -82,13 +90,21 @@ export default function QuduratTestSimulator() {
 
   const finishTest = () => {
     const flatQuestions = sections.flat();
+    
+    // حفظ أرقام الأسئلة التي رآها الطالب الآن في السجل الدائم حتى لا تتكرر له مستقبلاً
+    const solvedIds = JSON.parse(localStorage.getItem('qudurat_solved_history') || '[]');
+    const newIds = flatQuestions.map(q => q.id);
+    const updatedHistory = Array.from(new Set([...solvedIds, ...newIds])); // منع تكرار الأرقام
+    localStorage.setItem('qudurat_solved_history', JSON.stringify(updatedHistory));
+
+    // إرسال البيانات لشاشة النتيجة
     sessionStorage.setItem('qudurat_questions', JSON.stringify(flatQuestions));
     sessionStorage.setItem('qudurat_answers', JSON.stringify(answers));
     router.push('/qudurat/result');
   };
 
   if (!isLoaded || sections.length === 0) {
-    return <div className="min-h-screen flex items-center justify-center text-2xl font-bold text-blue-800">جاري إنشاء نموذج الاختبار (125 سؤال)...</div>;
+    return <div className="min-h-screen flex items-center justify-center text-2xl font-bold text-blue-800">جاري إعداد الاختبار...</div>;
   }
 
   const currentSectionData = sections[currentSection];
@@ -96,7 +112,7 @@ export default function QuduratTestSimulator() {
   if (!currentSectionData || currentSectionData.length === 0) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50">
-        <h2 className="text-2xl font-bold mb-4 text-slate-700">هذا القسم فارغ مؤقتاً</h2>
+        <h2 className="text-2xl font-bold mb-4 text-slate-700">هذا القسم فارغ مؤقتاً (بانتظار إضافة المزيد من الأسئلة للمنصة)</h2>
         <button onClick={handleSectionEnd} className="bg-blue-600 text-white px-8 py-3 rounded font-bold hover:bg-blue-700">تخطي إلى القسم التالي</button>
       </div>
     );
