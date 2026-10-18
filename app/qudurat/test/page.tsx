@@ -24,9 +24,9 @@ function ExamContent() {
   const TOTAL_SECTIONS = 5;
   const QUESTIONS_PER_SECTION = 25;
   
-  const [currentSectionIndex, setCurrentSectionIndex] = useState(0); // من 0 إلى 4 (أي 5 أقسام)
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0); // من 0 إلى 24 داخل القسم
-  const [selectedAnswers, setSelectedAnswers] + useState<{ [key: number]: string }>({});
+  const [currentSectionIndex, setCurrentSectionIndex] = useState(0); 
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0); 
+  const [selectedAnswers, setSelectedAnswers] = useState<{ [key: number]: string }>({});
   const [isFinished, setIsFinished] = useState(false);
 
   // مؤقت زمني لكل قسم 25 دقيقة (1500 ثانية)
@@ -38,7 +38,6 @@ function ExamContent() {
       setTimeLeft((prev) => {
         if (prev <= 1) {
           clearInterval(timer);
-          // عند انتهاء وقت القسم، ننتقل تلقائياً للقسم التالي أو ننهي الاختبار إذا كان الأخير
           handleNextSectionOrFinish();
           return 0;
         }
@@ -71,10 +70,8 @@ function ExamContent() {
 
   const handleNext = () => {
     if (currentQuestionIndex < currentSectionQuestions.length - 1) {
-      // الانتقال للسؤال التالي داخل نفس القسم
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
-      // انتهت أسئلة هذا القسم (الـ 25 سؤالاً)، ننتقل للقسم التالي أو ننهي الاختبار
       handleNextSectionOrFinish();
     }
   };
@@ -87,13 +84,11 @@ function ExamContent() {
 
   const handleNextSectionOrFinish = () => {
     if (currentSectionIndex < TOTAL_SECTIONS - 1) {
-      // الانتقال للقسم التالي وإعادة ضبط المؤقت والأسئلة
       setCurrentSectionIndex(currentSectionIndex + 1);
       setCurrentQuestionIndex(0);
       setTimeLeft(1500);
       alert(`🎉 انتهى وقت القسم ${currentSectionIndex + 1}! جاري الانتقال للقسم ${currentSectionIndex + 2}`);
     } else {
-      // انتهت الأقسام الخمسة بالكامل
       setIsFinished(true);
     }
   };
@@ -208,25 +203,21 @@ function ExamContent() {
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col justify-between p-4 md:p-6" dir="rtl">
       
-      {/* البطاقة العلوية المعدلة بدقة لاختبار قياس (القسم + السؤال + المؤقت + صورة الطالب) */}
+      {/* البطاقة العلوية المطابقة لقياس */}
       <header className="bg-white shadow-sm rounded-2xl p-4 md:p-5 max-w-5xl mx-auto w-full mb-6 border border-gray-200">
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
           
-          {/* الجانب الأيمن: اسم الاختبار، رقم القسم، ورقم السؤال */}
           <div className="text-center sm:text-right">
             <h2 className="font-bold text-gray-800 text-sm md:text-base">
               {currentExam.title} — القسم {currentSectionIndex + 1} من {TOTAL_SECTIONS} — السؤال {currentQuestionIndex + 1} من {QUESTIONS_PER_SECTION}
             </h2>
           </div>
 
-          {/* الجانب الأيسر: المؤقت + بيانات الطالب مع أيقونة الصورة فوقه */}
           <div className="flex items-center gap-4">
-            {/* المؤقت الزمني 25 دقيقة */}
             <div className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-2 shadow-sm text-center">
               <span className="font-mono font-bold text-xl text-blue-900 tracking-widest">{formatTime(timeLeft)}</span>
             </div>
 
-            {/* بيانات الطالب وتحسها أيقونة الصورة */}
             <div className="flex items-center gap-3 border-r border-gray-200 pr-4">
               <div className="text-right">
                 <h3 className="font-bold text-gray-800 text-xs">اسم الطالب المتدرب</h3>
@@ -246,7 +237,6 @@ function ExamContent() {
         
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-8">
           
-          {/* الجانب الأيمن: نص السؤال والتصنيف (5 أعمدة) */}
           <div className="lg:col-span-5 border-l-0 lg:border-l lg:border-gray-100 lg:pl-8">
             <div className="mb-4">
               <span className="inline-block bg-blue-50 text-blue-700 text-xs px-3 py-1 rounded-full font-semibold">
@@ -259,7 +249,6 @@ function ExamContent() {
             </h2>
           </div>
 
-          {/* الجانب الأيسر: الاختيارات الأربعة (7 أعمدة) */}
           <div className="lg:col-span-7 space-y-4">
             {currentQuestion.options.map((option, idx) => {
               const isSelected = selectedAnswers[currentQuestion.id] === option;
@@ -286,7 +275,6 @@ function ExamContent() {
 
         </div>
 
-        {/* أزرار التنقل السفلية */}
         <div className="flex justify-between items-center pt-6 border-t border-gray-100">
           <button
             onClick={handlePrev}
