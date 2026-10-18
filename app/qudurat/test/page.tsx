@@ -226,34 +226,40 @@ function ExamContent() {
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col justify-between p-4 md:p-6" dir="rtl">
       
-      {/* 💡 شريط علوي رفيع وهادئ جداً للملاحظة (لا يشتت انتباه الطالب) */}
+      {/* شريط الملاحظة العلوي الهادئ */}
       <div className="max-w-5xl mx-auto w-full mb-3 text-center text-xs text-gray-500 font-normal tracking-wide">
         أنت تختبر الآن في <span className="font-semibold text-gray-700">{currentExam.title} (نسخة تجريبية مجانية)</span> — تتوفر 9 اختبارات إضافية متقدمة للمشتركين لرفع جاهزيتك.
       </div>
 
-      {/* البطاقة العلوية الرئيسية */}
+      {/* البطاقة العلوية المنسقة بدقة (الصورة واسم الطالب يمين، المؤقت وسط، اسم الاختبار والقسم يسار) */}
       <header className="bg-white shadow-sm rounded-2xl p-4 md:p-5 max-w-5xl mx-auto w-full mb-6 border border-gray-200">
-        <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
           
-          <div className="text-center sm:text-right">
-            <h2 className="font-bold text-gray-800 text-sm md:text-base">
-              {currentExam.title} — القسم {currentSectionIndex + 1} من {TOTAL_SECTIONS} — السؤال {currentQuestionIndex + 1} من {QUESTIONS_PER_SECTION}
-            </h2>
+          {/* الجانب الأيمن: صورة الطالب، اسمه، ورقم الهوية */}
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 bg-gray-200 rounded-full flex items-center justify-center text-gray-600 font-bold text-xs flex-shrink-0 shadow-inner">
+              صورة
+            </div>
+            <div className="text-right">
+              <h3 className="font-bold text-gray-800 text-sm">اسم الطالب المتدرب</h3>
+              <span className="text-xs text-gray-500 font-mono tracking-wider">رقم الهوية: 10****2345</span>
+            </div>
           </div>
 
-          <div className="flex items-center gap-4">
-            <div className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-2 shadow-sm text-center">
-              <span className="font-mono font-bold text-xl text-blue-900 tracking-widest">{formatTime(timeLeft)}</span>
-            </div>
+          {/* المنتصف: المؤقت التنازلي الحقيقي */}
+          <div className="bg-gray-50 border border-gray-200 rounded-xl px-5 py-2 shadow-sm text-center">
+            <span className="font-mono font-bold text-2xl text-blue-900 tracking-widest">{formatTime(timeLeft)}</span>
+          </div>
 
-            <div className="flex items-center gap-3 border-r border-gray-200 pr-4">
-              <div className="text-right">
-                <h3 className="font-bold text-gray-800 text-xs">اسم الطالب المتدرب</h3>
-                <span className="text-[11px] text-gray-500 font-mono">رقم الهوية: 2345****10</span>
-              </div>
-              <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center text-gray-600 font-bold text-xs flex-shrink-0">
-                صورة
-              </div>
+          {/* الجانب الأيسر: اسم الاختبار، رقم القسم، ورقم السؤال بتنسيق أنيق جداً */}
+          <div className="text-center md:text-left">
+            <div className="bg-blue-50/70 border border-blue-100 px-4 py-2 rounded-xl">
+              <span className="font-bold text-blue-900 text-xs md:text-sm block">
+                {currentExam.title}
+              </span>
+              <span className="text-[11px] font-medium text-blue-700">
+                القسم {currentSectionIndex + 1} من {TOTAL_SECTIONS} &nbsp;|&nbsp; السؤال {currentQuestionIndex + 1} من {QUESTIONS_PER_SECTION}
+              </span>
             </div>
           </div>
 
