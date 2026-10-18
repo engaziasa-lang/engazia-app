@@ -47,7 +47,7 @@ function ExamContent() {
   
   const [currentSectionIndex, setCurrentSectionIndex] = useState(0); 
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0); 
-  const [selectedAnswers, setSelectedAnswers] = useState<{ [key: number]: string }>({}); // تم التصحيح هنا
+  const [selectedAnswers, setSelectedAnswers] = useState<{ [key: number]: string }>({});
   const [isFinished, setIsFinished] = useState(false);
 
   // مؤقت زمني لكل قسم 25 دقيقة (1500 ثانية)
@@ -333,4 +333,3 @@ export default function ExamTestPage() {
     </Suspense>
   );
 }
-
