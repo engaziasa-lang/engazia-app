@@ -23,7 +23,7 @@ function ExamContent() {
   const [selectedAnswers, setSelectedAnswers] = useState<{ [key: number]: string }>({});
   const [isFinished, setIsFinished] = useState(false);
 
-  // مؤقت زمني تنازلي حقيقي لاختبار القدرات (مثلاً ساعتان = 7200 ثانية)
+  // مؤقت زمني تنازلي (مثلاً ساعتان = 7200 ثانية)
   const [timeLeft, setTimeLeft] = useState(7200);
 
   useEffect(() => {
@@ -41,12 +41,10 @@ function ExamContent() {
     return () => clearInterval(timer);
   }, [isFinished, isLocked]);
 
-  // تنسيق الوقت (ساعات:دقائق:ثواني)
   const formatTime = (seconds: number) => {
-    const hrs = Math.floor(seconds / 3600);
-    const mins = Math.floor((seconds % 3600) / 60);
+    const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${hrs > 0 ? `${hrs}:${mins < 10 ? '0' : ''}` : ''}${mins}:${secs < 10 ? '0' : ''}${secs}`;
+    return `${mins < 10 ? '0' : ''}${mins}:${secs < 10 ? '0' : ''}${secs}`;
   };
 
   const currentQuestion = examQuestions[currentIndex];
@@ -88,11 +86,11 @@ function ExamContent() {
   // شاشة قفل الاختبارات المدفوعة
   if (isLocked) {
     return (
-      <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center p-6 text-white" dir="rtl">
-        <div className="bg-slate-800 p-8 rounded-2xl shadow-2xl max-w-lg w-full text-center border border-slate-700">
+      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-6" dir="rtl">
+        <div className="bg-white p-8 rounded-2xl shadow-xl max-w-lg w-full text-center border-2 border-yellow-200">
           <div className="text-5xl mb-4">🔒</div>
-          <h1 className="text-2xl font-bold mb-2">{currentExam.title} مغلق</h1>
-          <p className="text-slate-300 mb-6 text-sm">هذا الاختبار مخصص للمشتركين فقط. استمتع بالوصول الكامل لجميع الاختبارات الـ 10 وكسر رهبة الاختبار الحقيقي!</p>
+          <h1 className="text-2xl font-bold text-gray-800 mb-2">{currentExam.title} مغلق</h1>
+          <p className="text-gray-600 mb-6">هذا الاختبار مخصص للمشتركين فقط. استمتع بالوصول الكامل لجميع الاختبارات الـ 10!</p>
           
           <div className="space-y-3">
             <button
@@ -100,13 +98,13 @@ function ExamContent() {
                 setIsUserSubscribed(true);
                 alert("🎉 تم تفعيل الاشتراك بنجاح تجريبياً!");
               }}
-              className="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-500 transition-all cursor-pointer shadow-lg"
+              className="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition-all shadow-md cursor-pointer"
             >
               اشترك الآن لفتح جميع الاختبارات
             </button>
             <a 
               href="/qudurat/exams" 
-              className="block w-full bg-slate-700 text-slate-200 font-bold py-3 rounded-xl hover:bg-slate-600 transition-all text-center text-sm"
+              className="block w-full bg-gray-200 text-gray-700 font-bold py-3 rounded-xl hover:bg-gray-300 transition-all text-center"
             >
               العودة لقائمة الاختبارات
             </a>
@@ -116,7 +114,7 @@ function ExamContent() {
     );
   }
 
-  // شاشة نهاية الاختبار
+  // شاشة نهاية الاختبار مع إبراز الاختبار الثاني المقفل
   if (isFinished) {
     const nextExamId = activeExamId + 1;
     const hasNextExam = nextExamId <= 10;
@@ -124,15 +122,15 @@ function ExamContent() {
     const isNextLocked = nextExam && !nextExam.isFree && !isUserSubscribed;
 
     return (
-      <div className="min-h-screen bg-slate-100 flex items-center justify-center p-6" dir="rtl">
-        <div className="bg-white p-8 rounded-2xl shadow-xl max-w-lg w-full text-center border border-slate-200">
-          <h1 className="text-3xl font-bold text-blue-900 mb-2">🎉 انتهى وقت الاختبار</h1>
-          <p className="text-gray-600 mb-6 text-sm">أكملت بنجاح {Object.keys(selectedAnswers).length} إجابة من أصل {examQuestions.length} سؤالاً.</p>
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center p-6" dir="rtl">
+        <div className="bg-white p-8 rounded-2xl shadow-xl max-w-lg w-full text-center">
+          <h1 className="text-3xl font-bold text-blue-900 mb-2">🎉 انتهى الاختبار بنجاح</h1>
+          <p className="text-gray-600 mb-6 text-sm">أكملت {Object.keys(selectedAnswers).length} من أصل {examQuestions.length} سؤالاً.</p>
 
           <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6 text-right">
             <p className="text-sm font-bold text-blue-900 mb-1">💡 ملاحظة هامة:</p>
             <p className="text-xs text-blue-700 leading-relaxed">
-              لقد أتممت الاختبار التجريبي الأول (المجاني). منصة كليك قدرات تحتوي على <strong>9 اختبارات إضافية شاملة</strong> مصممة خصيصاً لضمان تفوقك وكسر رهبة الاختبار الحقيقي. اشترك الآن وافتح كافة الباقات!
+              لقد أتممت الاختبار التجريبي الأول (المجاني). منصة كليك قدرات تحتوي على <strong>9 اختبارات إضافية شاملة</strong> مصممة خصيصاً لضمان تفوقك. اشترك الآن وافتح كافة الباقات!
             </p>
           </div>
           
@@ -179,44 +177,40 @@ function ExamContent() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col justify-between select-none" dir="rtl">
+    <div className="min-h-screen bg-gray-100 flex flex-col justify-between p-4 md:p-6" dir="rtl">
       
-      {/* 1. الشريط العلوي المطابق لشاشة مركز قياس الفعلي */}
-      <header className="bg-slate-800 border-b border-slate-700 px-6 py-4 flex flex-col md:flex-row justify-between items-center shadow-md gap-3">
-        <div className="flex items-center gap-4">
-          <span className="bg-blue-600 text-white font-bold text-xs px-3 py-1 rounded">محاكي قياس</span>
-          <h1 className="font-bold text-base md:text-lg text-white">{currentExam.title}</h1>
+      {/* رأس الصفحة المطابق للصورة (معلومات المتدرب + العداد + السؤال الحالي) */}
+      <header className="bg-white shadow-sm rounded-2xl p-4 max-w-3xl mx-auto w-full mb-6 text-center border border-gray-200">
+        <div className="flex justify-between items-center mb-4 border-b border-gray-100 pb-3">
+          <div className="text-right">
+            <h2 className="font-bold text-gray-800 text-sm">اسم الطالب المتدرب</h2>
+            <span className="text-xs text-gray-500 font-mono">رقم الهوية: 2345****10</span>
+          </div>
+          <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center text-gray-600 font-bold text-xs">
+            صورة
+          </div>
         </div>
 
-        {/* المؤقت الزمني التنازلي الحقيقي */}
-        <div className="flex items-center gap-6">
-          <div className="bg-slate-900 border border-slate-700 px-4 py-1.5 rounded-lg flex items-center gap-2">
-            <span className="text-xs text-slate-400">الوقت المتبقي:</span>
-            <span className="font-mono font-bold text-amber-400 text-sm tracking-wider">{formatTime(timeLeft)}</span>
-          </div>
+        <div className="text-sm font-bold text-gray-700 mb-2">
+          {currentExam.title} — السؤال {currentIndex + 1} من {examQuestions.length}
+        </div>
 
-          <span className="text-xs text-slate-300 font-medium bg-slate-700 px-3 py-1.5 rounded-lg">
-            السؤال {currentIndex + 1} من {examQuestions.length}
-          </span>
+        {/* المؤقت الكبير في المنتصف تماماً مثل الصورة */}
+        <div className="bg-gray-50 border border-gray-200 rounded-xl py-2 max-w-xs mx-auto mb-2">
+          <span className="font-mono font-bold text-2xl text-blue-900 tracking-widest">{formatTime(timeLeft)}</span>
         </div>
       </header>
 
-      {/* تنبيه ترويجي علوي يوضح أن الاختبار مجاني والبقية مقفلة */}
-      <div className="bg-blue-900/40 border-b border-blue-800/50 text-blue-200 px-6 py-2 text-center text-xs">
-        ✨ أنت الآن في الاختبار التجريبي الأول (المجاني بالكامل) — منصة كليك قدرات توفر 9 اختبارات إضافية متقدمة للمشتركين 🔒
-      </div>
-
-      {/* 2. منطقة عرض السؤال والخيارات (تصميم قياس الرسمي) */}
-      <main className="flex-grow max-w-5xl mx-auto w-full p-4 md:p-8 flex flex-col justify-between">
-        <div className="bg-slate-800 border border-slate-700 rounded-2xl p-6 md:p-10 shadow-xl">
-          <div className="flex justify-between items-center mb-6 border-b border-slate-700 pb-4">
-            <span className="bg-slate-700 text-blue-300 text-xs px-3 py-1 rounded-md font-semibold">
+      {/* صندوق السؤال والخيارات المطابق تماماً للصورة */}
+      <main className="bg-white shadow-sm rounded-2xl p-6 md:p-8 max-w-3xl mx-auto w-full border border-gray-200 flex-grow flex flex-col justify-between">
+        <div>
+          <div className="mb-4">
+            <span className="inline-block bg-blue-50 text-blue-600 text-xs px-3 py-1 rounded-full font-semibold">
               {currentQuestion.category}
             </span>
-            <span className="text-xs text-slate-400 font-mono">رقم السؤال: {currentQuestion.id}</span>
           </div>
 
-          <h2 className="text-lg md:text-2xl font-bold text-white mb-8 leading-relaxed">
+          <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-8 leading-relaxed">
             {currentQuestion.text}
           </h2>
 
@@ -227,33 +221,31 @@ function ExamContent() {
                 <button
                   key={idx}
                   onClick={() => handleSelectOption(option)}
-                  className={`w-full text-right p-4 rounded-xl border-2 font-medium transition-all cursor-pointer flex items-center gap-4 ${
+                  className={`w-full text-right p-4 rounded-xl border-2 font-medium transition-all cursor-pointer flex justify-between items-center ${
                     isSelected 
-                      ? 'border-blue-500 bg-blue-600/20 text-white shadow-md' 
-                      : 'border-slate-700 bg-slate-900/50 hover:border-slate-600 text-slate-200'
+                      ? 'border-blue-600 bg-blue-50/50 text-blue-950 shadow-sm' 
+                      : 'border-gray-200 hover:border-gray-300 bg-white text-gray-800'
                   }`}
                 >
-                  <span className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm ${
-                    isSelected ? 'bg-blue-600 text-white' : 'bg-slate-800 text-slate-400'
+                  <span className="text-lg font-bold">{option}</span>
+                  <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                    isSelected ? 'border-blue-600 bg-blue-600' : 'border-gray-300'
                   }`}>
-                    {idx + 1}
-                  </span>
-                  <span className="flex-grow">{option}</span>
+                    {isSelected && <div className="w-2.5 h-2.5 bg-white rounded-full" />}
+                  </div>
                 </button>
               );
             })}
           </div>
         </div>
 
-        {/* 3. شريط التنقل السفلي */}
-        <div className="flex justify-between items-center mt-6 bg-slate-800 border border-slate-700 p-4 rounded-2xl">
+        {/* أزرار التنقل السفلية */}
+        <div className="flex justify-between items-center pt-6 border-t border-gray-100">
           <button
             onClick={handlePrev}
             disabled={currentIndex === 0}
-            className={`px-6 py-2.5 rounded-xl font-bold text-sm transition-all ${
-              currentIndex === 0 
-                ? 'bg-slate-700/50 text-slate-500 cursor-not-allowed' 
-                : 'bg-slate-700 text-slate-200 hover:bg-slate-600 cursor-pointer'
+            className={`px-6 py-2.5 rounded-xl font-bold transition-all ${
+              currentIndex === 0 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-gray-200 text-gray-700 hover:bg-gray-300 cursor-pointer'
             }`}
           >
             السابق
@@ -261,7 +253,7 @@ function ExamContent() {
 
           <button
             onClick={handleNext}
-            className="px-8 py-2.5 rounded-xl font-bold text-sm bg-blue-600 hover:bg-blue-500 text-white shadow-md transition-all cursor-pointer"
+            className="px-8 py-2.5 rounded-xl font-bold bg-blue-600 hover:bg-blue-700 text-white shadow-md transition-all cursor-pointer"
           >
             {currentIndex === examQuestions.length - 1 ? 'إنهاء الاختبار' : 'التالي'}
           </button>
@@ -274,7 +266,7 @@ function ExamContent() {
 
 export default function ExamTestPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-slate-900 flex items-center justify-center font-bold text-blue-400">جاري تحميل شاشة الاختبار...</div>}>
+    <Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center font-bold text-blue-600">جاري تحميل شاشة الاختبار...</div>}>
       <ExamContent />
     </Suspense>
   );
