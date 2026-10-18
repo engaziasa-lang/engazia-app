@@ -19,20 +19,20 @@ export default function QuduratTestSimulator() {
     // 1. خلط بنك الأسئلة بالكامل أولاً
     const shuffledBank = [...allQuestionsData].sort(() => 0.5 - Math.random());
     
-    // 2. خوارزمية الملء الذكي: إذا كانت الأسئلة أقل من 125، نقوم بتكرارها للتجربة فقط
+    // 2. خوارزمية الملء الذكي (تكرار الأسئلة إذا كانت أقل من 125)
     let testData: any[] = [];
     while (testData.length < 125) {
       testData = [...testData, ...shuffledBank];
     }
     
-    // 3. قص 125 سؤال بالضبط لتوزيعها
+    // 3. أخذ 125 سؤال بالضبط
     const final125 = testData.slice(0, 125);
     
-    // 4. توزيع 125 سؤال على 5 أقسام (ينتج 25 سؤال بالضبط لكل قسم)
-    const distributedSections: any[][] = [[], [], [], [], []];
-    final125.forEach((q, i) => {
-      distributedSections[i % 5].push(q);
-    });
+    // 4. التوزيع الصحيح والآمن (قص 25 سؤال لكل قسم بدون تناوب يسبب التكرار)
+    const distributedSections: any[][] = [];
+    for (let i = 0; i < 5; i++) {
+      distributedSections.push(final125.slice(i * 25, (i + 1) * 25));
+    }
     
     setSections(distributedSections);
     setIsLoaded(true);
@@ -92,6 +92,16 @@ export default function QuduratTestSimulator() {
   }
 
   const currentSectionData = sections[currentSection];
+  
+  if (!currentSectionData || currentSectionData.length === 0) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50">
+        <h2 className="text-2xl font-bold mb-4 text-slate-700">هذا القسم فارغ مؤقتاً</h2>
+        <button onClick={handleSectionEnd} className="bg-blue-600 text-white px-8 py-3 rounded font-bold hover:bg-blue-700">تخطي إلى القسم التالي</button>
+      </div>
+    );
+  }
+
   const currentQ = currentSectionData[currentQIndex];
   const isLastQ = currentQIndex === currentSectionData.length - 1;
   const isFirstQ = currentQIndex === 0;
