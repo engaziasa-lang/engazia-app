@@ -11,7 +11,7 @@ function ExamContent() {
   const searchParams = useSearchParams();
   const urlExamId = Number(searchParams.get('examId')) || 1;
 
-  // الحفاظ على رقم الاختبار وحالة الاشتراك في الذاكرة المحلية (localStorage) حتى لا تضيع عند تحديث الصفحة
+  // الحفاظ على رقم الاختبار وحالة الاشتراك في الذاكرة المحلية (localStorage)
   const [activeExamId, setActiveExamId] = useState<number>(() => {
     if (typeof window !== 'undefined') {
       const savedExamId = localStorage.getItem('qudurat_active_exam');
@@ -227,7 +227,7 @@ function ExamContent() {
     <div className="min-h-screen bg-gray-100 flex flex-col justify-between p-4 md:p-6" dir="rtl">
       
       {/* البطاقة العلوية */}
-      <header className="bg-white shadow-sm rounded-2xl p-4 md:p-5 max-w-5xl mx-auto w-full mb-6 border border-gray-200">
+      <header className="bg-white shadow-sm rounded-2xl p-4 md:p-5 max-w-5xl mx-auto w-full mb-4 border border-gray-200">
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
           
           <div className="text-center sm:text-right">
@@ -254,6 +254,20 @@ function ExamContent() {
 
         </div>
       </header>
+
+      {/* 💡 الشريط التسويقي المحفز الجديد (بين البطاقة العلوية ومنطقة الأسئلة) */}
+      <div className="max-w-5xl mx-auto w-full mb-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-3.5 rounded-2xl shadow-sm flex flex-col sm:flex-row justify-between items-center text-xs md:text-sm font-medium gap-3">
+        <div className="flex items-center gap-2">
+          <span>✨</span>
+          <span>أنت الآن تختبر في <strong>{currentExam.title} (النسخة التجريبية المجانية)</strong></span>
+        </div>
+        <a 
+          href="/qudurat/exams" 
+          className="bg-white text-blue-700 font-bold px-4 py-1.5 rounded-xl shadow-sm hover:bg-blue-50 transition-all whitespace-nowrap text-xs"
+        >
+          🚀 لديك 9 اختبارات إضافية بانتظار ترقيتك لفتحها!
+        </a>
+      </div>
 
       {/* منطقة السؤال والخيارات بنظام العمودين */}
       <main className="bg-white shadow-sm rounded-2xl p-6 md:p-10 max-w-5xl mx-auto w-full border border-gray-200 flex-grow flex flex-col justify-between">
