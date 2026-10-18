@@ -23,8 +23,8 @@ function ExamContent() {
   const [selectedAnswers, setSelectedAnswers] = useState<{ [key: number]: string }>({});
   const [isFinished, setIsFinished] = useState(false);
 
-  // مؤقت زمني تنازلي حقيقي (ساعتان = 7200 ثانية)
-  const [timeLeft, setTimeLeft] = useState(7200);
+  // مؤقت زمني تنازلي 25 دقيقة (1500 ثانية)
+  const [timeLeft, setTimeLeft] = useState(1500);
 
   useEffect(() => {
     if (isFinished || isLocked) return;
@@ -42,10 +42,9 @@ function ExamContent() {
   }, [isFinished, isLocked]);
 
   const formatTime = (seconds: number) => {
-    const hrs = Math.floor(seconds / 3600);
-    const mins = Math.floor((seconds % 3600) / 60);
+    const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${hrs > 0 ? `${hrs}:${mins < 10 ? '0' : ''}` : ''}${mins}:${secs < 10 ? '0' : ''}${secs}`;
+    return `${mins < 10 ? '0' : ''}${mins}:${secs < 10 ? '0' : ''}${secs}`;
   };
 
   const currentQuestion = examQuestions[currentIndex];
@@ -81,7 +80,7 @@ function ExamContent() {
     setCurrentIndex(0);
     setSelectedAnswers({});
     setIsFinished(false);
-    setTimeLeft(7200);
+    setTimeLeft(1500);
   };
 
   // شاشة قفل الاختبارات المدفوعة
@@ -91,7 +90,7 @@ function ExamContent() {
         <div className="bg-white p-8 rounded-2xl shadow-xl max-w-lg w-full text-center border-2 border-yellow-200">
           <div className="text-5xl mb-4">🔒</div>
           <h1 className="text-2xl font-bold text-gray-800 mb-2">{currentExam.title} مغلق</h1>
-          <p className="text-gray-600 mb-6 text-sm">هذا الاختبار مخصص للمشتركين فقط. استمتع بالوصول الكامل لجميع الاختبارات الـ 10 وكسر رهبة الاختبار الحقيقي!</p>
+          <p className="text-gray-600 mb-6 text-sm">هذا الاختبار مخصص للمشتركين فقط. استمتع بالوصول الكامل لجميع الاختبارات الـ 10!</p>
           
           <div className="space-y-3">
             <button
@@ -115,7 +114,7 @@ function ExamContent() {
     );
   }
 
-  // شاشة نهاية الاختبار مع خيار الترقية للاختبار الثاني المقفل
+  // شاشة نهاية الاختبار
   if (isFinished) {
     const nextExamId = activeExamId + 1;
     const hasNextExam = nextExamId <= 10;
@@ -125,7 +124,7 @@ function ExamContent() {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center p-6" dir="rtl">
         <div className="bg-white p-8 rounded-2xl shadow-xl max-w-lg w-full text-center">
-          <h1 className="text-3xl font-bold text-blue-900 mb-2">🎉 أحسنت! انتهى الاختبار</h1>
+          <h1 className="text-3xl font-bold text-blue-900 mb-2">🎉 انقضى وقت القسم!</h1>
           <p className="text-gray-600 mb-6 text-sm">أكملت بنجاح {Object.keys(selectedAnswers).length} إجابة من أصل {examQuestions.length} سؤالاً.</p>
 
           <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6 text-right">
@@ -180,8 +179,8 @@ function ExamContent() {
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col justify-between p-4 md:p-6" dir="rtl">
       
-      {/* 1. البطاقة العلوية المطابقة لصورة التصميم الكلاسيكي */}
-      <header className="bg-white shadow-sm rounded-2xl p-4 md:p-6 max-w-3xl mx-auto w-full mb-6 border border-gray-200">
+      {/* البطاقة العلوية الكلاسيكية */}
+      <header className="bg-white shadow-sm rounded-2xl p-4 md:p-6 max-w-5xl mx-auto w-full mb-6 border border-gray-200">
         <div className="flex justify-between items-center mb-4 border-b border-gray-100 pb-3">
           <div className="text-right">
             <h2 className="font-bold text-gray-800 text-sm">اسم الطالب المتدرب</h2>
@@ -197,27 +196,32 @@ function ExamContent() {
             {currentExam.title} — السؤال {currentIndex + 1} من {examQuestions.length}
           </div>
 
-          {/* المؤقت الزمني الكبير في المنتصف تماماً */}
           <div className="bg-gray-50 border border-gray-200 rounded-xl py-3 max-w-xs mx-auto shadow-sm">
             <span className="font-mono font-bold text-2xl text-blue-900 tracking-widest">{formatTime(timeLeft)}</span>
           </div>
         </div>
       </header>
 
-      {/* 2. بطاقة عرض السؤال والخيارات المطابقة للصورة */}
-      <main className="bg-white shadow-sm rounded-2xl p-6 md:p-8 max-w-3xl mx-auto w-full border border-gray-200 flex-grow flex flex-col justify-between">
-        <div>
-          <div className="mb-4">
-            <span className="inline-block bg-blue-50 text-blue-700 text-xs px-3 py-1 rounded-full font-semibold">
-              {currentQuestion.category}
-            </span>
+      {/* منطقة السؤال والخيارات بنظام العمودين (السؤال يمين، الاختيارات يسار) */}
+      <main className="bg-white shadow-sm rounded-2xl p-6 md:p-10 max-w-5xl mx-auto w-full border border-gray-200 flex-grow flex flex-col justify-between">
+        
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-8">
+          
+          {/* الجانب الأيمن: نص السؤال والتصنيف (5 أعمدة) */}
+          <div className="lg:col-span-5 border-l-0 lg:border-l lg:border-gray-100 lg:pl-8">
+            <div className="mb-4">
+              <span className="inline-block bg-blue-50 text-blue-700 text-xs px-3 py-1 rounded-full font-semibold">
+                {currentQuestion.category}
+              </span>
+            </div>
+
+            <h2 className="text-xl md:text-2xl font-bold text-gray-900 leading-relaxed">
+              {currentQuestion.text}
+            </h2>
           </div>
 
-          <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-8 leading-relaxed">
-            {currentQuestion.text}
-          </h2>
-
-          <div className="space-y-4 mb-8">
+          {/* الجانب الأيسر: الاختيارات الأربعة (7 أعمدة) */}
+          <div className="lg:col-span-7 space-y-4">
             {currentQuestion.options.map((option, idx) => {
               const isSelected = selectedAnswers[currentQuestion.id] === option;
               return (
@@ -230,8 +234,8 @@ function ExamContent() {
                       : 'border-gray-200 hover:border-gray-300 bg-white text-gray-800'
                   }`}
                 >
-                  <span className="text-lg font-bold">{option}</span>
-                  <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                  <span className="text-base md:text-lg font-bold">{option}</span>
+                  <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
                     isSelected ? 'border-blue-600 bg-blue-600' : 'border-gray-300'
                   }`}>
                     {isSelected && <div className="w-2.5 h-2.5 bg-white rounded-full" />}
@@ -240,6 +244,7 @@ function ExamContent() {
               );
             })}
           </div>
+
         </div>
 
         {/* أزرار التنقل السفلية */}
