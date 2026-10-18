@@ -1,5 +1,7 @@
 // app/qudurat/test/page.tsx
 'use client';
+export const dynamic = 'force-dynamic';
+
 import { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import questionsData from '../data/questions.json';
@@ -77,13 +79,13 @@ export default function ExamTestPage() {
                 setIsUserSubscribed(true);
                 alert("🎉 تم تفعيل الاشتراك بنجاح تجريبياً! يمكنك الآن الدخول لجميع الاختبارات.");
               }}
-              className="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition-all shadow-md"
+              className="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition-all shadow-md cursor-pointer"
             >
               اشترك الآن لفتح جميع الاختبارات
             </button>
             <a 
               href="/qudurat/exams" 
-              className="block w-full bg-gray-200 text-gray-700 font-bold py-3 rounded-xl hover:bg-gray-300 transition-all"
+              className="block w-full bg-gray-200 text-gray-700 font-bold py-3 rounded-xl hover:bg-gray-300 transition-all text-center"
             >
               العودة لقائمة الاختبارات
             </a>
@@ -109,14 +111,14 @@ export default function ExamTestPage() {
             {hasNextExam && nextExam && (
               <button
                 onClick={() => handleSwitchExam(nextExam.id)}
-                className="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition-all shadow-md"
+                className="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition-all shadow-md cursor-pointer"
               >
                 الانتقال إلى {nextExam.title} {nextExam.isFree ? '' : '🔒'}
               </button>
             )}
             <a 
               href="/qudurat/exams" 
-              className="block w-full bg-gray-200 text-gray-700 font-bold py-3 rounded-xl hover:bg-gray-300 transition-all"
+              className="block w-full bg-gray-200 text-gray-700 font-bold py-3 rounded-xl hover:bg-gray-300 transition-all text-center"
             >
               العودة للوحة الرئيسية
             </a>
@@ -144,7 +146,7 @@ export default function ExamTestPage() {
               <button
                 key={exam.id}
                 onClick={() => handleSwitchExam(exam.id)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
                   isCurrent 
                     ? 'bg-blue-600 text-white shadow-sm' 
                     : lockedIndicator 
@@ -180,7 +182,7 @@ export default function ExamTestPage() {
                 <button
                   key={idx}
                   onClick={() => handleSelectOption(option)}
-                  className={`w-full text-right p-4 rounded-xl border-2 font-medium transition-all ${
+                  className={`w-full text-right p-4 rounded-xl border-2 font-medium transition-all cursor-pointer ${
                     isSelected 
                       ? 'border-blue-600 bg-blue-50 text-blue-900 shadow-sm' 
                       : 'border-gray-200 hover:border-gray-300 bg-white text-gray-700'
@@ -200,7 +202,7 @@ export default function ExamTestPage() {
             onClick={handlePrev}
             disabled={currentIndex === 0}
             className={`px-6 py-3 rounded-xl font-bold transition-all ${
-              currentIndex === 0 ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              currentIndex === 0 ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-gray-200 text-gray-700 hover:bg-gray-300 cursor-pointer'
             }`}
           >
             السابق
@@ -208,7 +210,7 @@ export default function ExamTestPage() {
 
           <button
             onClick={handleNext}
-            className="px-8 py-3 rounded-xl font-bold bg-blue-600 hover:bg-blue-700 text-white shadow-md transition-all"
+            className="px-8 py-3 rounded-xl font-bold bg-blue-600 hover:bg-blue-700 text-white shadow-md transition-all cursor-pointer"
           >
             {currentIndex === examQuestions.length - 1 ? 'إنهاء الاختبار' : 'السؤال التالي'}
           </button>
