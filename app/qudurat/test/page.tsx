@@ -179,30 +179,40 @@ function ExamContent() {
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col justify-between p-4 md:p-6" dir="rtl">
       
-      {/* البطاقة العلوية الكلاسيكية */}
-      <header className="bg-white shadow-sm rounded-2xl p-4 md:p-6 max-w-5xl mx-auto w-full mb-6 border border-gray-200">
-        <div className="flex justify-between items-center mb-4 border-b border-gray-100 pb-3">
-          <div className="text-right">
-            <h2 className="font-bold text-gray-800 text-sm">اسم الطالب المتدرب</h2>
-            <span className="text-xs text-gray-500 font-mono">رقم الهوية: 2345****10</span>
-          </div>
-          <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center text-gray-600 font-bold text-xs">
-            صورة
-          </div>
-        </div>
-
-        <div className="text-center">
-          <div className="text-sm font-bold text-gray-800 mb-3">
-            {currentExam.title} — السؤال {currentIndex + 1} من {examQuestions.length}
+      {/* البطاقة العلوية المعدلة (صورة الطالب فوق بياناته، والمؤقت بجانبها لتقليل العرض) */}
+      <header className="bg-white shadow-sm rounded-2xl p-4 md:p-5 max-w-5xl mx-auto w-full mb-6 border border-gray-200">
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+          
+          {/* الجانب الأيمن: اسم الاختبار ورقم السؤال */}
+          <div className="text-center sm:text-right">
+            <h2 className="font-bold text-gray-800 text-base">
+              {currentExam.title} — السؤال {currentIndex + 1} من {examQuestions.length}
+            </h2>
           </div>
 
-          <div className="bg-gray-50 border border-gray-200 rounded-xl py-3 max-w-xs mx-auto shadow-sm">
-            <span className="font-mono font-bold text-2xl text-blue-900 tracking-widest">{formatTime(timeLeft)}</span>
+          {/* الجانب الأيسر: المؤقت + بيانات الطالب وتحسها أيقونة الصورة */}
+          <div className="flex items-center gap-4">
+            {/* المؤقت الزمني المدمج */}
+            <div className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-2 shadow-sm text-center">
+              <span className="font-mono font-bold text-xl text-blue-900 tracking-widest">{formatTime(timeLeft)}</span>
+            </div>
+
+            {/* بيانات الطالب وتحسها أيقونة الصورة */}
+            <div className="flex items-center gap-3 border-r border-gray-200 pr-4">
+              <div className="text-right">
+                <h3 className="font-bold text-gray-800 text-xs">اسم الطالب المتدرب</h3>
+                <span className="text-[11px] text-gray-500 font-mono">رقم الهوية: 2345****10</span>
+              </div>
+              <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center text-gray-600 font-bold text-xs flex-shrink-0">
+                صورة
+              </div>
+            </div>
           </div>
+
         </div>
       </header>
 
-      {/* منطقة السؤال والخيارات بنظام العمودين (السؤال يمين، الاختيارات يسار) */}
+      {/* منطقة السؤال والخيارات بنظام العمودين */}
       <main className="bg-white shadow-sm rounded-2xl p-6 md:p-10 max-w-5xl mx-auto w-full border border-gray-200 flex-grow flex flex-col justify-between">
         
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-8">
