@@ -7,11 +7,15 @@ import { useSearchParams } from 'next/navigation';
 import questionsData from '../data/questions.json';
 import { EXAMS_DATA } from '../lib/examsConfig';
 
+// ثوابت الاختبار
+const TOTAL_SECTIONS = 5;
+const QUESTIONS_PER_SECTION = 25;
+
 function ExamContent() {
   const searchParams = useSearchParams();
   const urlExamId = Number(searchParams.get('examId')) || 1;
 
-  // الحفاظ على رقم الاختبار وحالة الاشتراك في الذاكرة المحلية (localStorage)
+  // 1. الحفاظ على بيانات الاختبار والاشتراك
   const [activeExamId, setActiveExamId] = useState<number>(() => {
     if (typeof window !== 'undefined') {
       const savedExamId = localStorage.getItem('qudurat_active_exam');
@@ -27,46 +31,87 @@ function ExamContent() {
     return false;
   });
 
-  useEffect(() => {
-    localStorage.setItem('qudurat_active_exam', activeExamId.toString());
-  }, [activeExamId]);
+  // 2. الحفاظ على تقدم الطالب (القسم، السؤال، الإجابات، المؤقت، وحالة الانتهاء)
+  const [currentSectionIndex, setCurrentSectionIndex] = useState<number>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('qudurat_section');
+      return saved ? Number(saved) : 0;
+    }
+    return 0;
+  });
 
-  useEffect(() => {
-    localStorage.setItem('qudurat_subscribed', isUserSubscribed.toString());
-  }, [isUserSubscribed]);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('qudurat_question');
+      return saved ? Number(saved) : 0;
+    }
+    return 0;
+  });
+
+  const [selectedAnswers, setSelectedAnswers] = useState<{ [key: number]: string }>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('qudurat_answers');
+      return saved ? JSON.parse(saved) : {};
+    }
+    return {};
+  });
+
+  const [isFinished, setIsFinished] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('qudurat_finished') === 'true';
+    }
+    return false;
+  });
+
+  const [timeLeft, setTimeLeft] = useState<number>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('qudurat_time_left');
+      return saved ? Number(saved) : 1500;
+    }
+    return 1500;
+  });
+
+  // حفظ التغييرات فورياً في المتصفح (localStorage)
+  useEffect(() => localStorage.setItem('qudurat_active_exam', activeExamId.toString()), [activeExamId]);
+  useEffect(() => localStorage.setItem('qudurat_subscribed', isUserSubscribed.toString()), [isUserSubscribed]);
+  useEffect(() => localStorage.setItem('qudurat_section', currentSectionIndex.toString()), [currentSectionIndex]);
+  useEffect(() => localStorage.setItem('qudurat_question', currentQuestionIndex.toString()), [currentQuestionIndex]);
+  useEffect(() => localStorage.setItem('qudurat_answers', JSON.stringify(selectedAnswers)), [selectedAnswers]);
+  useEffect(() => localStorage.setItem('qudurat_finished', isFinished.toString()), [isFinished]);
 
   const currentExam = EXAMS_DATA.find((e) => e.id === activeExamId) || EXAMS_DATA[0];
   const isLocked = !currentExam.isFree && !isUserSubscribed;
 
-  // جلب الـ 125 سؤالاً الخاصة بالاختبار الحالي
   const examQuestions = questionsData.slice(currentExam.startIndex, currentExam.endIndex);
-
-  // تقسيم الـ 125 سؤالاً إلى 5 أقسام (كل قسم 25 سؤالاً)
-  const TOTAL_SECTIONS = 5;
-  const QUESTIONS_PER_SECTION = 25;
   
-  const [currentSectionIndex, setCurrentSectionIndex] = useState(0); 
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0); 
-  const [selectedAnswers, setSelectedAnswers] = useState<{ [key: number]: string }>({});
-  const [isFinished, setIsFinished] = useState(false);
-
-  // مؤقت زمني لكل قسم 25 دقيقة (1500 ثانية)
-  const [timeLeft, setTimeLeft] = useState(1500);
-
+  // تشغيل المؤقت الزمني وحفظه ثانية بثانية
   useEffect(() => {
     if (isFinished || isLocked) return;
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          handleNextSectionOrFinish();
-          return 0;
-        }
-        return prev - 1;
+        if (prev <= 1) return 0;
+        const newTime = prev - 1;
+        localStorage.setItem('qudurat_time_left', newTime.toString());
+        return newTime;
       });
     }, 1000);
     return () => clearInterval(timer);
-  }, [currentSectionIndex, isFinished, isLocked]);
+  }, [isFinished, isLocked]);
+
+  // مراقبة انتهاء وقت القسم للانتقال للقسم التالي
+  useEffect(() => {
+    if (timeLeft === 0 && !isFinished) {
+      if (currentSectionIndex < TOTAL_SECTIONS - 1) {
+        setCurrentSectionIndex((prev) => prev + 1);
+        setCurrentQuestionIndex(0);
+        setTimeLeft(1500);
+        localStorage.setItem('qudurat_time_left', '1500');
+        alert(`🎉 انتهى وقت القسم ${currentSectionIndex + 1}! جاري الانتقال للقسم ${currentSectionIndex + 2}`);
+      } else {
+        setIsFinished(true);
+      }
+    }
+  }, [timeLeft, currentSectionIndex, isFinished]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -74,7 +119,6 @@ function ExamContent() {
     return `${mins < 10 ? '0' : ''}${mins}:${secs < 10 ? '0' : ''}${secs}`;
   };
 
-  // استخراج أسئلة القسم الحالي فقط (25 سؤالاً)
   const currentSectionQuestions = examQuestions.slice(
     currentSectionIndex * QUESTIONS_PER_SECTION,
     (currentSectionIndex + 1) * QUESTIONS_PER_SECTION
@@ -93,7 +137,16 @@ function ExamContent() {
     if (currentQuestionIndex < currentSectionQuestions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
-      handleNextSectionOrFinish();
+      // إنهاء القسم يدوياً
+      if (currentSectionIndex < TOTAL_SECTIONS - 1) {
+        setCurrentSectionIndex(currentSectionIndex + 1);
+        setCurrentQuestionIndex(0);
+        setTimeLeft(1500);
+        localStorage.setItem('qudurat_time_left', '1500');
+        alert(`🎉 أنهيت أسئلة القسم ${currentSectionIndex + 1}! جاري الانتقال للقسم ${currentSectionIndex + 2}`);
+      } else {
+        setIsFinished(true);
+      }
     }
   };
 
@@ -103,32 +156,28 @@ function ExamContent() {
     }
   };
 
-  const handleNextSectionOrFinish = () => {
-    if (currentSectionIndex < TOTAL_SECTIONS - 1) {
-      setCurrentSectionIndex(currentSectionIndex + 1);
-      setCurrentQuestionIndex(0);
-      setTimeLeft(1500);
-      alert(`🎉 انتهى وقت القسم ${currentSectionIndex + 1}! جاري الانتقال للقسم ${currentSectionIndex + 2}`);
-    } else {
-      setIsFinished(true);
-    }
-  };
-
   const handleSwitchExam = (targetId: number) => {
     const targetExam = EXAMS_DATA.find((e) => e.id === targetId);
     if (targetExam && !targetExam.isFree && !isUserSubscribed) {
       alert(`🔒 ${targetExam.title} يتطلب اشتراكاً مميزاً. يرجى الترقية لفتحه!`);
       return;
     }
+    
+    // تصفير جميع البيانات عند الانتقال لاختبار جديد
     setActiveExamId(targetId);
     setCurrentSectionIndex(0);
     setCurrentQuestionIndex(0);
     setSelectedAnswers({});
     setIsFinished(false);
     setTimeLeft(1500);
+    
+    localStorage.setItem('qudurat_section', '0');
+    localStorage.setItem('qudurat_question', '0');
+    localStorage.setItem('qudurat_answers', JSON.stringify({}));
+    localStorage.setItem('qudurat_finished', 'false');
+    localStorage.setItem('qudurat_time_left', '1500');
   };
 
-  // شاشة قفل الاختبارات المدفوعة
   if (isLocked) {
     return (
       <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-6" dir="rtl">
@@ -159,7 +208,6 @@ function ExamContent() {
     );
   }
 
-  // شاشة نهاية الاختبار
   if (isFinished) {
     const nextExamId = activeExamId + 1;
     const hasNextExam = nextExamId <= 10;
@@ -235,7 +283,6 @@ function ExamContent() {
       <header className="bg-white shadow-sm rounded-2xl p-4 md:p-5 max-w-5xl mx-auto w-full mb-6 border border-gray-200">
         <div className="flex flex-col md:flex-row justify-between items-center gap-4">
           
-          {/* الجانب الأيمن: صورة الطالب، اسمه، ورقم الهوية */}
           <div className="flex items-center gap-3">
             <div className="w-11 h-11 bg-gray-200 rounded-full flex items-center justify-center text-gray-600 font-bold text-xs flex-shrink-0 shadow-inner">
               صورة
@@ -246,12 +293,10 @@ function ExamContent() {
             </div>
           </div>
 
-          {/* المنتصف: المؤقت التنازلي الحقيقي */}
           <div className="bg-gray-50 border border-gray-200 rounded-xl px-5 py-2 shadow-sm text-center">
             <span className="font-mono font-bold text-2xl text-blue-900 tracking-widest">{formatTime(timeLeft)}</span>
           </div>
 
-          {/* الجانب الأيسر: اسم الاختبار، رقم القسم، ورقم السؤال بتنسيق أنيق جداً */}
           <div className="text-center md:text-left">
             <div className="bg-blue-50/70 border border-blue-100 px-4 py-2 rounded-xl">
               <span className="font-bold text-blue-900 text-xs md:text-sm block">
@@ -266,7 +311,7 @@ function ExamContent() {
         </div>
       </header>
 
-      {/* منطقة السؤال والخيارات بنظام العمودين */}
+      {/* منطقة السؤال والخيارات */}
       <main className="bg-white shadow-sm rounded-2xl p-6 md:p-10 max-w-5xl mx-auto w-full border border-gray-200 flex-grow flex flex-col justify-between">
         
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-8">
