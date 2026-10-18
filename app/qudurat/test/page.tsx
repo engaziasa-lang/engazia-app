@@ -226,8 +226,13 @@ function ExamContent() {
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col justify-between p-4 md:p-6" dir="rtl">
       
-      {/* البطاقة العلوية */}
-      <header className="bg-white shadow-sm rounded-2xl p-4 md:p-5 max-w-5xl mx-auto w-full mb-4 border border-gray-200">
+      {/* 💡 شريط علوي رفيع وهادئ جداً للملاحظة (لا يشتت انتباه الطالب) */}
+      <div className="max-w-5xl mx-auto w-full mb-3 text-center text-xs text-gray-500 font-normal tracking-wide">
+        أنت تختبر الآن في <span className="font-semibold text-gray-700">{currentExam.title} (نسخة تجريبية مجانية)</span> — تتوفر 9 اختبارات إضافية متقدمة للمشتركين لرفع جاهزيتك.
+      </div>
+
+      {/* البطاقة العلوية الرئيسية */}
+      <header className="bg-white shadow-sm rounded-2xl p-4 md:p-5 max-w-5xl mx-auto w-full mb-6 border border-gray-200">
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
           
           <div className="text-center sm:text-right">
@@ -254,20 +259,6 @@ function ExamContent() {
 
         </div>
       </header>
-
-      {/* 💡 الشريط التسويقي المحفز الجديد (بين البطاقة العلوية ومنطقة الأسئلة) */}
-      <div className="max-w-5xl mx-auto w-full mb-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-3.5 rounded-2xl shadow-sm flex flex-col sm:flex-row justify-between items-center text-xs md:text-sm font-medium gap-3">
-        <div className="flex items-center gap-2">
-          <span>✨</span>
-          <span>أنت الآن تختبر في <strong>{currentExam.title} (النسخة التجريبية المجانية)</strong></span>
-        </div>
-        <a 
-          href="/qudurat/exams" 
-          className="bg-white text-blue-700 font-bold px-4 py-1.5 rounded-xl shadow-sm hover:bg-blue-50 transition-all whitespace-nowrap text-xs"
-        >
-          🚀 لديك 9 اختبارات إضافية بانتظار ترقيتك لفتحها!
-        </a>
-      </div>
 
       {/* منطقة السؤال والخيارات بنظام العمودين */}
       <main className="bg-white shadow-sm rounded-2xl p-6 md:p-10 max-w-5xl mx-auto w-full border border-gray-200 flex-grow flex flex-col justify-between">
