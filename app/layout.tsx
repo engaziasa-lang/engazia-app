@@ -1,12 +1,5 @@
 // app/layout.tsx
 import type { Metadata } from "next";
-import { Cairo } from "next/font/google";
-import "./globals.css";
-
-const cairo = Cairo({ 
-  subsets: ["arabic"],
-  weight: ['400', '600', '700', '900']
-});
 
 export const metadata: Metadata = {
   title: "منصة إنجازيا للحلول المالية والرقمية - اختبارات القدرات",
@@ -20,7 +13,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ar" dir="rtl">
-      <body className={`${cairo.className} bg-gray-50 text-gray-900 antialiased min-h-screen flex flex-col`}>
+      <body className="bg-gray-50 text-gray-900 antialiased min-h-screen flex flex-col font-sans">
         {/* محتوى الصفحات */}
         <main className="flex-grow">
           {children}
