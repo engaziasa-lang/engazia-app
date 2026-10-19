@@ -99,6 +99,13 @@ function ExamContent() {
     return false;
   });
 
+  // جلب بيانات الاختبار الحالي مباشرة من ملف الإعدادات بناءً على الـ URL
+  const currentExam = EXAMS_DATA.find((e) => e.id === urlExamId) || EXAMS_DATA[0];
+  const isLocked = !currentExam.isFree && !isUserSubscribed;
+
+  // جلب نطاق الأسئلة بدقة فائقة لكل اختبار (125 سؤالاً لكل اختبار)
+  const examQuestions = questionsData.slice(currentExam.startIndex, currentExam.endIndex);
+
   const [currentSectionIndex, setCurrentSectionIndex] = useState<number>(() => {
     if (typeof window !== 'undefined') return Number(localStorage.getItem(`qudurat_section_${urlExamId}`)) || 0;
     return 0;
@@ -135,7 +142,7 @@ function ExamContent() {
   const [activationError, setActivationError] = useState('');
   const [isActivating, setIsActivating] = useState(false);
 
-  // تحديث الحالات فوراً عند تغير رقم الاختبار من الـ URL
+  // تحديث الحالات فوراً عند الانتقال بين الاختبارات المختلفة عبر الـ URL
   useEffect(() => {
     if (urlExamId !== activeExamId) {
       setActiveExamId(urlExamId);
@@ -159,12 +166,6 @@ function ExamContent() {
   useEffect(() => localStorage.setItem(`qudurat_answers_${activeExamId}`, JSON.stringify(selectedAnswers)), [selectedAnswers, activeExamId]);
   useEffect(() => localStorage.setItem(`qudurat_finished_${activeExamId}`, isFinished.toString()), [isFinished, activeExamId]);
 
-  const currentExam = EXAMS_DATA.find((e) => e.id === activeExamId) || EXAMS_DATA[0];
-  const isLocked = !currentExam.isFree && !isUserSubscribed;
-  
-  // جلب الأسئلة الخاصة بهذا الاختبار بناءً على النطاق المحدد في examsConfig
-  const examQuestions = questionsData.slice(currentExam.startIndex, currentExam.endIndex);
-  
   useEffect(() => {
     if (isFinished || isLocked) return;
     const timer = setInterval(() => {
