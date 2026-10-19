@@ -7,7 +7,9 @@ import { useSearchParams } from 'next/navigation';
 import questionsData from '../data/questions.json';
 import { EXAMS_DATA } from '../lib/examsConfig';
 
-const TOTAL_QUESTIONS = 125;
+const TOTAL_SECTIONS = 5;
+const QUESTIONS_PER_SECTION = 25;
+const SECTION_TIME_SECONDS = 1500; // 25 دقيقة لكل قسم (25 * 60)
 
 function ActivationModalComponent({
   isOpen,
@@ -98,10 +100,17 @@ function ExamContent() {
     return false;
   });
 
+  // جلب بيانات الاختبار الحالي بناءً على رقم الـ URL لضمان اختلاف الأسئلة لكل اختبار
   const currentExam = EXAMS_DATA.find((e) => e.id === urlExamId) || EXAMS_DATA[0];
   const isLocked = !currentExam.isFree && !isUserSubscribed;
 
+  // قص الـ 125 سؤالاً الخاصة بهذا الاختبار فقط من ملف الـ JSON
   const examQuestions = questionsData.slice(currentExam.startIndex, currentExam.endIndex);
+
+  const [currentSectionIndex, setCurrentSectionIndex] = useState<number>(() => {
+    if (typeof window !== 'undefined') return Number(localStorage.getItem(`qudurat_section_${urlExamId}`)) || 0;
+    return 0;
+  });
 
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(() => {
     if (typeof window !== 'undefined') return Number(localStorage.getItem(`qudurat_question_${urlExamId}`)) || 0;
@@ -123,10 +132,10 @@ function ExamContent() {
 
   const [timeLeft, setTimeLeft] = useState<number>(() => {
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem(`qudurat_time_left_${urlExamId}`);
-      return saved ? Number(saved) : 7500; // وقت إجمالي للاختبار
+      const saved = localStorage.getItem(`qudurat_time_left_${urlExamId}_sec_${currentSectionIndex}`);
+      return saved ? Number(saved) : SECTION_TIME_SECONDS;
     }
-    return 7500;
+    return SECTION_TIME_SECONDS;
   });
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -134,14 +143,17 @@ function ExamContent() {
   const [activationError, setActivationError] = useState('');
   const [isActivating, setIsActivating] = useState(false);
 
+  // تحديث الحالات فوراً عند الانتقال لاختبار آخر عبر الـ URL
   useEffect(() => {
     if (urlExamId !== activeExamId) {
       setActiveExamId(urlExamId);
+      const savedSec = Number(localStorage.getItem(`qudurat_section_${urlExamId}`)) || 0;
       const savedQ = Number(localStorage.getItem(`qudurat_question_${urlExamId}`)) || 0;
       const savedAns = localStorage.getItem(`qudurat_answers_${urlExamId}`);
       const savedFin = localStorage.getItem(`qudurat_finished_${urlExamId}`) === 'true';
-      const savedTime = Number(localStorage.getItem(`qudurat_time_left_${urlExamId}`)) || 7500;
+      const savedTime = Number(localStorage.getItem(`qudurat_time_left_${urlExamId}_sec_${savedSec}`)) || SECTION_TIME_SECONDS;
 
+      setCurrentSectionIndex(savedSec);
       setCurrentQuestionIndex(savedQ);
       setSelectedAnswers(savedAns ? JSON.parse(savedAns) : {});
       setIsFinished(savedFin);
@@ -150,28 +162,40 @@ function ExamContent() {
   }, [urlExamId, activeExamId]);
 
   useEffect(() => localStorage.setItem('qudurat_subscribed', isUserSubscribed.toString()), [isUserSubscribed]);
+  useEffect(() => localStorage.setItem(`qudurat_section_${activeExamId}`, currentSectionIndex.toString()), [currentSectionIndex, activeExamId]);
   useEffect(() => localStorage.setItem(`qudurat_question_${activeExamId}`, currentQuestionIndex.toString()), [currentQuestionIndex, activeExamId]);
   useEffect(() => localStorage.setItem(`qudurat_answers_${activeExamId}`, JSON.stringify(selectedAnswers)), [selectedAnswers, activeExamId]);
   useEffect(() => localStorage.setItem(`qudurat_finished_${activeExamId}`, isFinished.toString()), [isFinished, activeExamId]);
 
+  // مؤقت الوقت لكل قسم (25 دقيقة)
   useEffect(() => {
     if (isFinished || isLocked) return;
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) return 0;
         const newTime = prev - 1;
-        localStorage.setItem(`qudurat_time_left_${activeExamId}`, newTime.toString());
+        localStorage.setItem(`qudurat_time_left_${activeExamId}_sec_${currentSectionIndex}`, newTime.toString());
         return newTime;
       });
     }, 1000);
     return () => clearInterval(timer);
-  }, [isFinished, isLocked, activeExamId]);
+  }, [isFinished, isLocked, activeExamId, currentSectionIndex]);
 
+  // عند انتهاء وقت القسم، الانتقال التلقائي للقسم التالي أو إنهاء الاختبار
   useEffect(() => {
     if (timeLeft === 0 && !isFinished) {
-      setIsFinished(true);
+      if (currentSectionIndex < TOTAL_SECTIONS - 1) {
+        const nextSec = currentSectionIndex + 1;
+        setCurrentSectionIndex(nextSec);
+        setCurrentQuestionIndex(0);
+        setTimeLeft(SECTION_TIME_SECONDS);
+        localStorage.setItem(`qudurat_time_left_${activeExamId}_sec_${nextSec}`, SECTION_TIME_SECONDS.toString());
+        alert(`⏰ انتهى وقت القسم ${currentSectionIndex + 1}! جاري الانتقال تلقائياً إلى القسم ${nextSec + 1}`);
+      } else {
+        setIsFinished(true);
+      }
     }
-  }, [timeLeft, isFinished]);
+  }, [timeLeft, currentSectionIndex, isFinished, activeExamId]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -179,7 +203,13 @@ function ExamContent() {
     return `${mins < 10 ? '0' : ''}${mins}:${secs < 10 ? '0' : ''}${secs}`;
   };
 
-  const currentQuestion = examQuestions[currentQuestionIndex] || examQuestions[0];
+  // استخراج أسئلة القسم الحالي فقط (25 سؤالاً) من الـ 125 الخاصة بهذا الاختبار
+  const currentSectionQuestions = examQuestions.slice(
+    currentSectionIndex * QUESTIONS_PER_SECTION,
+    (currentSectionIndex + 1) * QUESTIONS_PER_SECTION
+  );
+
+  const currentQuestion = currentSectionQuestions[currentQuestionIndex] || currentSectionQuestions[0];
 
   const handleSelectOption = (option: string) => {
     if (!currentQuestion) return;
@@ -187,10 +217,19 @@ function ExamContent() {
   };
 
   const handleNext = () => {
-    if (currentQuestionIndex < examQuestions.length - 1) {
+    if (currentQuestionIndex < currentSectionQuestions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
-      setIsFinished(true);
+      if (currentSectionIndex < TOTAL_SECTIONS - 1) {
+        const nextSec = currentSectionIndex + 1;
+        setCurrentSectionIndex(nextSec);
+        setCurrentQuestionIndex(0);
+        setTimeLeft(SECTION_TIME_SECONDS);
+        localStorage.setItem(`qudurat_time_left_${activeExamId}_sec_${nextSec}`, SECTION_TIME_SECONDS.toString());
+        alert(`🎉 أنهيت أسئلة القسم ${currentSectionIndex + 1}! جاري الانتقال للقسم ${nextSec + 1}`);
+      } else {
+        setIsFinished(true);
+      }
     }
   };
 
@@ -293,8 +332,8 @@ function ExamContent() {
         />
 
         <div className="bg-white p-8 rounded-2xl shadow-xl max-w-lg w-full text-center border border-gray-200">
-          <h1 className="text-3xl font-bold text-blue-900 mb-2">🎉 أنهيت الاختبار بنجاح!</h1>
-          <p className="text-gray-600 mb-6 text-sm">أكملت {correctAnswersCount} إجابة من أصل {TOTAL_QUESTIONS} سؤالاً.</p>
+          <h1 className="text-3xl font-bold text-blue-900 mb-2">🎉 أنهيت أقسام الاختبار بنجاح!</h1>
+          <p className="text-gray-600 mb-6 text-sm">أكملت {correctAnswersCount} إجابة من أصل 125 سؤالاً.</p>
           <div className="space-y-3">
             {hasNextExam && nextExam && (
               <div className={`p-4 rounded-xl border-2 transition-all flex justify-between items-center ${isNextLocked ? 'border-amber-300 bg-amber-50/50' : 'border-blue-200 bg-blue-50'}`}>
@@ -360,8 +399,8 @@ function ExamContent() {
           <div className="text-center md:text-left">
             <div className="bg-blue-50/70 border border-blue-100 px-3 py-1.5 rounded-xl">
               <span className="font-bold text-blue-900 text-xs md:text-sm block">{currentExam.title}</span>
-              {/* تم إزالة كلمة الأقسام وأصبح العداد يعرض رقم السؤال مباشرة بشكل نظيف */}
-              <span className="text-[10px] md:text-[11px] font-medium text-blue-700">السؤال {currentQuestionIndex + 1} من {TOTAL_QUESTIONS}</span>
+              {/* نظام الأقسام والأسئلة الدقيق */}
+              <span className="text-[10px] md:text-[11px] font-medium text-blue-700">القسم {currentSectionIndex + 1} من {TOTAL_SECTIONS} &nbsp;|&nbsp; السؤال {currentQuestionIndex + 1} من {QUESTIONS_PER_SECTION}</span>
             </div>
           </div>
         </div>
@@ -397,11 +436,11 @@ function ExamContent() {
         )}
 
         <div className="flex-shrink-0 flex justify-between items-center px-4 py-3 md:px-8 border-t border-gray-100 bg-gray-50/30">
-          <button onClick={handlePrev} disabled={currentQuestionIndex === 0} className={`px-5 py-2 rounded-xl font-bold text-sm ${currentQuestionIndex === 0 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-gray-200 text-gray-700 hover:bg-gray-300 cursor-pointer'}`}>
+          <button onClick={handlePrev} disabled={currentQuestionIndex === 0 && currentSectionIndex === 0} className={`px-5 py-2 rounded-xl font-bold text-sm ${currentQuestionIndex === 0 && currentSectionIndex === 0 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-gray-200 text-gray-700 hover:bg-gray-300 cursor-pointer'}`}>
             السابق
           </button>
           <button onClick={handleNext} className="px-6 py-2 rounded-xl font-bold text-sm bg-blue-600 hover:bg-blue-700 text-white shadow-md cursor-pointer">
-            {currentQuestionIndex === examQuestions.length - 1 ? 'إنهاء الاختبار' : 'التالي'}
+            {currentSectionIndex === TOTAL_SECTIONS - 1 && currentQuestionIndex === currentSectionQuestions.length - 1 ? 'إنهاء الاختبار' : 'التالي'}
           </button>
         </div>
       </main>
