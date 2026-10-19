@@ -287,7 +287,6 @@ function ExamContent() {
           <h1 className="text-2xl font-bold text-gray-800 mb-2">{currentExam.title} مغلق</h1>
           <p className="text-gray-600 mb-6 text-sm">هذا الاختبار مخصص للمشتركين فقط. استمتع بالوصول الكامل لجميع الاختبارات الـ 10!</p>
           <div className="space-y-3">
-            {/* تم استبدال الزر القديم برابط Lemon Squeezy الفعلي هنا */}
             <a href="https://enjazya.lemonsqueezy.com/checkout/buy/13f3f36f-c53b-4227-91c6-b556ae13aee2" target="_blank" rel="noopener noreferrer" className="block w-full text-center bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition-all shadow-md text-sm cursor-pointer">
               شراء باقة الاختبارات (الدفع الإلكتروني)
             </a>
@@ -374,9 +373,15 @@ function ExamContent() {
             <span className="text-blue-500 text-lg">✨</span>
             <span>أنت تختبر الآن في <span className="font-bold text-slate-800">{currentExam.title}</span> (نسخة مجانية)</span>
           </div>
-          <button onClick={() => setIsModalOpen(true)} className="flex items-center gap-1.5 bg-white border border-blue-200 text-blue-700 hover:bg-blue-50 hover:text-blue-800 font-bold px-3 py-1.5 rounded-lg transition-all shadow-sm cursor-pointer text-xs">
-            <span>🔑</span><span>أدخل كود التفعيل</span>
-          </button>
+          {/* تم إضافة زر الشراء الجديد هنا */}
+          <div className="flex items-center gap-2">
+            <a href="https://enjazya.lemonsqueezy.com/checkout/buy/13f3f36f-c53b-4227-91c6-b556ae13aee2" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 bg-blue-600 text-white hover:bg-blue-700 font-bold px-4 py-1.5 rounded-lg transition-all shadow-sm cursor-pointer text-xs">
+              <span>🛒</span><span>اشترِ الباقة الآن</span>
+            </a>
+            <button onClick={() => setIsModalOpen(true)} className="flex items-center gap-1.5 bg-white border border-blue-200 text-blue-700 hover:bg-blue-50 hover:text-blue-800 font-bold px-3 py-1.5 rounded-lg transition-all shadow-sm cursor-pointer text-xs">
+              <span>🔑</span><span>أدخل كود التفعيل</span>
+            </button>
+          </div>
         </div>
       )}
 
