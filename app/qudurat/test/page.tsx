@@ -231,18 +231,15 @@ function ExamContent() {
     if (currentQuestionIndex > 0) setCurrentQuestionIndex(currentQuestionIndex - 1);
   };
 
-  // وظيفة إعادة الاختبار
   const handleRestartExam = () => {
     if (confirm('هل أنت متأكد من رغبتك في إعادة الاختبار؟ سيتم مسح إجاباتك السابقة وبدء الاختبار من جديد.')) {
       localStorage.removeItem(`qudurat_section_${activeExamId}`);
       localStorage.removeItem(`qudurat_question_${activeExamId}`);
       localStorage.removeItem(`qudurat_answers_${activeExamId}`);
       localStorage.removeItem(`qudurat_finished_${activeExamId}`);
-      localStorage.removeItem(`qudurat_time_left_${activeExamId}_sec_0`);
-      localStorage.removeItem(`qudurat_time_left_${activeExamId}_sec_1`);
-      localStorage.removeItem(`qudurat_time_left_${activeExamId}_sec_2`);
-      localStorage.removeItem(`qudurat_time_left_${activeExamId}_sec_3`);
-      localStorage.removeItem(`qudurat_time_left_${activeExamId}_sec_4`);
+      for (let i = 0; i < TOTAL_SECTIONS; i++) {
+        localStorage.removeItem(`qudurat_time_left_${activeExamId}_sec_${i}`);
+      }
       window.location.reload();
     }
   };
@@ -322,7 +319,7 @@ function ExamContent() {
     );
   }
 
-  // شاشة النتيجة، المراجعة، والشرح وإعادة الاختبار
+  // شاشة النتيجة، المراجعة، والشرح وزر الانتقال للاختبار التالي
   if (isFinished) {
     let correctCount = 0;
     let wrongCount = 0;
@@ -389,17 +386,31 @@ function ExamContent() {
               </div>
             </div>
 
-            {/* الأزرار (إعادة الاختبار، الانتقال للتالي، العودة للرئيسية) */}
-            <div className="flex flex-col sm:flex-row gap-3 justify-center max-w-md mx-auto">
+            {/* الأزرار (إعادة الاختبار، الانتقال للاختبار التالي، لوحة الاختبارات) */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-xl mx-auto">
               <button 
                 onClick={handleRestartExam}
-                className="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 px-6 rounded-xl transition-all shadow-sm cursor-pointer flex items-center justify-center gap-2 text-sm"
+                className="bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 px-4 rounded-xl transition-all shadow-sm cursor-pointer flex items-center justify-center gap-2 text-xs md:text-sm"
               >
                 <span>🔄</span> إعادة الاختبار
               </button>
+
+              {hasNextExam && nextExam ? (
+                <button 
+                  onClick={() => handleSwitchExam(nextExam.id)}
+                  className={`font-bold py-3 px-4 rounded-xl transition-all shadow-sm cursor-pointer flex items-center justify-center gap-2 text-xs md:text-sm text-white ${isNextLocked ? 'bg-amber-600 hover:bg-amber-700' : 'bg-blue-600 hover:bg-blue-700'}`}
+                >
+                  <span>➡️</span> {isNextLocked ? 'اشترك للاختبار التالي' : 'الاختبار التالي'}
+                </button>
+              ) : (
+                <div className="bg-gray-100 text-gray-400 font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-xs md:text-sm">
+                  <span>🏁</span> هذا الاختبار الأخير
+                </div>
+              )}
+
               <a 
                 href="/qudurat/exams" 
-                className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 px-6 rounded-xl transition-all text-center text-sm cursor-pointer flex items-center justify-center gap-2"
+                className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 px-4 rounded-xl transition-all text-center text-xs md:text-sm cursor-pointer flex items-center justify-center gap-2 shadow-sm"
               >
                 <span>🗂️</span> لوحة الاختبارات
               </a>
@@ -426,7 +437,6 @@ function ExamContent() {
 
                   <h3 className="font-bold text-gray-900 text-base md:text-lg leading-relaxed">{q.text}</h3>
 
-                  {/* الخيارات */}
                   <div className="space-y-2">
                     {q.options.map((option: string, optIdx: number) => {
                       const isStudentChoice = studentAnswer === option;
@@ -451,7 +461,6 @@ function ExamContent() {
                     })}
                   </div>
 
-                  {/* حقل الشرح التفصيلي */}
                   <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 text-right">
                     <p className="text-xs font-bold text-blue-900 mb-1">💡 الشرح والإيضاح:</p>
                     <p className="text-xs text-blue-800 leading-relaxed">
