@@ -1,61 +1,47 @@
 // app/api/activate/route.ts
 import { NextResponse } from 'next/server';
 
-export async function POST(req: Request) {
+export async function POST(request: Request) {
   try {
-    const body = await req.json();
-    const { code, deviceId } = body;
+    const { code, deviceId } = await request.json();
 
-    if (!code || !code.trim()) {
-      return NextResponse.json({ success: false, message: 'الرجاء إدخال كود التفعيل.' }, { status: 400 });
+    if (!code || !deviceId) {
+      return NextResponse.json({ success: false, message: 'الرجاء إدخال كود التفعيل وبصمة الجهاز.' }, { status: 400 });
     }
 
-    const cleanCode = code.trim().toUpperCase();
+    const licenseKey = code.trim();
 
-    // التحقق من أن الكود يتطابق مع هيكل مفاتيح Lemon Squeezy الصحيحة (يحتوي على شرطات طولية أو أحرف وأرقام معيارية وطوله مناسب)
-    // مفاتيح Lemon Squeezy عادة تتكون من مقاطع شرطية مثل XXXXXXXX-XXXX-XXXX-...
-    const isLemonSqueezyFormat = cleanCode.length >= 15 && cleanCode.includes('-');
-
-    if (!isLemonSqueezyFormat) {
-      return NextResponse.json({ success: false, message: 'الكود المدخل غير صحيح. تأكد من نسخه بشكل دقيق من بريدك الإلكتروني.' }, { status: 400 });
-    }
-
-    // اتصال مع قاعدة بيانات Upstash للتأكد من أن الكود لم يتم استخدامه مسبقاً على جهاز آخر
-    const kvUrl = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
-    const kvToken = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
-
-    if (kvUrl && kvToken) {
-      try {
-        // فحص ما إذا كان الكود مستخدماً مسبقاً
-        const checkRes = await fetch(`${kvUrl}/get/used_code:${cleanCode}`, {
-          headers: { 'Authorization': `Bearer ${kvToken}` }
-        });
-        const checkData = await checkRes.json();
-        
-        if (checkData.result) {
-          const registeredDevice = checkData.result;
-          if (registeredDevice !== deviceId) {
-            return NextResponse.json({ success: false, message: 'هذا الكود مستخدم بالفعل على جهاز آخر ولا يمكن تكراره.' }, { status: 400 });
-          }
-        } else {
-          // تسجيل الكود بأنه تم استخدامه على هذا الجهاز لمنع تكراره
-          await fetch(`${kvUrl}/set/used_code:${cleanCode}/${deviceId}`, {
-            method: 'POST',
-            headers: { 'Authorization': `Bearer ${kvToken}` }
-          });
-        }
-      } catch (err) {
-        // في حال حدوث خطأ مؤقت في قاعدة البيانات، نسمح بمرور الكود سلساً لضمان راحة الطالب وعدم تعطيله
-        console.log('KV check bypassed smoothly');
-      }
-    }
-
-    return NextResponse.json({
-      success: true,
-      message: '🎉 تم تفعيل الاشتراك بنجاح! استمتع بالوصول الكامل لجميع الاختبارات.'
+    // إرسال طلب تحقق وتفعيل إلى API الخاص بـ Lemon Squeezy مباشرة
+    const response = await fetch('https://api.lemonsqueezy.com/v1/licenses/activate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Accept': 'application/json',
+      },
+      body: new URLSearchParams({
+        license_key: licenseKey,
+        instance_id: deviceId, // بصمة جهاز الطالب لمنع تكراره من متجر Lemon Squeezy
+      }),
     });
 
+    const data = await response.json();
+
+    if (data.activated) {
+      // تم التفعيل بنجاح وربط المفتاح بهذا الجهاز فقط
+      return NextResponse.json({ 
+        success: true, 
+        message: '🎉 تم تفعيل الاشتراك بنجاح! استمتع بالوصول الكامل لجميع الاختبارات.' 
+      });
+    } else {
+      // المفتاح خاطئ أو مستخدم مسبقاً على جهاز آخر ووصل للحد الأقصى المسموح (1)
+      return NextResponse.json({ 
+        success: false, 
+        message: data.error || 'عذراً، كود التفعيل غير صحيح أو مستخدم بالفعل على جهاز آخر.' 
+      }, { status: 400 });
+    }
+
   } catch (error) {
-    return NextResponse.json({ success: false, message: 'حدث خطأ في النظام، يحاول مرة أخرى.' }, { status: 500 });
+    console.error('Lemon Squeezy Activation Error:', error);
+    return NextResponse.json({ success: false, message: 'حدث خطأ أثناء الاتصال ببوابة الدفع، حاول مرة أخرى.' }, { status: 500 });
   }
 }
