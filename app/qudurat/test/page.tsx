@@ -9,7 +9,7 @@ import { EXAMS_DATA } from '../lib/examsConfig';
 
 const TOTAL_SECTIONS = 5;
 const QUESTIONS_PER_SECTION = 25;
-const SECTION_TIME_SECONDS = 1500; // 25 دقيقة لكل قسم (25 * 60)
+const SECTION_TIME_SECONDS = 1500; // 25 دقيقة لكل قسم
 
 function ActivationModalComponent({
   isOpen,
@@ -100,11 +100,9 @@ function ExamContent() {
     return false;
   });
 
-  // جلب بيانات الاختبار الحالي بناءً على رقم الـ URL لضمان اختلاف الأسئلة لكل اختبار
   const currentExam = EXAMS_DATA.find((e) => e.id === urlExamId) || EXAMS_DATA[0];
   const isLocked = !currentExam.isFree && !isUserSubscribed;
 
-  // قص الـ 125 سؤالاً الخاصة بهذا الاختبار فقط من ملف الـ JSON
   const examQuestions = questionsData.slice(currentExam.startIndex, currentExam.endIndex);
 
   const [currentSectionIndex, setCurrentSectionIndex] = useState<number>(() => {
@@ -143,7 +141,6 @@ function ExamContent() {
   const [activationError, setActivationError] = useState('');
   const [isActivating, setIsActivating] = useState(false);
 
-  // تحديث الحالات فوراً عند الانتقال لاختبار آخر عبر الـ URL
   useEffect(() => {
     if (urlExamId !== activeExamId) {
       setActiveExamId(urlExamId);
@@ -167,7 +164,6 @@ function ExamContent() {
   useEffect(() => localStorage.setItem(`qudurat_answers_${activeExamId}`, JSON.stringify(selectedAnswers)), [selectedAnswers, activeExamId]);
   useEffect(() => localStorage.setItem(`qudurat_finished_${activeExamId}`, isFinished.toString()), [isFinished, activeExamId]);
 
-  // مؤقت الوقت لكل قسم (25 دقيقة)
   useEffect(() => {
     if (isFinished || isLocked) return;
     const timer = setInterval(() => {
@@ -181,7 +177,6 @@ function ExamContent() {
     return () => clearInterval(timer);
   }, [isFinished, isLocked, activeExamId, currentSectionIndex]);
 
-  // عند انتهاء وقت القسم، الانتقال التلقائي للقسم التالي أو إنهاء الاختبار
   useEffect(() => {
     if (timeLeft === 0 && !isFinished) {
       if (currentSectionIndex < TOTAL_SECTIONS - 1) {
@@ -203,7 +198,6 @@ function ExamContent() {
     return `${mins < 10 ? '0' : ''}${mins}:${secs < 10 ? '0' : ''}${secs}`;
   };
 
-  // استخراج أسئلة القسم الحالي فقط (25 سؤالاً) من الـ 125 الخاصة بهذا الاختبار
   const currentSectionQuestions = examQuestions.slice(
     currentSectionIndex * QUESTIONS_PER_SECTION,
     (currentSectionIndex + 1) * QUESTIONS_PER_SECTION
@@ -312,15 +306,33 @@ function ExamContent() {
     );
   }
 
+  // شاشة حساب النتيجة وإظهارها للطالب بعد الإنهاء
   if (isFinished) {
+    let correctCount = 0;
+    let wrongCount = 0;
+    let unansweredCount = 0;
+
+    examQuestions.forEach((q: any) => {
+      const studentAnswer = selectedAnswers[q.id];
+      if (!studentAnswer) {
+        unansweredCount++;
+      } else if (studentAnswer === q.correctAnswer) {
+        correctCount++;
+      } else {
+        wrongCount++;
+      }
+    });
+
+    const totalQuestions = examQuestions.length;
+    const percentage = Math.round((correctCount / totalQuestions) * 100);
+
     const nextExamId = activeExamId + 1;
     const hasNextExam = nextExamId <= 10;
     const nextExam = hasNextExam ? EXAMS_DATA.find(e => e.id === nextExamId) : null;
     const isNextLocked = nextExam && !nextExam.isFree && !isUserSubscribed;
-    const correctAnswersCount = Object.keys(selectedAnswers).length;
 
     return (
-      <div className="h-[100dvh] overflow-y-auto bg-gray-100 flex items-center justify-center p-6" dir="rtl">
+      <div className="h-[100dvh] overflow-y-auto bg-gray-50 flex items-center justify-center p-4 md:p-6" dir="rtl">
         <ActivationModalComponent 
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
@@ -331,22 +343,50 @@ function ExamContent() {
           isActivating={isActivating}
         />
 
-        <div className="bg-white p-8 rounded-2xl shadow-xl max-w-lg w-full text-center border border-gray-200">
-          <h1 className="text-3xl font-bold text-blue-900 mb-2">🎉 أنهيت أقسام الاختبار بنجاح!</h1>
-          <p className="text-gray-600 mb-6 text-sm">أكملت {correctAnswersCount} إجابة من أصل 125 سؤالاً.</p>
+        <div className="bg-white p-6 md:p-8 rounded-3xl shadow-xl max-w-lg w-full text-center border border-gray-100">
+          <div className="text-5xl mb-3">🏆</div>
+          <h1 className="text-2xl md:text-3xl font-extrabold text-blue-900 mb-1">نتيجتك في {currentExam.title}</h1>
+          <p className="text-gray-500 text-xs md:text-sm mb-6">لقد أنهيت جميع الأقسام بنجاح تام!</p>
+
+          {/* صندوق النسبة المئوية الكبرى */}
+          <div className="bg-blue-50/70 border border-blue-100 rounded-2xl p-6 mb-6">
+            <span className="text-4xl md:text-5xl font-black text-blue-700 tracking-wider block mb-1">{percentage}%</span>
+            <span className="text-xs font-bold text-blue-900">
+              {percentage >= 85 ? '🌟 أداء ممتاز جداً!' : percentage >= 70 ? '👍 أداء جيد جداً، استمر!' : '💪 تحتاج لبعض التركيز والمراجعة!'}
+            </span>
+          </div>
+
+          {/* تفاصيل الإجابات */}
+          <div className="grid grid-cols-3 gap-3 mb-6 text-right">
+            <div className="bg-green-50 border border-green-200 rounded-2xl p-3 text-center">
+              <span className="block text-green-700 font-black text-xl">{correctCount}</span>
+              <span className="text-[11px] text-green-800 font-bold">إجابات صحيحة</span>
+            </div>
+            <div className="bg-red-50 border border-red-200 rounded-2xl p-3 text-center">
+              <span className="block text-red-700 font-black text-xl">{wrongCount}</span>
+              <span className="text-[11px] text-red-800 font-bold">إجابات خاطئة</span>
+            </div>
+            <div className="bg-gray-50 border border-gray-200 rounded-2xl p-3 text-center">
+              <span className="block text-gray-700 font-black text-xl">{unansweredCount}</span>
+              <span className="text-[11px] text-gray-800 font-bold">أسئلة متروكة</span>
+            </div>
+          </div>
+
           <div className="space-y-3">
             {hasNextExam && nextExam && (
-              <div className={`p-4 rounded-xl border-2 transition-all flex justify-between items-center ${isNextLocked ? 'border-amber-300 bg-amber-50/50' : 'border-blue-200 bg-blue-50'}`}>
+              <div className={`p-4 rounded-2xl border-2 transition-all flex justify-between items-center ${isNextLocked ? 'border-amber-300 bg-amber-50/50' : 'border-blue-200 bg-blue-50'}`}>
                 <div className="text-right">
                   <h3 className="font-bold text-gray-800 text-sm">{nextExam.title} {isNextLocked ? '🔒' : ''}</h3>
                   <p className="text-xs text-gray-500">{nextExam.description}</p>
                 </div>
-                <button onClick={() => handleSwitchExam(nextExam.id)} className={`px-4 py-2 rounded-lg font-bold text-xs text-white transition-all cursor-pointer ${isNextLocked ? 'bg-amber-600 hover:bg-amber-700' : 'bg-blue-600 hover:bg-blue-700'}`}>
+                <button onClick={() => handleSwitchExam(nextExam.id)} className={`px-4 py-2.5 rounded-xl font-bold text-xs text-white transition-all cursor-pointer ${isNextLocked ? 'bg-amber-600 hover:bg-amber-700' : 'bg-blue-600 hover:bg-blue-700'}`}>
                   {isNextLocked ? 'اشترك لفتحه' : 'ابدأ الآن'}
                 </button>
               </div>
             )}
-            <a href="/qudurat/exams" className="block w-full bg-gray-100 text-gray-700 font-bold py-3 rounded-xl hover:bg-gray-200 transition-all text-center text-sm cursor-pointer">العودة لوحة الاختبارات</a>
+            <a href="/qudurat/exams" className="block w-full bg-gray-100 text-gray-700 font-bold py-3.5 rounded-xl hover:bg-gray-200 transition-all text-center text-sm cursor-pointer shadow-sm">
+              العودة لوحة الاختبارات الرئيسية
+            </a>
           </div>
         </div>
       </div>
@@ -399,7 +439,6 @@ function ExamContent() {
           <div className="text-center md:text-left">
             <div className="bg-blue-50/70 border border-blue-100 px-3 py-1.5 rounded-xl">
               <span className="font-bold text-blue-900 text-xs md:text-sm block">{currentExam.title}</span>
-              {/* نظام الأقسام والأسئلة الدقيق */}
               <span className="text-[10px] md:text-[11px] font-medium text-blue-700">القسم {currentSectionIndex + 1} من {TOTAL_SECTIONS} &nbsp;|&nbsp; السؤال {currentQuestionIndex + 1} من {QUESTIONS_PER_SECTION}</span>
             </div>
           </div>
