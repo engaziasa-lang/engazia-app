@@ -38,7 +38,7 @@ function ActivationModalComponent({
           <button onClick={onClose} disabled={isActivating} className="text-gray-400 hover:text-gray-600 font-bold text-2xl cursor-pointer leading-none">&times;</button>
         </div>
         <p className="text-gray-600 text-sm mb-4 leading-relaxed">
-          أدخل كود التفعيل الذي وصلك عبر البريد الإلكتروني أو رسالة الجوال لفتح جميع الاختبارات. <br/>
+          أدخل كود التفعيل الذي وصلك عبر البريد الإلكتروني لفتح جميع الاختبارات. <br/>
           <span className="text-xs text-red-500 font-medium mt-1 inline-block">ملاحظة: سيتم ربط الكود بهذا الجهاز فقط.</span>
         </p>
         
@@ -367,7 +367,6 @@ function ExamContent() {
         isActivating={isActivating}
       />
 
-      {/* الشريط العلوي تم تحديثه ليشمل زر جميع الاختبارات للنسخة المجانية والمدفوعة */}
       {!isUserSubscribed ? (
         <div className="flex-shrink-0 max-w-5xl mx-auto w-full mb-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 md:px-4 flex flex-col sm:flex-row justify-between items-center gap-2 md:gap-3 text-xs md:text-sm shadow-sm transition-all hover:border-slate-300">
           <div className="text-slate-600 font-medium flex items-center gap-2 text-center sm:text-right">
