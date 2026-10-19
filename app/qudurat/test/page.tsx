@@ -369,11 +369,17 @@ function ExamContent() {
 
       {!isUserSubscribed && (
         <div className="flex-shrink-0 max-w-5xl mx-auto w-full mb-2 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 flex flex-col sm:flex-row justify-between items-center gap-2 text-xs md:text-sm shadow-sm transition-all hover:border-slate-300">
+          {/* الجملة التسويقية الجديدة هنا */}
           <div className="text-slate-600 font-medium flex items-center gap-2">
-            <span className="text-blue-500 text-lg">✨</span>
-            <span>أنت تختبر الآن في <span className="font-bold text-slate-800">{currentExam.title}</span> (نسخة مجانية)</span>
+            <span className="text-blue-500 text-lg text-blink">✨</span>
+            <span>
+              أنت في <span className="font-bold text-slate-800">{currentExam.title}</span> (مجاني). 
+              <span className="hidden sm:inline text-blue-700 font-bold mr-2 bg-blue-100 px-2 py-0.5 rounded-md">
+                افتح 9 اختبارات إضافية الآن! 🚀
+              </span>
+            </span>
           </div>
-          {/* تم إضافة زر الشراء الجديد هنا */}
+          
           <div className="flex items-center gap-2">
             <a href="https://enjazya.lemonsqueezy.com/checkout/buy/13f3f36f-c53b-4227-91c6-b556ae13aee2" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 bg-blue-600 text-white hover:bg-blue-700 font-bold px-4 py-1.5 rounded-lg transition-all shadow-sm cursor-pointer text-xs">
               <span>🛒</span><span>اشترِ الباقة الآن</span>
