@@ -7,8 +7,7 @@ import { useSearchParams } from 'next/navigation';
 import questionsData from '../data/questions.json';
 import { EXAMS_DATA } from '../lib/examsConfig';
 
-const TOTAL_SECTIONS = 5;
-const QUESTIONS_PER_SECTION = 25;
+const TOTAL_QUESTIONS = 125;
 
 function ActivationModalComponent({
   isOpen,
@@ -99,17 +98,10 @@ function ExamContent() {
     return false;
   });
 
-  // جلب بيانات الاختبار الحالي مباشرة من ملف الإعدادات بناءً على الـ URL
   const currentExam = EXAMS_DATA.find((e) => e.id === urlExamId) || EXAMS_DATA[0];
   const isLocked = !currentExam.isFree && !isUserSubscribed;
 
-  // جلب نطاق الأسئلة بدقة فائقة لكل اختبار (125 سؤالاً لكل اختبار)
   const examQuestions = questionsData.slice(currentExam.startIndex, currentExam.endIndex);
-
-  const [currentSectionIndex, setCurrentSectionIndex] = useState<number>(() => {
-    if (typeof window !== 'undefined') return Number(localStorage.getItem(`qudurat_section_${urlExamId}`)) || 0;
-    return 0;
-  });
 
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(() => {
     if (typeof window !== 'undefined') return Number(localStorage.getItem(`qudurat_question_${urlExamId}`)) || 0;
@@ -132,9 +124,9 @@ function ExamContent() {
   const [timeLeft, setTimeLeft] = useState<number>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem(`qudurat_time_left_${urlExamId}`);
-      return saved ? Number(saved) : 1500;
+      return saved ? Number(saved) : 7500; // وقت إجمالي للاختبار
     }
-    return 1500;
+    return 7500;
   });
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -142,17 +134,14 @@ function ExamContent() {
   const [activationError, setActivationError] = useState('');
   const [isActivating, setIsActivating] = useState(false);
 
-  // تحديث الحالات فوراً عند الانتقال بين الاختبارات المختلفة عبر الـ URL
   useEffect(() => {
     if (urlExamId !== activeExamId) {
       setActiveExamId(urlExamId);
-      const savedSec = Number(localStorage.getItem(`qudurat_section_${urlExamId}`)) || 0;
       const savedQ = Number(localStorage.getItem(`qudurat_question_${urlExamId}`)) || 0;
       const savedAns = localStorage.getItem(`qudurat_answers_${urlExamId}`);
       const savedFin = localStorage.getItem(`qudurat_finished_${urlExamId}`) === 'true';
-      const savedTime = Number(localStorage.getItem(`qudurat_time_left_${urlExamId}`)) || 1500;
+      const savedTime = Number(localStorage.getItem(`qudurat_time_left_${urlExamId}`)) || 7500;
 
-      setCurrentSectionIndex(savedSec);
       setCurrentQuestionIndex(savedQ);
       setSelectedAnswers(savedAns ? JSON.parse(savedAns) : {});
       setIsFinished(savedFin);
@@ -161,7 +150,6 @@ function ExamContent() {
   }, [urlExamId, activeExamId]);
 
   useEffect(() => localStorage.setItem('qudurat_subscribed', isUserSubscribed.toString()), [isUserSubscribed]);
-  useEffect(() => localStorage.setItem(`qudurat_section_${activeExamId}`, currentSectionIndex.toString()), [currentSectionIndex, activeExamId]);
   useEffect(() => localStorage.setItem(`qudurat_question_${activeExamId}`, currentQuestionIndex.toString()), [currentQuestionIndex, activeExamId]);
   useEffect(() => localStorage.setItem(`qudurat_answers_${activeExamId}`, JSON.stringify(selectedAnswers)), [selectedAnswers, activeExamId]);
   useEffect(() => localStorage.setItem(`qudurat_finished_${activeExamId}`, isFinished.toString()), [isFinished, activeExamId]);
@@ -181,17 +169,9 @@ function ExamContent() {
 
   useEffect(() => {
     if (timeLeft === 0 && !isFinished) {
-      if (currentSectionIndex < TOTAL_SECTIONS - 1) {
-        setCurrentSectionIndex((prev) => prev + 1);
-        setCurrentQuestionIndex(0);
-        setTimeLeft(1500);
-        localStorage.setItem(`qudurat_time_left_${activeExamId}`, '1500');
-        alert(`🎉 انتهى وقت القسم ${currentSectionIndex + 1}! جاري الانتقال للقسم ${currentSectionIndex + 2}`);
-      } else {
-        setIsFinished(true);
-      }
+      setIsFinished(true);
     }
-  }, [timeLeft, currentSectionIndex, isFinished, activeExamId]);
+  }, [timeLeft, isFinished]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -199,12 +179,7 @@ function ExamContent() {
     return `${mins < 10 ? '0' : ''}${mins}:${secs < 10 ? '0' : ''}${secs}`;
   };
 
-  const currentSectionQuestions = examQuestions.slice(
-    currentSectionIndex * QUESTIONS_PER_SECTION,
-    (currentSectionIndex + 1) * QUESTIONS_PER_SECTION
-  );
-
-  const currentQuestion = currentSectionQuestions[currentQuestionIndex] || currentSectionQuestions[0];
+  const currentQuestion = examQuestions[currentQuestionIndex] || examQuestions[0];
 
   const handleSelectOption = (option: string) => {
     if (!currentQuestion) return;
@@ -212,18 +187,10 @@ function ExamContent() {
   };
 
   const handleNext = () => {
-    if (currentQuestionIndex < currentSectionQuestions.length - 1) {
+    if (currentQuestionIndex < examQuestions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
-      if (currentSectionIndex < TOTAL_SECTIONS - 1) {
-        setCurrentSectionIndex(currentSectionIndex + 1);
-        setCurrentQuestionIndex(0);
-        setTimeLeft(1500);
-        localStorage.setItem(`qudurat_time_left_${activeExamId}`, '1500');
-        alert(`🎉 أنهيت أسئلة القسم ${currentSectionIndex + 1}! جاري الانتقال للقسم ${currentSectionIndex + 2}`);
-      } else {
-        setIsFinished(true);
-      }
+      setIsFinished(true);
     }
   };
 
@@ -289,7 +256,7 @@ function ExamContent() {
         <div className="bg-white p-8 rounded-2xl shadow-xl max-w-lg w-full text-center border-2 border-yellow-200">
           <div className="text-5xl mb-4">🔒</div>
           <h1 className="text-2xl font-bold text-gray-800 mb-2">{currentExam.title} مغلق</h1>
-          <p className="text-gray-600 mb-6 text-sm">هذا الاختبار مخصص للمشتركين فقط. استمتع بالوصول الكامل لجميع الاختبارات الـ 10!</p>
+          <p className="text-gray-600 mb-6 text-sm">هذا الاختبار مخصص للمشتركين فقط. استمتع بالوصول الكامل لجميع الاختبارات!</p>
           <div className="space-y-3">
             <a href="https://enjazya.lemonsqueezy.com/checkout/buy/13f3f36f-c53b-4227-91c6-b556ae13aee2" target="_blank" rel="noopener noreferrer" className="block w-full text-center bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition-all shadow-md text-sm cursor-pointer">
               شراء باقة الاختبارات (الدفع الإلكتروني)
@@ -326,8 +293,8 @@ function ExamContent() {
         />
 
         <div className="bg-white p-8 rounded-2xl shadow-xl max-w-lg w-full text-center border border-gray-200">
-          <h1 className="text-3xl font-bold text-blue-900 mb-2">🎉 أنهيت أقسام الاختبار بنجاح!</h1>
-          <p className="text-gray-600 mb-6 text-sm">أكملت {correctAnswersCount} إجابة من أصل 125 سؤالاً.</p>
+          <h1 className="text-3xl font-bold text-blue-900 mb-2">🎉 أنهيت الاختبار بنجاح!</h1>
+          <p className="text-gray-600 mb-6 text-sm">أكملت {correctAnswersCount} إجابة من أصل {TOTAL_QUESTIONS} سؤالاً.</p>
           <div className="space-y-3">
             {hasNextExam && nextExam && (
               <div className={`p-4 rounded-xl border-2 transition-all flex justify-between items-center ${isNextLocked ? 'border-amber-300 bg-amber-50/50' : 'border-blue-200 bg-blue-50'}`}>
@@ -393,7 +360,8 @@ function ExamContent() {
           <div className="text-center md:text-left">
             <div className="bg-blue-50/70 border border-blue-100 px-3 py-1.5 rounded-xl">
               <span className="font-bold text-blue-900 text-xs md:text-sm block">{currentExam.title}</span>
-              <span className="text-[10px] md:text-[11px] font-medium text-blue-700">القسم {currentSectionIndex + 1} من {TOTAL_SECTIONS} &nbsp;|&nbsp; السؤال {currentQuestionIndex + 1} من {QUESTIONS_PER_SECTION}</span>
+              {/* تم إزالة كلمة الأقسام وأصبح العداد يعرض رقم السؤال مباشرة بشكل نظيف */}
+              <span className="text-[10px] md:text-[11px] font-medium text-blue-700">السؤال {currentQuestionIndex + 1} من {TOTAL_QUESTIONS}</span>
             </div>
           </div>
         </div>
@@ -429,11 +397,11 @@ function ExamContent() {
         )}
 
         <div className="flex-shrink-0 flex justify-between items-center px-4 py-3 md:px-8 border-t border-gray-100 bg-gray-50/30">
-          <button onClick={handlePrev} disabled={currentQuestionIndex === 0 && currentSectionIndex === 0} className={`px-5 py-2 rounded-xl font-bold text-sm ${currentQuestionIndex === 0 && currentSectionIndex === 0 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-gray-200 text-gray-700 hover:bg-gray-300 cursor-pointer'}`}>
+          <button onClick={handlePrev} disabled={currentQuestionIndex === 0} className={`px-5 py-2 rounded-xl font-bold text-sm ${currentQuestionIndex === 0 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-gray-200 text-gray-700 hover:bg-gray-300 cursor-pointer'}`}>
             السابق
           </button>
           <button onClick={handleNext} className="px-6 py-2 rounded-xl font-bold text-sm bg-blue-600 hover:bg-blue-700 text-white shadow-md cursor-pointer">
-            {currentSectionIndex === TOTAL_SECTIONS - 1 && currentQuestionIndex === currentSectionQuestions.length - 1 ? 'إنهاء الاختبار' : 'التالي'}
+            {currentQuestionIndex === examQuestions.length - 1 ? 'إنهاء الاختبار' : 'التالي'}
           </button>
         </div>
       </main>
