@@ -10,7 +10,6 @@ import { EXAMS_DATA } from '../lib/examsConfig';
 const TOTAL_SECTIONS = 5;
 const QUESTIONS_PER_SECTION = 25;
 
-// مكون نافذة التفعيل المستقل
 function ActivationModalComponent({
   isOpen,
   onClose,
@@ -91,11 +90,8 @@ function ExamContent() {
     return '';
   });
 
+  // جعل رقم الاختبار المستمد من الـ URL هو الأساس لضمان استقلالية كل مسار اختبار
   const [activeExamId, setActiveExamId] = useState<number>(() => {
-    if (typeof window !== 'undefined') {
-      const savedExamId = localStorage.getItem('qudurat_active_exam');
-      return savedExamId ? Number(savedExamId) : urlExamId;
-    }
     return urlExamId;
   });
 
@@ -107,31 +103,31 @@ function ExamContent() {
   });
 
   const [currentSectionIndex, setCurrentSectionIndex] = useState<number>(() => {
-    if (typeof window !== 'undefined') return Number(localStorage.getItem('qudurat_section')) || 0;
+    if (typeof window !== 'undefined') return Number(localStorage.getItem(`qudurat_section_${urlExamId}`)) || 0;
     return 0;
   });
 
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(() => {
-    if (typeof window !== 'undefined') return Number(localStorage.getItem('qudurat_question')) || 0;
+    if (typeof window !== 'undefined') return Number(localStorage.getItem(`qudurat_question_${urlExamId}`)) || 0;
     return 0;
   });
 
   const [selectedAnswers, setSelectedAnswers] = useState<{ [key: number]: string }>(() => {
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('qudurat_answers');
+      const saved = localStorage.getItem(`qudurat_answers_${urlExamId}`);
       return saved ? JSON.parse(saved) : {};
     }
     return {};
   });
 
   const [isFinished, setIsFinished] = useState<boolean>(() => {
-    if (typeof window !== 'undefined') return localStorage.getItem('qudurat_finished') === 'true';
+    if (typeof window !== 'undefined') return localStorage.getItem(`qudurat_finished_${urlExamId}`) === 'true';
     return false;
   });
 
   const [timeLeft, setTimeLeft] = useState<number>(() => {
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('qudurat_time_left');
+      const saved = localStorage.getItem(`qudurat_time_left_${urlExamId}`);
       return saved ? Number(saved) : 1500;
     }
     return 1500;
@@ -142,12 +138,30 @@ function ExamContent() {
   const [activationError, setActivationError] = useState('');
   const [isActivating, setIsActivating] = useState(false);
 
+  // تحديث الاختبار إذا تغير الـ URL مباشرة
+  useEffect(() => {
+    if (urlExamId && urlExamId !== activeExamId) {
+      setActiveExamId(urlExamId);
+      const savedSec = Number(localStorage.getItem(`qudurat_section_${urlExamId}`)) || 0;
+      const savedQ = Number(localStorage.getItem(`qudurat_question_${urlExamId}`)) || 0;
+      const savedAns = localStorage.getItem(`qudurat_answers_${urlExamId}`);
+      const savedFin = localStorage.getItem(`qudurat_finished_${urlExamId}`) === 'true';
+      const savedTime = Number(localStorage.getItem(`qudurat_time_left_${urlExamId}`)) || 1500;
+
+      setCurrentSectionIndex(savedSec);
+      setCurrentQuestionIndex(savedQ);
+      setSelectedAnswers(savedAns ? JSON.parse(savedAns) : {});
+      setIsFinished(savedFin);
+      setTimeLeft(savedTime);
+    }
+  }, [urlExamId]);
+
   useEffect(() => localStorage.setItem('qudurat_active_exam', activeExamId.toString()), [activeExamId]);
   useEffect(() => localStorage.setItem('qudurat_subscribed', isUserSubscribed.toString()), [isUserSubscribed]);
-  useEffect(() => localStorage.setItem('qudurat_section', currentSectionIndex.toString()), [currentSectionIndex]);
-  useEffect(() => localStorage.setItem('qudurat_question', currentQuestionIndex.toString()), [currentQuestionIndex]);
-  useEffect(() => localStorage.setItem('qudurat_answers', JSON.stringify(selectedAnswers)), [selectedAnswers]);
-  useEffect(() => localStorage.setItem('qudurat_finished', isFinished.toString()), [isFinished]);
+  useEffect(() => localStorage.setItem(`qudurat_section_${activeExamId}`, currentSectionIndex.toString()), [currentSectionIndex, activeExamId]);
+  useEffect(() => localStorage.setItem(`qudurat_question_${activeExamId}`, currentQuestionIndex.toString()), [currentQuestionIndex, activeExamId]);
+  useEffect(() => localStorage.setItem(`qudurat_answers_${activeExamId}`, JSON.stringify(selectedAnswers)), [selectedAnswers, activeExamId]);
+  useEffect(() => localStorage.setItem(`qudurat_finished_${activeExamId}`, isFinished.toString()), [isFinished, activeExamId]);
 
   const currentExam = EXAMS_DATA.find((e) => e.id === activeExamId) || EXAMS_DATA[0];
   const isLocked = !currentExam.isFree && !isUserSubscribed;
@@ -159,12 +173,12 @@ function ExamContent() {
       setTimeLeft((prev) => {
         if (prev <= 1) return 0;
         const newTime = prev - 1;
-        localStorage.setItem('qudurat_time_left', newTime.toString());
+        localStorage.setItem(`qudurat_time_left_${activeExamId}`, newTime.toString());
         return newTime;
       });
     }, 1000);
     return () => clearInterval(timer);
-  }, [isFinished, isLocked]);
+  }, [isFinished, isLocked, activeExamId]);
 
   useEffect(() => {
     if (timeLeft === 0 && !isFinished) {
@@ -172,13 +186,13 @@ function ExamContent() {
         setCurrentSectionIndex((prev) => prev + 1);
         setCurrentQuestionIndex(0);
         setTimeLeft(1500);
-        localStorage.setItem('qudurat_time_left', '1500');
+        localStorage.setItem(`qudurat_time_left_${activeExamId}`, '1500');
         alert(`🎉 انتهى وقت القسم ${currentSectionIndex + 1}! جاري الانتقال للقسم ${currentSectionIndex + 2}`);
       } else {
         setIsFinished(true);
       }
     }
-  }, [timeLeft, currentSectionIndex, isFinished]);
+  }, [timeLeft, currentSectionIndex, isFinished, activeExamId]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -205,7 +219,7 @@ function ExamContent() {
         setCurrentSectionIndex(currentSectionIndex + 1);
         setCurrentQuestionIndex(0);
         setTimeLeft(1500);
-        localStorage.setItem('qudurat_time_left', '1500');
+        localStorage.setItem(`qudurat_time_left_${activeExamId}`, '1500');
         alert(`🎉 أنهيت أسئلة القسم ${currentSectionIndex + 1}! جاري الانتقال للقسم ${currentSectionIndex + 2}`);
       } else {
         setIsFinished(true);
@@ -223,20 +237,9 @@ function ExamContent() {
       alert(`🔒 ${targetExam.title} يتطلب اشتراكاً مميزاً. يرجى الترقية لفتحه!`);
       return;
     }
-    setActiveExamId(targetId);
-    setCurrentSectionIndex(0);
-    setCurrentQuestionIndex(0);
-    setSelectedAnswers({});
-    setIsFinished(false);
-    setTimeLeft(1500);
-    localStorage.setItem('qudurat_section', '0');
-    localStorage.setItem('qudurat_question', '0');
-    localStorage.setItem('qudurat_answers', JSON.stringify({}));
-    localStorage.setItem('qudurat_finished', 'false');
-    localStorage.setItem('qudurat_time_left', '1500');
+    window.location.href = `/qudurat/test?examId=${targetId}`;
   };
 
-  // الدالة للاتصال بقاعدة البيانات والتحقق من الكود
   const handleActivateCode = async () => {
     setActivationError('');
     if (!activationCode.trim()) {
@@ -256,6 +259,7 @@ function ExamContent() {
 
       if (response.ok && data.success) {
         setIsUserSubscribed(true);
+        localStorage.setItem('qudurat_subscribed', 'true');
         setIsModalOpen(false);
         setActivationCode('');
         alert(data.message); 
@@ -327,7 +331,7 @@ function ExamContent() {
           <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6 text-right">
             <p className="text-sm font-bold text-blue-900 mb-1">💡 ملاحظة هامة:</p>
             <p className="text-xs text-blue-700 leading-relaxed">
-              لقد أتممت الاختبار التجريبي (المجاني). منصة كليك قدرات توفر <strong>9 اختبارات إضافية شاملة</strong> مصممة بعناية لمساعدتك على تطوير قدراتك وتحسين مهاراتك ورفع جاهزيتك للاختبار الحقيقي. اشترك الآن وافتح كافة الباقات!
+              لقد أتممت الاختبار. منصة كليك قدرات توفر اختبارات إضافية شاملة ومتميزة لتطوير مهاراتك.
             </p>
           </div>
           <div className="space-y-3">
@@ -341,11 +345,6 @@ function ExamContent() {
                   {isNextLocked ? 'اشترك لفتحه' : 'ابدأ الآن'}
                 </button>
               </div>
-            )}
-            {isNextLocked && (
-              <button onClick={() => setIsModalOpen(true)} className="w-full bg-slate-800 text-white font-bold py-3 rounded-xl hover:bg-slate-900 transition-all shadow-md text-sm cursor-pointer">
-                🔑 لدي كود تفعيل مسبق
-              </button>
             )}
             <a href="/qudurat/exams" className="block w-full bg-gray-100 text-gray-700 font-bold py-3 rounded-xl hover:bg-gray-200 transition-all text-center text-sm cursor-pointer">العودة للوحة الرئيسية</a>
           </div>
@@ -370,12 +369,9 @@ function ExamContent() {
       {!isUserSubscribed ? (
         <div className="flex-shrink-0 max-w-5xl mx-auto w-full mb-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 md:px-4 flex flex-col sm:flex-row justify-between items-center gap-2 md:gap-3 text-xs md:text-sm shadow-sm transition-all hover:border-slate-300">
           <div className="text-slate-600 font-medium flex items-center gap-2 text-center sm:text-right">
-            <span className="text-blue-500 text-lg text-blink">✨</span>
+            <span className="text-blue-500 text-lg">✨</span>
             <span>
-              أنت في <span className="font-bold text-slate-800">{currentExam.title}</span> (مجاني). 
-              <span className="hidden md:inline text-blue-700 font-bold mr-2 bg-blue-100 px-2 py-0.5 rounded-md">
-                افتح 9 اختبارات إضافية الآن! 🚀
-              </span>
+              أنت في <span className="font-bold text-slate-800">{currentExam.title}</span>.
             </span>
           </div>
           
@@ -386,15 +382,12 @@ function ExamContent() {
             <a href="https://enjazya.lemonsqueezy.com/checkout/buy/13f3f36f-c53b-4227-91c6-b556ae13aee2" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 bg-blue-600 text-white hover:bg-blue-700 font-bold px-4 py-1.5 rounded-lg transition-all shadow-sm cursor-pointer text-xs">
               <span>🛒</span><span>اشترِ الباقة</span>
             </a>
-            <button onClick={() => setIsModalOpen(true)} className="flex items-center gap-1.5 bg-white border border-blue-200 text-blue-700 hover:bg-blue-50 hover:text-blue-800 font-bold px-3 py-1.5 rounded-lg transition-all shadow-sm cursor-pointer text-xs">
-              <span>🔑</span><span className="hidden sm:inline">التفعيل</span>
-            </button>
           </div>
         </div>
       ) : (
         <div className="flex-shrink-0 max-w-5xl mx-auto w-full mb-2 bg-green-50/50 border border-green-200 rounded-xl px-4 py-2 flex justify-between items-center shadow-sm transition-all">
           <div className="text-green-700 font-bold text-xs md:text-sm flex items-center gap-2">
-            <span>🌟</span><span>أنت تختبر الآن بحساب VIP (صلاحية كاملة)</span>
+            <span>🌟</span><span>أنت تختبر الآن بحساب VIP في {currentExam.title}</span>
           </div>
           <a href="/qudurat/exams" className="flex items-center gap-1.5 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 font-bold px-3 py-1.5 rounded-lg transition-all shadow-sm cursor-pointer text-xs">
             <span>🗂️</span><span>جميع الاختبارات</span>
