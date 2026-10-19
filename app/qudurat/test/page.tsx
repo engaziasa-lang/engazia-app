@@ -367,27 +367,39 @@ function ExamContent() {
         isActivating={isActivating}
       />
 
-      {!isUserSubscribed && (
-        <div className="flex-shrink-0 max-w-5xl mx-auto w-full mb-2 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 flex flex-col sm:flex-row justify-between items-center gap-2 text-xs md:text-sm shadow-sm transition-all hover:border-slate-300">
-          {/* الجملة التسويقية الجديدة هنا */}
-          <div className="text-slate-600 font-medium flex items-center gap-2">
+      {/* الشريط العلوي تم تحديثه ليشمل زر جميع الاختبارات للنسخة المجانية والمدفوعة */}
+      {!isUserSubscribed ? (
+        <div className="flex-shrink-0 max-w-5xl mx-auto w-full mb-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 md:px-4 flex flex-col sm:flex-row justify-between items-center gap-2 md:gap-3 text-xs md:text-sm shadow-sm transition-all hover:border-slate-300">
+          <div className="text-slate-600 font-medium flex items-center gap-2 text-center sm:text-right">
             <span className="text-blue-500 text-lg text-blink">✨</span>
             <span>
               أنت في <span className="font-bold text-slate-800">{currentExam.title}</span> (مجاني). 
-              <span className="hidden sm:inline text-blue-700 font-bold mr-2 bg-blue-100 px-2 py-0.5 rounded-md">
+              <span className="hidden md:inline text-blue-700 font-bold mr-2 bg-blue-100 px-2 py-0.5 rounded-md">
                 افتح 9 اختبارات إضافية الآن! 🚀
               </span>
             </span>
           </div>
           
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 w-full sm:w-auto justify-center sm:justify-end flex-wrap sm:flex-nowrap">
+            <a href="/qudurat/exams" className="flex items-center gap-1.5 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 font-bold px-3 py-1.5 rounded-lg transition-all shadow-sm cursor-pointer text-xs">
+              <span>🗂️</span><span>الاختبارات</span>
+            </a>
             <a href="https://enjazya.lemonsqueezy.com/checkout/buy/13f3f36f-c53b-4227-91c6-b556ae13aee2" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 bg-blue-600 text-white hover:bg-blue-700 font-bold px-4 py-1.5 rounded-lg transition-all shadow-sm cursor-pointer text-xs">
-              <span>🛒</span><span>اشترِ الباقة الآن</span>
+              <span>🛒</span><span>اشترِ الباقة</span>
             </a>
             <button onClick={() => setIsModalOpen(true)} className="flex items-center gap-1.5 bg-white border border-blue-200 text-blue-700 hover:bg-blue-50 hover:text-blue-800 font-bold px-3 py-1.5 rounded-lg transition-all shadow-sm cursor-pointer text-xs">
-              <span>🔑</span><span>أدخل كود التفعيل</span>
+              <span>🔑</span><span className="hidden sm:inline">التفعيل</span>
             </button>
           </div>
+        </div>
+      ) : (
+        <div className="flex-shrink-0 max-w-5xl mx-auto w-full mb-2 bg-green-50/50 border border-green-200 rounded-xl px-4 py-2 flex justify-between items-center shadow-sm transition-all">
+          <div className="text-green-700 font-bold text-xs md:text-sm flex items-center gap-2">
+            <span>🌟</span><span>أنت تختبر الآن بحساب VIP (صلاحية كاملة)</span>
+          </div>
+          <a href="/qudurat/exams" className="flex items-center gap-1.5 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 font-bold px-3 py-1.5 rounded-lg transition-all shadow-sm cursor-pointer text-xs">
+            <span>🗂️</span><span>جميع الاختبارات</span>
+          </a>
         </div>
       )}
 
