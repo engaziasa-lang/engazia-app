@@ -34,7 +34,7 @@ function ActivationModalComponent({
           <button onClick={onClose} disabled={isActivating} className="text-gray-400 hover:text-gray-600 font-bold text-2xl cursor-pointer leading-none">&times;</button>
         </div>
         <p className="text-gray-600 text-sm mb-4 leading-relaxed">
-          أدخل كود التفعيل الذي وصلك عبر البريد الإلكتروني أو رسالة الجوال لفتح جميع الاختبارات. <br/>
+          أدخل كود التفعيل الذي وصلك عبر البريد الإلكتروني لفتح جميع الاختبارات. <br/>
           <span className="text-xs text-red-500 font-medium mt-1 inline-block">ملاحظة: سيتم ربط الكود بهذا الجهاز فقط.</span>
         </p>
         
