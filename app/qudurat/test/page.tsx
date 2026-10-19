@@ -10,14 +10,15 @@ import { EXAMS_DATA } from '../lib/examsConfig';
 const TOTAL_SECTIONS = 5;
 const QUESTIONS_PER_SECTION = 25;
 
-// مكون نافذة التفعيل المستقل (لمنع مشكلة فقدان مؤشر الكتابة)
+// مكون نافذة التفعيل المستقل
 function ActivationModalComponent({
   isOpen,
   onClose,
   code,
   setCode,
   error,
-  onActivate
+  onActivate,
+  isActivating // إضافة حالة التحميل
 }: {
   isOpen: boolean;
   onClose: () => void;
@@ -25,6 +26,7 @@ function ActivationModalComponent({
   setCode: (val: string) => void;
   error: string;
   onActivate: () => void;
+  isActivating: boolean;
 }) {
   if (!isOpen) return null;
   
@@ -33,7 +35,7 @@ function ActivationModalComponent({
       <div className="bg-white rounded-2xl shadow-2xl p-6 md:p-8 max-w-md w-full border border-gray-100">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-bold text-gray-800">🔑 تفعيل الاشتراك</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 font-bold text-2xl cursor-pointer leading-none">&times;</button>
+          <button onClick={onClose} disabled={isActivating} className="text-gray-400 hover:text-gray-600 font-bold text-2xl cursor-pointer leading-none">&times;</button>
         </div>
         <p className="text-gray-600 text-sm mb-4 leading-relaxed">
           أدخل كود التفعيل الذي وصلك عبر البريد الإلكتروني أو رسالة الجوال لفتح جميع الاختبارات. <br/>
@@ -45,17 +47,26 @@ function ActivationModalComponent({
           placeholder="مثال: QUD-XXXX"
           value={code}
           onChange={(e) => setCode(e.target.value)}
-          className="w-full border-2 border-gray-200 rounded-xl p-3 text-center text-lg font-bold tracking-widest text-gray-800 uppercase focus:border-blue-500 focus:outline-none transition-all mb-2"
+          disabled={isActivating}
+          className="w-full border-2 border-gray-200 rounded-xl p-3 text-center text-lg font-bold tracking-widest text-gray-800 uppercase focus:border-blue-500 focus:outline-none transition-all mb-2 disabled:bg-gray-50 disabled:text-gray-400"
           dir="ltr"
           autoFocus
         />
         {error && <p className="text-red-500 text-xs font-bold mb-4">{error}</p>}
         
         <div className="mt-6 flex gap-3">
-          <button onClick={onActivate} className="flex-1 bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition-all shadow-md cursor-pointer">
-            تفعيل الآن
+          <button 
+            onClick={onActivate} 
+            disabled={isActivating}
+            className={`flex-1 text-white font-bold py-3 rounded-xl transition-all shadow-md ${isActivating ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 cursor-pointer'}`}
+          >
+            {isActivating ? 'جاري التحقق...' : 'تفعيل الآن'}
           </button>
-          <button onClick={onClose} className="flex-1 bg-gray-100 text-gray-700 font-bold py-3 rounded-xl hover:bg-gray-200 transition-all cursor-pointer">
+          <button 
+            onClick={onClose} 
+            disabled={isActivating}
+            className="flex-1 bg-gray-100 text-gray-700 font-bold py-3 rounded-xl hover:bg-gray-200 transition-all cursor-pointer disabled:opacity-50"
+          >
             إلغاء
           </button>
         </div>
@@ -126,10 +137,10 @@ function ExamContent() {
     return 1500;
   });
 
-  // حالات نافذة تفعيل الكود المنبثقة
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activationCode, setActivationCode] = useState('');
   const [activationError, setActivationError] = useState('');
+  const [isActivating, setIsActivating] = useState(false); // حالة التحميل الجديدة
 
   useEffect(() => localStorage.setItem('qudurat_active_exam', activeExamId.toString()), [activeExamId]);
   useEffect(() => localStorage.setItem('qudurat_subscribed', isUserSubscribed.toString()), [isUserSubscribed]);
@@ -225,16 +236,36 @@ function ExamContent() {
     localStorage.setItem('qudurat_time_left', '1500');
   };
 
-  const handleActivateCode = () => {
+  // 💡 الدالة الحقيقية للاتصال بقاعدة البيانات والتحقق من الكود
+  const handleActivateCode = async () => {
     setActivationError('');
-    if (activationCode.trim().toUpperCase() === 'QUD-1234') {
-      setIsUserSubscribed(true);
-      setIsModalOpen(false);
-      setActivationCode('');
-      // ✅ تم إصلاح علامة الاقتباس هنا
-      alert('🎉 تم التفعيل بنجاح! تم ربط الاشتراك بهذا الجهاز.'); 
-    } else {
-      setActivationError('الكود غير صحيح أو تم استخدامه مسبقاً.');
+    if (!activationCode.trim()) {
+      setActivationError('الرجاء إدخال كود التفعيل.');
+      return;
+    }
+
+    setIsActivating(true); // تشغيل تأثير التحميل
+    try {
+      const response = await fetch('/api/activate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: activationCode, deviceId: deviceId }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setIsUserSubscribed(true);
+        setIsModalOpen(false);
+        setActivationCode('');
+        alert(data.message); 
+      } else {
+        setActivationError(data.message || 'الكود غير صحيح أو تم استخدامه مسبقاً.');
+      }
+    } catch (error) {
+      setActivationError('حدث خطأ في الاتصال بالخادم. تأكد من اتصالك بالإنترنت وحاول مرة أخرى.');
+    } finally {
+      setIsActivating(false); // إيقاف تأثير التحميل
     }
   };
 
@@ -248,6 +279,7 @@ function ExamContent() {
           setCode={setActivationCode}
           error={activationError}
           onActivate={handleActivateCode}
+          isActivating={isActivating}
         />
         
         <div className="bg-white p-8 rounded-2xl shadow-xl max-w-lg w-full text-center border-2 border-yellow-200">
@@ -286,6 +318,7 @@ function ExamContent() {
           setCode={setActivationCode}
           error={activationError}
           onActivate={handleActivateCode}
+          isActivating={isActivating}
         />
 
         <div className="bg-white p-8 rounded-2xl shadow-xl max-w-lg w-full text-center border border-gray-200">
@@ -331,6 +364,7 @@ function ExamContent() {
         setCode={setActivationCode}
         error={activationError}
         onActivate={handleActivateCode}
+        isActivating={isActivating}
       />
 
       {!isUserSubscribed && (
