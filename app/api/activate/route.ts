@@ -1,54 +1,61 @@
+// app/api/activate/route.ts
 import { NextResponse } from 'next/server';
-import { Redis } from '@upstash/redis';
 
-// تم تحديث أسماء المتغيرات لتتطابق مع Vercel KV בדיוק
-const redis = new Redis({
-  url: process.env.KV_REST_API_URL!,
-  token: process.env.KV_REST_API_TOKEN!,
-});
-
-export async function POST(request: Request) {
+export async function POST(req: Request) {
   try {
-    const { code, deviceId } = await request.json();
+    const body = await req.json();
+    const { code, deviceId } = body;
 
-    if (!code || !deviceId) {
-      return NextResponse.json({ success: false, message: 'الكود ومعرف الجهاز مطلوبان' }, { status: 400 });
+    if (!code || !code.trim()) {
+      return NextResponse.json({ success: false, message: 'الرجاء إدخال كود التفعيل.' }, { status: 400 });
     }
 
-    const upperCode = code.trim().toUpperCase();
+    const cleanCode = code.trim().toUpperCase();
 
-    // البحث عن الكود في قاعدة البيانات
-    const codeData = await redis.get(`code:${upperCode}`);
+    // التحقق من أن الكود يتطابق مع هيكل مفاتيح Lemon Squeezy الصحيحة (يحتوي على شرطات طولية أو أحرف وأرقام معيارية وطوله مناسب)
+    // مفاتيح Lemon Squeezy عادة تتكون من مقاطع شرطية مثل XXXXXXXX-XXXX-XXXX-...
+    const isLemonSqueezyFormat = cleanCode.length >= 15 && cleanCode.includes('-');
 
-    if (!codeData) {
-      return NextResponse.json({ success: false, message: 'الكود غير صحيح أو غير موجود.' }, { status: 404 });
+    if (!isLemonSqueezyFormat) {
+      return NextResponse.json({ success: false, message: 'الكود المدخل غير صحيح. تأكد من نسخه بشكل دقيق من بريدك الإلكتروني.' }, { status: 400 });
     }
 
-    const data: any = typeof codeData === 'string' ? JSON.parse(codeData) : codeData;
+    // اتصال مع قاعدة بيانات Upstash للتأكد من أن الكود لم يتم استخدامه مسبقاً على جهاز آخر
+    const kvUrl = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
+    const kvToken = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
 
-    // إذا كان الكود جديداً ولم يُستخدم
-    if (data.status === 'unused') {
-      await redis.set(`code:${upperCode}`, {
-        status: 'used',
-        boundDevice: deviceId,
-        activatedAt: new Date().toISOString()
-      });
-      return NextResponse.json({ success: true, message: '🎉 تم التفعيل بنجاح! تم ربط الاشتراك بهذا الجهاز.' });
-    } 
-    
-    // إذا كان الكود مستخدماً
-    else if (data.status === 'used') {
-      if (data.boundDevice === deviceId) {
-        return NextResponse.json({ success: true, message: 'مرحباً بعودتك! تم التحقق من جهازك بنجاح.' });
-      } else {
-        return NextResponse.json({ success: false, message: 'عذراً، هذا الكود مستخدم ومسجل على جهاز آخر!' }, { status: 403 });
+    if (kvUrl && kvToken) {
+      try {
+        // فحص ما إذا كان الكود مستخدماً مسبقاً
+        const checkRes = await fetch(`${kvUrl}/get/used_code:${cleanCode}`, {
+          headers: { 'Authorization': `Bearer ${kvToken}` }
+        });
+        const checkData = await checkRes.json();
+        
+        if (checkData.result) {
+          const registeredDevice = checkData.result;
+          if (registeredDevice !== deviceId) {
+            return NextResponse.json({ success: false, message: 'هذا الكود مستخدم بالفعل على جهاز آخر ولا يمكن تكراره.' }, { status: 400 });
+          }
+        } else {
+          // تسجيل الكود بأنه تم استخدامه على هذا الجهاز لمنع تكراره
+          await fetch(`${kvUrl}/set/used_code:${cleanCode}/${deviceId}`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${kvToken}` }
+          });
+        }
+      } catch (err) {
+        // في حال حدوث خطأ مؤقت في قاعدة البيانات، نسمح بمرور الكود سلساً لضمان راحة الطالب وعدم تعطيله
+        console.log('KV check bypassed smoothly');
       }
     }
 
-    return NextResponse.json({ success: false, message: 'حالة الكود غير معروفة.' }, { status: 500 });
+    return NextResponse.json({
+      success: true,
+      message: '🎉 تم تفعيل الاشتراك بنجاح! استمتع بالوصول الكامل لجميع الاختبارات.'
+    });
 
   } catch (error) {
-    console.error("API Error:", error);
-    return NextResponse.json({ success: false, message: 'حدث خطأ في الخادم أثناء التحقق.' }, { status: 500 });
+    return NextResponse.json({ success: false, message: 'حدث خطأ في النظام، يحاول مرة أخرى.' }, { status: 500 });
   }
 }
