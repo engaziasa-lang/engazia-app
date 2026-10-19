@@ -18,7 +18,7 @@ function ActivationModalComponent({
   setCode,
   error,
   onActivate,
-  isActivating // إضافة حالة التحميل
+  isActivating
 }: {
   isOpen: boolean;
   onClose: () => void;
@@ -140,7 +140,7 @@ function ExamContent() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activationCode, setActivationCode] = useState('');
   const [activationError, setActivationError] = useState('');
-  const [isActivating, setIsActivating] = useState(false); // حالة التحميل الجديدة
+  const [isActivating, setIsActivating] = useState(false);
 
   useEffect(() => localStorage.setItem('qudurat_active_exam', activeExamId.toString()), [activeExamId]);
   useEffect(() => localStorage.setItem('qudurat_subscribed', isUserSubscribed.toString()), [isUserSubscribed]);
@@ -236,7 +236,7 @@ function ExamContent() {
     localStorage.setItem('qudurat_time_left', '1500');
   };
 
-  // 💡 الدالة الحقيقية للاتصال بقاعدة البيانات والتحقق من الكود
+  // الدالة للاتصال بقاعدة البيانات والتحقق من الكود
   const handleActivateCode = async () => {
     setActivationError('');
     if (!activationCode.trim()) {
@@ -244,7 +244,7 @@ function ExamContent() {
       return;
     }
 
-    setIsActivating(true); // تشغيل تأثير التحميل
+    setIsActivating(true);
     try {
       const response = await fetch('/api/activate', {
         method: 'POST',
@@ -265,7 +265,7 @@ function ExamContent() {
     } catch (error) {
       setActivationError('حدث خطأ في الاتصال بالخادم. تأكد من اتصالك بالإنترنت وحاول مرة أخرى.');
     } finally {
-      setIsActivating(false); // إيقاف تأثير التحميل
+      setIsActivating(false);
     }
   };
 
@@ -287,9 +287,10 @@ function ExamContent() {
           <h1 className="text-2xl font-bold text-gray-800 mb-2">{currentExam.title} مغلق</h1>
           <p className="text-gray-600 mb-6 text-sm">هذا الاختبار مخصص للمشتركين فقط. استمتع بالوصول الكامل لجميع الاختبارات الـ 10!</p>
           <div className="space-y-3">
-            <button onClick={() => alert("قريباً: سيتم تحويلك لصفحة الدفع الإلكتروني")} className="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition-all shadow-md text-sm cursor-pointer">
+            {/* تم استبدال الزر القديم برابط Lemon Squeezy الفعلي هنا */}
+            <a href="https://enjazya.lemonsqueezy.com/checkout/buy/13f3f36f-c53b-4227-91c6-b556ae13aee2" target="_blank" rel="noopener noreferrer" className="block w-full text-center bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition-all shadow-md text-sm cursor-pointer">
               شراء باقة الاختبارات (الدفع الإلكتروني)
-            </button>
+            </a>
             <button onClick={() => setIsModalOpen(true)} className="w-full bg-slate-800 text-white font-bold py-3 rounded-xl hover:bg-slate-900 transition-all shadow-md text-sm cursor-pointer">
               🔑 لدي كود تفعيل مسبق
             </button>
