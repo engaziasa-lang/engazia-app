@@ -79,17 +79,18 @@ function ExamContent() {
   const searchParams = useSearchParams();
   const urlExamId = Number(searchParams.get('examId')) || 1;
 
-  const [deviceId, setDeviceId] = useState<string>(() => {
+  const [deviceId, setDeviceId] = useState<string>('');
+
+  useEffect(() => {
     if (typeof window !== 'undefined') {
       let id = localStorage.getItem('qudurat_device_id');
       if (!id) {
         id = 'dev_' + Math.random().toString(36).substring(2, 15);
         localStorage.setItem('qudurat_device_id', id);
       }
-      return id;
+      setDeviceId(id);
     }
-    return '';
-  });
+  }, []);
 
   const [activeExamId, setActiveExamId] = useState<number>(urlExamId);
 
@@ -158,11 +159,15 @@ function ExamContent() {
     }
   }, [urlExamId, activeExamId]);
 
-  useEffect(() => localStorage.setItem('qudurat_subscribed', isUserSubscribed.toString()), [isUserSubscribed]);
-  useEffect(() => localStorage.setItem(`qudurat_section_${activeExamId}`, currentSectionIndex.toString()), [currentSectionIndex, activeExamId]);
-  useEffect(() => localStorage.setItem(`qudurat_question_${activeExamId}`, currentQuestionIndex.toString()), [currentQuestionIndex, activeExamId]);
-  useEffect(() => localStorage.setItem(`qudurat_answers_${activeExamId}`, JSON.stringify(selectedAnswers)), [selectedAnswers, activeExamId]);
-  useEffect(() => localStorage.setItem(`qudurat_finished_${activeExamId}`, isFinished.toString()), [isFinished, activeExamId]);
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('qudurat_subscribed', isUserSubscribed.toString());
+      localStorage.setItem(`qudurat_section_${activeExamId}`, currentSectionIndex.toString());
+      localStorage.setItem(`qudurat_question_${activeExamId}`, currentQuestionIndex.toString());
+      localStorage.setItem(`qudurat_answers_${activeExamId}`, JSON.stringify(selectedAnswers));
+      localStorage.setItem(`qudurat_finished_${activeExamId}`, isFinished.toString());
+    }
+  }, [isUserSubscribed, currentSectionIndex, currentQuestionIndex, selectedAnswers, isFinished, activeExamId]);
 
   useEffect(() => {
     if (isFinished || isLocked) return;
@@ -170,7 +175,9 @@ function ExamContent() {
       setTimeLeft((prev) => {
         if (prev <= 1) return 0;
         const newTime = prev - 1;
-        localStorage.setItem(`qudurat_time_left_${activeExamId}_sec_${currentSectionIndex}`, newTime.toString());
+        if (typeof window !== 'undefined') {
+          localStorage.setItem(`qudurat_time_left_${activeExamId}_sec_${currentSectionIndex}`, newTime.toString());
+        }
         return newTime;
       });
     }, 1000);
@@ -184,7 +191,9 @@ function ExamContent() {
         setCurrentSectionIndex(nextSec);
         setCurrentQuestionIndex(0);
         setTimeLeft(SECTION_TIME_SECONDS);
-        localStorage.setItem(`qudurat_time_left_${activeExamId}_sec_${nextSec}`, SECTION_TIME_SECONDS.toString());
+        if (typeof window !== 'undefined') {
+          localStorage.setItem(`qudurat_time_left_${activeExamId}_sec_${nextSec}`, SECTION_TIME_SECONDS.toString());
+        }
         alert(`⏰ انتهى وقت القسم ${currentSectionIndex + 1}! جاري الانتقال تلقائياً إلى القسم ${nextSec + 1}`);
       } else {
         setIsFinished(true);
@@ -219,7 +228,9 @@ function ExamContent() {
         setCurrentSectionIndex(nextSec);
         setCurrentQuestionIndex(0);
         setTimeLeft(SECTION_TIME_SECONDS);
-        localStorage.setItem(`qudurat_time_left_${activeExamId}_sec_${nextSec}`, SECTION_TIME_SECONDS.toString());
+        if (typeof window !== 'undefined') {
+          localStorage.setItem(`qudurat_time_left_${activeExamId}_sec_${nextSec}`, SECTION_TIME_SECONDS.toString());
+        }
         alert(`🎉 أنهيت أسئلة القسم ${currentSectionIndex + 1}! جاري الانتقال للقسم ${nextSec + 1}`);
       } else {
         setIsFinished(true);
@@ -233,24 +244,17 @@ function ExamContent() {
 
   const handleRestartExam = () => {
     if (confirm('هل أنت متأكد من رغبتك في إعادة الاختبار؟ سيتم مسح إجاباتك السابقة وبدء الاختبار من جديد.')) {
-      localStorage.removeItem(`qudurat_section_${activeExamId}`);
-      localStorage.removeItem(`qudurat_question_${activeExamId}`);
-      localStorage.removeItem(`qudurat_answers_${activeExamId}`);
-      localStorage.removeItem(`qudurat_finished_${activeExamId}`);
-      for (let i = 0; i < TOTAL_SECTIONS; i++) {
-        localStorage.removeItem(`qudurat_time_left_${activeExamId}_sec_${i}`);
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem(`qudurat_section_${activeExamId}`);
+        localStorage.removeItem(`qudurat_question_${activeExamId}`);
+        localStorage.removeItem(`qudurat_answers_${activeExamId}`);
+        localStorage.removeItem(`qudurat_finished_${activeExamId}`);
+        for (let i = 0; i < TOTAL_SECTIONS; i++) {
+          localStorage.removeItem(`qudurat_time_left_${activeExamId}_sec_${i}`);
+        }
+        window.location.reload();
       }
-      window.location.reload();
     }
-  };
-
-  const handleSwitchExam = (targetId: number) => {
-    const targetExam = EXAMS_DATA.find((e) => e.id === targetId);
-    if (targetExam && !targetExam.isFree && !isUserSubscribed) {
-      alert(`🔒 ${targetExam.title} يتطلب اشتراكاً مميزاً. يرجى الترقية لفتحه!`);
-      return;
-    }
-    window.location.href = `/qudurat/test?examId=${targetId}`;
   };
 
   const handleActivateCode = async () => {
@@ -272,7 +276,9 @@ function ExamContent() {
 
       if (response.ok && data.success) {
         setIsUserSubscribed(true);
-        localStorage.setItem('qudurat_subscribed', 'true');
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('qudurat_subscribed', 'true');
+        }
         setIsModalOpen(false);
         setActivationCode('');
         alert(data.message); 
@@ -339,11 +345,6 @@ function ExamContent() {
     const totalQuestions = examQuestions.length;
     const percentage = Math.round((correctCount / totalQuestions) * 100);
 
-    const nextExamId = activeExamId + 1;
-    const hasNextExam = nextExamId <= 10;
-    const nextExam = hasNextExam ? EXAMS_DATA.find(e => e.id === nextExamId) : null;
-    const isNextLocked = nextExam && !nextExam.isFree && !isUserSubscribed;
-
     return (
       <div className="min-h-screen bg-gray-50 py-10 px-4 md:px-8" dir="rtl">
         <ActivationModalComponent 
@@ -392,18 +393,12 @@ function ExamContent() {
                 <span>🔄</span> إعادة الاختبار
               </button>
 
-              {hasNextExam && nextExam ? (
-                <button 
-                  onClick={() => handleSwitchExam(nextExam.id)}
-                  className={`font-bold py-3 px-4 rounded-xl transition-all shadow-sm cursor-pointer flex items-center justify-center gap-2 text-xs md:text-sm text-white ${isNextLocked ? 'bg-amber-600 hover:bg-amber-700' : 'bg-blue-600 hover:bg-blue-700'}`}
-                >
-                  <span>➡️</span> {isNextLocked ? 'اشترك للاختبار التالي' : 'الاختبار التالي'}
-                </button>
-              ) : (
-                <div className="bg-gray-100 text-gray-400 font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-xs md:text-sm">
-                  <span>🏁</span> هذا الاختبار الأخير
-                </div>
-              )}
+              <a 
+                href="/qudurat/exams" 
+                className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl transition-all text-center text-xs md:text-sm cursor-pointer flex items-center justify-center gap-2 shadow-md"
+              >
+                <span>➡️</span> اشترك للاختبار التالي
+              </a>
 
               <a 
                 href="/qudurat/exams" 
@@ -517,7 +512,6 @@ function ExamContent() {
         </div>
       </header>
 
-      {/* مساحة السؤال المدمجة بحيث تظهر مرئية بالكامل في الجوال بدون تمرير */}
       <main className="flex-grow bg-white shadow-sm rounded-2xl max-w-5xl mx-auto w-full border border-gray-200 flex flex-col min-h-0 overflow-hidden">
         {currentQuestion ? (
           <div className="flex-grow overflow-y-auto p-3 md:p-6 lg:p-8">
