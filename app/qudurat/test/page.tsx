@@ -231,6 +231,22 @@ function ExamContent() {
     if (currentQuestionIndex > 0) setCurrentQuestionIndex(currentQuestionIndex - 1);
   };
 
+  // وظيفة إعادة الاختبار
+  const handleRestartExam = () => {
+    if (confirm('هل أنت متأكد من رغبتك في إعادة الاختبار؟ سيتم مسح إجاباتك السابقة وبدء الاختبار من جديد.')) {
+      localStorage.removeItem(`qudurat_section_${activeExamId}`);
+      localStorage.removeItem(`qudurat_question_${activeExamId}`);
+      localStorage.removeItem(`qudurat_answers_${activeExamId}`);
+      localStorage.removeItem(`qudurat_finished_${activeExamId}`);
+      localStorage.removeItem(`qudurat_time_left_${activeExamId}_sec_0`);
+      localStorage.removeItem(`qudurat_time_left_${activeExamId}_sec_1`);
+      localStorage.removeItem(`qudurat_time_left_${activeExamId}_sec_2`);
+      localStorage.removeItem(`qudurat_time_left_${activeExamId}_sec_3`);
+      localStorage.removeItem(`qudurat_time_left_${activeExamId}_sec_4`);
+      window.location.reload();
+    }
+  };
+
   const handleSwitchExam = (targetId: number) => {
     const targetExam = EXAMS_DATA.find((e) => e.id === targetId);
     if (targetExam && !targetExam.isFree && !isUserSubscribed) {
@@ -306,7 +322,7 @@ function ExamContent() {
     );
   }
 
-  // شاشة حساب النتيجة وإظهارها للطالب بعد الإنهاء
+  // شاشة النتيجة، المراجعة، والشرح وإعادة الاختبار
   if (isFinished) {
     let correctCount = 0;
     let wrongCount = 0;
@@ -332,7 +348,7 @@ function ExamContent() {
     const isNextLocked = nextExam && !nextExam.isFree && !isUserSubscribed;
 
     return (
-      <div className="h-[100dvh] overflow-y-auto bg-gray-50 flex items-center justify-center p-4 md:p-6" dir="rtl">
+      <div className="min-h-screen bg-gray-50 py-10 px-4 md:px-8" dir="rtl">
         <ActivationModalComponent 
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
@@ -343,51 +359,111 @@ function ExamContent() {
           isActivating={isActivating}
         />
 
-        <div className="bg-white p-6 md:p-8 rounded-3xl shadow-xl max-w-lg w-full text-center border border-gray-100">
-          <div className="text-5xl mb-3">🏆</div>
-          <h1 className="text-2xl md:text-3xl font-extrabold text-blue-900 mb-1">نتيجتك في {currentExam.title}</h1>
-          <p className="text-gray-500 text-xs md:text-sm mb-6">لقد أنهيت جميع الأقسام بنجاح تام!</p>
+        <div className="max-w-4xl mx-auto space-y-8">
+          
+          {/* صندوق ملخص النتيجة */}
+          <div className="bg-white p-6 md:p-8 rounded-3xl shadow-xl text-center border border-gray-100">
+            <div className="text-5xl mb-3">🏆</div>
+            <h1 className="text-2xl md:text-3xl font-extrabold text-blue-900 mb-1">نتيجتك في {currentExam.title}</h1>
+            <p className="text-gray-500 text-xs md:text-sm mb-6">لقد أنهيت جميع الأقسام بنجاح تام!</p>
 
-          {/* صندوق النسبة المئوية الكبرى */}
-          <div className="bg-blue-50/70 border border-blue-100 rounded-2xl p-6 mb-6">
-            <span className="text-4xl md:text-5xl font-black text-blue-700 tracking-wider block mb-1">{percentage}%</span>
-            <span className="text-xs font-bold text-blue-900">
-              {percentage >= 85 ? '🌟 أداء ممتاز جداً!' : percentage >= 70 ? '👍 أداء جيد جداً، استمر!' : '💪 تحتاج لبعض التركيز والمراجعة!'}
-            </span>
-          </div>
+            <div className="bg-blue-50/70 border border-blue-100 rounded-2xl p-6 mb-6 max-w-md mx-auto">
+              <span className="text-4xl md:text-5xl font-black text-blue-700 tracking-wider block mb-1">{percentage}%</span>
+              <span className="text-xs font-bold text-blue-900">
+                {percentage >= 85 ? '🌟 أداء ممتاز جداً!' : percentage >= 70 ? '👍 أداء جيد جداً، استمر!' : '💪 تحتاج لبعض التركيز والمراجعة!'}
+              </span>
+            </div>
 
-          {/* تفاصيل الإجابات */}
-          <div className="grid grid-cols-3 gap-3 mb-6 text-right">
-            <div className="bg-green-50 border border-green-200 rounded-2xl p-3 text-center">
-              <span className="block text-green-700 font-black text-xl">{correctCount}</span>
-              <span className="text-[11px] text-green-800 font-bold">إجابات صحيحة</span>
-            </div>
-            <div className="bg-red-50 border border-red-200 rounded-2xl p-3 text-center">
-              <span className="block text-red-700 font-black text-xl">{wrongCount}</span>
-              <span className="text-[11px] text-red-800 font-bold">إجابات خاطئة</span>
-            </div>
-            <div className="bg-gray-50 border border-gray-200 rounded-2xl p-3 text-center">
-              <span className="block text-gray-700 font-black text-xl">{unansweredCount}</span>
-              <span className="text-[11px] text-gray-800 font-bold">أسئلة متروكة</span>
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            {hasNextExam && nextExam && (
-              <div className={`p-4 rounded-2xl border-2 transition-all flex justify-between items-center ${isNextLocked ? 'border-amber-300 bg-amber-50/50' : 'border-blue-200 bg-blue-50'}`}>
-                <div className="text-right">
-                  <h3 className="font-bold text-gray-800 text-sm">{nextExam.title} {isNextLocked ? '🔒' : ''}</h3>
-                  <p className="text-xs text-gray-500">{nextExam.description}</p>
-                </div>
-                <button onClick={() => handleSwitchExam(nextExam.id)} className={`px-4 py-2.5 rounded-xl font-bold text-xs text-white transition-all cursor-pointer ${isNextLocked ? 'bg-amber-600 hover:bg-amber-700' : 'bg-blue-600 hover:bg-blue-700'}`}>
-                  {isNextLocked ? 'اشترك لفتحه' : 'ابدأ الآن'}
-                </button>
+            <div className="grid grid-cols-3 gap-3 mb-6 max-w-md mx-auto text-right">
+              <div className="bg-green-50 border border-green-200 rounded-2xl p-3 text-center">
+                <span className="block text-green-700 font-black text-xl">{correctCount}</span>
+                <span className="text-[11px] text-green-800 font-bold">إجابات صحيحة</span>
               </div>
-            )}
-            <a href="/qudurat/exams" className="block w-full bg-gray-100 text-gray-700 font-bold py-3.5 rounded-xl hover:bg-gray-200 transition-all text-center text-sm cursor-pointer shadow-sm">
-              العودة لوحة الاختبارات الرئيسية
-            </a>
+              <div className="bg-red-50 border border-red-200 rounded-2xl p-3 text-center">
+                <span className="block text-red-700 font-black text-xl">{wrongCount}</span>
+                <span className="text-[11px] text-red-800 font-bold">إجابات خاطئة</span>
+              </div>
+              <div className="bg-gray-50 border border-gray-200 rounded-2xl p-3 text-center">
+                <span className="block text-gray-700 font-black text-xl">{unansweredCount}</span>
+                <span className="text-[11px] text-gray-800 font-bold">أسئلة متروكة</span>
+              </div>
+            </div>
+
+            {/* الأزرار (إعادة الاختبار، الانتقال للتالي، العودة للرئيسية) */}
+            <div className="flex flex-col sm:flex-row gap-3 justify-center max-w-md mx-auto">
+              <button 
+                onClick={handleRestartExam}
+                className="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 px-6 rounded-xl transition-all shadow-sm cursor-pointer flex items-center justify-center gap-2 text-sm"
+              >
+                <span>🔄</span> إعادة الاختبار
+              </button>
+              <a 
+                href="/qudurat/exams" 
+                className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 px-6 rounded-xl transition-all text-center text-sm cursor-pointer flex items-center justify-center gap-2"
+              >
+                <span>🗂️</span> لوحة الاختبارات
+              </a>
+            </div>
           </div>
+
+          {/* قسم مراجعة الأسئلة والشرح التفصيلي */}
+          <div className="space-y-4">
+            <h2 className="text-xl font-bold text-gray-800 border-r-4 border-blue-600 pr-3">📖 مراجعة الأسئلة والإجابات الصحيحة مع الشرح</h2>
+            
+            {examQuestions.map((q: any, index: number) => {
+              const studentAnswer = selectedAnswers[q.id];
+              const isCorrect = studentAnswer === q.correctAnswer;
+              const isUnanswered = !studentAnswer;
+
+              return (
+                <div key={q.id} className={`bg-white rounded-2xl p-6 border-2 shadow-sm space-y-4 ${isCorrect ? 'border-green-200 bg-green-50/20' : isUnanswered ? 'border-gray-200' : 'border-red-200 bg-red-50/20'}`}>
+                  <div className="flex justify-between items-start gap-4">
+                    <span className="bg-blue-100 text-blue-800 font-bold text-xs px-3 py-1 rounded-full">سؤال {index + 1}</span>
+                    <span className={`text-xs font-bold px-3 py-1 rounded-full ${isCorrect ? 'bg-green-100 text-green-700' : isUnanswered ? 'bg-gray-100 text-gray-600' : 'bg-red-100 text-red-700'}`}>
+                      {isCorrect ? '✓ إجابة صحيحة' : isUnanswered ? '⚠️ لم تقم بالإجابة عليه' : '✕ إجابة خاطئة'}
+                    </span>
+                  </div>
+
+                  <h3 className="font-bold text-gray-900 text-base md:text-lg leading-relaxed">{q.text}</h3>
+
+                  {/* الخيارات */}
+                  <div className="space-y-2">
+                    {q.options.map((option: string, optIdx: number) => {
+                      const isStudentChoice = studentAnswer === option;
+                      const isTheCorrectOne = option === q.correctAnswer;
+
+                      let style = 'bg-white border-gray-200 text-gray-800';
+                      if (isTheCorrectOne) {
+                        style = 'bg-green-100 border-green-400 text-green-900 font-bold';
+                      } else if (isStudentChoice && !isCorrect) {
+                        style = 'bg-red-100 border-red-400 text-red-900 font-bold';
+                      }
+
+                      return (
+                        <div key={optIdx} className={`p-3 rounded-xl border-2 text-sm flex justify-between items-center ${style}`}>
+                          <span>{option}</span>
+                          <span className="text-xs">
+                            {isTheCorrectOne && '✅ الإجابة الصحيحة'}
+                            {isStudentChoice && !isTheCorrectOne && '❌ إجابتك'}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* حقل الشرح التفصيلي */}
+                  <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 text-right">
+                    <p className="text-xs font-bold text-blue-900 mb-1">💡 الشرح والإيضاح:</p>
+                    <p className="text-xs text-blue-800 leading-relaxed">
+                      {q.explanation || 'الإجابة الصحيحة موضحة أعلاه باللون الأخضر. تذكر دائماً مراجعة القوانين الرياضية أو القواعد اللفظية المرتبطة بهذا السؤال لتعزيز استيعابك.'}
+                    </p>
+                  </div>
+
+                </div>
+              );
+            })}
+          </div>
+
         </div>
       </div>
     );
