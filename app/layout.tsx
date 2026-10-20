@@ -10,6 +10,7 @@ export default function RootLayout({
 }) {
   const [showWhatsApp, setShowWhatsApp] = useState(true);
 
+  // تأثير لإظهار الأيقونة بنعومة بعد تحميل الصفحة
   useEffect(() => {
     const container = document.getElementById('whatsapp-widget-container');
     if (container) {
@@ -24,8 +25,8 @@ export default function RootLayout({
   return (
     <html lang="ar" dir="rtl">
       <head>
-        <title>منصة إنجازيا للحلول المالية والرقمية - اختبارات القدرات</title>
-        <meta name="description" content="منصة تدريبية متقدمة لاختبارات القدرات العامة" />
+        <title>منصة كليك قدرات - التدريب الأذكى لاختبار القدرات</title>
+        <meta name="description" content="منصة كليك قدرات - منصة تدريبية متقدمة لاختبارات القدرات العامة" />
         <style>{`
           #whatsapp-widget-container.whatsapp-hidden {
             opacity: 0;
@@ -39,7 +40,6 @@ export default function RootLayout({
           }
         `}</style>
       </head>
-      {/* تأكدنا من وجود min-h-screen و flex-col لضمان بقاء الفوتر بالأسفل */}
       <body className="bg-gray-50 text-gray-900 antialiased min-h-screen flex flex-col font-sans">
         
         {/* محتوى الصفحات */}
@@ -47,15 +47,15 @@ export default function RootLayout({
           {children}
         </main>
 
-        {/* الفوتر (تذييل الصفحة) - تمت إضافته هنا */}
+        {/* الفوتر (تذييل الصفحة) */}
         <footer className="bg-white border-t border-gray-200 mt-auto">
           <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="text-gray-500 text-sm text-center md:text-right font-medium">
-              © {new Date().getFullYear()} منصة إنجازيا للحلول المالية والرقمية. جميع الحقوق محفوظة.
+              © {new Date().getFullYear()} منصة كليك قدرات. جميع الحقوق محفوظة.
             </div>
             <div className="flex gap-6 text-sm text-gray-500">
-              <a href="#" className="hover:text-green-600 transition-colors">الشروط والأحكام</a>
-              <a href="#" className="hover:text-green-600 transition-colors">سياسة الخصوصية</a>
+              <a href="/terms" className="hover:text-green-600 transition-colors">الشروط والأحكام</a>
+              <a href="/privacy" className="hover:text-green-600 transition-colors">سياسة الخصوصية</a>
               <a href="https://wa.me/966541313564" target="_blank" rel="noopener noreferrer" className="hover:text-green-600 transition-colors">الدعم الفني</a>
             </div>
           </div>
