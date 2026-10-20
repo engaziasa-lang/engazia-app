@@ -1,9 +1,8 @@
-// app/qudurat/test/page.tsx
 'use client';
 export const dynamic = 'force-dynamic';
 
 import { useState, useEffect, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import questionsData from '../data/questions.json';
 import { EXAMS_DATA } from '../lib/examsConfig';
 
@@ -77,7 +76,11 @@ function ActivationModalComponent({
 
 function ExamContent() {
   const searchParams = useSearchParams();
-  const urlExamId = Number(searchParams.get('examId')) || 1;
+  const router = useRouter();
+  
+  // دعم قراءة examId أو exam من الرابط بسلاسة
+  const urlExamId = Number(searchParams.get('examId') || searchParams.get('exam')) || 1;
+  const initialSection = Number(searchParams.get('section')) ? Number(searchParams.get('section')) - 1 : null;
 
   const [deviceId, setDeviceId] = useState<string>('');
 
@@ -107,6 +110,7 @@ function ExamContent() {
   const examQuestions = questionsData.slice(currentExam.startIndex, currentExam.endIndex);
 
   const [currentSectionIndex, setCurrentSectionIndex] = useState<number>(() => {
+    if (initialSection !== null && !isNaN(initialSection)) return initialSection;
     if (typeof window !== 'undefined') return Number(localStorage.getItem(`qudurat_section_${urlExamId}`)) || 0;
     return 0;
   });
@@ -131,7 +135,8 @@ function ExamContent() {
 
   const [timeLeft, setTimeLeft] = useState<number>(() => {
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem(`qudurat_time_left_${urlExamId}_sec_${currentSectionIndex}`);
+      const targetSec = initialSection !== null ? initialSection : (Number(localStorage.getItem(`qudurat_section_${urlExamId}`)) || 0);
+      const saved = localStorage.getItem(`qudurat_time_left_${urlExamId}_sec_${targetSec}`);
       return saved ? Number(saved) : SECTION_TIME_SECONDS;
     }
     return SECTION_TIME_SECONDS;
@@ -145,7 +150,7 @@ function ExamContent() {
   useEffect(() => {
     if (urlExamId !== activeExamId) {
       setActiveExamId(urlExamId);
-      const savedSec = Number(localStorage.getItem(`qudurat_section_${urlExamId}`)) || 0;
+      const savedSec = initialSection !== null ? initialSection : (Number(localStorage.getItem(`qudurat_section_${urlExamId}`)) || 0);
       const savedQ = Number(localStorage.getItem(`qudurat_question_${urlExamId}`)) || 0;
       const savedAns = localStorage.getItem(`qudurat_answers_${urlExamId}`);
       const savedFin = localStorage.getItem(`qudurat_finished_${urlExamId}`) === 'true';
@@ -157,7 +162,7 @@ function ExamContent() {
       setIsFinished(savedFin);
       setTimeLeft(savedTime);
     }
-  }, [urlExamId, activeExamId]);
+  }, [urlExamId, activeExamId, initialSection]);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -325,7 +330,6 @@ function ExamContent() {
     );
   }
 
-  // شاشة النتيجة والتفاصيل
   if (isFinished) {
     let correctCount = 0;
     let wrongCount = 0;
@@ -397,7 +401,7 @@ function ExamContent() {
                 href="/qudurat/exams" 
                 className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl transition-all text-center text-xs md:text-sm cursor-pointer flex items-center justify-center gap-2 shadow-md"
               >
-                <span>➡️</span> اشترك للاختبار التالي
+                <span>➡️</span> الاختبار التالي
               </a>
 
               <a 
@@ -409,7 +413,6 @@ function ExamContent() {
             </div>
           </div>
 
-          {/* مراجعة الأسئلة والشرح */}
           <div className="space-y-4">
             <h2 className="text-xl font-bold text-gray-800 border-r-4 border-blue-600 pr-3">📖 مراجعة الأسئلة والإجابات الصحيحة مع الشرح</h2>
             {examQuestions.map((q: any, index: number) => {
