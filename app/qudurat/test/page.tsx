@@ -427,37 +427,37 @@ function ExamContent() {
         isActivating={isActivating}
       />
 
-      {/* شريط الاشتراك العلوي المصغر (أيقونات واضحة وكبيرة بوضوح في الجوال) */}
+      {/* شريط الأزرار العلوي (الاختبارات والباقة بخطوط واضحة ومنظمة) */}
       {!isUserSubscribed ? (
-        <div className="flex-shrink-0 max-w-6xl mx-auto w-full mb-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 flex justify-between items-center text-xs md:text-sm shadow-sm overflow-x-auto">
-          <div className="text-slate-700 font-bold whitespace-nowrap">
+        <div className="flex-shrink-0 max-w-6xl mx-auto w-full mb-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 flex justify-between items-center text-xs md:text-sm shadow-sm">
+          <div className="text-slate-700 font-bold truncate">
             ✨ أنت في <span className="text-blue-600">{currentExam.title}</span>
           </div>
-          <div className="flex items-center gap-2 whitespace-nowrap flex-shrink-0">
-            <a href="/qudurat/exams" className="bg-white border-2 border-gray-300 text-gray-800 font-bold px-3 py-1 rounded-lg text-xs md:text-sm whitespace-nowrap shadow-sm hover:bg-gray-50 transition-all">
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <a href="/qudurat/exams" className="bg-white border-2 border-gray-300 text-gray-800 font-bold px-3 py-1 rounded-lg text-xs md:text-sm shadow-sm hover:bg-gray-50 transition-all">
               🗂️ الاختبارات
             </a>
-            <a href="https://enjazya.lemonsqueezy.com/checkout/buy/13f3f36f-c53b-4227-91c6-b556ae13aee2" target="_blank" rel="noopener noreferrer" className="bg-blue-600 text-white font-bold px-3.5 py-1 rounded-lg text-xs md:text-sm whitespace-nowrap shadow-sm hover:bg-blue-700 transition-all">
+            <a href="https://enjazya.lemonsqueezy.com/checkout/buy/13f3f36f-c53b-4227-91c6-b556ae13aee2" target="_blank" rel="noopener noreferrer" className="bg-blue-600 text-white font-bold px-3.5 py-1 rounded-lg text-xs md:text-sm shadow-sm hover:bg-blue-700 transition-all">
               🛒 اشترِ الباقة
             </a>
           </div>
         </div>
       ) : (
-        <div className="flex-shrink-0 max-w-6xl mx-auto w-full mb-1 bg-green-50 border border-green-200 rounded-xl px-3 py-1.5 flex justify-between items-center text-xs md:text-sm shadow-sm overflow-x-auto">
-          <div className="text-green-800 font-bold whitespace-nowrap">🌟 حسابك VIP مفعل في {currentExam.title}</div>
-          <a href="/qudurat/exams" className="bg-white border border-gray-300 text-gray-800 font-bold px-3 py-1 rounded-lg text-xs md:text-sm whitespace-nowrap shadow-sm">
+        <div className="flex-shrink-0 max-w-6xl mx-auto w-full mb-1 bg-green-50 border border-green-200 rounded-xl px-3 py-1.5 flex justify-between items-center text-xs md:text-sm shadow-sm">
+          <div className="text-green-800 font-bold">🌟 حسابك VIP مفعل في {currentExam.title}</div>
+          <a href="/qudurat/exams" className="bg-white border border-gray-300 text-gray-800 font-bold px-3 py-1 rounded-lg text-xs md:text-sm shadow-sm">
             🗂️ جميع الاختبارات
           </a>
         </div>
       )}
 
-      {/* الهيدر المحسن والموحد للجوال والكمبيوتر */}
+      {/* الهيدر المدمج والمنظم (الهوية + بيانات الطالب المحاكي بنفس الشكل الكامل) */}
       <header className="flex-shrink-0 bg-white shadow-sm rounded-xl p-2.5 md:p-4 max-w-6xl mx-auto w-full mb-1.5 border border-gray-200">
-        <div className="flex items-center justify-between gap-2 border-b border-gray-100 pb-2">
+        <div className="grid grid-cols-1 sm:grid-cols-3 items-center gap-3 border-b border-gray-100 pb-2">
           
-          {/* اللوجو واسم المنصة باحترافية */}
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center text-white font-extrabold text-base shadow-sm">
+          {/* 1. اليمين: هوية المنصة */}
+          <div className="flex items-center gap-2">
+            <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center text-white font-extrabold text-base shadow-sm flex-shrink-0">
               <span>ك</span>
             </div>
             <div className="text-right">
@@ -466,18 +466,23 @@ function ExamContent() {
             </div>
           </div>
 
-          {/* بيانات الطالب والاختبار في صف واحد */}
-          <div className="flex items-center gap-2 md:gap-4 text-right flex-grow justify-end text-xs">
-            <div className="hidden sm:block truncate">
-              <span className="font-bold text-gray-800 block truncate">اسم الطالب المتدرب</span>
-              <span className="text-[10px] text-gray-400 font-mono">10****2345</span>
+          {/* 2. الوسط: معلومات الاختبار المحاكي والشامل (بنفس الشكل الكامل) */}
+          <div className="text-center bg-blue-50/70 border border-blue-100 px-3 py-1 rounded-xl">
+            <span className="font-bold text-blue-900 text-xs block">{currentExam.title}</span>
+            <span className="text-[10px] text-blue-700 font-medium">القسم {currentSectionIndex + 1} من {TOTAL_SECTIONS} | السؤال {currentQuestionIndex + 1} من {QUESTIONS_PER_SECTION}</span>
+          </div>
+
+          {/* 3. اليسار: بيانات الطالب المتدرب ورقم الهوية وصورة الرمز */}
+          <div className="flex items-center justify-end gap-2 text-right">
+            <div>
+              <h3 className="font-bold text-gray-800 text-xs">اسم الطالب المتدرب</h3>
+              <span className="text-[10px] text-gray-500 font-mono block">رقم الهوية: 2345****10</span>
             </div>
-            <div className="h-7 w-[1px] bg-gray-200 flex-shrink-0 hidden sm:block"></div>
-            <div className="bg-blue-50/70 border border-blue-100 px-3 py-1 rounded-xl text-right flex-shrink-0">
-              <span className="font-bold text-blue-900 text-xs block">{currentExam.title}</span>
-              <span className="text-[10px] text-blue-700 font-medium">القسم {currentSectionIndex + 1} من {TOTAL_SECTIONS} | س {currentQuestionIndex + 1}/25</span>
+            <div className="w-9 h-9 bg-gray-200 rounded-full flex items-center justify-center text-gray-600 font-bold text-xs flex-shrink-0">
+              صورة
             </div>
           </div>
+
         </div>
 
         {/* عداد الوقت في المنتصف بخط كبير وبارز */}
@@ -525,7 +530,7 @@ function ExamContent() {
           <div className="flex-grow flex items-center justify-center font-bold text-gray-400">جاري تحميل السؤال...</div>
         )}
 
-        {/* أزرار التنقل (بدون فوتر سفلي مزعج، مدمجة باحترافية داخل الحاوية) */}
+        {/* أزرار التنقل (مدمجة باحترافية داخل الحاوية) */}
         <div className="flex-shrink-0 flex justify-between items-center px-4 py-3 md:px-8 border-t border-gray-100 bg-gray-50/50">
           <button onClick={handlePrev} disabled={currentQuestionIndex === 0 && currentSectionIndex === 0} className={`px-6 py-2.5 rounded-xl font-bold text-xs md:text-sm ${currentQuestionIndex === 0 && currentSectionIndex === 0 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-gray-200 text-gray-700 hover:bg-gray-300 cursor-pointer'}`}>
             السابق
