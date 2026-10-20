@@ -427,60 +427,49 @@ function ExamContent() {
         isActivating={isActivating}
       />
 
-      {/* شريط الأزرار العلوي (الاختبارات والباقة بخطوط واضحة ومنظمة) */}
-      {!isUserSubscribed ? (
-        <div className="flex-shrink-0 max-w-6xl mx-auto w-full mb-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 flex justify-between items-center text-xs md:text-sm shadow-sm">
-          <div className="text-slate-700 font-bold truncate">
-            ✨ أنت في <span className="text-blue-600">{currentExam.title}</span>
+      {/* الهيدر العلوي: هوية المنصة (يمين) + أزرار الاختبارات والباقة (يسار) بجوارها */}
+      <header className="flex-shrink-0 bg-white shadow-sm rounded-xl px-3 py-2 max-w-6xl mx-auto w-full mb-1.5 border border-gray-200 flex justify-between items-center">
+        {/* اليمين: هوية المنصة */}
+        <div className="flex items-center gap-2">
+          <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center text-white font-extrabold text-base shadow-sm">
+            <span>ك</span>
           </div>
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <a href="/qudurat/exams" className="bg-white border-2 border-gray-300 text-gray-800 font-bold px-3 py-1 rounded-lg text-xs md:text-sm shadow-sm hover:bg-gray-50 transition-all">
-              🗂️ الاختبارات
-            </a>
-            <a href="https://enjazya.lemonsqueezy.com/checkout/buy/13f3f36f-c53b-4227-91c6-b556ae13aee2" target="_blank" rel="noopener noreferrer" className="bg-blue-600 text-white font-bold px-3.5 py-1 rounded-lg text-xs md:text-sm shadow-sm hover:bg-blue-700 transition-all">
-              🛒 اشترِ الباقة
-            </a>
+          <div className="text-right">
+            <h3 className="font-extrabold text-gray-900 text-xs md:text-sm">منصة كليك قدرات</h3>
+            <span className="text-[10px] text-gray-400 block">تدريب محاكي متقدم</span>
           </div>
         </div>
-      ) : (
-        <div className="flex-shrink-0 max-w-6xl mx-auto w-full mb-1 bg-green-50 border border-green-200 rounded-xl px-3 py-1.5 flex justify-between items-center text-xs md:text-sm shadow-sm">
-          <div className="text-green-800 font-bold">🌟 حسابك VIP مفعل في {currentExam.title}</div>
-          <a href="/qudurat/exams" className="bg-white border border-gray-300 text-gray-800 font-bold px-3 py-1 rounded-lg text-xs md:text-sm shadow-sm">
-            🗂️ جميع الاختبارات
+
+        {/* اليسار: أزرار الاختبارات والباقة */}
+        <div className="flex items-center gap-2">
+          <a href="/qudurat/exams" className="bg-white border-2 border-gray-300 text-gray-800 font-bold px-3 py-1 rounded-lg text-xs md:text-sm shadow-sm hover:bg-gray-50 transition-all whitespace-nowrap">
+            🗂️ الاختبارات
+          </a>
+          <a href="https://enjazya.lemonsqueezy.com/checkout/buy/13f3f36f-c53b-4227-91c6-b556ae13aee2" target="_blank" rel="noopener noreferrer" className="bg-blue-600 text-white font-bold px-3.5 py-1 rounded-lg text-xs md:text-sm shadow-sm hover:bg-blue-700 transition-all whitespace-nowrap">
+            🛒 اشترِ الباقة
           </a>
         </div>
-      )}
+      </header>
 
-      {/* الهيدر المدمج والمنظم (الهوية + بيانات الطالب المحاكي بنفس الشكل الكامل) */}
-      <header className="flex-shrink-0 bg-white shadow-sm rounded-xl p-2.5 md:p-4 max-w-6xl mx-auto w-full mb-1.5 border border-gray-200">
-        <div className="grid grid-cols-1 sm:grid-cols-3 items-center gap-3 border-b border-gray-100 pb-2">
+      {/* شريط معلومات الطالب (يمين) ومعلومات الاختبار والاقسام (يسار) مع عداد الوقت بالأسفل */}
+      <div className="flex-shrink-0 bg-white shadow-sm rounded-xl p-3 max-w-6xl mx-auto w-full mb-1.5 border border-gray-200">
+        <div className="grid grid-cols-1 sm:grid-cols-2 items-center gap-3 border-b border-gray-100 pb-2">
           
-          {/* 1. اليمين: هوية المنصة */}
-          <div className="flex items-center gap-2">
-            <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center text-white font-extrabold text-base shadow-sm flex-shrink-0">
-              <span>ك</span>
-            </div>
-            <div className="text-right">
-              <h3 className="font-extrabold text-gray-900 text-xs md:text-sm">منصة كليك قدرات</h3>
-              <span className="text-[10px] text-gray-400 block">تدريب محاكي متقدم</span>
-            </div>
-          </div>
-
-          {/* 2. الوسط: معلومات الاختبار المحاكي والشامل (بنفس الشكل الكامل) */}
-          <div className="text-center bg-blue-50/70 border border-blue-100 px-3 py-1 rounded-xl">
-            <span className="font-bold text-blue-900 text-xs block">{currentExam.title}</span>
-            <span className="text-[10px] text-blue-700 font-medium">القسم {currentSectionIndex + 1} من {TOTAL_SECTIONS} | السؤال {currentQuestionIndex + 1} من {QUESTIONS_PER_SECTION}</span>
-          </div>
-
-          {/* 3. اليسار: بيانات الطالب المتدرب ورقم الهوية وصورة الرمز */}
-          <div className="flex items-center justify-end gap-2 text-right">
-            <div>
-              <h3 className="font-bold text-gray-800 text-xs">اسم الطالب المتدرب</h3>
-              <span className="text-[10px] text-gray-500 font-mono block">رقم الهوية: 2345****10</span>
-            </div>
-            <div className="w-9 h-9 bg-gray-200 rounded-full flex items-center justify-center text-gray-600 font-bold text-xs flex-shrink-0">
+          {/* اليمين: صورة الطالب، الاسم، ورقم الهوية */}
+          <div className="flex items-center justify-start gap-3 text-right">
+            <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center text-gray-600 font-bold text-xs flex-shrink-0 shadow-inner">
               صورة
             </div>
+            <div>
+              <h3 className="font-bold text-gray-800 text-xs md:text-sm">اسم الطالب المتدرب</h3>
+              <span className="text-[11px] text-gray-500 font-mono block">رقم الهوية: 2345****10</span>
+            </div>
+          </div>
+
+          {/* اليسار: الاختبار المحاكي الشامل والأقسام في صف واحد */}
+          <div className="bg-blue-50/70 border border-blue-100 px-3 py-2 rounded-xl text-right sm:text-left">
+            <span className="font-bold text-blue-900 text-xs md:text-sm block">{currentExam.title}</span>
+            <span className="text-[11px] text-blue-700 font-medium">القسم {currentSectionIndex + 1} من {TOTAL_SECTIONS} | السؤال {currentQuestionIndex + 1} من {QUESTIONS_PER_SECTION}</span>
           </div>
 
         </div>
@@ -491,7 +480,7 @@ function ExamContent() {
             {formatTime(timeLeft)}
           </span>
         </div>
-      </header>
+      </div>
 
       {/* منطقة محتوى السؤال والخيارات بتنسيق مثالي يملأ المساحة بدون مساحات فارغة */}
       <main className="flex-grow bg-white shadow-sm rounded-xl max-w-6xl mx-auto w-full border border-gray-200 flex flex-col min-h-0 overflow-hidden">
