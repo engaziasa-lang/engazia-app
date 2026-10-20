@@ -10,11 +10,9 @@ export default function RootLayout({
 }) {
   const [showWhatsApp, setShowWhatsApp] = useState(true);
 
-  // إضافة تأثير لإظهار الأيقونة فقط بعد تحميل الصفحة
   useEffect(() => {
     const container = document.getElementById('whatsapp-widget-container');
     if (container) {
-      // تأخير بسيط لضمان عمل الـ animation بسلاسة
       const timer = setTimeout(() => {
         container.classList.remove('whatsapp-hidden');
         container.classList.add('whatsapp-visible');
@@ -28,8 +26,6 @@ export default function RootLayout({
       <head>
         <title>منصة إنجازيا للحلول المالية والرقمية - اختبارات القدرات</title>
         <meta name="description" content="منصة تدريبية متقدمة لاختبارات القدرات العامة" />
-        
-        {/* تنسيقات CSS مضمنة لمنع ظهور الأيقونة بحجم كبير عند التحديث */}
         <style>{`
           #whatsapp-widget-container.whatsapp-hidden {
             opacity: 0;
@@ -43,12 +39,27 @@ export default function RootLayout({
           }
         `}</style>
       </head>
+      {/* تأكدنا من وجود min-h-screen و flex-col لضمان بقاء الفوتر بالأسفل */}
       <body className="bg-gray-50 text-gray-900 antialiased min-h-screen flex flex-col font-sans">
         
         {/* محتوى الصفحات */}
         <main className="flex-grow">
           {children}
         </main>
+
+        {/* الفوتر (تذييل الصفحة) - تمت إضافته هنا */}
+        <footer className="bg-white border-t border-gray-200 mt-auto">
+          <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="text-gray-500 text-sm text-center md:text-right font-medium">
+              © {new Date().getFullYear()} منصة إنجازيا للحلول المالية والرقمية. جميع الحقوق محفوظة.
+            </div>
+            <div className="flex gap-6 text-sm text-gray-500">
+              <a href="#" className="hover:text-green-600 transition-colors">الشروط والأحكام</a>
+              <a href="#" className="hover:text-green-600 transition-colors">سياسة الخصوصية</a>
+              <a href="https://wa.me/966541313564" target="_blank" rel="noopener noreferrer" className="hover:text-green-600 transition-colors">الدعم الفني</a>
+            </div>
+          </div>
+        </footer>
 
         {/* أيقونة الواتساب العائمة وزر الإغلاق */}
         {showWhatsApp && (
@@ -57,8 +68,6 @@ export default function RootLayout({
             className="fixed bottom-6 left-6 z-[9999] flex flex-col-reverse items-end gap-2 whatsapp-hidden"
             title="تواصل معنا عبر واتساب للدعم الفني أو التحويل البنكي"
           >
-            
-            {/* زر الإغلاق (x) */}
             <button
               onClick={() => setShowWhatsApp(false)}
               className="bg-white text-gray-500 hover:text-red-600 rounded-full w-5 h-5 flex items-center justify-center shadow-md border border-gray-100 transition-colors cursor-pointer focus:outline-none group"
@@ -70,7 +79,6 @@ export default function RootLayout({
               </svg>
             </button>
 
-            {/* أيقونة الواتساب العائمة */}
             <a
               href="https://wa.me/966541313564"
               target="_blank"
