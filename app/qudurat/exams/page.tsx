@@ -92,37 +92,34 @@ export default function ExamsDashboard() {
         </div>
       )}
 
-      {/* الهيدر العلوي المنسق باحترافية لتجنب أي تداخل في الجوال */}
-      <header className="bg-white shadow-sm rounded-2xl p-4 md:p-6 max-w-5xl mx-auto w-full mb-8 border border-gray-200">
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-          
-          {/* اليمين: اللوجو واسم المنصة والوصف */}
-          <div className="flex items-center gap-3 w-full md:w-auto justify-start">
-            <div className="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow-md flex-shrink-0">
-              <span>ك</span>
-            </div>
-            <div className="text-right">
-              <h2 className="text-base md:text-lg font-extrabold text-gray-900 tracking-tight">منصة كليك قدرات</h2>
-              <span className="text-xs font-semibold text-blue-600 block">الاحتراف في التدريب المحاكي</span>
-            </div>
+      {/* الهيدر العلوي المنسق باحترافية (الشعار في الأعلى، وتحته الأزرار بشكل متناسق تماماً) */}
+      <header className="bg-white shadow-sm rounded-3xl p-6 md:p-8 max-w-4xl mx-auto w-full mb-10 border border-gray-200 text-center flex flex-col items-center">
+        
+        {/* اللوجو واسم المنصة */}
+        <div className="flex items-center justify-center gap-3 mb-3">
+          <div className="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow-md flex-shrink-0">
+            <span>ك</span>
           </div>
-
-          {/* المنتصف/اليسار: أزرار الشراء والتفعيل (تختفي عند الاشتراك) */}
-          {!isUserSubscribed && (
-            <div className="flex items-center gap-2 w-full md:w-auto justify-end">
-              <a href="https://enjazya.lemonsqueezy.com/checkout/buy/13f3f36f-c53b-4227-91c6-b556ae13aee2" target="_blank" rel="noopener noreferrer" className="flex-1 md:flex-initial bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs md:text-sm shadow-md transition-all text-center whitespace-nowrap">
-                🛒 اشترِ الباقة
-              </a>
-              <button onClick={() => setIsModalOpen(true)} className="flex-1 md:flex-initial bg-slate-800 hover:bg-slate-900 text-white font-bold px-4 py-2.5 rounded-xl text-xs md:text-sm shadow-md transition-all text-center whitespace-nowrap">
-                🔑 لدي كود
-              </button>
-            </div>
-          )}
-
+          <div className="text-right">
+            <h2 className="text-lg md:text-xl font-extrabold text-gray-900 tracking-tight">منصة كليك قدرات</h2>
+            <span className="text-xs font-semibold text-blue-600 block">الاحتراف في التدريب المحاكي</span>
+          </div>
         </div>
 
+        {/* أزرار الشراء والتفعيل (تظهر أسفل المنصة بشكل مرتب وجميل وتختفي عند الاشتراك) */}
+        {!isUserSubscribed && (
+          <div className="flex items-center justify-center gap-3 w-full max-w-xs mt-3 mb-6">
+            <a href="https://enjazya.lemonsqueezy.com/checkout/buy/13f3f36f-c53b-4227-91c6-b556ae13aee2" target="_blank" rel="noopener noreferrer" className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs md:text-sm shadow-md transition-all text-center whitespace-nowrap">
+              🛒 اشترِ الباقة
+            </a>
+            <button onClick={() => setIsModalOpen(true)} className="flex-1 bg-slate-800 hover:bg-slate-900 text-white font-bold px-4 py-2.5 rounded-xl text-xs md:text-sm shadow-md transition-all text-center whitespace-nowrap">
+              🔑 لدي كود
+            </button>
+          </div>
+        )}
+
         {/* عنوان لوحة الاختبارات */}
-        <div className="text-center mt-6 pt-4 border-t border-gray-100">
+        <div className="w-full pt-4 border-t border-gray-100">
           <h1 className="text-2xl md:text-3xl font-extrabold text-gray-800">
             لوحة الاختبارات الشاملة
           </h1>
