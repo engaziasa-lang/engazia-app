@@ -62,7 +62,7 @@ export default function ExamsDashboard() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-10" dir="rtl">
+    <div className="max-w-7xl mx-auto px-4 py-6 md:py-10" dir="rtl">
       
       {/* نافذة إدخال كود التفعيل */}
       {isModalOpen && (
@@ -92,38 +92,44 @@ export default function ExamsDashboard() {
         </div>
       )}
 
-      {/* الهيدر العلوي */}
-      <header className="flex flex-col items-center justify-center mb-12 text-center">
-        <div className="flex items-center justify-between w-full max-w-3xl mb-6 px-4">
-          <div className="flex items-center gap-3">
-            <div className="relative w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow-md">
+      {/* الهيدر العلوي المنسق باحترافية لتجنب أي تداخل في الجوال */}
+      <header className="bg-white shadow-sm rounded-2xl p-4 md:p-6 max-w-5xl mx-auto w-full mb-8 border border-gray-200">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+          
+          {/* اليمين: اللوجو واسم المنصة والوصف */}
+          <div className="flex items-center gap-3 w-full md:w-auto justify-start">
+            <div className="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow-md flex-shrink-0">
               <span>ك</span>
             </div>
             <div className="text-right">
-              <h2 className="text-xl font-extrabold text-gray-900 tracking-tight">منصة كليك قدرات</h2>
-              <span className="text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">الاحتراف في التدريب المحاكي</span>
+              <h2 className="text-base md:text-lg font-extrabold text-gray-900 tracking-tight">منصة كليك قدرات</h2>
+              <span className="text-xs font-semibold text-blue-600 block">الاحتراف في التدريب المحاكي</span>
             </div>
           </div>
 
-          {/* زر اشترِ الباقة وتفعيل الكود إذا لم يكن مشتركاً */}
+          {/* المنتصف/اليسار: أزرار الشراء والتفعيل (تختفي عند الاشتراك) */}
           {!isUserSubscribed && (
-            <div className="flex items-center gap-2">
-              <a href="https://enjazya.lemonsqueezy.com/checkout/buy/13f3f36f-c53b-4227-91c6-b556ae13aee2" target="_blank" rel="noopener noreferrer" className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-xl text-xs shadow-md transition-all flex items-center gap-1">
+            <div className="flex items-center gap-2 w-full md:w-auto justify-end">
+              <a href="https://enjazya.lemonsqueezy.com/checkout/buy/13f3f36f-c53b-4227-91c6-b556ae13aee2" target="_blank" rel="noopener noreferrer" className="flex-1 md:flex-initial bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs md:text-sm shadow-md transition-all text-center whitespace-nowrap">
                 🛒 اشترِ الباقة
               </a>
-              <button onClick={() => setIsModalOpen(true)} className="bg-slate-800 hover:bg-slate-900 text-white font-bold px-4 py-2 rounded-xl text-xs shadow-md transition-all">
+              <button onClick={() => setIsModalOpen(true)} className="flex-1 md:flex-initial bg-slate-800 hover:bg-slate-900 text-white font-bold px-4 py-2.5 rounded-xl text-xs md:text-sm shadow-md transition-all text-center whitespace-nowrap">
                 🔑 لدي كود
               </button>
             </div>
           )}
+
         </div>
 
-        <h1 className="text-3xl md:text-4xl font-extrabold text-gray-800 mt-2">
-          لوحة الاختبارات الشاملة
-        </h1>
-        <p className="text-gray-500 text-sm mt-2 max-w-md">
-          اختر الاختبار لبدء التدريب المحاكي المكون من 5 أقسام.
-        </p>
+        {/* عنوان لوحة الاختبارات */}
+        <div className="text-center mt-6 pt-4 border-t border-gray-100">
+          <h1 className="text-2xl md:text-3xl font-extrabold text-gray-800">
+            لوحة الاختبارات الشاملة
+          </h1>
+          <p className="text-gray-500 text-xs md:text-sm mt-1">
+            اختر الاختبار لبدء التدريب المحاكي المكون من 5 أقسام.
+          </p>
+        </div>
       </header>
       
       {/* شبكة عرض البطاقات */}
@@ -134,7 +140,7 @@ export default function ExamsDashboard() {
           return (
             <div 
               key={exam.id} 
-              className={`bg-white rounded-2xl border p-8 text-center shadow-sm transition-all duration-200 flex flex-col justify-between ${isLocked ? 'border-gray-200 bg-gray-50/50' : 'border-gray-200 hover:border-blue-500 hover:shadow-md'}`}
+              className={`bg-white rounded-2xl border p-6 md:p-8 text-center shadow-sm transition-all duration-200 flex flex-col justify-between ${isLocked ? 'border-gray-200 bg-gray-50/50' : 'border-gray-200 hover:border-blue-500 hover:shadow-md'}`}
             >
               <div>
                 <div className="flex justify-between items-center mb-4">
@@ -162,14 +168,14 @@ export default function ExamsDashboard() {
               {isLocked ? (
                 <button 
                   onClick={() => setIsModalOpen(true)}
-                  className="w-full bg-slate-800 hover:bg-slate-900 text-white font-semibold py-3 px-4 rounded-xl transition-all shadow-sm text-center cursor-pointer"
+                  className="w-full bg-slate-800 hover:bg-slate-900 text-white font-semibold py-3 px-4 rounded-xl transition-all shadow-sm text-center cursor-pointer text-sm"
                 >
                   🔒 تفعيل بـكود أو اشتراك
                 </button>
               ) : (
                 <Link 
                   href={`/qudurat/test?examId=${exam.id}`}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-xl transition-all shadow-sm block text-center"
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-xl transition-all shadow-sm block text-center text-sm"
                 >
                   ابدأ الاختبار الآن
                 </Link>
