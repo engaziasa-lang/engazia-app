@@ -427,53 +427,54 @@ function ExamContent() {
         isActivating={isActivating}
       />
 
-      {/* شريط الاشتراك العلوي */}
+      {/* شريط الاشتراك العلوي المصغر */}
       {!isUserSubscribed ? (
-        <div className="flex-shrink-0 max-w-5xl mx-auto w-full mb-1 bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 flex justify-between items-center text-xs shadow-sm">
+        <div className="flex-shrink-0 max-w-6xl mx-auto w-full mb-1 bg-slate-50 border border-slate-200 rounded-lg px-3 py-1 flex justify-between items-center text-xs shadow-sm">
           <div className="text-slate-600 font-medium">
             ✨ أنت في <span className="font-bold text-slate-800">{currentExam.title}</span>
           </div>
           <div className="flex items-center gap-2">
-            <a href="/qudurat/exams" className="bg-white border border-gray-200 text-gray-700 font-bold px-2.5 py-1 rounded-md">🗂️ الاختبارات</a>
-            <a href="https://enjazya.lemonsqueezy.com/checkout/buy/13f3f36f-c53b-4227-91c6-b556ae13aee2" target="_blank" rel="noopener noreferrer" className="bg-blue-600 text-white font-bold px-3 py-1 rounded-md">🛒 اشترِ الباقة</a>
+            <a href="/qudurat/exams" className="bg-white border border-gray-200 text-gray-700 font-bold px-2.5 py-0.5 rounded-md">🗂️ الاختبارات</a>
+            <a href="https://enjazya.lemonsqueezy.com/checkout/buy/13f3f36f-c53b-4227-91c6-b556ae13aee2" target="_blank" rel="noopener noreferrer" className="bg-blue-600 text-white font-bold px-3 py-0.5 rounded-md">🛒 اشترِ الباقة</a>
           </div>
         </div>
       ) : (
-        <div className="flex-shrink-0 max-w-5xl mx-auto w-full mb-1 bg-green-50/50 border border-green-200 rounded-lg px-3 py-1.5 flex justify-between items-center text-xs shadow-sm">
+        <div className="flex-shrink-0 max-w-6xl mx-auto w-full mb-1 bg-green-50/50 border border-green-200 rounded-lg px-3 py-1 flex justify-between items-center text-xs shadow-sm">
           <div className="text-green-700 font-bold">🌟 حسابك VIP مفعل في {currentExam.title}</div>
-          <a href="/qudurat/exams" className="bg-white border border-gray-200 text-gray-700 font-bold px-2.5 py-1 rounded-md">🗂️ جميع الاختبارات</a>
+          <a href="/qudurat/exams" className="bg-white border border-gray-200 text-gray-700 font-bold px-2.5 py-0.5 rounded-md">🗂️ جميع الاختبارات</a>
         </div>
       )}
 
-      {/* الهيدر المدمج (صف واحد للجوال + عداد الوقت بالأسفل بخط كبير) */}
-      <header className="flex-shrink-0 bg-white shadow-sm rounded-xl p-2.5 md:p-3 max-w-5xl mx-auto w-full mb-1.5 border border-gray-200">
+      {/* الهيدر المحسن والموحد للجوال والكمبيوتر */}
+      <header className="flex-shrink-0 bg-white shadow-sm rounded-xl p-2.5 md:p-4 max-w-6xl mx-auto w-full mb-1.5 border border-gray-200">
         <div className="flex items-center justify-between gap-2 border-b border-gray-100 pb-2">
           
-          {/* اليمين: اللوجو واسم المنصة */}
+          {/* اللوجو واسم المنصة باحترافية */}
           <div className="flex items-center gap-2 flex-shrink-0">
-            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-sm shadow-sm">
+            <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center text-white font-extrabold text-base shadow-sm">
               <span>ك</span>
             </div>
-            <div className="hidden sm:block text-right">
-              <h3 className="font-extrabold text-gray-900 text-xs">منصة كليك قدرات</h3>
+            <div className="text-right">
+              <h3 className="font-extrabold text-gray-900 text-xs md:text-sm">منصة كليك قدرات</h3>
+              <span className="text-[10px] text-gray-400 block">تدريب محاكي متقدم</span>
             </div>
           </div>
 
-          {/* الوسط واليسار: بيانات الطالب واسم الاختبار والقسم في صف واحد متناسق */}
-          <div className="flex items-center gap-3 text-right flex-grow justify-end text-xs">
-            <div className="truncate">
+          {/* بيانات الطالب والاختبار في صف واحد */}
+          <div className="flex items-center gap-2 md:gap-4 text-right flex-grow justify-end text-xs">
+            <div className="hidden sm:block truncate">
               <span className="font-bold text-gray-800 block truncate">اسم الطالب المتدرب</span>
               <span className="text-[10px] text-gray-400 font-mono">10****2345</span>
             </div>
-            <div className="h-7 w-[1px] bg-gray-200 flex-shrink-0"></div>
-            <div className="bg-blue-50/60 border border-blue-100 px-2.5 py-1 rounded-lg text-right flex-shrink-0">
-              <span className="font-bold text-blue-900 text-[11px] block">{currentExam.title}</span>
+            <div className="h-7 w-[1px] bg-gray-200 flex-shrink-0 hidden sm:block"></div>
+            <div className="bg-blue-50/70 border border-blue-100 px-3 py-1 rounded-xl text-right flex-shrink-0">
+              <span className="font-bold text-blue-900 text-xs block">{currentExam.title}</span>
               <span className="text-[10px] text-blue-700 font-medium">القسم {currentSectionIndex + 1} من {TOTAL_SECTIONS} | س {currentQuestionIndex + 1}/25</span>
             </div>
           </div>
         </div>
 
-        {/* عداد الوقت في الأسفل بخط كبير وبارز */}
+        {/* عداد الوقت في المنتصف بخط كبير وبارز */}
         <div className="mt-2 text-center">
           <span className="font-mono font-black text-2xl md:text-3xl text-blue-700 tracking-wider">
             {formatTime(timeLeft)}
@@ -481,33 +482,31 @@ function ExamContent() {
         </div>
       </header>
 
-      {/* منطقة محتوى السؤال والخيارات (ظاهرة بالكامل دون الحاجة للتمرير السفلي المزعج) */}
-      <main className="flex-grow bg-white shadow-sm rounded-xl max-w-5xl mx-auto w-full border border-gray-200 flex flex-col min-h-0 overflow-hidden">
+      {/* منطقة محتوى السؤال والخيارات بتنسيق مثالي يملأ المساحة بدون مساحات فارغة */}
+      <main className="flex-grow bg-white shadow-sm rounded-xl max-w-6xl mx-auto w-full border border-gray-200 flex flex-col min-h-0 overflow-hidden">
         {currentQuestion ? (
-          <div className="flex-grow overflow-y-auto p-3 md:p-6">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+          <div className="flex-grow overflow-y-auto p-4 md:p-8 flex flex-col justify-center">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 items-center max-w-5xl mx-auto w-full">
               
-              {/* نص السؤال */}
-              <div className="lg:col-span-5 lg:border-l lg:border-gray-100 lg:pl-6">
-                <div className="mb-1.5">
-                  <span className="inline-block bg-blue-50 text-blue-700 text-xs px-2.5 py-0.5 rounded-full font-semibold">{currentQuestion.category}</span>
-                </div>
-                <h2 className="text-base md:text-xl font-bold text-gray-900 leading-relaxed">{currentQuestion.text}</h2>
+              {/* نص السؤال (بحجم خط كبير ومريح للعين) */}
+              <div className="lg:col-span-5 lg:border-l lg:border-gray-100 lg:pl-8 space-y-2">
+                <span className="inline-block bg-blue-50 text-blue-700 text-xs px-3 py-1 rounded-full font-semibold">{currentQuestion.category}</span>
+                <h2 className="text-lg md:text-2xl font-bold text-gray-900 leading-relaxed">{currentQuestion.text}</h2>
               </div>
 
-              {/* خيارات الإجابة بخط مناسب */}
-              <div className="lg:col-span-7 space-y-2">
+              {/* خيارات الإجابة (خط مناسب وظاهرة بالكامل) */}
+              <div className="lg:col-span-7 space-y-3">
                 {currentQuestion.options.map((option, idx) => {
                   const isSelected = selectedAnswers[currentQuestion.id] === option;
                   return (
                     <button 
                       key={idx} 
                       onClick={() => handleSelectOption(option)} 
-                      className={`w-full text-right p-3 md:p-3.5 rounded-xl border-2 font-medium transition-all cursor-pointer flex justify-between items-center ${isSelected ? 'border-blue-600 bg-blue-50/50 text-blue-950 shadow-sm' : 'border-gray-200 hover:border-gray-300 bg-white text-gray-800'}`}
+                      className={`w-full text-right p-3.5 md:p-4 rounded-xl border-2 font-medium transition-all cursor-pointer flex justify-between items-center ${isSelected ? 'border-blue-600 bg-blue-50/50 text-blue-950 shadow-sm' : 'border-gray-200 hover:border-gray-300 bg-white text-gray-800'}`}
                     >
-                      <span className="text-sm md:text-base font-bold">{option}</span>
-                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${isSelected ? 'border-blue-600 bg-blue-600' : 'border-gray-300'}`}>
-                        {isSelected && <div className="w-2 h-2 bg-white rounded-full" />}
+                      <span className="text-sm md:text-lg font-bold">{option}</span>
+                      <div className={`w-5 h-5 md:w-6 md:h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${isSelected ? 'border-blue-600 bg-blue-600' : 'border-gray-300'}`}>
+                        {isSelected && <div className="w-2 h-2 md:w-2.5 md:h-2.5 bg-white rounded-full" />}
                       </div>
                     </button>
                   );
@@ -520,12 +519,12 @@ function ExamContent() {
           <div className="flex-grow flex items-center justify-center font-bold text-gray-400">جاري تحميل السؤال...</div>
         )}
 
-        {/* أزرار التنقل (السابق / التالي) داخل المساحة المتاحة وبدون فوتر خارجي مزعج */}
-        <div className="flex-shrink-0 flex justify-between items-center px-4 py-2.5 md:px-6 border-t border-gray-100 bg-gray-50/50">
-          <button onClick={handlePrev} disabled={currentQuestionIndex === 0 && currentSectionIndex === 0} className={`px-5 py-2 rounded-xl font-bold text-xs md:text-sm ${currentQuestionIndex === 0 && currentSectionIndex === 0 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-gray-200 text-gray-700 hover:bg-gray-300 cursor-pointer'}`}>
+        {/* أزرار التنقل (بدون فوتر سفلي مزعج، مدمجة باحترافية داخل الحاوية) */}
+        <div className="flex-shrink-0 flex justify-between items-center px-4 py-3 md:px-8 border-t border-gray-100 bg-gray-50/50">
+          <button onClick={handlePrev} disabled={currentQuestionIndex === 0 && currentSectionIndex === 0} className={`px-6 py-2.5 rounded-xl font-bold text-xs md:text-sm ${currentQuestionIndex === 0 && currentSectionIndex === 0 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-gray-200 text-gray-700 hover:bg-gray-300 cursor-pointer'}`}>
             السابق
           </button>
-          <button onClick={handleNext} className="px-6 py-2 rounded-xl font-bold text-xs md:text-sm bg-blue-600 hover:bg-blue-700 text-white shadow-md cursor-pointer">
+          <button onClick={handleNext} className="px-8 py-2.5 rounded-xl font-bold text-xs md:text-sm bg-blue-600 hover:bg-blue-700 text-white shadow-md cursor-pointer">
             {currentSectionIndex === TOTAL_SECTIONS - 1 && currentQuestionIndex === currentSectionQuestions.length - 1 ? 'إنهاء الاختبار' : 'التالي'}
           </button>
         </div>
