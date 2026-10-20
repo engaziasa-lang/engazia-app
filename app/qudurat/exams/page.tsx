@@ -7,11 +7,12 @@ export default function ExamsDashboard() {
     id: index + 1,
     title: `الاختبار المحاكي الشامل ${index + 1}`,
     description: '125 سؤال - قسم كمي ولفظي مدمج',
-    link: `/exams/${index + 1}` // مسار رابط كل اختبار (تأكد من مطابقته لمسارات مشروعك)
+    // تم تصحيح المسار ليوجه إلى صفحة الاختبار الفعلية مع تمرير رقم الاختبار
+    link: `/qudurat/test?examId=${index + 1}` 
   }));
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-12">
+    <div className="max-w-7xl mx-auto px-4 py-12" dir="rtl">
       <h1 className="text-3xl font-bold text-center text-gray-900 mb-10">
         لوحة الاختبارات الشاملة
       </h1>
@@ -34,7 +35,7 @@ export default function ExamsDashboard() {
             
             <Link 
               href={exam.link}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors block"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors block text-center"
             >
               ابدأ الاختبار الآن
             </Link>
