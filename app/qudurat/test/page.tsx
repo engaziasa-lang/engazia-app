@@ -427,55 +427,60 @@ function ExamContent() {
         isActivating={isActivating}
       />
 
-      {/* الهيدر العلوي (شريط موحد مرتب لجميع الأجهزة) */}
-      <header className="flex-shrink-0 bg-white shadow-sm rounded-xl px-3 py-2 max-w-6xl mx-auto w-full mb-1.5 border border-gray-200 flex flex-wrap justify-between items-center gap-2">
+      {/* الهيدر العلوي المدمج والمرتب (الهوية يمين، أزرار الباقة والاختبارات عمودياً فوق بعض مكان عداد الوقت القديم، ويساراً بيانات الاختبار) */}
+      <header className="flex-shrink-0 bg-white shadow-sm rounded-xl px-3 py-2 max-w-6xl mx-auto w-full mb-1.5 border border-gray-200 flex justify-between items-center">
         
-        {/* اليمين: هوية المنصة وبيانات الطالب */}
-        <div className="flex items-center gap-3">
+        {/* اليمين: هوية المنصة ومعلومات الطالب */}
+        <div className="flex items-center gap-2.5">
           <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center text-white font-extrabold text-base shadow-sm">
             <span>ك</span>
           </div>
           <div className="text-right">
             <h3 className="font-extrabold text-gray-900 text-xs md:text-sm">منصة كليك قدرات</h3>
-            <span className="text-[10px] text-gray-500">اسم الطالب: <span className="font-bold text-gray-700">الطالب المتدرب</span> (10****2345)</span>
+            <span className="text-[10px] text-gray-500">الطالب: <span className="font-bold">الطالب المتدرب</span> (10****2345)</span>
           </div>
         </div>
 
-        {/* المنتصف: عداد الوقت البارز */}
-        <div className="bg-blue-50 px-3 py-1 rounded-xl border border-blue-100 text-center">
-          <span className="font-mono font-black text-lg md:text-2xl text-blue-700 tracking-wider">
+        {/* المنتصف: أزرار الاختبارات والباقة فوق بعض بشكل عمودي مرتب */}
+        <div className="flex flex-col gap-1 items-center">
+          <a href="/qudurat/exams" className="bg-white border border-gray-300 text-gray-800 font-bold px-3 py-0.5 rounded-md text-[11px] shadow-sm hover:bg-gray-50 transition-all whitespace-nowrap">
+            🗂️ الاختبارات
+          </a>
+          <a href="https://enjazya.lemonsqueezy.com/checkout/buy/13f3f36f-c53b-4227-91c6-b556ae13aee2" target="_blank" rel="noopener noreferrer" className="bg-blue-600 text-white font-bold px-3 py-0.5 rounded-md text-[11px] shadow-sm hover:bg-blue-700 transition-all whitespace-nowrap">
+            🛒 اشترِ الباقة
+          </a>
+        </div>
+
+        {/* اليسار: الاختبار المحاكي والأقسام */}
+        <div className="text-left bg-gray-50 px-2.5 py-1 rounded-lg border border-gray-100">
+          <span className="font-bold text-blue-900 text-xs block">{currentExam.title}</span>
+          <span className="text-[10px] text-blue-700 font-medium">القسم {currentSectionIndex + 1}/5 | س {currentQuestionIndex + 1}/25</span>
+        </div>
+
+      </header>
+
+      {/* عداد الوقت في الأسفل بقليل، متمركز بشكل واضح وبارز */}
+      <div className="flex-shrink-0 max-w-6xl mx-auto w-full mb-1.5 flex justify-center">
+        <div className="bg-white px-6 py-1 rounded-xl shadow-sm border border-blue-100 text-center">
+          <span className="font-mono font-black text-xl md:text-2xl text-blue-700 tracking-wider">
             {formatTime(timeLeft)}
           </span>
         </div>
+      </div>
 
-        {/* اليسار: معلومات الاختبار والأقسام وأزرار التنقل السريع */}
-        <div className="flex items-center gap-2">
-          <div className="bg-gray-50 px-3 py-1 rounded-xl border border-gray-100 text-left hidden sm:block">
-            <span className="font-bold text-blue-900 text-xs block">{currentExam.title}</span>
-            <span className="text-[10px] text-blue-700 font-medium">القسم {currentSectionIndex + 1}/5 | س {currentQuestionIndex + 1}/25</span>
-          </div>
-          <a href="/qudurat/exams" className="bg-white border border-gray-300 text-gray-800 font-bold px-2.5 py-1.5 rounded-lg text-xs shadow-sm hover:bg-gray-50 transition-all">
-            🗂️ الاختبارات
-          </a>
-          <a href="https://enjazya.lemonsqueezy.com/checkout/buy/13f3f36f-c53b-4227-91c6-b556ae13aee2" target="_blank" rel="noopener noreferrer" className="bg-blue-600 text-white font-bold px-3 py-1.5 rounded-lg text-xs shadow-sm hover:bg-blue-700 transition-all">
-            🛒 الباقة
-          </a>
-        </div>
-      </header>
-
-      {/* منطقة محتوى السؤال والخيارات (استغلال كامل للمساحة وبدون مساحات فارغة) */}
+      {/* منطقة محتوى السؤال والخيارات (استغلال كامل للمساحة وبدون تمرير) */}
       <main className="flex-grow bg-white shadow-sm rounded-xl max-w-6xl mx-auto w-full border border-gray-200 flex flex-col min-h-0 overflow-hidden">
         {currentQuestion ? (
           <div className="flex-grow overflow-y-auto p-4 md:p-8 flex flex-col justify-center">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-10 items-center max-w-5xl mx-auto w-full">
               
-              {/* نص السؤال (مساحة واسعة وخط بارز ومريح) */}
+              {/* نص السؤال */}
               <div className="lg:col-span-6 lg:border-l lg:border-gray-100 lg:pl-8 space-y-3">
                 <span className="inline-block bg-blue-50 text-blue-700 text-xs px-3 py-1 rounded-full font-semibold">{currentQuestion.category}</span>
                 <h2 className="text-lg md:text-2xl font-bold text-gray-900 leading-relaxed">{currentQuestion.text}</h2>
               </div>
 
-              {/* خيارات الإجابة (تنسيق احترافي ومتوازن) */}
+              {/* خيارات الإجابة */}
               <div className="lg:col-span-6 space-y-3">
                 {currentQuestion.options.map((option, idx) => {
                   const isSelected = selectedAnswers[currentQuestion.id] === option;
@@ -500,7 +505,7 @@ function ExamContent() {
           <div className="flex-grow flex items-center justify-center font-bold text-gray-400">جاري تحميل السؤال...</div>
         )}
 
-        {/* أزرار التنقل (مدمجة باحترافية داخل الحاوية وبدون فوتر خارجي مزعج) */}
+        {/* أزرار التنقل */}
         <div className="flex-shrink-0 flex justify-between items-center px-4 py-3 md:px-8 border-t border-gray-100 bg-gray-50/50">
           <button onClick={handlePrev} disabled={currentQuestionIndex === 0 && currentSectionIndex === 0} className={`px-6 py-2.5 rounded-xl font-bold text-xs md:text-sm ${currentQuestionIndex === 0 && currentSectionIndex === 0 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-gray-200 text-gray-700 hover:bg-gray-300 cursor-pointer'}`}>
             السابق
