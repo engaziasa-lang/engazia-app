@@ -2,8 +2,8 @@
 'use client';
 
 import React, { useState, useEffect } from "react";
-// 👈 هذا السطر ضروري جداً لإعادة تشغيل التنسيقات وضبط حجم الأيقونة والفوتر
-import "./globals.css"; 
+// تم تحديث المسار لضمان عمل التنسيقات (Tailwind) وتفادي خطأ البناء
+import "../globals.css"; 
 
 export default function RootLayout({
   children,
@@ -12,6 +12,7 @@ export default function RootLayout({
 }) {
   const [showWhatsApp, setShowWhatsApp] = useState(true);
 
+  // تأثير لإظهار الأيقونة بنعومة بعد تحميل الصفحة وتفادي الحجم الكبير
   useEffect(() => {
     const container = document.getElementById('whatsapp-widget-container');
     if (container) {
@@ -54,7 +55,7 @@ export default function RootLayout({
             <div className="text-gray-500 text-sm text-center md:text-right font-medium">
               © {new Date().getFullYear()} منصة كليك قدرات. جميع الحقوق محفوظة.
             </div>
-            <div className="flex gap-6 text-sm text-gray-500">
+            <div className="flex gap-6 text-sm text-gray-500 justify-center md:justify-start">
               <a href="/terms" className="hover:text-green-600 transition-colors">الشروط والأحكام</a>
               <a href="/privacy" className="hover:text-green-600 transition-colors">سياسة الخصوصية</a>
               <a href="https://wa.me/966541313564" target="_blank" rel="noopener noreferrer" className="hover:text-green-600 transition-colors">الدعم الفني</a>
