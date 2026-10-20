@@ -1,13 +1,13 @@
 // app/qudurat/lib/examsConfig.ts
 
-export const EXAMS_DATA = Array.from({ length: 10 }, (_, index) => {
+export const EXAMS_DATA = Array.from({ length: 30 }, (_, index) => {
   const examNumber = index + 1;
   return {
     id: examNumber,
     title: `الاختبار المحاكي الشامل ${examNumber}`,
     description: "125 سؤال - قسم كمي ولفظي مدمج",
-    isFree: examNumber === 1, // الاختبار الأول فقط مجاني
-    startIndex: index * 125,  // نقطة البداية لقص الأسئلة
-    endIndex: (index + 1) * 125, // نقطة النهاية
+    isFree: examNumber === 1, // الاختبار الأول فقط مجاني والبقية للمشتركين
+    startIndex: index * 125,  // نقطة البداية لقص الأسئلة (لكل اختبار 125 سؤالاً فريداً)
+    endIndex: (index + 1) * 125, // نقطة النهاية (تغطي 3750 سؤالاً كاملاً لـ 30 اختباراً)
   };
 });
