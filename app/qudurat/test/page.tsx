@@ -427,14 +427,18 @@ function ExamContent() {
         isActivating={isActivating}
       />
 
-      {/* الهيدر القديم الأصلي مع التعديل المطلوب: زر الباقة والاختبارات في المنتصف وبشكل بارز وأنيق */}
+      {/* الهيدر الأصلي المعتمد مع إضافة لوجو المنصة (ك) في أعلى اليمين بجانب اسم الطالب وفي المنتصف أزرار الاختبارات والباقة البارزة */}
       <header className="flex-shrink-0 bg-white shadow-sm rounded-2xl p-3 md:p-4 max-w-5xl mx-auto w-full mb-2 border border-gray-200">
         <div className="flex flex-col md:flex-row justify-between items-center gap-3">
           
-          {/* اليمين: صورة الطالب والاسم والهوية */}
+          {/* اليمين: اللوجو (ك) + صورة الطالب والاسم والهوية */}
           <div className="flex items-center gap-3 w-full md:w-auto justify-between md:justify-start">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center text-gray-600 font-bold text-xs">صورة</div>
+              {/* لوجو منصة كليك قدرات */}
+              <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-extrabold text-base shadow-sm flex-shrink-0">
+                <span>ك</span>
+              </div>
+              <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center text-gray-600 font-bold text-xs flex-shrink-0">صورة</div>
               <div className="text-right">
                 <h3 className="font-bold text-gray-800 text-xs md:text-sm">اسم الطالب المتدرب</h3>
                 <span className="text-xs text-gray-500 font-mono">رقم الهوية: 10****2345</span>
@@ -442,19 +446,19 @@ function ExamContent() {
             </div>
           </div>
 
-          {/* المنتصف: عداد الوقت القديم + أزرار "الاختبارات" و"اشترِ الباقة" بارزة ومتوسطة */}
+          {/* المنتصف: عداد الوقت القديم + أزرار "الاختبارات" و"اشترِ الباقة" متمركزة وبارزة بشكل جميل */}
           <div className="flex items-center gap-3 my-1 md:my-0">
             <div className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-1.5 shadow-sm text-center">
               <span className="font-mono font-bold text-xl md:text-2xl text-blue-900">{formatTime(timeLeft)}</span>
             </div>
             
-            {/* أزرار الاختبارات والباقة البارزة في الوسط */}
+            {/* أزرار الاختبارات والباقة في الوسط متمركزة وبارزة */}
             <div className="flex items-center gap-2">
-              <a href="/qudurat/exams" className="bg-white border-2 border-gray-200 text-gray-700 hover:bg-gray-50 font-bold px-3 py-1.5 rounded-xl text-xs shadow-sm flex items-center gap-1 transition-all">
+              <a href="/qudurat/exams" className="bg-white border-2 border-gray-200 text-gray-700 hover:bg-gray-50 font-bold px-3.5 py-1.5 rounded-xl text-xs shadow-sm flex items-center gap-1 transition-all">
                 🗂️ الاختبارات
               </a>
-              <a href="https://enjazya.lemonsqueezy.com/checkout/buy/13f3f36f-c53b-4227-91c6-b556ae13aee2" target="_blank" rel="noopener noreferrer" className="bg-blue-600 text-white hover:bg-blue-700 font-bold px-3.5 py-1.5 rounded-xl text-xs shadow-md flex items-center gap-1 transition-all">
-                🛒 الباقة
+              <a href="https://enjazya.lemonsqueezy.com/checkout/buy/13f3f36f-c53b-4227-91c6-b556ae13aee2" target="_blank" rel="noopener noreferrer" className="bg-blue-600 text-white hover:bg-blue-700 font-bold px-4 py-1.5 rounded-xl text-xs shadow-md flex items-center gap-1 transition-all">
+                🛒 اشترِ الباقة
               </a>
             </div>
           </div>
