@@ -327,6 +327,7 @@ function ExamContent() {
     );
   }
 
+  // صفحة النتائج التفصيلية (الأسئلة والإجابات والشرح)
   if (isFinished) {
     let correctCount = 0;
     let wrongCount = 0;
@@ -359,10 +360,12 @@ function ExamContent() {
         />
 
         <div className="max-w-4xl mx-auto space-y-8">
+          
+          {/* بطاقة النتيجة الإجمالية */}
           <div className="bg-white p-6 md:p-8 rounded-3xl shadow-xl text-center border border-gray-100">
             <div className="text-5xl mb-3">🏆</div>
             <h1 className="text-2xl md:text-3xl font-extrabold text-blue-900 mb-1">نتيجتك في {currentExam.title}</h1>
-            <p className="text-gray-500 text-xs md:text-sm mb-6">لقد أنهيت جميع الأقسام بنجاح تام!</p>
+            <p className="text-gray-500 text-xs md:text-sm mb-6">إليك تقرير الأداء التفصيلي والإجابات الصحيحة مع الشرح:</p>
 
             <div className="bg-blue-50/70 border border-blue-100 rounded-2xl p-6 mb-6 max-w-md mx-auto">
               <span className="text-4xl md:text-5xl font-black text-blue-700 tracking-wider block mb-1">{percentage}%</span>
@@ -398,17 +401,68 @@ function ExamContent() {
                 href="/qudurat/exams" 
                 className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl transition-all text-center text-xs md:text-sm cursor-pointer flex items-center justify-center gap-2 shadow-md"
               >
-                <span>➡️</span> الاختبار التالي
-              </a>
-
-              <a 
-                href="/qudurat/exams" 
-                className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 px-4 rounded-xl transition-all text-center text-xs md:text-sm cursor-pointer flex items-center justify-center gap-2 shadow-sm"
-              >
                 <span>🗂️</span> لوحة الاختبارات
               </a>
             </div>
           </div>
+
+          {/* استعراض الأسئلة والإجابات والشرح بالتفصيل */}
+          <div className="space-y-6">
+            <h2 className="text-xl font-bold text-gray-800 border-r-4 border-blue-600 pr-3">مراجعة الأسئلة والإجابات والشرح:</h2>
+            
+            {examQuestions.map((q: any, index: number) => {
+              const studentAns = selectedAnswers[q.id];
+              const isCorrect = studentAns === q.correctAnswer;
+              const isUnanswered = !studentAns;
+
+              return (
+                <div key={q.id} className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200 space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="bg-blue-50 text-blue-700 text-xs px-3 py-1 rounded-full font-bold">السؤال {index + 1} ({q.category})</span>
+                    <span className={`text-xs font-extrabold px-3 py-1 rounded-full ${isUnanswered ? 'bg-gray-100 text-gray-600' : isCorrect ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                      {isUnanswered ? '⚠️ لم تقم بالإجابة' : isCorrect ? '✅ إجابة صحيحة' : '❌ إجابة خاطئة'}
+                    </span>
+                  </div>
+
+                  <h3 className="text-base md:text-lg font-bold text-gray-900">{q.text}</h3>
+
+                  {/* خيارات السؤال */}
+                  <div className="space-y-2">
+                    {q.options.map((opt: string, optIdx: number) => {
+                      const isThisCorrect = opt === q.correctAnswer;
+                      const isThisSelected = opt === studentAns;
+
+                      let btnStyle = "border-gray-200 bg-white text-gray-800";
+                      if (isThisCorrect) {
+                        btnStyle = "border-green-500 bg-green-50 text-green-900 font-bold";
+                      } else if (isThisSelected && !isThisCorrect) {
+                        btnStyle = "border-red-500 bg-red-50 text-red-900 font-bold";
+                      }
+
+                      return (
+                        <div key={optIdx} className={`p-3 rounded-xl border-2 text-sm md:text-base flex justify-between items-center ${btnStyle}`}>
+                          <span>{opt}</span>
+                          <div className="flex items-center gap-2 text-xs font-bold">
+                            {isThisSelected && <span className="bg-gray-800 text-white px-2 py-0.5 rounded">إجابتك</span>}
+                            {isThisCorrect && <span className="bg-green-600 text-white px-2 py-0.5 rounded">الإجابة الصحيحة</span>}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* شرح الحل */}
+                  {q.explanation && (
+                    <div className="bg-amber-50/70 border border-amber-200 rounded-xl p-4 mt-3">
+                      <h4 className="font-bold text-amber-900 text-xs md:text-sm mb-1">💡 شرح الحل:</h4>
+                      <p className="text-amber-800 text-xs md:text-sm leading-relaxed">{q.explanation}</p>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
         </div>
       </div>
     );
@@ -472,13 +526,13 @@ function ExamContent() {
         </div>
       </header>
 
-      {/* منطقة محتوى السؤال والخيارات (استغلال كامل للمساحة وعرض السؤال بشكل واضح وكبير بدون تمرير) */}
+      {/* منطقة محتوى السؤال والخيارات */}
       <main className="flex-grow bg-white shadow-sm rounded-2xl max-w-5xl mx-auto w-full border border-gray-200 flex flex-col min-h-0 overflow-hidden">
         {currentQuestion ? (
           <div className="flex-grow overflow-y-auto p-3 md:p-6 flex flex-col justify-center">
             <div className="max-w-4xl mx-auto w-full space-y-4">
               
-              {/* خانة السؤال المستغلة للمساحة بشكل كامل */}
+              {/* خانة السؤال */}
               <div className="space-y-1.5 border-b border-gray-100 pb-3">
                 <span className="inline-block bg-blue-50 text-blue-700 text-xs px-2.5 py-0.5 rounded-full font-semibold">{currentQuestion.category}</span>
                 <h2 className="text-base md:text-xl lg:text-2xl font-bold text-gray-900 leading-snug">{currentQuestion.text}</h2>
@@ -505,7 +559,7 @@ function ExamContent() {
           <div className="flex-grow flex items-center justify-center font-bold text-gray-400">جاري تحميل السؤال...</div>
         )}
 
-        {/* أزرار السابق والتالي (مكبرة بشكل مناسب وبارز بدون أي انزلاق) */}
+        {/* أزرار السابق والتالي */}
         <div className="flex-shrink-0 flex justify-between items-center px-5 py-3 md:px-8 border-t border-gray-100 bg-gray-50/50">
           <button onClick={handlePrev} disabled={currentQuestionIndex === 0 && currentSectionIndex === 0} className={`px-7 py-2.5 rounded-xl font-bold text-sm md:text-base shadow-sm ${currentQuestionIndex === 0 && currentSectionIndex === 0 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-gray-200 text-gray-700 hover:bg-gray-300 cursor-pointer'}`}>
             السابق
