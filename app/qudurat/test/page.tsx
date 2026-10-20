@@ -427,21 +427,21 @@ function ExamContent() {
         isActivating={isActivating}
       />
 
-      {/* شريط الاشتراك العلوي المصغر */}
+      {/* شريط الاشتراك العلوي المصغر (تم ضبط النص بـ whitespace-nowrap لمنع نزوله للأسفل) */}
       {!isUserSubscribed ? (
-        <div className="flex-shrink-0 max-w-6xl mx-auto w-full mb-1 bg-slate-50 border border-slate-200 rounded-lg px-3 py-1 flex justify-between items-center text-xs shadow-sm">
-          <div className="text-slate-600 font-medium">
+        <div className="flex-shrink-0 max-w-6xl mx-auto w-full mb-1 bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1 flex justify-between items-center text-[11px] md:text-xs shadow-sm overflow-x-auto">
+          <div className="text-slate-600 font-medium whitespace-nowrap">
             ✨ أنت في <span className="font-bold text-slate-800">{currentExam.title}</span>
           </div>
-          <div className="flex items-center gap-2">
-            <a href="/qudurat/exams" className="bg-white border border-gray-200 text-gray-700 font-bold px-2.5 py-0.5 rounded-md">🗂️ الاختبارات</a>
-            <a href="https://enjazya.lemonsqueezy.com/checkout/buy/13f3f36f-c53b-4227-91c6-b556ae13aee2" target="_blank" rel="noopener noreferrer" className="bg-blue-600 text-white font-bold px-3 py-0.5 rounded-md">🛒 اشترِ الباقة</a>
+          <div className="flex items-center gap-1.5 whitespace-nowrap flex-shrink-0">
+            <a href="/qudurat/exams" className="bg-white border border-gray-200 text-gray-700 font-bold px-2 py-0.5 rounded-md whitespace-nowrap">🗂️ الاختبارات</a>
+            <a href="https://enjazya.lemonsqueezy.com/checkout/buy/13f3f36f-c53b-4227-91c6-b556ae13aee2" target="_blank" rel="noopener noreferrer" className="bg-blue-600 text-white font-bold px-2.5 py-0.5 rounded-md whitespace-nowrap">🛒 اشترِ الباقة</a>
           </div>
         </div>
       ) : (
-        <div className="flex-shrink-0 max-w-6xl mx-auto w-full mb-1 bg-green-50/50 border border-green-200 rounded-lg px-3 py-1 flex justify-between items-center text-xs shadow-sm">
-          <div className="text-green-700 font-bold">🌟 حسابك VIP مفعل في {currentExam.title}</div>
-          <a href="/qudurat/exams" className="bg-white border border-gray-200 text-gray-700 font-bold px-2.5 py-0.5 rounded-md">🗂️ جميع الاختبارات</a>
+        <div className="flex-shrink-0 max-w-6xl mx-auto w-full mb-1 bg-green-50/50 border border-green-200 rounded-lg px-3 py-1 flex justify-between items-center text-xs shadow-sm overflow-x-auto">
+          <div className="text-green-700 font-bold whitespace-nowrap">🌟 حسابك VIP مفعل في {currentExam.title}</div>
+          <a href="/qudurat/exams" className="bg-white border border-gray-200 text-gray-700 font-bold px-2.5 py-0.5 rounded-md whitespace-nowrap">🗂️ جميع الاختبارات</a>
         </div>
       )}
 
