@@ -2,6 +2,8 @@
 'use client';
 
 import React, { useState, useEffect } from "react";
+// 👈 هذا السطر ضروري جداً لإعادة تشغيل التنسيقات وضبط حجم الأيقونة والفوتر
+import "./globals.css"; 
 
 export default function RootLayout({
   children,
@@ -10,7 +12,6 @@ export default function RootLayout({
 }) {
   const [showWhatsApp, setShowWhatsApp] = useState(true);
 
-  // تأثير لإظهار الأيقونة بنعومة بعد تحميل الصفحة
   useEffect(() => {
     const container = document.getElementById('whatsapp-widget-container');
     if (container) {
