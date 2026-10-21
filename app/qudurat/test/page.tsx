@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic';
 
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
+import Image from 'next/image';
 import questionsData from '../data/questions.json';
 import { EXAMS_DATA } from '../lib/examsConfig';
 
@@ -488,9 +489,14 @@ function ExamContent() {
           {/* اليمين: اللوجو وصورة الطالب والاسم والهوية */}
           <div className="flex items-center gap-2.5 w-full md:w-auto justify-between md:justify-start">
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center text-white font-extrabold text-sm shadow-sm flex-shrink-0">
-                <span>ك</span>
-              </div>
+              <Image
+                src="/logo.png"
+                alt="شعار منصة كليك قدرات"
+                width={36}
+                height={36}
+                className="rounded-xl shadow-sm flex-shrink-0"
+                priority
+              />
               <div className="w-9 h-9 bg-gray-200 rounded-full flex items-center justify-center text-gray-600 font-bold text-xs flex-shrink-0">صورة</div>
               <div className="text-right">
                 <h3 className="font-bold text-gray-800 text-xs">اسم الطالب المتدرب</h3>
