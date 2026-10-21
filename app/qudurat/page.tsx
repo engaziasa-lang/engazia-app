@@ -1,9 +1,20 @@
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function QuduratLandingPage() {
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6" dir="rtl">
       <div className="max-w-2xl w-full bg-white rounded-2xl shadow-xl p-10 text-center border border-slate-100">
+        
+        <Image
+          src="/logo.png"
+          alt="شعار منصة كليك قدرات"
+          width={80}
+          height={80}
+          className="mx-auto mb-6 rounded-2xl shadow-sm"
+          priority
+        />
+
         <h1 className="text-5xl font-black text-slate-800 mb-4 tracking-tight">كليك <span className="text-blue-600">قدرات</span></h1>
         <p className="text-xl text-slate-600 mb-8 leading-relaxed">
           أقوى منصة لمحاكاة اختبار القدرات المحوسب. تدرب الآن واكسر رهبة الشاشة في بيئة مطابقة 100% للاختبار الحقيقي.
