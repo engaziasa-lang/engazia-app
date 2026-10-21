@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { EXAMS_DATA } from '../lib/examsConfig';
 
 export default function ExamsDashboard() {
@@ -92,21 +93,26 @@ export default function ExamsDashboard() {
         </div>
       )}
 
-      {/* الهيدر العلوي المنسق باحترافية (الشعار في الأعلى، وتحته الأزرار بشكل متناسق تماماً) */}
+      {/* الهيدر العلوي المنسق باحترافية */}
       <header className="bg-white shadow-sm rounded-3xl p-6 md:p-8 max-w-4xl mx-auto w-full mb-10 border border-gray-200 text-center flex flex-col items-center">
         
         {/* اللوجو واسم المنصة */}
         <div className="flex items-center justify-center gap-3 mb-3">
-          <div className="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow-md flex-shrink-0">
-            <span>ك</span>
-          </div>
+          <Image
+            src="/logo.png"
+            alt="شعار منصة كليك قدرات"
+            width={56}
+            height={56}
+            className="rounded-2xl shadow-sm flex-shrink-0"
+            priority
+          />
           <div className="text-right">
             <h2 className="text-lg md:text-xl font-extrabold text-gray-900 tracking-tight">منصة كليك قدرات</h2>
             <span className="text-xs font-semibold text-blue-600 block">الاحتراف في التدريب المحاكي</span>
           </div>
         </div>
 
-        {/* أزرار الشراء والتفعيل (تظهر أسفل المنصة بشكل مرتب وجميل وتختفي عند الاشتراك) */}
+        {/* أزرار الشراء والتفعيل */}
         {!isUserSubscribed && (
           <div className="flex items-center justify-center gap-3 w-full max-w-xs mt-3 mb-6">
             <a href="https://enjazya.lemonsqueezy.com/checkout/buy/13f3f36f-c53b-4227-91c6-b556ae13aee2" target="_blank" rel="noopener noreferrer" className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs md:text-sm shadow-md transition-all text-center whitespace-nowrap">
