@@ -1,47 +1,77 @@
-// app/api/activate/route.ts
 import { NextResponse } from 'next/server';
+import { kv } from '@vercel/kv';
 
-export async function POST(request: Request) {
+export async function POST(req: Request) {
   try {
-    const { code, deviceId } = await request.json();
+    const { code, deviceId } = await req.json();
 
     if (!code || !deviceId) {
-      return NextResponse.json({ success: false, message: 'الرجاء إدخال كود التفعيل وبصمة الجهاز.' }, { status: 400 });
+      return NextResponse.json({ success: false, message: 'الرجاء إدخال الكود' }, { status: 400 });
     }
 
-    const licenseKey = code.trim();
+    // ---------------------------------------------------------
+    // 1. مسار الأكواد اليدوية (التي تبدأ بـ QUD-) للتحويل البنكي
+    // ---------------------------------------------------------
+    if (code.startsWith('QUD-')) {
+      const codeKey = `code:${code}`;
+      const codeData: any = await kv.get(codeKey);
 
-    // إرسال طلب تحقق وتفعيل إلى API الخاص بـ Lemon Squeezy مباشرة
-    const response = await fetch('https://api.lemonsqueezy.com/v1/licenses/activate', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Accept': 'application/json',
-      },
-      body: new URLSearchParams({
-        license_key: licenseKey,
-        instance_id: deviceId, // بصمة جهاز الطالب لمنع تكراره من متجر Lemon Squeezy
-      }),
-    });
+      if (!codeData) {
+        return NextResponse.json({ success: false, message: 'الكود اليدوي غير صحيح' }, { status: 400 });
+      }
 
-    const data = await response.json();
+      const now = Date.now();
 
-    if (data.activated) {
-      // تم التفعيل بنجاح وربط المفتاح بهذا الجهاز فقط
-      return NextResponse.json({ 
-        success: true, 
-        message: '🎉 تم تفعيل الاشتراك بنجاح! استمتع بالوصول الكامل لجميع الاختبارات.' 
+      if (codeData.expiresAt && now > codeData.expiresAt) {
+        return NextResponse.json({ success: false, message: 'هذا الكود منتهي الصلاحية' }, { status: 400 });
+      }
+
+      if (codeData.deviceId && codeData.deviceId !== deviceId) {
+        return NextResponse.json({ success: false, message: 'هذا الكود مستخدم في جهاز آخر' }, { status: 400 });
+      }
+
+      if (!codeData.deviceId) {
+        codeData.deviceId = deviceId;
+        codeData.activatedAt = now;
+        if (codeData.durationDays) {
+          codeData.expiresAt = now + (codeData.durationDays * 24 * 60 * 60 * 1000);
+        }
+        await kv.set(codeKey, codeData);
+      }
+
+      return NextResponse.json({ success: true, message: 'تم تفعيل اشتراكك (التحويل البنكي) بنجاح!' });
+    }
+
+    // ---------------------------------------------------------
+    // 2. مسار أكواد الدفع أونلاين (Lemon Squeezy License Keys)
+    // ---------------------------------------------------------
+    else {
+      // الاتصال ببوابة ليمون سكويزي لتفعيل الكود وربطه بجهاز الطالب
+      const res = await fetch('https://api.lemonsqueezy.com/v1/licenses/activate', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+          license_key: code,
+          instance_name: deviceId, // هذا المتغير سيربط الكود بجهاز الطالب لمنع المشاركة
+        }),
       });
-    } else {
-      // المفتاح خاطئ أو مستخدم مسبقاً على جهاز آخر ووصل للحد الأقصى المسموح (1)
-      return NextResponse.json({ 
-        success: false, 
-        message: data.error || 'عذراً، كود التفعيل غير صحيح أو مستخدم بالفعل على جهاز آخر.' 
-      }, { status: 400 });
+
+      const data = await res.json();
+
+      // إذا نجح التفعيل في البوابة
+      if (data.activated || (data.meta && data.meta.message === 'License activated')) {
+         return NextResponse.json({ success: true, message: 'تم تفعيل اشتراكك عبر البوابة بنجاح!' });
+      } else {
+         // إذا كان الكود خطأ، أو منتهي، أو تم استخدامه في جهاز آخر
+         return NextResponse.json({ success: false, message: data.error || 'كود الدفع غير صحيح أو مستخدم في جهاز آخر' }, { status: 400 });
+      }
     }
 
   } catch (error) {
-    console.error('Lemon Squeezy Activation Error:', error);
-    return NextResponse.json({ success: false, message: 'حدث خطأ أثناء الاتصال ببوابة الدفع، حاول مرة أخرى.' }, { status: 500 });
+    console.error('Activation Error:', error);
+    return NextResponse.json({ success: false, message: 'حدث خطأ في النظام، حاول مرة أخرى' }, { status: 500 });
   }
 }
