@@ -78,39 +78,39 @@ export default function PresenterPage() {
         </div>
       </header>
 
-      {/* مساحة العمل (متجاوبة: عمودية في الجوال، أفقية في الكمبيوتر) */}
+      {/* مساحة العمل */}
       <main className="flex-grow flex flex-col md:flex-row gap-4 p-4 overflow-hidden min-h-0">
         
-        {/* القسم الأيمن: عرض السؤال (بدون انزلاق) */}
-        <section className="w-full md:w-[40%] bg-white rounded-2xl shadow-sm border border-gray-200 flex flex-col justify-center p-5 md:p-8 overflow-hidden relative">
+        {/* القسم الأيمن: عرض السؤال (تم تعديل المسافات لمنع الانزلاق) */}
+        <section className="w-full md:w-[40%] bg-white rounded-2xl shadow-sm border border-gray-200 flex flex-col justify-center p-4 md:p-6 overflow-hidden relative">
           <div className="w-full">
-            <div className="mb-3 md:mb-4">
-              <span className="inline-block bg-blue-50 text-blue-700 text-[10px] md:text-xs font-bold px-3 py-1.5 rounded-full">
+            <div className="mb-2 md:mb-3">
+              <span className="inline-block bg-blue-50 text-blue-700 text-[10px] md:text-xs font-bold px-3 py-1 rounded-full">
                 {currentQuestion.category}
               </span>
             </div>
             
-            <h2 className="text-xl md:text-2xl lg:text-3xl font-extrabold text-gray-900 leading-normal mb-6 md:mb-8">
+            <h2 className="text-lg md:text-xl lg:text-2xl font-extrabold text-gray-900 leading-snug mb-4 md:mb-5">
               {currentQuestion.text}
             </h2>
 
-            <div className="space-y-3 md:space-y-4">
+            <div className="space-y-2 md:space-y-3">
               {currentQuestion.options.map((option, idx) => {
                 const isCorrect = option === currentQuestion.correctAnswer;
                 let optionStyle = "border-gray-200 bg-white text-gray-700";
                 
                 if (isAnswerRevealed) {
                   if (isCorrect) {
-                    optionStyle = "border-green-500 bg-green-50 text-green-900 font-extrabold shadow-md transform scale-[1.02]";
+                    optionStyle = "border-green-500 bg-green-50 text-green-900 font-extrabold shadow-sm transform scale-[1.01]";
                   } else {
                     optionStyle = "border-gray-100 bg-gray-50 text-gray-400 opacity-50";
                   }
                 }
 
                 return (
-                  <div key={idx} className={`p-3 md:p-4 rounded-xl border-2 text-base md:text-lg lg:text-xl transition-all duration-500 flex justify-between items-center ${optionStyle}`}>
+                  <div key={idx} className={`p-3 md:p-3.5 rounded-xl border-2 text-sm md:text-base lg:text-lg transition-all duration-500 flex justify-between items-center ${optionStyle}`}>
                     <span>{option}</span>
-                    {isAnswerRevealed && isCorrect && <span className="text-xl md:text-2xl drop-shadow-sm animate-bounce">✅</span>}
+                    {isAnswerRevealed && isCorrect && <span className="text-lg md:text-xl drop-shadow-sm animate-bounce">✅</span>}
                   </div>
                 );
               })}
@@ -118,7 +118,7 @@ export default function PresenterPage() {
           </div>
         </section>
 
-        {/* القسم الأيسر: لوحة الشرح التفاعلية بالنقرات */}
+        {/* القسم الأيسر: لوحة الشرح التفاعلية */}
         <section 
           className="w-full md:w-[60%] bg-white rounded-2xl shadow-sm border border-gray-200 flex flex-col overflow-hidden relative cursor-pointer select-none group"
           onClick={handleBoardClick}
@@ -140,12 +140,11 @@ export default function PresenterPage() {
             )}
           </div>
 
-          {/* مساحة عرض النص */}
+          {/* مساحة عرض النص (لوحة بيضاء نقية تماماً قبل النقر) */}
           <div className="flex-grow w-full h-full p-6 md:p-10 overflow-y-auto bg-[#fafafa]">
             {!isAnswerRevealed ? (
-              <div className="w-full h-full flex flex-col items-center justify-center text-center opacity-40">
-                <span className="text-5xl md:text-7xl mb-4 pointer-events-none">👆</span>
-                <h3 className="text-xl md:text-2xl font-extrabold text-gray-500">انقر هنا لإظهار الحل والشرح</h3>
+              <div className="w-full h-full">
+                {/* لوحة فارغة تماماً واحترافية */}
               </div>
             ) : (
               <div className="w-full space-y-6 md:space-y-8">
@@ -173,11 +172,11 @@ export default function PresenterPage() {
       </main>
 
       {/* الشريط السفلي: أزرار التنقل فقط */}
-      <footer className="flex-shrink-0 bg-white border-t border-gray-200 p-4 flex justify-between items-center shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-10">
+      <footer className="flex-shrink-0 bg-white border-t border-gray-200 p-3 md:p-4 flex justify-between items-center shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-10">
         <button 
           onClick={handlePrev} 
           disabled={currentQuestionIndex === 0}
-          className={`px-6 md:px-10 py-3 rounded-xl font-bold text-sm md:text-lg transition-all ${currentQuestionIndex === 0 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-gray-200 text-gray-800 hover:bg-gray-300 shadow-sm'}`}
+          className={`px-6 md:px-10 py-2.5 md:py-3 rounded-xl font-bold text-sm md:text-lg transition-all ${currentQuestionIndex === 0 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-gray-200 text-gray-800 hover:bg-gray-300 shadow-sm'}`}
         >
           السؤال السابق
         </button>
@@ -185,7 +184,7 @@ export default function PresenterPage() {
         <button 
           onClick={handleNext} 
           disabled={currentQuestionIndex === questionsData.length - 1}
-          className={`px-8 md:px-12 py-3 rounded-xl font-bold text-sm md:text-lg text-white shadow-md transition-all ${currentQuestionIndex === questionsData.length - 1 ? 'bg-blue-300 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
+          className={`px-8 md:px-12 py-2.5 md:py-3 rounded-xl font-bold text-sm md:text-lg text-white shadow-md transition-all ${currentQuestionIndex === questionsData.length - 1 ? 'bg-blue-300 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
         >
           {currentQuestionIndex === questionsData.length - 1 ? 'نهاية الأسئلة' : 'السؤال التالي'}
         </button>
