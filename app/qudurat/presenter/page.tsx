@@ -125,11 +125,6 @@ export default function PresenterPage() {
             <h3 className="font-bold text-gray-700 flex items-center gap-2 text-lg">
               <span className="text-2xl">💡</span> لوحة الشرح والتفصيل
             </h3>
-            {showAnswer && visiblePartsCount < explanationParts.length && (
-              <span className="text-xs font-bold text-blue-600 bg-blue-100 px-3 py-1 rounded-full animate-pulse">
-                انقر لإظهار الخطوة التالية
-              </span>
-            )}
           </div>
 
           {/* مساحة عرض النص */}
@@ -151,15 +146,6 @@ export default function PresenterPage() {
                     {part}
                   </p>
                 ))}
-                
-                {/* زر النقر لإظهار الخطوة التالية (يختفي عند اكتمال الشرح) */}
-                {visiblePartsCount < explanationParts.length && (
-                  <div className="flex justify-center mt-10">
-                    <button className="bg-slate-200 hover:bg-slate-300 text-slate-700 px-6 py-2.5 rounded-full font-bold transition-colors flex items-center gap-2 shadow-sm pointer-events-none">
-                      <span className="animate-bounce">👇</span> إظهار الخطوة التالية
-                    </button>
-                  </div>
-                )}
               </div>
             )}
           </div>
