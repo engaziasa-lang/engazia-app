@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import questionsData from '../data/questions.json';
+// تم التحديث هنا: تغيير المسار ليقرأ من ملف أسئلة التدريب الجديد
+import questionsData from '../data/training-questions.json';
 
 export default function PresenterPage() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -16,11 +17,11 @@ export default function PresenterPage() {
 
   // تقسيم الشرح إلى أجزاء (يتم حسابه تلقائياً بناءً على السؤال)
   const explanationParts = useMemo(() => {
-    if (!currentQuestion.explanation) return [];
+    if (!currentQuestion || !currentQuestion.explanation) return [];
     return currentQuestion.explanation
       .split(/(?<=[.؟!])\s+/)
       .filter(part => part.trim() !== '');
-  }, [currentQuestion.explanation]);
+  }, [currentQuestion]);
 
   // المنطق الجديد: الإجابة تظهر في النقرة الثانية (أو أكثر)
   const isAnswerRevealed = clicks >= 2;
@@ -56,6 +57,15 @@ export default function PresenterPage() {
       setCurrentQuestionIndex(prev => prev - 1);
     }
   };
+
+  // التحقق من وجود بيانات لتجنب أخطاء التحميل إذا كان الملف فارغاً
+  if (!questionsData || questionsData.length === 0) {
+    return (
+      <div className="h-[100dvh] flex items-center justify-center bg-slate-100" dir="rtl">
+        <h2 className="text-2xl font-bold text-gray-500">جاري تحميل الأسئلة أو لا توجد أسئلة حالياً...</h2>
+      </div>
+    );
+  }
 
   return (
     <div className="h-[100dvh] bg-slate-100 flex flex-col overflow-hidden font-sans" dir="rtl">
