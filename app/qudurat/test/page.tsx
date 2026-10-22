@@ -348,6 +348,11 @@ function ExamContent() {
     const totalQuestions = examQuestions.length;
     const percentage = Math.round((correctCount / totalQuestions) * 100);
 
+    // المنطق البرمجي لمعرفة الاختبار التالي وحالته
+    const currentExamIndex = EXAMS_DATA.findIndex((e) => e.id === urlExamId);
+    const nextExam = currentExamIndex !== -1 ? EXAMS_DATA[currentExamIndex + 1] : null;
+    const isNextLocked = nextExam ? (!nextExam.isFree && !isUserSubscribed) : false;
+
     return (
       <div className="min-h-screen bg-gray-50 py-10 px-4 md:px-8" dir="rtl">
         <ActivationModalComponent 
@@ -390,7 +395,18 @@ function ExamContent() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-xl mx-auto">
+            {/* الأزرار الديناميكية (إعادة، لوحة الاختبارات، والاختبار التالي إن وُجد) */}
+            <div className={`grid grid-cols-1 ${nextExam ? 'sm:grid-cols-3' : 'sm:grid-cols-2'} gap-3 max-w-xl mx-auto`}>
+              
+              {nextExam && (
+                <a 
+                  href={isNextLocked ? "/qudurat/exams" : `/qudurat/test?examId=${nextExam.id}`}
+                  className={`${isNextLocked ? 'bg-slate-800 hover:bg-slate-900' : 'bg-emerald-600 hover:bg-emerald-700'} text-white font-bold py-3 px-4 rounded-xl transition-all text-center text-xs md:text-sm cursor-pointer flex items-center justify-center gap-2 shadow-md`}
+                >
+                  <span>{isNextLocked ? '🔒' : '⏭️'}</span> {isNextLocked ? 'الاختبار التالي' : 'الاختبار التالي'}
+                </a>
+              )}
+              
               <button 
                 onClick={handleRestartExam}
                 className="bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 px-4 rounded-xl transition-all shadow-sm cursor-pointer flex items-center justify-center gap-2 text-xs md:text-sm"
@@ -404,6 +420,7 @@ function ExamContent() {
               >
                 <span>🗂️</span> لوحة الاختبارات
               </a>
+
             </div>
           </div>
 
