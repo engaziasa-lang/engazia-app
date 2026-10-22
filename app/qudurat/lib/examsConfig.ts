@@ -1,6 +1,15 @@
 // app/qudurat/lib/examsConfig.ts
 
-export const EXAMS_DATA = Array.from({ length: 30 }, (_, index) => {
+export interface Exam {
+  id: number;
+  title: string;
+  description: string;
+  isFree: boolean;
+  startIndex: number;
+  endIndex: number;
+}
+
+export const EXAMS_DATA: Exam[] = Array.from({ length: 30 }, (_, index) => {
   const examNumber = index + 1;
   return {
     id: examNumber,
