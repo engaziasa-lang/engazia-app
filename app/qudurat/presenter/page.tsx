@@ -1,60 +1,59 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import questionsData from '../data/questions.json';
 
 export default function PresenterPage() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   
-  // حالة الشرح التفاعلي
-  const [isAnswerRevealed, setIsAnswerRevealed] = useState(false);
-  const [explanationParts, setExplanationParts] = useState<string[]>([]);
-  const [visiblePartsCount, setVisiblePartsCount] = useState<number>(0);
+  // حالة حفظ "عدد النقرات" لكل سؤال لضمان بقائها عند التنقل (الذاكرة)
+  const [questionClicks, setQuestionClicks] = useState<Record<number, number>>({});
 
   const currentQuestion = questionsData[currentQuestionIndex];
 
+  // استرجاع عدد النقرات للسؤال الحالي (الافتراضي 0 إذا لم يتم النقر بعد)
+  const clicks = questionClicks[currentQuestionIndex] || 0;
+
+  // تقسيم الشرح إلى أجزاء (يتم حسابه تلقائياً بناءً على السؤال)
+  const explanationParts = useMemo(() => {
+    if (!currentQuestion.explanation) return [];
+    return currentQuestion.explanation
+      .split(/(?<=[.؟!])\s+/)
+      .filter(part => part.trim() !== '');
+  }, [currentQuestion.explanation]);
+
+  // المنطق الجديد: الإجابة تظهر في النقرة الثانية (أو أكثر)
+  const isAnswerRevealed = clicks >= 2;
+  // عدد خطوات الشرح الظاهرة يتطابق مع عدد النقرات
+  const visiblePartsCount = clicks;
+
   // دالة التعامل مع النقرات على لوحة الشرح
   const handleBoardClick = () => {
-    if (!isAnswerRevealed) {
-      // النقرة الأولى: تظهر الإجابة الصحيحة وتجهز خطوات الشرح
-      setIsAnswerRevealed(true);
-      if (currentQuestion.explanation) {
-        const parts = currentQuestion.explanation
-          .split(/(?<=[.؟!])\s+/)
-          .filter(part => part.trim() !== '');
-        setExplanationParts(parts);
-        setVisiblePartsCount(1); // إظهار الخطوة الأولى فوراً
-      }
-    } else if (visiblePartsCount < explanationParts.length) {
-      // النقرات التالية: إظهار الخطوات المتبقية تباعاً
-      setVisiblePartsCount(prev => prev + 1);
-    }
+    setQuestionClicks(prev => ({
+      ...prev,
+      [currentQuestionIndex]: (prev[currentQuestionIndex] || 0) + 1
+    }));
   };
 
-  // دالة مسح اللوحة وإعادة ضبط السؤال الحالي
+  // دالة مسح اللوحة وإعادة ضبط السؤال الحالي فقط
   const handleClearBoard = (e: React.MouseEvent) => {
-    e.stopPropagation(); // منع تداخل النقرة مع دالة اللوحة
-    setIsAnswerRevealed(false);
-    setExplanationParts([]);
-    setVisiblePartsCount(0);
+    e.stopPropagation(); // منع تداخل النقرة مع اللوحة
+    setQuestionClicks(prev => ({
+      ...prev,
+      [currentQuestionIndex]: 0
+    }));
   };
 
-  // دوال التنقل بين الأسئلة (مع تصفير اللوحة تلقائياً)
+  // دوال التنقل بين الأسئلة
   const handleNext = () => {
     if (currentQuestionIndex < questionsData.length - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
-      setIsAnswerRevealed(false);
-      setExplanationParts([]);
-      setVisiblePartsCount(0);
     }
   };
 
   const handlePrev = () => {
     if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex(prev => prev - 1);
-      setIsAnswerRevealed(false);
-      setExplanationParts([]);
-      setVisiblePartsCount(0);
     }
   };
 
@@ -118,32 +117,29 @@ export default function PresenterPage() {
           </div>
         </section>
 
-        {/* القسم الأيسر: لوحة الشرح التفاعلية */}
+        {/* القسم الأيسر: لوحة الشرح التفاعلية (مربع كامل ونظيف) */}
         <section 
           className="w-full md:w-[60%] bg-white rounded-2xl shadow-sm border border-gray-200 flex flex-col overflow-hidden relative cursor-pointer select-none group"
           onClick={handleBoardClick}
         >
-          {/* شريط عنوان اللوحة (يحتوي على زر المسح فقط في الجهة اليسرى) */}
-          <div className="bg-slate-50 border-b border-gray-200 p-2 md:p-3 flex justify-end items-center flex-shrink-0 z-10 min-h-[48px] md:min-h-[56px]">
-            {/* زر المسح يظهر فقط إذا تم البدء في عرض الحل */}
-            {isAnswerRevealed && (
-              <button 
-                onClick={handleClearBoard}
-                className="bg-white border border-red-200 text-red-500 hover:bg-red-50 hover:text-red-700 font-bold px-3 py-1.5 rounded-lg text-xs md:text-sm transition-all flex items-center gap-1 shadow-sm"
-              >
-                <span>مسح</span> 🗑️
-              </button>
-            )}
-          </div>
+          {/* زر المسح العائم في الزاوية العلوية اليسرى */}
+          {clicks > 0 && (
+            <button 
+              onClick={handleClearBoard}
+              className="absolute top-4 left-4 z-20 bg-white/90 backdrop-blur-sm border border-red-200 text-red-500 hover:bg-red-50 hover:text-red-700 font-bold px-4 py-2 rounded-xl text-xs md:text-sm transition-all flex items-center gap-2 shadow-md"
+            >
+              <span>مسح</span> 🗑️
+            </button>
+          )}
 
-          {/* مساحة عرض النص */}
-          <div className="flex-grow w-full h-full p-6 md:p-10 overflow-y-auto bg-[#fafafa]">
-            {!isAnswerRevealed ? (
+          {/* مساحة عرض النص (ممتدة على كامل اللوحة) */}
+          <div className="flex-grow w-full h-full p-6 md:p-10 overflow-y-auto">
+            {clicks === 0 ? (
               <div className="w-full h-full">
-                {/* لوحة فارغة تماماً واحترافية */}
+                {/* اللوحة تبقى بيضاء تماماً قبل أي نقرة */}
               </div>
             ) : (
-              <div className="w-full space-y-6 md:space-y-8">
+              <div className="w-full space-y-6 md:space-y-8 mt-8 md:mt-2">
                 {/* عرض الخطوات تدريجياً بناءً على عدد النقرات */}
                 {explanationParts.slice(0, visiblePartsCount).map((part, index) => (
                   <p 
@@ -153,6 +149,13 @@ export default function PresenterPage() {
                     {part}
                   </p>
                 ))}
+                
+                {/* مؤشر بصري ناعم يخبر المدرب بوجود بقية للشرح أو أن الإجابة لم تظهر بعد */}
+                {(clicks > 0 && (clicks < explanationParts.length || !isAnswerRevealed)) && (
+                  <div className="flex justify-center pt-8 opacity-50">
+                    <span className="animate-pulse text-2xl">👇</span>
+                  </div>
+                )}
               </div>
             )}
           </div>
