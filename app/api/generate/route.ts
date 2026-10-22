@@ -1,41 +1,48 @@
 import { NextResponse } from 'next/server';
+import { kv } from '@vercel/kv';
 
-export async function POST(req: Request) {
-  try {
-    const { jobDescription, skills, tone } = await req.json();
-    const apiKey = process.env.GEMINI_API_KEY;
+const ADMIN_SECRET = 'rakan2026'; 
 
-    if (!apiKey) {
-      return NextResponse.json({ result: "⚠️ خطأ: مفتاح GEMINI_API_KEY غير موجود في Vercel إطلاقاً." });
-    }
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const pass = searchParams.get('pass');
+  const count = Number(searchParams.get('count')) || 1000; // الافتراضي أصبح 1000 كود
+  const days = Number(searchParams.get('days')) || 365; // الافتراضي 365 يوم
 
-    const prompt = `You are an expert freelance copywriter. Write a highly-converting, concise, and engaging Upwork proposal based on the user's job description. Tone: ${tone}. Highlight these skills: ${skills}. Do not use robotic language. Keep it natural and professional. Job Description: ${jobDescription}`;
-
-    // التحديث إلى الإصدار المطلوب من جوجل: gemini-3.8-flash
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${apiKey}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        contents: [{
-          parts: [{ text: prompt }]
-        }]
-      })
-    });
-
-    const data = await response.json();
-    
-    if (!response.ok) {
-       return NextResponse.json({ 
-         result: `❌ رفض من سيرفر جوجل (Gemini API Error):\n\n${data.error?.message || 'خطأ غير معروف'}` 
-       });
-    }
-
-    const proposal = data.candidates[0].content.parts[0].text;
-    return NextResponse.json({ result: proposal });
-
-  } catch (error: any) {
-    return NextResponse.json({ result: `❌ الانهيار الداخلي (Server Crash):\n\n${error.message}` });
+  if (pass !== ADMIN_SECRET) {
+    return new NextResponse('غير مصرح لك بالدخول', { status: 401 });
   }
+
+  const generatedCodes: string[] = [];
+  const promises = [];
+  const now = Date.now();
+
+  for (let i = 0; i < count; i++) {
+    const randomString = () => Math.random().toString(36).substring(2, 6).toUpperCase();
+    const newCode = `QUD-${randomString()}-${randomString()}`;
+    
+    generatedCodes.push(newCode);
+
+    const codeData = {
+      durationDays: days,
+      deviceId: null, 
+      createdAt: now,
+      expiresAt: null 
+    };
+
+    // حفظ الأكواد دفعة واحدة بسرعة عالية
+    promises.push(kv.set(`code:${newCode}`, codeData));
+  }
+
+  await Promise.all(promises);
+
+  // إخراج الأكواد كنص عادي (قائمة طولية) ليسهل نسخها إلى إكسيل
+  const header = `تم إنشاء ${count} كود بنجاح (صلاحية ${days} يوم من أول استخدام)\n\n`;
+  const textOutput = header + generatedCodes.join('\n');
+
+  return new NextResponse(textOutput, {
+    headers: {
+      'Content-Type': 'text/plain; charset=utf-8',
+    },
+  });
 }
