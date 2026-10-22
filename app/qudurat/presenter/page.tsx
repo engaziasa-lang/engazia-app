@@ -149,13 +149,6 @@ export default function PresenterPage() {
                     {part}
                   </p>
                 ))}
-                
-                {/* مؤشر بصري ناعم يخبر المدرب بوجود بقية للشرح أو أن الإجابة لم تظهر بعد */}
-                {(clicks > 0 && (clicks < explanationParts.length || !isAnswerRevealed)) && (
-                  <div className="flex justify-center pt-8 opacity-50">
-                    <span className="animate-pulse text-2xl">👇</span>
-                  </div>
-                )}
               </div>
             )}
           </div>
