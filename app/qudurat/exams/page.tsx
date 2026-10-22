@@ -7,6 +7,7 @@ import { EXAMS_DATA } from '../lib/examsConfig';
 
 export default function ExamsDashboard() {
   const [isUserSubscribed, setIsUserSubscribed] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true); // 1. إضافة حالة التحميل الافتراضية
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [activationCode, setActivationCode] = useState<string>('');
   const [activationError, setActivationError] = useState<string>('');
@@ -24,6 +25,9 @@ export default function ExamsDashboard() {
         localStorage.setItem('qudurat_device_id', id);
       }
       setDeviceId(id);
+      
+      // 2. إنهاء حالة التحميل بعد التأكد من حالة الاشتراك
+      setIsLoading(false);
     }
   }, []);
 
@@ -61,6 +65,16 @@ export default function ExamsDashboard() {
       setIsActivating(false);
     }
   };
+
+  // 3. شاشة تحميل تظهر لحظياً لمنع وميض أزرار الشراء
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-gray-50/30" dir="rtl">
+        <div className="w-12 h-12 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin mb-4"></div>
+        <p className="text-gray-500 font-bold text-sm animate-pulse">جاري تجهيز بيئة الاختبارات...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-6 md:py-10" dir="rtl">
