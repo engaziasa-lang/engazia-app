@@ -61,7 +61,7 @@ export default function PresenterPage() {
   return (
     <div className="h-[100dvh] bg-slate-100 flex flex-col overflow-hidden font-sans" dir="rtl">
       
-      {/* الشريط العلوي */}
+      {/* الشريط العلوي للمنصة */}
       <header className="flex-shrink-0 bg-slate-900 text-white px-4 md:px-6 py-3 flex justify-between items-center shadow-md z-10">
         <div className="flex items-center gap-3">
           <div className="bg-blue-600 w-8 h-8 md:w-10 md:h-10 rounded-xl flex items-center justify-center font-extrabold text-lg md:text-xl shadow-inner">
@@ -81,7 +81,7 @@ export default function PresenterPage() {
       {/* مساحة العمل */}
       <main className="flex-grow flex flex-col md:flex-row gap-4 p-4 overflow-hidden min-h-0">
         
-        {/* القسم الأيمن: عرض السؤال (تم تعديل المسافات لمنع الانزلاق) */}
+        {/* القسم الأيمن: عرض السؤال */}
         <section className="w-full md:w-[40%] bg-white rounded-2xl shadow-sm border border-gray-200 flex flex-col justify-center p-4 md:p-6 overflow-hidden relative">
           <div className="w-full">
             <div className="mb-2 md:mb-3">
@@ -123,12 +123,8 @@ export default function PresenterPage() {
           className="w-full md:w-[60%] bg-white rounded-2xl shadow-sm border border-gray-200 flex flex-col overflow-hidden relative cursor-pointer select-none group"
           onClick={handleBoardClick}
         >
-          {/* شريط عنوان اللوحة مع زر المسح */}
-          <div className="bg-slate-50 border-b border-gray-200 p-3 md:p-4 flex justify-between items-center flex-shrink-0 z-10">
-            <h3 className="font-bold text-gray-700 flex items-center gap-2 text-base md:text-lg">
-              <span className="text-xl md:text-2xl">💡</span> لوحة الشرح والتفصيل
-            </h3>
-            
+          {/* شريط عنوان اللوحة (يحتوي على زر المسح فقط في الجهة اليسرى) */}
+          <div className="bg-slate-50 border-b border-gray-200 p-2 md:p-3 flex justify-end items-center flex-shrink-0 z-10 min-h-[48px] md:min-h-[56px]">
             {/* زر المسح يظهر فقط إذا تم البدء في عرض الحل */}
             {isAnswerRevealed && (
               <button 
