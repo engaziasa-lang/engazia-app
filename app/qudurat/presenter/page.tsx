@@ -3,6 +3,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import questionsData from '../data/questions.json';
 
+// الرموز الرياضية الشائعة في اختبارات القدرات
+const MATH_SYMBOLS = ['×', '÷', '√', '²', '³', 'π', 'θ', '°', '±', '≠', '≈', '≤', '≥', '½', '¼', '¾'];
+
 export default function PresenterPage() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
@@ -13,10 +16,10 @@ export default function PresenterPage() {
   const [isDrawing, setIsDrawing] = useState(false);
   const [penColor, setPenColor] = useState('#2563eb');
   const [penSize, setPenSize] = useState(4);
-  const [activeTool, setActiveTool] = useState<'pen' | 'eraser' | 'text'>('pen');
+  const [activeTool, setActiveTool] = useState<'pen' | 'eraser' | 'math'>('pen');
   
-  // حالة أداة النص
-  const [textInput, setTextInput] = useState({ visible: false, x: 0, y: 0, text: '' });
+  // حالة أداة الرياضيات
+  const [mathInput, setMathInput] = useState({ visible: false, x: 0, y: 0, text: '' });
   const inputRef = useRef<HTMLInputElement>(null);
 
   const currentQuestion = questionsData[currentQuestionIndex];
@@ -39,17 +42,14 @@ export default function PresenterPage() {
     }
   }, []);
 
-  // التركيز التلقائي على مربع النص عند فتحه
+  // التركيز التلقائي على أداة الرياضيات عند فتحها
   useEffect(() => {
-    if (textInput.visible && inputRef.current) {
-      // نستخدم setTimeout صغير جداً لضمان أن المتصفح قد قام برسم العنصر قبل محاولة التركيز عليه
+    if (mathInput.visible && inputRef.current) {
       setTimeout(() => {
-        if (inputRef.current) {
-          inputRef.current.focus();
-        }
+        if (inputRef.current) inputRef.current.focus();
       }, 50);
     }
-  }, [textInput.visible]);
+  }, [mathInput.visible]);
 
   // تحديث خصائص القلم أو الممسحة
   useEffect(() => {
@@ -79,30 +79,40 @@ export default function PresenterPage() {
     }
   };
 
-  // تثبيت النص المكتوب على السبورة
-  const handleTextSubmit = () => {
-    if (textInput.text.trim() !== '' && contextRef.current) {
+  // إدراج رمز رياضي في حقل الكتابة
+  const insertSymbol = (symbol: string) => {
+    setMathInput(prev => ({ ...prev, text: prev.text + symbol }));
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  };
+
+  // تثبيت المعادلة/النص على السبورة
+  const handleMathSubmit = () => {
+    if (mathInput.text.trim() !== '' && contextRef.current) {
       const ctx = contextRef.current;
       ctx.globalCompositeOperation = 'source-over';
-      const fontSize = penSize === 2 ? 18 : penSize === 4 ? 24 : 36;
+      const fontSize = penSize === 2 ? 22 : penSize === 4 ? 30 : 42;
       ctx.font = `bold ${fontSize}px sans-serif`;
       ctx.fillStyle = penColor;
-      ctx.direction = 'rtl';
-      // ضبط الإحداثيات ليتطابق مكان الكتابة مع ما كان يراه المستخدم
-      ctx.fillText(textInput.text, textInput.x, textInput.y + (fontSize / 3));
+      
+      // كتابة النص الرياضي (من اليسار لليمين لكي تظهر المعادلات بشكل صحيح)
+      ctx.direction = 'ltr';
+      ctx.fillText(mathInput.text, mathInput.x, mathInput.y + (fontSize / 3));
     }
-    setTextInput({ visible: false, x: 0, y: 0, text: '' });
+    setMathInput({ visible: false, x: 0, y: 0, text: '' });
   };
 
   const handleCanvasPointerDown = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
     const { offsetX, offsetY } = getCoordinates(e);
 
-    // إذا كانت أداة النص مفعلة
-    if (activeTool === 'text') {
-      if (textInput.visible) {
-        handleTextSubmit(); // تثبيت النص القديم إذا نقر في مكان جديد
+    // إذا كانت أداة الرياضيات مفعلة
+    if (activeTool === 'math') {
+      if (mathInput.visible) {
+        handleMathSubmit(); // تثبيت القديم إذا كان موجوداً
       }
-      setTextInput({ visible: true, x: offsetX, y: offsetY, text: '' });
+      // فتح مؤشر كتابة جديد في مكان النقر
+      setMathInput({ visible: true, x: offsetX, y: offsetY, text: '' });
       return;
     }
 
@@ -115,7 +125,7 @@ export default function PresenterPage() {
   };
 
   const finishDrawing = () => {
-    if (activeTool === 'text') return;
+    if (activeTool === 'math') return;
     if (contextRef.current) {
       contextRef.current.closePath();
       setIsDrawing(false);
@@ -123,7 +133,7 @@ export default function PresenterPage() {
   };
 
   const draw = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
-    if (!isDrawing || !contextRef.current || activeTool === 'text') return;
+    if (!isDrawing || !contextRef.current || activeTool === 'math') return;
     const { offsetX, offsetY } = getCoordinates(e);
     
     contextRef.current.lineTo(offsetX, offsetY);
@@ -136,7 +146,7 @@ export default function PresenterPage() {
     if (canvas && context) {
       context.clearRect(0, 0, canvas.width, canvas.height);
     }
-    setTextInput({ visible: false, x: 0, y: 0, text: '' });
+    setMathInput({ visible: false, x: 0, y: 0, text: '' });
   };
 
   const handleNext = () => {
@@ -162,6 +172,7 @@ export default function PresenterPage() {
   return (
     <div className="h-[100dvh] bg-slate-100 flex flex-col overflow-hidden font-sans" dir="rtl">
       
+      {/* الشريط العلوي */}
       <header className="flex-shrink-0 bg-slate-900 text-white px-6 py-3 flex justify-between items-center shadow-md z-10">
         <div className="flex items-center gap-3">
           <div className="bg-blue-600 w-10 h-10 rounded-xl flex items-center justify-center font-extrabold text-xl shadow-inner">ك</div>
@@ -175,8 +186,10 @@ export default function PresenterPage() {
         </div>
       </header>
 
+      {/* مساحة العمل */}
       <main className="flex-grow flex gap-4 p-4 overflow-hidden min-h-0">
         
+        {/* القسم الأيمن: السؤال */}
         <section className="w-[35%] bg-white rounded-2xl shadow-sm border border-gray-200 flex flex-col justify-center p-5 md:p-6 overflow-hidden relative">
           <div className="w-full">
             <div className="mb-4">
@@ -207,18 +220,21 @@ export default function PresenterPage() {
           </div>
         </section>
 
+        {/* القسم الأيسر: السبورة */}
         <section className="w-[65%] bg-white rounded-2xl shadow-sm border border-gray-200 flex flex-col overflow-hidden relative">
           
+          {/* أدوات السبورة العلوية */}
           <div className="bg-slate-50 border-b border-gray-200 p-2.5 flex justify-between items-center flex-shrink-0 z-10">
             <div className="flex items-center gap-3">
               <span className="text-sm font-bold text-gray-600 ml-2">أدوات الشرح:</span>
               
+              {/* اختيار الأداة */}
               <div className="flex items-center gap-1.5 bg-gray-200 p-1 rounded-lg">
                 <button onClick={() => setActiveTool('pen')} className={`px-3 py-1.5 rounded-md text-sm font-bold transition-all ${activeTool === 'pen' ? 'bg-white shadow-sm text-blue-600' : 'text-gray-500 hover:text-gray-800'}`}>
                   قلم 🖊️
                 </button>
-                <button onClick={() => setActiveTool('text')} className={`px-3 py-1.5 rounded-md text-sm font-bold transition-all ${activeTool === 'text' ? 'bg-white shadow-sm text-blue-600' : 'text-gray-500 hover:text-gray-800'}`}>
-                  نص T
+                <button onClick={() => setActiveTool('math')} className={`px-3 py-1.5 rounded-md text-sm font-bold transition-all ${activeTool === 'math' ? 'bg-white shadow-sm text-blue-600' : 'text-gray-500 hover:text-gray-800'}`}>
+                  رياضيات 🧮
                 </button>
                 <button onClick={() => setActiveTool('eraser')} className={`px-3 py-1.5 rounded-md text-sm font-bold transition-all ${activeTool === 'eraser' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-800'}`}>
                   ممسحة 🧽
@@ -227,6 +243,7 @@ export default function PresenterPage() {
 
               <div className="w-px h-6 bg-gray-300 mx-1"></div>
 
+              {/* ألوان القلم */}
               <div className="flex gap-2">
                 {['#2563eb', '#dc2626', '#16a34a', '#1e293b'].map((color) => (
                   <button
@@ -241,6 +258,7 @@ export default function PresenterPage() {
 
               <div className="w-px h-6 bg-gray-300 mx-1"></div>
 
+              {/* حجم الأداة */}
               <div className="flex items-center gap-1.5">
                 {[2, 4, 8].map((size) => (
                   <button key={size} onClick={() => setPenSize(size)} className={`w-8 h-8 flex items-center justify-center rounded-lg ${penSize === size ? 'bg-blue-100 text-blue-700' : 'hover:bg-gray-100'}`}>
@@ -255,6 +273,7 @@ export default function PresenterPage() {
             </button>
           </div>
 
+          {/* لوحة الرسم */}
           <div className="flex-grow w-full h-full relative cursor-crosshair overflow-hidden">
             <canvas
               ref={canvasRef}
@@ -268,40 +287,62 @@ export default function PresenterPage() {
               className="absolute top-0 left-0 w-full h-full z-10"
             />
 
-            {/* مربع النص المصمم ليكون شفافاً كأنه جزء من السبورة */}
-            {textInput.visible && (
-              <input
-                ref={inputRef}
-                type="text"
-                dir="rtl"
-                value={textInput.text}
-                onChange={(e) => setTextInput({ ...textInput, text: e.target.value })}
-                onKeyDown={(e) => { if (e.key === 'Enter') handleTextSubmit(); }}
-                onBlur={handleTextSubmit} // يثبت النص عند النقر في أي مكان آخر
-                onMouseDown={(e) => e.stopPropagation()}
-                onTouchStart={(e) => e.stopPropagation()}
-                className="absolute z-50 bg-transparent border-none border-b-2 border-dashed border-blue-400 outline-none p-0 m-0 focus:ring-0 focus:border-blue-600 caret-blue-600"
+            {/* أداة الرياضيات التفاعلية الشفافة */}
+            {mathInput.visible && (
+              <div 
+                className="absolute z-50 flex flex-col"
                 style={{
-                  left: `${textInput.x}px`,
-                  top: `${textInput.y - (penSize === 2 ? 10 : penSize === 4 ? 12 : 18)}px`,
-                  color: penColor,
-                  fontSize: `${penSize === 2 ? 18 : penSize === 4 ? 24 : 36}px`,
-                  fontWeight: 'bold',
-                  fontFamily: 'sans-serif',
-                  minWidth: '50px',
-                  backgroundColor: 'rgba(255, 255, 255, 0.6)', // خلفية بيضاء خفيفة جداً لضمان القراءة فوق الرسومات
+                  left: `${mathInput.x}px`,
+                  top: `${mathInput.y - (penSize === 2 ? 60 : penSize === 4 ? 65 : 75)}px`,
                 }}
-                placeholder="اكتب..."
-              />
+              >
+                {/* لوحة الرموز الرياضية العائمة */}
+                <div 
+                  className="bg-slate-800 text-white p-1.5 rounded-lg flex flex-wrap gap-1 shadow-xl mb-1 w-[280px]"
+                  onMouseDown={(e) => e.preventDefault()} // يمنع فقدان التركيز من مربع النص
+                >
+                  {MATH_SYMBOLS.map(sym => (
+                    <button 
+                      key={sym} 
+                      onClick={() => insertSymbol(sym)}
+                      className="w-7 h-7 flex items-center justify-center bg-slate-700 hover:bg-blue-600 rounded text-sm font-bold transition-colors"
+                    >
+                      {sym}
+                    </button>
+                  ))}
+                  <button onClick={handleMathSubmit} className="flex-grow bg-green-600 hover:bg-green-500 rounded text-xs font-bold transition-colors">إدخال ✓</button>
+                </div>
+
+                {/* حقل الإدخال الشفاف (بدون إطارات) */}
+                <input
+                  ref={inputRef}
+                  type="text"
+                  dir="ltr"
+                  value={mathInput.text}
+                  onChange={(e) => setMathInput({ ...mathInput, text: e.target.value })}
+                  onKeyDown={(e) => { if (e.key === 'Enter') handleMathSubmit(); }}
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onTouchStart={(e) => e.stopPropagation()}
+                  className="bg-transparent border-none outline-none focus:ring-0 p-0 m-0 w-[280px]"
+                  style={{
+                    color: penColor,
+                    fontSize: `${penSize === 2 ? 22 : penSize === 4 ? 30 : 42}px`,
+                    fontWeight: 'bold',
+                    fontFamily: 'sans-serif',
+                  }}
+                  placeholder="اكتب المعادلة..."
+                />
+              </div>
             )}
             
-            {!isDrawing && !showAnswer && !textInput.visible && (
+            {!isDrawing && !showAnswer && !mathInput.visible && (
               <div className="absolute top-6 left-6 pointer-events-none opacity-20 flex items-center gap-2 z-0">
-                <span className="text-5xl">✍️</span>
-                <span className="font-extrabold text-xl text-gray-500">منطقة الشرح التفاعلي</span>
+                <span className="text-5xl">🧮</span>
+                <span className="font-extrabold text-xl text-gray-500">مساحة الحل الرياضي</span>
               </div>
             )}
 
+            {/* صندوق الشرح */}
             {showAnswer && currentQuestion.explanation && (
               <div className="absolute bottom-4 left-4 right-4 bg-amber-50/95 backdrop-blur-sm border-2 border-amber-300 rounded-2xl p-5 shadow-2xl z-20 animate-in fade-in slide-in-from-bottom-4">
                 <h4 className="font-bold text-amber-900 mb-2 flex items-center gap-2">
@@ -316,6 +357,7 @@ export default function PresenterPage() {
         </section>
       </main>
 
+      {/* الشريط السفلي */}
       <footer className="flex-shrink-0 bg-white border-t border-gray-200 p-4 flex justify-between items-center shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-10">
         <button onClick={handlePrev} disabled={currentQuestionIndex === 0} className={`px-8 py-3 rounded-xl font-bold text-lg transition-all ${currentQuestionIndex === 0 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-gray-200 text-gray-800 hover:bg-gray-300 shadow-sm'}`}>
           السؤال السابق
