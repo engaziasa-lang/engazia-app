@@ -140,7 +140,7 @@ export default function PresenterPage() {
             )}
           </div>
 
-          {/* مساحة عرض النص (لوحة بيضاء نقية تماماً قبل النقر) */}
+          {/* مساحة عرض النص */}
           <div className="flex-grow w-full h-full p-6 md:p-10 overflow-y-auto bg-[#fafafa]">
             {!isAnswerRevealed ? (
               <div className="w-full h-full">
@@ -157,13 +157,6 @@ export default function PresenterPage() {
                     {part}
                   </p>
                 ))}
-                
-                {/* مؤشر بصري ناعم يخبر المدرب بوجود بقية للشرح */}
-                {visiblePartsCount < explanationParts.length && (
-                  <div className="flex justify-center pt-8 opacity-50">
-                    <span className="animate-pulse text-2xl">👇</span>
-                  </div>
-                )}
               </div>
             )}
           </div>
