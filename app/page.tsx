@@ -1,132 +1,205 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
+import { EXAMS_DATA } from '../lib/examsConfig';
 
-export default function MarketSelector() {
+export default function ExamsDashboard() {
+  const [isUserSubscribed, setIsUserSubscribed] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true); // 1. إضافة حالة التحميل الافتراضية
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [activationCode, setActivationCode] = useState<string>('');
+  const [activationError, setActivationError] = useState<string>('');
+  const [isActivating, setIsActivating] = useState<boolean>(false);
+  const [deviceId, setDeviceId] = useState<string>('');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const subscribed = localStorage.getItem('qudurat_subscribed') === 'true';
+      setIsUserSubscribed(subscribed);
+
+      let id = localStorage.getItem('qudurat_device_id');
+      if (!id) {
+        id = 'dev_' + Math.random().toString(36).substring(2, 15);
+        localStorage.setItem('qudurat_device_id', id);
+      }
+      setDeviceId(id);
+      
+      // 2. إنهاء حالة التحميل بعد التأكد من حالة الاشتراك
+      setIsLoading(false);
+    }
+  }, []);
+
+  const handleActivateCode = async () => {
+    setActivationError('');
+    if (!activationCode.trim()) {
+      setActivationError('الرجاء إدخال كود التفعيل.');
+      return;
+    }
+
+    setIsActivating(true);
+    try {
+      const response = await fetch('/api/activate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: activationCode, deviceId: deviceId }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setIsUserSubscribed(true);
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('qudurat_subscribed', 'true');
+        }
+        setIsModalOpen(false);
+        setActivationCode('');
+        alert(data.message);
+      } else {
+        setActivationError(data.message || 'الكود غير صحيح أو تم استخدامه مسبقاً.');
+      }
+    } catch (error) {
+      setActivationError('حدث خطأ في الاتصال بالخادم. حاول مرة أخرى.');
+    } finally {
+      setIsActivating(false);
+    }
+  };
+
+  // 3. شاشة تحميل تظهر لحظياً لمنع وميض أزرار الشراء
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-gray-50/30" dir="rtl">
+        <div className="w-12 h-12 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin mb-4"></div>
+        <p className="text-gray-500 font-bold text-sm animate-pulse">جاري تجهيز بيئة الاختبارات...</p>
+      </div>
+    );
+  }
+
   return (
-    <div style={{ direction: 'rtl', fontFamily: 'Tajawal, sans-serif', backgroundColor: '#f1f5f9', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-      <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet" />
+    <div className="max-w-7xl mx-auto px-4 py-6 md:py-10" dir="rtl">
+      
+      {/* نافذة إدخال كود التفعيل */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
+          <div className="bg-white rounded-2xl shadow-2xl p-6 md:p-8 max-w-md w-full border border-gray-100">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-bold text-gray-800">🔑 تفعيل الاشتراك</h2>
+              <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-gray-600 font-bold text-2xl">&times;</button>
+            </div>
+            <p className="text-gray-600 text-sm mb-4">أدخل كود التفعيل لفتح جميع الاختبارات.</p>
+            <input
+              type="text"
+              placeholder="QUD-XXXX"
+              value={activationCode}
+              onChange={(e) => setActivationCode(e.target.value)}
+              className="w-full border-2 border-gray-200 rounded-xl p-3 text-center text-lg font-bold tracking-widest uppercase focus:border-blue-500 focus:outline-none mb-2"
+              dir="ltr"
+            />
+            {activationError && <p className="text-red-500 text-xs font-bold mb-4">{activationError}</p>}
+            <div className="mt-6 flex gap-3">
+              <button onClick={handleActivateCode} disabled={isActivating} className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-md">
+                {isActivating ? 'جاري التحقق...' : 'تفعيل الآن'}
+              </button>
+              <button onClick={() => setIsModalOpen(false)} className="flex-1 bg-gray-100 text-gray-700 font-bold py-3 rounded-xl">إلغاء</button>
+            </div>
+          </div>
+        </div>
+      )}
 
-      <div style={{ textAlign: 'center', maxWidth: '750px', marginBottom: '30px' }}>
-        <h1 style={{ fontSize: '32px', fontWeight: 900, color: '#0f172a', marginBottom: '10px', letterSpacing: '-0.5px' }}>
-          منصة إنجازيا <span>ULTRA MAX</span>
-        </h1>
-        <p style={{ color: '#475569', fontSize: '15px', fontWeight: 600, lineHeight: '1.5' }}>
-          الترسانة السحابية المتكاملة بـ 24 أداة ذكية لتمكين وتطوير المتاجر الإلكترونية. اختر السوق المستهدف للبدء:
-        </p>
-      </div>
-
-      {/* تم التعديل إلى repeat(6, minmax(0, 1fr)) لتستوعب 6 أسواق */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, minmax(0, 1fr))', gap: '15px', width: '100%', maxWidth: '1400px' }}>
+      {/* الهيدر العلوي المنسق باحترافية */}
+      <header className="bg-white shadow-sm rounded-3xl p-6 md:p-8 max-w-4xl mx-auto w-full mb-10 border border-gray-200 text-center flex flex-col items-center">
         
-        {/* بطاقة السوق السعودي */}
-        <Link href="/hub/sa" style={{ textDecoration: 'none' }}>
-          <div style={{ background: '#ffffff', border: '2px solid #e2e8f0', borderRadius: '16px', padding: '20px 15px', textAlign: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.03)', transition: 'all 0.3s ease', cursor: 'pointer', height: '100%', boxSizing: 'border-box' }}
-               onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#047857'; e.currentTarget.style.transform = 'translateY(-3px)'; }}
-               onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.transform = 'translateY(0)'; }}>
-            <div style={{ marginBottom: '10px', display: 'inline-block', borderRadius: '6px', overflow: 'hidden', boxShadow: '0 2px 6px rgba(0,0,0,0.1)' }}>
-              <img src="https://flagcdn.com/w160/sa.png" alt="علم المملكة العربية السعودية" style={{ width: '60px', height: '38px', objectFit: 'cover', display: 'block' }} />
-            </div>
-            <h2 style={{ fontSize: '18px', fontWeight: 900, color: '#0f172a', marginBottom: '8px' }}>السوق السعودي</h2>
-            <p style={{ color: '#64748b', fontSize: '12.5px', fontWeight: 500, margin: '0 0 15px 0', lineHeight: '1.4' }}>متوافق مع سلة، زد، والريال.</p>
-            <span style={{ display: 'inline-block', background: '#ecfdf5', color: '#047857', padding: '8px 14px', borderRadius: '8px', fontWeight: 800, fontSize: '12.5px' }}>دخول السوق ←</span>
+        {/* اللوجو واسم المنصة */}
+        <div className="flex items-center justify-center gap-3 mb-3">
+          <Image
+            src="/logo.png"
+            alt="شعار منصة كليك قدرات"
+            width={56}
+            height={56}
+            className="rounded-2xl shadow-sm flex-shrink-0"
+            priority
+          />
+          <div className="text-right">
+            <h2 className="text-lg md:text-xl font-extrabold text-gray-900 tracking-tight">منصة كليك قدرات</h2>
+            <span className="text-xs font-semibold text-blue-600 block">الاحتراف في التدريب المحاكي</span>
           </div>
-        </Link>
+        </div>
 
-        {/* بطاقة السوق الإماراتي */}
-        <Link href="/hub/ae" style={{ textDecoration: 'none' }}>
-          <div style={{ background: '#ffffff', border: '2px solid #e2e8f0', borderRadius: '16px', padding: '20px 15px', textAlign: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.03)', transition: 'all 0.3s ease', cursor: 'pointer', height: '100%', boxSizing: 'border-box' }}
-               onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#00732f'; e.currentTarget.style.transform = 'translateY(-3px)'; }}
-               onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.transform = 'translateY(0)'; }}>
-            <div style={{ marginBottom: '10px', display: 'inline-block', borderRadius: '6px', overflow: 'hidden', boxShadow: '0 2px 6px rgba(0,0,0,0.1)' }}>
-              <img src="https://flagcdn.com/w160/ae.png" alt="علم دولة الإمارات العربية المتحدة" style={{ width: '60px', height: '38px', objectFit: 'cover', display: 'block' }} />
-            </div>
-            <h2 style={{ fontSize: '18px', fontWeight: 900, color: '#0f172a', marginBottom: '8px' }}>السوق الإماراتي</h2>
-            <p style={{ color: '#64748b', fontSize: '12.5px', fontWeight: 500, margin: '0 0 15px 0', lineHeight: '1.4' }}>متوافق مع ضريبة FTA والدرهم.</p>
-            <span style={{ display: 'inline-block', background: '#f0fdf4', color: '#00732f', padding: '8px 14px', borderRadius: '8px', fontWeight: 800, fontSize: '12.5px' }}>دخول السوق ←</span>
+        {/* أزرار الشراء والتفعيل */}
+        {!isUserSubscribed && (
+          <div className="flex items-center justify-center gap-3 w-full max-w-xs mt-3 mb-6">
+            <a href="https://enjazya.lemonsqueezy.com/checkout/buy/13f3f36f-c53b-4227-91c6-b556ae13aee2" target="_blank" rel="noopener noreferrer" className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs md:text-sm shadow-md transition-all text-center whitespace-nowrap">
+              🛒 اشترِ الباقة
+            </a>
+            <button onClick={() => setIsModalOpen(true)} className="flex-1 bg-slate-800 hover:bg-slate-900 text-white font-bold px-4 py-2.5 rounded-xl text-xs md:text-sm shadow-md transition-all text-center whitespace-nowrap">
+              🔑 لدي كود
+            </button>
           </div>
-        </Link>
+        )}
 
-        {/* بطاقة السوق القطري */}
-        <Link href="/hub/qa" style={{ textDecoration: 'none' }}>
-          <div style={{ background: '#ffffff', border: '2px solid #e2e8f0', borderRadius: '16px', padding: '20px 15px', textAlign: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.03)', transition: 'all 0.3s ease', cursor: 'pointer', height: '100%', boxSizing: 'border-box' }}
-               onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#8A1538'; e.currentTarget.style.transform = 'translateY(-3px)'; }}
-               onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.transform = 'translateY(0)'; }}>
-            <div style={{ marginBottom: '10px', display: 'inline-block', borderRadius: '6px', overflow: 'hidden', boxShadow: '0 2px 6px rgba(0,0,0,0.1)' }}>
-              <img src="https://flagcdn.com/w160/qa.png" alt="علم دولة قطر" style={{ width: '60px', height: '38px', objectFit: 'cover', display: 'block' }} />
+        {/* عنوان لوحة الاختبارات */}
+        <div className="w-full pt-4 border-t border-gray-100">
+          <h1 className="text-2xl md:text-3xl font-extrabold text-gray-800">
+            لوحة الاختبارات الشاملة
+          </h1>
+          <p className="text-gray-500 text-xs md:text-sm mt-1">
+            اختر الاختبار لبدء التدريب المحاكي المكون من 5 أقسام.
+          </p>
+        </div>
+      </header>
+      
+      {/* شبكة عرض البطاقات */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {EXAMS_DATA.map((exam) => {
+          const isLocked = !exam.isFree && !isUserSubscribed;
+
+          return (
+            <div 
+              key={exam.id} 
+              className={`bg-white rounded-2xl border p-6 md:p-8 text-center shadow-sm transition-all duration-200 flex flex-col justify-between ${isLocked ? 'border-gray-200 bg-gray-50/50' : 'border-gray-200 hover:border-blue-500 hover:shadow-md'}`}
+            >
+              <div>
+                <div className="flex justify-between items-center mb-4">
+                  <span className="text-xs font-bold text-gray-400">اختبار رقم {exam.id}</span>
+                  {!isUserSubscribed && exam.isFree && (
+                    <span className="bg-green-100 text-green-700 text-[11px] font-extrabold px-2.5 py-0.5 rounded-full">
+                      متاح مجاناً
+                    </span>
+                  )}
+                  {isLocked && (
+                    <span className="bg-amber-100 text-amber-700 text-[11px] font-extrabold px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                      🔒 للمشتركين
+                    </span>
+                  )}
+                </div>
+
+                <h2 className="text-xl font-bold text-gray-900 mb-2">
+                  {exam.title}
+                </h2>
+                <p className="text-sm text-gray-500 mb-8">
+                  {exam.description}
+                </p>
+              </div>
+              
+              {isLocked ? (
+                <button 
+                  onClick={() => setIsModalOpen(true)}
+                  className="w-full bg-slate-800 hover:bg-slate-900 text-white font-semibold py-3 px-4 rounded-xl transition-all shadow-sm text-center cursor-pointer text-sm"
+                >
+                  🔒 تفعيل بـكود أو اشتراك
+                </button>
+              ) : (
+                <Link 
+                  href={`/qudurat/test?examId=${exam.id}`}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-xl transition-all shadow-sm block text-center text-sm"
+                >
+                  ابدأ الاختبار الآن
+                </Link>
+              )}
             </div>
-            <h2 style={{ fontSize: '18px', fontWeight: 900, color: '#0f172a', marginBottom: '8px' }}>السوق القطري</h2>
-            <p style={{ color: '#64748b', fontSize: '12.5px', fontWeight: 500, margin: '0 0 15px 0', lineHeight: '1.4' }}>متوافق مع متطلبات GTA والريال.</p>
-            <span style={{ display: 'inline-block', background: '#FAF0F2', color: '#8A1538', border: '1px solid #EBB8C6', padding: '8px 14px', borderRadius: '8px', fontWeight: 800, fontSize: '12.5px' }}>دخول السوق ←</span>
-          </div>
-        </Link>
-
-        {/* بطاقة السوق الكويتي */}
-        <Link href="/hub/kw" style={{ textDecoration: 'none' }}>
-          <div style={{ background: '#ffffff', border: '2px solid #e2e8f0', borderRadius: '16px', padding: '20px 15px', textAlign: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.03)', transition: 'all 0.3s ease', cursor: 'pointer', height: '100%', boxSizing: 'border-box' }}
-               onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#0284c7'; e.currentTarget.style.transform = 'translateY(-3px)'; }}
-               onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.transform = 'translateY(0)'; }}>
-            <div style={{ marginBottom: '10px', display: 'inline-block', borderRadius: '6px', overflow: 'hidden', boxShadow: '0 2px 6px rgba(0,0,0,0.1)' }}>
-              <img src="https://flagcdn.com/w160/kw.png" alt="علم دولة الكويت" style={{ width: '60px', height: '38px', objectFit: 'cover', display: 'block' }} />
-            </div>
-            <h2 style={{ fontSize: '18px', fontWeight: 900, color: '#0f172a', marginBottom: '8px' }}>السوق الكويتي</h2>
-            <p style={{ color: '#64748b', fontSize: '12.5px', fontWeight: 500, margin: '0 0 15px 0', lineHeight: '1.4' }}>متوافق مع وزارة التجارة والدينار.</p>
-            <span style={{ display: 'inline-block', background: '#e0f2fe', color: '#0284c7', padding: '8px 14px', borderRadius: '8px', fontWeight: 800, fontSize: '12.5px' }}>دخول السوق ←</span>
-          </div>
-        </Link>
-
-        {/* بطاقة السوق العُماني */}
-        <Link href="/hub/om" style={{ textDecoration: 'none' }}>
-          <div style={{ background: '#ffffff', border: '2px solid #e2e8f0', borderRadius: '16px', padding: '20px 15px', textAlign: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.03)', transition: 'all 0.3s ease', cursor: 'pointer', height: '100%', boxSizing: 'border-box' }}
-               onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#C62828'; e.currentTarget.style.transform = 'translateY(-3px)'; }}
-               onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.transform = 'translateY(0)'; }}>
-            <div style={{ marginBottom: '10px', display: 'inline-block', borderRadius: '6px', overflow: 'hidden', boxShadow: '0 2px 6px rgba(0,0,0,0.1)' }}>
-              <img src="https://flagcdn.com/w160/om.png" alt="علم سلطنة عُمان" style={{ width: '60px', height: '38px', objectFit: 'cover', display: 'block' }} />
-            </div>
-            <h2 style={{ fontSize: '18px', fontWeight: 900, color: '#0f172a', marginBottom: '8px' }}>السوق العُماني</h2>
-            <p style={{ color: '#64748b', fontSize: '12.5px', fontWeight: 500, margin: '0 0 15px 0', lineHeight: '1.4' }}>متوافق مع جهاز الضرائب (OTA) والريال.</p>
-            <span style={{ display: 'inline-block', background: '#FFEBEE', color: '#C62828', border: '1px solid #FFCDD2', padding: '8px 14px', borderRadius: '8px', fontWeight: 800, fontSize: '12.5px' }}>دخول السوق ←</span>
-          </div>
-        </Link>
-
-        {/* بطاقة السوق البحريني (الجديدة) */}
-        <Link href="/hub/bh" style={{ textDecoration: 'none' }}>
-          <div style={{ background: '#ffffff', border: '2px solid #e2e8f0', borderRadius: '16px', padding: '20px 15px', textAlign: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.03)', transition: 'all 0.3s ease', cursor: 'pointer', height: '100%', boxSizing: 'border-box' }}
-               onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#CE1126'; e.currentTarget.style.transform = 'translateY(-3px)'; }}
-               onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.transform = 'translateY(0)'; }}>
-            <div style={{ marginBottom: '10px', display: 'inline-block', borderRadius: '6px', overflow: 'hidden', boxShadow: '0 2px 6px rgba(0,0,0,0.1)' }}>
-              <img src="https://flagcdn.com/w160/bh.png" alt="علم مملكة البحرين" style={{ width: '60px', height: '38px', objectFit: 'cover', display: 'block' }} />
-            </div>
-            <h2 style={{ fontSize: '18px', fontWeight: 900, color: '#0f172a', marginBottom: '8px' }}>السوق البحريني</h2>
-            <p style={{ color: '#64748b', fontSize: '12.5px', fontWeight: 500, margin: '0 0 15px 0', lineHeight: '1.4' }}>متوافق مع الجهاز الوطني للإيرادات (NBR) والدينار.</p>
-            <span style={{ display: 'inline-block', background: '#FDECEE', color: '#CE1126', border: '1px solid #F9C9CE', padding: '8px 14px', borderRadius: '8px', fontWeight: 800, fontSize: '12.5px' }}>دخول السوق ←</span>
-          </div>
-        </Link>
-
-      </div>
-
-      <style jsx>{`
-        /* تعديلات الـ Responsive لتتوافق مع الـ 6 بطاقات */
-        @media(max-width: 1200px) {
-          div :global(div[style*="grid-template-columns"]) {
-            grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-          }
-        }
-        @media(max-width: 768px) {
-          div :global(div[style*="grid-template-columns"]) {
-            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-          }
-        }
-        @media(max-width: 550px) {
-          div :global(div[style*="grid-template-columns"]) {
-            grid-template-columns: 1fr !important;
-          }
-        }
-      `}</style>
-
-      <div style={{ marginTop: '40px', color: '#94a3b8', fontSize: '12.5px', fontWeight: 500 }}>
-        جميع الحقوق محفوظة © 2026 منصة إنجازيا للحلول الرقمية
+          );
+        })}
       </div>
     </div>
   );
