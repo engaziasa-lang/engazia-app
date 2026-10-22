@@ -13,39 +13,38 @@ export default function PresenterPage() {
   const [isDrawing, setIsDrawing] = useState(false);
   const [penColor, setPenColor] = useState('#2563eb'); // أزرق افتراضياً
   const [penSize, setPenSize] = useState(4);
+  const [isEraser, setIsEraser] = useState(false); // حالة الممسحة
 
   const currentQuestion = questionsData[currentQuestionIndex];
 
-  // تهيئة السبورة عند تحميل الصفحة أو تغيير حجم الشاشة
+  // تهيئة السبورة عند تحميل الصفحة
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-
     const parent = canvas.parentElement;
     if (!parent) return;
 
-    // ضبط حجم السبورة ليتناسب مع الحاوية
+    // ضبط حجم السبورة ليتناسب مع الحاوية تماماً
     canvas.width = parent.clientWidth;
     canvas.height = parent.clientHeight;
     
-    // لضمان دقة الرسم على الشاشات عالية الدقة (Retina)
     const context = canvas.getContext('2d');
     if (context) {
       context.lineCap = 'round';
       context.lineJoin = 'round';
-      context.strokeStyle = penColor;
-      context.lineWidth = penSize;
       contextRef.current = context;
     }
   }, []);
 
-  // تحديث لون وحجم القلم عند تغييرهما
+  // تحديث خصائص القلم أو الممسحة
   useEffect(() => {
     if (contextRef.current) {
+      // إذا كانت ممسحة، نستخدم خاصية المسح، وإلا نستخدم اللون العادي
+      contextRef.current.globalCompositeOperation = isEraser ? 'destination-out' : 'source-over';
       contextRef.current.strokeStyle = penColor;
-      contextRef.current.lineWidth = penSize;
+      contextRef.current.lineWidth = isEraser ? penSize * 4 : penSize; // الممسحة تكون أعرض لتسهيل المسح
     }
-  }, [penColor, penSize]);
+  }, [penColor, penSize, isEraser]);
 
   // دوال الرسم
   const startDrawing = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
@@ -103,6 +102,7 @@ export default function PresenterPage() {
     if (currentQuestionIndex < questionsData.length - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
       setShowAnswer(false);
+      setIsEraser(false);
       clearCanvas();
     }
   };
@@ -111,6 +111,7 @@ export default function PresenterPage() {
     if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex(prev => prev - 1);
       setShowAnswer(false);
+      setIsEraser(false);
       clearCanvas();
     }
   };
@@ -139,91 +140,90 @@ export default function PresenterPage() {
         </div>
       </header>
 
-      {/* مساحة العمل (مقسمة بين السؤال والسبورة) */}
-      <main className="flex-grow flex gap-4 p-4 overflow-hidden">
+      {/* مساحة العمل */}
+      <main className="flex-grow flex gap-4 p-4 overflow-hidden min-h-0">
         
-        {/* القسم الأيمن: عرض السؤال (35% من الشاشة) */}
-        <section className="w-[35%] bg-white rounded-2xl shadow-sm border border-gray-200 flex flex-col overflow-hidden">
-          <div className="p-6 flex-grow overflow-y-auto">
-            <span className="inline-block bg-blue-50 text-blue-700 text-xs font-bold px-3 py-1 rounded-full mb-4">
-              {currentQuestion.category}
-            </span>
+        {/* القسم الأيمن: عرض السؤال (بدون انزلاق ومتمركز عمودياً) */}
+        <section className="w-[35%] bg-white rounded-2xl shadow-sm border border-gray-200 flex flex-col justify-center p-5 md:p-6 overflow-hidden relative">
+          <div className="w-full">
+            <div className="mb-4">
+              <span className="inline-block bg-blue-50 text-blue-700 text-[11px] font-bold px-3 py-1 rounded-full">
+                {currentQuestion.category}
+              </span>
+            </div>
             
-            <h2 className="text-2xl font-extrabold text-gray-900 leading-relaxed mb-6">
+            <h2 className="text-xl md:text-2xl font-extrabold text-gray-900 leading-snug mb-6">
               {currentQuestion.text}
             </h2>
 
-            <div className="space-y-3 mb-6">
+            <div className="space-y-3">
               {currentQuestion.options.map((option, idx) => {
                 const isCorrect = option === currentQuestion.correctAnswer;
                 let optionStyle = "border-gray-200 bg-white text-gray-700";
                 
                 if (showAnswer) {
                   if (isCorrect) {
-                    optionStyle = "border-green-500 bg-green-50 text-green-900 font-extrabold shadow-sm";
+                    optionStyle = "border-green-500 bg-green-50 text-green-900 font-extrabold shadow-md transform scale-[1.02]";
                   } else {
                     optionStyle = "border-gray-100 bg-gray-50 text-gray-400 opacity-60";
                   }
                 }
 
                 return (
-                  <div key={idx} className={`p-4 rounded-xl border-2 text-lg transition-all ${optionStyle}`}>
-                    <div className="flex justify-between items-center">
-                      <span>{option}</span>
-                      {showAnswer && isCorrect && <span className="text-xl">✅</span>}
-                    </div>
+                  <div key={idx} className={`p-3.5 rounded-xl border-2 text-base md:text-lg transition-all duration-300 flex justify-between items-center ${optionStyle}`}>
+                    <span>{option}</span>
+                    {showAnswer && isCorrect && <span className="text-xl drop-shadow-sm">✅</span>}
                   </div>
                 );
               })}
             </div>
-
-            {/* صندوق الشرح ينبثق عند إظهار الحل */}
-            {showAnswer && currentQuestion.explanation && (
-              <div className="bg-amber-50 border-2 border-amber-200 rounded-xl p-5 animate-in fade-in slide-in-from-bottom-4">
-                <h4 className="font-bold text-amber-900 mb-2 flex items-center gap-2">
-                  <span>💡</span> شرح الحل:
-                </h4>
-                <p className="text-amber-900 leading-relaxed text-sm font-medium">
-                  {currentQuestion.explanation}
-                </p>
-              </div>
-            )}
           </div>
         </section>
 
-        {/* القسم الأيسر: السبورة التفاعلية للشرح (65% من الشاشة) */}
+        {/* القسم الأيسر: السبورة التفاعلية والشرح */}
         <section className="w-[65%] bg-white rounded-2xl shadow-sm border border-gray-200 flex flex-col overflow-hidden relative">
           
           {/* أدوات السبورة العلوية */}
-          <div className="bg-slate-50 border-b border-gray-200 p-3 flex justify-between items-center flex-shrink-0 z-10">
-            <div className="flex items-center gap-4">
-              <span className="text-sm font-bold text-gray-600">أدوات الشرح:</span>
+          <div className="bg-slate-50 border-b border-gray-200 p-2.5 flex justify-between items-center flex-shrink-0 z-10">
+            <div className="flex items-center gap-3">
+              <span className="text-sm font-bold text-gray-600 ml-2">أدوات الشرح:</span>
               
               {/* ألوان القلم */}
               <div className="flex gap-2">
                 {['#2563eb', '#dc2626', '#16a34a', '#1e293b'].map((color) => (
                   <button
                     key={color}
-                    onClick={() => setPenColor(color)}
-                    className={`w-8 h-8 rounded-full shadow-sm border-2 transition-all ${penColor === color ? 'border-gray-900 scale-110' : 'border-transparent hover:scale-105'}`}
+                    onClick={() => { setPenColor(color); setIsEraser(false); }}
+                    className={`w-8 h-8 rounded-full shadow-sm border-2 transition-all ${!isEraser && penColor === color ? 'border-gray-900 scale-110' : 'border-transparent hover:scale-105'}`}
                     style={{ backgroundColor: color }}
                     title="تغيير اللون"
                   />
                 ))}
               </div>
 
-              <div className="w-px h-6 bg-gray-300 mx-2"></div>
+              <div className="w-px h-6 bg-gray-300 mx-1"></div>
+
+              {/* الممسحة (Eraser) */}
+              <button
+                onClick={() => setIsEraser(true)}
+                className={`w-9 h-9 flex items-center justify-center rounded-lg border-2 transition-all text-xl ${isEraser ? 'border-gray-900 bg-gray-200 scale-110 shadow-inner' : 'border-transparent hover:bg-gray-100'}`}
+                title="ممسحة"
+              >
+                🧽
+              </button>
+
+              <div className="w-px h-6 bg-gray-300 mx-1"></div>
 
               {/* حجم القلم */}
-              <div className="flex items-center gap-2">
-                <button onClick={() => setPenSize(2)} className={`w-8 h-8 flex items-center justify-center rounded-lg ${penSize === 2 ? 'bg-blue-100 text-blue-700' : 'hover:bg-gray-100'}`}>
+              <div className="flex items-center gap-1.5">
+                <button onClick={() => setPenSize(2)} className={`w-8 h-8 flex items-center justify-center rounded-lg ${penSize === 2 && !isEraser ? 'bg-blue-100 text-blue-700' : 'hover:bg-gray-100'}`} title="خط رفيع">
                   <div className="w-1.5 h-1.5 bg-current rounded-full"></div>
                 </button>
-                <button onClick={() => setPenSize(4)} className={`w-8 h-8 flex items-center justify-center rounded-lg ${penSize === 4 ? 'bg-blue-100 text-blue-700' : 'hover:bg-gray-100'}`}>
-                  <div className="w-3 h-3 bg-current rounded-full"></div>
+                <button onClick={() => setPenSize(4)} className={`w-8 h-8 flex items-center justify-center rounded-lg ${penSize === 4 && !isEraser ? 'bg-blue-100 text-blue-700' : 'hover:bg-gray-100'}`} title="خط متوسط">
+                  <div className="w-2.5 h-2.5 bg-current rounded-full"></div>
                 </button>
-                <button onClick={() => setPenSize(8)} className={`w-8 h-8 flex items-center justify-center rounded-lg ${penSize === 8 ? 'bg-blue-100 text-blue-700' : 'hover:bg-gray-100'}`}>
-                  <div className="w-5 h-5 bg-current rounded-full"></div>
+                <button onClick={() => setPenSize(8)} className={`w-8 h-8 flex items-center justify-center rounded-lg ${penSize === 8 && !isEraser ? 'bg-blue-100 text-blue-700' : 'hover:bg-gray-100'}`} title="خط عريض">
+                  <div className="w-4 h-4 bg-current rounded-full"></div>
                 </button>
               </div>
             </div>
@@ -247,12 +247,26 @@ export default function PresenterPage() {
               onTouchStart={startDrawing}
               onTouchEnd={finishDrawing}
               onTouchMove={draw}
-              className="absolute top-0 left-0 w-full h-full"
+              className="absolute top-0 left-0 w-full h-full z-10"
             />
-            {!isDrawing && (
-              <div className="absolute top-4 left-4 pointer-events-none opacity-20 flex items-center gap-2">
-                <span className="text-6xl">✍️</span>
-                <span className="font-extrabold text-2xl text-gray-500">منطقة الشرح التفاعلي</span>
+            
+            {/* رسالة خلفية تظهر فقط عندما تكون السبورة فارغة تماماً */}
+            {!isDrawing && !showAnswer && (
+              <div className="absolute top-6 left-6 pointer-events-none opacity-20 flex items-center gap-2 z-0">
+                <span className="text-5xl">✍️</span>
+                <span className="font-extrabold text-xl text-gray-500">منطقة الشرح التفاعلي</span>
+              </div>
+            )}
+
+            {/* صندوق الشرح (يظهر كطبقة عائمة أسفل السبورة بشكل أنيق) */}
+            {showAnswer && currentQuestion.explanation && (
+              <div className="absolute bottom-4 left-4 right-4 bg-amber-50/95 backdrop-blur-sm border-2 border-amber-300 rounded-2xl p-5 shadow-2xl z-20 animate-in fade-in slide-in-from-bottom-4">
+                <h4 className="font-bold text-amber-900 mb-2 flex items-center gap-2">
+                  <span className="text-xl">💡</span> شرح الحل:
+                </h4>
+                <p className="text-amber-900 leading-relaxed text-sm md:text-base font-medium">
+                  {currentQuestion.explanation}
+                </p>
               </div>
             )}
           </div>
