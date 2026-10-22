@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { EXAMS_DATA } from '../lib/examsConfig';
+import { EXAMS_DATA } from '@/app/qudurat/lib/examsConfig';
 
 export default function ExamsDashboard() {
   const [isUserSubscribed, setIsUserSubscribed] = useState<boolean>(false);
