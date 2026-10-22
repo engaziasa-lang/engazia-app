@@ -3,7 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { EXAMS_DATA } from '../lib/examsConfig';
+// تم تصحيح المسار هنا ليعمل بشكل سليم على Vercel بدون أي أخطاء
+import { EXAMS_DATA } from '@/app/qudurat/lib/examsConfig';
 
 export default function ExamsDashboard() {
   const [isUserSubscribed, setIsUserSubscribed] = useState<boolean>(false);
