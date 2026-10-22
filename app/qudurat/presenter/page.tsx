@@ -7,41 +7,34 @@ export default function PresenterPage() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
   
-  // حالة النص التدريجي
-  const [displayedExplanation, setDisplayedExplanation] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
+  // حالة الشرح المجزأ (Step-by-Step)
+  const [explanationParts, setExplanationParts] = useState<string[]>([]);
+  const [visiblePartsCount, setVisiblePartsCount] = useState<number>(0);
 
   const currentQuestion = questionsData[currentQuestionIndex];
 
-  // تأثير ظهور النص تدريجياً (تأثير الآلة الكاتبة)
+  // تقسيم الشرح إلى خطوات عند إظهار الحل
   useEffect(() => {
-    let timeout: NodeJS.Timeout;
-    
     if (showAnswer && currentQuestion.explanation) {
-      setIsTyping(true);
-      setDisplayedExplanation('');
-      let currentIndex = 0;
-      const fullText = currentQuestion.explanation;
-
-      const typeChar = () => {
-        if (currentIndex < fullText.length) {
-          setDisplayedExplanation(fullText.substring(0, currentIndex + 1));
-          currentIndex++;
-          // سرعة ظهور الحروف (بالمللي ثانية) - يمكنك تعديل الرقم 30 لتسريع أو إبطاء الكتابة
-          timeout = setTimeout(typeChar, 30);
-        } else {
-          setIsTyping(false);
-        }
-      };
-      
-      typeChar();
+      // تقسيم النص إلى جمل بناءً على النقطة أو علامات الترقيم الرئيسية
+      const parts = currentQuestion.explanation
+        .split(/(?<=[.؟!])\s+/)
+        .filter(part => part.trim() !== '');
+        
+      setExplanationParts(parts);
+      setVisiblePartsCount(1); // إظهار الخطوة الأولى مباشرة
     } else {
-      setDisplayedExplanation('');
-      setIsTyping(false);
+      setExplanationParts([]);
+      setVisiblePartsCount(0);
     }
-
-    return () => clearTimeout(timeout);
   }, [showAnswer, currentQuestion.explanation]);
+
+  // دالة لإظهار الخطوة التالية من الشرح
+  const showNextPart = () => {
+    if (visiblePartsCount < explanationParts.length) {
+      setVisiblePartsCount(prev => prev + 1);
+    }
+  };
 
   // دوال التحكم بالأسئلة
   const handleNext = () => {
@@ -60,14 +53,6 @@ export default function PresenterPage() {
 
   const toggleAnswer = () => {
     setShowAnswer(!showAnswer);
-  };
-
-  // تسريع ظهور النص كاملاً إذا أراد المدرب تخطي التأثير التدريجي بالنقر على اللوحة
-  const skipTypingEffect = () => {
-    if (isTyping && currentQuestion.explanation) {
-      setDisplayedExplanation(currentQuestion.explanation);
-      setIsTyping(false);
-    }
   };
 
   return (
@@ -130,20 +115,19 @@ export default function PresenterPage() {
           </div>
         </section>
 
-        {/* القسم الأيسر: لوحة الشرح الذكية (تظهر تدريجياً) */}
+        {/* القسم الأيسر: لوحة الشرح المجزأ (Step-by-Step) */}
         <section 
-          className="w-[60%] bg-white rounded-2xl shadow-sm border border-gray-200 flex flex-col overflow-hidden relative cursor-pointer"
-          onClick={skipTypingEffect}
-          title={isTyping ? "انقر لإظهار النص كاملاً" : ""}
+          className="w-[60%] bg-white rounded-2xl shadow-sm border border-gray-200 flex flex-col overflow-hidden relative cursor-pointer group"
+          onClick={showNextPart}
         >
           {/* شريط عنوان اللوحة */}
           <div className="bg-slate-50 border-b border-gray-200 p-4 flex justify-between items-center flex-shrink-0 z-10">
             <h3 className="font-bold text-gray-700 flex items-center gap-2 text-lg">
               <span className="text-2xl">💡</span> لوحة الشرح والتفصيل
             </h3>
-            {isTyping && (
+            {showAnswer && visiblePartsCount < explanationParts.length && (
               <span className="text-xs font-bold text-blue-600 bg-blue-100 px-3 py-1 rounded-full animate-pulse">
-                جاري الكتابة...
+                انقر لإظهار الخطوة التالية
               </span>
             )}
           </div>
@@ -153,16 +137,29 @@ export default function PresenterPage() {
             {!showAnswer ? (
               <div className="w-full h-full flex flex-col items-center justify-center text-center opacity-30">
                 <span className="text-7xl mb-4">🪄</span>
-                <h3 className="text-2xl font-extrabold text-gray-500">الشرح سيظهر هنا</h3>
-                <p className="text-gray-400 mt-2">اضغط على زر إظهار الحل ليبدأ الشرح التلقائي</p>
+                <h3 className="text-2xl font-extrabold text-gray-500">مساحة الحل ستظهر هنا</h3>
+                <p className="text-gray-400 mt-2">اضغط على زر إظهار الحل للبدء</p>
               </div>
             ) : (
-              <div className="w-full">
-                <p className="text-2xl md:text-3xl text-gray-800 font-bold leading-relaxed whitespace-pre-wrap">
-                  {displayedExplanation}
-                  {/* المؤشر الوامض (Cursor) الذي يظهر أثناء الكتابة */}
-                  {isTyping && <span className="inline-block w-2 h-8 bg-blue-600 ml-1 align-middle animate-pulse"></span>}
-                </p>
+              <div className="w-full space-y-6">
+                {/* عرض الخطوات المسموح برؤيتها حالياً */}
+                {explanationParts.slice(0, visiblePartsCount).map((part, index) => (
+                  <p 
+                    key={index} 
+                    className="text-2xl md:text-3xl text-gray-800 font-bold leading-relaxed animate-in fade-in slide-in-from-right-4 duration-500"
+                  >
+                    {part}
+                  </p>
+                ))}
+                
+                {/* زر النقر لإظهار الخطوة التالية (يختفي عند اكتمال الشرح) */}
+                {visiblePartsCount < explanationParts.length && (
+                  <div className="flex justify-center mt-10">
+                    <button className="bg-slate-200 hover:bg-slate-300 text-slate-700 px-6 py-2.5 rounded-full font-bold transition-colors flex items-center gap-2 shadow-sm pointer-events-none">
+                      <span className="animate-bounce">👇</span> إظهار الخطوة التالية
+                    </button>
+                  </div>
+                )}
               </div>
             )}
           </div>
