@@ -17,7 +17,6 @@ export default function PresenterPage() {
   
   // حالة أداة النص
   const [textInput, setTextInput] = useState({ visible: false, x: 0, y: 0, text: '' });
-  const inputRef = useRef<HTMLInputElement>(null);
 
   const currentQuestion = questionsData[currentQuestionIndex];
 
@@ -33,19 +32,11 @@ export default function PresenterPage() {
     
     const context = canvas.getContext('2d');
     if (context) {
-      // إعدادات تنعيم الخط (Anti-aliasing & Smoothing)
       context.lineCap = 'round';
       context.lineJoin = 'round';
       contextRef.current = context;
     }
   }, []);
-
-  // تركيز التركيز التلقائي على مربع النص عند ظهوره
-  useEffect(() => {
-    if (textInput.visible && inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, [textInput.visible]);
 
   // تحديث خصائص القلم أو الممسحة
   useEffect(() => {
@@ -75,16 +66,32 @@ export default function PresenterPage() {
     }
   };
 
+  // تثبيت النص المكتوب على السبورة
+  const handleTextSubmit = () => {
+    if (textInput.text.trim() !== '' && contextRef.current) {
+      const ctx = contextRef.current;
+      ctx.globalCompositeOperation = 'source-over';
+      const fontSize = penSize === 2 ? 18 : penSize === 4 ? 24 : 36;
+      ctx.font = `bold ${fontSize}px sans-serif`;
+      ctx.fillStyle = penColor;
+      ctx.direction = 'rtl'; // دعم النص العربي على السبورة
+      ctx.fillText(textInput.text, textInput.x, textInput.y + (fontSize / 2));
+    }
+    setTextInput({ visible: false, x: 0, y: 0, text: '' });
+  };
+
   const handleCanvasPointerDown = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
     const { offsetX, offsetY } = getCoordinates(e);
 
-    // إذا كانت أداة النص مفعلة، نفتح مربع الكتابة ونخرج
+    // إذا كانت أداة النص مفعلة
     if (activeTool === 'text') {
-      if (textInput.visible) {
-        // إذا كان هناك مربع مفتوح مسبقاً، نثبت النص الأول قبل فتح جديد
+      if (textInput.visible && textInput.text.trim() !== '') {
+        // إذا نقر في مكان آخر وكان هناك نص، نثبت النص القديم أولاً
         handleTextSubmit();
+      } else {
+        // فتح مربع نص جديد في مكان النقر
+        setTextInput({ visible: true, x: offsetX, y: offsetY, text: '' });
       }
-      setTextInput({ visible: true, x: offsetX, y: offsetY, text: '' });
       return;
     }
 
@@ -108,22 +115,8 @@ export default function PresenterPage() {
     if (!isDrawing || !contextRef.current || activeTool === 'text') return;
     const { offsetX, offsetY } = getCoordinates(e);
     
-    // استخدام منحنيات بسيطة لتقليل التعرج العنيف للماوس
     contextRef.current.lineTo(offsetX, offsetY);
     contextRef.current.stroke();
-  };
-
-  // تثبيت النص المكتوب على السبورة
-  const handleTextSubmit = () => {
-    if (textInput.text.trim() !== '' && contextRef.current) {
-      const ctx = contextRef.current;
-      ctx.globalCompositeOperation = 'source-over';
-      const fontSize = penSize === 2 ? 18 : penSize === 4 ? 24 : 36;
-      ctx.font = `bold ${fontSize}px sans-serif`;
-      ctx.fillStyle = penColor;
-      ctx.fillText(textInput.text, textInput.x, textInput.y + fontSize / 2);
-    }
-    setTextInput({ ...textInput, visible: false, text: '' });
   };
 
   const clearCanvas = () => {
@@ -132,7 +125,7 @@ export default function PresenterPage() {
     if (canvas && context) {
       context.clearRect(0, 0, canvas.width, canvas.height);
     }
-    setTextInput({ ...textInput, visible: false, text: '' });
+    setTextInput({ visible: false, x: 0, y: 0, text: '' });
   };
 
   const handleNext = () => {
@@ -273,25 +266,28 @@ export default function PresenterPage() {
               className="absolute top-0 left-0 w-full h-full z-10"
             />
 
-            {/* مربع إدخال النص العائم (يظهر عند استخدام أداة النص والنقر على السبورة) */}
+            {/* مربع إدخال النص العائم المحدث */}
             {textInput.visible && (
               <input
-                ref={inputRef}
                 type="text"
+                autoFocus // يجعل المؤشر يظهر تلقائياً دون الحاجة للنقر مرة أخرى
+                dir="rtl" // لضمان اتجاه الكتابة العربي
                 value={textInput.text}
                 onChange={(e) => setTextInput({ ...textInput, text: e.target.value })}
                 onKeyDown={(e) => { if (e.key === 'Enter') handleTextSubmit(); }}
-                onBlur={handleTextSubmit}
-                className="absolute z-20 bg-transparent border-b-2 border-dashed border-blue-400 outline-none p-0 m-0"
+                onMouseDown={(e) => e.stopPropagation()} // منع السبورة من التشويش على مربع النص
+                onTouchStart={(e) => e.stopPropagation()}
+                className="absolute z-50 bg-white/90 border-2 border-blue-500 rounded-lg outline-none px-3 py-1 shadow-lg"
                 style={{
                   left: `${textInput.x}px`,
-                  top: `${textInput.y - (penSize === 2 ? 10 : penSize === 4 ? 14 : 20)}px`,
+                  top: `${textInput.y - (penSize === 2 ? 15 : penSize === 4 ? 20 : 30)}px`,
                   color: penColor,
                   fontSize: `${penSize === 2 ? 18 : penSize === 4 ? 24 : 36}px`,
                   fontWeight: 'bold',
-                  fontFamily: 'sans-serif'
+                  fontFamily: 'sans-serif',
+                  minWidth: '250px'
                 }}
-                placeholder="اكتب هنا..."
+                placeholder="اكتب هنا ثم اضغط Enter..."
               />
             )}
             
@@ -302,6 +298,7 @@ export default function PresenterPage() {
               </div>
             )}
 
+            {/* صندوق الشرح */}
             {showAnswer && currentQuestion.explanation && (
               <div className="absolute bottom-4 left-4 right-4 bg-amber-50/95 backdrop-blur-sm border-2 border-amber-300 rounded-2xl p-5 shadow-2xl z-20 animate-in fade-in slide-in-from-bottom-4">
                 <h4 className="font-bold text-amber-900 mb-2 flex items-center gap-2">
