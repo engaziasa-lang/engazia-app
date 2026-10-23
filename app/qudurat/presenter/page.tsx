@@ -8,7 +8,6 @@ export default function PresenterPage() {
   const [questionClicks, setQuestionClicks] = useState<Record<number, number>>({});
   const [revealedAnswers, setRevealedAnswers] = useState<Record<number, boolean>>({});
   
-  // حالة فتح/إغلاق قائمة التنقل السريع
   const [isNavOpen, setIsNavOpen] = useState(false);
 
   const currentQuestion = questionsData[currentQuestionIndex];
@@ -34,7 +33,6 @@ export default function PresenterPage() {
 
   const visiblePartsCount = clicks;
 
-  // استخراج قائمة الأسابيع والحصص المتاحة تلقائياً من البيانات
   const navigationMap = useMemo(() => {
     const map: Record<number, number[]> = {};
     questionsData.forEach(q => {
@@ -43,19 +41,17 @@ export default function PresenterPage() {
         if (!map[q.week].includes(q.session)) map[q.week].push(q.session);
       }
     });
-    // ترتيب الحصص داخل كل أسبوع
     Object.keys(map).forEach(week => {
       map[Number(week)].sort((a, b) => a - b);
     });
     return map;
   }, []);
 
-  // دالة القفز السريع لحصة محددة
   const jumpToSession = (week: number, session: number) => {
     const index = questionsData.findIndex(q => q.week === week && q.session === session);
     if (index !== -1) {
       setCurrentQuestionIndex(index);
-      setIsNavOpen(false); // إغلاق القائمة بعد الاختيار
+      setIsNavOpen(false); 
     }
   };
 
@@ -122,7 +118,7 @@ export default function PresenterPage() {
           </div>
         </div>
 
-        {/* العداد والقائمة المنسدلة للتنقل */}
+        {/* العداد والقائمة المنسدلة */}
         <div className="relative">
           <button 
             onClick={() => setIsNavOpen(!isNavOpen)}
@@ -139,7 +135,6 @@ export default function PresenterPage() {
             <span className="text-xs text-gray-400 ml-1">▼</span>
           </button>
 
-          {/* نافذة التنقل المنسدلة */}
           {isNavOpen && (
             <div className="absolute top-full left-0 mt-2 w-64 bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2">
               <div className="bg-slate-100 px-4 py-2 border-b border-gray-200">
@@ -174,7 +169,6 @@ export default function PresenterPage() {
         </div>
       </header>
 
-      {/* إغلاق القائمة عند النقر خارجها */}
       {isNavOpen && (
         <div 
           className="fixed inset-0 z-20" 
@@ -182,11 +176,11 @@ export default function PresenterPage() {
         />
       )}
 
-      {/* مساحة العمل */}
-      <main className="flex-grow flex flex-col md:flex-row gap-4 p-4 overflow-hidden min-h-0 relative z-10">
+      {/* مساحة العمل - أصبحت قابلة للتمرير على الجوال لمنع التداخل */}
+      <main className="flex-grow flex flex-col md:flex-row gap-4 p-4 overflow-y-auto md:overflow-hidden min-h-0 relative z-10">
         
-        {/* القسم الأيمن: عرض السؤال والخيارات */}
-        <section className="w-full md:w-[40%] bg-white rounded-2xl shadow-sm border border-gray-200 flex flex-col justify-center p-4 md:p-6 overflow-hidden relative">
+        {/* القسم الأيمن: عرض السؤال */}
+        <section className="w-full md:w-[40%] flex-shrink-0 md:flex-shrink bg-white rounded-2xl shadow-sm border border-gray-200 flex flex-col justify-center p-4 md:p-6 overflow-y-auto md:overflow-hidden relative">
           <div className="w-full">
             <div className="mb-2 md:mb-3">
               <span className="inline-block bg-blue-50 text-blue-700 text-[10px] md:text-xs font-bold px-3 py-1 rounded-full">
@@ -226,9 +220,9 @@ export default function PresenterPage() {
           </div>
         </section>
 
-        {/* القسم الأيسر: لوحة الشرح التفاعلية */}
+        {/* القسم الأيسر: لوحة الشرح - تم تخصيص حد أدنى للارتفاع في الجوال */}
         <section 
-          className="w-full md:w-[60%] bg-white rounded-2xl shadow-sm border border-gray-200 flex flex-col overflow-hidden relative cursor-pointer select-none"
+          className="w-full md:w-[60%] min-h-[55vh] md:min-h-0 flex-shrink-0 md:flex-shrink bg-white rounded-2xl shadow-sm border border-gray-200 flex flex-col overflow-hidden relative cursor-pointer select-none"
           onClick={handleBoardClick}
         >
           {(clicks > 0 || isAnswerRevealed) && (
@@ -253,12 +247,6 @@ export default function PresenterPage() {
                     {part}
                   </p>
                 ))}
-                
-                {clicks < explanationParts.length && (
-                  <div className="flex justify-center pt-8 opacity-30">
-                    <span className="animate-pulse text-2xl">👇</span>
-                  </div>
-                )}
               </div>
             )}
           </div>
