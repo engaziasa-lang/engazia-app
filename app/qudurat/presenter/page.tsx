@@ -299,24 +299,29 @@ export default function PresenterPage() {
           </div>
         </section>
 
+        {/* لوحة الشرح */}
         <section 
           className="w-full md:w-[60%] min-h-[40vh] md:min-h-0 flex-shrink-0 md:flex-shrink bg-white rounded-2xl shadow-sm border border-gray-200 flex flex-col overflow-hidden relative cursor-pointer select-none"
           onClick={handleBoardClick}
         >
+          {/* زر مسح: منفصل تماماً في الأعلى ولا يغطي على الشرح */}
           {(clicks > 0 || isAnswerRevealed) && (
-            <button 
-              onClick={handleClearBoard}
-              className="absolute top-3 left-3 z-20 bg-white/90 backdrop-blur-sm border border-red-200 text-red-500 hover:bg-red-50 font-bold px-3 py-1.5 rounded-xl text-xs transition-all flex items-center gap-1.5 shadow-md"
-            >
-              <span>مسح</span> 🗑️
-            </button>
+            <div className="flex-shrink-0 bg-gray-50 border-b border-gray-100 px-4 py-2 flex justify-between items-center">
+              <span className="text-xs text-gray-400 font-medium">لوحة الشرح</span>
+              <button 
+                onClick={handleClearBoard}
+                className="bg-white border border-red-200 text-red-500 hover:bg-red-50 font-bold px-3 py-1 rounded-lg text-xs transition-all flex items-center gap-1 shadow-sm"
+              >
+                <span>مسح الشرح</span> 🗑️
+              </button>
+            </div>
           )}
 
           <div className="flex-grow w-full h-full p-4 md:p-10 overflow-y-auto">
             {clicks === 0 ? (
               <div className="w-full h-full"></div>
             ) : (
-              <div className="w-full space-y-4 md:space-y-8 mt-4 md:mt-2">
+              <div className="w-full space-y-4 md:space-y-8 mt-2">
                 {explanationParts.slice(0, visiblePartsCount).map((part, index) => (
                   <p 
                     key={index} 
