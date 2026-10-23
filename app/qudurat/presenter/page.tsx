@@ -9,9 +9,8 @@ export default function PresenterPage() {
   const [revealedAnswers, setRevealedAnswers] = useState<Record<number, boolean>>({});
   
   const [isNavOpen, setIsNavOpen] = useState(false);
-  const [isLoaded, setIsLoaded] = useState(false); // لمنع وميض الشاشة عند التحميل
+  const [isLoaded, setIsLoaded] = useState(false);
 
-  // 1. استرجاع آخر سؤال تم التوقف عنده عند فتح الصفحة
   useEffect(() => {
     const savedIndex = localStorage.getItem('qudurat_saved_index');
     if (savedIndex !== null) {
@@ -20,7 +19,6 @@ export default function PresenterPage() {
     setIsLoaded(true);
   }, []);
 
-  // 2. حفظ رقم السؤال الحالي تلقائياً في المتصفح كلما تغير
   useEffect(() => {
     if (isLoaded) {
       localStorage.setItem('qudurat_saved_index', currentQuestionIndex.toString());
@@ -106,7 +104,6 @@ export default function PresenterPage() {
     }
   };
 
-  // شاشة تحميل مؤقتة لضمان قراءة الذاكرة قبل عرض الأسئلة
   if (!isLoaded || !questionsData || questionsData.length === 0) {
     return (
       <div className="h-[100dvh] flex items-center justify-center bg-slate-100" dir="rtl">
@@ -121,14 +118,12 @@ export default function PresenterPage() {
       {/* الشريط العلوي */}
       <header className="flex-shrink-0 bg-slate-900 text-white px-4 md:px-6 py-3 flex justify-between items-center shadow-md z-30 relative">
         <div className="flex items-center gap-3">
-          {/* أيقونة المنصة (تأكد من وضع ملف icon.png في مجلد public) */}
           <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl overflow-hidden shadow-inner flex-shrink-0 bg-white flex items-center justify-center">
             <img 
-              src="/icon.png" 
+              src="/logo.png" 
               alt="شعار كليك قدرات" 
               className="w-full h-full object-contain"
               onError={(e) => {
-                // في حال عدم العثور على الصورة، يظهر حرف "ك" كبديل
                 e.currentTarget.style.display = 'none';
                 e.currentTarget.parentElement!.innerHTML = '<span class="text-blue-600 font-extrabold text-lg md:text-xl">ك</span>';
               }}
@@ -201,7 +196,6 @@ export default function PresenterPage() {
       {/* مساحة العمل */}
       <main className="flex-grow flex flex-col md:flex-row gap-4 p-4 overflow-y-auto md:overflow-hidden min-h-0 relative z-10">
         
-        {/* القسم الأيمن: عرض السؤال */}
         <section className="w-full md:w-[40%] flex-shrink-0 md:flex-shrink bg-white rounded-2xl shadow-sm border border-gray-200 flex flex-col justify-center p-4 md:p-6 overflow-y-auto md:overflow-hidden relative">
           <div className="w-full">
             <div className="mb-2 md:mb-3">
@@ -242,7 +236,6 @@ export default function PresenterPage() {
           </div>
         </section>
 
-        {/* القسم الأيسر: لوحة الشرح */}
         <section 
           className="w-full md:w-[60%] min-h-[55vh] md:min-h-0 flex-shrink-0 md:flex-shrink bg-white rounded-2xl shadow-sm border border-gray-200 flex flex-col overflow-hidden relative cursor-pointer select-none"
           onClick={handleBoardClick}
@@ -275,7 +268,6 @@ export default function PresenterPage() {
         </section>
       </main>
 
-      {/* الشريط السفلي */}
       <footer className="flex-shrink-0 bg-white border-t border-gray-200 p-3 md:p-4 flex justify-between items-center shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-10">
         <button 
           onClick={handlePrev} 
