@@ -336,17 +336,12 @@ export default function PresenterPage() {
         </section>
       </main>
 
-      {/* شريط التحكم المخصص للجوال */}
-      <div className="md:hidden flex items-center justify-between bg-slate-900 text-white px-3 py-2 border-t border-slate-800">
-        <div className={`text-base font-black font-mono tracking-wider px-2 py-0.5 rounded ${
-          isUrgent ? 'bg-red-600 text-white animate-pulse' : 'bg-slate-800 text-blue-400'
-        }`}>
-          {formattedTime}
-        </div>
+      {/* شريط التحكم المخصص للجوال (أصبح مدمجاً بأسلوب عصري في الأسفل) */}
+      <div className="md:hidden flex items-center justify-between bg-slate-900 text-white px-3 py-1.5 border-t border-slate-800">
         <div className="flex items-center gap-1">
           <button
             onClick={() => setIsRunning(!isRunning)}
-            className={`px-2.5 py-1 rounded text-xs font-bold text-white ${
+            className={`px-2 py-1 rounded text-xs font-bold text-white ${
               isRunning ? 'bg-amber-600' : 'bg-emerald-600'
             }`}
           >
@@ -355,9 +350,19 @@ export default function PresenterPage() {
           <button
             onClick={() => resetTimer(60)}
             className="p-1 bg-slate-800 text-slate-300 rounded text-xs"
+            title="إعادة ضبط"
           >
             🔄
           </button>
+        </div>
+
+        <div className={`text-base font-black font-mono tracking-wider px-2.5 py-0.5 rounded-lg ${
+          isUrgent ? 'bg-red-600 text-white animate-pulse' : 'bg-slate-800 text-blue-400'
+        }`}>
+          {formattedTime}
+        </div>
+
+        <div className="flex items-center gap-1">
           <button
             onClick={() => setTimeLeft((prev) => Math.max(0, prev - 15))}
             className="px-1.5 py-1 bg-slate-800 text-slate-300 rounded text-[11px] font-bold"
@@ -373,24 +378,25 @@ export default function PresenterPage() {
         </div>
       </div>
 
-      {/* شريط التنقل السفلي */}
-      <footer className="flex-shrink-0 bg-white border-t border-gray-200 p-2.5 md:p-4 flex justify-between items-center shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-10">
+      {/* شريط التنقل السفلي (أزرار أكبر حجماً والعداد في المنتصف) */}
+      <footer className="flex-shrink-0 bg-white border-t border-gray-200 p-3 md:p-4 flex justify-between items-center shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-10">
         <button 
           onClick={handlePrev} 
           disabled={currentQuestionIndex === 0}
-          className={`px-5 md:px-10 py-2 md:py-3 rounded-xl font-bold text-xs md:text-lg transition-all ${currentQuestionIndex === 0 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-gray-200 text-gray-800 hover:bg-gray-300 shadow-sm'}`}
+          className={`px-6 md:px-10 py-3 md:py-3 rounded-xl font-bold text-sm md:text-lg transition-all ${currentQuestionIndex === 0 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-gray-200 text-gray-800 hover:bg-gray-300 shadow-sm'}`}
         >
           السؤال السابق
         </button>
 
-        <span className="text-xs text-gray-500 font-bold md:hidden">
-          {currentQuestionIndex + 1} / {questionsData.length}
+        {/* العداد في المنتصف بين الزرين لنسخة الجوال */}
+        <span className="text-xs md:hidden font-black text-slate-700 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200">
+          {indexInSession} / {totalInSession}
         </span>
 
         <button 
           onClick={handleNext} 
           disabled={currentQuestionIndex === questionsData.length - 1}
-          className={`px-6 md:px-12 py-2 md:py-3 rounded-xl font-bold text-xs md:text-lg text-white shadow-md transition-all ${currentQuestionIndex === questionsData.length - 1 ? 'bg-blue-300 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
+          className={`px-8 md:px-12 py-3 md:py-3 rounded-xl font-bold text-sm md:text-lg text-white shadow-md transition-all ${currentQuestionIndex === questionsData.length - 1 ? 'bg-blue-300 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
         >
           {currentQuestionIndex === questionsData.length - 1 ? 'نهاية الأسئلة' : 'السؤال التالي'}
         </button>
