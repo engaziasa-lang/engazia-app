@@ -314,9 +314,7 @@ export default function PresenterPage() {
 
           <div className="flex-grow w-full h-full p-4 md:p-10 overflow-y-auto">
             {clicks === 0 ? (
-              <div className="w-full h-full flex items-center justify-center text-gray-300 text-sm md:text-base select-none">
-                (انقر هنا لإظهار الشرح تدريجياً خطوة بخطوة)
-              </div>
+              <div className="w-full h-full"></div>
             ) : (
               <div className="w-full space-y-4 md:space-y-8 mt-4 md:mt-2">
                 {explanationParts.slice(0, visiblePartsCount).map((part, index) => (
@@ -333,7 +331,7 @@ export default function PresenterPage() {
         </section>
       </main>
 
-      {/* شريط التحكم المخصص للجوال (يظهر أسفل الشاشة على الموبايل فقط ويختفي على الكمبيوتر) */}
+      {/* شريط التحكم المخصص للجوال */}
       <div className="md:hidden flex items-center justify-between bg-slate-900 text-white px-3 py-2 border-t border-slate-800">
         <div className={`text-base font-black font-mono tracking-wider px-2 py-0.5 rounded ${
           isUrgent ? 'bg-red-600 text-white animate-pulse' : 'bg-slate-800 text-blue-400'
