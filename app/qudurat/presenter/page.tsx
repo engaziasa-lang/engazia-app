@@ -145,9 +145,9 @@ export default function PresenterPage() {
     <div className="h-[100dvh] bg-slate-100 flex flex-col overflow-hidden font-sans relative" dir="rtl">
       
       {/* الشريط العلوي */}
-      <header className="flex-shrink-0 bg-slate-900 text-white px-4 md:px-6 py-3 flex justify-between items-center shadow-md z-30 relative">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl overflow-hidden shadow-inner flex-shrink-0 bg-white flex items-center justify-center">
+      <header className="flex-shrink-0 bg-slate-900 text-white px-3 md:px-6 py-2.5 flex justify-between items-center shadow-md z-30 relative">
+        <div className="flex items-center gap-2 md:gap-3">
+          <div className="w-7 h-7 md:w-10 md:h-10 rounded-xl overflow-hidden shadow-inner flex-shrink-0 bg-white flex items-center justify-center">
             <img 
               src="/logo.png" 
               alt="شعار كليك قدرات" 
@@ -159,14 +159,14 @@ export default function PresenterPage() {
             />
           </div>
           <div>
-            <h1 className="font-bold text-base md:text-lg leading-tight">منصة كليك قدرات</h1>
-            <span className="text-blue-300 text-[10px] md:text-xs">وضع العرض الذكي</span>
+            <h1 className="font-bold text-sm md:text-lg leading-tight">كليك قدرات</h1>
+            <span className="text-blue-300 text-[9px] md:text-xs hidden sm:inline">وضع العرض الذكي</span>
           </div>
         </div>
 
-        {/* عداد الوقت التنازلي التفاعلي بدون مكتبات خارجية */}
-        <div className="flex items-center gap-2 bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-700 shadow-inner">
-          <div className={`text-lg md:text-xl font-black font-mono tracking-wider px-2.5 py-0.5 rounded-lg ${
+        {/* عداد الوقت للشاشات الكبيرة (الكمبيوتر) */}
+        <div className="hidden md:flex items-center gap-2 bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-700 shadow-inner">
+          <div className={`text-xl font-black font-mono tracking-wider px-2.5 py-0.5 rounded-lg ${
             isUrgent ? 'bg-red-600 text-white animate-pulse' : 'bg-slate-900 text-blue-400'
           }`}>
             {formattedTime}
@@ -177,7 +177,6 @@ export default function PresenterPage() {
               className={`px-2 py-1 rounded-lg text-xs font-bold text-white transition ${
                 isRunning ? 'bg-amber-600 hover:bg-amber-700' : 'bg-emerald-600 hover:bg-emerald-700'
               }`}
-              title={isRunning ? "إيقاف مؤقت" : "بدء العداد"}
             >
               {isRunning ? '⏸ إيقاف' : '▶ بدء'}
             </button>
@@ -191,39 +190,36 @@ export default function PresenterPage() {
             <button
               onClick={() => setTimeLeft((prev) => Math.max(0, prev - 15))}
               className="px-1.5 py-0.5 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded text-xs font-bold"
-              title="نقص 15 ثانية"
             >
               -15s
             </button>
             <button
               onClick={() => setTimeLeft((prev) => prev + 15)}
               className="px-1.5 py-0.5 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded text-xs font-bold"
-              title="زيادة 15 ثانية"
             >
               +15s
             </button>
           </div>
         </div>
 
-        {/* العداد والقائمة المنسدلة */}
+        {/* زر التنقل بين الحصص */}
         <div className="relative">
           <button 
             onClick={() => setIsNavOpen(!isNavOpen)}
-            className="bg-slate-800 hover:bg-slate-700 transition-colors px-3 md:px-4 py-1.5 rounded-lg border border-slate-600 flex items-center gap-2 md:gap-3 shadow-inner cursor-pointer"
-            title="انقر لاختيار حصة أخرى"
+            className="bg-slate-800 hover:bg-slate-700 transition-colors px-2.5 md:px-4 py-1.5 rounded-lg border border-slate-600 flex items-center gap-1.5 md:gap-3 shadow-inner cursor-pointer"
           >
-            <span className="font-extrabold text-xs md:text-sm text-amber-400 tracking-wide">
+            <span className="font-extrabold text-[11px] md:text-sm text-amber-400 tracking-wide">
               أس {currentWeek} ح {currentSession}
             </span>
             <span className="w-px h-4 bg-slate-500"></span>
-            <span className="font-bold text-xs md:text-sm text-gray-200">
-              س {indexInSession} من {totalInSession}
+            <span className="font-bold text-[11px] md:text-sm text-gray-200">
+              س {indexInSession}/{totalInSession}
             </span>
-            <span className="text-xs text-gray-400 ml-1">▼</span>
+            <span className="text-[10px] text-gray-400">▼</span>
           </button>
 
           {isNavOpen && (
-            <div className="absolute top-full left-0 mt-2 w-64 bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2">
+            <div className="absolute top-full left-0 mt-2 w-64 bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden z-50">
               <div className="bg-slate-100 px-4 py-2 border-b border-gray-200">
                 <span className="font-bold text-slate-700 text-sm">الانتقال السريع للحصص</span>
               </div>
@@ -257,31 +253,28 @@ export default function PresenterPage() {
       </header>
 
       {isNavOpen && (
-        <div 
-          className="fixed inset-0 z-20" 
-          onClick={() => setIsNavOpen(false)}
-        />
+        <div className="fixed inset-0 z-20" onClick={() => setIsNavOpen(false)} />
       )}
 
       {/* مساحة العمل */}
-      <main className="flex-grow flex flex-col md:flex-row gap-4 p-4 overflow-y-auto md:overflow-hidden min-h-0 relative z-10">
+      <main className="flex-grow flex flex-col md:flex-row gap-3 p-3 md:p-4 overflow-y-auto md:overflow-hidden min-h-0 relative z-10">
         
         <section className="w-full md:w-[40%] flex-shrink-0 md:flex-shrink bg-white rounded-2xl shadow-sm border border-gray-200 flex flex-col justify-center p-4 md:p-6 overflow-y-auto md:overflow-hidden relative">
           <div className="w-full">
-            <div className="mb-2 md:mb-3">
+            <div className="mb-2">
               <span className="inline-block bg-blue-50 text-blue-700 text-[10px] md:text-xs font-bold px-3 py-1 rounded-full">
                 {currentQuestion.category}
               </span>
             </div>
             
-            <h2 className="text-lg md:text-xl lg:text-2xl font-extrabold text-gray-900 leading-snug mb-4 md:mb-5">
+            <h2 className="text-base md:text-xl lg:text-2xl font-extrabold text-gray-900 leading-snug mb-3 md:mb-5">
               {currentQuestion.text}
             </h2>
 
             <div 
-              className="space-y-2 md:space-y-3 cursor-pointer group"
+              className="space-y-2 cursor-pointer group"
               onClick={handleRevealAnswer}
-              title={!isAnswerRevealed ? "انقر هنا لإظهار الإجابة الصحيحة" : ""}
+              title={!isAnswerRevealed ? "انقر لإظهار الإجابة الصحيحة" : ""}
             >
               {currentQuestion.options.map((option, idx) => {
                 const isCorrect = option === currentQuestion.correctAnswer;
@@ -296,9 +289,9 @@ export default function PresenterPage() {
                 }
 
                 return (
-                  <div key={idx} className={`p-3 md:p-3.5 rounded-xl border-2 text-sm md:text-base lg:text-lg transition-all duration-300 flex justify-between items-center ${optionStyle}`}>
+                  <div key={idx} className={`p-2.5 md:p-3.5 rounded-xl border-2 text-xs md:text-base lg:text-lg transition-all duration-300 flex justify-between items-center ${optionStyle}`}>
                     <span>{option}</span>
-                    {isAnswerRevealed && isCorrect && <span className="text-lg md:text-xl drop-shadow-sm animate-bounce">✅</span>}
+                    {isAnswerRevealed && isCorrect && <span className="text-base md:text-xl animate-bounce">✅</span>}
                   </div>
                 );
               })}
@@ -307,27 +300,29 @@ export default function PresenterPage() {
         </section>
 
         <section 
-          className="w-full md:w-[60%] min-h-[55vh] md:min-h-0 flex-shrink-0 md:flex-shrink bg-white rounded-2xl shadow-sm border border-gray-200 flex flex-col overflow-hidden relative cursor-pointer select-none"
+          className="w-full md:w-[60%] min-h-[40vh] md:min-h-0 flex-shrink-0 md:flex-shrink bg-white rounded-2xl shadow-sm border border-gray-200 flex flex-col overflow-hidden relative cursor-pointer select-none"
           onClick={handleBoardClick}
         >
           {(clicks > 0 || isAnswerRevealed) && (
             <button 
               onClick={handleClearBoard}
-              className="absolute top-4 left-4 z-20 bg-white/90 backdrop-blur-sm border border-red-200 text-red-500 hover:bg-red-50 hover:text-red-700 font-bold px-4 py-2 rounded-xl text-xs md:text-sm transition-all flex items-center gap-2 shadow-md"
+              className="absolute top-3 left-3 z-20 bg-white/90 backdrop-blur-sm border border-red-200 text-red-500 hover:bg-red-50 font-bold px-3 py-1.5 rounded-xl text-xs transition-all flex items-center gap-1.5 shadow-md"
             >
               <span>مسح</span> 🗑️
             </button>
           )}
 
-          <div className="flex-grow w-full h-full p-6 md:p-10 overflow-y-auto">
+          <div className="flex-grow w-full h-full p-4 md:p-10 overflow-y-auto">
             {clicks === 0 ? (
-              <div className="w-full h-full"></div>
+              <div className="w-full h-full flex items-center justify-center text-gray-300 text-sm md:text-base select-none">
+                (انقر هنا لإظهار الشرح تدريجياً خطوة بخطوة)
+              </div>
             ) : (
-              <div className="w-full space-y-6 md:space-y-8 mt-8 md:mt-2">
+              <div className="w-full space-y-4 md:space-y-8 mt-4 md:mt-2">
                 {explanationParts.slice(0, visiblePartsCount).map((part, index) => (
                   <p 
                     key={index} 
-                    className="text-xl md:text-2xl lg:text-3xl text-gray-800 font-bold leading-relaxed animate-in fade-in slide-in-from-bottom-4 duration-300"
+                    className="text-lg md:text-2xl lg:text-3xl text-gray-800 font-bold leading-relaxed animate-in fade-in slide-in-from-bottom-4 duration-300"
                   >
                     {part}
                   </p>
@@ -338,19 +333,61 @@ export default function PresenterPage() {
         </section>
       </main>
 
-      <footer className="flex-shrink-0 bg-white border-t border-gray-200 p-3 md:p-4 flex justify-between items-center shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-10">
+      {/* شريط التحكم المخصص للجوال (يظهر أسفل الشاشة على الموبايل فقط ويختفي على الكمبيوتر) */}
+      <div className="md:hidden flex items-center justify-between bg-slate-900 text-white px-3 py-2 border-t border-slate-800">
+        <div className={`text-base font-black font-mono tracking-wider px-2 py-0.5 rounded ${
+          isUrgent ? 'bg-red-600 text-white animate-pulse' : 'bg-slate-800 text-blue-400'
+        }`}>
+          {formattedTime}
+        </div>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => setIsRunning(!isRunning)}
+            className={`px-2.5 py-1 rounded text-xs font-bold text-white ${
+              isRunning ? 'bg-amber-600' : 'bg-emerald-600'
+            }`}
+          >
+            {isRunning ? '⏸ إيقاف' : '▶ بدء'}
+          </button>
+          <button
+            onClick={() => resetTimer(60)}
+            className="p-1 bg-slate-800 text-slate-300 rounded text-xs"
+          >
+            🔄
+          </button>
+          <button
+            onClick={() => setTimeLeft((prev) => Math.max(0, prev - 15))}
+            className="px-1.5 py-1 bg-slate-800 text-slate-300 rounded text-[11px] font-bold"
+          >
+            -15s
+          </button>
+          <button
+            onClick={() => setTimeLeft((prev) => prev + 15)}
+            className="px-1.5 py-1 bg-slate-800 text-slate-300 rounded text-[11px] font-bold"
+          >
+            +15s
+          </button>
+        </div>
+      </div>
+
+      {/* شريط التنقل السفلي */}
+      <footer className="flex-shrink-0 bg-white border-t border-gray-200 p-2.5 md:p-4 flex justify-between items-center shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-10">
         <button 
           onClick={handlePrev} 
           disabled={currentQuestionIndex === 0}
-          className={`px-6 md:px-10 py-2.5 md:py-3 rounded-xl font-bold text-sm md:text-lg transition-all ${currentQuestionIndex === 0 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-gray-200 text-gray-800 hover:bg-gray-300 shadow-sm'}`}
+          className={`px-5 md:px-10 py-2 md:py-3 rounded-xl font-bold text-xs md:text-lg transition-all ${currentQuestionIndex === 0 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-gray-200 text-gray-800 hover:bg-gray-300 shadow-sm'}`}
         >
           السؤال السابق
         </button>
 
+        <span className="text-xs text-gray-500 font-bold md:hidden">
+          {currentQuestionIndex + 1} / {questionsData.length}
+        </span>
+
         <button 
           onClick={handleNext} 
           disabled={currentQuestionIndex === questionsData.length - 1}
-          className={`px-8 md:px-12 py-2.5 md:py-3 rounded-xl font-bold text-sm md:text-lg text-white shadow-md transition-all ${currentQuestionIndex === questionsData.length - 1 ? 'bg-blue-300 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
+          className={`px-6 md:px-12 py-2 md:py-3 rounded-xl font-bold text-xs md:text-lg text-white shadow-md transition-all ${currentQuestionIndex === questionsData.length - 1 ? 'bg-blue-300 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
         >
           {currentQuestionIndex === questionsData.length - 1 ? 'نهاية الأسئلة' : 'السؤال التالي'}
         </button>
