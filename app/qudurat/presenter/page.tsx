@@ -5,20 +5,16 @@ import questionsData from '../data/training-questions.json';
 
 export default function PresenterPage() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  
-  // حالة حفظ "عدد النقرات" للشرح (الذاكرة)
   const [questionClicks, setQuestionClicks] = useState<Record<number, number>>({});
-  
-  // حالة حفظ "إظهار الإجابة" بشكل مستقل لكل سؤال (الذاكرة)
   const [revealedAnswers, setRevealedAnswers] = useState<Record<number, boolean>>({});
+  
+  // حالة فتح/إغلاق قائمة التنقل السريع
+  const [isNavOpen, setIsNavOpen] = useState(false);
 
   const currentQuestion = questionsData[currentQuestionIndex];
-
-  // حساب بيانات الأسبوع والحصة (أس 1 ح 1)
   const currentWeek = currentQuestion?.week || 1;
   const currentSession = currentQuestion?.session || 1;
 
-  // جلب أسئلة الحصة الحالية فقط لمعرفة العدد الإجمالي وترتيب السؤال الحالي داخل الحصة
   const sessionQuestions = useMemo(() => {
     return questionsData.filter(q => q.week === currentWeek && q.session === currentSession);
   }, [currentWeek, currentSession]);
@@ -26,11 +22,9 @@ export default function PresenterPage() {
   const indexInSession = sessionQuestions.findIndex(q => q.id === currentQuestion?.id) + 1;
   const totalInSession = sessionQuestions.length;
 
-  // استرجاع الحالات المحفوظة للسؤال الحالي
   const clicks = questionClicks[currentQuestionIndex] || 0;
   const isAnswerRevealed = revealedAnswers[currentQuestionIndex] || false;
 
-  // تقسيم الشرح إلى أجزاء
   const explanationParts = useMemo(() => {
     if (!currentQuestion || !currentQuestion.explanation) return [];
     return currentQuestion.explanation
@@ -40,7 +34,31 @@ export default function PresenterPage() {
 
   const visiblePartsCount = clicks;
 
-  // دالة التعامل مع النقرات على لوحة الشرح (للشرح فقط)
+  // استخراج قائمة الأسابيع والحصص المتاحة تلقائياً من البيانات
+  const navigationMap = useMemo(() => {
+    const map: Record<number, number[]> = {};
+    questionsData.forEach(q => {
+      if (q.week && q.session) {
+        if (!map[q.week]) map[q.week] = [];
+        if (!map[q.week].includes(q.session)) map[q.week].push(q.session);
+      }
+    });
+    // ترتيب الحصص داخل كل أسبوع
+    Object.keys(map).forEach(week => {
+      map[Number(week)].sort((a, b) => a - b);
+    });
+    return map;
+  }, []);
+
+  // دالة القفز السريع لحصة محددة
+  const jumpToSession = (week: number, session: number) => {
+    const index = questionsData.findIndex(q => q.week === week && q.session === session);
+    if (index !== -1) {
+      setCurrentQuestionIndex(index);
+      setIsNavOpen(false); // إغلاق القائمة بعد الاختيار
+    }
+  };
+
   const handleBoardClick = () => {
     setQuestionClicks(prev => ({
       ...prev,
@@ -48,7 +66,6 @@ export default function PresenterPage() {
     }));
   };
 
-  // دالة إظهار الإجابة يدوياً عند النقر على الخيارات
   const handleRevealAnswer = () => {
     if (!isAnswerRevealed) {
       setRevealedAnswers(prev => ({
@@ -58,7 +75,6 @@ export default function PresenterPage() {
     }
   };
 
-  // دالة مسح اللوحة (تصفر الشرح وتخفي الإجابة)
   const handleClearBoard = (e: React.MouseEvent) => {
     e.stopPropagation();
     setQuestionClicks(prev => ({
@@ -71,7 +87,6 @@ export default function PresenterPage() {
     }));
   };
 
-  // دوال التنقل بين الأسئلة
   const handleNext = () => {
     if (currentQuestionIndex < questionsData.length - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
@@ -93,10 +108,10 @@ export default function PresenterPage() {
   }
 
   return (
-    <div className="h-[100dvh] bg-slate-100 flex flex-col overflow-hidden font-sans" dir="rtl">
+    <div className="h-[100dvh] bg-slate-100 flex flex-col overflow-hidden font-sans relative" dir="rtl">
       
-      {/* الشريط العلوي للمنصة */}
-      <header className="flex-shrink-0 bg-slate-900 text-white px-4 md:px-6 py-3 flex justify-between items-center shadow-md z-10">
+      {/* الشريط العلوي */}
+      <header className="flex-shrink-0 bg-slate-900 text-white px-4 md:px-6 py-3 flex justify-between items-center shadow-md z-30 relative">
         <div className="flex items-center gap-3">
           <div className="bg-blue-600 w-8 h-8 md:w-10 md:h-10 rounded-xl flex items-center justify-center font-extrabold text-lg md:text-xl shadow-inner">
             ك
@@ -107,20 +122,68 @@ export default function PresenterPage() {
           </div>
         </div>
 
-        {/* عداد الحصص والأسابيع الذكي */}
-        <div className="bg-slate-800 px-3 md:px-4 py-1.5 rounded-lg border border-slate-700 flex items-center gap-2 md:gap-3 shadow-inner">
-          <span className="font-extrabold text-xs md:text-sm text-amber-400 tracking-wide">
-            أس {currentWeek} ح {currentSession}
-          </span>
-          <span className="w-px h-4 bg-slate-600"></span>
-          <span className="font-bold text-xs md:text-sm text-gray-200">
-            س {indexInSession} من {totalInSession}
-          </span>
+        {/* العداد والقائمة المنسدلة للتنقل */}
+        <div className="relative">
+          <button 
+            onClick={() => setIsNavOpen(!isNavOpen)}
+            className="bg-slate-800 hover:bg-slate-700 transition-colors px-3 md:px-4 py-1.5 rounded-lg border border-slate-600 flex items-center gap-2 md:gap-3 shadow-inner cursor-pointer"
+            title="انقر لاختيار حصة أخرى"
+          >
+            <span className="font-extrabold text-xs md:text-sm text-amber-400 tracking-wide">
+              أس {currentWeek} ح {currentSession}
+            </span>
+            <span className="w-px h-4 bg-slate-500"></span>
+            <span className="font-bold text-xs md:text-sm text-gray-200">
+              س {indexInSession} من {totalInSession}
+            </span>
+            <span className="text-xs text-gray-400 ml-1">▼</span>
+          </button>
+
+          {/* نافذة التنقل المنسدلة */}
+          {isNavOpen && (
+            <div className="absolute top-full left-0 mt-2 w-64 bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2">
+              <div className="bg-slate-100 px-4 py-2 border-b border-gray-200">
+                <span className="font-bold text-slate-700 text-sm">الانتقال السريع للحصص</span>
+              </div>
+              <div className="max-h-[60vh] overflow-y-auto p-2 space-y-3">
+                {Object.keys(navigationMap).map(weekStr => {
+                  const weekNum = Number(weekStr);
+                  return (
+                    <div key={weekNum} className="space-y-1">
+                      <h4 className="text-xs font-extrabold text-slate-400 px-2 uppercase">الأسبوع {weekNum}</h4>
+                      <div className="grid grid-cols-2 gap-1">
+                        {navigationMap[weekNum].map(sessionNum => {
+                          const isActive = weekNum === currentWeek && sessionNum === currentSession;
+                          return (
+                            <button
+                              key={sessionNum}
+                              onClick={() => jumpToSession(weekNum, sessionNum)}
+                              className={`px-3 py-2 rounded-lg text-sm font-bold transition-all text-right ${isActive ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'}`}
+                            >
+                              الحصة {sessionNum}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
       </header>
 
+      {/* إغلاق القائمة عند النقر خارجها */}
+      {isNavOpen && (
+        <div 
+          className="fixed inset-0 z-20" 
+          onClick={() => setIsNavOpen(false)}
+        />
+      )}
+
       {/* مساحة العمل */}
-      <main className="flex-grow flex flex-col md:flex-row gap-4 p-4 overflow-hidden min-h-0">
+      <main className="flex-grow flex flex-col md:flex-row gap-4 p-4 overflow-hidden min-h-0 relative z-10">
         
         {/* القسم الأيمن: عرض السؤال والخيارات */}
         <section className="w-full md:w-[40%] bg-white rounded-2xl shadow-sm border border-gray-200 flex flex-col justify-center p-4 md:p-6 overflow-hidden relative">
@@ -135,7 +198,6 @@ export default function PresenterPage() {
               {currentQuestion.text}
             </h2>
 
-            {/* الخيارات - أصبحت قابلة للنقر لإظهار الإجابة يدوياً */}
             <div 
               className="space-y-2 md:space-y-3 cursor-pointer group"
               onClick={handleRevealAnswer}
@@ -169,7 +231,6 @@ export default function PresenterPage() {
           className="w-full md:w-[60%] bg-white rounded-2xl shadow-sm border border-gray-200 flex flex-col overflow-hidden relative cursor-pointer select-none"
           onClick={handleBoardClick}
         >
-          {/* زر المسح */}
           {(clicks > 0 || isAnswerRevealed) && (
             <button 
               onClick={handleClearBoard}
@@ -179,7 +240,6 @@ export default function PresenterPage() {
             </button>
           )}
 
-          {/* مساحة عرض الشرح التدريجي */}
           <div className="flex-grow w-full h-full p-6 md:p-10 overflow-y-auto">
             {clicks === 0 ? (
               <div className="w-full h-full"></div>
@@ -193,14 +253,19 @@ export default function PresenterPage() {
                     {part}
                   </p>
                 ))}
+                
+                {clicks < explanationParts.length && (
+                  <div className="flex justify-center pt-8 opacity-30">
+                    <span className="animate-pulse text-2xl">👇</span>
+                  </div>
+                )}
               </div>
             )}
           </div>
         </section>
-
       </main>
 
-      {/* الشريط السفلي: أزرار التنقل */}
+      {/* الشريط السفلي */}
       <footer className="flex-shrink-0 bg-white border-t border-gray-200 p-3 md:p-4 flex justify-between items-center shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-10">
         <button 
           onClick={handlePrev} 
