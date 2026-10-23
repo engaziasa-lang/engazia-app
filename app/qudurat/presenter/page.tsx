@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import questionsData from '../data/training-questions.json';
 
 export default function PresenterPage() {
@@ -9,6 +9,23 @@ export default function PresenterPage() {
   const [revealedAnswers, setRevealedAnswers] = useState<Record<number, boolean>>({});
   
   const [isNavOpen, setIsNavOpen] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false); // لمنع وميض الشاشة عند التحميل
+
+  // 1. استرجاع آخر سؤال تم التوقف عنده عند فتح الصفحة
+  useEffect(() => {
+    const savedIndex = localStorage.getItem('qudurat_saved_index');
+    if (savedIndex !== null) {
+      setCurrentQuestionIndex(parseInt(savedIndex, 10));
+    }
+    setIsLoaded(true);
+  }, []);
+
+  // 2. حفظ رقم السؤال الحالي تلقائياً في المتصفح كلما تغير
+  useEffect(() => {
+    if (isLoaded) {
+      localStorage.setItem('qudurat_saved_index', currentQuestionIndex.toString());
+    }
+  }, [currentQuestionIndex, isLoaded]);
 
   const currentQuestion = questionsData[currentQuestionIndex];
   const currentWeek = currentQuestion?.week || 1;
@@ -73,14 +90,8 @@ export default function PresenterPage() {
 
   const handleClearBoard = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setQuestionClicks(prev => ({
-      ...prev,
-      [currentQuestionIndex]: 0
-    }));
-    setRevealedAnswers(prev => ({
-      ...prev,
-      [currentQuestionIndex]: false
-    }));
+    setQuestionClicks(prev => ({ ...prev, [currentQuestionIndex]: 0 }));
+    setRevealedAnswers(prev => ({ ...prev, [currentQuestionIndex]: false }));
   };
 
   const handleNext = () => {
@@ -95,10 +106,11 @@ export default function PresenterPage() {
     }
   };
 
-  if (!questionsData || questionsData.length === 0) {
+  // شاشة تحميل مؤقتة لضمان قراءة الذاكرة قبل عرض الأسئلة
+  if (!isLoaded || !questionsData || questionsData.length === 0) {
     return (
       <div className="h-[100dvh] flex items-center justify-center bg-slate-100" dir="rtl">
-        <h2 className="text-2xl font-bold text-gray-500">جاري التحميل...</h2>
+        <h2 className="text-xl font-bold text-slate-400 animate-pulse">جاري تجهيز المنصة...</h2>
       </div>
     );
   }
@@ -109,8 +121,18 @@ export default function PresenterPage() {
       {/* الشريط العلوي */}
       <header className="flex-shrink-0 bg-slate-900 text-white px-4 md:px-6 py-3 flex justify-between items-center shadow-md z-30 relative">
         <div className="flex items-center gap-3">
-          <div className="bg-blue-600 w-8 h-8 md:w-10 md:h-10 rounded-xl flex items-center justify-center font-extrabold text-lg md:text-xl shadow-inner">
-            ك
+          {/* أيقونة المنصة (تأكد من وضع ملف icon.png في مجلد public) */}
+          <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl overflow-hidden shadow-inner flex-shrink-0 bg-white flex items-center justify-center">
+            <img 
+              src="/icon.png" 
+              alt="شعار كليك قدرات" 
+              className="w-full h-full object-contain"
+              onError={(e) => {
+                // في حال عدم العثور على الصورة، يظهر حرف "ك" كبديل
+                e.currentTarget.style.display = 'none';
+                e.currentTarget.parentElement!.innerHTML = '<span class="text-blue-600 font-extrabold text-lg md:text-xl">ك</span>';
+              }}
+            />
           </div>
           <div>
             <h1 className="font-bold text-base md:text-lg leading-tight">منصة كليك قدرات</h1>
@@ -176,7 +198,7 @@ export default function PresenterPage() {
         />
       )}
 
-      {/* مساحة العمل - أصبحت قابلة للتمرير على الجوال لمنع التداخل */}
+      {/* مساحة العمل */}
       <main className="flex-grow flex flex-col md:flex-row gap-4 p-4 overflow-y-auto md:overflow-hidden min-h-0 relative z-10">
         
         {/* القسم الأيمن: عرض السؤال */}
@@ -220,7 +242,7 @@ export default function PresenterPage() {
           </div>
         </section>
 
-        {/* القسم الأيسر: لوحة الشرح - تم تخصيص حد أدنى للارتفاع في الجوال */}
+        {/* القسم الأيسر: لوحة الشرح */}
         <section 
           className="w-full md:w-[60%] min-h-[55vh] md:min-h-0 flex-shrink-0 md:flex-shrink bg-white rounded-2xl shadow-sm border border-gray-200 flex flex-col overflow-hidden relative cursor-pointer select-none"
           onClick={handleBoardClick}
