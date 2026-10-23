@@ -193,13 +193,6 @@ export default function PresenterPage() {
                     {part}
                   </p>
                 ))}
-                
-                {/* مؤشر إذا كان هناك بقية للشرح */}
-                {clicks < explanationParts.length && (
-                  <div className="flex justify-center pt-8 opacity-30">
-                    <span className="animate-pulse text-2xl">👇</span>
-                  </div>
-                )}
               </div>
             )}
           </div>
