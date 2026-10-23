@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import questionsData from '../data/training-questions.json';
+import { Play, Pause, RotateCcw } from 'lucide-react';
 
 export default function PresenterPage() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -10,6 +11,10 @@ export default function PresenterPage() {
   
   const [isNavOpen, setIsNavOpen] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
+
+  // حالات العداد التنازلي
+  const [timeLeft, setTimeLeft] = useState<number>(60);
+  const [isRunning, setIsRunning] = useState<boolean>(false);
 
   useEffect(() => {
     const savedIndex = localStorage.getItem('qudurat_saved_index');
@@ -24,6 +29,30 @@ export default function PresenterPage() {
       localStorage.setItem('qudurat_saved_index', currentQuestionIndex.toString());
     }
   }, [currentQuestionIndex, isLoaded]);
+
+  // منطق العداد التنازلي
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (isRunning && timeLeft > 0) {
+      timer = setInterval(() => {
+        setTimeLeft((prev) => prev - 1);
+      }, 1000);
+    } else if (timeLeft === 0) {
+      setIsRunning(false);
+    }
+    return () => clearInterval(timer);
+  }, [isRunning, timeLeft]);
+
+  // إعادة ضبط العداد عند تغيير السؤال اختيارياً أو يدوياً
+  const resetTimer = (newTime = 60) => {
+    setTimeLeft(newTime);
+    setIsRunning(false);
+  };
+
+  const minutes = Math.floor(timeLeft / 60);
+  const seconds = timeLeft % 60;
+  const formattedTime = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+  const isUrgent = timeLeft <= 10 && timeLeft > 0;
 
   const currentQuestion = questionsData[currentQuestionIndex];
   const currentWeek = currentQuestion?.week || 1;
@@ -95,12 +124,14 @@ export default function PresenterPage() {
   const handleNext = () => {
     if (currentQuestionIndex < questionsData.length - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
+      resetTimer(60); // إعادة ضبط العداد عند الانتقال للسؤال التالي
     }
   };
 
   const handlePrev = () => {
     if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex(prev => prev - 1);
+      resetTimer(60); // إعادة ضبط العداد عند الانتقال للسؤال السابق
     }
   };
 
@@ -132,6 +163,47 @@ export default function PresenterPage() {
           <div>
             <h1 className="font-bold text-base md:text-lg leading-tight">منصة كليك قدرات</h1>
             <span className="text-blue-300 text-[10px] md:text-xs">وضع العرض الذكي</span>
+          </div>
+        </div>
+
+        {/* عداد الوقت التنازلي التفاعلي */}
+        <div className="hidden sm:flex items-center gap-2 bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-700 shadow-inner">
+          <div className={`text-lg md:text-xl font-black font-mono tracking-wider px-2.5 py-0.5 rounded-lg ${
+            isUrgent ? 'bg-red-600 text-white animate-pulse' : 'bg-slate-900 text-blue-400'
+          }`}>
+            {formattedTime}
+          </div>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setIsRunning(!isRunning)}
+              className={`p-1.5 rounded-lg text-white transition ${
+                isRunning ? 'bg-amber-600 hover:bg-amber-700' : 'bg-emerald-600 hover:bg-emerald-700'
+              }`}
+              title={isRunning ? "إيقاف مؤقت" : "بدء العداد"}
+            >
+              {isRunning ? <Pause size={14} /> : <Play size={14} />}
+            </button>
+            <button
+              onClick={() => resetTimer(60)}
+              className="p-1.5 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-lg transition"
+              title="إعادة ضبط الوقت"
+            >
+              <RotateCcw size={14} />
+            </button>
+            <button
+              onClick={() => setTimeLeft((prev) => Math.max(0, prev - 15))}
+              className="px-1.5 py-0.5 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded text-xs font-bold"
+              title="نقص 15 ثانية"
+            >
+              -15
+            </button>
+            <button
+              onClick={() => setTimeLeft((prev) => prev + 15)}
+              className="px-1.5 py-0.5 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded text-xs font-bold"
+              title="زيادة 15 ثانية"
+            >
+              +15
+            </button>
           </div>
         </div>
 
