@@ -18,7 +18,7 @@ const weeklyClasses: WeeklyClass[] = [
     dayName: 'الأحد',
     sessionTitle: 'الحصة التدريبية الأولى',
     gregorianDateStr: 'الأحد - 25 أكتوبر 2026',
-    hijriDateStr: '14 بطي 1448 هـ',
+    hijriDateStr: '14 جمادى الأولى 1448 هـ',
     targetISO: '2026-10-25T17:00:00',
     zoomLink: 'https://zoom.us/j/your-zoom-room-id'
   },
@@ -27,7 +27,7 @@ const weeklyClasses: WeeklyClass[] = [
     dayName: 'الاثنين',
     sessionTitle: 'الحصة التدريبية الثانية',
     gregorianDateStr: 'الاثنين - 26 أكتوبر 2026',
-    hijriDateStr: '15 بطي 1448 هـ',
+    hijriDateStr: '15 جمادى الأولى 1448 هـ',
     targetISO: '2026-10-26T17:00:00',
     zoomLink: 'https://zoom.us/j/your-zoom-room-id'
   },
@@ -36,7 +36,7 @@ const weeklyClasses: WeeklyClass[] = [
     dayName: 'الثلاثاء',
     sessionTitle: 'الحصة التدريبية الثالثة',
     gregorianDateStr: 'الثلاثاء - 27 أكتوبر 2026',
-    hijriDateStr: '16 بطي 1448 هـ',
+    hijriDateStr: '16 جمادى الأولى 1448 هـ',
     targetISO: '2026-10-27T17:00:00',
     zoomLink: 'https://zoom.us/j/your-zoom-room-id'
   },
@@ -45,7 +45,7 @@ const weeklyClasses: WeeklyClass[] = [
     dayName: 'الأربعاء',
     sessionTitle: 'الحصة التدريبية الرابعة',
     gregorianDateStr: 'الأربعاء - 28 أكتوبر 2026',
-    hijriDateStr: '17 بطي 1448 هـ',
+    hijriDateStr: '17 جمادى الأولى 1448 هـ',
     targetISO: '2026-10-28T17:00:00',
     zoomLink: 'https://zoom.us/j/your-zoom-room-id'
   }
@@ -129,15 +129,15 @@ export default function StudentHubPage() {
                     {cls.dayName}
                   </span>
                   <span className="text-xs text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-md">
-                    ⏰ 5:00 عصراً
+                    ⏰ الساعة 5:00 عصراً
                   </span>
                 </div>
 
                 <div className="space-y-1">
                   <h3 className="text-base font-extrabold text-slate-900">{cls.sessionTitle}</h3>
-                  <div className="text-[11px] md:text-xs text-slate-500 flex flex-wrap gap-x-3">
-                    <span>📅 {cls.gregorianDateStr}</span>
-                    <span>🌙 {cls.hijriDateStr}</span>
+                  <div className="text-[11px] md:text-xs text-slate-500 space-y-0.5">
+                    <div>📅 {cls.gregorianDateStr}</div>
+                    <div>🌙 الموافق: {cls.hijriDateStr}</div>
                   </div>
                 </div>
 
