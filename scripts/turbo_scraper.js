@@ -6,7 +6,6 @@ const fs = require('fs');
   
   const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'] });
   
-  // قطاعات وأحياء مكثفة لجلب آلاف النتائج
   const sectors = ['مطاعم', 'كافيهات', 'فنادق', 'صيدليات', 'سوبر ماركت', 'مستوصفات', 'عقار', 'مقاولات', 'ورش', 'حلاقة', 'بنوك', 'حلويات', 'عطور', 'ملابس'];
   const neighborhoods = ['العزيزية', 'العوالي', 'قباء', 'شوران', 'الخالدية', 'سيد الشهداء', 'الهدا', 'البحر', 'الإسكان', 'المبعوث', 'الجرف', 'عروة'];
 
@@ -14,7 +13,7 @@ const fs = require('fs');
   for(let s of sectors) for(let n of neighborhoods) searchQueries.push(`${s} ${n} المدينة المنورة`);
 
   let allPlaces = [];
-  const CONCURRENCY = 10; // تشغيل 10 نوافذ بحث في نفس اللحظة للسرعة القصوى
+  const CONCURRENCY = 10; 
 
   console.log(`📋 الإجمالي: ${searchQueries.length} عملية بحث. سيتم تنفيذها بسرعة فائقة على دفعات...`);
 
@@ -22,7 +21,6 @@ const fs = require('fs');
     const batch = searchQueries.slice(i, i + CONCURRENCY);
     console.log(`\n⚡ جاري التنفيذ المتوازي للدفعة... (${i} إلى ${i + batch.length})`);
     
-    // تشغيل الدفعة بالكامل في نفس اللحظة
     const promises = batch.map(async (query) => {
       const page = await browser.newPage();
       try {
@@ -30,7 +28,6 @@ const fs = require('fs');
         await page.waitForSelector('a[href*="/maps/place/"]', { timeout: 3000 });
         await page.focus('a[href*="/maps/place/"]');
         
-        // نزول سريع جداً
         for (let j = 0; j < 4; j++) {
           await page.keyboard.press('PageDown');
           await new Promise(r => setTimeout(r, 300)); 
@@ -49,7 +46,7 @@ const fs = require('fs');
         return places;
       } catch (e) {
         await page.close();
-        return []; // في حال عدم وجود نتائج يتجاهل ويكمل بسرعة
+        return []; 
       }
     });
 
@@ -58,7 +55,6 @@ const fs = require('fs');
     console.log(`✅ تمت الدفعة. (عدد الأنشطة المحصودة حتى الآن: ${allPlaces.length})`);
   }
 
-  // التصنيف الذكي السريع
   const categorize = (name) => {
     const n = name.toLowerCase();
     if (n.match(/مطعم|مشويات|بخاري|بروست|مطبخ|شاورما|كباب|مندي|فطير|دجاج|برجر|بيتزا|وجبات/)) return 'المطاعم 🍔';
@@ -71,7 +67,6 @@ const fs = require('fs');
     return 'منشآت ومتاجر متنوعة 🌟';
   };
 
-  // إزالة المكرر وحفظ الملف
   const finalUnique = Array.from(new Set(allPlaces.map(a => a.name))).map(name => allPlaces.find(a => a.name === name));
   const updated = finalUnique.map((p, index) => ({ id: index.toString(), name: p.name, url: p.url, category: categorize(p.name) }));
 
