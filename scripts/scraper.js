@@ -5,8 +5,13 @@ const fs = require('fs');
   console.log('🚀 بدء تشغيل الروبوت السحابي...');
   
   const browser = await puppeteer.launch({ 
-    headless: "new", 
-    args: ['--no-sandbox', '--disable-setuid-sandbox'] 
+    headless: true, // تم التحديث للتوافق مع الإصدارات الجديدة
+    args: [
+      '--no-sandbox', 
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage', // أمر حاسم لمنع انهيار الذاكرة في Codespaces
+      '--disable-gpu'
+    ] 
   }); 
   const page = await browser.newPage();
 
