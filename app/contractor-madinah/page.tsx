@@ -1,15 +1,14 @@
 import React from 'react';
 import { Metadata } from 'next';
 
-// إعدادات الـ SEO الخاصة بـ Next.js
 export const metadata: Metadata = {
   title: 'أفضل مقاول بناء ملاحق وتشطيب في المدينة المنورة | معاينة مجانية',
   description: 'تبحث عن مقاول بناء ملاحق وترميم في المدينة المنورة؟ نقدم خدمات بناء العظم والتشطيب وتسليم المفتاح بأعلى جودة وأفضل الأسعار. اتصل لمعاينة موقعك مجاناً.',
 };
 
 export default function ContractorLandingPage() {
-  const phoneNumber = "0500000000"; // استبدله برقم الهاتف الفعلي
-  const whatsappNumber = "966500000000"; // استبدله برقم الواتساب الفعلي
+  const phoneNumber = "0541313564"; 
+  const whatsappNumber = "966541313564"; 
   const whatsappMessage = "مرحباً، أريد طلب معاينة مجانية لخدمات المقاولات.";
 
   return (
