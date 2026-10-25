@@ -2,7 +2,7 @@ const puppeteer = require('puppeteer');
 const fs = require('fs');
 
 (async () => {
-  console.log('🚀 بدء تشغيل الروبوت المطور (وضع السحب العميق)...');
+  console.log('🚀 بدء تشغيل الروبوت (وضع محاكاة لوحة المفاتيح للتخفي)...');
   
   const browser = await puppeteer.launch({ 
     headless: true, 
@@ -14,8 +14,6 @@ const fs = require('fs');
     ] 
   }); 
   const page = await browser.newPage();
-  
-  // تكبير الشاشة لتستوعب بيانات أكثر
   await page.setViewport({ width: 1280, height: 800 });
 
   const searchQuery = 'مطاعم المدينة المنورة';
@@ -23,35 +21,22 @@ const fs = require('fs');
   
   await page.goto(`https://www.google.com/maps/search/${searchQuery.split(' ').join('+')}`, { waitUntil: 'networkidle2' });
 
+  console.log('⏳ ننتظر تحميل الدفعة الأولى...');
   await page.waitForSelector('a[href*="/maps/place/"]', { timeout: 15000 });
-  console.log('✅ تم تحميل الصفحة، جاري النزول للأسفل لجمع المحلات (قد يستغرق بضع دقائق)...');
 
-  // دالة النزول للأسفل (Scroll) داخل قائمة قوقل ماب
-  await page.evaluate(async () => {
-    const feed = document.querySelector('div[role="feed"]'); // الصندوق الذي يحتوي على المحلات
-    if (feed) {
-      await new Promise((resolve) => {
-        let totalHeight = 0;
-        let distance = 800; 
-        let scrolls = 0;
-        let maxScrolls = 40; // 👈 هذا الرقم يحدد كم مرة سينزل للأسفل (40 مرة ستجلب لك مئات المحلات، يمكنك زيادتها لاحقاً)
+  console.log('🤖 تم العثور على النتائج! جاري الضغط على زر النزول (PageDown) 30 مرة لجمع أكبر عدد...');
+  
+  // التركيز على أول محل لتفعيل لوحة المفاتيح داخل القائمة الجانبية
+  await page.focus('a[href*="/maps/place/"]');
 
-        let timer = setInterval(() => {
-          let scrollHeight = feed.scrollHeight;
-          feed.scrollBy(0, distance);
-          totalHeight += distance;
-          scrolls++;
+  // محاكاة إنسان يضغط زر النزول للأسفل 30 مرة متتالية
+  for (let i = 0; i < 30; i++) {
+    await page.keyboard.press('PageDown');
+    // الانتظار ثانية ونصف بعد كل ضغطة للسماح لقوقل بتحميل المحلات الجديدة
+    await new Promise(resolve => setTimeout(resolve, 1500));
+  }
 
-          if (totalHeight >= scrollHeight || scrolls >= maxScrolls) {
-            clearInterval(timer);
-            resolve();
-          }
-        }, 1500); // ينتظر ثانية ونصف ليسمح لقوقل بتحميل المحلات الجديدة
-      });
-    }
-  });
-
-  console.log('📥 جاري استخراج البيانات الآن...');
+  console.log('📥 انتهى النزول، جاري استخراج وحفظ المحلات الآن...');
 
   const places = await page.evaluate(() => {
     const results = [];
@@ -65,6 +50,7 @@ const fs = require('fs');
       }
     });
 
+    // فلترة الأسماء المكررة
     const uniqueResults = Array.from(new Set(results.map(a => a.name)))
       .map(name => {
         return results.find(a => a.name === name)
@@ -75,7 +61,7 @@ const fs = require('fs');
 
   fs.writeFileSync('madinah_places.json', JSON.stringify(places, null, 2), 'utf-8');
   
-  console.log(`🎉 إنجاز عظيم! تم سحب ${places.length} محل تجاري بنجاح.`);
+  console.log(`🎉 نجاح مبهر! تم سحب ${places.length} نشاط تجاري وتخزينها في قاعدة البيانات.`);
   
   await browser.close();
 })();
