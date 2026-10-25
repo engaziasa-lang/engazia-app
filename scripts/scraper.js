@@ -2,7 +2,7 @@ const puppeteer = require('puppeteer');
 const fs = require('fs');
 
 (async () => {
-  console.log('🚀 بدء تشغيل روبوت منصة إنجازيا للحصاد الشامل...');
+  console.log('🚀 بدء تشغيل الروبوت الشامل لجمع كافة أنشطة المدينة المنورة...');
   
   const browser = await puppeteer.launch({ 
     headless: true, 
@@ -11,33 +11,34 @@ const fs = require('fs');
   const page = await browser.newPage();
   await page.setViewport({ width: 1280, height: 800 });
 
-  // قائمة القطاعات التي سيبحث عنها الروبوت (يمكنك إضافة أي قطاع تريده هنا)
+  // قائمة القطاعات لتجاوز حد قوقل وجمع أكبر عدد ممكن
   const searchQueries = [
     'مطاعم المدينة المنورة',
-    'مقاهي المدينة المنورة',
-    'فنادق المدينة المنورة',
+    'كافيهات ومقاهي المدينة المنورة',
+    'فنادق وشقق مفروشة المدينة المنورة',
     'مستوصفات ومستشفيات المدينة المنورة',
     'أسواق ومولات المدينة المنورة',
     'مكاتب عقار المدينة المنورة',
     'شركات مقاولات المدينة المنورة',
-    'صيدليات المدينة المنورة'
+    'صيدليات المدينة المنورة',
+    'ورش سيارات المدينة المنورة',
+    'صالونات حلاقة وتجميل المدينة المنورة'
   ];
 
   let allPlaces = [];
 
   for (const query of searchQueries) {
-    console.log(`\n🔍 جاري البحث في قطاع: ${query}...`);
+    console.log(`\n🔍 جاري كشط قسم: ${query}...`);
     try {
       await page.goto(`https://www.google.com/maps/search/${query.split(' ').join('+')}`, { waitUntil: 'networkidle2' });
-      await page.waitForSelector('a[href*="/maps/place/"]', { timeout: 15000 });
+      await page.waitForSelector('a[href*="/maps/place/"]', { timeout: 10000 });
 
-      console.log(`🤖 جاري سحب البيانات (محاكاة النزول للأسفل 20 مرة)...`);
       await page.focus('a[href*="/maps/place/"]');
 
-      // النزول 20 مرة لكل قطاع لجمع أكبر عدد
-      for (let i = 0; i < 20; i++) {
+      // النزول 30 مرة لكل قسم
+      for (let i = 0; i < 30; i++) {
         await page.keyboard.press('PageDown');
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        await new Promise(resolve => setTimeout(resolve, 1000));
       }
 
       const places = await page.evaluate(() => {
@@ -51,25 +52,25 @@ const fs = require('fs');
         return results;
       });
 
-      // إزالة التكرار من هذا القطاع
+      // إزالة المكرر في نفس القسم
       const uniquePlaces = Array.from(new Set(places.map(a => a.name)))
         .map(name => places.find(a => a.name === name));
 
-      console.log(`✅ تم سحب ${uniquePlaces.length} نشاط من قسم ${query}`);
+      console.log(`✅ تم جمع ${uniquePlaces.length} نشاط من ${query}`);
       allPlaces.push(...uniquePlaces);
 
     } catch (error) {
-      console.log(`⚠️ لم نتمكن من سحب ${query}، جاري التخطي للقطاع التالي...`);
+      console.log(`⚠️ تخطي ${query} لعدم وجود نتائج كافية.`);
     }
   }
 
-  // التنظيف النهائي للقاعدة (إزالة أي تكرار بين القطاعات)
+  // تنظيف القائمة النهائية من أي تكرار بين الأقسام
   const finalUniquePlaces = Array.from(new Set(allPlaces.map(a => a.name)))
     .map(name => allPlaces.find(a => a.name === name));
 
   fs.writeFileSync('madinah_places.json', JSON.stringify(finalUniquePlaces, null, 2), 'utf-8');
   
-  console.log(`\n🎉 إنجاز ضخم! تم سحب إجمالي ${finalUniquePlaces.length} نشاط تجاري متنوع وتخزينها بنجاح.`);
+  console.log(`\n🎉 إنجاز ضخم! تم بنجاح سحب إجمالي ${finalUniquePlaces.length} نشاط تجاري من مختلف القطاعات.`);
   
   await browser.close();
 })();
