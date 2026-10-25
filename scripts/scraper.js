@@ -2,66 +2,74 @@ const puppeteer = require('puppeteer');
 const fs = require('fs');
 
 (async () => {
-  console.log('🚀 بدء تشغيل الروبوت (وضع محاكاة لوحة المفاتيح للتخفي)...');
+  console.log('🚀 بدء تشغيل روبوت منصة إنجازيا للحصاد الشامل...');
   
   const browser = await puppeteer.launch({ 
     headless: true, 
-    args: [
-      '--no-sandbox', 
-      '--disable-setuid-sandbox',
-      '--disable-dev-shm-usage',
-      '--disable-gpu'
-    ] 
+    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'] 
   }); 
   const page = await browser.newPage();
   await page.setViewport({ width: 1280, height: 800 });
 
-  const searchQuery = 'مطاعم المدينة المنورة';
-  console.log(`🔍 جاري البحث عن: ${searchQuery}...`);
-  
-  await page.goto(`https://www.google.com/maps/search/${searchQuery.split(' ').join('+')}`, { waitUntil: 'networkidle2' });
+  // قائمة القطاعات التي سيبحث عنها الروبوت (يمكنك إضافة أي قطاع تريده هنا)
+  const searchQueries = [
+    'مطاعم المدينة المنورة',
+    'مقاهي المدينة المنورة',
+    'فنادق المدينة المنورة',
+    'مستوصفات ومستشفيات المدينة المنورة',
+    'أسواق ومولات المدينة المنورة',
+    'مكاتب عقار المدينة المنورة',
+    'شركات مقاولات المدينة المنورة',
+    'صيدليات المدينة المنورة'
+  ];
 
-  console.log('⏳ ننتظر تحميل الدفعة الأولى...');
-  await page.waitForSelector('a[href*="/maps/place/"]', { timeout: 15000 });
+  let allPlaces = [];
 
-  console.log('🤖 تم العثور على النتائج! جاري الضغط على زر النزول (PageDown) 30 مرة لجمع أكبر عدد...');
-  
-  // التركيز على أول محل لتفعيل لوحة المفاتيح داخل القائمة الجانبية
-  await page.focus('a[href*="/maps/place/"]');
+  for (const query of searchQueries) {
+    console.log(`\n🔍 جاري البحث في قطاع: ${query}...`);
+    try {
+      await page.goto(`https://www.google.com/maps/search/${query.split(' ').join('+')}`, { waitUntil: 'networkidle2' });
+      await page.waitForSelector('a[href*="/maps/place/"]', { timeout: 15000 });
 
-  // محاكاة إنسان يضغط زر النزول للأسفل 30 مرة متتالية
-  for (let i = 0; i < 30; i++) {
-    await page.keyboard.press('PageDown');
-    // الانتظار ثانية ونصف بعد كل ضغطة للسماح لقوقل بتحميل المحلات الجديدة
-    await new Promise(resolve => setTimeout(resolve, 1500));
-  }
+      console.log(`🤖 جاري سحب البيانات (محاكاة النزول للأسفل 20 مرة)...`);
+      await page.focus('a[href*="/maps/place/"]');
 
-  console.log('📥 انتهى النزول، جاري استخراج وحفظ المحلات الآن...');
-
-  const places = await page.evaluate(() => {
-    const results = [];
-    const items = document.querySelectorAll('a[href*="/maps/place/"]');
-
-    items.forEach(item => {
-      const name = item.getAttribute('aria-label');
-      const url = item.href;
-      if (name) {
-        results.push({ name, url });
+      // النزول 20 مرة لكل قطاع لجمع أكبر عدد
+      for (let i = 0; i < 20; i++) {
+        await page.keyboard.press('PageDown');
+        await new Promise(resolve => setTimeout(resolve, 1500));
       }
-    });
 
-    // فلترة الأسماء المكررة
-    const uniqueResults = Array.from(new Set(results.map(a => a.name)))
-      .map(name => {
-        return results.find(a => a.name === name)
+      const places = await page.evaluate(() => {
+        const results = [];
+        const items = document.querySelectorAll('a[href*="/maps/place/"]');
+        items.forEach(item => {
+          const name = item.getAttribute('aria-label');
+          const url = item.href;
+          if (name) results.push({ name, url });
+        });
+        return results;
       });
 
-    return uniqueResults;
-  });
+      // إزالة التكرار من هذا القطاع
+      const uniquePlaces = Array.from(new Set(places.map(a => a.name)))
+        .map(name => places.find(a => a.name === name));
 
-  fs.writeFileSync('madinah_places.json', JSON.stringify(places, null, 2), 'utf-8');
+      console.log(`✅ تم سحب ${uniquePlaces.length} نشاط من قسم ${query}`);
+      allPlaces.push(...uniquePlaces);
+
+    } catch (error) {
+      console.log(`⚠️ لم نتمكن من سحب ${query}، جاري التخطي للقطاع التالي...`);
+    }
+  }
+
+  // التنظيف النهائي للقاعدة (إزالة أي تكرار بين القطاعات)
+  const finalUniquePlaces = Array.from(new Set(allPlaces.map(a => a.name)))
+    .map(name => allPlaces.find(a => a.name === name));
+
+  fs.writeFileSync('madinah_places.json', JSON.stringify(finalUniquePlaces, null, 2), 'utf-8');
   
-  console.log(`🎉 نجاح مبهر! تم سحب ${places.length} نشاط تجاري وتخزينها في قاعدة البيانات.`);
+  console.log(`\n🎉 إنجاز ضخم! تم سحب إجمالي ${finalUniquePlaces.length} نشاط تجاري متنوع وتخزينها بنجاح.`);
   
   await browser.close();
 })();
