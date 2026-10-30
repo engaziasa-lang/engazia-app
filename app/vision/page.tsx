@@ -38,9 +38,40 @@ export default function UltimateVisionBoard() {
   const [signature, setSignature] = useState("");
   const [signatureError, setSignatureError] = useState(false);
 
+  // 🌟 حالات الابتكارات الجديدة
+  const [holdProgress, setHoldProgress] = useState(0);
+  const holdIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const [timeCapsuleMessage, setTimeCapsuleMessage] = useState("");
+  const [punishmentApplied, setPunishmentApplied] = useState(false);
+
   const audioCtxRef = useRef<any>(null);
 
   useEffect(() => {
+    // 🌟 فحص كبسولة الزمن وضريبة التراخي
+    const lastDateMs = parseInt(localStorage.getItem("lastCompletedMs") || "0");
+    const currentMs = Date.now();
+    
+    // إذا مر أكثر من 48 ساعة (172800000 ms) على آخر جلسة
+    if (lastDateMs > 0 && currentMs - lastDateMs > 172800000) {
+      const currentWealth = parseInt(localStorage.getItem("totalWealth") || "0");
+      if (currentWealth > 0) {
+        // خصم 5% لعدم الالتزام
+        const penalty = Math.floor(currentWealth * 0.05);
+        const newWealth = currentWealth - penalty;
+        localStorage.setItem("totalWealth", newWealth.toString());
+        localStorage.setItem("streakCount", "0"); // تصفير العداد
+        setPunishmentApplied(true);
+      }
+    }
+
+    // استدعاء كبسولة الزمن (رسالة من الماضي إذا مر عليها أكثر من يومين)
+    const savedCapsule = localStorage.getItem("timeCapsuleText");
+    const capsuleTime = parseInt(localStorage.getItem("timeCapsuleMs") || "0");
+    if (savedCapsule && currentMs - capsuleTime > 172800000) {
+      const daysAgo = Math.floor((currentMs - capsuleTime) / 86400000);
+      setTimeCapsuleMessage(`قبل ${daysAgo} أيام، أنت أمرت بهذا: "${savedCapsule}"`);
+    }
+
     const lastDate = localStorage.getItem("lastCompletedDate");
     const today = new Date().toDateString();
     if (lastDate === today) {
@@ -88,24 +119,19 @@ export default function UltimateVisionBoard() {
       const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
       const ctx = new AudioContext();
       audioCtxRef.current = ctx;
-
       const oscLeft = ctx.createOscillator();
       const panLeft: any = ctx.createStereoPanner ? ctx.createStereoPanner() : ctx.createPanner();
       if (panLeft.pan) panLeft.pan.value = -1;
       oscLeft.frequency.value = 432;
-      
       const oscRight = ctx.createOscillator();
       const panRight: any = ctx.createStereoPanner ? ctx.createStereoPanner() : ctx.createPanner();
       if (panRight.pan) panRight.pan.value = 1;
       oscRight.frequency.value = 440;
-
       const masterGain = ctx.createGain();
       masterGain.gain.value = 0.05; 
-
       oscLeft.connect(panLeft).connect(masterGain);
       oscRight.connect(panRight).connect(masterGain);
       masterGain.connect(ctx.destination);
-
       oscLeft.start();
       oscRight.start();
     } catch (e) {}
@@ -146,30 +172,65 @@ export default function UltimateVisionBoard() {
     }
   };
 
-  const confirmSignatureAndSeal = () => {
-    if (signature.trim() === "جاسم راكان المطيري") {
-      const today = new Date().toDateString();
-      localStorage.setItem("lastCompletedDate", today);
-      
-      const newStreak = streak + 1;
-      setStreak(newStreak);
-      localStorage.setItem("streakCount", newStreak.toString());
-
-      const newWealth = accumulatedWealth + sessionWealth;
-      setAccumulatedWealth(newWealth);
-      localStorage.setItem("totalWealth", newWealth.toString());
-
-      localStorage.setItem("dailyScript", ""); 
-      
-      playWealthChime(true);
-      if (audioCtxRef.current) {
-        audioCtxRef.current.close(); 
-      }
-      setSessionPhase("complete");
-    } else {
+  // 🌟 محرك الختم البيومتري (Hold to Seal)
+  const handlePointerDown = () => {
+    if (signature.trim() !== "جاسم راكان المطيري") {
       setSignatureError(true);
       setTimeout(() => setSignatureError(false), 2000);
+      return;
     }
+    
+    setHoldProgress(1); // البدء
+    if (holdIntervalRef.current) clearInterval(holdIntervalRef.current);
+    
+    holdIntervalRef.current = setInterval(() => {
+      setHoldProgress((prev) => {
+        if (prev >= 100) {
+          clearInterval(holdIntervalRef.current!);
+          executeFinalSeal();
+          return 100;
+        }
+        return prev + 2.5; // يكتمل خلال 4 ثوانٍ (40 * 2.5)
+      });
+    }, 100);
+  };
+
+  const handlePointerUp = () => {
+    if (holdIntervalRef.current) clearInterval(holdIntervalRef.current);
+    if (holdProgress < 100) {
+      setHoldProgress(0); // إعادة تعيين إذا رفع إصبعه مبكراً
+    }
+  };
+
+  const executeFinalSeal = () => {
+    const today = new Date().toDateString();
+    const currentMs = Date.now();
+    localStorage.setItem("lastCompletedDate", today);
+    localStorage.setItem("lastCompletedMs", currentMs.toString());
+    
+    // حفظ كبسولة الزمن (أطول جملة من نص اليوم)
+    const sentences = script.split(/[.،]/);
+    const longestSentence = sentences.reduce((a, b) => a.length > b.length ? a : b, "");
+    if (longestSentence.trim().length > 10) {
+      localStorage.setItem("timeCapsuleText", longestSentence.trim());
+      localStorage.setItem("timeCapsuleMs", currentMs.toString());
+    }
+
+    const newStreak = streak + 1;
+    setStreak(newStreak);
+    localStorage.setItem("streakCount", newStreak.toString());
+
+    const newWealth = accumulatedWealth + sessionWealth;
+    setAccumulatedWealth(newWealth);
+    localStorage.setItem("totalWealth", newWealth.toString());
+
+    localStorage.setItem("dailyScript", ""); 
+    
+    playWealthChime(true);
+    if (audioCtxRef.current) {
+      audioCtxRef.current.close(); 
+    }
+    setSessionPhase("complete");
   };
 
   const handleScriptChange = (text: string) => {
@@ -219,13 +280,14 @@ export default function UltimateVisionBoard() {
     window.speechSynthesis.speak(utterance);
   };
 
-  // 🌟 زر إعادة الضبط السري للتجارب
   const resetSessionForTesting = () => {
     localStorage.removeItem("lastCompletedDate");
     setSessionWealth(0);
     setSignature("");
+    setHoldProgress(0);
     setTuneValue(0);
     setSessionPhase("void");
+    setPunishmentApplied(false);
   };
 
   if (isLocked) {
@@ -242,8 +304,26 @@ export default function UltimateVisionBoard() {
 
   if (sessionPhase === "void") {
     return (
-      <div className="min-h-screen bg-black flex flex-col items-center justify-center text-center p-6 cursor-pointer" onClick={finishVoid}>
-        <div className="w-32 h-32 rounded-full border-2 border-slate-800 flex items-center justify-center animate-[pulse_4s_ease-in-out_infinite]">
+      <div className="min-h-screen bg-black flex flex-col items-center justify-center text-center p-6 cursor-pointer relative" onClick={finishVoid}>
+        
+        {/* 🌟 ظهور كبسولة الزمن وخصم التراخي */}
+        {punishmentApplied && (
+          <div className="absolute top-10 w-full text-center animate-[pulse_2s_ease-in-out_infinite]">
+            <p className="text-red-500 font-bold tracking-widest bg-red-900/20 inline-block px-6 py-2 rounded-full border border-red-900/50">
+              ⚠️ تم خصم 5% من ثروتك التراكمية وتصفير العداد بسبب الغياب
+            </p>
+          </div>
+        )}
+        
+        {timeCapsuleMessage && (
+          <div className="absolute top-32 w-full max-w-2xl px-6 text-center opacity-70">
+            <p className="text-blue-400 font-light italic leading-relaxed text-lg border-l-2 border-blue-900 pl-4 py-2">
+              {timeCapsuleMessage}
+            </p>
+          </div>
+        )}
+
+        <div className="w-32 h-32 rounded-full border-2 border-slate-800 flex items-center justify-center animate-[pulse_4s_ease-in-out_infinite] mt-20">
           <div className="w-16 h-16 rounded-full bg-slate-900/50 animate-[ping_4s_ease-in-out_infinite]"></div>
         </div>
         <p className="text-slate-500 mt-10 tracking-widest text-sm animate-pulse">خذ نفساً عميقاً لتفريغ عقلك...</p>
@@ -269,6 +349,16 @@ export default function UltimateVisionBoard() {
   if (sessionPhase === "sign") {
     return (
       <div className="min-h-screen bg-black flex flex-col items-center justify-center text-center p-6 relative overflow-hidden">
+        
+        {/* 🌟 تأثير النبض البصري أثناء الشحن البيومتري */}
+        <div 
+          className="absolute inset-0 pointer-events-none transition-opacity duration-300"
+          style={{ 
+            backgroundColor: `rgba(16, 185, 129, ${holdProgress / 400})`, // توهج أخضر خفيف يزداد مع الضغط
+            opacity: holdProgress > 0 ? 1 : 0
+          }} 
+        />
+
         <div className="bg-[#050505] border border-slate-800 p-10 rounded-3xl max-w-lg w-full relative z-10 shadow-2xl">
           <h2 className="text-2xl text-emerald-400 font-bold mb-4">ميثاق الوفرة</h2>
           <p className="text-slate-400 mb-8 text-sm leading-relaxed">
@@ -276,16 +366,34 @@ export default function UltimateVisionBoard() {
           </p>
           <input 
             type="text" 
-            className={`w-full bg-slate-950 border-b-2 ${signatureError ? 'border-red-500 text-red-400' : 'border-slate-700 text-slate-200 focus:border-emerald-500'} px-4 py-4 outline-none text-xl text-center mb-6 transition-colors`}
+            className={`w-full bg-slate-950 border-b-2 ${signatureError ? 'border-red-500 text-red-400' : 'border-slate-700 text-slate-200 focus:border-emerald-500'} px-4 py-4 outline-none text-xl text-center mb-10 transition-colors`}
             placeholder="اكتب اسمك الكامل للتوقيع"
             value={signature}
             onChange={(e) => setSignature(e.target.value)}
           />
-          {signatureError && <p className="text-red-500 text-xs mb-4">يجب كتابة اسمك الكامل (جاسم راكان المطيري) للاعتماد</p>}
+          {signatureError && <p className="text-red-500 text-xs mb-4 -mt-6">يجب كتابة اسمك الكامل (جاسم راكان المطيري) أولاً</p>}
           
-          <div className="flex gap-4">
-            <button onClick={() => setSessionPhase("work")} className="flex-1 bg-slate-900 hover:bg-slate-800 text-slate-400 py-3 rounded-xl transition-all">تراجع</button>
-            <button onClick={confirmSignatureAndSeal} className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition-all shadow-[0_0_15px_rgba(16,185,129,0.4)]">اعتماد وختم ✍️</button>
+          <div className="flex flex-col gap-4">
+            {/* 🌟 الزر البيومتري (اضغط باستمرار) */}
+            <div className="relative h-16 w-full rounded-xl overflow-hidden bg-slate-900 border border-slate-800 select-none">
+              {/* شريط التقدم */}
+              <div 
+                className="absolute top-0 left-0 h-full bg-gradient-to-r from-emerald-800 to-emerald-500 transition-all duration-100"
+                style={{ width: `${holdProgress}%` }}
+              />
+              <button 
+                onPointerDown={handlePointerDown}
+                onPointerUp={handlePointerUp}
+                onPointerLeave={handlePointerUp}
+                className="absolute inset-0 w-full h-full text-white font-bold tracking-widest z-10 flex items-center justify-center outline-none cursor-pointer"
+              >
+                {holdProgress > 0 ? (holdProgress >= 100 ? "تم الختم" : "استمر بالضغط لنقل طاقتك...") : "اضغط باستمرار للاعتماد 👆"}
+              </button>
+            </div>
+            
+            <button onClick={() => setSessionPhase("work")} className="w-full bg-transparent text-slate-500 hover:text-slate-300 py-3 text-sm transition-all">
+              تراجع للوحة العمل
+            </button>
           </div>
         </div>
       </div>
@@ -309,7 +417,6 @@ export default function UltimateVisionBoard() {
           </div>
         </div>
         
-        {/* 🌟 الزر السري لإعادة الجلسة في مرحلة التجربة */}
         <button 
           onClick={resetSessionForTesting} 
           className="absolute bottom-10 text-slate-800 hover:text-slate-500 text-xs tracking-widest transition-colors border-b border-transparent hover:border-slate-500 pb-1"
@@ -387,7 +494,7 @@ export default function UltimateVisionBoard() {
             </div>
 
             <button onClick={() => setSessionPhase("sign")} className={`bg-gradient-to-r from-yellow-600 to-yellow-800 text-white font-bold px-8 rounded-2xl shadow-[0_0_20px_rgba(202,138,4,0.3)] transition-all duration-1000 ${isTyping ? 'opacity-0 pointer-events-none' : 'opacity-100 hover:scale-105'}`}>
-              توقيع الميثاق 🔐
+              ميثاق الختم 🔐
             </button>
           </div>
         </div>
