@@ -312,6 +312,7 @@ export default function UltimateVisionBoard() {
     setTimeout(() => window.speechSynthesis.speak(utteranceEcho), 500);
   };
 
+  // 🌟 زر إعادة الضبط السري للتجارب
   const resetSessionForTesting = () => {
     localStorage.removeItem("lastCompletedDate");
     setSessionWealth(0);
@@ -320,7 +321,10 @@ export default function UltimateVisionBoard() {
     setTuneValue(0);
     setSessionPhase("void");
     setPunishmentApplied(false);
+    setScript("");
   };
+
+  // ==================== الشاشات ====================
 
   if (isLocked) {
     return (
@@ -452,18 +456,29 @@ export default function UltimateVisionBoard() {
             <p className="text-3xl font-bold text-emerald-400">SAR {accumulatedWealth}</p>
           </div>
         </div>
-        <button onClick={resetSessionForTesting} className="absolute bottom-10 text-slate-800 hover:text-slate-500 text-xs tracking-widest transition-colors border-b border-transparent hover:border-slate-500 pb-1">
+        
+        {/* زر إعادة الضبط السري متاح دائماً للتجارب */}
+        <button onClick={resetSessionForTesting} className="absolute bottom-10 text-slate-800 hover:text-slate-500 text-xs tracking-widest transition-colors border-b border-transparent hover:border-slate-500 pb-1 z-50">
           [ إعادة ضبط الجلسة للتجربة ]
         </button>
       </div>
     );
   }
 
+  // ================= واجهة العمل الرئيسية =================
   const blurAmount = Math.max(0, 15 - typingSpeed);
 
   return (
     <div className={`min-h-screen bg-black text-slate-300 font-sans flex flex-col p-6 md:p-10 transition-all duration-700 relative overflow-hidden ${goldenGlow ? 'shadow-[inset_0_0_150px_rgba(234,179,8,0.15)]' : ''} ${glitchGlow ? 'shadow-[inset_0_0_150px_rgba(220,38,38,0.3)] animate-pulse' : ''}`}>
       
+      {/* 🌟 الزر السري العائم أسفل اليسار للعودة للصفر وتجربة كل المراحل */}
+      <button 
+        onClick={resetSessionForTesting} 
+        className="fixed bottom-4 left-4 z-50 bg-slate-900/50 hover:bg-slate-800 text-slate-500 hover:text-slate-300 text-xs px-3 py-1 rounded-full border border-slate-800 transition-all"
+      >
+        [ إعادة ضبط لاختبار المميزات ]
+      </button>
+
       {typingSpeed > 10 && (
         <div className="absolute inset-0 pointer-events-none flex justify-around items-end opacity-50 z-0">
           {[...Array(10)].map((_, i) => (
