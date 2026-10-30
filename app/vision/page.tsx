@@ -35,7 +35,8 @@ export default function UltimateVisionBoard() {
   const [negativeBelief, setNegativeBelief] = useState("");
   const [isBurning, setIsBurning] = useState(false);
 
-  const [sessionPhase, setSessionPhase] = useState("void");
+  // 🌟 جعلنا البداية الافتراضية هي الموالف (tune) بدلاً من الفراغ (void)
+  const [sessionPhase, setSessionPhase] = useState("tune");
   const [tuneValue, setTuneValue] = useState(0);
   const [signature, setSignature] = useState("");
   const [signatureError, setSignatureError] = useState(false);
@@ -165,10 +166,8 @@ export default function UltimateVisionBoard() {
     } catch (e) {}
   };
 
-  const finishVoid = () => {
-    startBrainwaves();
-    setSessionPhase("tune");
-  };
+  // 🌟 دالة لفتح الفراغ برغبتك
+  const enterVoid = () => setSessionPhase("void");
 
   const handleTune = (e: any) => {
     const val = parseInt(e.target.value);
@@ -176,6 +175,7 @@ export default function UltimateVisionBoard() {
     if (val === 888) {
       setGoldenGlow(true);
       playWealthChime();
+      startBrainwaves(); // 🌟 بدأنا الموجات الصوتية هنا عند النجاح في التوليف
       setTimeout(() => {
         setGoldenGlow(false);
         setSessionPhase("work");
@@ -312,14 +312,13 @@ export default function UltimateVisionBoard() {
     setTimeout(() => window.speechSynthesis.speak(utteranceEcho), 500);
   };
 
-  // 🌟 زر إعادة الضبط السري للتجارب
   const resetSessionForTesting = () => {
     localStorage.removeItem("lastCompletedDate");
     setSessionWealth(0);
     setSignature("");
     setHoldProgress(0);
     setTuneValue(0);
-    setSessionPhase("void");
+    setSessionPhase("tune"); // 🌟 الإعادة ترجعك للموالف مباشرة
     setPunishmentApplied(false);
     setScript("");
   };
@@ -338,9 +337,24 @@ export default function UltimateVisionBoard() {
     );
   }
 
+  // 🌟 شاشة الفراغ (تظهر فقط عند اختيارك لها من لوحة العمل)
   if (sessionPhase === "void") {
     return (
-      <div className="min-h-screen bg-black flex flex-col items-center justify-center text-center p-6 cursor-pointer relative" onClick={finishVoid}>
+      <div className="min-h-screen bg-black flex flex-col items-center justify-center text-center p-6 cursor-pointer relative" onClick={() => setSessionPhase("work")}>
+        <div className="w-32 h-32 rounded-full border-2 border-slate-800 flex items-center justify-center animate-[pulse_4s_ease-in-out_infinite] mt-20">
+          <div className="w-16 h-16 rounded-full bg-slate-900/50 animate-[ping_4s_ease-in-out_infinite]"></div>
+        </div>
+        <p className="text-slate-500 mt-10 tracking-widest text-sm animate-pulse">خذ نفساً عميقاً لتفريغ عقلك...</p>
+        <p className="text-slate-700 mt-4 text-xs">اضغط في أي مكان للعودة للعمل</p>
+      </div>
+    );
+  }
+
+  if (sessionPhase === "tune") {
+    return (
+      <div className={`min-h-screen bg-black flex flex-col items-center justify-center text-center p-6 transition-all duration-1000 relative ${goldenGlow ? 'bg-yellow-900/20' : ''}`}>
+        
+        {/* 🌟 تم نقل التنبيهات هنا لتراها فور فتح المنصة */}
         {punishmentApplied && (
           <div className="absolute top-10 w-full text-center animate-[pulse_2s_ease-in-out_infinite]">
             <p className="text-red-500 font-bold tracking-widest bg-red-900/20 inline-block px-6 py-2 rounded-full border border-red-900/50">
@@ -355,23 +369,12 @@ export default function UltimateVisionBoard() {
             </p>
           </div>
         )}
-        <div className="w-32 h-32 rounded-full border-2 border-slate-800 flex items-center justify-center animate-[pulse_4s_ease-in-out_infinite] mt-20">
-          <div className="w-16 h-16 rounded-full bg-slate-900/50 animate-[ping_4s_ease-in-out_infinite]"></div>
-        </div>
-        <p className="text-slate-500 mt-10 tracking-widest text-sm animate-pulse">خذ نفساً عميقاً لتفريغ عقلك...</p>
-        <p className="text-slate-700 mt-4 text-xs">اضغط في أي مكان للبدء</p>
-      </div>
-    );
-  }
 
-  if (sessionPhase === "tune") {
-    return (
-      <div className={`min-h-screen bg-black flex flex-col items-center justify-center text-center p-6 transition-all duration-1000 ${goldenGlow ? 'bg-yellow-900/20' : ''}`}>
-        <h3 className="text-2xl text-yellow-500 mb-8 tracking-widest font-bold">اضبط تردد النية للبدء</h3>
+        <h3 className="text-2xl text-yellow-500 mb-8 tracking-widest font-bold mt-20">اضبط تردد النية للبدء</h3>
         <div className="text-7xl font-black text-slate-800 mb-12">{tuneValue}</div>
         <input 
           type="range" min="0" max="1000" value={tuneValue} onChange={handleTune}
-          className="w-full md:w-1/2 h-2 bg-slate-900 rounded-lg appearance-none cursor-pointer accent-yellow-500"
+          className="w-full md:w-1/2 h-2 bg-slate-900 rounded-lg appearance-none cursor-pointer accent-yellow-500 z-10"
         />
         <p className="text-slate-600 text-sm mt-8">ابحث عن التردد 888 لفتح مسار الوفرة</p>
       </div>
@@ -457,7 +460,6 @@ export default function UltimateVisionBoard() {
           </div>
         </div>
         
-        {/* زر إعادة الضبط السري متاح دائماً للتجارب */}
         <button onClick={resetSessionForTesting} className="absolute bottom-10 text-slate-800 hover:text-slate-500 text-xs tracking-widest transition-colors border-b border-transparent hover:border-slate-500 pb-1 z-50">
           [ إعادة ضبط الجلسة للتجربة ]
         </button>
@@ -471,7 +473,6 @@ export default function UltimateVisionBoard() {
   return (
     <div className={`min-h-screen bg-black text-slate-300 font-sans flex flex-col p-6 md:p-10 transition-all duration-700 relative overflow-hidden ${goldenGlow ? 'shadow-[inset_0_0_150px_rgba(234,179,8,0.15)]' : ''} ${glitchGlow ? 'shadow-[inset_0_0_150px_rgba(220,38,38,0.3)] animate-pulse' : ''}`}>
       
-      {/* 🌟 الزر السري العائم أسفل اليسار للعودة للصفر وتجربة كل المراحل */}
       <button 
         onClick={resetSessionForTesting} 
         className="fixed bottom-4 left-4 z-50 bg-slate-900/50 hover:bg-slate-800 text-slate-500 hover:text-slate-300 text-xs px-3 py-1 rounded-full border border-slate-800 transition-all"
@@ -507,6 +508,12 @@ export default function UltimateVisionBoard() {
           <span className="text-sm bg-slate-900 px-4 py-2 rounded-full border border-slate-800 shadow-inner">
             🔥 التزام: {streak}
           </span>
+          
+          {/* 🌟 الزر الجديد لتفريغ العقل (اختياري) */}
+          <button onClick={enterVoid} className="bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded-lg text-sm font-medium transition-all border border-slate-700">
+            🧘‍♂️ تفريغ العقل
+          </button>
+          
           <button onClick={generateFromLibrary} className="bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all shadow-[0_0_15px_rgba(147,51,234,0.3)]">
             توكيد مالي 💸
           </button>
