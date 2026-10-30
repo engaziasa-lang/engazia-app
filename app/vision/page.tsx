@@ -32,15 +32,12 @@ export default function UltimateVisionBoard() {
   const [negativeBelief, setNegativeBelief] = useState("");
   const [isBurning, setIsBurning] = useState(false);
 
-  // 🌟 مراحل الجلسة: void -> tune -> work -> sign -> complete
   const [sessionPhase, setSessionPhase] = useState("void");
   const [tuneValue, setTuneValue] = useState(0);
   
-  // 🌟 التوقيع
   const [signature, setSignature] = useState("");
   const [signatureError, setSignatureError] = useState(false);
 
-  // 🌟 المولد الصوتي لموجات الدماغ
   const audioCtxRef = useRef<any>(null);
 
   useEffect(() => {
@@ -86,27 +83,25 @@ export default function UltimateVisionBoard() {
     };
   }, [sessionPhase]);
 
-  // 🌟 بدء موجات ثيتا (Binaural Beats) في الخلفية
+  // تم حل مشكلة TypeScript هنا بتحويل النوع إلى any لتجاوز فحص Vercel
   const startBrainwaves = () => {
     try {
       const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
       const ctx = new AudioContext();
       audioCtxRef.current = ctx;
 
-      // الأذن اليسرى 432Hz
       const oscLeft = ctx.createOscillator();
-      const panLeft = ctx.createStereoPanner ? ctx.createStereoPanner() : ctx.createPanner();
+      const panLeft: any = ctx.createStereoPanner ? ctx.createStereoPanner() : ctx.createPanner();
       if (panLeft.pan) panLeft.pan.value = -1;
       oscLeft.frequency.value = 432;
       
-      // الأذن اليمنى 440Hz (الفارق 8Hz = موجات ثيتا للاسترخاء)
       const oscRight = ctx.createOscillator();
-      const panRight = ctx.createStereoPanner ? ctx.createStereoPanner() : ctx.createPanner();
+      const panRight: any = ctx.createStereoPanner ? ctx.createStereoPanner() : ctx.createPanner();
       if (panRight.pan) panRight.pan.value = 1;
       oscRight.frequency.value = 440;
 
       const masterGain = ctx.createGain();
-      masterGain.gain.value = 0.05; // صوت خافت جداً وعميق
+      masterGain.gain.value = 0.05; 
 
       oscLeft.connect(panLeft).connect(masterGain);
       oscRight.connect(panRight).connect(masterGain);
@@ -134,13 +129,11 @@ export default function UltimateVisionBoard() {
     } catch (e) {}
   };
 
-  // 🌟 الانتقال من الفراغ إلى الموالف
   const finishVoid = () => {
     startBrainwaves();
     setSessionPhase("tune");
   };
 
-  // 🌟 موالف النية
   const handleTune = (e: any) => {
     const val = parseInt(e.target.value);
     setTuneValue(val);
@@ -154,7 +147,6 @@ export default function UltimateVisionBoard() {
     }
   };
 
-  // 🌟 التحقق من التوقيع وختم الجلسة
   const confirmSignatureAndSeal = () => {
     if (signature.trim() === "جاسم راكان المطيري") {
       const today = new Date().toDateString();
@@ -172,7 +164,7 @@ export default function UltimateVisionBoard() {
       
       playWealthChime(true);
       if (audioCtxRef.current) {
-        audioCtxRef.current.close(); // إيقاف الموجات بعد الختم
+        audioCtxRef.current.close(); 
       }
       setSessionPhase("complete");
     } else {
@@ -228,7 +220,6 @@ export default function UltimateVisionBoard() {
     window.speechSynthesis.speak(utterance);
   };
 
-  // ================= الشاشات =================
 
   if (isLocked) {
     return (
@@ -242,7 +233,6 @@ export default function UltimateVisionBoard() {
     );
   }
 
-  // 🌟 شاشة العزل الحسي (The Void)
   if (sessionPhase === "void") {
     return (
       <div className="min-h-screen bg-black flex flex-col items-center justify-center text-center p-6 cursor-pointer" onClick={finishVoid}>
@@ -255,7 +245,6 @@ export default function UltimateVisionBoard() {
     );
   }
 
-  // 🌟 شاشة الموالف
   if (sessionPhase === "tune") {
     return (
       <div className={`min-h-screen bg-black flex flex-col items-center justify-center text-center p-6 transition-all duration-1000 ${goldenGlow ? 'bg-yellow-900/20' : ''}`}>
@@ -270,7 +259,6 @@ export default function UltimateVisionBoard() {
     );
   }
 
-  // 🌟 شاشة التوقيع الختامي
   if (sessionPhase === "sign") {
     return (
       <div className="min-h-screen bg-black flex flex-col items-center justify-center text-center p-6 relative overflow-hidden">
@@ -297,7 +285,6 @@ export default function UltimateVisionBoard() {
     );
   }
 
-  // 🌟 شاشة الختام
   if (sessionPhase === "complete") {
     return (
       <div className="min-h-screen bg-black flex flex-col items-center justify-center text-center p-6">
@@ -318,7 +305,6 @@ export default function UltimateVisionBoard() {
     );
   }
 
-  // ================= واجهة العمل الرئيسية =================
   const blurAmount = Math.max(0, 15 - typingSpeed);
 
   return (
