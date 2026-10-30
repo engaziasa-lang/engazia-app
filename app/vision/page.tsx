@@ -1,21 +1,44 @@
 "use client";
 import { useState, useEffect, useRef } from 'react';
 
-const scriptsLibrary = [
-  "أنا الآن أستقبل تدفقاً نقدياً مستمراً من اشتراكات منصة إنجازيا. إيراداتي الشهرية تتجاوز 100 ألف ريال وتنمو باستمرار وبكل سهولة.",
-  "صافي ثروتي يتضاعف كل عام. أنا أدير أعمالي الرقمية ومكتبي بذكاء، وأحقق عائداً سنوياً يفوق المليون ريال وأستمتع بالحرية المالية المطلقة.",
-  "عقلي الباطن مبرمج على الوفرة واستقطاب المال. كل أداة أطلقها تتحول إلى مصدر دخل سلبي مستدام يرفع من إجمالي ثروتي وتدفقاتي النقدية."
+const baseScriptsLibrary = [
+  "أنا أستقبل تدفقاً نقدياً يومياً ومستمراً من آلاف المشتركين في منصة إنجازيا وبكل سهولة ويسر.",
+  "إيراداتي الشهرية من أعمالي الرقمية ومكتبي تفوق 100 ألف ريال وتنمو وتتضاعف بشكل تصاعدي وثابت.",
+  "كل أداة وبرمجية أطلقها في منصة إنجازيا تتحول فوراً إلى مغناطيس أرباح ومصدر دخل سلبي مستدام.",
+  "منصة إنجازيا تقدم حلولاً مالية ورقمية لا غنى عنها لكل مطلع وتاجر في الخليج والعالم العربي.",
+  "قاعدة عملائي تنمو كل ساعة، ومعدل التحويل والاشتراكات في صعود مستمر ودائم.",
+  "مشاريقي الرقمية تعمل بكفاءة وذكاء اصطناعي تام، وتدر عليّ أموالاً وأنا أستمتع بحريتي.",
+  "نظام الدفع والتحويل لدي آمن وسريع، والأموال تتسابق لتستقر في حسابي البنكي بلا توقف.",
+  "صافي ثروتي يتجاوز 10 مليون ريال وينمو كل يوم بطرق مذهلة وغير متوقعة.",
+  "أنا أحقق عائداً سنوياً يفوق المليون ريال صافياً، وأدير ثروتي بوعي المليارديرات وحكمة الاستثمار.",
+  "الأموال تتدفق إليّ بغزارة من مصادر متعددة ومتنوعة، طاقة الوفرة تسري في كل تفاصيل حياتي."
 ];
 
-// 🌟 عبارات جاهزة بنقرة واحدة خصيصاً لسرعة الجوال
-const quickPhrases = [
+// 🌟 خوارزمية توليد آلاف العبارات الديناميكية للجوال
+const generateDynamicPhrase = () => {
+  const subjects = [
+    "منصة إنجازيا", "مكتبي الرقمي", "أعمالي الإلكترونية", 
+    "مشاريعي التقنية", "محفظتي الاستثمارية", "خدماتي الرقمية"
+  ];
+  const actions = [
+    "تدر عليّ أرباحاً صافية تتجاوز", "تستقطب تدفقاً نقدياً يومياً بقيمة", 
+    "تحقق عائداً ضخماً يفوق", "تولد لي دخلاً سلبياً متسارعاً يبلغ"
+  ];
+  const amounts = [
+    "50 ألف ريال", "100 ألف ريال", "250 ألف ريال", "500 ألف ريال", "مليون ريال سنويًا"
+  ];
+  const rand = (arr: string[]) => arr[Math.floor(Math.random() * arr.length)];
+  return `${rand(subjects)} ${rand(actions)} ${rand(amounts)}`;
+};
+
+const initialQuickPhrases = [
   "أنا مغناطيس للسيولة والثروة",
   "إنجازيا تتوسع وتحقق أرباحاً ضخمة",
   "أموالي تتضاعف كل يوم بكل سهولة",
   "كل أداة أطلقها تجلب لي دخلاً متسارعاً"
 ];
 
-const subliminalWords = ["وفرة", "SAR 10,000,000", "نجاح", "تدفق نقدي", "إنجازيا"];
+const subliminalWords = ["وفرة", "SAR 10,000,000", "نجاح", "تدفق نقدي", "إنجازيا", "مليونير", "استقلال مالي"];
 const powerKeywords = ["مليون", "ثروة", "وفرة", "إنجازيا", "نجاح", "أرباح", "100 ألف"];
 const doubtKeywords = ["أتمنى", "سوف", "أحاول", "لعل", "ربما", "عسى", "ممكن", "يارب"];
 
@@ -29,6 +52,9 @@ export default function UltimateVisionBoard() {
   const [timeRemaining, setTimeRemaining] = useState("");
   const [sessionWealth, setSessionWealth] = useState(0);
 
+  // 🌟 شريط العبارات الديناميكية المتجددة للجوال
+  const [dynamicPhrases, setDynamicPhrases] = useState(initialQuickPhrases);
+
   const [subliminalWord, setSubliminalWord] = useState("");
   const [showSubliminal, setShowSubliminal] = useState(false);
   const [goldenGlow, setGoldenGlow] = useState(false);
@@ -41,8 +67,6 @@ export default function UltimateVisionBoard() {
   const [isBurning, setIsBurning] = useState(false);
 
   const [sessionPhase, setSessionPhase] = useState("work");
-  
-  // 🌟 تبويبات الجوال (تتبدل بين لوحة المؤشرات ولوحة التجلي لمنع التمرير الطويل)
   const [activeMobileTab, setActiveMobileTab] = useState("workspace");
 
   const [signature, setSignature] = useState("");
@@ -283,11 +307,24 @@ export default function UltimateVisionBoard() {
     }
   };
 
-  // 🌟 إدراج العبارة السريعة بنقرة واحدة (مثالية للجوال)
   const insertQuickPhrase = (phrase: string) => {
     initAudioIfNeeded();
-    const updated = script ? `${script} ${phrase}` : phrase;
+    const updated = script ? `${script} . ${phrase}` : phrase;
     handleScriptChange(updated);
+  };
+
+  // 🌟 زر توليد عبارة جديدة لا تنتهي للجوال
+  const handleGenerateNewPhrase = () => {
+    initAudioIfNeeded();
+    const newPhrase = generateDynamicPhrase();
+    setDynamicPhrases(prev => [newPhrase, ...prev]);
+    insertQuickPhrase(newPhrase);
+  };
+
+  const generateFromLibrary = () => {
+    initAudioIfNeeded();
+    const newText = baseScriptsLibrary[Math.floor(Math.random() * baseScriptsLibrary.length)];
+    handleScriptChange(script ? `${script}\n${newText}` : newText);
   };
 
   const handleBurn = () => {
@@ -305,12 +342,6 @@ export default function UltimateVisionBoard() {
       setGoldenGlow(true);
       setTimeout(() => setGoldenGlow(false), 1000);
     }, 1200); 
-  };
-
-  const generateFromLibrary = () => {
-    initAudioIfNeeded();
-    const randomIndex = Math.floor(Math.random() * scriptsLibrary.length);
-    handleScriptChange(scriptsLibrary[randomIndex]);
   };
 
   const speakScript = () => {
@@ -506,7 +537,7 @@ export default function UltimateVisionBoard() {
         </h1>
         <div className="flex flex-wrap items-center justify-center gap-2">
           <span className="text-xs bg-slate-900 px-3 py-1.5 rounded-full border border-slate-800 shadow-inner">
-            🔥 التزام: {streak}
+            🔥 الالتزام: {streak}
           </span>
           
           <button onClick={enterVoid} className="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg text-xs font-medium transition-all border border-slate-700">
@@ -514,7 +545,7 @@ export default function UltimateVisionBoard() {
           </button>
           
           <button onClick={generateFromLibrary} className="bg-purple-600 hover:bg-purple-500 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-all shadow-[0_0_15px_rgba(147,51,234,0.3)]">
-            توكيد مالي 💸
+            توكيد ذكي 💸
           </button>
           <button onClick={speakScript} className={`px-4 py-1.5 rounded-lg text-xs font-medium transition-all shadow-[0_0_15px_rgba(37,99,235,0.4)] ${isSpeaking ? 'bg-emerald-600' : 'bg-blue-600'}`}>
             {isSpeaking ? '🔊 جاري...' : 'التنويم 🔊'}
@@ -522,7 +553,7 @@ export default function UltimateVisionBoard() {
         </div>
       </div>
 
-      {/* 🌟 تبويبات مخصصة للشاشات الصغيرة (الجوال) لمنع التمرير الطويل */}
+      {/* تبويبات الجوال */}
       <div className="flex md:hidden bg-slate-900/80 p-1 rounded-xl mb-4 border border-slate-800">
         <button 
           onClick={() => setActiveMobileTab("workspace")} 
@@ -540,15 +571,23 @@ export default function UltimateVisionBoard() {
 
       <div className="flex-grow flex flex-col md:flex-row gap-6 h-full relative z-10">
         
-        {/* مساحة العمل (تظهر دائماً على الكمبيوتر، وتظهر على الجوال حسب التبويب) */}
+        {/* مساحة العمل */}
         <div className={`w-full md:w-2/3 flex-col relative h-full ${activeMobileTab === 'workspace' ? 'flex' : 'hidden md:flex'}`}>
           <p className="text-slate-600 mb-2 text-xs md:text-sm font-medium">
             اكتب بلسان اليقين والمضارع لتزيل الضباب...
           </p>
 
-          {/* 🌟 شريط الاختصارات السريعة للتوكيدات (مثالي للجوال لضغطات سريعة) */}
+          {/* 🌟 شريط التوليد اللانهائي للعبارات السريعة للجوال */}
           <div className="flex gap-2 overflow-x-auto pb-2 mb-2 scrollbar-none">
-            {quickPhrases.map((phrase, idx) => (
+            {/* زر التوليد الجديد لآلاف الاحتمالات */}
+            <button
+              onClick={handleGenerateNewPhrase}
+              className="whitespace-nowrap bg-purple-900/40 hover:bg-purple-900/60 text-purple-200 text-xs px-3 py-1.5 rounded-full border border-purple-800/50 transition-all shadow-sm font-bold"
+            >
+              ✨ + توليد عبارة جديدة
+            </button>
+
+            {dynamicPhrases.map((phrase, idx) => (
               <button
                 key={idx}
                 onClick={() => insertQuickPhrase(phrase)}
@@ -588,7 +627,7 @@ export default function UltimateVisionBoard() {
           </div>
         </div>
 
-        {/* المؤشرات ولوحة الرؤية (تظهر دائماً على الكمبيوتر، وتظهر على الجوال حسب التبويب) */}
+        {/* المؤشرات ولوحة الرؤية */}
         <div className={`w-full md:w-1/3 flex-col gap-4 ${activeMobileTab === 'dashboard' ? 'flex' : 'hidden md:flex'}`}>
           <div className={`bg-[#050505] rounded-2xl p-4 md:p-5 shadow-lg border border-emerald-900/30 flex justify-between items-center relative overflow-hidden transition-all duration-300 ${glitchGlow ? 'border-red-900' : ''}`}>
              <div className="absolute inset-0 bg-gradient-to-r from-emerald-900/10 to-transparent"></div>
