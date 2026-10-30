@@ -14,7 +14,6 @@ const baseScriptsLibrary = [
   "الأموال تتدفق إليّ بغزارة من مصادر متعددة ومتنوعة، طاقة الوفرة تسري في كل تفاصيل حياتي."
 ];
 
-// 🌟 خوارزمية توليد آلاف العبارات الديناميكية للجوال
 const generateDynamicPhrase = () => {
   const subjects = [
     "منصة إنجازيا", "مكتبي الرقمي", "أعمالي الإلكترونية", 
@@ -52,9 +51,12 @@ export default function UltimateVisionBoard() {
   const [timeRemaining, setTimeRemaining] = useState("");
   const [sessionWealth, setSessionWealth] = useState(0);
 
-  // 🌟 شريط العبارات الديناميكية المتجددة للجوال
-  const [dynamicPhrases, setDynamicPhrases] = useState(initialQuickPhrases);
+  // 🌟 حالات مؤقت الجلسة (10، 15، 20، 25، 30 دقيقة)
+  const [timerDuration, setTimerDuration] = useState<number>(15 * 60); // الافتراضي 15 دقيقة
+  const [timeLeft, setTimeLeft] = useState<number>(15 * 60);
+  const [isTimerRunning, setIsTimerRunning] = useState<boolean>(false);
 
+  const [dynamicPhrases, setDynamicPhrases] = useState(initialQuickPhrases);
   const [subliminalWord, setSubliminalWord] = useState("");
   const [showSubliminal, setShowSubliminal] = useState(false);
   const [goldenGlow, setGoldenGlow] = useState(false);
@@ -142,6 +144,34 @@ export default function UltimateVisionBoard() {
       if (audioCtxRef.current) audioCtxRef.current.close();
     };
   }, [sessionPhase]);
+
+  // 🌟 عداد الوقت التنازلي للجلسة
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (isTimerRunning && timeLeft > 0) {
+      timer = setInterval(() => {
+        setTimeLeft(prev => prev - 1);
+      }, 1000);
+    } else if (timeLeft === 0 && isTimerRunning) {
+      setIsTimerRunning(false);
+      playWealthChime('warp');
+      alert("🎉 مبروك! انتهت جلسة التركيز بنجاح. يمكنك الآن الانتقال لميثاق الختم.");
+    }
+    return () => clearInterval(timer);
+  }, [isTimerRunning, timeLeft]);
+
+  const selectTimerMinutes = (minutes: number) => {
+    const seconds = minutes * 60;
+    setTimerDuration(seconds);
+    setTimeLeft(seconds);
+    setIsTimerRunning(false);
+  };
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
 
   const initAudioIfNeeded = () => {
     if (!audioCtxRef.current) {
@@ -313,7 +343,6 @@ export default function UltimateVisionBoard() {
     handleScriptChange(updated);
   };
 
-  // 🌟 زر توليد عبارة جديدة لا تنتهي للجوال
   const handleGenerateNewPhrase = () => {
     initAudioIfNeeded();
     const newPhrase = generateDynamicPhrase();
@@ -530,11 +559,36 @@ export default function UltimateVisionBoard() {
         </div>
       )}
 
-      {/* الشريط العلوي */}
-      <div className="flex flex-col md:flex-row justify-between items-center mt-6 mb-6 border-b border-slate-900 pb-4 gap-4 relative z-10">
+      {/* الشريط العلوي مع مؤقت الجلسة */}
+      <div className="flex flex-col md:flex-row justify-between items-center mt-6 mb-4 border-b border-slate-900 pb-4 gap-4 relative z-10">
         <h1 className="text-xl md:text-2xl font-bold text-slate-100 tracking-wider">
           برمجة الوفرة <span className="text-blue-500">|</span> Wealth Vision
         </h1>
+        
+        {/* 🌟 شريط مؤقت الجلسة (10، 15، 20، 25، 30 دقيقة) */}
+        <div className="flex items-center gap-2 bg-slate-900/90 p-1.5 rounded-xl border border-slate-800">
+          <div className="text-xs font-mono font-bold text-yellow-400 px-2">
+            ⏱️ {formatTime(timeLeft)}
+          </div>
+          <div className="flex gap-1">
+            {[10, 15, 20, 25, 30].map(mins => (
+              <button
+                key={mins}
+                onClick={() => selectTimerMinutes(mins)}
+                className={`px-2 py-1 rounded text-[11px] font-medium transition-all ${timerDuration === mins * 60 ? 'bg-yellow-600 text-white' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}
+              >
+                {mins}د
+              </button>
+            ))}
+          </div>
+          <button
+            onClick={() => setIsTimerRunning(!isTimerRunning)}
+            className={`px-3 py-1 rounded text-xs font-bold transition-all ${isTimerRunning ? 'bg-red-600 hover:bg-red-500 text-white' : 'bg-emerald-600 hover:bg-emerald-500 text-white'}`}
+          >
+            {isTimerRunning ? 'إيقاف' : 'بدء'}
+          </button>
+        </div>
+
         <div className="flex flex-wrap items-center justify-center gap-2">
           <span className="text-xs bg-slate-900 px-3 py-1.5 rounded-full border border-slate-800 shadow-inner">
             🔥 الالتزام: {streak}
@@ -577,9 +631,7 @@ export default function UltimateVisionBoard() {
             اكتب بلسان اليقين والمضارع لتزيل الضباب...
           </p>
 
-          {/* 🌟 شريط التوليد اللانهائي للعبارات السريعة للجوال */}
           <div className="flex gap-2 overflow-x-auto pb-2 mb-2 scrollbar-none">
-            {/* زر التوليد الجديد لآلاف الاحتمالات */}
             <button
               onClick={handleGenerateNewPhrase}
               className="whitespace-nowrap bg-purple-900/40 hover:bg-purple-900/60 text-purple-200 text-xs px-3 py-1.5 rounded-full border border-purple-800/50 transition-all shadow-sm font-bold"
