@@ -35,9 +35,9 @@ export default function UltimateVisionBoard() {
   const [negativeBelief, setNegativeBelief] = useState("");
   const [isBurning, setIsBurning] = useState(false);
 
-  // 🌟 جعلنا البداية الافتراضية هي الموالف (tune) بدلاً من الفراغ (void)
-  const [sessionPhase, setSessionPhase] = useState("tune");
-  const [tuneValue, setTuneValue] = useState(0);
+  // 🌟 الدخول المباشر للوحة العمل
+  const [sessionPhase, setSessionPhase] = useState("work");
+  
   const [signature, setSignature] = useState("");
   const [signatureError, setSignatureError] = useState(false);
 
@@ -111,6 +111,13 @@ export default function UltimateVisionBoard() {
     };
   }, [sessionPhase]);
 
+  // تشغيل الموجات عند أول تفاعل لضمان توافق المتصفح
+  const initAudioIfNeeded = () => {
+    if (!audioCtxRef.current) {
+      startBrainwaves();
+    }
+  };
+
   const startBrainwaves = () => {
     try {
       const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
@@ -166,24 +173,13 @@ export default function UltimateVisionBoard() {
     } catch (e) {}
   };
 
-  // 🌟 دالة لفتح الفراغ برغبتك
-  const enterVoid = () => setSessionPhase("void");
-
-  const handleTune = (e: any) => {
-    const val = parseInt(e.target.value);
-    setTuneValue(val);
-    if (val === 888) {
-      setGoldenGlow(true);
-      playWealthChime();
-      startBrainwaves(); // 🌟 بدأنا الموجات الصوتية هنا عند النجاح في التوليف
-      setTimeout(() => {
-        setGoldenGlow(false);
-        setSessionPhase("work");
-      }, 1500);
-    }
+  const enterVoid = () => {
+    initAudioIfNeeded();
+    setSessionPhase("void");
   };
 
   const handlePointerDown = () => {
+    initAudioIfNeeded();
     if (signature.trim() !== "جاسم راكان المطيري") {
       setSignatureError(true);
       setTimeout(() => setSignatureError(false), 2000);
@@ -241,6 +237,7 @@ export default function UltimateVisionBoard() {
   };
 
   const handleScriptChange = (text: string) => {
+    initAudioIfNeeded();
     setScript(text);
     localStorage.setItem("dailyScript", text);
     const words = text.split(/\s+/);
@@ -273,6 +270,7 @@ export default function UltimateVisionBoard() {
   };
 
   const handleBurn = () => {
+    initAudioIfNeeded();
     if (!negativeBelief.trim()) return;
     setIsBurning(true);
     setTimeout(() => {
@@ -285,11 +283,13 @@ export default function UltimateVisionBoard() {
   };
 
   const generateFromLibrary = () => {
+    initAudioIfNeeded();
     const randomIndex = Math.floor(Math.random() * scriptsLibrary.length);
     handleScriptChange(scriptsLibrary[randomIndex]);
   };
 
   const speakScript = () => {
+    initAudioIfNeeded();
     if (!script.trim()) return;
     window.speechSynthesis.cancel();
     
@@ -317,8 +317,7 @@ export default function UltimateVisionBoard() {
     setSessionWealth(0);
     setSignature("");
     setHoldProgress(0);
-    setTuneValue(0);
-    setSessionPhase("tune"); // 🌟 الإعادة ترجعك للموالف مباشرة
+    setSessionPhase("work"); // العودة المباشرة للوحة العمل
     setPunishmentApplied(false);
     setScript("");
   };
@@ -346,37 +345,6 @@ export default function UltimateVisionBoard() {
         </div>
         <p className="text-slate-500 mt-10 tracking-widest text-sm animate-pulse">خذ نفساً عميقاً لتفريغ عقلك...</p>
         <p className="text-slate-700 mt-4 text-xs">اضغط في أي مكان للعودة للعمل</p>
-      </div>
-    );
-  }
-
-  if (sessionPhase === "tune") {
-    return (
-      <div className={`min-h-screen bg-black flex flex-col items-center justify-center text-center p-6 transition-all duration-1000 relative ${goldenGlow ? 'bg-yellow-900/20' : ''}`}>
-        
-        {/* 🌟 تم نقل التنبيهات هنا لتراها فور فتح المنصة */}
-        {punishmentApplied && (
-          <div className="absolute top-10 w-full text-center animate-[pulse_2s_ease-in-out_infinite]">
-            <p className="text-red-500 font-bold tracking-widest bg-red-900/20 inline-block px-6 py-2 rounded-full border border-red-900/50">
-              ⚠️ تم خصم 5% من ثروتك التراكمية وتصفير العداد بسبب الغياب المستمر
-            </p>
-          </div>
-        )}
-        {timeCapsuleMessage && (
-          <div className="absolute top-32 w-full max-w-2xl px-6 text-center opacity-70">
-            <p className="text-blue-400 font-light italic leading-relaxed text-lg border-l-2 border-blue-900 pl-4 py-2">
-              {timeCapsuleMessage}
-            </p>
-          </div>
-        )}
-
-        <h3 className="text-2xl text-yellow-500 mb-8 tracking-widest font-bold mt-20">اضبط تردد النية للبدء</h3>
-        <div className="text-7xl font-black text-slate-800 mb-12">{tuneValue}</div>
-        <input 
-          type="range" min="0" max="1000" value={tuneValue} onChange={handleTune}
-          className="w-full md:w-1/2 h-2 bg-slate-900 rounded-lg appearance-none cursor-pointer accent-yellow-500 z-10"
-        />
-        <p className="text-slate-600 text-sm mt-8">ابحث عن التردد 888 لفتح مسار الوفرة</p>
       </div>
     );
   }
@@ -480,6 +448,24 @@ export default function UltimateVisionBoard() {
         [ إعادة ضبط لاختبار المميزات ]
       </button>
 
+      {/* 🌟 إظهار رسائل التحذير والكبسولة أعلى لوحة العمل مباشرة إذا وجدت */}
+      <div className="absolute top-2 left-0 w-full flex flex-col items-center gap-2 z-40 pointer-events-none">
+        {punishmentApplied && (
+          <div className="animate-[pulse_2s_ease-in-out_infinite]">
+            <p className="text-red-500 font-bold tracking-widest bg-red-900/20 px-6 py-1 rounded-full border border-red-900/50 text-xs">
+              ⚠️ تم خصم 5% من ثروتك التراكمية وتصفير العداد بسبب الغياب المستمر
+            </p>
+          </div>
+        )}
+        {timeCapsuleMessage && (
+          <div className="opacity-70">
+            <p className="text-blue-400 font-light italic leading-relaxed text-xs border-l-2 border-blue-900 pl-4 py-1 bg-black/50 rounded-r-lg">
+              {timeCapsuleMessage}
+            </p>
+          </div>
+        )}
+      </div>
+
       {typingSpeed > 10 && (
         <div className="absolute inset-0 pointer-events-none flex justify-around items-end opacity-50 z-0">
           {[...Array(10)].map((_, i) => (
@@ -500,7 +486,7 @@ export default function UltimateVisionBoard() {
         </div>
       )}
 
-      <div className={`flex justify-between items-center mb-8 border-b border-slate-900 pb-4 relative z-10 transition-opacity duration-1000 ${isTyping ? 'opacity-0' : 'opacity-100'}`}>
+      <div className={`flex justify-between items-center mt-8 mb-8 border-b border-slate-900 pb-4 relative z-10 transition-opacity duration-1000 ${isTyping ? 'opacity-0' : 'opacity-100'}`}>
         <h1 className="text-2xl font-bold text-slate-100 tracking-wider">
           برمجة الوفرة <span className="text-blue-500">|</span> Wealth Vision
         </h1>
@@ -509,7 +495,6 @@ export default function UltimateVisionBoard() {
             🔥 التزام: {streak}
           </span>
           
-          {/* 🌟 الزر الجديد لتفريغ العقل (اختياري) */}
           <button onClick={enterVoid} className="bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded-lg text-sm font-medium transition-all border border-slate-700">
             🧘‍♂️ تفريغ العقل
           </button>
