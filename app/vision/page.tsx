@@ -83,7 +83,6 @@ export default function UltimateVisionBoard() {
     };
   }, [sessionPhase]);
 
-  // تم حل مشكلة TypeScript هنا بتحويل النوع إلى any لتجاوز فحص Vercel
   const startBrainwaves = () => {
     try {
       const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
@@ -220,6 +219,14 @@ export default function UltimateVisionBoard() {
     window.speechSynthesis.speak(utterance);
   };
 
+  // 🌟 زر إعادة الضبط السري للتجارب
+  const resetSessionForTesting = () => {
+    localStorage.removeItem("lastCompletedDate");
+    setSessionWealth(0);
+    setSignature("");
+    setTuneValue(0);
+    setSessionPhase("void");
+  };
 
   if (isLocked) {
     return (
@@ -287,7 +294,7 @@ export default function UltimateVisionBoard() {
 
   if (sessionPhase === "complete") {
     return (
-      <div className="min-h-screen bg-black flex flex-col items-center justify-center text-center p-6">
+      <div className="min-h-screen bg-black flex flex-col items-center justify-center text-center p-6 relative">
         <div className="text-7xl mb-8">💎</div>
         <h1 className="text-4xl text-yellow-500 font-bold mb-4 tracking-widest">تم الختم والاعتماد</h1>
         <p className="text-slate-400 text-lg mb-12">تم تحويل طاقتك إلى رصيدك الباطني. الثروة تتدفق إليك الآن.</p>
@@ -301,6 +308,14 @@ export default function UltimateVisionBoard() {
             <p className="text-3xl font-bold text-emerald-400">SAR {accumulatedWealth}</p>
           </div>
         </div>
+        
+        {/* 🌟 الزر السري لإعادة الجلسة في مرحلة التجربة */}
+        <button 
+          onClick={resetSessionForTesting} 
+          className="absolute bottom-10 text-slate-800 hover:text-slate-500 text-xs tracking-widest transition-colors border-b border-transparent hover:border-slate-500 pb-1"
+        >
+          [ إعادة ضبط الجلسة للتجربة ]
+        </button>
       </div>
     );
   }
