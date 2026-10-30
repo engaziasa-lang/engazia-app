@@ -21,9 +21,6 @@ export default function UltimateVisionBoard() {
   const [timeRemaining, setTimeRemaining] = useState("");
   const [sessionWealth, setSessionWealth] = useState(0);
 
-  const [isTyping, setIsTyping] = useState(false);
-  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
   const [subliminalWord, setSubliminalWord] = useState("");
   const [showSubliminal, setShowSubliminal] = useState(false);
   const [goldenGlow, setGoldenGlow] = useState(false);
@@ -35,7 +32,6 @@ export default function UltimateVisionBoard() {
   const [negativeBelief, setNegativeBelief] = useState("");
   const [isBurning, setIsBurning] = useState(false);
 
-  // 🌟 الدخول المباشر للوحة العمل
   const [sessionPhase, setSessionPhase] = useState("work");
   
   const [signature, setSignature] = useState("");
@@ -111,7 +107,6 @@ export default function UltimateVisionBoard() {
     };
   }, [sessionPhase]);
 
-  // تشغيل الموجات عند أول تفاعل لضمان توافق المتصفح
   const initAudioIfNeeded = () => {
     if (!audioCtxRef.current) {
       startBrainwaves();
@@ -263,10 +258,6 @@ export default function UltimateVisionBoard() {
         setTimeout(() => setGoldenGlow(false), 800);
       }
     }
-
-    setIsTyping(true);
-    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
-    typingTimeoutRef.current = setTimeout(() => setIsTyping(false), 3000);
   };
 
   const handleBurn = () => {
@@ -317,7 +308,7 @@ export default function UltimateVisionBoard() {
     setSessionWealth(0);
     setSignature("");
     setHoldProgress(0);
-    setSessionPhase("work"); // العودة المباشرة للوحة العمل
+    setSessionPhase("work"); 
     setPunishmentApplied(false);
     setScript("");
   };
@@ -336,7 +327,6 @@ export default function UltimateVisionBoard() {
     );
   }
 
-  // 🌟 شاشة الفراغ (تظهر فقط عند اختيارك لها من لوحة العمل)
   if (sessionPhase === "void") {
     return (
       <div className="min-h-screen bg-black flex flex-col items-center justify-center text-center p-6 cursor-pointer relative" onClick={() => setSessionPhase("work")}>
@@ -448,7 +438,6 @@ export default function UltimateVisionBoard() {
         [ إعادة ضبط لاختبار المميزات ]
       </button>
 
-      {/* 🌟 إظهار رسائل التحذير والكبسولة أعلى لوحة العمل مباشرة إذا وجدت */}
       <div className="absolute top-2 left-0 w-full flex flex-col items-center gap-2 z-40 pointer-events-none">
         {punishmentApplied && (
           <div className="animate-[pulse_2s_ease-in-out_infinite]">
@@ -486,7 +475,8 @@ export default function UltimateVisionBoard() {
         </div>
       )}
 
-      <div className={`flex justify-between items-center mt-8 mb-8 border-b border-slate-900 pb-4 relative z-10 transition-opacity duration-1000 ${isTyping ? 'opacity-0' : 'opacity-100'}`}>
+      {/* 🌟 تم إزالة شروط الاختفاء (isTyping) من الشريط العلوي */}
+      <div className="flex justify-between items-center mt-8 mb-8 border-b border-slate-900 pb-4 relative z-10">
         <h1 className="text-2xl font-bold text-slate-100 tracking-wider">
           برمجة الوفرة <span className="text-blue-500">|</span> Wealth Vision
         </h1>
@@ -511,7 +501,8 @@ export default function UltimateVisionBoard() {
       <div className="flex-grow flex flex-col md:flex-row gap-10 h-full relative z-10">
         
         <div className="w-full md:w-2/3 flex flex-col relative h-full">
-          <p className={`text-slate-600 mb-2 text-sm font-medium absolute -top-6 transition-opacity duration-1000 ${isTyping ? 'opacity-0' : 'opacity-100'}`}>
+          {/* 🌟 تم إزالة شروط الاختفاء من التلميح النصي */}
+          <p className="text-slate-600 mb-2 text-sm font-medium absolute -top-6">
             اكتب بلسان اليقين والمضارع لتزيل الضباب...
           </p>
           <textarea
@@ -521,8 +512,9 @@ export default function UltimateVisionBoard() {
             onChange={(e) => handleScriptChange(e.target.value)}
           />
           
+          {/* 🌟 تم إزالة شروط الاختفاء من منطقة الأزرار السفلية والمحرقة */}
           <div className="flex gap-4 mt-auto mb-4">
-            <div className={`flex-grow bg-red-950/20 border border-red-900/30 p-4 rounded-2xl transition-all duration-1000 ${isBurning ? 'opacity-0 scale-95 blur-md' : 'opacity-100 scale-100'} ${isTyping ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+            <div className={`flex-grow bg-red-950/20 border border-red-900/30 p-4 rounded-2xl transition-all duration-1000 ${isBurning ? 'opacity-0 scale-95 blur-md' : 'opacity-100 scale-100'}`}>
               <h3 className="text-red-500/70 text-xs uppercase tracking-widest mb-2 font-bold">🔥 محرقة التحديات</h3>
               <div className="flex gap-3">
                 <input 
@@ -537,13 +529,14 @@ export default function UltimateVisionBoard() {
                 </button>
               </div>
             </div>
-            <button onClick={() => setSessionPhase("sign")} className={`bg-gradient-to-r from-yellow-600 to-yellow-800 text-white font-bold px-8 rounded-2xl shadow-[0_0_20px_rgba(202,138,4,0.3)] transition-all duration-1000 ${isTyping ? 'opacity-0 pointer-events-none' : 'opacity-100 hover:scale-105'}`}>
+            <button onClick={() => setSessionPhase("sign")} className="bg-gradient-to-r from-yellow-600 to-yellow-800 text-white font-bold px-8 rounded-2xl shadow-[0_0_20px_rgba(202,138,4,0.3)] transition-all duration-1000 hover:scale-105">
               ميثاق الختم 🔐
             </button>
           </div>
         </div>
 
-        <div className={`w-full md:w-1/3 flex flex-col gap-4 transition-opacity duration-1000 ${isTyping ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+        {/* 🌟 تم إزالة شروط الاختفاء من القائمة الجانبية بالكامل */}
+        <div className="w-full md:w-1/3 flex flex-col gap-4">
           <div className={`bg-[#050505] rounded-2xl p-5 shadow-lg border border-emerald-900/30 flex justify-between items-center relative overflow-hidden transition-all duration-300 ${glitchGlow ? 'border-red-900' : ''}`}>
              <div className="absolute inset-0 bg-gradient-to-r from-emerald-900/10 to-transparent"></div>
             <div className="relative z-10">
