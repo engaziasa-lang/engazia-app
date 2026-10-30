@@ -32,17 +32,22 @@ export default function UltimateVisionBoard() {
   const [negativeBelief, setNegativeBelief] = useState("");
   const [isBurning, setIsBurning] = useState(false);
 
-  // 🌟 حالات الابتكارات الجديدة
-  const [isTuned, setIsTuned] = useState(false);
+  // 🌟 مراحل الجلسة: void -> tune -> work -> sign -> complete
+  const [sessionPhase, setSessionPhase] = useState("void");
   const [tuneValue, setTuneValue] = useState(0);
-  const [isSessionCompleted, setIsSessionCompleted] = useState(false);
+  
+  // 🌟 التوقيع
+  const [signature, setSignature] = useState("");
+  const [signatureError, setSignatureError] = useState(false);
+
+  // 🌟 المولد الصوتي لموجات الدماغ
+  const audioCtxRef = useRef<any>(null);
 
   useEffect(() => {
-    // التحقق من تاريخ آخر جلسة مكتملة
     const lastDate = localStorage.getItem("lastCompletedDate");
     const today = new Date().toDateString();
     if (lastDate === today) {
-      setIsSessionCompleted(true);
+      setSessionPhase("complete");
     }
 
     const currentHour = new Date().getHours();
@@ -63,10 +68,11 @@ export default function UltimateVisionBoard() {
     setAccumulatedWealth(parseInt(localStorage.getItem("totalWealth") || "0"));
 
     const subliminalInterval = setInterval(() => {
-      const randomWord = subliminalWords[Math.floor(Math.random() * subliminalWords.length)];
-      setSubliminalWord(randomWord);
-      setShowSubliminal(true);
-      setTimeout(() => setShowSubliminal(false), 40);
+      if (sessionPhase === "work") {
+        setSubliminalWord(subliminalWords[Math.floor(Math.random() * subliminalWords.length)]);
+        setShowSubliminal(true);
+        setTimeout(() => setShowSubliminal(false), 40);
+      }
     }, 15000);
 
     const blurInterval = setInterval(() => {
@@ -76,13 +82,45 @@ export default function UltimateVisionBoard() {
     return () => {
       clearInterval(subliminalInterval);
       clearInterval(blurInterval);
+      if (audioCtxRef.current) audioCtxRef.current.close();
     };
-  }, []);
+  }, [sessionPhase]);
 
-  const playWealthChime = (highFreq = false) => {
+  // 🌟 بدء موجات ثيتا (Binaural Beats) في الخلفية
+  const startBrainwaves = () => {
     try {
       const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
       const ctx = new AudioContext();
+      audioCtxRef.current = ctx;
+
+      // الأذن اليسرى 432Hz
+      const oscLeft = ctx.createOscillator();
+      const panLeft = ctx.createStereoPanner ? ctx.createStereoPanner() : ctx.createPanner();
+      if (panLeft.pan) panLeft.pan.value = -1;
+      oscLeft.frequency.value = 432;
+      
+      // الأذن اليمنى 440Hz (الفارق 8Hz = موجات ثيتا للاسترخاء)
+      const oscRight = ctx.createOscillator();
+      const panRight = ctx.createStereoPanner ? ctx.createStereoPanner() : ctx.createPanner();
+      if (panRight.pan) panRight.pan.value = 1;
+      oscRight.frequency.value = 440;
+
+      const masterGain = ctx.createGain();
+      masterGain.gain.value = 0.05; // صوت خافت جداً وعميق
+
+      oscLeft.connect(panLeft).connect(masterGain);
+      oscRight.connect(panRight).connect(masterGain);
+      masterGain.connect(ctx.destination);
+
+      oscLeft.start();
+      oscRight.start();
+    } catch (e) {}
+  };
+
+  const playWealthChime = (highFreq = false) => {
+    try {
+      if (!audioCtxRef.current) return;
+      const ctx = audioCtxRef.current;
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = "sine";
@@ -96,35 +134,51 @@ export default function UltimateVisionBoard() {
     } catch (e) {}
   };
 
+  // 🌟 الانتقال من الفراغ إلى الموالف
+  const finishVoid = () => {
+    startBrainwaves();
+    setSessionPhase("tune");
+  };
+
   // 🌟 موالف النية
   const handleTune = (e: any) => {
     const val = parseInt(e.target.value);
     setTuneValue(val);
-    if (val === 888 && !isTuned) {
-      setIsTuned(true);
+    if (val === 888) {
       setGoldenGlow(true);
       playWealthChime(true);
-      setTimeout(() => setGoldenGlow(false), 1500);
+      setTimeout(() => {
+        setGoldenGlow(false);
+        setSessionPhase("work");
+      }, 1500);
     }
   };
 
-  // 🌟 ختم الجلسة
-  const sealSession = () => {
-    const today = new Date().toDateString();
-    localStorage.setItem("lastCompletedDate", today);
-    
-    const newStreak = streak + 1;
-    setStreak(newStreak);
-    localStorage.setItem("streakCount", newStreak.toString());
+  // 🌟 التحقق من التوقيع وختم الجلسة
+  const confirmSignatureAndSeal = () => {
+    if (signature.trim() === "جاسم راكان المطيري") {
+      const today = new Date().toDateString();
+      localStorage.setItem("lastCompletedDate", today);
+      
+      const newStreak = streak + 1;
+      setStreak(newStreak);
+      localStorage.setItem("streakCount", newStreak.toString());
 
-    const newWealth = accumulatedWealth + sessionWealth;
-    setAccumulatedWealth(newWealth);
-    localStorage.setItem("totalWealth", newWealth.toString());
+      const newWealth = accumulatedWealth + sessionWealth;
+      setAccumulatedWealth(newWealth);
+      localStorage.setItem("totalWealth", newWealth.toString());
 
-    localStorage.setItem("dailyScript", ""); // تفريغ النص للغد
-    
-    playWealthChime(true);
-    setIsSessionCompleted(true);
+      localStorage.setItem("dailyScript", ""); 
+      
+      playWealthChime(true);
+      if (audioCtxRef.current) {
+        audioCtxRef.current.close(); // إيقاف الموجات بعد الختم
+      }
+      setSessionPhase("complete");
+    } else {
+      setSignatureError(true);
+      setTimeout(() => setSignatureError(false), 2000);
+    }
   };
 
   const handleScriptChange = (text: string) => {
@@ -174,6 +228,8 @@ export default function UltimateVisionBoard() {
     window.speechSynthesis.speak(utterance);
   };
 
+  // ================= الشاشات =================
+
   if (isLocked) {
     return (
       <div className="min-h-screen bg-black flex flex-col items-center justify-center text-center p-6">
@@ -186,32 +242,88 @@ export default function UltimateVisionBoard() {
     );
   }
 
-  if (isSessionCompleted) {
+  // 🌟 شاشة العزل الحسي (The Void)
+  if (sessionPhase === "void") {
     return (
-      <div className="min-h-screen bg-black flex flex-col items-center justify-center text-center p-6">
-        <div className="text-6xl mb-6">💎</div>
-        <h1 className="text-3xl text-yellow-500 font-bold mb-2 tracking-widest">تم الختم بنجاح</h1>
-        <p className="text-slate-400 text-lg mb-8">أهدافك تترسخ في العقل الباطن وتتجلى في الواقع. استمتع بيومك.</p>
-        <div className="flex gap-6">
-          <div className="text-center">
-            <p className="text-slate-500 text-sm mb-1">أيام الالتزام</p>
-            <p className="text-2xl font-bold text-slate-200">🔥 {streak}</p>
-          </div>
-          <div className="text-center">
-            <p className="text-slate-500 text-sm mb-1">ثروتك التراكمية المبرمجة</p>
-            <p className="text-2xl font-bold text-emerald-400">SAR {accumulatedWealth}</p>
+      <div className="min-h-screen bg-black flex flex-col items-center justify-center text-center p-6 cursor-pointer" onClick={finishVoid}>
+        <div className="w-32 h-32 rounded-full border-2 border-slate-800 flex items-center justify-center animate-[pulse_4s_ease-in-out_infinite]">
+          <div className="w-16 h-16 rounded-full bg-slate-900/50 animate-[ping_4s_ease-in-out_infinite]"></div>
+        </div>
+        <p className="text-slate-500 mt-10 tracking-widest text-sm animate-pulse">خذ نفساً عميقاً لتفريغ عقلك...</p>
+        <p className="text-slate-700 mt-4 text-xs">اضغط في أي مكان للبدء</p>
+      </div>
+    );
+  }
+
+  // 🌟 شاشة الموالف
+  if (sessionPhase === "tune") {
+    return (
+      <div className={`min-h-screen bg-black flex flex-col items-center justify-center text-center p-6 transition-all duration-1000 ${goldenGlow ? 'bg-yellow-900/20' : ''}`}>
+        <h3 className="text-2xl text-yellow-500 mb-8 tracking-widest font-bold">اضبط تردد النية للبدء</h3>
+        <div className="text-7xl font-black text-slate-800 mb-12">{tuneValue}</div>
+        <input 
+          type="range" min="0" max="1000" value={tuneValue} onChange={handleTune}
+          className="w-full md:w-1/2 h-2 bg-slate-900 rounded-lg appearance-none cursor-pointer accent-yellow-500"
+        />
+        <p className="text-slate-600 text-sm mt-8">ابحث عن التردد 888 لفتح مسار الوفرة</p>
+      </div>
+    );
+  }
+
+  // 🌟 شاشة التوقيع الختامي
+  if (sessionPhase === "sign") {
+    return (
+      <div className="min-h-screen bg-black flex flex-col items-center justify-center text-center p-6 relative overflow-hidden">
+        <div className="bg-[#050505] border border-slate-800 p-10 rounded-3xl max-w-lg w-full relative z-10 shadow-2xl">
+          <h2 className="text-2xl text-emerald-400 font-bold mb-4">ميثاق الوفرة</h2>
+          <p className="text-slate-400 mb-8 text-sm leading-relaxed">
+            أقر وأعترف بأن أهدافي المكتوبة تتجلى الآن في الواقع، وأن سيولة بقيمة <span className="text-emerald-500 font-bold">{sessionWealth} ريال</span> قد تمت إضافتها لطاقتي.
+          </p>
+          <input 
+            type="text" 
+            className={`w-full bg-slate-950 border-b-2 ${signatureError ? 'border-red-500 text-red-400' : 'border-slate-700 text-slate-200 focus:border-emerald-500'} px-4 py-4 outline-none text-xl text-center mb-6 transition-colors`}
+            placeholder="اكتب اسمك الكامل للتوقيع"
+            value={signature}
+            onChange={(e) => setSignature(e.target.value)}
+          />
+          {signatureError && <p className="text-red-500 text-xs mb-4">يجب كتابة اسمك الكامل (جاسم راكان المطيري) للاعتماد</p>}
+          
+          <div className="flex gap-4">
+            <button onClick={() => setSessionPhase("work")} className="flex-1 bg-slate-900 hover:bg-slate-800 text-slate-400 py-3 rounded-xl transition-all">تراجع</button>
+            <button onClick={confirmSignatureAndSeal} className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition-all shadow-[0_0_15px_rgba(16,185,129,0.4)]">اعتماد وختم ✍️</button>
           </div>
         </div>
       </div>
     );
   }
 
+  // 🌟 شاشة الختام
+  if (sessionPhase === "complete") {
+    return (
+      <div className="min-h-screen bg-black flex flex-col items-center justify-center text-center p-6">
+        <div className="text-7xl mb-8">💎</div>
+        <h1 className="text-4xl text-yellow-500 font-bold mb-4 tracking-widest">تم الختم والاعتماد</h1>
+        <p className="text-slate-400 text-lg mb-12">تم تحويل طاقتك إلى رصيدك الباطني. الثروة تتدفق إليك الآن.</p>
+        <div className="flex gap-10">
+          <div className="text-center">
+            <p className="text-slate-600 text-sm mb-2">أيام الالتزام</p>
+            <p className="text-3xl font-bold text-slate-200">🔥 {streak}</p>
+          </div>
+          <div className="text-center">
+            <p className="text-slate-600 text-sm mb-2">رصيد الوفرة التراكمي</p>
+            <p className="text-3xl font-bold text-emerald-400">SAR {accumulatedWealth}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ================= واجهة العمل الرئيسية =================
   const blurAmount = Math.max(0, 15 - typingSpeed);
 
   return (
     <div className={`min-h-screen bg-black text-slate-300 font-sans flex flex-col p-6 md:p-10 transition-all duration-700 relative overflow-hidden ${goldenGlow ? 'shadow-[inset_0_0_150px_rgba(234,179,8,0.15)]' : ''}`}>
       
-      {/* 🌟 شرارة التدفق (تظهر فقط عند الكتابة السريعة) */}
       {typingSpeed > 10 && (
         <div className="absolute inset-0 pointer-events-none flex justify-around items-end opacity-50 z-0">
           {[...Array(10)].map((_, i) => (
@@ -226,8 +338,6 @@ export default function UltimateVisionBoard() {
         </div>
       )}
 
-      <audio src="/focus-audio.mp3" autoPlay loop muted={false} className="hidden" />
-
       <div className={`flex justify-between items-center mb-8 border-b border-slate-900 pb-4 relative z-10 transition-opacity duration-1000 ${isTyping ? 'opacity-0' : 'opacity-100'}`}>
         <h1 className="text-2xl font-bold text-slate-100 tracking-wider">
           برمجة الوفرة <span className="text-blue-500">|</span> Wealth Vision
@@ -236,10 +346,10 @@ export default function UltimateVisionBoard() {
           <span className="text-sm bg-slate-900 px-4 py-2 rounded-full border border-slate-800 shadow-inner">
             🔥 التزام: {streak}
           </span>
-          <button onClick={generateFromLibrary} disabled={!isTuned} className="bg-purple-600 disabled:opacity-30 hover:bg-purple-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all shadow-[0_0_15px_rgba(147,51,234,0.3)]">
+          <button onClick={generateFromLibrary} className="bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all shadow-[0_0_15px_rgba(147,51,234,0.3)]">
             توكيد مالي 💸
           </button>
-          <button onClick={speakScript} disabled={!isTuned} className={`px-5 py-2 rounded-lg text-sm font-medium transition-all shadow-[0_0_15px_rgba(37,99,235,0.4)] ${isSpeaking ? 'bg-emerald-600' : 'bg-blue-600'} disabled:opacity-30`}>
+          <button onClick={speakScript} className={`px-5 py-2 rounded-lg text-sm font-medium transition-all shadow-[0_0_15px_rgba(37,99,235,0.4)] ${isSpeaking ? 'bg-emerald-600' : 'bg-blue-600'}`}>
             {isSpeaking ? '🔊 جاري النطق...' : 'تشغيل الصوت 🔊'}
           </button>
         </div>
@@ -248,54 +358,37 @@ export default function UltimateVisionBoard() {
       <div className="flex-grow flex flex-col md:flex-row gap-10 h-full relative z-10">
         
         <div className="w-full md:w-2/3 flex flex-col relative h-full">
+          <p className={`text-slate-600 mb-2 text-sm font-medium absolute -top-6 transition-opacity duration-1000 ${isTyping ? 'opacity-0' : 'opacity-100'}`}>
+            اكتب بسرعة لتزيل الضباب...
+          </p>
+          <textarea
+            className="w-full flex-grow bg-transparent border-none outline-none resize-none text-xl md:text-3xl leading-relaxed placeholder-slate-900 text-slate-300 mt-2 font-light"
+            placeholder="اكتب أهدافك هنا..."
+            value={script}
+            onChange={(e) => handleScriptChange(e.target.value)}
+          />
           
-          {/* 🌟 موالف النية (يختفي بعد الضبط) */}
-          {!isTuned ? (
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/90 backdrop-blur-sm z-20 rounded-2xl border border-slate-800">
-              <h3 className="text-xl text-yellow-500 mb-6 tracking-widest font-bold">اضبط تردد النية للبدء</h3>
-              <div className="text-5xl font-black text-slate-700 mb-8">{tuneValue}</div>
-              <input 
-                type="range" min="0" max="1000" value={tuneValue} onChange={handleTune}
-                className="w-2/3 h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-yellow-500"
-              />
-              <p className="text-slate-500 text-sm mt-6">ابحث عن التردد 888 لفتح الجلسة</p>
-            </div>
-          ) : (
-            <>
-              <p className={`text-slate-600 mb-2 text-sm font-medium absolute -top-6 transition-opacity duration-1000 ${isTyping ? 'opacity-0' : 'opacity-100'}`}>
-                اكتب بسرعة لتزيل الضباب...
-              </p>
-              <textarea
-                className="w-full flex-grow bg-transparent border-none outline-none resize-none text-xl md:text-3xl leading-relaxed placeholder-slate-900 text-slate-300 mt-2 font-light"
-                placeholder="اكتب أهدافك هنا..."
-                value={script}
-                onChange={(e) => handleScriptChange(e.target.value)}
-              />
-              
-              <div className="flex gap-4 mt-auto mb-4">
-                <div className={`flex-grow bg-red-950/20 border border-red-900/30 p-4 rounded-2xl transition-all duration-1000 ${isBurning ? 'opacity-0 scale-95 blur-md' : 'opacity-100 scale-100'} ${isTyping ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-                  <h3 className="text-red-500/70 text-xs uppercase tracking-widest mb-2 font-bold">🔥 محرقة التحديات</h3>
-                  <div className="flex gap-3">
-                    <input 
-                      type="text" 
-                      className="flex-grow bg-slate-950 border border-red-900/50 rounded-lg px-4 py-2 outline-none text-sm text-red-200"
-                      placeholder="اكتب أي قلق مالي واحرقه..."
-                      value={negativeBelief}
-                      onChange={(e) => setNegativeBelief(e.target.value)}
-                    />
-                    <button onClick={handleBurn} className="bg-red-900/50 hover:bg-red-800 text-red-100 px-5 rounded-lg text-sm border border-red-800/50">
-                      احرق 💥
-                    </button>
-                  </div>
-                </div>
-
-                {/* 🌟 زر ختم الجلسة */}
-                <button onClick={sealSession} className={`bg-gradient-to-r from-yellow-600 to-yellow-800 text-white font-bold px-8 rounded-2xl shadow-[0_0_20px_rgba(202,138,4,0.3)] transition-all duration-1000 ${isTyping ? 'opacity-0 pointer-events-none' : 'opacity-100 hover:scale-105'}`}>
-                  ختم الجلسة 🔐
+          <div className="flex gap-4 mt-auto mb-4">
+            <div className={`flex-grow bg-red-950/20 border border-red-900/30 p-4 rounded-2xl transition-all duration-1000 ${isBurning ? 'opacity-0 scale-95 blur-md' : 'opacity-100 scale-100'} ${isTyping ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+              <h3 className="text-red-500/70 text-xs uppercase tracking-widest mb-2 font-bold">🔥 محرقة التحديات</h3>
+              <div className="flex gap-3">
+                <input 
+                  type="text" 
+                  className="flex-grow bg-slate-950 border border-red-900/50 rounded-lg px-4 py-2 outline-none text-sm text-red-200"
+                  placeholder="اكتب أي قلق مالي واحرقه..."
+                  value={negativeBelief}
+                  onChange={(e) => setNegativeBelief(e.target.value)}
+                />
+                <button onClick={handleBurn} className="bg-red-900/50 hover:bg-red-800 text-red-100 px-5 rounded-lg text-sm border border-red-800/50">
+                  احرق 💥
                 </button>
               </div>
-            </>
-          )}
+            </div>
+
+            <button onClick={() => setSessionPhase("sign")} className={`bg-gradient-to-r from-yellow-600 to-yellow-800 text-white font-bold px-8 rounded-2xl shadow-[0_0_20px_rgba(202,138,4,0.3)] transition-all duration-1000 ${isTyping ? 'opacity-0 pointer-events-none' : 'opacity-100 hover:scale-105'}`}>
+              توقيع الميثاق 🔐
+            </button>
+          </div>
         </div>
 
         <div className={`w-full md:w-1/3 flex flex-col gap-4 transition-opacity duration-1000 ${isTyping ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
