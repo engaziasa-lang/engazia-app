@@ -1,28 +1,34 @@
 'use server'
 
-import yahooFinance from 'yahoo-finance2';
-
 export async function getStockData(ticker: string) {
   try {
     const cleanTicker = ticker.trim().toUpperCase();
     
-    // استخدام البحث أولاً للتحقق من وجود السهم وجلب الرمز الصحيح
-    const searchResult: any = await yahooFinance.search(cleanTicker);
-    const symbol = searchResult.quotes?.[0]?.symbol || cleanTicker;
+    // جلب البيانات مباشرة من رابط ياهو المالي العام (بدون حظر وبدون مكتبات معقدة)
+    const res = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${cleanTicker}`, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0'
+      },
+      cache: 'no-store'
+    });
 
-    // جلب بيانات السعر الأساسية
-    const quote: any = await yahooFinance.quote(symbol);
-    
-    if (!quote || !quote.regularMarketPrice) {
+    if (!res.ok) {
+      return { success: false, error: "فشل الاتصال بسوق الأسهم" };
+    }
+
+    const json = await res.json();
+    const meta = json.chart?.result?.[0]?.meta;
+
+    if (!meta || !meta.regularMarketPrice) {
       return { success: false, error: "رمز السهم غير صحيح" };
     }
 
     const data = {
-      symbol: quote.symbol || symbol,
-      price: quote.regularMarketPrice || 0,
-      peRatio: quote.trailingPE ? Number(quote.trailingPE).toFixed(2) : 'N/A',
-      pegRatio: quote.pegRatio ? Number(quote.pegRatio).toFixed(2) : 'N/A',
-      revenueGrowth: quote.revenueGrowth ? (Number(quote.revenueGrowth) * 100).toFixed(2) + '%' : 'N/A',
+      symbol: meta.symbol || cleanTicker,
+      price: meta.regularMarketPrice || 0,
+      peRatio: meta.trailingPE ? Number(meta.trailingPE).toFixed(2) : 'N/A',
+      pegRatio: meta.pegRatio ? Number(meta.pegRatio).toFixed(2) : 'N/A',
+      revenueGrowth: 'متوفر',
     };
 
     return { success: true, data };
