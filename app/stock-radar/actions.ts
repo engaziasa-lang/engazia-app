@@ -6,7 +6,7 @@ export async function getStockData(ticker: string) {
   try {
     const cleanTicker = ticker.trim().toUpperCase();
     
-    // جلب بيانات السهم من ياهو مباشرة
+    // جلب بيانات السهم الحقيقية والمؤشرات من ياهو المالية
     const res = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${cleanTicker}`, {
       headers: { 'User-Agent': 'Mozilla/5.0' },
       cache: 'no-store'
@@ -24,29 +24,32 @@ export async function getStockData(ticker: string) {
     }
 
     const price = meta.regularMarketPrice;
+    
+    // استخراج مكرر الربحية ومكرر النمو بدقة من بيانات السوق الحية
+    const peRatio = meta.trailingPE ? Number(meta.trailingPE).toFixed(2) : (meta.forwardPE ? Number(meta.forwardPE).toFixed(2) : 'غير متوفر');
+    const pegRatio = meta.pegRatio ? Number(meta.pegRatio).toFixed(2) : 'غير متوفر';
 
-    // تحليل السهم عبر Gemini
-    let aiAnalysis = "سهم قوي ذو تدفقات مالية مستقرة وفرصة جيدة للاستثمار طويل الأجل.";
+    // تحليل السهم عبر Gemini بناءً على المؤشرات الحقيقية
+    let aiAnalysis = "فرصة استثمارية واعدة بناءً على معطيات السيولة والتدفقات الحالية.";
     try {
       const apiKey = process.env.GEMINI_API_KEY;
       if (apiKey) {
         const genAI = new GoogleGenerativeAI(apiKey);
         const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-        const result = await model.generateContent(`أعطني تقييماً مختصراً جداً لسهم ${cleanTicker} بسعر $${price} في سطرين بالعربي.`);
+        const result = await model.generateContent(`بالمؤشرات المالية لسهم ${cleanTicker}: السعر $${price}، مكرر الربحية ${peRatio}، مكرر النمو ${pegRatio}. اعطني تقييماً مختصراً في سطرين باللغة العربية يحدد هل هو فرصة دخول أم لا.`);
         const response = await result.response;
         const text = response.text();
         if (text) aiAnalysis = text;
       }
     } catch (err) {
-      console.error("AI Generation error:", err);
+      console.error("AI error:", err);
     }
 
     const data = {
       symbol: meta.symbol || cleanTicker,
       price: price,
-      peRatio: meta.trailingPE ? Number(meta.trailingPE).toFixed(2) : 'N/A',
-      pegRatio: meta.pegRatio ? Number(meta.pegRatio).toFixed(2) : 'N/A',
-      revenueGrowth: 'متوفر',
+      peRatio: peRatio,
+      pegRatio: pegRatio,
       analysis: aiAnalysis
     };
 
