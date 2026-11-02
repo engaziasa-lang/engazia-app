@@ -25,13 +25,14 @@ export async function getStockData(ticker: string) {
 
     const price = meta.regularMarketPrice;
 
-    // 2. تحليل السهم عبر Gemini باستخدام نموذج gemini-pro المستقر
+    // 2. تحليل السهم عبر Gemini باستخدام النموذج الأحدث المحدث
     let aiAnalysis = "تحليل الذكاء الاصطناعي غير متوفر مؤقتاً";
     try {
       const apiKey = process.env.GEMINI_API_KEY;
       if (apiKey) {
         const genAI = new GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+        // استخدام الصيغة المحدثة لنموذج الفلاش السريع
+        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
         const prompt = `أنت محلل مالي محترف لأسواق الأسهم. السهم هو ${cleanTicker} وسعره الحالي هو $${price}. أعطني تقييماً مختصراً جداً في سطرين باللغة العربية: هل يعتبر السهم فرصة استثمارية أم مبالغ في تقييمه؟`;
         
         const aiResult = await model.generateContent(prompt);
@@ -42,7 +43,7 @@ export async function getStockData(ticker: string) {
       }
     } catch (aiErr: any) {
       console.error("AI Error:", aiErr?.message || aiErr);
-      aiAnalysis = "تعذر توليد التحليل المالي حالياً";
+      aiAnalysis = "جاري تفعيل التحليل الذكي للسهم...";
     }
 
     const data = {
