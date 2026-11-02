@@ -6,7 +6,7 @@ export async function getStockData(ticker: string) {
   try {
     const cleanTicker = ticker.trim().toUpperCase();
     
-    // 1. جلب بيانات السهم من ياهو مباشرة (أساسي ومضمون)
+    // 1. جلب بيانات السهم من ياهو مباشرة
     const res = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${cleanTicker}`, {
       headers: { 'User-Agent': 'Mozilla/5.0' },
       cache: 'no-store'
@@ -25,14 +25,13 @@ export async function getStockData(ticker: string) {
 
     const price = meta.regularMarketPrice;
 
-    // 2. تحليل السهم عبر Gemini باستخدام النموذج الأحدث والأكثر استقراراً
+    // 2. تحليل السهم عبر Gemini باستخدام نموذج gemini-pro المستقر
     let aiAnalysis = "تحليل الذكاء الاصطناعي غير متوفر مؤقتاً";
     try {
       const apiKey = process.env.GEMINI_API_KEY;
       if (apiKey) {
         const genAI = new GoogleGenerativeAI(apiKey);
-        // استخدام النموذج المتوافق مع مفاتيح Google AI Studio الحديثة
-        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+        const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
         const prompt = `أنت محلل مالي محترف لأسواق الأسهم. السهم هو ${cleanTicker} وسعره الحالي هو $${price}. أعطني تقييماً مختصراً جداً في سطرين باللغة العربية: هل يعتبر السهم فرصة استثمارية أم مبالغ في تقييمه؟`;
         
         const aiResult = await model.generateContent(prompt);
@@ -40,12 +39,10 @@ export async function getStockData(ticker: string) {
         if (responseText) {
           aiAnalysis = responseText;
         }
-      } else {
-        aiAnalysis = "مفتاح الذكاء الاصطناعي غير معرف في السيرفر";
       }
     } catch (aiErr: any) {
-      console.error("AI Detailed Error:", aiErr?.message || aiErr);
-      aiAnalysis = `خطأ في الاتصال بالذكاء الاصطناعي: ${aiErr?.message || 'تحقق من المفتاح'}`;
+      console.error("AI Error:", aiErr?.message || aiErr);
+      aiAnalysis = "تعذر توليد التحليل المالي حالياً";
     }
 
     const data = {
