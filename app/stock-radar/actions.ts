@@ -6,19 +6,19 @@ export async function getStockData(ticker: string) {
   try {
     const cleanTicker = ticker.trim().toUpperCase();
     
-    // جلب البيانات الأساسية مباشرة باستخدام quote
-    const quote: any = await yahooFinance.quote(cleanTicker);
+    // استخدام دالة search أو quote مباشرة مع معالجة البيانات بأمان
+    const result: any = await yahooFinance.quote(cleanTicker);
     
-    if (!quote || !quote.regularMarketPrice) {
+    if (!result || !result.regularMarketPrice) {
       return { success: false, error: "رمز السهم غير صحيح" };
     }
 
     const data = {
-      symbol: quote.symbol || cleanTicker,
-      price: quote.regularMarketPrice || 0,
-      peRatio: quote.trailingPE ? quote.trailingPE.toFixed(2) : 'N/A',
-      pegRatio: quote.pegRatio ? quote.pegRatio.toFixed(2) : 'N/A',
-      revenueGrowth: quote.revenueGrowth ? (quote.revenueGrowth * 100).toFixed(2) + '%' : 'N/A',
+      symbol: result.symbol || cleanTicker,
+      price: result.regularMarketPrice || 0,
+      peRatio: result.trailingPE ? Number(result.trailingPE).toFixed(2) : 'N/A',
+      pegRatio: result.pegRatio ? Number(result.pegRatio).toFixed(2) : 'N/A',
+      revenueGrowth: result.revenueGrowth ? (Number(result.revenueGrowth) * 100).toFixed(2) + '%' : 'N/A',
     };
 
     return { success: true, data };
