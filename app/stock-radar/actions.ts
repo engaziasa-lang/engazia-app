@@ -2,11 +2,11 @@
 
 import yahooFinance from 'yahoo-finance2';
 
-// دالة لجلب البيانات المالية للسهم وتحليلها
 export async function getStockData(ticker: string) {
   try {
-    const quote = await yahooFinance.quote(ticker);
-    const summaryDetail = await yahooFinance.quoteSummary(ticker, {
+    // أضفنا : any لتخطي تدقيق TypeScript
+    const quote: any = await yahooFinance.quote(ticker);
+    const summaryDetail: any = await yahooFinance.quoteSummary(ticker, {
         modules: ['summaryDetail', 'financialData', 'defaultKeyStatistics']
     });
 
