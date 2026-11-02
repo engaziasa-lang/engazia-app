@@ -2,72 +2,94 @@
 
 import React, { useState, useEffect } from 'react';
 
+// تعريف واجهة البيانات للحصة
 interface WeeklyClass {
   id: string;
   dayName: string;
   sessionTitle: string;
   gregorianDateStr: string;
   hijriDateStr: string;
-  targetISO: string;       // بداية العد التنازلي
+  targetISO: string;       // بداية العد التنازلي (5:00 عصراً)
   endOfDayISO: string;     // نهاية اليوم (لكي تختفي الحصة بعد انتهائه)
   zoomLink: string;
 }
 
-const weeklyClasses: WeeklyClass[] = [
-  {
-    id: 'cls-sun',
-    dayName: 'الأحد',
-    sessionTitle: 'الحصة التدريبية الأولى',
-    gregorianDateStr: 'الأحد - 25 أكتوبر 2026',
-    hijriDateStr: '14 جمادى الأولى 1448 هـ',
-    targetISO: '2026-10-25T17:00:00',
-    endOfDayISO: '2026-10-25T23:59:59', // تنتهي بنهاية يوم الأحد
-    zoomLink: 'https://zoom.us/j/your-zoom-room-id'
-  },
-  {
-    id: 'cls-mon',
-    dayName: 'الاثنين',
-    sessionTitle: 'الحصة التدريبية الثانية',
-    gregorianDateStr: 'الاثنين - 26 أكتوبر 2026',
-    hijriDateStr: '15 جمادى الأولى 1448 هـ',
-    targetISO: '2026-10-26T17:00:00',
-    endOfDayISO: '2026-10-26T23:59:59', // تنتهي بنهاية يوم الاثنين
-    zoomLink: 'https://zoom.us/j/your-zoom-room-id'
-  },
-  {
-    id: 'cls-tue',
-    dayName: 'الثلاثاء',
-    sessionTitle: 'الحصة التدريبية الثالثة',
-    gregorianDateStr: 'الثلاثاء - 27 أكتوبر 2026',
-    hijriDateStr: '16 جمادى الأولى 1448 هـ',
-    targetISO: '2026-10-27T17:00:00',
-    endOfDayISO: '2026-10-27T23:59:59', // تنتهي بنهاية يوم الثلاثاء
-    zoomLink: 'https://zoom.us/j/your-zoom-room-id'
-  },
-  {
-    id: 'cls-wed',
-    dayName: 'الأربعاء',
-    sessionTitle: 'الحصة التدريبية الرابعة',
-    gregorianDateStr: 'الأربعاء - 28 أكتوبر 2026',
-    hijriDateStr: '17 جمادى الأولى 1448 هـ',
-    targetISO: '2026-10-28T17:00:00',
-    endOfDayISO: '2026-10-28T23:59:59', // تنتهي بنهاية يوم الأربعاء
-    zoomLink: 'https://zoom.us/j/your-zoom-room-id'
+// دالة لتوليد حصص الأسبوع تلقائياً بناءً على تاريخ اليوم
+function getDynamicClasses(): WeeklyClass[] {
+  const now = new Date();
+  const currentDayOfWeek = now.getDay(); // 0: الأحد, 1: الاثنين, ..., 6: السبت
+  
+  // تحديد يوم الأحد للأسبوع الحالي
+  let baseSunday = new Date(now);
+  baseSunday.setHours(0, 0, 0, 0);
+  baseSunday.setDate(now.getDate() - currentDayOfWeek);
+
+  // تحديد نهاية الأسبوع التدريبي (نهاية يوم الأربعاء الساعة 23:59)
+  let endOfWednesday = new Date(baseSunday);
+  endOfWednesday.setDate(baseSunday.getDate() + 3);
+  endOfWednesday.setHours(23, 59, 59, 999);
+
+  // إذا تجاوزنا يوم الأربعاء (أي نحن الآن في الخميس، الجمعة، أو السبت)
+  // قم بتحديث الجدول ليعرض حصص الأسبوع القادم تلقائياً
+  if (now.getTime() > endOfWednesday.getTime()) {
+    baseSunday.setDate(baseSunday.getDate() + 7);
   }
-];
+
+  // الأيام المطلوبة (الأحد 0، الاثنين 1، الثلاثاء 2، الأربعاء 3)
+  const daysOffset = [0, 1, 2, 3];
+  const zoomLink = "https://us05web.zoom.us/j/86930969173?pwd=s7u9oTvQSbd6OIeO5LJHG1nvlIzvCS.1";
+  const titles = ['الحصة التدريبية الأولى', 'الحصة التدريبية الثانية', 'الحصة التدريبية الثالثة', 'الحصة التدريبية الرابعة'];
+
+  // أدوات تهيئة التواريخ باللغة العربية
+  const gregFormatter = new Intl.DateTimeFormat('ar-SA', { numberingSystem: 'latn', weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  const hijriFormatter = new Intl.DateTimeFormat('ar-SA-u-ca-islamic', { numberingSystem: 'latn', day: 'numeric', month: 'long', year: 'numeric' });
+  const dayNameFormatter = new Intl.DateTimeFormat('ar-SA', { weekday: 'long' });
+
+  return daysOffset.map((offset) => {
+    const classDate = new Date(baseSunday);
+    classDate.setDate(baseSunday.getDate() + offset);
+
+    // توقيت بدء الحصة (الساعة 17:00 أي 5:00 عصراً)
+    const target = new Date(classDate);
+    target.setHours(17, 0, 0, 0);
+
+    // توقيت نهاية الحصة واختفائها (الساعة 23:59:59 من نفس اليوم)
+    const endOfDay = new Date(classDate);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    return {
+      id: `cls-${offset}`,
+      dayName: dayNameFormatter.format(classDate),
+      sessionTitle: titles[offset],
+      gregorianDateStr: gregFormatter.format(classDate).replace('،', ' -'),
+      hijriDateStr: `${hijriFormatter.format(classDate)} هـ`,
+      targetISO: target.toISOString(),
+      endOfDayISO: endOfDay.toISOString(),
+      zoomLink: zoomLink
+    };
+  });
+}
 
 export default function StudentHubPage() {
+  const [classes, setClasses] = useState<WeeklyClass[]>([]);
   const [timeLefts, setTimeLefts] = useState<Record<string, { days: number; hours: number; minutes: number; seconds: number; isExpired: boolean }>>({});
-  const [nowTime, setNowTime] = useState<number>(new Date().getTime());
+  const [nowTime, setNowTime] = useState<number>(0);
+  const [isClient, setIsClient] = useState<boolean>(false);
 
   useEffect(() => {
+    setIsClient(true); // لضمان التوافق مع SSR في Next.js وتجنب أخطاء Hydration
+
     const updateTimers = () => {
       const currentTimestamp = new Date().getTime();
       setNowTime(currentTimestamp);
 
+      // توليد الحصص أسبوعياً بشكل ديناميكي
+      const currentClasses = getDynamicClasses();
+      setClasses(currentClasses);
+
       const newTimeLefts: Record<string, any> = {};
       
-      weeklyClasses.forEach((cls) => {
+      currentClasses.forEach((cls) => {
         const targetTime = new Date(cls.targetISO).getTime();
         const difference = targetTime - currentTimestamp;
 
@@ -91,8 +113,17 @@ export default function StudentHubPage() {
     return () => clearInterval(interval);
   }, []);
 
+  // عدم عرض المحتوى قبل تحميل العميل لتجنب وميض التواريخ
+  if (!isClient) {
+    return (
+      <div className="min-h-[100dvh] bg-slate-100 flex items-center justify-center">
+        <div className="w-10 h-10 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
   // تصفية الحصص بحيث تختفي تلقائياً فور انتهاء يومها المحدد
-  const activeClasses = weeklyClasses.filter(cls => {
+  const activeClasses = classes.filter(cls => {
     const endTime = new Date(cls.endOfDayISO).getTime();
     return nowTime < endTime;
   });
@@ -206,7 +237,6 @@ export default function StudentHubPage() {
         )}
 
       </main>
-
     </div>
   );
 }
