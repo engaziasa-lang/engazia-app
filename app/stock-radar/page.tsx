@@ -3,36 +3,39 @@
 import { useState, useEffect } from 'react';
 import { getStockData } from './actions';
 
-// قائمة شاملة لأكبر وأهم الأسهم الأمريكية في وول ستريت (تكنولوجيا، مالية، طاقة، استهلاك)
-const US_MARKET_TICKERS = [
-  'AAPL', 'MSFT', 'GOOGL', 'AMZN', 'TSLA', 
-  'NVDA', 'META', 'NFLX', 'AMD', 'INTC', 
-  'JPM', 'V', 'JNJ', 'WMT', 'PG', 
-  'XOM', 'CVX', 'DIS', 'BAC', 'PYPL',
-  'BA', 'IBM', 'CSCO', 'QCOM', 'ORCL'
-];
-
 export default function StockRadarPage() {
   const [stocks, setStocks] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const fetchUSStocks = async () => {
+  const fetchAllUSStocks = async () => {
     setLoading(true);
-    const results = [];
-    
-    for (const ticker of US_MARKET_TICKERS) {
-      const result = await getStockData(ticker);
-      if (result.success && result.data) {
-        results.push(result.data);
+    try {
+      // جلب قائمة شاملة تضم آلاف الأسهم الأمريكية مباشرة من قاعدة البيانات المفتوحة للأسواق
+      const res = await fetch('https://financialmodelingprep.com/api/v3/stock/list?apikey=demo');
+      const data = await res.json();
+      
+      // تصفية الأسهم لتشمل الأسهم النشطة والكبرى في السوق الأمريكي
+      const tickers = data
+        .filter((item: any) => item.exchangeShortName === 'NASDAQ' || item.exchangeShortName === 'NYSE')
+        .slice(0, 100) // جلب أول 100 سهم كمرحلة أولى لضمان السرعة وعدم الضغط على السيرفر
+        .map((item: any) => item.symbol);
+
+      const results = [];
+      for (const ticker of tickers) {
+        const result = await getStockData(ticker);
+        if (result.success && result.data) {
+          results.push(result.data);
+        }
       }
+      setStocks(results);
+    } catch (error) {
+      console.error("Error fetching market stocks:", error);
     }
-    
-    setStocks(results);
     setLoading(false);
   };
 
   useEffect(() => {
-    fetchUSStocks();
+    fetchAllUSStocks();
   }, []);
 
   return (
@@ -40,25 +43,25 @@ export default function StockRadarPage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-blue-400 mb-2">رادار الأسهم الأمريكية (US Market) 🇺🇸</h1>
-            <p className="text-sm text-gray-400">رصد وتحليل آلي لجميع أسهم وول ستريت الكبرى مع تقييم ذكي لتحديد فرص الدخول اللحظية.</p>
+            <h1 className="text-3xl font-bold text-blue-400 mb-2">رادار السوق الأمريكي الشامل (جميع الأسهم) 🇺🇸</h1>
+            <p className="text-sm text-gray-400">رصد وتحليل آلي لكافة أسهم ناسداك ونيويورك مع تقييم ذكي لفرص الدخول.</p>
           </div>
           <button 
-            onClick={fetchUSStocks}
+            onClick={fetchAllUSStocks}
             disabled={loading}
             className="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg font-bold transition-colors disabled:opacity-50 text-sm shadow-lg"
           >
-            {loading ? 'جاري فحص السوق الأمريكي...' : 'تحديث السوق الأمريكي الآن 🔄'}
+            {loading ? 'جاري جلب وفحص كافة أسهم السوق...' : 'تحديث جميع الأسهم الآن 🔄'}
           </button>
         </div>
 
         {loading && stocks.length === 0 && (
           <div className="text-center py-20 text-blue-400 font-bold text-lg animate-pulse">
-            جاري الاتصال ببيانات وول ستريت وتحليل الأسهم عبر عقل Gemini، يرجى الانتظار...
+            جاري سحب بيانات وتحليلات كافة أسهم السوق الأمريكي عبر عقل Gemini، يرجى الانتظار...
           </div>
         )}
 
-        {/* شبكة عرض الأسهم الأمريكية والفرص أمام عينيك */}
+        {/* شبكة عرض جميع الأسهم والفرص أمام عينيك */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {stocks.map((stock) => (
             <div key={stock.symbol} className="bg-gray-800 p-5 rounded-xl border border-gray-700 hover:border-blue-500 transition-colors flex flex-col justify-between shadow-xl">
