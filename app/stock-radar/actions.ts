@@ -2,13 +2,11 @@
 
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
-
 export async function getStockData(ticker: string) {
   try {
     const cleanTicker = ticker.trim().toUpperCase();
     
-    // 1. جلب بيانات السهم من ياهو
+    // 1. جلب بيانات السهم من ياهو مباشرة (أساسي ومضمون)
     const res = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${cleanTicker}`, {
       headers: { 'User-Agent': 'Mozilla/5.0' },
       cache: 'no-store'
@@ -27,17 +25,19 @@ export async function getStockData(ticker: string) {
 
     const price = meta.regularMarketPrice;
 
-    // 2. تحليل السهم عبر عقل Gemini الذكي
-    let aiAnalysis = "تحليل غير متوفر حالياً";
+    // 2. محاولة تحليل السهم عبر Gemini بشكل آمن تماماً (لن يتوقف الكود لو فشل)
+    let aiAnalysis = "تحليل الذكاء الاصطناعي غير متوفر مؤقتاً";
     try {
-      const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-      const prompt = `أنت محلل مالي محترف لأسواق الأسهم. السهم هو ${cleanTicker} وسعره الحالي هو $${price}. 
-      أعطني تقييماً مختصراً جداً (في سطرين باللغة العربية) يتضمن: هل يعتبر السهم فرصة للاستثمار طويل الأجل أم مبالغ في تقييمه؟ كن دقيقاً ومباشراً.`;
-      
-      const aiResult = await model.generateContent(prompt);
-      aiAnalysis = aiResult.response.text();
+      if (process.env.GEMINI_API_KEY) {
+        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+        const prompt = `أنت محلل مالي محترف لأسواق الأسهم. السهم هو ${cleanTicker} وسعره الحالي هو $${price}. أعطني تقييماً مختصراً جداً في سطرين باللغة العربية: هل يعتبر السهم فرصة استثمارية أم مبالغ في تقييمه؟`;
+        
+        const aiResult = await model.generateContent(prompt);
+        aiAnalysis = aiResult.response.text();
+      }
     } catch (aiErr) {
-      console.error("AI Error:", aiErr);
+      console.error("AI Analysis skipped:", aiErr);
     }
 
     const data = {
