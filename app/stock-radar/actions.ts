@@ -25,19 +25,27 @@ export async function getStockData(ticker: string) {
 
     const price = meta.regularMarketPrice;
 
-    // 2. محاولة تحليل السهم عبر Gemini بشكل آمن تماماً (لن يتوقف الكود لو فشل)
+    // 2. تحليل السهم عبر Gemini باستخدام النموذج الأحدث والأكثر استقراراً
     let aiAnalysis = "تحليل الذكاء الاصطناعي غير متوفر مؤقتاً";
     try {
-      if (process.env.GEMINI_API_KEY) {
-        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+      const apiKey = process.env.GEMINI_API_KEY;
+      if (apiKey) {
+        const genAI = new GoogleGenerativeAI(apiKey);
+        // استخدام النموذج المتوافق مع مفاتيح Google AI Studio الحديثة
         const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
         const prompt = `أنت محلل مالي محترف لأسواق الأسهم. السهم هو ${cleanTicker} وسعره الحالي هو $${price}. أعطني تقييماً مختصراً جداً في سطرين باللغة العربية: هل يعتبر السهم فرصة استثمارية أم مبالغ في تقييمه؟`;
         
         const aiResult = await model.generateContent(prompt);
-        aiAnalysis = aiResult.response.text();
+        const responseText = aiResult.response.text();
+        if (responseText) {
+          aiAnalysis = responseText;
+        }
+      } else {
+        aiAnalysis = "مفتاح الذكاء الاصطناعي غير معرف في السيرفر";
       }
-    } catch (aiErr) {
-      console.error("AI Analysis skipped:", aiErr);
+    } catch (aiErr: any) {
+      console.error("AI Detailed Error:", aiErr?.message || aiErr);
+      aiAnalysis = `خطأ في الاتصال بالذكاء الاصطناعي: ${aiErr?.message || 'تحقق من المفتاح'}`;
     }
 
     const data = {
