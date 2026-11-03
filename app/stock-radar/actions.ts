@@ -57,22 +57,23 @@ export async function getStockData(ticker: string) {
     const isGoodEntryNow = price <= (lowest30Days * 1.03); 
     const entrySignal = isGoodEntryNow ? "🟢 فرصة دخول ممتازة حالياً" : "🟡 يفضل انتظار تصحيح السعر";
 
-    // تحديث دالة العائد التاريخي لحساب المبلغ الفعلي
+    // تحديث دالة العائد التاريخي لإرجاع السعر القديم أيضاً
     const getHistoricalReturn = (daysAgo: number) => {
       if (closes.length > daysAgo) {
         const pastPrice = closes[closes.length - 1 - daysAgo];
         const currentPrice = closes[closes.length - 1];
         if (pastPrice && currentPrice) {
-          const changeAmount = currentPrice - pastPrice; // حساب فرق السعر
+          const changeAmount = currentPrice - pastPrice; 
           const percentChange = (changeAmount / pastPrice) * 100;
           return { 
             value: Math.abs(percentChange).toFixed(1) + '%', 
-            amount: Math.abs(changeAmount).toFixed(2), // إضافة المبلغ
+            amount: Math.abs(changeAmount).toFixed(2), 
+            pastPrice: pastPrice.toFixed(2), // إضافة السعر القديم
             isPositive: changeAmount >= 0 
           };
         }
       }
-      return { value: '-', amount: '-', isPositive: true };
+      return { value: '-', amount: '-', pastPrice: '-', isPositive: true };
     };
 
     const stats = {
