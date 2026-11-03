@@ -6,7 +6,6 @@ export async function getStockData(ticker: string) {
   try {
     const cleanTicker = ticker.trim().toUpperCase();
     
-    // سحب بيانات 5 سنوات كاملة (لدينا بيانات كافية لحساب 3 سنوات و30 يوماً)
     const res = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${cleanTicker}?range=5y&interval=1d`, {
       headers: { 'User-Agent': 'Mozilla/5.0' },
       cache: 'no-store'
@@ -26,10 +25,12 @@ export async function getStockData(ticker: string) {
     const timestamps = result.timestamp || [];
     const closes = result.indicators?.quote?.[0]?.close || [];
     
-    // 1. حساب تقويم آخر 30 يوم عمل وإجمالي الأرباح/الخسائر
     const history30Days = [];
     let total30DaysChange = 0;
-
+    
+    // استخراج أسعار إغلاق آخر 30 يوماً لحساب سعر الدخول
+    const last30Closes = closes.slice(-30).filter((c: number | null) => c !== null);
+    
     if (closes.length >= 2) {
       for (let i = closes.length - 1; i > 0 && history30Days.length < 30; i--) {
         const todayPrice = closes[i];
@@ -51,8 +52,14 @@ export async function getStockData(ticker: string) {
       }
     }
 
-    // 2. حساب الإحصائيات التاريخية (نسبة مئوية للربح/الخسارة عبر السنين)
-    // متوسط أيام التداول: 3 أشهر ≈ 63 يوم، 6 أشهر ≈ 126، سنة ≈ 252، سنتين ≈ 504، 3 سنوات ≈ 756
+    // حساب السعر المحدد للدخول (أقل سعر دعم في آخر 30 يوماً + نسبة أمان طفيفة 1%)
+    const lowest30Days = Math.min(...last30Closes);
+    const suggestedEntryPrice = (lowest30Days * 1.01).toFixed(2);
+    
+    // تحديد إشارة الدخول آلياً
+    const isGoodEntryNow = price <= (lowest30Days * 1.03); // إذا كان السعر الحالي قريب جداً من القاع
+    const entrySignal = isGoodEntryNow ? "🟢 فرصة دخول ممتازة حالياً" : "🟡 يفضل انتظار تصحيح السعر";
+
     const getHistoricalReturn = (daysAgo: number) => {
       if (closes.length > daysAgo) {
         const pastPrice = closes[closes.length - 1 - daysAgo];
@@ -73,13 +80,12 @@ export async function getStockData(ticker: string) {
       y3: getHistoricalReturn(756),
     };
 
-    // 3. تحليل الذكاء الاصطناعي
-    let aiAnalysis = "سهم نشط ذو سيولة عالية.";
+    let aiAnalysis = "سهم نشط.";
     try {
       if (process.env.GEMINI_API_KEY) {
         const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
         const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-        const aiRes = await model.generateContent(`أعطني رأياً بسطر واحد بالعربي عن سهم ${cleanTicker} بسعر ${price}.`);
+        const aiRes = await model.generateContent(`بناءً على سعر ${price} لسهم ${cleanTicker} وسعر الدعم ${suggestedEntryPrice}، أعطني تقييماً بسطر واحد بالعربي هل الدخول الآن مناسب؟`);
         aiAnalysis = aiRes.response.text();
       }
     } catch (e) {}
@@ -95,7 +101,9 @@ export async function getStockData(ticker: string) {
         history30Days, 
         total30Days: Math.abs(total30DaysChange).toFixed(2),
         isTotalPositive: total30DaysChange >= 0,
-        stats 
+        stats,
+        suggestedEntryPrice, // السعر المحدد للدخول
+        entrySignal // إشارة الدخول
       } 
     };
   } catch (error) {
