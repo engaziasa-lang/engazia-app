@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { getStockData } from './actions';
 
-// قائمة العمالقة: أهم 500 شركة في وول ستريت (الأعلى سيولة وقيمة سوقية)
 const ALL_MARKET_TICKERS = [
   'AAPL', 'MSFT', 'NVDA', 'GOOGL', 'AMZN', 'META', 'TSLA', 'BRK-B', 'LLY', 'V', 
   'JPM', 'UNH', 'XOM', 'MA', 'JNJ', 'PG', 'HD', 'AVGO', 'CVX', 'MRK', 
@@ -75,9 +74,8 @@ export default function StockRadarPage() {
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
 
   const observer = useRef<IntersectionObserver | null>(null);
-  const BATCH_SIZE = 12; // تحميل 12 سهم في كل سحبة لضمان الأداء السريع
+  const BATCH_SIZE = 12;
 
-  // استرجاع وحفظ المفضلة
   useEffect(() => {
     const savedFavs = localStorage.getItem('stockRadarFavorites');
     if (savedFavs) {
@@ -116,7 +114,6 @@ export default function StockRadarPage() {
     }
   };
 
-  // تحميل دفعة جديدة من الأسهم عند التمرير
   const loadMoreStocks = async () => {
     if (isLoading || !hasMore || showFavoritesOnly) return; 
     setIsLoading(true);
@@ -142,7 +139,6 @@ export default function StockRadarPage() {
     setIsLoading(false);
   };
 
-  // البحث السريع
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!searchQuery.trim() || isSearching) return;
@@ -159,7 +155,6 @@ export default function StockRadarPage() {
     setIsSearching(false);
   };
 
-  // مراقب التمرير اللانهائي
   const lastStockElementRef = useCallback((node: HTMLDivElement | null) => {
     if (isLoading || showFavoritesOnly) return; 
     if (observer.current) observer.current.disconnect();
@@ -178,11 +173,9 @@ export default function StockRadarPage() {
     : stocks;
 
   return (
-    // التعديل الخاص بالجوال: p-4 بدلاً من p-8 للشاشات الصغيرة
     <main className="p-4 md:p-8 bg-gray-950 min-h-screen text-right font-sans text-white" dir="rtl">
       <div className="max-w-7xl mx-auto">
         
-        {/* الشريط العلوي الثابت */}
         <div className="mb-8 border-b border-gray-800 pb-6 sticky top-0 bg-gray-950/90 backdrop-blur z-10 p-4 rounded-xl shadow-sm">
           <div className="flex flex-col lg:flex-row justify-between items-center gap-4">
             
@@ -229,7 +222,6 @@ export default function StockRadarPage() {
           </div>
         </div>
 
-        {/* شبكة الأسهم */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {displayedStocks.map((stock, index) => {
             const isLast = index === displayedStocks.length - 1;
@@ -241,7 +233,6 @@ export default function StockRadarPage() {
                 ref={(!showFavoritesOnly && isLast) ? lastStockElementRef : null}
                 className={`bg-gray-900 p-5 rounded-2xl border ${isFav ? 'border-yellow-500/30 shadow-[0_0_15px_rgba(234,179,8,0.1)]' : 'border-gray-800 shadow-xl'} flex flex-col justify-between hover:border-blue-500/50 transition-all h-full`}
               >
-                {/* رأس المربع */}
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex items-center gap-2">
                     <button 
@@ -261,7 +252,6 @@ export default function StockRadarPage() {
                   </span>
                 </div>
 
-                {/* تحليل التوصيات */}
                 <div className="bg-gradient-to-r from-gray-800 to-gray-900 p-3 rounded-lg mb-4 border border-gray-700">
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-[11px] font-bold text-gray-400">السعر المحدد للدخول:</span>
@@ -273,7 +263,6 @@ export default function StockRadarPage() {
                   </p>
                 </div>
 
-                {/* تقويم 30 يوم */}
                 <div className="bg-gray-950/50 border border-gray-800 rounded-lg p-2 mb-3">
                   <h3 className="text-[10px] font-bold text-gray-400 mb-2 px-1">سجل التداول (آخر 30 يوم):</h3>
                   <div className="space-y-1 max-h-32 overflow-y-auto pl-1 custom-scrollbar">
@@ -294,7 +283,6 @@ export default function StockRadarPage() {
                   </div>
                 </div>
 
-                {/* العوائد التاريخية */}
                 <div className="mt-auto">
                   <h3 className="text-[10px] font-bold text-gray-500 mb-2 text-center">العائد التاريخي للسهم</h3>
                   <div className="grid grid-cols-5 gap-1 text-center">
@@ -305,15 +293,23 @@ export default function StockRadarPage() {
                       { label: 'سنتين', data: stock.stats?.y2 },
                       { label: '3 سنوات', data: stock.stats?.y3 }
                     ].map((stat, i) => (
-                      <div key={i} className="bg-gray-950 p-1 rounded-md border border-gray-800 flex flex-col justify-center items-center h-[52px]">
-                        <span className="text-[9px] text-gray-500 leading-tight">{stat.label}</span>
+                      <div key={i} className="bg-gray-950 p-1 rounded-md border border-gray-800 flex flex-col justify-center items-center min-h-[64px]">
+                        <span className="text-[9px] text-gray-500 leading-tight mb-0.5">{stat.label}</span>
+                        
                         <span className={`text-[10px] font-bold ${stat.data?.value === '-' ? 'text-gray-500' : (stat.data?.isPositive ? 'text-green-500' : 'text-red-500')}`}>
                           {stat.data?.value !== '-' ? (stat.data?.isPositive ? '+' : '-') : ''}{stat.data?.value}
                         </span>
+                        
                         {stat.data?.value !== '-' && (
-                          <span className={`text-[8px] font-semibold mt-0.5 opacity-80 ${stat.data?.isPositive ? 'text-green-500' : 'text-red-500'}`}>
-                            ${stat.data?.amount}
-                          </span>
+                          <div className="flex flex-col items-center mt-0.5">
+                            <span className={`text-[8px] font-semibold opacity-90 ${stat.data?.isPositive ? 'text-green-500' : 'text-red-500'}`}>
+                              ${stat.data?.amount}
+                            </span>
+                            {/* تمت إضافة السعر القديم هنا بخط رمادي ناعم */}
+                            <span className="text-[7px] text-gray-400 mt-0.5">
+                              السعر: ${stat.data?.pastPrice}
+                            </span>
+                          </div>
                         )}
                       </div>
                     ))}
@@ -324,7 +320,6 @@ export default function StockRadarPage() {
           })}
         </div>
 
-        {/* حالات الشاشة */}
         {showFavoritesOnly && displayedStocks.length === 0 && !isLoading && (
           <div className="text-center py-20 text-gray-500 font-bold text-lg">
             لا توجد أسهم في المفضلة حالياً. اضغط على أيقونة (☆) بجانب أي سهم لإضافته!
