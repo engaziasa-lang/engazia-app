@@ -19,6 +19,8 @@ export async function getStockData(ticker: string) {
     if (!meta || !meta.regularMarketPrice) return { success: false, error: "رمز غير صحيح" };
 
     const price = meta.regularMarketPrice;
+    const priceSAR = (price * 3.75).toFixed(2); // تحويل السعر للريال السعودي
+    
     const peRatio = meta.trailingPE ? Number(meta.trailingPE).toFixed(2) : 'غير متوفر';
     const pegRatio = meta.pegRatio ? Number(meta.pegRatio).toFixed(2) : 'غير متوفر';
 
@@ -57,7 +59,6 @@ export async function getStockData(ticker: string) {
     const isGoodEntryNow = price <= (lowest30Days * 1.03); 
     const entrySignal = isGoodEntryNow ? "🟢 فرصة دخول ممتازة حالياً" : "🟡 يفضل انتظار تصحيح السعر";
 
-    // تحديث دالة العائد التاريخي لإرجاع السعر القديم أيضاً
     const getHistoricalReturn = (daysAgo: number) => {
       if (closes.length > daysAgo) {
         const pastPrice = closes[closes.length - 1 - daysAgo];
@@ -68,7 +69,7 @@ export async function getStockData(ticker: string) {
           return { 
             value: Math.abs(percentChange).toFixed(1) + '%', 
             amount: Math.abs(changeAmount).toFixed(2), 
-            pastPrice: pastPrice.toFixed(2), // إضافة السعر القديم
+            pastPrice: pastPrice.toFixed(2),
             isPositive: changeAmount >= 0 
           };
         }
@@ -99,6 +100,7 @@ export async function getStockData(ticker: string) {
       data: { 
         symbol: meta.symbol, 
         price, 
+        priceSAR, // تمرير السعر بالريال
         peRatio, 
         pegRatio, 
         analysis: aiAnalysis, 
