@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { getStockData } from './actions';
 
-// القائمة الشاملة للأسهم (يمكنك إضافة آلاف الرموز هنا)
+// القائمة الشاملة للأسهم (تضم أكثر من 150 سهماً، ويمكنك إضافة المزيد)
 const ALL_MARKET_TICKERS = [
   'AAPL', 'MSFT', 'NVDA', 'GOOGL', 'AMZN', 'META', 'TSLA', 'V', 'JPM', 'UNH',
   'WMT', 'MA', 'JNJ', 'PG', 'HD', 'AVGO', 'CVX', 'MRK', 'KO', 'PEP',
@@ -45,7 +45,9 @@ export default function StockRadarPage() {
       return;
     }
 
-    const results = [];
+    // [الحل الجذري لخطأ Vercel]: تحديد نوع المصفوفة بشكل صريح كـ any[]
+    const results: any[] = [];
+    
     for (const ticker of nextBatch) {
       const result = await getStockData(ticker);
       if (result.success && result.data) {
@@ -85,7 +87,7 @@ export default function StockRadarPage() {
   return (
     <main className="p-8 bg-gray-950 min-h-screen text-right font-sans text-white" dir="rtl">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8 border-b border-gray-800 pb-6 flex justify-between items-center sticky top-0 bg-gray-950/90 backdrop-blur z-10 p-4 rounded-xl">
+        <div className="mb-8 border-b border-gray-800 pb-6 flex justify-between items-center sticky top-0 bg-gray-950/90 backdrop-blur z-10 p-4 rounded-xl shadow-sm">
           <div>
             <h1 className="text-3xl font-bold text-blue-500 mb-2">شاشة السوق الشاملة 📈</h1>
             <p className="text-sm text-gray-400">مرر للأسفل وسيستمر الموقع بجلب أسهم جديدة بلا توقف.</p>
