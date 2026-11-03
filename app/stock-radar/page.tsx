@@ -75,13 +75,25 @@ export default function StockRadarPage() {
 
   const observer = useRef<IntersectionObserver | null>(null);
   const BATCH_SIZE = 12;
+  const initialLoadDone = useRef(false);
 
+  // استرجاع البيانات المحفوظة (المفضلة والفهرس الحالي) عند بدء التطبيق
   useEffect(() => {
     const savedFavs = localStorage.getItem('stockRadarFavorites');
     if (savedFavs) {
       setFavorites(JSON.parse(savedFavs));
     }
+
+    const savedIndex = localStorage.getItem('stockRadarCurrentIndex');
+    if (savedIndex) {
+      setCurrentIndex(parseInt(savedIndex, 10));
+    }
   }, []);
+
+  // حفظ الفهرس الحالي كلما تغير
+  useEffect(() => {
+    localStorage.setItem('stockRadarCurrentIndex', currentIndex.toString());
+  }, [currentIndex]);
 
   useEffect(() => {
     localStorage.setItem('stockRadarFavorites', JSON.stringify(favorites));
@@ -114,10 +126,16 @@ export default function StockRadarPage() {
     }
   };
 
-  const loadMoreStocks = async () => {
-    if (isLoading || !hasMore || showFavoritesOnly) return; 
+  // تعديل وظيفة التحميل لدعم التحميل المبدئي بناءً على الفهرس المحفوظ
+  const loadMoreStocks = async (isInitial = false) => {
+    if ((isLoading || !hasMore || showFavoritesOnly) && !isInitial) return; 
+    
     setIsLoading(true);
-    const nextBatch = ALL_MARKET_TICKERS.slice(currentIndex, currentIndex + BATCH_SIZE);
+    
+    // إذا كان هذا هو التحميل الأول، قم بجلب جميع الأسهم حتى הפهرس الحالي، بحد أدنى دفعة واحدة
+    let targetIndex = isInitial ? Math.max(currentIndex, BATCH_SIZE) : currentIndex + BATCH_SIZE;
+    
+    const nextBatch = ALL_MARKET_TICKERS.slice(isInitial ? 0 : currentIndex, targetIndex);
     
     if (nextBatch.length === 0) {
       setHasMore(false);
@@ -134,8 +152,8 @@ export default function StockRadarPage() {
     }
 
     setStocks(prev => [...prev, ...results]);
-    setCurrentIndex(prev => prev + BATCH_SIZE);
-    if (currentIndex + BATCH_SIZE >= ALL_MARKET_TICKERS.length) setHasMore(false);
+    setCurrentIndex(targetIndex);
+    if (targetIndex >= ALL_MARKET_TICKERS.length) setHasMore(false);
     setIsLoading(false);
   };
 
@@ -162,10 +180,14 @@ export default function StockRadarPage() {
       if (entries[0].isIntersecting && hasMore) loadMoreStocks();
     });
     if (node) observer.current.observe(node);
-  }, [isLoading, hasMore, showFavoritesOnly]);
+  }, [isLoading, hasMore, showFavoritesOnly, currentIndex]);
 
+  // تنفيذ التحميل المبدئي مرة واحدة فقط
   useEffect(() => {
-    if (stocks.length === 0) loadMoreStocks();
+    if (stocks.length === 0 && !initialLoadDone.current) {
+        initialLoadDone.current = true;
+        loadMoreStocks(true);
+    }
   }, []);
 
   const displayedStocks = showFavoritesOnly 
@@ -278,7 +300,6 @@ export default function StockRadarPage() {
                     ))}
                   </div>
                   
-                  {/* تم تحديث قسم الصافي ليعرض الدولار وفوقه/تحته الريال */}
                   <div className="mt-2 pt-2 border-t border-gray-800 flex justify-between items-center px-1">
                     <span className="text-xs font-bold text-gray-300">صافي آخر 30 يوم:</span>
                     
