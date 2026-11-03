@@ -247,9 +247,13 @@ export default function StockRadarPage() {
                       <p className="text-[10px] text-gray-500 mt-1">PE: {stock.peRatio} | PEG: {stock.pegRatio}</p>
                     </div>
                   </div>
-                  <span className="bg-blue-950/50 text-blue-400 px-3 py-1.5 rounded-lg text-lg font-bold border border-blue-900/50">
-                    ${stock.price}
-                  </span>
+                  
+                  {/* الصندوق الجديد للسعر يجمع بين الدولار والريال */}
+                  <div className="flex flex-col items-center justify-center bg-blue-950/50 px-3 py-1.5 rounded-lg border border-blue-900/50 min-w-[80px]">
+                    <span className="text-blue-400 text-lg font-bold leading-tight">${stock.price}</span>
+                    <span className="text-gray-400 text-[10px] font-semibold mt-0.5">{stock.priceSAR} ر.س</span>
+                  </div>
+                  
                 </div>
 
                 <div className="bg-gradient-to-r from-gray-800 to-gray-900 p-3 rounded-lg mb-4 border border-gray-700">
@@ -305,7 +309,6 @@ export default function StockRadarPage() {
                             <span className={`text-[8px] font-semibold opacity-90 ${stat.data?.isPositive ? 'text-green-500' : 'text-red-500'}`}>
                               ${stat.data?.amount}
                             </span>
-                            {/* تمت إضافة السعر القديم هنا بخط رمادي ناعم */}
                             <span className="text-[7px] text-gray-400 mt-0.5">
                               السعر: ${stat.data?.pastPrice}
                             </span>
