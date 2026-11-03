@@ -61,7 +61,7 @@ const ALL_MARKET_TICKERS = [
   'WYNN', 'XEL', 'XLNX', 'XYL', 'YUM', 'ZBRA', 'ZBH', 'ZION'
 ];
 
-type Position = { symbol: string; shares: number; avgPrice: number };
+type Position = { symbol: string; shares: number; avgPrice: number; purchaseDate: string };
 type Portfolio = { cash: number; positions: Position[] };
 
 export default function StockRadarPage() {
@@ -86,7 +86,7 @@ export default function StockRadarPage() {
 
   const [tradeStock, setTradeStock] = useState<any>(null);
   const [tradeShares, setTradeShares] = useState<any>('');
-  const BROKER_COMMISSION = 2; // عمولة الوسيط الثابتة للعملية الواحدة (شراء أو بيع)
+  const BROKER_COMMISSION = 2;
 
   const currentIndexRef = useRef(0);
   const initialLoadDone = useRef(false);
@@ -274,9 +274,9 @@ export default function StockRadarPage() {
         return;
       }
       
-      // تقسيم عمولة الشراء (2$) على الأسهم وتضمينها في متوسط التكلفة
       const commissionPerShare = BROKER_COMMISSION / sharesNum;
       const effectivePricePerShare = stockPrice + commissionPerShare;
+      const currentDate = new Date().toLocaleDateString('ar-SA', { year: 'numeric', month: 'short', day: 'numeric' });
 
       setPortfolio(prev => {
         const newPositions = [...prev.positions];
@@ -288,7 +288,12 @@ export default function StockRadarPage() {
           existingPos.shares += sharesNum;
           existingPos.avgPrice = (previousTotalCost + currentTradeTotalCost) / existingPos.shares;
         } else {
-          newPositions.push({ symbol: tradeStock.symbol, shares: sharesNum, avgPrice: effectivePricePerShare });
+          newPositions.push({ 
+            symbol: tradeStock.symbol, 
+            shares: sharesNum, 
+            avgPrice: effectivePricePerShare, 
+            purchaseDate: currentDate 
+          });
         }
         return { cash: prev.cash - totalCost, positions: newPositions };
       });
@@ -301,7 +306,6 @@ export default function StockRadarPage() {
         return;
       }
 
-      // خصم عمولة البيع (2$) من إجمالي العائد الذي سيدخل للكاش
       const totalProceeds = totalSharesValue - BROKER_COMMISSION;
       
       setPortfolio(prev => {
@@ -504,16 +508,41 @@ export default function StockRadarPage() {
                   const isPos = profitLoss >= 0;
 
                   return (
-                    <div key={idx} className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-gray-950 p-4 rounded-lg border border-gray-800 gap-2">
+                    <div key={idx} className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-gray-950 p-4 rounded-lg border border-gray-800 gap-3">
                       <div>
-                        <h4 className="font-black text-lg text-white">{pos.symbol} <span className="text-xs font-normal text-gray-400">({pos.shares} سهم)</span></h4>
-                        <p className="text-xs text-gray-400">متوسط التكلفة (موزع بالعمولة): ${pos.avgPrice.toFixed(2)} | الحالي: ${currentPrice.toFixed(2)}</p>
-                      </div>
-                      <div className="text-left w-full sm:w-auto flex sm:flex-col justify-between items-center sm:items-end">
-                        <p className="text-sm font-bold text-white">${marketVal.toFixed(2)}</p>
-                        <p className={`text-xs font-black ${isPos ? 'text-green-500' : 'text-red-500'}`}>
-                          {isPos ? '+' : ''}${profitLoss.toFixed(2)} ({isPos ? '+' : ''}{profitLossPct.toFixed(1)}%)
+                        <div className="flex items-center gap-2">
+                          <h4 className="font-black text-lg text-white">{pos.symbol}</h4>
+                          <span className="text-xs bg-blue-950 text-blue-400 px-2 py-0.5 rounded border border-blue-900">
+                            {pos.shares} سهم
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-gray-400 mt-1">
+                          تاريخ الشراء: <span className="text-gray-300">{pos.purchaseDate || 'غير محدد'}</span>
                         </p>
+                        <p className="text-[11px] text-gray-400">
+                          متوسط التكلفة: ${pos.avgPrice.toFixed(2)} | الحالي: ${currentPrice.toFixed(2)}
+                        </p>
+                      </div>
+                      
+                      <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end">
+                        <div className="text-left">
+                          <p className="text-sm font-bold text-white">${marketVal.toFixed(2)}</p>
+                          <p className={`text-xs font-black ${isPos ? 'text-green-500' : 'text-red-500'}`}>
+                            {isPos ? '+' : ''}${profitLoss.toFixed(2)} ({isPos ? '+' : ''}{profitLossPct.toFixed(1)}%)
+                          </p>
+                        </div>
+                        
+                        {/* زر البيع السريع من داخل المحفظة */}
+                        <button 
+                          onClick={() => { 
+                            const stockObj = stocks.find(s => s.symbol === pos.symbol) || { symbol: pos.symbol, price: currentPrice };
+                            setTradeStock(stockObj); 
+                            setTradeShares(pos.shares.toString()); 
+                          }}
+                          className="bg-red-600/20 hover:bg-red-600 text-red-500 hover:text-white px-3 py-1.5 rounded-lg text-xs font-bold border border-red-600/50 transition-colors"
+                        >
+                          بيع ⚡
+                        </button>
                       </div>
                     </div>
                   );
@@ -647,9 +676,18 @@ export default function StockRadarPage() {
                   >
                     تداول السهم ⚖️
                   </button>
-                  {ownedPosition && (
-                    <div className="flex-1 bg-green-900/30 border border-green-800/50 rounded flex items-center justify-center text-[10px] font-bold text-green-500">
-                      تملك: {ownedPosition.shares} سهم
+                  
+                  {/* زر البيع السريع يظهر مباشرة إذا كنت تملك السهم */}
+                  {ownedPosition ? (
+                    <button 
+                      onClick={() => { setTradeStock(stock); setTradeShares(ownedPosition.shares.toString()); }}
+                      className="flex-1 bg-red-600/20 hover:bg-red-600 text-red-500 hover:text-white text-xs font-bold py-2 rounded border border-red-600/50 transition-colors"
+                    >
+                      بيع سريع ⚡ ({ownedPosition.shares})
+                    </button>
+                  ) : (
+                    <div className="flex-1 bg-gray-950 border border-gray-800 rounded flex items-center justify-center text-[10px] font-bold text-gray-500">
+                      غير مملك
                     </div>
                   )}
                 </div>
