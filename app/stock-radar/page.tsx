@@ -1,117 +1,98 @@
 'use client'
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { getStockData } from './actions';
 
-// قائمة استرشادية تظهر في القائمة المنسدلة عند الكتابة (يمكنك البحث عن أي سهم آخر أيضاً)
-const POPULAR_US_STOCKS = [
+// قائمة ضخمة لأهم أسهم السوق سيتم تحميلها تلقائياً بالتدريج
+const HUGE_MARKET_LIST = [
   'AAPL', 'MSFT', 'GOOGL', 'AMZN', 'TSLA', 'NVDA', 'META', 'NFLX', 'AMD', 'INTC',
-  'JPM', 'BAC', 'V', 'MA', 'JNJ', 'UNH', 'XOM', 'CVX', 'WMT', 'PG', 'BA', 'DIS'
+  'JPM', 'BAC', 'V', 'MA', 'JNJ', 'UNH', 'XOM', 'CVX', 'WMT', 'PG', 'BA', 'DIS',
+  'CSCO', 'ORCL', 'CRM', 'ADBE', 'PYPL', 'SQ', 'UBER', 'KO', 'PEP', 'MCD', 'NKE'
 ];
 
 export default function StockRadarPage() {
-  const [tickerInput, setTickerInput] = useState('');
   const [stocks, setStocks] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+  const loadedTickers = useRef(new Set());
 
-  const handleHuntStock = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!tickerInput.trim()) return;
+  // دالة التحميل المتتالي (تحميل الأسهم واحداً تلو الآخر لتجنب الضغط وتعليق الموقع)
+  useEffect(() => {
+    let isMounted = true;
+    
+    const loadAllStocks = async () => {
+      setIsLoading(true);
+      for (const ticker of HUGE_MARKET_LIST) {
+        if (!isMounted) break;
+        if (loadedTickers.current.has(ticker)) continue;
 
-    setLoading(true);
-    setError('');
+        const result = await getStockData(ticker);
+        if (result.success && result.data && isMounted) {
+          setStocks(prev => [...prev, result.data]);
+          loadedTickers.current.add(ticker);
+        }
+      }
+      if (isMounted) setIsLoading(false);
+    };
 
-    const result = await getStockData(tickerInput);
-    if (result.success && result.data) {
-      // إضافة السهم الجديد إلى بداية القائمة (بدون تكرار)
-      setStocks(prev => {
-        const filtered = prev.filter(s => s.symbol !== result.data.symbol);
-        return [result.data, ...filtered];
-      });
-      setTickerInput('');
-    } else {
-      setError(result.error || 'تأكد من صحة رمز السهم (مثال: AAPL)');
-    }
-    setLoading(false);
-  };
+    loadAllStocks();
+    return () => { isMounted = false; };
+  }, []);
 
   return (
-    <main className="p-8 bg-gray-900 min-h-screen text-right font-sans text-white" dir="rtl">
+    <main className="p-8 bg-gray-950 min-h-screen text-right font-sans text-white" dir="rtl">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-blue-400 mb-2">رادار السوق الأمريكي الذكي 🇺🇸</h1>
-          <p className="text-sm text-gray-400">ابحث عن أي سهم في وول ستريت واصطده ليتم تحليله فوراً وإضافته لرادارك.</p>
+        <div className="mb-8 border-b border-gray-800 pb-6 flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold text-blue-500 mb-2">شاشة التداول الشاملة 📈</h1>
+            <p className="text-sm text-gray-400">مراقبة حية لجميع الأسهم مع تقويم الأرباح والخسائر اليومية.</p>
+          </div>
+          <div className="text-sm font-bold bg-gray-900 px-4 py-2 rounded-lg text-blue-400">
+            {isLoading ? '⏳ جاري جلب باقي السوق...' : '✅ تم تحديث جميع الأسهم'}
+          </div>
         </div>
 
-        {/* شريط البحث مع القائمة المنسدلة */}
-        <form onSubmit={handleHuntStock} className="mb-8 bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-lg">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1">
-              <input
-                type="text"
-                list="us-stocks"
-                value={tickerInput}
-                onChange={(e) => setTickerInput(e.target.value.toUpperCase())}
-                placeholder="أدخل رمز السهم (مثال: TSLA) أو اختر من القائمة..."
-                className="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500"
-                disabled={loading}
-              />
-              <datalist id="us-stocks">
-                {POPULAR_US_STOCKS.map(ticker => (
-                  <option key={ticker} value={ticker} />
-                ))}
-              </datalist>
-            </div>
-            <button 
-              type="submit"
-              disabled={loading || !tickerInput.trim()}
-              className="bg-blue-600 hover:bg-blue-700 px-8 py-3 rounded-lg font-bold transition-colors disabled:opacity-50 min-w-[150px]"
-            >
-              {loading ? 'جاري التحليل...' : 'اصطياد السهم 🎯'}
-            </button>
-          </div>
-          {error && <p className="text-red-400 mt-3 text-sm font-bold">{error}</p>}
-        </form>
-
-        {/* شبكة الأسهم التي قمت باختيارها */}
+        {/* شبكة الأسهم والتقويم */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {stocks.map((stock) => (
-            <div key={stock.symbol} className="bg-gray-800 p-5 rounded-xl border border-gray-700 hover:border-blue-500 transition-colors flex flex-col justify-between shadow-xl">
-              <div>
-                <div className="flex justify-between items-center mb-3">
-                  <h2 className="text-xl font-extrabold text-gray-100">{stock.symbol}</h2>
-                  <span className="bg-blue-950 text-blue-300 px-3 py-1 rounded-full text-sm font-bold border border-blue-800">${stock.price}</span>
+            <div key={stock.symbol} className="bg-gray-900 p-5 rounded-2xl border border-gray-800 shadow-xl flex flex-col justify-between hover:border-blue-500/50 transition-all">
+              
+              {/* الرأس: السعر والرمز */}
+              <div className="flex justify-between items-start mb-4">
+                <div>
+                  <h2 className="text-2xl font-black text-white">{stock.symbol}</h2>
+                  <p className="text-xs text-gray-500 mt-1">PE: {stock.peRatio} | PEG: {stock.pegRatio}</p>
                 </div>
-                
-                <div className="space-y-2 text-xs text-gray-400 mb-4 border-b border-gray-700 pb-3">
-                  <div className="flex justify-between">
-                    <span>مكرر الربحية (PE):</span>
-                    <span className="font-bold text-white">{stock.peRatio}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>مكرر النمو (PEG):</span>
-                    <span className="font-bold text-white">{stock.pegRatio}</span>
-                  </div>
-                </div>
+                <span className="bg-blue-950/50 text-blue-400 px-3 py-1.5 rounded-lg text-lg font-bold border border-blue-900/50">
+                  ${stock.price}
+                </span>
+              </div>
 
-                <div className="bg-gray-900/90 p-3.5 rounded-lg border border-blue-500/40">
-                  <h3 className="text-xs font-bold text-blue-400 mb-1.5 flex items-center gap-1">
-                    ✨ تقييم وفرصة الدخول:
-                  </h3>
-                  <p className="text-xs text-gray-200 leading-relaxed">
-                    {stock.analysis}
-                  </p>
+              {/* رأي الذكاء الاصطناعي */}
+              <div className="bg-gray-800/50 p-3 rounded-lg mb-4 border border-gray-700/50">
+                <p className="text-xs text-gray-300 leading-relaxed">
+                  <span className="text-blue-400 font-bold">💡 رأي Gemini: </span>
+                  {stock.analysis}
+                </p>
+              </div>
+
+              {/* التقويم الصغير (الأرباح والخسائر اليومية) */}
+              <div className="mt-auto">
+                <h3 className="text-[10px] font-bold text-gray-500 mb-2">أداء الأيام السابقة:</h3>
+                <div className="space-y-1.5">
+                  {stock.history?.map((dayRecord: any, idx: number) => (
+                    <div key={idx} className="flex justify-between items-center bg-gray-950 p-2 rounded text-xs border border-gray-800">
+                      <span className="text-gray-400">{dayRecord.day}</span>
+                      <span className={`font-bold flex items-center gap-1 ${dayRecord.isPositive ? 'text-green-500' : 'text-red-500'}`}>
+                        {dayRecord.status} ${dayRecord.amount}
+                        {dayRecord.isPositive ? '▲' : '▼'}
+                      </span>
+                    </div>
+                  ))}
                 </div>
               </div>
+
             </div>
           ))}
-          
-          {stocks.length === 0 && !loading && (
-            <div className="col-span-full text-center py-12 text-gray-500">
-              لم تقم بإضافة أي أسهم بعد. ابدأ باختيار أسهمك من الشريط بالأعلى!
-            </div>
-          )}
         </div>
       </div>
     </main>
