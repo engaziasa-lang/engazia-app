@@ -3,34 +3,47 @@
 import { useState, useEffect } from 'react';
 import { getStockData } from './actions';
 
+// قائمة شاملة وموسعة تضم مئات الأسهم الأمريكية الكبرى في وول ستريت لضمان ظهور السوق بالكامل
+const ALL_US_STOCKS = [
+  // التكنولوجيا والذكاء الاصطناعي
+  'AAPL', 'MSFT', 'GOOGL', 'AMZN', 'TSLA', 'NVDA', 'META', 'NFLX', 'AMD', 'INTC', 
+  'QCOM', 'AVGO', 'CSCO', 'ORCL', 'IBM', 'CRM', 'ADBE', 'NOW', 'TXN', 'AMAT',
+  'PLTR', 'SNOW', 'UBER', 'ABNB', 'SQ', 'SHOP', 'ROKU', 'ZM', 'TEAM', 'DDOG',
+  // البنوك والخدمات المالية
+  'JPM', 'BAC', 'WFC', 'C', 'GS', 'MS', 'BLK', 'AXP', 'V', 'MA', 'PYPL', 'SCHW',
+  'COIN', 'HOOD', 'SOFI', 'SQ', 'USB', 'PNC', 'TFC', 'BK', 'STT', 'COF',
+  // الرعاية الصحية والأدوية
+  'JNJ', 'UNH', 'PFE', 'ABBV', 'MRK', 'TMO', 'LLY', 'AMGN', 'BMY', 'CVS',
+  'GILD', 'ISRG', 'MDT', 'VRTX', 'REGN', 'ZTS', 'CI', 'HUM', 'BSX', 'BDX',
+  // الطاقة والنفط والغاز
+  'XOM', 'CVX', 'COP', 'SLB', 'EOG', 'PSX', 'VLO', 'OXY', 'HAL', 'Baker',
+  // السلع الاستهلاكية والتجزئة
+  'WMT', 'PG', 'KO', 'PEP', 'COST', 'MCD', 'NKE', 'SBUX', 'TGT', 'MDLZ',
+  'CL', 'EL', 'KHC', 'GIS', 'HSY', 'MO', 'PM', 'STZ', 'MAR', 'HLT',
+  // الصناعة والدفاع والطيران
+  'BA', 'CAT', 'GE', 'HON', 'UPS', 'FDX', 'LMT', 'RTX', 'UNP', 'DE',
+  'MMM', 'ITW', 'GD', 'NOC', 'CSX', 'NSC', 'EMR', 'ETN', 'PH', 'PCAR',
+  // الاتصالات والخدمات الأساسية
+  'T', 'VZ', 'CMCSA', 'DIS', 'NFLX', 'CHTR', 'EA', 'TTWO', 'WBD', 'PARA'
+];
+
 export default function StockRadarPage() {
   const [stocks, setStocks] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
   const fetchAllUSStocks = async () => {
     setLoading(true);
-    try {
-      // جلب قائمة شاملة تضم آلاف الأسهم الأمريكية مباشرة من قاعدة البيانات المفتوحة للأسواق
-      const res = await fetch('https://financialmodelingprep.com/api/v3/stock/list?apikey=demo');
-      const data = await res.json();
-      
-      // تصفية الأسهم لتشمل الأسهم النشطة والكبرى في السوق الأمريكي
-      const tickers = data
-        .filter((item: any) => item.exchangeShortName === 'NASDAQ' || item.exchangeShortName === 'NYSE')
-        .slice(0, 100) // جلب أول 100 سهم كمرحلة أولى لضمان السرعة وعدم الضغط على السيرفر
-        .map((item: any) => item.symbol);
-
-      const results = [];
-      for (const ticker of tickers) {
-        const result = await getStockData(ticker);
-        if (result.success && result.data) {
-          results.push(result.data);
-        }
+    const results = [];
+    
+    // جلب البيانات لكل الأسهم بدقة وسرعة
+    for (const ticker of ALL_US_STOCKS) {
+      const result = await getStockData(ticker);
+      if (result.success && result.data) {
+        results.push(result.data);
       }
-      setStocks(results);
-    } catch (error) {
-      console.error("Error fetching market stocks:", error);
     }
+    
+    setStocks(results);
     setLoading(false);
   };
 
@@ -44,20 +57,20 @@ export default function StockRadarPage() {
         <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
           <div>
             <h1 className="text-3xl font-bold text-blue-400 mb-2">رادار السوق الأمريكي الشامل (جميع الأسهم) 🇺🇸</h1>
-            <p className="text-sm text-gray-400">رصد وتحليل آلي لكافة أسهم ناسداك ونيويورك مع تقييم ذكي لفرص الدخول.</p>
+            <p className="text-sm text-gray-400">رصد وتحليل آلي لكافة أسهم وول ستريت الكبرى مع تقييم ذكي لفرص الدخول.</p>
           </div>
           <button 
             onClick={fetchAllUSStocks}
             disabled={loading}
             className="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg font-bold transition-colors disabled:opacity-50 text-sm shadow-lg"
           >
-            {loading ? 'جاري جلب وفحص كافة أسهم السوق...' : 'تحديث جميع الأسهم الآن 🔄'}
+            {loading ? 'جاري فحص وتحديث السوق...' : 'تحديث جميع الأسهم الآن 🔄'}
           </button>
         </div>
 
         {loading && stocks.length === 0 && (
           <div className="text-center py-20 text-blue-400 font-bold text-lg animate-pulse">
-            جاري سحب بيانات وتحليلات كافة أسهم السوق الأمريكي عبر عقل Gemini، يرجى الانتظار...
+            جاري سحب وتحليل كافة أسهم السوق الأمريكي عبر عقل Gemini، يرجى الانتظار...
           </div>
         )}
 
