@@ -178,7 +178,8 @@ export default function StockRadarPage() {
     : stocks;
 
   return (
-    <main className="p-8 bg-gray-950 min-h-screen text-right font-sans text-white" dir="rtl">
+    // التعديل الخاص بالجوال: p-4 بدلاً من p-8 للشاشات الصغيرة
+    <main className="p-4 md:p-8 bg-gray-950 min-h-screen text-right font-sans text-white" dir="rtl">
       <div className="max-w-7xl mx-auto">
         
         {/* الشريط العلوي الثابت */}
