@@ -6,8 +6,7 @@ import { getStockData } from './actions';
 const ALL_MARKET_TICKERS = [
   'AAPL', 'MSFT', 'NVDA', 'GOOGL', 'AMZN', 'META', 'TSLA', 'V', 'JPM', 'UNH',
   'WMT', 'MA', 'JNJ', 'PG', 'HD', 'AVGO', 'CVX', 'MRK', 'KO', 'PEP',
-  'COST', 'ABBV', 'BAC', 'ADBE', 'MCD', 'CRM', 'CSCO', 'ACN', 'TMO', 'NFLX',
-  // يمكنك إضافة المزيد هنا
+  'COST', 'ABBV', 'BAC', 'ADBE', 'MCD', 'CRM', 'CSCO', 'ACN', 'TMO', 'NFLX'
 ];
 
 export default function StockRadarPage() {
@@ -16,7 +15,6 @@ export default function StockRadarPage() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   
-  // حالات البحث السريع
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
 
@@ -36,7 +34,6 @@ export default function StockRadarPage() {
 
     const results: any[] = [];
     for (const ticker of nextBatch) {
-      // التأكد من عدم تكرار السهم إذا تم البحث عنه مسبقاً
       if (!stocks.some(s => s.symbol === ticker)) {
         const result = await getStockData(ticker);
         if (result.success && result.data) results.push(result.data);
@@ -49,7 +46,6 @@ export default function StockRadarPage() {
     setIsLoading(false);
   };
 
-  // وظيفة البحث السريع
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!searchQuery.trim() || isSearching) return;
@@ -58,7 +54,6 @@ export default function StockRadarPage() {
     const result = await getStockData(searchQuery);
     
     if (result.success && result.data) {
-      // إضافة السهم المبحوث عنه في أعلى القائمة وإزالة التكرار إن وجد
       setStocks(prev => [result.data, ...prev.filter(s => s.symbol !== result.data.symbol)]);
       setSearchQuery('');
     } else {
@@ -90,7 +85,6 @@ export default function StockRadarPage() {
               <p className="text-sm text-gray-400">تحليل لحظي وتاريخي مع تحديد أفضل فرص وأسعار الدخول.</p>
             </div>
             
-            {/* شريط البحث السريع */}
             <form onSubmit={handleSearch} className="flex w-full md:w-auto gap-2">
               <input
                 type="text"
@@ -130,7 +124,6 @@ export default function StockRadarPage() {
                   </span>
                 </div>
 
-                {/* منطقة تحديد فرصة الدخول والسعر المستهدف */}
                 <div className="bg-gradient-to-r from-gray-800 to-gray-900 p-3 rounded-lg mb-4 border border-gray-700">
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-[11px] font-bold text-gray-400">السعر المحدد للدخول:</span>
@@ -172,11 +165,20 @@ export default function StockRadarPage() {
                       { label: 'سنتين', data: stock.stats?.y2 },
                       { label: '3 سنوات', data: stock.stats?.y3 }
                     ].map((stat, i) => (
-                      <div key={i} className="bg-gray-950 p-1 rounded-md border border-gray-800 flex flex-col justify-center items-center">
-                        <span className="text-[9px] text-gray-500">{stat.label}</span>
+                      <div key={i} className="bg-gray-950 p-1 rounded-md border border-gray-800 flex flex-col justify-center items-center h-[52px]">
+                        <span className="text-[9px] text-gray-500 leading-tight">{stat.label}</span>
+                        
+                        {/* النسبة المئوية */}
                         <span className={`text-[10px] font-bold ${stat.data?.value === '-' ? 'text-gray-500' : (stat.data?.isPositive ? 'text-green-500' : 'text-red-500')}`}>
                           {stat.data?.value !== '-' ? (stat.data?.isPositive ? '+' : '-') : ''}{stat.data?.value}
                         </span>
+                        
+                        {/* المبلغ المالي المضاف حديثاً أسفل النسبة */}
+                        {stat.data?.value !== '-' && (
+                          <span className={`text-[8px] font-semibold mt-0.5 opacity-80 ${stat.data?.isPositive ? 'text-green-500' : 'text-red-500'}`}>
+                            ${stat.data?.amount}
+                          </span>
+                        )}
                       </div>
                     ))}
                   </div>
