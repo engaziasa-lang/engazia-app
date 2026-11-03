@@ -1,80 +1,80 @@
 'use client'
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { getStockData } from './actions';
 
-// قائمة شاملة وموسعة تضم مئات الأسهم الأمريكية الكبرى في وول ستريت لضمان ظهور السوق بالكامل
-const ALL_US_STOCKS = [
-  // التكنولوجيا والذكاء الاصطناعي
-  'AAPL', 'MSFT', 'GOOGL', 'AMZN', 'TSLA', 'NVDA', 'META', 'NFLX', 'AMD', 'INTC', 
-  'QCOM', 'AVGO', 'CSCO', 'ORCL', 'IBM', 'CRM', 'ADBE', 'NOW', 'TXN', 'AMAT',
-  'PLTR', 'SNOW', 'UBER', 'ABNB', 'SQ', 'SHOP', 'ROKU', 'ZM', 'TEAM', 'DDOG',
-  // البنوك والخدمات المالية
-  'JPM', 'BAC', 'WFC', 'C', 'GS', 'MS', 'BLK', 'AXP', 'V', 'MA', 'PYPL', 'SCHW',
-  'COIN', 'HOOD', 'SOFI', 'SQ', 'USB', 'PNC', 'TFC', 'BK', 'STT', 'COF',
-  // الرعاية الصحية والأدوية
-  'JNJ', 'UNH', 'PFE', 'ABBV', 'MRK', 'TMO', 'LLY', 'AMGN', 'BMY', 'CVS',
-  'GILD', 'ISRG', 'MDT', 'VRTX', 'REGN', 'ZTS', 'CI', 'HUM', 'BSX', 'BDX',
-  // الطاقة والنفط والغاز
-  'XOM', 'CVX', 'COP', 'SLB', 'EOG', 'PSX', 'VLO', 'OXY', 'HAL', 'Baker',
-  // السلع الاستهلاكية والتجزئة
-  'WMT', 'PG', 'KO', 'PEP', 'COST', 'MCD', 'NKE', 'SBUX', 'TGT', 'MDLZ',
-  'CL', 'EL', 'KHC', 'GIS', 'HSY', 'MO', 'PM', 'STZ', 'MAR', 'HLT',
-  // الصناعة والدفاع والطيران
-  'BA', 'CAT', 'GE', 'HON', 'UPS', 'FDX', 'LMT', 'RTX', 'UNP', 'DE',
-  'MMM', 'ITW', 'GD', 'NOC', 'CSX', 'NSC', 'EMR', 'ETN', 'PH', 'PCAR',
-  // الاتصالات والخدمات الأساسية
-  'T', 'VZ', 'CMCSA', 'DIS', 'NFLX', 'CHTR', 'EA', 'TTWO', 'WBD', 'PARA'
+// قائمة استرشادية تظهر في القائمة المنسدلة عند الكتابة (يمكنك البحث عن أي سهم آخر أيضاً)
+const POPULAR_US_STOCKS = [
+  'AAPL', 'MSFT', 'GOOGL', 'AMZN', 'TSLA', 'NVDA', 'META', 'NFLX', 'AMD', 'INTC',
+  'JPM', 'BAC', 'V', 'MA', 'JNJ', 'UNH', 'XOM', 'CVX', 'WMT', 'PG', 'BA', 'DIS'
 ];
 
 export default function StockRadarPage() {
+  const [tickerInput, setTickerInput] = useState('');
   const [stocks, setStocks] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const fetchAllUSStocks = async () => {
+  const handleHuntStock = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!tickerInput.trim()) return;
+
     setLoading(true);
-    const results = [];
-    
-    // جلب البيانات لكل الأسهم بدقة وسرعة
-    for (const ticker of ALL_US_STOCKS) {
-      const result = await getStockData(ticker);
-      if (result.success && result.data) {
-        results.push(result.data);
-      }
+    setError('');
+
+    const result = await getStockData(tickerInput);
+    if (result.success && result.data) {
+      // إضافة السهم الجديد إلى بداية القائمة (بدون تكرار)
+      setStocks(prev => {
+        const filtered = prev.filter(s => s.symbol !== result.data.symbol);
+        return [result.data, ...filtered];
+      });
+      setTickerInput('');
+    } else {
+      setError(result.error || 'تأكد من صحة رمز السهم (مثال: AAPL)');
     }
-    
-    setStocks(results);
     setLoading(false);
   };
-
-  useEffect(() => {
-    fetchAllUSStocks();
-  }, []);
 
   return (
     <main className="p-8 bg-gray-900 min-h-screen text-right font-sans text-white" dir="rtl">
       <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-blue-400 mb-2">رادار السوق الأمريكي الشامل (جميع الأسهم) 🇺🇸</h1>
-            <p className="text-sm text-gray-400">رصد وتحليل آلي لكافة أسهم وول ستريت الكبرى مع تقييم ذكي لفرص الدخول.</p>
-          </div>
-          <button 
-            onClick={fetchAllUSStocks}
-            disabled={loading}
-            className="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg font-bold transition-colors disabled:opacity-50 text-sm shadow-lg"
-          >
-            {loading ? 'جاري فحص وتحديث السوق...' : 'تحديث جميع الأسهم الآن 🔄'}
-          </button>
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-blue-400 mb-2">رادار السوق الأمريكي الذكي 🇺🇸</h1>
+          <p className="text-sm text-gray-400">ابحث عن أي سهم في وول ستريت واصطده ليتم تحليله فوراً وإضافته لرادارك.</p>
         </div>
 
-        {loading && stocks.length === 0 && (
-          <div className="text-center py-20 text-blue-400 font-bold text-lg animate-pulse">
-            جاري سحب وتحليل كافة أسهم السوق الأمريكي عبر عقل Gemini، يرجى الانتظار...
+        {/* شريط البحث مع القائمة المنسدلة */}
+        <form onSubmit={handleHuntStock} className="mb-8 bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-lg">
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="flex-1">
+              <input
+                type="text"
+                list="us-stocks"
+                value={tickerInput}
+                onChange={(e) => setTickerInput(e.target.value.toUpperCase())}
+                placeholder="أدخل رمز السهم (مثال: TSLA) أو اختر من القائمة..."
+                className="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500"
+                disabled={loading}
+              />
+              <datalist id="us-stocks">
+                {POPULAR_US_STOCKS.map(ticker => (
+                  <option key={ticker} value={ticker} />
+                ))}
+              </datalist>
+            </div>
+            <button 
+              type="submit"
+              disabled={loading || !tickerInput.trim()}
+              className="bg-blue-600 hover:bg-blue-700 px-8 py-3 rounded-lg font-bold transition-colors disabled:opacity-50 min-w-[150px]"
+            >
+              {loading ? 'جاري التحليل...' : 'اصطياد السهم 🎯'}
+            </button>
           </div>
-        )}
+          {error && <p className="text-red-400 mt-3 text-sm font-bold">{error}</p>}
+        </form>
 
-        {/* شبكة عرض جميع الأسهم والفرص أمام عينيك */}
+        {/* شبكة الأسهم التي قمت باختيارها */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {stocks.map((stock) => (
             <div key={stock.symbol} className="bg-gray-800 p-5 rounded-xl border border-gray-700 hover:border-blue-500 transition-colors flex flex-col justify-between shadow-xl">
@@ -95,7 +95,6 @@ export default function StockRadarPage() {
                   </div>
                 </div>
 
-                {/* قسم فرصة الدخول وتقييم الذكاء الاصطناعي */}
                 <div className="bg-gray-900/90 p-3.5 rounded-lg border border-blue-500/40">
                   <h3 className="text-xs font-bold text-blue-400 mb-1.5 flex items-center gap-1">
                     ✨ تقييم وفرصة الدخول:
@@ -107,6 +106,12 @@ export default function StockRadarPage() {
               </div>
             </div>
           ))}
+          
+          {stocks.length === 0 && !loading && (
+            <div className="col-span-full text-center py-12 text-gray-500">
+              لم تقم بإضافة أي أسهم بعد. ابدأ باختيار أسهمك من الشريط بالأعلى!
+            </div>
+          )}
         </div>
       </div>
     </main>
