@@ -6,56 +6,63 @@ export async function getStockData(ticker: string) {
   try {
     const cleanTicker = ticker.trim().toUpperCase();
     
-    // جلب بيانات السهم الحقيقية والمؤشرات من ياهو المالية
-    const res = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${cleanTicker}`, {
+    // جلب بيانات 5 أيام سابقة لحساب أرباح وخسائر الأيام الماضية
+    const res = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${cleanTicker}?range=5d&interval=1d`, {
       headers: { 'User-Agent': 'Mozilla/5.0' },
       cache: 'no-store'
     });
 
-    if (!res.ok) {
-      return { success: false, error: "فشل الاتصال بالسوق" };
-    }
-
+    if (!res.ok) return { success: false, error: "فشل الاتصال" };
     const json = await res.json();
-    const meta = json.chart?.result?.[0]?.meta;
+    const result = json.chart?.result?.[0];
+    const meta = result?.meta;
 
-    if (!meta || !meta.regularMarketPrice) {
-      return { success: false, error: "رمز السهم غير صحيح" };
-    }
+    if (!meta || !meta.regularMarketPrice) return { success: false, error: "رمز غير صحيح" };
 
     const price = meta.regularMarketPrice;
-    
-    // استخراج مكرر الربحية ومكرر النمو بدقة من بيانات السوق الحية
-    const peRatio = meta.trailingPE ? Number(meta.trailingPE).toFixed(2) : (meta.forwardPE ? Number(meta.forwardPE).toFixed(2) : 'غير متوفر');
+    const peRatio = meta.trailingPE ? Number(meta.trailingPE).toFixed(2) : 'غير متوفر';
     const pegRatio = meta.pegRatio ? Number(meta.pegRatio).toFixed(2) : 'غير متوفر';
 
-    // تحليل السهم عبر Gemini بناءً على المؤشرات الحقيقية
-    let aiAnalysis = "فرصة استثمارية واعدة بناءً على معطيات السيولة والتدفقات الحالية.";
-    try {
-      const apiKey = process.env.GEMINI_API_KEY;
-      if (apiKey) {
-        const genAI = new GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-        const result = await model.generateContent(`بالمؤشرات المالية لسهم ${cleanTicker}: السعر $${price}، مكرر الربحية ${peRatio}، مكرر النمو ${pegRatio}. اعطني تقييماً مختصراً في سطرين باللغة العربية يحدد هل هو فرصة دخول أم لا.`);
-        const response = await result.response;
-        const text = response.text();
-        if (text) aiAnalysis = text;
+    // حساب تقويم الأرباح والخسائر للأيام الثلاثة الأخيرة
+    const timestamps = result.timestamp || [];
+    const closes = result.indicators?.quote?.[0]?.close || [];
+    const history = [];
+
+    if (closes.length >= 2) {
+      for (let i = closes.length - 1; i > 0 && history.length < 3; i--) {
+        const todayPrice = closes[i];
+        const yesterdayPrice = closes[i - 1];
+        if (!todayPrice || !yesterdayPrice) continue;
+        
+        const change = todayPrice - yesterdayPrice;
+        const dateObj = new Date(timestamps[i] * 1000);
+        const dayName = dateObj.toLocaleDateString('ar-SA', { weekday: 'long' });
+
+        history.push({
+          day: dayName,
+          status: change >= 0 ? 'ربح' : 'خسر',
+          amount: Math.abs(change).toFixed(2),
+          isPositive: change >= 0
+        });
       }
-    } catch (err) {
-      console.error("AI error:", err);
     }
 
-    const data = {
-      symbol: meta.symbol || cleanTicker,
-      price: price,
-      peRatio: peRatio,
-      pegRatio: pegRatio,
-      analysis: aiAnalysis
-    };
+    // تحليل سريع من الذكاء الاصطناعي
+    let aiAnalysis = "سهم نشط ذو سيولة عالية.";
+    try {
+      if (process.env.GEMINI_API_KEY) {
+        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+        const aiRes = await model.generateContent(`أعطني رأياً بسطر واحد بالعربي عن سهم ${cleanTicker} بسعر ${price}.`);
+        aiAnalysis = aiRes.response.text();
+      }
+    } catch (e) {}
 
-    return { success: true, data };
+    return { 
+      success: true, 
+      data: { symbol: meta.symbol, price, peRatio, pegRatio, analysis: aiAnalysis, history } 
+    };
   } catch (error) {
-    console.error(`Error fetching ${ticker}:`, error);
-    return { success: false, error: "فشل في جلب البيانات" };
+    return { success: false, error: "فشل الجلب" };
   }
 }
