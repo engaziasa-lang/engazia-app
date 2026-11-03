@@ -28,7 +28,6 @@ export async function getStockData(ticker: string) {
     const history30Days = [];
     let total30DaysChange = 0;
     
-    // استخراج أسعار إغلاق آخر 30 يوماً لحساب سعر الدخول
     const last30Closes = closes.slice(-30).filter((c: number | null) => c !== null);
     
     if (closes.length >= 2) {
@@ -52,24 +51,28 @@ export async function getStockData(ticker: string) {
       }
     }
 
-    // حساب السعر المحدد للدخول (أقل سعر دعم في آخر 30 يوماً + نسبة أمان طفيفة 1%)
     const lowest30Days = Math.min(...last30Closes);
     const suggestedEntryPrice = (lowest30Days * 1.01).toFixed(2);
     
-    // تحديد إشارة الدخول آلياً
-    const isGoodEntryNow = price <= (lowest30Days * 1.03); // إذا كان السعر الحالي قريب جداً من القاع
+    const isGoodEntryNow = price <= (lowest30Days * 1.03); 
     const entrySignal = isGoodEntryNow ? "🟢 فرصة دخول ممتازة حالياً" : "🟡 يفضل انتظار تصحيح السعر";
 
+    // تحديث دالة العائد التاريخي لحساب المبلغ الفعلي
     const getHistoricalReturn = (daysAgo: number) => {
       if (closes.length > daysAgo) {
         const pastPrice = closes[closes.length - 1 - daysAgo];
         const currentPrice = closes[closes.length - 1];
         if (pastPrice && currentPrice) {
-          const percentChange = ((currentPrice - pastPrice) / pastPrice) * 100;
-          return { value: Math.abs(percentChange).toFixed(1) + '%', isPositive: percentChange >= 0 };
+          const changeAmount = currentPrice - pastPrice; // حساب فرق السعر
+          const percentChange = (changeAmount / pastPrice) * 100;
+          return { 
+            value: Math.abs(percentChange).toFixed(1) + '%', 
+            amount: Math.abs(changeAmount).toFixed(2), // إضافة المبلغ
+            isPositive: changeAmount >= 0 
+          };
         }
       }
-      return { value: '-', isPositive: true };
+      return { value: '-', amount: '-', isPositive: true };
     };
 
     const stats = {
@@ -102,8 +105,8 @@ export async function getStockData(ticker: string) {
         total30Days: Math.abs(total30DaysChange).toFixed(2),
         isTotalPositive: total30DaysChange >= 0,
         stats,
-        suggestedEntryPrice, // السعر المحدد للدخول
-        entrySignal // إشارة الدخول
+        suggestedEntryPrice,
+        entrySignal 
       } 
     };
   } catch (error) {
