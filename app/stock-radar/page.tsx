@@ -64,7 +64,6 @@ const ALL_MARKET_TICKERS = [
 export default function StockRadarPage() {
   const [stocks, setStocks] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [currentIndex, setCurrentIndex] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   
   const [searchQuery, setSearchQuery] = useState('');
@@ -73,27 +72,20 @@ export default function StockRadarPage() {
   const [favorites, setFavorites] = useState<string[]>([]);
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
 
-  const observer = useRef<IntersectionObserver | null>(null);
-  const BATCH_SIZE = 12;
+  // استخدام useRef لحفظ الفهرس الحالي لضمان عدم ضياعه أثناء التحديثات
+  const currentIndexRef = useRef(0);
   const initialLoadDone = useRef(false);
+  const observer = useRef<IntersectionObserver | null>(null);
+  
+  const BATCH_SIZE = 12;
 
-  // استرجاع البيانات المحفوظة (المفضلة والفهرس الحالي) عند بدء التطبيق
+  // 1. استرجاع المفضلة عند فتح التطبيق
   useEffect(() => {
     const savedFavs = localStorage.getItem('stockRadarFavorites');
     if (savedFavs) {
       setFavorites(JSON.parse(savedFavs));
     }
-
-    const savedIndex = localStorage.getItem('stockRadarCurrentIndex');
-    if (savedIndex) {
-      setCurrentIndex(parseInt(savedIndex, 10));
-    }
   }, []);
-
-  // حفظ الفهرس الحالي كلما تغير
-  useEffect(() => {
-    localStorage.setItem('stockRadarCurrentIndex', currentIndex.toString());
-  }, [currentIndex]);
 
   useEffect(() => {
     localStorage.setItem('stockRadarFavorites', JSON.stringify(favorites));
@@ -126,16 +118,55 @@ export default function StockRadarPage() {
     }
   };
 
-  // تعديل وظيفة التحميل لدعم التحميل المبدئي بناءً على الفهرس المحفوظ
-  const loadMoreStocks = async (isInitial = false) => {
-    if ((isLoading || !hasMore || showFavoritesOnly) && !isInitial) return; 
-    
+  // 2. دالة التحميل الذكية (تقرأ الذاكرة فوراً وتجلب الأسهم المتأخرة)
+  const initializeStocks = async () => {
+    if (initialLoadDone.current) return;
+    initialLoadDone.current = true;
     setIsLoading(true);
+
+    let targetCount = BATCH_SIZE;
+    const savedIndex = localStorage.getItem('stockRadarCurrentIndex');
     
-    // إذا كان هذا هو التحميل الأول، قم بجلب جميع الأسهم حتى הפهرس الحالي، بحد أدنى دفعة واحدة
-    let targetIndex = isInitial ? Math.max(currentIndex, BATCH_SIZE) : currentIndex + BATCH_SIZE;
-    
-    const nextBatch = ALL_MARKET_TICKERS.slice(isInitial ? 0 : currentIndex, targetIndex);
+    // إذا وجدنا أن المستخدم وصل لرقم كبير (مثلا 48)، نجعله الهدف
+    if (savedIndex) {
+      const parsed = parseInt(savedIndex, 10);
+      if (!isNaN(parsed) && parsed > BATCH_SIZE) {
+        targetCount = parsed;
+      }
+    }
+
+    currentIndexRef.current = targetCount;
+    const batchToLoad = ALL_MARKET_TICKERS.slice(0, targetCount);
+
+    // جلب الأسهم على شكل دفعات متوازية ليكون التحميل سريعاً ولا يُجمد المتصفح
+    for (let i = 0; i < batchToLoad.length; i += BATCH_SIZE) {
+      const chunk = batchToLoad.slice(i, i + BATCH_SIZE);
+      const promises = chunk.map(ticker => getStockData(ticker));
+      const chunkResults = await Promise.all(promises);
+      const validResults = chunkResults.filter(r => r.success && r.data).map(r => r.data);
+      
+      setStocks(prev => {
+        const uniqueNew = validResults.filter(newStock => !prev.some(s => s.symbol === newStock.symbol));
+        return [...prev, ...uniqueNew];
+      });
+    }
+
+    if (targetCount >= ALL_MARKET_TICKERS.length) setHasMore(false);
+    setIsLoading(false);
+  };
+
+  // تشغيل التحميل الذكي مرة واحدة فقط عند فتح الصفحة
+  useEffect(() => {
+    initializeStocks();
+  }, []);
+
+  // 3. دالة التمرير لأسفل (تحفظ الفهرس الجديد في كل مرة تسحب فيها الشاشة)
+  const loadMoreStocks = async () => {
+    if (isLoading || !hasMore || showFavoritesOnly) return;
+    setIsLoading(true);
+
+    const currentIdx = currentIndexRef.current;
+    const nextBatch = ALL_MARKET_TICKERS.slice(currentIdx, currentIdx + BATCH_SIZE);
     
     if (nextBatch.length === 0) {
       setHasMore(false);
@@ -143,17 +174,22 @@ export default function StockRadarPage() {
       return;
     }
 
-    const results: any[] = [];
-    for (const ticker of nextBatch) {
-      if (!stocks.some(s => s.symbol === ticker)) {
-        const result = await getStockData(ticker);
-        if (result.success && result.data) results.push(result.data);
-      }
-    }
+    const promises = nextBatch.map(ticker => getStockData(ticker));
+    const chunkResults = await Promise.all(promises);
+    const validResults = chunkResults.filter(r => r.success && r.data).map(r => r.data);
 
-    setStocks(prev => [...prev, ...results]);
-    setCurrentIndex(targetIndex);
-    if (targetIndex >= ALL_MARKET_TICKERS.length) setHasMore(false);
+    setStocks(prev => {
+      const uniqueNew = validResults.filter(newStock => !prev.some(s => s.symbol === newStock.symbol));
+      return [...prev, ...uniqueNew];
+    });
+
+    const newIndex = currentIdx + BATCH_SIZE;
+    currentIndexRef.current = newIndex;
+    
+    // حفظ الرقم الجديد في الذاكرة (لكي نجده بعد التحديث)
+    localStorage.setItem('stockRadarCurrentIndex', newIndex.toString());
+    
+    if (newIndex >= ALL_MARKET_TICKERS.length) setHasMore(false);
     setIsLoading(false);
   };
 
@@ -180,15 +216,7 @@ export default function StockRadarPage() {
       if (entries[0].isIntersecting && hasMore) loadMoreStocks();
     });
     if (node) observer.current.observe(node);
-  }, [isLoading, hasMore, showFavoritesOnly, currentIndex]);
-
-  // تنفيذ التحميل المبدئي مرة واحدة فقط
-  useEffect(() => {
-    if (stocks.length === 0 && !initialLoadDone.current) {
-        initialLoadDone.current = true;
-        loadMoreStocks(true);
-    }
-  }, []);
+  }, [isLoading, hasMore, showFavoritesOnly]);
 
   const displayedStocks = showFavoritesOnly 
     ? stocks.filter(s => favorites.includes(s.symbol))
@@ -359,7 +387,7 @@ export default function StockRadarPage() {
 
         {isLoading && (
           <div className="text-center py-10 text-blue-400 font-bold text-lg animate-pulse">
-            جاري جلب الأسهم والتحليل المستمر...
+            جاري استرجاع الأسهم والتحليل المستمر...
           </div>
         )}
       </div>
