@@ -732,7 +732,7 @@ export default function StockRadarPage() {
                 onClick={handleToggleHalalView}
                 className={`px-4 py-2.5 rounded-xl text-sm font-bold border transition-all flex items-center gap-2 ${
                   showHalalOnly 
-                    ? 'bg-emerald-500/25 text-emerald-400 border-emerald-500/60 shadow-[0_0_12px_rgba(16,185,129,0.15)]' 
+                    ? 'bg-emerald-500/25 text-emerald-300 border-emerald-500/60 shadow-[0_0_12px_rgba(16,185,129,0.15)]' 
                     : 'bg-gray-900 text-gray-400 border-gray-800 hover:border-emerald-500/40 hover:text-emerald-400'
                 }`}
               >
@@ -885,22 +885,25 @@ export default function StockRadarPage() {
 
                 <div className="mt-auto">
                   <h3 className="text-[10px] font-bold text-gray-500 mb-2 text-center">العائد التاريخي للسهم</h3>
-                  <div className="grid grid-cols-5 gap-1 text-center">
+                  
+                  {/* --- التعديل هنا: استخدام شبكة من 3 أعمدة لتكوين صفين (6 عناصر) --- */}
+                  <div className="grid grid-cols-3 gap-1.5 text-center">
                     {[
                       { label: '3 أشهر', data: stock.stats?.m3 },
                       { label: '6 أشهر', data: stock.stats?.m6 },
                       { label: 'سنة', data: stock.stats?.y1 },
                       { label: 'سنتين', data: stock.stats?.y2 },
-                      { label: '3 سنوات', data: stock.stats?.y3 }
+                      { label: '3 سنوات', data: stock.stats?.y3 },
+                      { label: '5 سنوات', data: stock.stats?.y5 } // تمت إضافة 5 سنوات هنا
                     ].map((stat, i) => (
-                      <div key={i} className="bg-gray-950 p-1 rounded-md border border-gray-800 flex flex-col justify-center items-center min-h-[64px]">
+                      <div key={i} className="bg-gray-950 p-1.5 rounded-md border border-gray-800 flex flex-col justify-center items-center min-h-[64px]">
                         <span className="text-[9px] text-gray-500 leading-tight mb-0.5">{stat.label}</span>
                         
-                        <span className={`text-[10px] font-bold ${stat.data?.value === '-' ? 'text-gray-500' : (stat.data?.isPositive ? 'text-green-500' : 'text-red-500')}`}>
-                          {stat.data?.value !== '-' ? (stat.data?.isPositive ? '+' : '-') : ''}{stat.data?.value}
+                        <span className={`text-[10px] font-bold ${stat.data?.value === '-' || !stat.data ? 'text-gray-500' : (stat.data?.isPositive ? 'text-green-500' : 'text-red-500')}`}>
+                          {stat.data?.value !== '-' && stat.data ? (stat.data?.isPositive ? '+' : '-') : ''}{stat.data?.value || '-'}
                         </span>
                         
-                        {stat.data?.value !== '-' && (
+                        {stat.data?.value !== '-' && stat.data && (
                           <div className="flex flex-col items-center mt-0.5">
                             <span className={`text-[8px] font-semibold opacity-90 ${stat.data?.isPositive ? 'text-green-500' : 'text-red-500'}`}>
                               ${stat.data?.amount}
