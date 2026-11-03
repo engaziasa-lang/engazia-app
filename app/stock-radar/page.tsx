@@ -61,32 +61,30 @@ const ALL_MARKET_TICKERS = [
   'WYNN', 'XEL', 'XLNX', 'XYL', 'YUM', 'ZBRA', 'ZBH', 'ZION'
 ];
 
-// --- نظام التصنيف الشرعي الشامل وفق ضوابط الراجحي ---
-const getShariaStatus = (symbol: string) => {
-  const nonCompliantStocks = [
-    // 1. البنوك التقليدية والمؤسسات المالية الربوية
+// القيم الافتراضية للتصنيف الشرعي
+const DEFAULT_SHARIA_STATUS: Record<string, 'halal' | 'mixed' | 'haram'> = {};
+const initDefaultSharia = () => {
+  const haramStocks = [
     'JPM', 'BAC', 'C', 'GS', 'MS', 'WFC', 'BK', 'USB', 'TFC', 'PNC', 'COF', 'DFS', 'SCHW', 
     'AXP', 'SYF', 'STT', 'NTRS', 'FITB', 'MTB', 'KEY', 'RF', 'CFG', 'HBAN', 'CMA', 'ZION', 
-    'SBNY', 'SIVB', 'FRC', 'PBCT', 'SPGI', 'MCO',
-    // 2. شركات التأمين التجاري
-    'BRK-B', 'PGR', 'MET', 'AIG', 'TRV', 'ALL', 'AFL', 'HIG', 'CB', 'RE', 'AMP', 'AJG', 
-    'AIZ', 'PRU', 'PFG', 'BRO', 'CINF', 'L', 'WRB',
-    // 3. التبغ، الخمور، ولحوم الخنزير
-    'PM', 'MO', 'STZ', 'TAP', 'BF-B', 'TSN', 'HRL',
-    // 4. القمار، الفنادق، والترفيه المحرم
-    'MGM', 'CZR', 'WYNN', 'LVS', 'PENN', 'DKNG', 'DIS', 'NFLX', 'PARA', 'FOXA', 'FOX', 'LYV', 'MAR', 'HLT',
-    // 5. الأسلحة والدفاع
-    'LMT', 'RTX', 'GD', 'NOC', 'HII', 'TXT', 'BA',
-    // 6. شركات ذات ديون ربوية عالية تتجاوز المعيار (الاتصالات، الطيران، السياحة، السيارات)
-    'TMUS', 'T', 'VZ', 'CHTR', 'CMCSA', 'LUMN', 'CCL', 'RCL', 'NCLH', 'AAL', 'DAL', 'UAL', 'LUV', 'ALK', 'F', 'GM'
+    'SBNY', 'SIVB', 'FRC', 'PBCT', 'SPGI', 'MCO', 'BRK-B', 'PGR', 'MET', 'AIG', 'TRV', 'ALL', 
+    'AFL', 'HIG', 'CB', 'RE', 'AMP', 'AJG', 'AIZ', 'PRU', 'PFG', 'BRO', 'CINF', 'L', 'WRB',
+    'PM', 'MO', 'STZ', 'TAP', 'BF-B', 'TSN', 'HRL', 'MGM', 'CZR', 'WYNN', 'LVS', 'PENN', 
+    'DKNG', 'DIS', 'NFLX', 'PARA', 'FOXA', 'FOX', 'LYV', 'MAR', 'HLT', 'LMT', 'RTX', 'GD', 
+    'NOC', 'HII', 'TXT', 'BA', 'TMUS', 'T', 'VZ', 'CHTR', 'CMCSA', 'LUMN', 'CCL', 'RCL', 
+    'NCLH', 'AAL', 'DAL', 'UAL', 'LUV', 'ALK', 'F', 'GM'
+  ];
+  const mixedStocks = [
+    'XOM', 'CVX', 'IBM', 'CSCO', 'CAT', 'GE', 'UPS', 'FDX', 'NKE', 'SBUX', 'MCD', 'HD', 'LOW', 'WMT', 'COST'
   ];
 
-  if (nonCompliantStocks.includes(symbol)) {
-    return { label: 'غير متوافق 🔴', class: 'bg-red-950/60 text-red-400 border-red-800/60', desc: 'غير شرعي: نشاط محرم أو ديون تتجاوز 30%' };
-  } else {
-    return { label: 'متوافق (حلال) 🟢', class: 'bg-emerald-950/60 text-emerald-400 border-emerald-800/60', desc: 'متوافق شرعياً (يستوجب تطهير الأرباح)' };
-  }
+  ALL_MARKET_TICKERS.forEach(sym => {
+    if (haramStocks.includes(sym)) DEFAULT_SHARIA_STATUS[sym] = 'haram';
+    else if (mixedStocks.includes(sym)) DEFAULT_SHARIA_STATUS[sym] = 'mixed';
+    else DEFAULT_SHARIA_STATUS[sym] = 'halal';
+  });
 };
+initDefaultSharia();
 
 type Position = { symbol: string; shares: number; avgPrice: number; purchaseDate: string };
 type Portfolio = { id: string; name: string; cash: number; positions: Position[] };
@@ -102,6 +100,10 @@ export default function StockRadarPage() {
   const [favorites, setFavorites] = useState<string[]>([]);
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [showHalalOnly, setShowHalalOnly] = useState(false);
+
+  // حالة لتخزين التعديلات اليدوية للتصنيف الشرعي
+  const [customShariaOverrides, setCustomShariaOverrides] = useState<Record<string, 'halal' | 'mixed' | 'haram'>>({});
+  const [editingShariaSymbol, setEditingShariaSymbol] = useState<string | null>(null);
 
   const [portfolios, setPortfolios] = useState<Portfolio[]>([
     { id: '1', name: 'محفظتي الأساسية', cash: 10000, positions: [] }
@@ -129,16 +131,19 @@ export default function StockRadarPage() {
   
   const BATCH_SIZE = 12;
 
+  // جلب البيانات المحفوظة عند التحميل
   useEffect(() => {
     const savedFavs = localStorage.getItem('stockRadarFavorites');
     if (savedFavs) setFavorites(JSON.parse(savedFavs));
 
     const savedPortfolios = localStorage.getItem('stockRadarPortfolios');
-    if (savedPortfolios) {
-      setPortfolios(JSON.parse(savedPortfolios));
-    }
+    if (savedPortfolios) setPortfolios(JSON.parse(savedPortfolios));
+
+    const savedSharia = localStorage.getItem('stockRadarCustomSharia');
+    if (savedSharia) setCustomShariaOverrides(JSON.parse(savedSharia));
   }, []);
 
+  // حفظ التعديلات عند تغيرها
   useEffect(() => {
     localStorage.setItem('stockRadarFavorites', JSON.stringify(favorites));
   }, [favorites]);
@@ -147,12 +152,14 @@ export default function StockRadarPage() {
     localStorage.setItem('stockRadarPortfolios', JSON.stringify(portfolios));
   }, [portfolios]);
 
+  useEffect(() => {
+    localStorage.setItem('stockRadarCustomSharia', JSON.stringify(customShariaOverrides));
+  }, [customShariaOverrides]);
+
   const activePortfolio = portfolios.find(p => p.id === activePortfolioId) || portfolios[0];
 
   const toggleFavorite = (symbol: string) => {
-    setFavorites(prev => 
-      prev.includes(symbol) ? prev.filter(s => s !== symbol) : [...prev, symbol]
-    );
+    setFavorites(prev => prev.includes(symbol) ? prev.filter(s => s !== symbol) : [...prev, symbol]);
   };
 
   const handleToggleFavoritesView = () => {
@@ -163,6 +170,24 @@ export default function StockRadarPage() {
   const handleToggleHalalView = () => {
     setShowHalalOnly(!showHalalOnly);
     setShowFavoritesOnly(false);
+  };
+
+  // دالة تحديد حالة السهم مع الأخذ بالاعتبار التعديل اليدوي
+  const getShariaStatus = (symbol: string) => {
+    const status = customShariaOverrides[symbol] || DEFAULT_SHARIA_STATUS[symbol] || 'halal';
+    
+    if (status === 'haram') {
+      return { label: 'غير متوافق 🔴', class: 'bg-red-950/80 text-red-400 border-red-800', desc: 'غير شرعي', type: 'haram' };
+    } else if (status === 'mixed') {
+      return { label: 'مختلط 🟡', class: 'bg-yellow-950/80 text-yellow-400 border-yellow-800', desc: 'يحتاج تطهير', type: 'mixed' };
+    } else {
+      return { label: 'متوافق (حلال) 🟢', class: 'bg-emerald-950/80 text-emerald-400 border-emerald-800', desc: 'متوافق شرعياً', type: 'halal' };
+    }
+  };
+
+  const updateShariaStatus = (symbol: string, newStatus: 'halal' | 'mixed' | 'haram') => {
+    setCustomShariaOverrides(prev => ({ ...prev, [symbol]: newStatus }));
+    setEditingShariaSymbol(null);
   };
 
   const initializeStocks = async () => {
@@ -261,13 +286,7 @@ export default function StockRadarPage() {
       return;
     }
     const cashVal = Number(newPortfolioCash) || 0;
-    const newPort: Portfolio = {
-      id: Date.now().toString(),
-      name: newPortfolioName.trim(),
-      cash: cashVal,
-      positions: []
-    };
-
+    const newPort: Portfolio = { id: Date.now().toString(), name: newPortfolioName.trim(), cash: cashVal, positions: [] };
     setPortfolios(prev => [...prev, newPort]);
     setActivePortfolioId(newPort.id);
     setIsNewPortfolioOpen(false);
@@ -278,10 +297,7 @@ export default function StockRadarPage() {
 
   const handleDeposit = () => {
     const amount = Number(depositAmount);
-    if (!amount || amount <= 0) {
-      alert("الرجاء إدخال مبلغ صحيح للإيداع.");
-      return;
-    }
+    if (!amount || amount <= 0) return alert("الرجاء إدخال مبلغ صحيح للإيداع.");
     setPortfolios(prev => prev.map(p => p.id === activePortfolioId ? { ...p, cash: p.cash + amount } : p));
     setIsDepositOpen(false);
     setDepositAmount(''); 
@@ -290,14 +306,8 @@ export default function StockRadarPage() {
 
   const handleWithdraw = () => {
     const amount = Number(withdrawAmount);
-    if (!amount || amount <= 0) {
-      alert("الرجاء إدخال مبلغ صحيح للسحب.");
-      return;
-    }
-    if (amount > activePortfolio.cash) {
-      alert(`❌ رصيد الكاش المتاح (${activePortfolio.cash.toFixed(2)}$) لا يكفي.`);
-      return;
-    }
+    if (!amount || amount <= 0) return alert("الرجاء إدخال مبلغ صحيح للسحب.");
+    if (amount > activePortfolio.cash) return alert(`❌ رصيد الكاش المتاح (${activePortfolio.cash.toFixed(2)}$) لا يكفي.`);
     setPortfolios(prev => prev.map(p => p.id === activePortfolioId ? { ...p, cash: p.cash - amount } : p));
     setIsWithdrawOpen(false);
     setWithdrawAmount(''); 
@@ -306,10 +316,7 @@ export default function StockRadarPage() {
 
   const handleExecuteTrade = (type: 'buy' | 'sell') => {
     const sharesNum = Number(tradeShares);
-    if (!tradeStock || !sharesNum || sharesNum <= 0) {
-      alert("الرجاء إدخال عدد أسهم صحيح.");
-      return;
-    }
+    if (!tradeStock || !sharesNum || sharesNum <= 0) return alert("الرجاء إدخال عدد أسهم صحيح.");
     
     const stockSymbol = tradeStock.symbol;
     const stockPrice = parseFloat(tradeStock.price);
@@ -317,16 +324,10 @@ export default function StockRadarPage() {
 
     if (type === 'buy') {
       const isAlreadyOwnedElsewhere = portfolios.some(p => p.id !== activePortfolioId && p.positions.some(pos => pos.symbol === stockSymbol));
-      if (isAlreadyOwnedElsewhere) {
-        alert(`❌ عذراً، السهم (${stockSymbol}) موجود مسبقاً في محفظة أخرى ولا يمكن تكراره.`);
-        return;
-      }
+      if (isAlreadyOwnedElsewhere) return alert(`❌ عذراً، السهم (${stockSymbol}) موجود مسبقاً في محفظة أخرى.`);
 
       const totalCost = totalSharesValue + BROKER_COMMISSION;
-      if (activePortfolio.cash < totalCost) {
-        alert(`❌ رصيدك غير كافٍ. تحتاج إلى ${totalCost.toFixed(2)}$ (شاملة العمولة 2$).`);
-        return;
-      }
+      if (activePortfolio.cash < totalCost) return alert(`❌ رصيدك غير كافٍ. تحتاج إلى ${totalCost.toFixed(2)}$ (شاملة العمولة 2$).`);
       
       const commissionPerShare = BROKER_COMMISSION / sharesNum;
       const effectivePricePerShare = stockPrice + commissionPerShare;
@@ -347,30 +348,22 @@ export default function StockRadarPage() {
         }
         return { ...p, cash: p.cash - totalCost, positions: newPositions };
       }));
-
       alert(`✅ تم الشراء بنجاح في محفظة "${activePortfolio.name}"!`);
       
     } else if (type === 'sell') {
       const existingPos = activePortfolio.positions.find(pos => pos.symbol === stockSymbol);
-      if (!existingPos || existingPos.shares < sharesNum) {
-        alert("❌ لا تملك هذا العدد من السهم في هذه المحفظة للبيع.");
-        return;
-      }
+      if (!existingPos || existingPos.shares < sharesNum) return alert("❌ لا تملك هذا العدد من السهم في هذه المحفظة للبيع.");
 
       const totalProceeds = totalSharesValue - BROKER_COMMISSION;
       
       setPortfolios(prev => prev.map(p => {
         if (p.id !== activePortfolioId) return p;
         let newPositions = p.positions.map(pos => {
-          if (pos.symbol === stockSymbol) {
-            return { ...pos, shares: pos.shares - sharesNum };
-          }
+          if (pos.symbol === stockSymbol) return { ...pos, shares: pos.shares - sharesNum };
           return pos;
         }).filter(pos => pos.shares > 0);
-
         return { ...p, cash: p.cash + totalProceeds, positions: newPositions };
       }));
-
       alert(`✅ تم البيع بنجاح وتمت إضافة ${totalProceeds.toFixed(2)}$ للكاش.`);
     }
 
@@ -397,13 +390,48 @@ export default function StockRadarPage() {
   if (showFavoritesOnly) {
     displayedStocks = stocks.filter(s => favorites.includes(s.symbol));
   } else if (showHalalOnly) {
-    displayedStocks = stocks.filter(s => getShariaStatus(s.symbol).label.includes('حلال'));
+    displayedStocks = stocks.filter(s => getShariaStatus(s.symbol).type === 'halal');
   }
 
   return (
     <main className="p-4 md:p-8 bg-gray-950 min-h-screen text-right font-sans text-white" dir="rtl">
       
-      {/* نافذة إنشاء محفظة جديدة */}
+      {/* نافذة تعديل التصنيف الشرعي */}
+      {editingShariaSymbol && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[80] p-4">
+          <div className="bg-gray-900 border border-gray-700 p-6 rounded-2xl shadow-2xl max-w-xs w-full text-center">
+            <h3 className="text-lg font-bold text-white mb-2">تعديل التصنيف الشرعي</h3>
+            <p className="text-sm text-gray-400 mb-6">سهم: <span className="font-black text-blue-400">{editingShariaSymbol}</span></p>
+            
+            <div className="flex flex-col gap-3">
+              <button 
+                onClick={() => updateShariaStatus(editingShariaSymbol, 'halal')}
+                className="bg-emerald-900/50 hover:bg-emerald-600 text-emerald-400 hover:text-white py-2.5 rounded-lg border border-emerald-800 font-bold transition-colors"
+              >
+                متوافق (حلال) 🟢
+              </button>
+              <button 
+                onClick={() => updateShariaStatus(editingShariaSymbol, 'mixed')}
+                className="bg-yellow-900/50 hover:bg-yellow-600 text-yellow-400 hover:text-white py-2.5 rounded-lg border border-yellow-800 font-bold transition-colors"
+              >
+                مختلط 🟡
+              </button>
+              <button 
+                onClick={() => updateShariaStatus(editingShariaSymbol, 'haram')}
+                className="bg-red-900/50 hover:bg-red-600 text-red-400 hover:text-white py-2.5 rounded-lg border border-red-800 font-bold transition-colors"
+              >
+                غير متوافق 🔴
+              </button>
+            </div>
+            
+            <button onClick={() => setEditingShariaSymbol(null)} className="mt-6 text-gray-500 hover:text-white text-sm font-bold">
+              إلغاء
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* باقي النوافذ (إيداع، سحب، محفظة جديدة، تداول...) */}
       {isNewPortfolioOpen && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[70] p-4">
           <div className="bg-gray-900 border border-gray-700 p-6 rounded-2xl shadow-2xl max-w-sm w-full">
@@ -442,7 +470,6 @@ export default function StockRadarPage() {
         </div>
       )}
 
-      {/* نافذة الإيداع */}
       {isDepositOpen && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[60] p-4">
           <div className="bg-gray-900 border border-gray-700 p-6 rounded-2xl shadow-2xl max-w-sm w-full">
@@ -469,7 +496,6 @@ export default function StockRadarPage() {
         </div>
       )}
 
-      {/* نافذة السحب */}
       {isWithdrawOpen && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[60] p-4">
           <div className="bg-gray-900 border border-gray-700 p-6 rounded-2xl shadow-2xl max-w-sm w-full">
@@ -498,7 +524,6 @@ export default function StockRadarPage() {
         </div>
       )}
 
-      {/* نافذة التداول السريعة */}
       {tradeStock && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
           <div className="bg-gray-900 border border-gray-700 p-6 rounded-2xl shadow-2xl max-w-sm w-full">
@@ -551,7 +576,6 @@ export default function StockRadarPage() {
         </div>
       )}
 
-      {/* نافذة المحفظة الرئيسية */}
       {isPortfolioOpen && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
           <div className="bg-gray-900 border border-gray-700 p-6 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto custom-scrollbar">
@@ -567,9 +591,7 @@ export default function StockRadarPage() {
                   key={p.id}
                   onClick={() => setActivePortfolioId(p.id)}
                   className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
-                    p.id === activePortfolioId 
-                      ? 'bg-blue-600 text-white shadow' 
-                      : 'bg-gray-900 text-gray-400 hover:bg-gray-800'
+                    p.id === activePortfolioId ? 'bg-blue-600 text-white shadow' : 'bg-gray-900 text-gray-400 hover:bg-gray-800'
                   }`}
                 >
                   {p.name}
@@ -587,17 +609,11 @@ export default function StockRadarPage() {
               <div className="bg-gray-950 p-4 rounded-xl border border-gray-800 relative">
                 <p className="text-sm text-gray-400 mb-1">الرصيد النقدي ({activePortfolio.name})</p>
                 <p className="text-2xl font-black text-green-500">${activePortfolio.cash.toFixed(2)}</p>
-                
                 <div className="absolute top-4 left-4 flex gap-1">
-                  <button onClick={() => setIsDepositOpen(true)} className="bg-green-600/20 hover:bg-green-600 text-green-500 hover:text-white px-2 py-1 rounded text-[10px] font-bold border border-green-600/50">
-                    + إيداع
-                  </button>
-                  <button onClick={() => setIsWithdrawOpen(true)} className="bg-red-600/20 hover:bg-red-600 text-red-500 hover:text-white px-2 py-1 rounded text-[10px] font-bold border border-red-600/50">
-                    - سحب
-                  </button>
+                  <button onClick={() => setIsDepositOpen(true)} className="bg-green-600/20 hover:bg-green-600 text-green-500 hover:text-white px-2 py-1 rounded text-[10px] font-bold border border-green-600/50">+ إيداع</button>
+                  <button onClick={() => setIsWithdrawOpen(true)} className="bg-red-600/20 hover:bg-red-600 text-red-500 hover:text-white px-2 py-1 rounded text-[10px] font-bold border border-red-600/50">- سحب</button>
                 </div>
               </div>
-              
               <div className="bg-gray-950 p-4 rounded-xl border border-gray-800">
                 <p className="text-sm text-gray-400 mb-1">الأسهم المملوكة في هذه المحفظة</p>
                 <p className="text-2xl font-black text-blue-400">{activePortfolio.positions.length} شركات</p>
@@ -609,9 +625,7 @@ export default function StockRadarPage() {
               <div className="text-center text-gray-500 py-8 bg-gray-950 rounded-lg border border-gray-800 flex flex-col items-center gap-3 mb-6">
                 <span>المحفظة فارغة حالياً. (تذكر: لا يمكن تكرار سهم مملوك في محفظة أخرى).</span>
                 {activePortfolio.cash === 0 && (
-                  <button onClick={() => setIsDepositOpen(true)} className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded-lg text-sm font-bold">
-                    أودع ميزانية للبدء
-                  </button>
+                  <button onClick={() => setIsDepositOpen(true)} className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded-lg text-sm font-bold">أودع ميزانية للبدء</button>
                 )}
               </div>
             ) : (
@@ -630,16 +644,10 @@ export default function StockRadarPage() {
                       <div>
                         <div className="flex items-center gap-2">
                           <h4 className="font-black text-lg text-white">{pos.symbol}</h4>
-                          <span className="text-xs bg-blue-950 text-blue-400 px-2 py-0.5 rounded border border-blue-900">
-                            {pos.shares} سهم
-                          </span>
+                          <span className="text-xs bg-blue-950 text-blue-400 px-2 py-0.5 rounded border border-blue-900">{pos.shares} سهم</span>
                         </div>
-                        <p className="text-[11px] text-gray-400 mt-1">
-                          تاريخ الشراء: <span className="text-gray-300">{pos.purchaseDate || 'غير محدد'}</span>
-                        </p>
-                        <p className="text-[11px] text-gray-400">
-                          متوسط التكلفة: ${pos.avgPrice.toFixed(2)} | الحالي: ${currentPrice.toFixed(2)}
-                        </p>
+                        <p className="text-[11px] text-gray-400 mt-1">تاريخ الشراء: <span className="text-gray-300">{pos.purchaseDate || 'غير محدد'}</span></p>
+                        <p className="text-[11px] text-gray-400">متوسط التكلفة: ${pos.avgPrice.toFixed(2)} | الحالي: ${currentPrice.toFixed(2)}</p>
                       </div>
                       
                       <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end">
@@ -649,7 +657,6 @@ export default function StockRadarPage() {
                             {isPos ? '+' : ''}${profitLoss.toFixed(2)} ({isPos ? '+' : ''}{profitLossPct.toFixed(1)}%)
                           </p>
                         </div>
-                        
                         <button 
                           onClick={() => { 
                             const stockObj = stocks.find(s => s.symbol === pos.symbol) || { symbol: pos.symbol, price: currentPrice };
@@ -669,22 +676,18 @@ export default function StockRadarPage() {
 
             <div className="bg-gradient-to-r from-gray-950 to-blue-950/40 p-4 rounded-xl border border-blue-900/50 space-y-3">
               <h3 className="text-xs font-bold text-blue-400 uppercase tracking-wider mb-2">ملخص محفظة ({activePortfolio.name})</h3>
-              
               <div className="flex justify-between items-center text-sm">
                 <span className="text-gray-400">القيمة السوقية للأسهم:</span>
                 <span className="font-bold text-white">${totalStocksMarketValue.toFixed(2)}</span>
               </div>
-
               <div className="flex justify-between items-center text-sm">
                 <span className="text-gray-400">الرصيد النقدي (الكاش):</span>
                 <span className="font-bold text-white">${activePortfolio.cash.toFixed(2)}</span>
               </div>
-
               <div className="flex justify-between items-center text-base border-t border-gray-800 pt-2">
                 <span className="font-bold text-gray-300">إجمالي قيمة المحفظة:</span>
                 <span className="font-black text-yellow-400 text-lg">${totalPortfolioValue.toFixed(2)}</span>
               </div>
-
               <div className="flex justify-between items-center text-sm border-t border-gray-800 pt-2">
                 <span className="font-bold text-gray-300">الربح / الخسارة غير المحققة:</span>
                 <span className={`font-black flex items-center gap-1 ${unrealizedPL >= 0 ? 'text-green-500' : 'text-red-500'}`}>
@@ -732,7 +735,7 @@ export default function StockRadarPage() {
                 onClick={handleToggleHalalView}
                 className={`px-4 py-2.5 rounded-xl text-sm font-bold border transition-all flex items-center gap-2 ${
                   showHalalOnly 
-                    ? 'bg-emerald-500/25 text-emerald-300 border-emerald-500/60 shadow-[0_0_12px_rgba(16,185,129,0.15)]' 
+                    ? 'bg-emerald-500/25 text-emerald-400 border-emerald-500/60 shadow-[0_0_12px_rgba(16,185,129,0.15)]' 
                     : 'bg-gray-900 text-gray-400 border-gray-800 hover:border-emerald-500/40 hover:text-emerald-400'
                 }`}
               >
@@ -791,9 +794,10 @@ export default function StockRadarPage() {
                 ref={(!showFavoritesOnly && !showHalalOnly && isLast) ? lastStockElementRef : null}
                 className={`bg-gray-900 p-5 rounded-2xl border ${isFav ? 'border-yellow-500/30 shadow-[0_0_15px_rgba(234,179,8,0.1)]' : 'border-gray-800 shadow-xl'} flex flex-col justify-between hover:border-blue-500/50 transition-all h-full relative`}
               >
-                <div className="absolute top-4 left-4">
-                  <span className={`text-[10px] font-bold px-2 py-1 rounded-md border ${sharia.class}`} title={sharia.desc}>
-                    {sharia.label}
+                {/* --- التعديل هنا: جعل الشارة الشرعية قابلة للضغط لتعديل التصنيف --- */}
+                <div className="absolute top-4 left-4 z-10 cursor-pointer hover:scale-105 transition-transform" onClick={() => setEditingShariaSymbol(stock.symbol)}>
+                  <span className={`text-[10px] font-bold px-2 py-1 rounded-md border ${sharia.class}`} title="انقر لتعديل التصنيف الشرعي لهذا السهم">
+                    {sharia.label} ✏️
                   </span>
                 </div>
 
@@ -885,8 +889,6 @@ export default function StockRadarPage() {
 
                 <div className="mt-auto">
                   <h3 className="text-[10px] font-bold text-gray-500 mb-2 text-center">العائد التاريخي للسهم</h3>
-                  
-                  {/* --- التعديل هنا: استخدام شبكة من 3 أعمدة لتكوين صفين (6 عناصر) --- */}
                   <div className="grid grid-cols-3 gap-1.5 text-center">
                     {[
                       { label: '3 أشهر', data: stock.stats?.m3 },
@@ -894,7 +896,7 @@ export default function StockRadarPage() {
                       { label: 'سنة', data: stock.stats?.y1 },
                       { label: 'سنتين', data: stock.stats?.y2 },
                       { label: '3 سنوات', data: stock.stats?.y3 },
-                      { label: '5 سنوات', data: stock.stats?.y5 } // تمت إضافة 5 سنوات هنا
+                      { label: '5 سنوات', data: stock.stats?.y5 }
                     ].map((stat, i) => (
                       <div key={i} className="bg-gray-950 p-1.5 rounded-md border border-gray-800 flex flex-col justify-center items-center min-h-[64px]">
                         <span className="text-[9px] text-gray-500 leading-tight mb-0.5">{stat.label}</span>
