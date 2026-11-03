@@ -297,7 +297,7 @@ export default function StockRadarPage() {
         }
         return { cash: prev.cash - totalCost, positions: newPositions };
       });
-      alert(`✅ تم الشراء بنجاح! تم توزيع عمولة الشراء (2$) على ${sharesNum} سهم.`);
+      alert(`✅ تم الشراء بنجاح في تاريخ ${currentDate}! تم توزيع عمولة الشراء (2$) على ${sharesNum} سهم.`);
       
     } else if (type === 'sell') {
       const existingPos = portfolio.positions.find(p => p.symbol === tradeStock.symbol);
@@ -323,6 +323,7 @@ export default function StockRadarPage() {
 
     setTradeStock(null);
     setTradeShares('');
+    setIsPortfolioOpen(false); // إغلاق المحفظة لترى التحديث المباشر
   };
 
   // --- حساب إجماليات المحفظة ---
@@ -532,7 +533,7 @@ export default function StockRadarPage() {
                           </p>
                         </div>
                         
-                        {/* زر البيع السريع من داخل المحفظة */}
+                        {/* زر البيع السريع المعدل ليعمل بكفاءة */}
                         <button 
                           onClick={() => { 
                             const stockObj = stocks.find(s => s.symbol === pos.symbol) || { symbol: pos.symbol, price: currentPrice };
@@ -677,7 +678,6 @@ export default function StockRadarPage() {
                     تداول السهم ⚖️
                   </button>
                   
-                  {/* زر البيع السريع يظهر مباشرة إذا كنت تملك السهم */}
                   {ownedPosition ? (
                     <button 
                       onClick={() => { setTradeStock(stock); setTradeShares(ownedPosition.shares.toString()); }}
