@@ -101,7 +101,6 @@ export default function StockRadarPage() {
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [showHalalOnly, setShowHalalOnly] = useState(false);
 
-  // حالة لتخزين التعديلات اليدوية للتصنيف الشرعي
   const [customShariaOverrides, setCustomShariaOverrides] = useState<Record<string, 'halal' | 'mixed' | 'haram'>>({});
   const [editingShariaSymbol, setEditingShariaSymbol] = useState<string | null>(null);
 
@@ -131,7 +130,6 @@ export default function StockRadarPage() {
   
   const BATCH_SIZE = 12;
 
-  // جلب البيانات المحفوظة عند التحميل
   useEffect(() => {
     const savedFavs = localStorage.getItem('stockRadarFavorites');
     if (savedFavs) setFavorites(JSON.parse(savedFavs));
@@ -143,7 +141,6 @@ export default function StockRadarPage() {
     if (savedSharia) setCustomShariaOverrides(JSON.parse(savedSharia));
   }, []);
 
-  // حفظ التعديلات عند تغيرها
   useEffect(() => {
     localStorage.setItem('stockRadarFavorites', JSON.stringify(favorites));
   }, [favorites]);
@@ -172,16 +169,15 @@ export default function StockRadarPage() {
     setShowFavoritesOnly(false);
   };
 
-  // دالة تحديد حالة السهم مع الأخذ بالاعتبار التعديل اليدوي
   const getShariaStatus = (symbol: string) => {
     const status = customShariaOverrides[symbol] || DEFAULT_SHARIA_STATUS[symbol] || 'halal';
     
     if (status === 'haram') {
-      return { label: 'غير متوافق 🔴', class: 'bg-red-950/80 text-red-400 border-red-800', desc: 'غير شرعي', type: 'haram' };
+      return { label: 'غير متوافق 🔴', class: 'bg-red-950/40 text-red-400 border-red-800/50', desc: 'غير شرعي', type: 'haram' };
     } else if (status === 'mixed') {
-      return { label: 'مختلط 🟡', class: 'bg-yellow-950/80 text-yellow-400 border-yellow-800', desc: 'يحتاج تطهير', type: 'mixed' };
+      return { label: 'مختلط 🟡', class: 'bg-yellow-950/40 text-yellow-400 border-yellow-800/50', desc: 'يحتاج تطهير', type: 'mixed' };
     } else {
-      return { label: 'متوافق (حلال) 🟢', class: 'bg-emerald-950/80 text-emerald-400 border-emerald-800', desc: 'متوافق شرعياً', type: 'halal' };
+      return { label: 'متوافق (حلال) 🟢', class: 'bg-emerald-950/40 text-emerald-400 border-emerald-800/50', desc: 'متوافق شرعياً', type: 'halal' };
     }
   };
 
@@ -394,71 +390,71 @@ export default function StockRadarPage() {
   }
 
   return (
-    <main className="p-4 md:p-8 bg-gray-950 min-h-screen text-right font-sans text-white" dir="rtl">
+    <main className="p-4 md:p-8 bg-slate-950 min-h-screen text-right font-sans text-slate-200" dir="rtl">
       
       {/* نافذة تعديل التصنيف الشرعي */}
       {editingShariaSymbol && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[80] p-4">
-          <div className="bg-gray-900 border border-gray-700 p-6 rounded-2xl shadow-2xl max-w-xs w-full text-center">
+          <div className="bg-slate-900 border border-slate-700 p-6 rounded-2xl shadow-2xl max-w-xs w-full text-center">
             <h3 className="text-lg font-bold text-white mb-2">تعديل التصنيف الشرعي</h3>
-            <p className="text-sm text-gray-400 mb-6">سهم: <span className="font-black text-blue-400">{editingShariaSymbol}</span></p>
+            <p className="text-sm text-slate-400 mb-6">سهم: <span className="font-black text-blue-400">{editingShariaSymbol}</span></p>
             
             <div className="flex flex-col gap-3">
               <button 
                 onClick={() => updateShariaStatus(editingShariaSymbol, 'halal')}
-                className="bg-emerald-900/50 hover:bg-emerald-600 text-emerald-400 hover:text-white py-2.5 rounded-lg border border-emerald-800 font-bold transition-colors"
+                className="bg-emerald-900/40 hover:bg-emerald-600 text-emerald-400 hover:text-white py-2.5 rounded-lg border border-emerald-800/50 font-bold transition-colors"
               >
                 متوافق (حلال) 🟢
               </button>
               <button 
                 onClick={() => updateShariaStatus(editingShariaSymbol, 'mixed')}
-                className="bg-yellow-900/50 hover:bg-yellow-600 text-yellow-400 hover:text-white py-2.5 rounded-lg border border-yellow-800 font-bold transition-colors"
+                className="bg-yellow-900/40 hover:bg-yellow-600 text-yellow-400 hover:text-white py-2.5 rounded-lg border border-yellow-800/50 font-bold transition-colors"
               >
                 مختلط 🟡
               </button>
               <button 
                 onClick={() => updateShariaStatus(editingShariaSymbol, 'haram')}
-                className="bg-red-900/50 hover:bg-red-600 text-red-400 hover:text-white py-2.5 rounded-lg border border-red-800 font-bold transition-colors"
+                className="bg-red-900/40 hover:bg-red-600 text-red-400 hover:text-white py-2.5 rounded-lg border border-red-800/50 font-bold transition-colors"
               >
                 غير متوافق 🔴
               </button>
             </div>
             
-            <button onClick={() => setEditingShariaSymbol(null)} className="mt-6 text-gray-500 hover:text-white text-sm font-bold">
+            <button onClick={() => setEditingShariaSymbol(null)} className="mt-6 text-slate-500 hover:text-white text-sm font-bold">
               إلغاء
             </button>
           </div>
         </div>
       )}
 
-      {/* باقي النوافذ (إيداع، سحب، محفظة جديدة، تداول...) */}
+      {/* نافذة المحفظة الجديدة */}
       {isNewPortfolioOpen && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[70] p-4">
-          <div className="bg-gray-900 border border-gray-700 p-6 rounded-2xl shadow-2xl max-w-sm w-full">
-            <div className="flex justify-between items-center mb-4 border-b border-gray-800 pb-3">
+          <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-2xl max-w-sm w-full">
+            <div className="flex justify-between items-center mb-4 border-b border-slate-800 pb-3">
               <h2 className="text-xl font-bold text-yellow-500">إضافة محفظة جديدة 💼</h2>
-              <button onClick={() => setIsNewPortfolioOpen(false)} className="text-gray-500 hover:text-white text-2xl">×</button>
+              <button onClick={() => setIsNewPortfolioOpen(false)} className="text-slate-500 hover:text-white text-2xl">×</button>
             </div>
             <div className="space-y-4 mb-6">
               <div>
-                <label className="block text-sm text-gray-400 mb-1">اسم المحفظة:</label>
+                <label className="block text-sm text-slate-400 mb-1">اسم المحفظة:</label>
                 <input 
                   type="text" 
                   placeholder="مثال: محفظة النمو، محفظة المضاربة..."
                   value={newPortfolioName} 
                   onChange={(e) => setNewPortfolioName(e.target.value)}
-                  className="w-full bg-gray-950 border border-gray-700 p-3 rounded-lg text-white font-bold text-sm focus:border-yellow-500 outline-none"
+                  className="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg text-white font-bold text-sm focus:border-yellow-500 outline-none"
                 />
               </div>
               <div>
-                <label className="block text-sm text-gray-400 mb-1">الميزانية الأولية (كاش $):</label>
+                <label className="block text-sm text-slate-400 mb-1">الميزانية الأولية (كاش $):</label>
                 <input 
                   type="number" 
                   min="0"
                   placeholder="10000"
                   value={newPortfolioCash} 
                   onChange={(e) => setNewPortfolioCash(e.target.value)}
-                  className="w-full bg-gray-950 border border-gray-700 p-3 rounded-lg text-white font-bold text-lg focus:border-yellow-500 outline-none text-left"
+                  className="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg text-white font-bold text-lg focus:border-yellow-500 outline-none text-left"
                   dir="ltr"
                 />
               </div>
@@ -470,22 +466,23 @@ export default function StockRadarPage() {
         </div>
       )}
 
+      {/* نوافذ الإيداع والسحب والتداول */}
       {isDepositOpen && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[60] p-4">
-          <div className="bg-gray-900 border border-gray-700 p-6 rounded-2xl shadow-2xl max-w-sm w-full">
-            <div className="flex justify-between items-center mb-4 border-b border-gray-800 pb-3">
+          <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-2xl max-w-sm w-full">
+            <div className="flex justify-between items-center mb-4 border-b border-slate-800 pb-3">
               <h2 className="text-xl font-bold text-green-500">إيداع في {activePortfolio.name} 💰</h2>
-              <button onClick={() => setIsDepositOpen(false)} className="text-gray-500 hover:text-white text-2xl">×</button>
+              <button onClick={() => setIsDepositOpen(false)} className="text-slate-500 hover:text-white text-2xl">×</button>
             </div>
             <div className="mb-6">
-              <label className="block text-sm text-gray-400 mb-2">المبلغ المراد إيداعه ($):</label>
+              <label className="block text-sm text-slate-400 mb-2">المبلغ المراد إيداعه ($):</label>
               <input 
                 type="number" 
                 min="1"
                 placeholder="أدخل المبلغ..."
                 value={depositAmount} 
                 onChange={(e) => setDepositAmount(e.target.value)}
-                className="w-full bg-gray-950 border border-gray-700 p-3 rounded-lg text-white font-bold text-lg focus:border-green-500 outline-none text-left"
+                className="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg text-white font-bold text-lg focus:border-green-500 outline-none text-left"
                 dir="ltr"
               />
             </div>
@@ -498,13 +495,13 @@ export default function StockRadarPage() {
 
       {isWithdrawOpen && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[60] p-4">
-          <div className="bg-gray-900 border border-gray-700 p-6 rounded-2xl shadow-2xl max-w-sm w-full">
-            <div className="flex justify-between items-center mb-4 border-b border-gray-800 pb-3">
+          <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-2xl max-w-sm w-full">
+            <div className="flex justify-between items-center mb-4 border-b border-slate-800 pb-3">
               <h2 className="text-xl font-bold text-red-500">سحب من {activePortfolio.name} 💳</h2>
-              <button onClick={() => setIsWithdrawOpen(false)} className="text-gray-500 hover:text-white text-2xl">×</button>
+              <button onClick={() => setIsWithdrawOpen(false)} className="text-slate-500 hover:text-white text-2xl">×</button>
             </div>
             <div className="mb-6">
-              <label className="block text-sm text-gray-400 mb-2">المبلغ المراد سحبه ($):</label>
+              <label className="block text-sm text-slate-400 mb-2">المبلغ المراد سحبه ($):</label>
               <input 
                 type="number" 
                 min="1"
@@ -512,10 +509,10 @@ export default function StockRadarPage() {
                 placeholder="أدخل المبلغ..."
                 value={withdrawAmount} 
                 onChange={(e) => setWithdrawAmount(e.target.value)}
-                className="w-full bg-gray-950 border border-gray-700 p-3 rounded-lg text-white font-bold text-lg focus:border-red-500 outline-none text-left"
+                className="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg text-white font-bold text-lg focus:border-red-500 outline-none text-left"
                 dir="ltr"
               />
-              <p className="text-xs text-gray-500 mt-2">المتاح للسحب: <span className="text-green-500">${activePortfolio.cash.toFixed(2)}</span></p>
+              <p className="text-xs text-slate-500 mt-2">المتاح للسحب: <span className="text-green-500">${activePortfolio.cash.toFixed(2)}</span></p>
             </div>
             <button onClick={handleWithdraw} className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg transition-colors shadow-lg">
               تأكيد السحب
@@ -526,30 +523,30 @@ export default function StockRadarPage() {
 
       {tradeStock && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-          <div className="bg-gray-900 border border-gray-700 p-6 rounded-2xl shadow-2xl max-w-sm w-full">
-            <div className="flex justify-between items-center mb-4 border-b border-gray-800 pb-3">
-              <h2 className="text-xl font-bold">تداول: {tradeStock.symbol} <span className="text-xs text-yellow-500 font-normal">({activePortfolio.name})</span></h2>
-              <button onClick={() => setTradeStock(null)} className="text-gray-500 hover:text-white text-2xl">×</button>
+          <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-2xl max-w-sm w-full">
+            <div className="flex justify-between items-center mb-4 border-b border-slate-800 pb-3">
+              <h2 className="text-xl font-bold text-white">تداول: {tradeStock.symbol} <span className="text-xs text-yellow-500 font-normal">({activePortfolio.name})</span></h2>
+              <button onClick={() => setTradeStock(null)} className="text-slate-500 hover:text-white text-2xl">×</button>
             </div>
             
-            <div className="bg-blue-950/30 p-3 rounded-lg border border-blue-900/50 mb-4 text-center">
-              <p className="text-sm text-gray-400">السعر الحالي</p>
+            <div className="bg-blue-950/20 p-3 rounded-lg border border-blue-900/30 mb-4 text-center">
+              <p className="text-sm text-slate-400">السعر الحالي</p>
               <p className="text-2xl font-black text-blue-400">${tradeStock.price}</p>
             </div>
 
             <div className="mb-4">
-              <label className="block text-sm text-gray-400 mb-2">عدد الأسهم:</label>
+              <label className="block text-sm text-slate-400 mb-2">عدد الأسهم:</label>
               <input 
                 type="number" 
                 min="1"
                 placeholder="أدخل عدد الأسهم..."
                 value={tradeShares} 
                 onChange={(e) => setTradeShares(e.target.value)}
-                className="w-full bg-gray-950 border border-gray-700 p-3 rounded-lg text-white font-bold focus:border-blue-500 outline-none"
+                className="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg text-white font-bold focus:border-blue-500 outline-none"
               />
             </div>
 
-            <div className="text-xs text-gray-400 mb-6 bg-gray-950 p-3 rounded border border-gray-800 space-y-2">
+            <div className="text-xs text-slate-400 mb-6 bg-slate-950 p-3 rounded border border-slate-800 space-y-2">
               <div className="flex justify-between">
                 <span>قيمة الأسهم:</span> 
                 <span>${((Number(tradeShares) || 0) * parseFloat(tradeStock.price)).toFixed(2)}</span>
@@ -558,17 +555,17 @@ export default function StockRadarPage() {
                 <span>عمولة الوسيط:</span> 
                 <span>${BROKER_COMMISSION.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between font-bold text-white border-t border-gray-800 pt-2 mt-2">
+              <div className="flex justify-between font-bold text-white border-t border-slate-800 pt-2 mt-2">
                 <span>الإجمالي التقريبي:</span> 
                 <span>${(((Number(tradeShares) || 0) * parseFloat(tradeStock.price)) + BROKER_COMMISSION).toFixed(2)}</span>
               </div>
             </div>
 
             <div className="flex gap-3">
-              <button onClick={() => handleExecuteTrade('buy')} className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-lg transition-colors">
+              <button onClick={() => handleExecuteTrade('buy')} className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-lg transition-colors shadow-sm">
                 شراء
               </button>
-              <button onClick={() => handleExecuteTrade('sell')} className="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg transition-colors">
+              <button onClick={() => handleExecuteTrade('sell')} className="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg transition-colors shadow-sm">
                 بيع
               </button>
             </div>
@@ -576,22 +573,23 @@ export default function StockRadarPage() {
         </div>
       )}
 
+      {/* نافذة المحفظة الرئيسية */}
       {isPortfolioOpen && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-          <div className="bg-gray-900 border border-gray-700 p-6 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto custom-scrollbar">
-            <div className="flex justify-between items-center mb-6 border-b border-gray-800 pb-4">
+          <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto custom-scrollbar">
+            <div className="flex justify-between items-center mb-6 border-b border-slate-800 pb-4">
               <h2 className="text-2xl font-bold text-yellow-500">💼 إدارة المحافظ والتداول</h2>
-              <button onClick={() => setIsPortfolioOpen(false)} className="text-gray-500 hover:text-white text-2xl font-black">×</button>
+              <button onClick={() => setIsPortfolioOpen(false)} className="text-slate-500 hover:text-white text-2xl font-black">×</button>
             </div>
 
-            <div className="flex flex-wrap items-center gap-2 mb-6 bg-gray-950 p-3 rounded-xl border border-gray-800">
-              <span className="text-xs text-gray-400 font-bold ml-2">المحفظة النشطة:</span>
+            <div className="flex flex-wrap items-center gap-2 mb-6 bg-slate-950/50 p-3 rounded-xl border border-slate-800">
+              <span className="text-xs text-slate-400 font-bold ml-2">المحفظة النشطة:</span>
               {portfolios.map(p => (
                 <button
                   key={p.id}
                   onClick={() => setActivePortfolioId(p.id)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
-                    p.id === activePortfolioId ? 'bg-blue-600 text-white shadow' : 'bg-gray-900 text-gray-400 hover:bg-gray-800'
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                    p.id === activePortfolioId ? 'bg-blue-600 text-white shadow-md' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
                   }`}
                 >
                   {p.name}
@@ -599,33 +597,33 @@ export default function StockRadarPage() {
               ))}
               <button
                 onClick={() => setIsNewPortfolioOpen(true)}
-                className="bg-emerald-600/20 hover:bg-emerald-600/40 text-emerald-400 px-3 py-1.5 rounded-lg text-xs font-bold border border-emerald-600/50 transition-colors mr-auto"
+                className="bg-emerald-600/10 hover:bg-emerald-600/30 text-emerald-400 px-3 py-1.5 rounded-lg text-xs font-bold border border-emerald-600/30 transition-colors mr-auto"
               >
                 + محفظة جديدة
               </button>
             </div>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-              <div className="bg-gray-950 p-4 rounded-xl border border-gray-800 relative">
-                <p className="text-sm text-gray-400 mb-1">الرصيد النقدي ({activePortfolio.name})</p>
-                <p className="text-2xl font-black text-green-500">${activePortfolio.cash.toFixed(2)}</p>
+              <div className="bg-slate-950/50 p-4 rounded-xl border border-slate-800 relative">
+                <p className="text-sm text-slate-400 mb-1">الرصيد النقدي ({activePortfolio.name})</p>
+                <p className="text-2xl font-black text-emerald-500">${activePortfolio.cash.toFixed(2)}</p>
                 <div className="absolute top-4 left-4 flex gap-1">
-                  <button onClick={() => setIsDepositOpen(true)} className="bg-green-600/20 hover:bg-green-600 text-green-500 hover:text-white px-2 py-1 rounded text-[10px] font-bold border border-green-600/50">+ إيداع</button>
-                  <button onClick={() => setIsWithdrawOpen(true)} className="bg-red-600/20 hover:bg-red-600 text-red-500 hover:text-white px-2 py-1 rounded text-[10px] font-bold border border-red-600/50">- سحب</button>
+                  <button onClick={() => setIsDepositOpen(true)} className="bg-emerald-600/10 hover:bg-emerald-600 text-emerald-500 hover:text-white px-2 py-1 rounded text-[10px] font-bold border border-emerald-600/30 transition-colors">+ إيداع</button>
+                  <button onClick={() => setIsWithdrawOpen(true)} className="bg-red-600/10 hover:bg-red-600 text-red-500 hover:text-white px-2 py-1 rounded text-[10px] font-bold border border-red-600/30 transition-colors">- سحب</button>
                 </div>
               </div>
-              <div className="bg-gray-950 p-4 rounded-xl border border-gray-800">
-                <p className="text-sm text-gray-400 mb-1">الأسهم المملوكة في هذه المحفظة</p>
+              <div className="bg-slate-950/50 p-4 rounded-xl border border-slate-800">
+                <p className="text-sm text-slate-400 mb-1">الأسهم المملوكة في هذه المحفظة</p>
                 <p className="text-2xl font-black text-blue-400">{activePortfolio.positions.length} شركات</p>
               </div>
             </div>
 
-            <h3 className="font-bold text-gray-300 mb-3">الأسهم في محفظة ({activePortfolio.name}):</h3>
+            <h3 className="font-bold text-slate-300 mb-3">الأسهم في محفظة ({activePortfolio.name}):</h3>
             {activePortfolio.positions.length === 0 ? (
-              <div className="text-center text-gray-500 py-8 bg-gray-950 rounded-lg border border-gray-800 flex flex-col items-center gap-3 mb-6">
-                <span>المحفظة فارغة حالياً. (تذكر: لا يمكن تكرار سهم مملوك في محفظة أخرى).</span>
+              <div className="text-center text-slate-500 py-8 bg-slate-950/50 rounded-lg border border-slate-800 flex flex-col items-center gap-3 mb-6">
+                <span>المحفظة فارغة حالياً. (لا يمكن تكرار سهم مملوك في محفظة أخرى).</span>
                 {activePortfolio.cash === 0 && (
-                  <button onClick={() => setIsDepositOpen(true)} className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded-lg text-sm font-bold">أودع ميزانية للبدء</button>
+                  <button onClick={() => setIsDepositOpen(true)} className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded-lg text-sm font-bold shadow-md">أودع ميزانية للبدء</button>
                 )}
               </div>
             ) : (
@@ -640,20 +638,20 @@ export default function StockRadarPage() {
                   const isPos = profitLoss >= 0;
 
                   return (
-                    <div key={idx} className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-gray-950 p-4 rounded-lg border border-gray-800 gap-3">
+                    <div key={idx} className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-slate-950/50 p-4 rounded-xl border border-slate-800 gap-3 hover:border-slate-700 transition-colors">
                       <div>
                         <div className="flex items-center gap-2">
                           <h4 className="font-black text-lg text-white">{pos.symbol}</h4>
-                          <span className="text-xs bg-blue-950 text-blue-400 px-2 py-0.5 rounded border border-blue-900">{pos.shares} سهم</span>
+                          <span className="text-xs bg-blue-900/30 text-blue-400 px-2 py-0.5 rounded border border-blue-800/50">{pos.shares} سهم</span>
                         </div>
-                        <p className="text-[11px] text-gray-400 mt-1">تاريخ الشراء: <span className="text-gray-300">{pos.purchaseDate || 'غير محدد'}</span></p>
-                        <p className="text-[11px] text-gray-400">متوسط التكلفة: ${pos.avgPrice.toFixed(2)} | الحالي: ${currentPrice.toFixed(2)}</p>
+                        <p className="text-[11px] text-slate-400 mt-1">تاريخ الشراء: <span className="text-slate-300">{pos.purchaseDate || 'غير محدد'}</span></p>
+                        <p className="text-[11px] text-slate-400">متوسط التكلفة: ${pos.avgPrice.toFixed(2)} | الحالي: ${currentPrice.toFixed(2)}</p>
                       </div>
                       
                       <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end">
                         <div className="text-left">
                           <p className="text-sm font-bold text-white">${marketVal.toFixed(2)}</p>
-                          <p className={`text-xs font-black ${isPos ? 'text-green-500' : 'text-red-500'}`}>
+                          <p className={`text-xs font-black ${isPos ? 'text-emerald-500' : 'text-red-500'}`}>
                             {isPos ? '+' : ''}${profitLoss.toFixed(2)} ({isPos ? '+' : ''}{profitLossPct.toFixed(1)}%)
                           </p>
                         </div>
@@ -663,7 +661,7 @@ export default function StockRadarPage() {
                             setTradeStock(stockObj); 
                             setTradeShares(pos.shares.toString()); 
                           }}
-                          className="bg-red-600/20 hover:bg-red-600 text-red-500 hover:text-white px-3 py-1.5 rounded-lg text-xs font-bold border border-red-600/50 transition-colors"
+                          className="bg-red-900/40 hover:bg-red-600 text-red-400 hover:text-white px-3 py-1.5 rounded-lg text-xs font-bold border border-red-800/50 transition-colors shadow-sm"
                         >
                           بيع ⚡
                         </button>
@@ -674,23 +672,23 @@ export default function StockRadarPage() {
               </div>
             )}
 
-            <div className="bg-gradient-to-r from-gray-950 to-blue-950/40 p-4 rounded-xl border border-blue-900/50 space-y-3">
+            <div className="bg-gradient-to-r from-slate-950 to-blue-950/20 p-5 rounded-xl border border-blue-900/30 space-y-3 shadow-inner">
               <h3 className="text-xs font-bold text-blue-400 uppercase tracking-wider mb-2">ملخص محفظة ({activePortfolio.name})</h3>
               <div className="flex justify-between items-center text-sm">
-                <span className="text-gray-400">القيمة السوقية للأسهم:</span>
+                <span className="text-slate-400">القيمة السوقية للأسهم:</span>
                 <span className="font-bold text-white">${totalStocksMarketValue.toFixed(2)}</span>
               </div>
               <div className="flex justify-between items-center text-sm">
-                <span className="text-gray-400">الرصيد النقدي (الكاش):</span>
+                <span className="text-slate-400">الرصيد النقدي (الكاش):</span>
                 <span className="font-bold text-white">${activePortfolio.cash.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between items-center text-base border-t border-gray-800 pt-2">
-                <span className="font-bold text-gray-300">إجمالي قيمة المحفظة:</span>
+              <div className="flex justify-between items-center text-base border-t border-slate-800 pt-3 mt-1">
+                <span className="font-bold text-slate-300">إجمالي قيمة المحفظة:</span>
                 <span className="font-black text-yellow-400 text-lg">${totalPortfolioValue.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between items-center text-sm border-t border-gray-800 pt-2">
-                <span className="font-bold text-gray-300">الربح / الخسارة غير المحققة:</span>
-                <span className={`font-black flex items-center gap-1 ${unrealizedPL >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+              <div className="flex justify-between items-center text-sm border-t border-slate-800 pt-2">
+                <span className="font-bold text-slate-300">الربح / الخسارة غير المحققة:</span>
+                <span className={`font-black flex items-center gap-1 ${unrealizedPL >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>
                   {unrealizedPL >= 0 ? '+' : ''}${unrealizedPL.toFixed(2)} ({unrealizedPL >= 0 ? '+' : ''}{unrealizedPLPercent.toFixed(1)}%)
                   {unrealizedPL >= 0 ? ' ▲' : ' ▼'}
                 </span>
@@ -701,21 +699,22 @@ export default function StockRadarPage() {
         </div>
       )}
 
+      {/* --- الشاشة الرئيسية --- */}
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8 border-b border-gray-800 pb-6 sticky top-0 bg-gray-950/95 backdrop-blur z-10 p-4 rounded-xl shadow-lg">
+        <div className="mb-8 border-b border-slate-800/80 pb-6 sticky top-0 bg-slate-950/90 backdrop-blur-md z-10 p-5 rounded-2xl shadow-xl">
           <div className="flex flex-col xl:flex-row justify-between items-center gap-6">
             
             <div className="flex items-center gap-4 w-full xl:w-auto justify-between xl:justify-start">
               <div className="flex items-center gap-3">
-                <div className="bg-blue-600/20 p-2.5 rounded-xl border border-blue-500/30 text-blue-400 text-2xl font-bold">
+                <div className="bg-blue-600/10 p-2.5 rounded-xl border border-blue-500/20 text-blue-400 text-2xl font-bold shadow-inner">
                   📈
                 </div>
                 <div>
-                  <h1 className="text-2xl md:text-3xl font-black text-blue-500 tracking-tight">شاشة السوق الشاملة</h1>
-                  <p className="text-xs text-gray-400 mt-0.5">وفق ضوابط الراجحي الشرعية ومحافظ متعددة.</p>
+                  <h1 className="text-2xl md:text-3xl font-black text-blue-400 tracking-tight">شاشة السوق الشاملة</h1>
+                  <p className="text-xs text-slate-400 mt-1 font-medium">وفق ضوابط الراجحي الشرعية ومحافظ متعددة.</p>
                 </div>
               </div>
-              <div className="text-xs font-bold bg-gray-900 px-3 py-2 rounded-xl text-blue-400 border border-gray-800 whitespace-nowrap">
+              <div className="text-xs font-bold bg-slate-900/80 px-3 py-2 rounded-xl text-blue-300 border border-slate-700/50 whitespace-nowrap shadow-sm">
                 الأسهم: {displayedStocks.length} من {ALL_MARKET_TICKERS.length}
               </div>
             </div>
@@ -724,19 +723,19 @@ export default function StockRadarPage() {
               
               <button
                 onClick={() => setIsPortfolioOpen(true)}
-                className="bg-green-600/20 text-green-400 border border-green-500/40 hover:bg-green-600/30 px-4 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center gap-2 shadow-sm"
+                className="bg-emerald-600/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-600/20 px-4 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center gap-2 shadow-sm"
               >
                 <span>💼</span>
                 <span>{activePortfolio.name}</span>
-                <span className="bg-green-950 px-2 py-0.5 rounded-lg text-xs text-green-300 border border-green-800/60">${activePortfolio.cash.toFixed(0)}</span>
+                <span className="bg-emerald-950/50 px-2 py-0.5 rounded-lg text-xs text-emerald-300 border border-emerald-800/50">${activePortfolio.cash.toFixed(0)}</span>
               </button>
 
               <button
                 onClick={handleToggleHalalView}
                 className={`px-4 py-2.5 rounded-xl text-sm font-bold border transition-all flex items-center gap-2 ${
                   showHalalOnly 
-                    ? 'bg-emerald-500/25 text-emerald-400 border-emerald-500/60 shadow-[0_0_12px_rgba(16,185,129,0.15)]' 
-                    : 'bg-gray-900 text-gray-400 border-gray-800 hover:border-emerald-500/40 hover:text-emerald-400'
+                    ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50 shadow-[0_0_12px_rgba(16,185,129,0.15)]' 
+                    : 'bg-slate-900/80 text-slate-300 border-slate-700/50 hover:border-emerald-500/40 hover:text-emerald-400'
                 }`}
               >
                 <span>☪️</span>
@@ -747,8 +746,8 @@ export default function StockRadarPage() {
                 onClick={handleToggleFavoritesView}
                 className={`px-4 py-2.5 rounded-xl text-sm font-bold border transition-all flex items-center gap-2 ${
                   showFavoritesOnly 
-                    ? 'bg-yellow-500/25 text-yellow-400 border-yellow-500/60 shadow-[0_0_12px_rgba(234,179,8,0.15)]' 
-                    : 'bg-gray-900 text-gray-400 border-gray-800 hover:border-yellow-500/40 hover:text-yellow-400'
+                    ? 'bg-yellow-500/20 text-yellow-300 border-yellow-500/50 shadow-[0_0_12px_rgba(234,179,8,0.15)]' 
+                    : 'bg-slate-900/80 text-slate-300 border-slate-700/50 hover:border-yellow-500/40 hover:text-yellow-400'
                 }`}
               >
                 <span>⭐</span>
@@ -761,13 +760,13 @@ export default function StockRadarPage() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value.toUpperCase())}
                   placeholder="ابحث عن رمز سهم..."
-                  className="bg-gray-900 border border-gray-800 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-blue-500 w-full sm:w-44 text-left uppercase text-white placeholder-gray-500"
+                  className="bg-slate-900/80 border border-slate-700/50 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-blue-500/50 w-full sm:w-44 text-left uppercase text-white placeholder-slate-500 shadow-inner"
                   dir="ltr"
                 />
                 <button 
                   type="submit" 
                   disabled={isSearching || !searchQuery.trim()}
-                  className="bg-blue-600 hover:bg-blue-700 px-4 py-2.5 rounded-xl text-sm font-bold disabled:opacity-50 transition-colors whitespace-nowrap shadow-sm"
+                  className="bg-blue-600/90 hover:bg-blue-600 px-4 py-2.5 rounded-xl text-sm font-bold disabled:opacity-50 transition-colors whitespace-nowrap shadow-md text-white"
                 >
                   {isSearching ? 'يبحث...' : 'اصطياد'}
                 </button>
@@ -792,11 +791,10 @@ export default function StockRadarPage() {
               <div 
                 key={stock.symbol + index} 
                 ref={(!showFavoritesOnly && !showHalalOnly && isLast) ? lastStockElementRef : null}
-                className={`bg-gray-900 p-5 rounded-2xl border ${isFav ? 'border-yellow-500/30 shadow-[0_0_15px_rgba(234,179,8,0.1)]' : 'border-gray-800 shadow-xl'} flex flex-col justify-between hover:border-blue-500/50 transition-all h-full relative`}
+                className={`bg-slate-900 p-5 rounded-2xl border ${isFav ? 'border-yellow-500/30 shadow-[0_0_15px_rgba(234,179,8,0.1)]' : 'border-slate-800 shadow-lg'} flex flex-col justify-between hover:border-blue-500/40 hover:shadow-xl transition-all h-full relative`}
               >
-                {/* --- التعديل هنا: جعل الشارة الشرعية قابلة للضغط لتعديل التصنيف --- */}
                 <div className="absolute top-4 left-4 z-10 cursor-pointer hover:scale-105 transition-transform" onClick={() => setEditingShariaSymbol(stock.symbol)}>
-                  <span className={`text-[10px] font-bold px-2 py-1 rounded-md border ${sharia.class}`} title="انقر لتعديل التصنيف الشرعي لهذا السهم">
+                  <span className={`text-[10px] font-bold px-2 py-1 rounded-md border ${sharia.class} shadow-sm`} title="انقر لتعديل التصنيف الشرعي لهذا السهم">
                     {sharia.label} ✏️
                   </span>
                 </div>
@@ -805,27 +803,27 @@ export default function StockRadarPage() {
                   <div className="flex items-center gap-2">
                     <button 
                       onClick={() => toggleFavorite(stock.symbol)}
-                      className="text-2xl focus:outline-none transition-transform hover:scale-125 pb-1"
+                      className="text-2xl focus:outline-none transition-transform hover:scale-125 pb-1 drop-shadow-sm"
                       title="إضافة/إزالة من المفضلة"
                     >
-                      {isFav ? '⭐' : <span className="text-gray-600">☆</span>}
+                      {isFav ? '⭐' : <span className="text-slate-600">☆</span>}
                     </button>
                     <div>
-                      <h2 className="text-2xl font-black text-white">{stock.symbol}</h2>
-                      <p className="text-[10px] text-gray-500 mt-1">PE: {stock.peRatio} | PEG: {stock.pegRatio}</p>
+                      <h2 className="text-2xl font-black text-white tracking-wide">{stock.symbol}</h2>
+                      <p className="text-[10px] text-slate-500 mt-1 font-medium">PE: {stock.peRatio} | PEG: {stock.pegRatio}</p>
                     </div>
                   </div>
                   
-                  <div className="flex flex-col items-center justify-center bg-blue-950/50 px-3 py-1.5 rounded-lg border border-blue-900/50 min-w-[75px] mt-6">
+                  <div className="flex flex-col items-center justify-center bg-blue-950/20 px-3 py-1.5 rounded-lg border border-blue-900/30 min-w-[75px] mt-6 shadow-inner">
                     <span className="text-blue-400 text-lg font-bold leading-tight">${stock.price}</span>
-                    <span className="text-gray-400 text-[10px] font-semibold mt-0.5">{stock.priceSAR} ر.س</span>
+                    <span className="text-slate-400 text-[10px] font-semibold mt-0.5">{stock.priceSAR} ر.س</span>
                   </div>
                 </div>
 
                 <div className="flex gap-2 mb-4">
                   <button 
                     onClick={() => { setTradeStock(stock); setTradeShares(''); }}
-                    className="flex-1 bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs font-bold py-2 rounded border border-gray-700 transition-colors"
+                    className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold py-2 rounded-xl border border-slate-700 transition-colors shadow-sm"
                   >
                     تداول ⚖️
                   </button>
@@ -833,53 +831,53 @@ export default function StockRadarPage() {
                   {ownedInActive && ownedPosition ? (
                     <button 
                       onClick={() => { setTradeStock(stock); setTradeShares(ownedPosition.shares.toString()); }}
-                      className="flex-1 bg-red-600/20 hover:bg-red-600 text-red-500 hover:text-white text-xs font-bold py-2 rounded border border-red-600/50 transition-colors"
+                      className="flex-1 bg-red-900/20 hover:bg-red-600 text-red-400 hover:text-white text-xs font-bold py-2 rounded-xl border border-red-800/40 transition-colors shadow-sm"
                     >
                       بيع ⚡ ({ownedPosition.shares})
                     </button>
                   ) : ownerPortfolio ? (
-                    <div className="flex-1 bg-yellow-950/40 border border-yellow-800/50 rounded flex items-center justify-center text-[10px] font-bold text-yellow-400 px-1 text-center" title={`مملوك في ${ownerPortfolio.name}`}>
+                    <div className="flex-1 bg-yellow-950/30 border border-yellow-800/40 rounded-xl flex items-center justify-center text-[10px] font-bold text-yellow-500 px-1 text-center shadow-inner" title={`مملوك في ${ownerPortfolio.name}`}>
                       مملوك في {ownerPortfolio.name}
                     </div>
                   ) : (
-                    <div className="flex-1 bg-gray-950 border border-gray-800 rounded flex items-center justify-center text-[10px] font-bold text-gray-500">
+                    <div className="flex-1 bg-slate-950/50 border border-slate-800 rounded-xl flex items-center justify-center text-[10px] font-bold text-slate-500 shadow-inner">
                       متاح للشراء
                     </div>
                   )}
                 </div>
 
-                <div className="bg-gradient-to-r from-gray-800 to-gray-900 p-3 rounded-lg mb-4 border border-gray-700">
+                <div className="bg-gradient-to-r from-slate-800/50 to-slate-900 p-3 rounded-xl mb-4 border border-slate-700/50 shadow-sm">
                   <div className="flex justify-between items-center mb-2">
-                    <span className="text-[11px] font-bold text-gray-400">السعر المحدد للدخول:</span>
-                    <span className="text-sm font-black text-green-400">${stock.suggestedEntryPrice}</span>
+                    <span className="text-[11px] font-bold text-slate-400">السعر المحدد للدخول:</span>
+                    <span className="text-sm font-black text-emerald-400">${stock.suggestedEntryPrice}</span>
                   </div>
-                  <p className="text-xs font-bold mb-2">{stock.entrySignal}</p>
-                  <p className="text-[10px] text-gray-300 leading-relaxed border-t border-gray-700 pt-2 mt-2">
+                  <p className="text-xs font-bold mb-2 text-slate-200">{stock.entrySignal}</p>
+                  <p className="text-[10px] text-slate-400 leading-relaxed border-t border-slate-700/50 pt-2 mt-2">
                     <span className="text-blue-400 font-bold">💡 تحليل Gemini: </span>{stock.analysis}
                   </p>
                 </div>
 
-                <div className="bg-gray-950/50 border border-gray-800 rounded-lg p-2 mb-3">
-                  <h3 className="text-[10px] font-bold text-gray-400 mb-2 px-1">سجل التداول (آخر 30 يوم):</h3>
+                <div className="bg-slate-950/40 border border-slate-800/80 rounded-xl p-2.5 mb-3 shadow-inner">
+                  <h3 className="text-[10px] font-bold text-slate-400 mb-2 px-1">سجل التداول (آخر 30 يوم):</h3>
                   <div className="space-y-1 max-h-32 overflow-y-auto pl-1 custom-scrollbar">
                     {stock.history30Days?.map((dayRecord: any, idx: number) => (
-                      <div key={idx} className="flex justify-between items-center text-[10px] p-1.5 border-b border-gray-800/50 last:border-0">
-                        <span className="text-gray-400">{dayRecord.day}</span>
-                        <span className={`font-bold flex items-center gap-1 ${dayRecord.isPositive ? 'text-green-500' : 'text-red-500'}`}>
+                      <div key={idx} className="flex justify-between items-center text-[10px] p-1.5 border-b border-slate-800/50 last:border-0">
+                        <span className="text-slate-400">{dayRecord.day}</span>
+                        <span className={`font-bold flex items-center gap-1 ${dayRecord.isPositive ? 'text-emerald-500' : 'text-red-400'}`}>
                           {dayRecord.status} ${dayRecord.amount} {dayRecord.isPositive ? '▲' : '▼'}
                         </span>
                       </div>
                     ))}
                   </div>
                   
-                  <div className="mt-2 pt-2 border-t border-gray-800 flex justify-between items-center px-1">
-                    <span className="text-xs font-bold text-gray-300">صافي آخر 30 يوم:</span>
+                  <div className="mt-2 pt-2 border-t border-slate-800/80 flex justify-between items-center px-1">
+                    <span className="text-xs font-bold text-slate-300">صافي آخر 30 يوم:</span>
                     
-                    <div className={`flex flex-col items-end ${stock.isTotalPositive ? 'text-green-500' : 'text-red-500'}`}>
+                    <div className={`flex flex-col items-end ${stock.isTotalPositive ? 'text-emerald-500' : 'text-red-400'}`}>
                       <span className="text-sm font-black flex items-center gap-1">
                         ${stock.total30Days} {stock.isTotalPositive ? 'ربح ▲' : 'خسارة ▼'}
                       </span>
-                      <span className="text-[9px] font-bold opacity-90 mt-0.5">
+                      <span className="text-[9px] font-bold opacity-80 mt-0.5 text-slate-400">
                         {stock.total30DaysSAR} ر.س
                       </span>
                     </div>
@@ -888,7 +886,7 @@ export default function StockRadarPage() {
                 </div>
 
                 <div className="mt-auto">
-                  <h3 className="text-[10px] font-bold text-gray-500 mb-2 text-center">العائد التاريخي للسهم</h3>
+                  <h3 className="text-[10px] font-bold text-slate-500 mb-2 text-center">العائد التاريخي للسهم</h3>
                   <div className="grid grid-cols-3 gap-1.5 text-center">
                     {[
                       { label: '3 أشهر', data: stock.stats?.m3 },
@@ -898,19 +896,19 @@ export default function StockRadarPage() {
                       { label: '3 سنوات', data: stock.stats?.y3 },
                       { label: '5 سنوات', data: stock.stats?.y5 }
                     ].map((stat, i) => (
-                      <div key={i} className="bg-gray-950 p-1.5 rounded-md border border-gray-800 flex flex-col justify-center items-center min-h-[64px]">
-                        <span className="text-[9px] text-gray-500 leading-tight mb-0.5">{stat.label}</span>
+                      <div key={i} className="bg-slate-950/40 p-1.5 rounded-lg border border-slate-800/80 flex flex-col justify-center items-center min-h-[64px] shadow-inner hover:bg-slate-800/50 transition-colors">
+                        <span className="text-[9px] text-slate-500 font-medium leading-tight mb-0.5">{stat.label}</span>
                         
-                        <span className={`text-[10px] font-bold ${stat.data?.value === '-' || !stat.data ? 'text-gray-500' : (stat.data?.isPositive ? 'text-green-500' : 'text-red-500')}`}>
+                        <span className={`text-[10px] font-bold ${stat.data?.value === '-' || !stat.data ? 'text-slate-600' : (stat.data?.isPositive ? 'text-emerald-500' : 'text-red-400')}`}>
                           {stat.data?.value !== '-' && stat.data ? (stat.data?.isPositive ? '+' : '-') : ''}{stat.data?.value || '-'}
                         </span>
                         
                         {stat.data?.value !== '-' && stat.data && (
                           <div className="flex flex-col items-center mt-0.5">
-                            <span className={`text-[8px] font-semibold opacity-90 ${stat.data?.isPositive ? 'text-green-500' : 'text-red-500'}`}>
+                            <span className={`text-[8px] font-semibold opacity-90 ${stat.data?.isPositive ? 'text-emerald-500' : 'text-red-400'}`}>
                               ${stat.data?.amount}
                             </span>
-                            <span className="text-[7px] text-gray-400 mt-0.5">
+                            <span className="text-[7px] text-slate-500 mt-0.5 font-medium">
                               السعر: ${stat.data?.pastPrice}
                             </span>
                           </div>
@@ -926,7 +924,7 @@ export default function StockRadarPage() {
 
         {isLoading && (
           <div className="text-center py-10 text-blue-400 font-bold text-lg animate-pulse">
-            جاري استرجاع الأسهم والفلترة الشرعية...
+            جاري استرجاع الأسهم وتطبيق الفلترة...
           </div>
         )}
       </div>
