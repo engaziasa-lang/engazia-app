@@ -79,14 +79,14 @@ export default function StockRadarPage() {
   const [isPortfolioOpen, setIsPortfolioOpen] = useState(false);
   
   const [isDepositOpen, setIsDepositOpen] = useState(false);
-  const [depositAmount, setDepositAmount] = useState<any>(''); // جعلناها فارغة للاستخدام المريح
+  const [depositAmount, setDepositAmount] = useState<any>('');
   
   const [isWithdrawOpen, setIsWithdrawOpen] = useState(false);
-  const [withdrawAmount, setWithdrawAmount] = useState<any>(''); // جعلناها فارغة للاستخدام المريح
+  const [withdrawAmount, setWithdrawAmount] = useState<any>('');
 
   const [tradeStock, setTradeStock] = useState<any>(null);
-  const [tradeShares, setTradeShares] = useState<any>(''); // بدأت فارغة تماماً بدون صفر
-  const BROKER_COMMISSION = 2;
+  const [tradeShares, setTradeShares] = useState<any>('');
+  const BROKER_COMMISSION = 2; // عمولة الوسيط الثابتة للعملية الواحدة (شراء أو بيع)
 
   const currentIndexRef = useRef(0);
   const initialLoadDone = useRef(false);
@@ -270,11 +270,13 @@ export default function StockRadarPage() {
     if (type === 'buy') {
       const totalCost = totalSharesValue + BROKER_COMMISSION;
       if (portfolio.cash < totalCost) {
-        alert(`❌ رصيدك الافتراضي غير كافٍ. تحتاج إلى ${totalCost.toFixed(2)}$ لإتمام الصفقة.`);
+        alert(`❌ رصيدك الافتراضي غير كافٍ. تحتاج إلى ${totalCost.toFixed(2)}$ لإتمام الصفقة (شاملة عمولة الشراء 2$).`);
         return;
       }
       
-      const effectivePricePerShare = stockPrice + (BROKER_COMMISSION / sharesNum);
+      // تقسيم عمولة الشراء (2$) على الأسهم وتضمينها في متوسط التكلفة
+      const commissionPerShare = BROKER_COMMISSION / sharesNum;
+      const effectivePricePerShare = stockPrice + commissionPerShare;
 
       setPortfolio(prev => {
         const newPositions = [...prev.positions];
@@ -290,7 +292,7 @@ export default function StockRadarPage() {
         }
         return { cash: prev.cash - totalCost, positions: newPositions };
       });
-      alert(`✅ تم الشراء بنجاح! تم توزيع العمولة (${BROKER_COMMISSION}$) على الأسهم وتحديث متوسط التكلفة.`);
+      alert(`✅ تم الشراء بنجاح! تم توزيع عمولة الشراء (2$) على ${sharesNum} سهم.`);
       
     } else if (type === 'sell') {
       const existingPos = portfolio.positions.find(p => p.symbol === tradeStock.symbol);
@@ -299,6 +301,7 @@ export default function StockRadarPage() {
         return;
       }
 
+      // خصم عمولة البيع (2$) من إجمالي العائد الذي سيدخل للكاش
       const totalProceeds = totalSharesValue - BROKER_COMMISSION;
       
       setPortfolio(prev => {
@@ -311,7 +314,7 @@ export default function StockRadarPage() {
 
         return { cash: prev.cash + totalProceeds, positions: newPositions };
       });
-      alert(`✅ تم البيع بنجاح! تمت إضافة ${totalProceeds.toFixed(2)}$ لرصيدك بعد خصم العمولة الثابتة.`);
+      alert(`✅ تم البيع بنجاح! تمت إضافة ${totalProceeds.toFixed(2)}$ لرصيدك (بعد خصم عمولة البيع الثابتة 2$).`);
     }
 
     setTradeStock(null);
@@ -428,11 +431,11 @@ export default function StockRadarPage() {
                 <span>${((Number(tradeShares) || 0) * parseFloat(tradeStock.price)).toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-yellow-500">
-                <span>عمولة الوسيط (تُوزع على الأسهم):</span> 
+                <span>عمولة الوسيط للشراء/البيع:</span> 
                 <span>${BROKER_COMMISSION.toFixed(2)}</span>
               </div>
               <div className="flex justify-between font-bold text-white border-t border-gray-800 pt-2 mt-2">
-                <span>الإجمالي للشراء:</span> 
+                <span>الإجمالي التقريبي:</span> 
                 <span>${(((Number(tradeShares) || 0) * parseFloat(tradeStock.price)) + BROKER_COMMISSION).toFixed(2)}</span>
               </div>
             </div>
@@ -504,7 +507,7 @@ export default function StockRadarPage() {
                     <div key={idx} className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-gray-950 p-4 rounded-lg border border-gray-800 gap-2">
                       <div>
                         <h4 className="font-black text-lg text-white">{pos.symbol} <span className="text-xs font-normal text-gray-400">({pos.shares} سهم)</span></h4>
-                        <p className="text-xs text-gray-400">متوسط التكلفة: ${pos.avgPrice.toFixed(2)} | الحالي: ${currentPrice.toFixed(2)}</p>
+                        <p className="text-xs text-gray-400">متوسط التكلفة (موزع بالعمولة): ${pos.avgPrice.toFixed(2)} | الحالي: ${currentPrice.toFixed(2)}</p>
                       </div>
                       <div className="text-left w-full sm:w-auto flex sm:flex-col justify-between items-center sm:items-end">
                         <p className="text-sm font-bold text-white">${marketVal.toFixed(2)}</p>
