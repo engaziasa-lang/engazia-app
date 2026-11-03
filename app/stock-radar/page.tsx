@@ -79,13 +79,13 @@ export default function StockRadarPage() {
   const [isPortfolioOpen, setIsPortfolioOpen] = useState(false);
   
   const [isDepositOpen, setIsDepositOpen] = useState(false);
-  const [depositAmount, setDepositAmount] = useState<number>(5000);
+  const [depositAmount, setDepositAmount] = useState<any>(''); // جعلناها فارغة للاستخدام المريح
   
   const [isWithdrawOpen, setIsWithdrawOpen] = useState(false);
-  const [withdrawAmount, setWithdrawAmount] = useState<number>(1000);
+  const [withdrawAmount, setWithdrawAmount] = useState<any>(''); // جعلناها فارغة للاستخدام المريح
 
   const [tradeStock, setTradeStock] = useState<any>(null);
-  const [tradeShares, setTradeShares] = useState<number>(1);
+  const [tradeShares, setTradeShares] = useState<any>(''); // بدأت فارغة تماماً بدون صفر
   const BROKER_COMMISSION = 2;
 
   const currentIndexRef = useRef(0);
@@ -230,36 +230,42 @@ export default function StockRadarPage() {
   }, [isLoading, hasMore, showFavoritesOnly]);
 
   const handleDeposit = () => {
-    if (depositAmount <= 0) {
+    const amount = Number(depositAmount);
+    if (!amount || amount <= 0) {
       alert("الرجاء إدخال مبلغ صحيح للإيداع.");
       return;
     }
-    setPortfolio(prev => ({ ...prev, cash: prev.cash + depositAmount }));
+    setPortfolio(prev => ({ ...prev, cash: prev.cash + amount }));
     setIsDepositOpen(false);
-    setDepositAmount(5000); 
-    alert(`✅ تم إيداع ${depositAmount}$ بنجاح في محفظتك!`);
+    setDepositAmount(''); 
+    alert(`✅ تم إيداع ${amount}$ بنجاح في محفظتك!`);
   };
 
   const handleWithdraw = () => {
-    if (withdrawAmount <= 0) {
+    const amount = Number(withdrawAmount);
+    if (!amount || amount <= 0) {
       alert("الرجاء إدخال مبلغ صحيح للسحب.");
       return;
     }
-    if (withdrawAmount > portfolio.cash) {
+    if (amount > portfolio.cash) {
       alert(`❌ رصيدك الحالي (${portfolio.cash.toFixed(2)}$) لا يكفي لإتمام عملية السحب.`);
       return;
     }
-    setPortfolio(prev => ({ ...prev, cash: prev.cash - withdrawAmount }));
+    setPortfolio(prev => ({ ...prev, cash: prev.cash - amount }));
     setIsWithdrawOpen(false);
-    setWithdrawAmount(1000); 
-    alert(`✅ تم سحب ${withdrawAmount}$ بنجاح من محفظتك!`);
+    setWithdrawAmount(''); 
+    alert(`✅ تم سحب ${amount}$ بنجاح من محفظتك!`);
   };
 
   const handleExecuteTrade = (type: 'buy' | 'sell') => {
-    if (!tradeStock || tradeShares <= 0) return;
+    const sharesNum = Number(tradeShares);
+    if (!tradeStock || !sharesNum || sharesNum <= 0) {
+      alert("الرجاء إدخال عدد أسهم صحيح.");
+      return;
+    }
     
     const stockPrice = parseFloat(tradeStock.price);
-    const totalSharesValue = stockPrice * tradeShares;
+    const totalSharesValue = stockPrice * sharesNum;
 
     if (type === 'buy') {
       const totalCost = totalSharesValue + BROKER_COMMISSION;
@@ -268,7 +274,7 @@ export default function StockRadarPage() {
         return;
       }
       
-      const effectivePricePerShare = stockPrice + (BROKER_COMMISSION / tradeShares);
+      const effectivePricePerShare = stockPrice + (BROKER_COMMISSION / sharesNum);
 
       setPortfolio(prev => {
         const newPositions = [...prev.positions];
@@ -276,11 +282,11 @@ export default function StockRadarPage() {
         
         if (existingPos) {
           const previousTotalCost = existingPos.shares * existingPos.avgPrice;
-          const currentTradeTotalCost = tradeShares * effectivePricePerShare;
-          existingPos.shares += tradeShares;
+          const currentTradeTotalCost = sharesNum * effectivePricePerShare;
+          existingPos.shares += sharesNum;
           existingPos.avgPrice = (previousTotalCost + currentTradeTotalCost) / existingPos.shares;
         } else {
-          newPositions.push({ symbol: tradeStock.symbol, shares: tradeShares, avgPrice: effectivePricePerShare });
+          newPositions.push({ symbol: tradeStock.symbol, shares: sharesNum, avgPrice: effectivePricePerShare });
         }
         return { cash: prev.cash - totalCost, positions: newPositions };
       });
@@ -288,7 +294,7 @@ export default function StockRadarPage() {
       
     } else if (type === 'sell') {
       const existingPos = portfolio.positions.find(p => p.symbol === tradeStock.symbol);
-      if (!existingPos || existingPos.shares < tradeShares) {
+      if (!existingPos || existingPos.shares < sharesNum) {
         alert("❌ لا تملك عدداً كافياً من هذا السهم للبيع.");
         return;
       }
@@ -298,7 +304,7 @@ export default function StockRadarPage() {
       setPortfolio(prev => {
         let newPositions = prev.positions.map(p => {
           if (p.symbol === tradeStock.symbol) {
-            return { ...p, shares: p.shares - tradeShares };
+            return { ...p, shares: p.shares - sharesNum };
           }
           return p;
         }).filter(p => p.shares > 0);
@@ -309,10 +315,10 @@ export default function StockRadarPage() {
     }
 
     setTradeStock(null);
-    setTradeShares(1);
+    setTradeShares('');
   };
 
-  // --- حساب إجماليات المحفظة الحقيقية ---
+  // --- حساب إجماليات المحفظة ---
   let totalStocksMarketValue = 0;
   let totalCostValue = 0;
 
@@ -347,8 +353,9 @@ export default function StockRadarPage() {
               <input 
                 type="number" 
                 min="1"
+                placeholder="أدخل المبلغ..."
                 value={depositAmount} 
-                onChange={(e) => setDepositAmount(Number(e.target.value))}
+                onChange={(e) => setDepositAmount(e.target.value)}
                 className="w-full bg-gray-950 border border-gray-700 p-3 rounded-lg text-white font-bold text-lg focus:border-green-500 outline-none text-left"
                 dir="ltr"
               />
@@ -374,8 +381,9 @@ export default function StockRadarPage() {
                 type="number" 
                 min="1"
                 max={portfolio.cash}
+                placeholder="أدخل المبلغ..."
                 value={withdrawAmount} 
-                onChange={(e) => setWithdrawAmount(Number(e.target.value))}
+                onChange={(e) => setWithdrawAmount(e.target.value)}
                 className="w-full bg-gray-950 border border-gray-700 p-3 rounded-lg text-white font-bold text-lg focus:border-red-500 outline-none text-left"
                 dir="ltr"
               />
@@ -407,8 +415,9 @@ export default function StockRadarPage() {
               <input 
                 type="number" 
                 min="1"
+                placeholder="أدخل عدد الأسهم..."
                 value={tradeShares} 
-                onChange={(e) => setTradeShares(Number(e.target.value))}
+                onChange={(e) => setTradeShares(e.target.value)}
                 className="w-full bg-gray-950 border border-gray-700 p-3 rounded-lg text-white font-bold focus:border-blue-500 outline-none"
               />
             </div>
@@ -416,7 +425,7 @@ export default function StockRadarPage() {
             <div className="text-xs text-gray-400 mb-6 bg-gray-950 p-3 rounded border border-gray-800 space-y-2">
               <div className="flex justify-between">
                 <span>قيمة الأسهم:</span> 
-                <span>${(tradeShares * parseFloat(tradeStock.price)).toFixed(2)}</span>
+                <span>${((Number(tradeShares) || 0) * parseFloat(tradeStock.price)).toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-yellow-500">
                 <span>عمولة الوسيط (تُوزع على الأسهم):</span> 
@@ -424,7 +433,7 @@ export default function StockRadarPage() {
               </div>
               <div className="flex justify-between font-bold text-white border-t border-gray-800 pt-2 mt-2">
                 <span>الإجمالي للشراء:</span> 
-                <span>${((tradeShares * parseFloat(tradeStock.price)) + BROKER_COMMISSION).toFixed(2)}</span>
+                <span>${(((Number(tradeShares) || 0) * parseFloat(tradeStock.price)) + BROKER_COMMISSION).toFixed(2)}</span>
               </div>
             </div>
 
@@ -449,7 +458,6 @@ export default function StockRadarPage() {
               <button onClick={() => setIsPortfolioOpen(false)} className="text-gray-500 hover:text-white text-2xl font-black">×</button>
             </div>
             
-            {/* بطاقات الصناديق العلوية */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
               <div className="bg-gray-950 p-4 rounded-xl border border-gray-800 relative">
                 <p className="text-sm text-gray-400 mb-1">الرصيد النقدي (الكاش)</p>
@@ -471,7 +479,6 @@ export default function StockRadarPage() {
               </div>
             </div>
 
-            {/* قائمة الأسهم الحالية */}
             <h3 className="font-bold text-gray-300 mb-3">الأسهم في محفظتك:</h3>
             {portfolio.positions.length === 0 ? (
               <div className="text-center text-gray-500 py-8 bg-gray-950 rounded-lg border border-gray-800 flex flex-col items-center gap-3 mb-6">
@@ -489,9 +496,9 @@ export default function StockRadarPage() {
                   const currentPrice = liveStock ? parseFloat(liveStock.price) : pos.avgPrice;
                   const marketVal = pos.shares * currentPrice;
                   const costVal = pos.shares * pos.avgPrice;
-                  const p/l = marketVal - costVal;
-                  const p/lPct = costVal > 0 ? (p/l / costVal) * 100 : 0;
-                  const isPos = p/l >= 0;
+                  const profitLoss = marketVal - costVal;
+                  const profitLossPct = costVal > 0 ? (profitLoss / costVal) * 100 : 0;
+                  const isPos = profitLoss >= 0;
 
                   return (
                     <div key={idx} className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-gray-950 p-4 rounded-lg border border-gray-800 gap-2">
@@ -502,7 +509,7 @@ export default function StockRadarPage() {
                       <div className="text-left w-full sm:w-auto flex sm:flex-col justify-between items-center sm:items-end">
                         <p className="text-sm font-bold text-white">${marketVal.toFixed(2)}</p>
                         <p className={`text-xs font-black ${isPos ? 'text-green-500' : 'text-red-500'}`}>
-                          {isPos ? '+' : ''}${p/l.toFixed(2)} ({isPos ? '+' : ''}{p/lPct.toFixed(1)}%)
+                          {isPos ? '+' : ''}${profitLoss.toFixed(2)} ({isPos ? '+' : ''}{profitLossPct.toFixed(1)}%)
                         </p>
                       </div>
                     </div>
@@ -511,7 +518,7 @@ export default function StockRadarPage() {
               </div>
             )}
 
-            {/* --- ملخص إجمالي المحفظة (مثل المحافظ الحقيقية) --- */}
+            {/* ملخص إجمالي المحفظة */}
             <div className="bg-gradient-to-r from-gray-950 to-blue-950/40 p-4 rounded-xl border border-blue-900/50 space-y-3">
               <h3 className="text-xs font-bold text-blue-400 uppercase tracking-wider mb-2">ملخص المحفظة الإجمالي</h3>
               
@@ -632,7 +639,7 @@ export default function StockRadarPage() {
 
                 <div className="flex gap-2 mb-4">
                   <button 
-                    onClick={() => { setTradeStock(stock); setTradeShares(1); }}
+                    onClick={() => { setTradeStock(stock); setTradeShares(''); }}
                     className="flex-1 bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs font-bold py-2 rounded border border-gray-700 transition-colors"
                   >
                     تداول السهم ⚖️
