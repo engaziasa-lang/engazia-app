@@ -61,6 +61,9 @@ const ALL_MARKET_TICKERS = [
   'WYNN', 'XEL', 'XLNX', 'XYL', 'YUM', 'ZBRA', 'ZBH', 'ZION'
 ];
 
+type Position = { symbol: string; shares: number; avgPrice: number };
+type Portfolio = { cash: number; positions: Position[] };
+
 export default function StockRadarPage() {
   const [stocks, setStocks] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -72,6 +75,21 @@ export default function StockRadarPage() {
   const [favorites, setFavorites] = useState<string[]>([]);
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
 
+  // --- حالات محفظة التداول ---
+  const [portfolio, setPortfolio] = useState<Portfolio>({ cash: 0, positions: [] });
+  const [isPortfolioOpen, setIsPortfolioOpen] = useState(false);
+  
+  // حالات الإيداع والسحب
+  const [isDepositOpen, setIsDepositOpen] = useState(false);
+  const [depositAmount, setDepositAmount] = useState<number>(5000);
+  
+  const [isWithdrawOpen, setIsWithdrawOpen] = useState(false);
+  const [withdrawAmount, setWithdrawAmount] = useState<number>(1000);
+
+  const [tradeStock, setTradeStock] = useState<any>(null);
+  const [tradeShares, setTradeShares] = useState<number>(1);
+  const BROKER_COMMISSION = 2; // عمولة الوسيط
+
   const currentIndexRef = useRef(0);
   const initialLoadDone = useRef(false);
   const observer = useRef<IntersectionObserver | null>(null);
@@ -80,20 +98,23 @@ export default function StockRadarPage() {
 
   useEffect(() => {
     const savedFavs = localStorage.getItem('stockRadarFavorites');
-    if (savedFavs) {
-      setFavorites(JSON.parse(savedFavs));
-    }
+    if (savedFavs) setFavorites(JSON.parse(savedFavs));
+
+    const savedPortfolio = localStorage.getItem('stockRadarPortfolio');
+    if (savedPortfolio) setPortfolio(JSON.parse(savedPortfolio));
   }, []);
 
   useEffect(() => {
     localStorage.setItem('stockRadarFavorites', JSON.stringify(favorites));
   }, [favorites]);
 
+  useEffect(() => {
+    localStorage.setItem('stockRadarPortfolio', JSON.stringify(portfolio));
+  }, [portfolio]);
+
   const toggleFavorite = (symbol: string) => {
     setFavorites(prev => 
-      prev.includes(symbol) 
-        ? prev.filter(s => s !== symbol) 
-        : [...prev, symbol]
+      prev.includes(symbol) ? prev.filter(s => s !== symbol) : [...prev, symbol]
     );
   };
 
@@ -141,7 +162,6 @@ export default function StockRadarPage() {
       const validResults = chunkResults.filter(r => r && r.success && r.data).map(r => r.data);
       
       setStocks(prev => {
-        // [إصلاح خطأ TypeScript]: التأكد من وجود newStock و newStock.symbol
         const uniqueNew = validResults.filter((newStock: any) => newStock && newStock.symbol && !prev.some(s => s.symbol === newStock.symbol));
         return [...prev, ...uniqueNew];
       });
@@ -173,7 +193,6 @@ export default function StockRadarPage() {
     const validResults = chunkResults.filter(r => r && r.success && r.data).map(r => r.data);
 
     setStocks(prev => {
-      // [إصلاح خطأ TypeScript]: التأكد من وجود newStock و newStock.symbol
       const uniqueNew = validResults.filter((newStock: any) => newStock && newStock.symbol && !prev.some(s => s.symbol === newStock.symbol));
       return [...prev, ...uniqueNew];
     });
@@ -212,21 +231,291 @@ export default function StockRadarPage() {
     if (node) observer.current.observe(node);
   }, [isLoading, hasMore, showFavoritesOnly]);
 
+  // --- دوال النظام المالي (تداول / إيداع / سحب) ---
+  
+  const handleDeposit = () => {
+    if (depositAmount <= 0) {
+      alert("الرجاء إدخال مبلغ صحيح للإيداع.");
+      return;
+    }
+    setPortfolio(prev => ({
+      ...prev,
+      cash: prev.cash + depositAmount
+    }));
+    setIsDepositOpen(false);
+    setDepositAmount(5000); 
+    alert(`✅ تم إيداع ${depositAmount}$ بنجاح في محفظتك!`);
+  };
+
+  const handleWithdraw = () => {
+    if (withdrawAmount <= 0) {
+      alert("الرجاء إدخال مبلغ صحيح للسحب.");
+      return;
+    }
+    if (withdrawAmount > portfolio.cash) {
+      alert(`❌ رصيدك الحالي (${portfolio.cash.toFixed(2)}$) لا يكفي لإتمام عملية السحب.`);
+      return;
+    }
+    setPortfolio(prev => ({
+      ...prev,
+      cash: prev.cash - withdrawAmount
+    }));
+    setIsWithdrawOpen(false);
+    setWithdrawAmount(1000); 
+    alert(`✅ تم سحب ${withdrawAmount}$ بنجاح من محفظتك!`);
+  };
+
+  const handleExecuteTrade = (type: 'buy' | 'sell') => {
+    if (!tradeStock || tradeShares <= 0) return;
+    
+    const stockPrice = parseFloat(tradeStock.price);
+    const totalSharesValue = stockPrice * tradeShares;
+
+    if (type === 'buy') {
+      const totalCost = totalSharesValue + BROKER_COMMISSION;
+      if (portfolio.cash < totalCost) {
+        alert(`❌ رصيدك الافتراضي غير كافٍ. تحتاج إلى ${totalCost.toFixed(2)}$ لإتمام الصفقة.`);
+        return;
+      }
+      
+      setPortfolio(prev => {
+        const newPositions = [...prev.positions];
+        const existingPos = newPositions.find(p => p.symbol === tradeStock.symbol);
+        
+        if (existingPos) {
+          const previousTotalCost = existingPos.shares * existingPos.avgPrice;
+          existingPos.shares += tradeShares;
+          existingPos.avgPrice = (previousTotalCost + totalSharesValue) / existingPos.shares;
+        } else {
+          newPositions.push({ symbol: tradeStock.symbol, shares: tradeShares, avgPrice: stockPrice });
+        }
+        return { cash: prev.cash - totalCost, positions: newPositions };
+      });
+      alert(`✅ تم الشراء بنجاح! تم خصم ${totalCost.toFixed(2)}$ شاملة عمولة الوسيط.`);
+      
+    } else if (type === 'sell') {
+      const existingPos = portfolio.positions.find(p => p.symbol === tradeStock.symbol);
+      if (!existingPos || existingPos.shares < tradeShares) {
+        alert("❌ لا تملك عدداً كافياً من هذا السهم للبيع.");
+        return;
+      }
+
+      const totalProceeds = totalSharesValue - BROKER_COMMISSION;
+      
+      setPortfolio(prev => {
+        let newPositions = prev.positions.map(p => {
+          if (p.symbol === tradeStock.symbol) {
+            return { ...p, shares: p.shares - tradeShares };
+          }
+          return p;
+        }).filter(p => p.shares > 0);
+
+        return { cash: prev.cash + totalProceeds, positions: newPositions };
+      });
+      alert(`✅ تم البيع بنجاح! تمت إضافة ${totalProceeds.toFixed(2)}$ لرصيدك بعد خصم العمولة.`);
+    }
+
+    setTradeStock(null);
+    setTradeShares(1);
+  };
+
   const displayedStocks = showFavoritesOnly 
     ? stocks.filter(s => favorites.includes(s.symbol))
     : stocks;
 
   return (
     <main className="p-4 md:p-8 bg-gray-950 min-h-screen text-right font-sans text-white" dir="rtl">
+      
+      {/* --- نافذة الإيداع --- */}
+      {isDepositOpen && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[60] p-4">
+          <div className="bg-gray-900 border border-gray-700 p-6 rounded-2xl shadow-2xl max-w-sm w-full">
+            <div className="flex justify-between items-center mb-4 border-b border-gray-800 pb-3">
+              <h2 className="text-xl font-bold text-green-500">إيداع أموال 💰</h2>
+              <button onClick={() => setIsDepositOpen(false)} className="text-gray-500 hover:text-white text-2xl">×</button>
+            </div>
+            <div className="mb-6">
+              <label className="block text-sm text-gray-400 mb-2">حدد المبلغ المراد إيداعه (بالدولار):</label>
+              <input 
+                type="number" 
+                min="1"
+                value={depositAmount} 
+                onChange={(e) => setDepositAmount(Number(e.target.value))}
+                className="w-full bg-gray-950 border border-gray-700 p-3 rounded-lg text-white font-bold text-lg focus:border-green-500 outline-none text-left"
+                dir="ltr"
+              />
+            </div>
+            <button 
+              onClick={handleDeposit} 
+              className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg transition-colors shadow-lg"
+            >
+              تأكيد الإيداع
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* --- نافذة السحب (الجديدة) --- */}
+      {isWithdrawOpen && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[60] p-4">
+          <div className="bg-gray-900 border border-gray-700 p-6 rounded-2xl shadow-2xl max-w-sm w-full">
+            <div className="flex justify-between items-center mb-4 border-b border-gray-800 pb-3">
+              <h2 className="text-xl font-bold text-red-500">سحب أموال 💳</h2>
+              <button onClick={() => setIsWithdrawOpen(false)} className="text-gray-500 hover:text-white text-2xl">×</button>
+            </div>
+            <div className="mb-6">
+              <label className="block text-sm text-gray-400 mb-2">حدد المبلغ المراد سحبه (بالدولار):</label>
+              <input 
+                type="number" 
+                min="1"
+                max={portfolio.cash}
+                value={withdrawAmount} 
+                onChange={(e) => setWithdrawAmount(Number(e.target.value))}
+                className="w-full bg-gray-950 border border-gray-700 p-3 rounded-lg text-white font-bold text-lg focus:border-red-500 outline-none text-left"
+                dir="ltr"
+              />
+              <p className="text-xs text-gray-500 mt-2">الرصيد المتاح للسحب: <span className="text-green-500">${portfolio.cash.toFixed(2)}</span></p>
+            </div>
+            <button 
+              onClick={handleWithdraw} 
+              className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg transition-colors shadow-lg"
+            >
+              تأكيد السحب
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* --- شاشة التداول السريعة (Modal) --- */}
+      {tradeStock && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+          <div className="bg-gray-900 border border-gray-700 p-6 rounded-2xl shadow-2xl max-w-sm w-full">
+            <div className="flex justify-between items-center mb-4 border-b border-gray-800 pb-3">
+              <h2 className="text-xl font-bold">تداول السهم: {tradeStock.symbol}</h2>
+              <button onClick={() => setTradeStock(null)} className="text-gray-500 hover:text-white text-2xl">×</button>
+            </div>
+            
+            <div className="bg-blue-950/30 p-3 rounded-lg border border-blue-900/50 mb-4 text-center">
+              <p className="text-sm text-gray-400">السعر الحالي</p>
+              <p className="text-2xl font-black text-blue-400">${tradeStock.price}</p>
+            </div>
+
+            <div className="mb-4">
+              <label className="block text-sm text-gray-400 mb-2">عدد الأسهم (كمية):</label>
+              <input 
+                type="number" 
+                min="1"
+                value={tradeShares} 
+                onChange={(e) => setTradeShares(Number(e.target.value))}
+                className="w-full bg-gray-950 border border-gray-700 p-3 rounded-lg text-white font-bold focus:border-blue-500 outline-none"
+              />
+            </div>
+
+            <div className="text-xs text-gray-400 mb-6 bg-gray-950 p-3 rounded border border-gray-800 space-y-2">
+              <div className="flex justify-between">
+                <span>قيمة الأسهم:</span> 
+                <span>${(tradeShares * parseFloat(tradeStock.price)).toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between text-yellow-500">
+                <span>عمولة الوسيط (ثابتة):</span> 
+                <span>${BROKER_COMMISSION.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between font-bold text-white border-t border-gray-800 pt-2 mt-2">
+                <span>الإجمالي تقريباً:</span> 
+                <span>${((tradeShares * parseFloat(tradeStock.price)) + BROKER_COMMISSION).toFixed(2)} للشراء</span>
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <button onClick={() => handleExecuteTrade('buy')} className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg transition-colors">
+                شراء
+              </button>
+              <button onClick={() => handleExecuteTrade('sell')} className="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg transition-colors">
+                بيع
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* --- محفظة المتدرب (Modal) --- */}
+      {isPortfolioOpen && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+          <div className="bg-gray-900 border border-gray-700 p-6 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-y-auto custom-scrollbar">
+            <div className="flex justify-between items-center mb-6 border-b border-gray-800 pb-4">
+              <h2 className="text-2xl font-bold text-yellow-500">💼 محفظة التدريب الافتراضية</h2>
+              <button onClick={() => setIsPortfolioOpen(false)} className="text-gray-500 hover:text-white text-2xl font-black">×</button>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4 mb-6">
+              <div className="bg-gray-950 p-4 rounded-xl border border-gray-800 relative">
+                <p className="text-sm text-gray-400 mb-1">الرصيد النقدي (الكاش)</p>
+                <p className="text-2xl font-black text-green-500">${portfolio.cash.toFixed(2)}</p>
+                
+                {/* أزرار الإيداع والسحب في المحفظة */}
+                <div className="absolute top-4 left-4 flex flex-col gap-1 sm:flex-row sm:gap-2">
+                  <button 
+                    onClick={() => setIsDepositOpen(true)}
+                    className="bg-green-600/20 hover:bg-green-600 text-green-500 hover:text-white px-2 py-1 sm:px-3 rounded text-[10px] sm:text-xs font-bold border border-green-600/50 transition-colors"
+                  >
+                    + إيداع
+                  </button>
+                  <button 
+                    onClick={() => setIsWithdrawOpen(true)}
+                    className="bg-red-600/20 hover:bg-red-600 text-red-500 hover:text-white px-2 py-1 sm:px-3 rounded text-[10px] sm:text-xs font-bold border border-red-600/50 transition-colors"
+                  >
+                    - سحب
+                  </button>
+                </div>
+              </div>
+              <div className="bg-gray-950 p-4 rounded-xl border border-gray-800">
+                <p className="text-sm text-gray-400 mb-1">إجمالي الأسهم المملوكة</p>
+                <p className="text-2xl font-black text-blue-400">{portfolio.positions.length} شركات</p>
+              </div>
+            </div>
+
+            <h3 className="font-bold text-gray-300 mb-3">الأسهم في محفظتك:</h3>
+            {portfolio.positions.length === 0 ? (
+              <div className="text-center text-gray-500 py-10 bg-gray-950 rounded-lg border border-gray-800 flex flex-col items-center gap-3">
+                <span>المحفظة فارغة حالياً.</span>
+                {portfolio.cash === 0 && (
+                  <button 
+                    onClick={() => setIsDepositOpen(true)}
+                    className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg text-sm font-bold"
+                  >
+                    أودع ميزانيتك الأولى للبدء
+                  </button>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {portfolio.positions.map((pos, idx) => (
+                  <div key={idx} className="flex justify-between items-center bg-gray-950 p-4 rounded-lg border border-gray-800">
+                    <div>
+                      <h4 className="font-black text-lg text-white">{pos.symbol}</h4>
+                      <p className="text-xs text-gray-400 mt-1">الكمية: {pos.shares} سهم</p>
+                    </div>
+                    <div className="text-left">
+                      <p className="text-sm font-bold text-gray-300">متوسط التكلفة: <span className="text-yellow-500">${pos.avgPrice.toFixed(2)}</span></p>
+                      <p className="text-xs text-gray-500 mt-1">إجمالي التكلفة: ${(pos.shares * pos.avgPrice).toFixed(2)}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+
       <div className="max-w-7xl mx-auto">
-        
         <div className="mb-8 border-b border-gray-800 pb-6 sticky top-0 bg-gray-950/90 backdrop-blur z-10 p-4 rounded-xl shadow-sm">
           <div className="flex flex-col lg:flex-row justify-between items-center gap-4">
             
             <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-right w-full lg:w-auto">
               <div>
                 <h1 className="text-3xl font-bold text-blue-500 mb-2">شاشة السوق الشاملة 📈</h1>
-                <p className="text-sm text-gray-400">تحليل لحظي وتاريخي مع تحديد أفضل فرص الدخول.</p>
+                <p className="text-sm text-gray-400">تحليل لحظي وتاريخي مع محفظة تدريب متكاملة.</p>
               </div>
               <div className="text-sm font-bold bg-gray-900 px-4 py-2 rounded-lg text-blue-400 border border-gray-800 whitespace-nowrap">
                 الأسهم المعروضة: {displayedStocks.length}
@@ -234,6 +523,13 @@ export default function StockRadarPage() {
             </div>
             
             <div className="flex flex-col sm:flex-row w-full lg:w-auto gap-3 items-center">
+              <button
+                onClick={() => setIsPortfolioOpen(true)}
+                className="bg-green-600/20 text-green-500 border border-green-500/50 hover:bg-green-600/30 px-4 py-2 rounded-lg text-sm font-bold transition-colors flex items-center justify-center gap-2 w-full sm:w-auto"
+              >
+                💼 محفظتي (${portfolio.cash.toFixed(0)})
+              </button>
+
               <button
                 onClick={handleToggleFavoritesView}
                 className={`px-4 py-2 rounded-lg text-sm font-bold border transition-colors flex items-center justify-center gap-2 w-full sm:w-auto ${
@@ -270,6 +566,7 @@ export default function StockRadarPage() {
           {displayedStocks.map((stock, index) => {
             const isLast = index === displayedStocks.length - 1;
             const isFav = favorites.includes(stock.symbol);
+            const ownedPosition = portfolio.positions.find(p => p.symbol === stock.symbol);
 
             return (
               <div 
@@ -278,7 +575,7 @@ export default function StockRadarPage() {
                 className={`bg-gray-900 p-5 rounded-2xl border ${isFav ? 'border-yellow-500/30 shadow-[0_0_15px_rgba(234,179,8,0.1)]' : 'border-gray-800 shadow-xl'} flex flex-col justify-between hover:border-blue-500/50 transition-all h-full`}
               >
                 <div className="flex justify-between items-start mb-4">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-3">
                     <button 
                       onClick={() => toggleFavorite(stock.symbol)}
                       className="text-2xl focus:outline-none transition-transform hover:scale-125 pb-1"
@@ -296,6 +593,20 @@ export default function StockRadarPage() {
                     <span className="text-blue-400 text-lg font-bold leading-tight">${stock.price}</span>
                     <span className="text-gray-400 text-[10px] font-semibold mt-0.5">{stock.priceSAR} ر.س</span>
                   </div>
+                </div>
+
+                <div className="flex gap-2 mb-4">
+                  <button 
+                    onClick={() => { setTradeStock(stock); setTradeShares(1); }}
+                    className="flex-1 bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs font-bold py-2 rounded border border-gray-700 transition-colors"
+                  >
+                    تداول السهم ⚖️
+                  </button>
+                  {ownedPosition && (
+                    <div className="flex-1 bg-green-900/30 border border-green-800/50 rounded flex items-center justify-center text-[10px] font-bold text-green-500">
+                      تملك: {ownedPosition.shares} سهم
+                    </div>
+                  )}
                 </div>
 
                 <div className="bg-gradient-to-r from-gray-800 to-gray-900 p-3 rounded-lg mb-4 border border-gray-700">
