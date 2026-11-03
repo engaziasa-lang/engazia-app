@@ -248,12 +248,10 @@ export default function StockRadarPage() {
                     </div>
                   </div>
                   
-                  {/* الصندوق الجديد للسعر يجمع بين الدولار والريال */}
                   <div className="flex flex-col items-center justify-center bg-blue-950/50 px-3 py-1.5 rounded-lg border border-blue-900/50 min-w-[80px]">
                     <span className="text-blue-400 text-lg font-bold leading-tight">${stock.price}</span>
                     <span className="text-gray-400 text-[10px] font-semibold mt-0.5">{stock.priceSAR} ر.س</span>
                   </div>
-                  
                 </div>
 
                 <div className="bg-gradient-to-r from-gray-800 to-gray-900 p-3 rounded-lg mb-4 border border-gray-700">
@@ -279,11 +277,20 @@ export default function StockRadarPage() {
                       </div>
                     ))}
                   </div>
+                  
+                  {/* تم تحديث قسم الصافي ليعرض الدولار وفوقه/تحته الريال */}
                   <div className="mt-2 pt-2 border-t border-gray-800 flex justify-between items-center px-1">
                     <span className="text-xs font-bold text-gray-300">صافي آخر 30 يوم:</span>
-                    <span className={`text-sm font-black flex items-center gap-1 ${stock.isTotalPositive ? 'text-green-500' : 'text-red-500'}`}>
-                      ${stock.total30Days} {stock.isTotalPositive ? 'ربح ▲' : 'خسارة ▼'}
-                    </span>
+                    
+                    <div className={`flex flex-col items-end ${stock.isTotalPositive ? 'text-green-500' : 'text-red-500'}`}>
+                      <span className="text-sm font-black flex items-center gap-1">
+                        ${stock.total30Days} {stock.isTotalPositive ? 'ربح ▲' : 'خسارة ▼'}
+                      </span>
+                      <span className="text-[9px] font-bold opacity-90 mt-0.5">
+                        {stock.total30DaysSAR} ر.س
+                      </span>
+                    </div>
+
                   </div>
                 </div>
 
