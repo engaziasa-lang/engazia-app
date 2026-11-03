@@ -61,29 +61,35 @@ const ALL_MARKET_TICKERS = [
   'WYNN', 'XEL', 'XLNX', 'XYL', 'YUM', 'ZBRA', 'ZBH', 'ZION'
 ];
 
-type Position = { symbol: string; shares: number; avgPrice: number; purchaseDate: string };
-type Portfolio = { id: string; name: string; cash: number; positions: Position[] };
-
+// --- نظام التصنيف الشرعي الشامل وفق ضوابط الراجحي ---
 const getShariaStatus = (symbol: string) => {
-  const haramStocks = [
-    'JPM', 'BAC', 'C', 'GS', 'MS', 'WFC', 'PGR', 'MET', 'AIG', 'BK', 
-    'USB', 'TFC', 'PNC', 'COF', 'DFS', 'SCHW', 'AXP', 'TRV', 'ALL', 'AFL',
-    'HIG', 'CB', 'RE', 'AMP', 'AJG', 'AIZ', 'PRU', 'MET', 'PFG', 'BRO',
-    'MO', 'PM', 'STZ', 'TAP', 'KHC', 'MGM', 'CZR', 'WYNN', 'LVS', 'RBLX', 'DKNG'
-  ];
-  const mixedStocks = [
-    'XOM', 'CVX', 'T', 'VZ', 'IBM', 'CSCO', 'DIS', 'CAT', 'BA', 'GE', 
-    'F', 'GM', 'UPS', 'FDX', 'NKE', 'SBUX', 'MCD', 'HD', 'LOW', 'WMT', 'COST'
+  const nonCompliantStocks = [
+    // 1. البنوك التقليدية والمؤسسات المالية الربوية
+    'JPM', 'BAC', 'C', 'GS', 'MS', 'WFC', 'BK', 'USB', 'TFC', 'PNC', 'COF', 'DFS', 'SCHW', 
+    'AXP', 'SYF', 'STT', 'NTRS', 'FITB', 'MTB', 'KEY', 'RF', 'CFG', 'HBAN', 'CMA', 'ZION', 
+    'SBNY', 'SIVB', 'FRC', 'PBCT', 'SPGI', 'MCO',
+    // 2. شركات التأمين التجاري
+    'BRK-B', 'PGR', 'MET', 'AIG', 'TRV', 'ALL', 'AFL', 'HIG', 'CB', 'RE', 'AMP', 'AJG', 
+    'AIZ', 'PRU', 'PFG', 'BRO', 'CINF', 'L', 'WRB',
+    // 3. التبغ، الخمور، ولحوم الخنزير
+    'PM', 'MO', 'STZ', 'TAP', 'BF-B', 'TSN', 'HRL',
+    // 4. القمار، الفنادق، والترفيه المحرم
+    'MGM', 'CZR', 'WYNN', 'LVS', 'PENN', 'DKNG', 'DIS', 'NFLX', 'PARA', 'FOXA', 'FOX', 'LYV', 'MAR', 'HLT',
+    // 5. الأسلحة والدفاع
+    'LMT', 'RTX', 'GD', 'NOC', 'HII', 'TXT', 'BA',
+    // 6. شركات ذات ديون ربوية عالية تتجاوز المعيار (الاتصالات، الطيران، السياحة، السيارات)
+    'TMUS', 'T', 'VZ', 'CHTR', 'CMCSA', 'LUMN', 'CCL', 'RCL', 'NCLH', 'AAL', 'DAL', 'UAL', 'LUV', 'ALK', 'F', 'GM'
   ];
 
-  if (haramStocks.includes(symbol)) {
-    return { label: 'محرم 🔴', class: 'bg-red-950/60 text-red-400 border-red-800/60', desc: 'نشاط أو تعاملات محرمة' };
-  } else if (mixedStocks.includes(symbol)) {
-    return { label: 'مختلط 🟡', class: 'bg-yellow-950/60 text-yellow-400 border-yellow-800/60', desc: 'نشاط مباح مع ديون/فوائد' };
+  if (nonCompliantStocks.includes(symbol)) {
+    return { label: 'غير متوافق 🔴', class: 'bg-red-950/60 text-red-400 border-red-800/60', desc: 'غير شرعي: نشاط محرم أو ديون تتجاوز 30%' };
   } else {
-    return { label: 'حلال (نقي) 🟢', class: 'bg-green-950/60 text-green-400 border-green-800/60', desc: 'متوافق مع الضوابط الشرعية' };
+    return { label: 'متوافق (حلال) 🟢', class: 'bg-emerald-950/60 text-emerald-400 border-emerald-800/60', desc: 'متوافق شرعياً (يستوجب تطهير الأرباح)' };
   }
 };
+
+type Position = { symbol: string; shares: number; avgPrice: number; purchaseDate: string };
+type Portfolio = { id: string; name: string; cash: number; positions: Position[] };
 
 export default function StockRadarPage() {
   const [stocks, setStocks] = useState<any[]>([]);
@@ -534,7 +540,7 @@ export default function StockRadarPage() {
             </div>
 
             <div className="flex gap-3">
-              <button onClick={() => handleExecuteTrade('buy')} className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg transition-colors">
+              <button onClick={() => handleExecuteTrade('buy')} className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-lg transition-colors">
                 شراء
               </button>
               <button onClick={() => handleExecuteTrade('sell')} className="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg transition-colors">
@@ -603,7 +609,7 @@ export default function StockRadarPage() {
               <div className="text-center text-gray-500 py-8 bg-gray-950 rounded-lg border border-gray-800 flex flex-col items-center gap-3 mb-6">
                 <span>المحفظة فارغة حالياً. (تذكر: لا يمكن تكرار سهم مملوك في محفظة أخرى).</span>
                 {activePortfolio.cash === 0 && (
-                  <button onClick={() => setIsDepositOpen(true)} className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg text-sm font-bold">
+                  <button onClick={() => setIsDepositOpen(true)} className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded-lg text-sm font-bold">
                     أودع ميزانية للبدء
                   </button>
                 )}
@@ -693,11 +699,9 @@ export default function StockRadarPage() {
       )}
 
       <div className="max-w-7xl mx-auto">
-        {/* --- الشريط العلوي المعاد ترتيبه وتنسيقه بشكل أنيق واحترافي --- */}
         <div className="mb-8 border-b border-gray-800 pb-6 sticky top-0 bg-gray-950/95 backdrop-blur z-10 p-4 rounded-xl shadow-lg">
           <div className="flex flex-col xl:flex-row justify-between items-center gap-6">
             
-            {/* عنوان الصفحة ووصفها */}
             <div className="flex items-center gap-4 w-full xl:w-auto justify-between xl:justify-start">
               <div className="flex items-center gap-3">
                 <div className="bg-blue-600/20 p-2.5 rounded-xl border border-blue-500/30 text-blue-400 text-2xl font-bold">
@@ -705,7 +709,7 @@ export default function StockRadarPage() {
                 </div>
                 <div>
                   <h1 className="text-2xl md:text-3xl font-black text-blue-500 tracking-tight">شاشة السوق الشاملة</h1>
-                  <p className="text-xs text-gray-400 mt-0.5">تحليل لحظي، فلترة شرعية ومحافظ متعددة.</p>
+                  <p className="text-xs text-gray-400 mt-0.5">وفق ضوابط الراجحي الشرعية ومحافظ متعددة.</p>
                 </div>
               </div>
               <div className="text-xs font-bold bg-gray-900 px-3 py-2 rounded-xl text-blue-400 border border-gray-800 whitespace-nowrap">
@@ -713,10 +717,8 @@ export default function StockRadarPage() {
               </div>
             </div>
             
-            {/* الأزرار وأدوات التحكم مرتبة ومنسقة بصفوف متناسقة */}
             <div className="flex flex-wrap items-center justify-center xl:justify-end gap-3 w-full xl:w-auto">
               
-              {/* زر المحفظة النشطة */}
               <button
                 onClick={() => setIsPortfolioOpen(true)}
                 className="bg-green-600/20 text-green-400 border border-green-500/40 hover:bg-green-600/30 px-4 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center gap-2 shadow-sm"
@@ -726,33 +728,30 @@ export default function StockRadarPage() {
                 <span className="bg-green-950 px-2 py-0.5 rounded-lg text-xs text-green-300 border border-green-800/60">${activePortfolio.cash.toFixed(0)}</span>
               </button>
 
-              {/* زر فلتر الأسهم الحلال */}
               <button
                 onClick={handleToggleHalalView}
                 className={`px-4 py-2.5 rounded-xl text-sm font-bold border transition-all flex items-center gap-2 ${
                   showHalalOnly 
-                    ? 'bg-emerald-500/25 text-emerald-300 border-emerald-500/60 shadow-[0_0_12px_rgba(16,185,129,0.15)]' 
-                    : 'bg-gray-900 text-gray-300 border-gray-800 hover:border-emerald-500/40 hover:text-emerald-400'
+                    ? 'bg-emerald-500/25 text-emerald-400 border-emerald-500/60 shadow-[0_0_12px_rgba(16,185,129,0.15)]' 
+                    : 'bg-gray-900 text-gray-400 border-gray-800 hover:border-emerald-500/40 hover:text-emerald-400'
                 }`}
               >
                 <span>☪️</span>
                 <span>{showHalalOnly ? 'إلغاء الفلتر' : 'الأسهم الحلال فقط'}</span>
               </button>
 
-              {/* زر المفضلة */}
               <button
                 onClick={handleToggleFavoritesView}
                 className={`px-4 py-2.5 rounded-xl text-sm font-bold border transition-all flex items-center gap-2 ${
                   showFavoritesOnly 
-                    ? 'bg-yellow-500/25 text-yellow-300 border-yellow-500/60 shadow-[0_0_12px_rgba(234,179,8,0.15)]' 
-                    : 'bg-gray-900 text-gray-300 border-gray-800 hover:border-yellow-500/40 hover:text-yellow-400'
+                    ? 'bg-yellow-500/25 text-yellow-400 border-yellow-500/60 shadow-[0_0_12px_rgba(234,179,8,0.15)]' 
+                    : 'bg-gray-900 text-gray-400 border-gray-800 hover:border-yellow-500/40 hover:text-yellow-400'
                 }`}
               >
                 <span>⭐</span>
                 <span>{showFavoritesOnly ? 'إلغاء الفلتر' : 'أسهمي المفضلة'}</span>
               </button>
 
-              {/* حقل البحث السريع */}
               <form onSubmit={handleSearch} className="flex gap-2 w-full sm:w-auto">
                 <input
                   type="text"
@@ -775,7 +774,6 @@ export default function StockRadarPage() {
           </div>
         </div>
 
-        {/* شبكة عرض الأسهم */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {displayedStocks.map((stock, index) => {
             const isLast = index === displayedStocks.length - 1;
