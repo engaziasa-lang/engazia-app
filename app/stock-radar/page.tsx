@@ -72,14 +72,12 @@ export default function StockRadarPage() {
   const [favorites, setFavorites] = useState<string[]>([]);
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
 
-  // استخدام useRef لحفظ الفهرس الحالي لضمان عدم ضياعه أثناء التحديثات
   const currentIndexRef = useRef(0);
   const initialLoadDone = useRef(false);
   const observer = useRef<IntersectionObserver | null>(null);
   
   const BATCH_SIZE = 12;
 
-  // 1. استرجاع المفضلة عند فتح التطبيق
   useEffect(() => {
     const savedFavs = localStorage.getItem('stockRadarFavorites');
     if (savedFavs) {
@@ -118,7 +116,6 @@ export default function StockRadarPage() {
     }
   };
 
-  // 2. دالة التحميل الذكية (تقرأ الذاكرة فوراً وتجلب الأسهم المتأخرة)
   const initializeStocks = async () => {
     if (initialLoadDone.current) return;
     initialLoadDone.current = true;
@@ -127,7 +124,6 @@ export default function StockRadarPage() {
     let targetCount = BATCH_SIZE;
     const savedIndex = localStorage.getItem('stockRadarCurrentIndex');
     
-    // إذا وجدنا أن المستخدم وصل لرقم كبير (مثلا 48)، نجعله الهدف
     if (savedIndex) {
       const parsed = parseInt(savedIndex, 10);
       if (!isNaN(parsed) && parsed > BATCH_SIZE) {
@@ -138,15 +134,15 @@ export default function StockRadarPage() {
     currentIndexRef.current = targetCount;
     const batchToLoad = ALL_MARKET_TICKERS.slice(0, targetCount);
 
-    // جلب الأسهم على شكل دفعات متوازية ليكون التحميل سريعاً ولا يُجمد المتصفح
     for (let i = 0; i < batchToLoad.length; i += BATCH_SIZE) {
       const chunk = batchToLoad.slice(i, i + BATCH_SIZE);
       const promises = chunk.map(ticker => getStockData(ticker));
       const chunkResults = await Promise.all(promises);
-      const validResults = chunkResults.filter(r => r.success && r.data).map(r => r.data);
+      const validResults = chunkResults.filter(r => r && r.success && r.data).map(r => r.data);
       
       setStocks(prev => {
-        const uniqueNew = validResults.filter(newStock => !prev.some(s => s.symbol === newStock.symbol));
+        // [إصلاح خطأ TypeScript]: التأكد من وجود newStock و newStock.symbol
+        const uniqueNew = validResults.filter((newStock: any) => newStock && newStock.symbol && !prev.some(s => s.symbol === newStock.symbol));
         return [...prev, ...uniqueNew];
       });
     }
@@ -155,12 +151,10 @@ export default function StockRadarPage() {
     setIsLoading(false);
   };
 
-  // تشغيل التحميل الذكي مرة واحدة فقط عند فتح الصفحة
   useEffect(() => {
     initializeStocks();
   }, []);
 
-  // 3. دالة التمرير لأسفل (تحفظ الفهرس الجديد في كل مرة تسحب فيها الشاشة)
   const loadMoreStocks = async () => {
     if (isLoading || !hasMore || showFavoritesOnly) return;
     setIsLoading(true);
@@ -176,17 +170,17 @@ export default function StockRadarPage() {
 
     const promises = nextBatch.map(ticker => getStockData(ticker));
     const chunkResults = await Promise.all(promises);
-    const validResults = chunkResults.filter(r => r.success && r.data).map(r => r.data);
+    const validResults = chunkResults.filter(r => r && r.success && r.data).map(r => r.data);
 
     setStocks(prev => {
-      const uniqueNew = validResults.filter(newStock => !prev.some(s => s.symbol === newStock.symbol));
+      // [إصلاح خطأ TypeScript]: التأكد من وجود newStock و newStock.symbol
+      const uniqueNew = validResults.filter((newStock: any) => newStock && newStock.symbol && !prev.some(s => s.symbol === newStock.symbol));
       return [...prev, ...uniqueNew];
     });
 
     const newIndex = currentIdx + BATCH_SIZE;
     currentIndexRef.current = newIndex;
     
-    // حفظ الرقم الجديد في الذاكرة (لكي نجده بعد التحديث)
     localStorage.setItem('stockRadarCurrentIndex', newIndex.toString());
     
     if (newIndex >= ALL_MARKET_TICKERS.length) setHasMore(false);
