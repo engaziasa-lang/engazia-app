@@ -7,23 +7,21 @@ export async function getStockData(symbol: string) {
       return { success: false, error: 'الرجاء إدخال رمز السهم' };
     }
 
-    // --- توليد بيانات افتراضية واقعية للأسهم ---
     // سعر عشوائي بين 50 و 500
     const currentPrice = (Math.random() * (500 - 50) + 50).toFixed(2);
     const priceNum = parseFloat(currentPrice);
     
-    // سعر عشوائي بالريال السعودي (الدولار = 3.75 ريال)
+    // السعر بالريال
     const priceSAR = (priceNum * 3.75).toFixed(2);
     
-    // نسبة عشوائية للدخول المقترح (أقل من السعر الحالي بـ 1% إلى 5%)
+    // نسبة الدخول المقترح
     const discount = priceNum * (Math.random() * (0.05 - 0.01) + 0.01);
     const suggestedEntryPrice = (priceNum - discount).toFixed(2);
 
-    // توليد PE Ratio و PEG Ratio
+    // المؤشرات المالية
     const peRatio = (Math.random() * (50 - 10) + 10).toFixed(1);
     const pegRatio = (Math.random() * (3 - 0.5) + 0.5).toFixed(2);
 
-    // إشارات دخول عشوائية
     const signals = [
       '✅ ممتاز للدخول تدريجياً',
       '⏳ يفضل انتظار تصحيح السعر',
@@ -32,7 +30,6 @@ export async function getStockData(symbol: string) {
     ];
     const entrySignal = signals[Math.floor(Math.random() * signals.length)];
 
-    // تحليلات عشوائية
     const analyses = [
       'السهم يظهر قوة في الأرباح الربعية مع توقعات بنمو القطاع بنسبة 15% هذا العام.',
       'تجاوز السهم متوسط 50 يوماً، مما يعزز النظرة الإيجابية على المدى المتوسط.',
@@ -41,23 +38,42 @@ export async function getStockData(symbol: string) {
     ];
     const analysis = analyses[Math.floor(Math.random() * analyses.length)];
 
-    // توليد سجل تداول لآخر 30 يوم (5 أيام عشوائية كعينة)
+    // توليد سجل تداول لآخر 30 يوم تداول (مع استثناء العطل الأسبوعية)
     const generateHistory = () => {
       const history = [];
       let totalAmount = 0;
-      const days = ['الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'];
+      const daysOfWeek = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+      const months = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
       
-      for(let i=0; i<5; i++) {
-        const isPositive = Math.random() > 0.4;
-        const amount = parseFloat((Math.random() * (5 - 0.1) + 0.1).toFixed(2));
-        history.push({
-          day: `${days[Math.floor(Math.random() * days.length)]}، ${Math.floor(Math.random() * 28) + 1} نوفمبر`,
-          status: isPositive ? 'ربح' : 'خسر',
-          amount: amount.toFixed(2),
-          isPositive: isPositive
-        });
-        if(isPositive) totalAmount += amount;
-        else totalAmount -= amount;
+      let currentDate = new Date();
+      let addedDays = 0;
+      let daysOffset = 0;
+
+      // نستمر في الحلقة حتى نجمع 30 يوم عمل
+      while (addedDays < 30) {
+        let d = new Date();
+        d.setDate(currentDate.getDate() - daysOffset);
+        
+        let dayOfWeek = d.getDay();
+        
+        // تخطي أيام الإجازات لأسواق الأسهم (السبت = 6، الأحد = 0)
+        if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+          const isPositive = Math.random() > 0.4;
+          const amount = parseFloat((Math.random() * (5 - 0.1) + 0.1).toFixed(2));
+          
+          history.push({
+            day: `${daysOfWeek[dayOfWeek]}، ${d.getDate()} ${months[d.getMonth()]}`,
+            status: isPositive ? 'ربح' : 'خسر',
+            amount: amount.toFixed(2),
+            isPositive: isPositive
+          });
+          
+          if(isPositive) totalAmount += amount;
+          else totalAmount -= amount;
+          
+          addedDays++;
+        }
+        daysOffset++; // المضي يوماً للوراء
       }
       
       return {
@@ -70,10 +86,8 @@ export async function getStockData(symbol: string) {
 
     const historyData = generateHistory();
 
-    // توليد عائد تاريخي (أرقام عشوائية متدرجة)
     const generateStats = (periodBase: number, volatility: number) => {
-       const isPositive = Math.random() > 0.3; // 70% احتمال ربح تاريخي
-       // زيادة التذبذب كلما زادت المدة
+       const isPositive = Math.random() > 0.3; 
        const percentage = parseFloat((Math.random() * volatility).toFixed(1));
        const amount = parseFloat(((percentage / 100) * priceNum).toFixed(2));
        const pastPrice = isPositive ? (priceNum - amount).toFixed(2) : (priceNum + amount).toFixed(2);
@@ -92,7 +106,7 @@ export async function getStockData(symbol: string) {
       y1: generateStats(12, 40),
       y2: generateStats(24, 60),
       y3: generateStats(36, 90),
-      y5: generateStats(60, 150) // تمت إضافة حسابات الـ 5 سنوات هنا!
+      y5: generateStats(60, 150)
     };
 
     const stockData = {
