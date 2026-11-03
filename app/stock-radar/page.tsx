@@ -18,11 +18,58 @@ export default function StockRadarPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
 
+  // --- حالات المفضلة الجديدة ---
+  const [favorites, setFavorites] = useState<string[]>([]);
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+
   const observer = useRef<IntersectionObserver | null>(null);
   const BATCH_SIZE = 12; 
 
+  // 1. استرجاع المفضلة من المتصفح عند فتح الموقع
+  useEffect(() => {
+    const savedFavs = localStorage.getItem('stockRadarFavorites');
+    if (savedFavs) {
+      setFavorites(JSON.parse(savedFavs));
+    }
+  }, []);
+
+  // 2. حفظ المفضلة في المتصفح كلما تم تعديلها
+  useEffect(() => {
+    localStorage.setItem('stockRadarFavorites', JSON.stringify(favorites));
+  }, [favorites]);
+
+  // 3. دالة إضافة/إزالة السهم من المفضلة
+  const toggleFavorite = (symbol: string) => {
+    setFavorites(prev => 
+      prev.includes(symbol) 
+        ? prev.filter(s => s !== symbol) 
+        : [...prev, symbol]
+    );
+  };
+
+  // 4. دالة عرض المفضلة فقط (وجلب أي أسهم مفضلة لم يتم تحميلها بعد)
+  const handleToggleFavoritesView = async () => {
+    const willShowFavorites = !showFavoritesOnly;
+    setShowFavoritesOnly(willShowFavorites);
+
+    if (willShowFavorites) {
+      // التأكد من جلب بيانات الأسهم المفضلة إذا لم تكن موجودة في الشاشة حالياً
+      const missingFavs = favorites.filter(fav => !stocks.some(s => s.symbol === fav));
+      if (missingFavs.length > 0) {
+        setIsLoading(true);
+        const results: any[] = [];
+        for (const ticker of missingFavs) {
+          const result = await getStockData(ticker);
+          if (result.success && result.data) results.push(result.data);
+        }
+        setStocks(prev => [...results, ...prev]);
+        setIsLoading(false);
+      }
+    }
+  };
+
   const loadMoreStocks = async () => {
-    if (isLoading || !hasMore) return;
+    if (isLoading || !hasMore || showFavoritesOnly) return; // نوقف التحميل اللانهائي إذا كنا نعرض المفضلة فقط
     setIsLoading(true);
     const nextBatch = ALL_MARKET_TICKERS.slice(currentIndex, currentIndex + BATCH_SIZE);
     
@@ -63,17 +110,22 @@ export default function StockRadarPage() {
   };
 
   const lastStockElementRef = useCallback((node: HTMLDivElement | null) => {
-    if (isLoading) return;
+    if (isLoading || showFavoritesOnly) return; 
     if (observer.current) observer.current.disconnect();
     observer.current = new IntersectionObserver(entries => {
       if (entries[0].isIntersecting && hasMore) loadMoreStocks();
     });
     if (node) observer.current.observe(node);
-  }, [isLoading, hasMore]);
+  }, [isLoading, hasMore, showFavoritesOnly]);
 
   useEffect(() => {
     if (stocks.length === 0) loadMoreStocks();
   }, []);
+
+  // الأسهم التي سيتم عرضها (إما كل السوق أو المفضلة فقط)
+  const displayedStocks = showFavoritesOnly 
+    ? stocks.filter(s => favorites.includes(s.symbol))
+    : stocks;
 
   return (
     <main className="p-8 bg-gray-950 min-h-screen text-right font-sans text-white" dir="rtl">
@@ -85,39 +137,65 @@ export default function StockRadarPage() {
               <p className="text-sm text-gray-400">تحليل لحظي وتاريخي مع تحديد أفضل فرص وأسعار الدخول.</p>
             </div>
             
-            <form onSubmit={handleSearch} className="flex w-full md:w-auto gap-2">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value.toUpperCase())}
-                placeholder="ابحث عن رمز سهم (مثال AAPL)..."
-                className="bg-gray-900 border border-gray-700 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-blue-500 w-full md:w-64 text-left"
-                dir="ltr"
-              />
-              <button 
-                type="submit" 
-                disabled={isSearching || !searchQuery.trim()}
-                className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-sm font-bold disabled:opacity-50 min-w-[80px]"
+            <div className="flex flex-col md:flex-row w-full md:w-auto gap-3 items-center">
+              {/* زر التبديل بين المفضلة وكل السوق */}
+              <button
+                onClick={handleToggleFavoritesView}
+                className={`px-4 py-2 rounded-lg text-sm font-bold border transition-colors flex items-center gap-2 ${
+                  showFavoritesOnly 
+                    ? 'bg-yellow-500/20 text-yellow-500 border-yellow-500/50 hover:bg-yellow-500/30' 
+                    : 'bg-gray-900 text-gray-400 border-gray-700 hover:border-yellow-500/50 hover:text-yellow-500'
+                }`}
               >
-                {isSearching ? 'يبحث...' : 'اصطياد'}
+                {showFavoritesOnly ? '⭐ عرض كل الأسهم' : '☆ أسهمي المفضلة'}
               </button>
-            </form>
+
+              <form onSubmit={handleSearch} className="flex w-full md:w-auto gap-2">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value.toUpperCase())}
+                  placeholder="ابحث عن رمز سهم (مثال AAPL)..."
+                  className="bg-gray-900 border border-gray-700 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-blue-500 w-full md:w-64 text-left"
+                  dir="ltr"
+                />
+                <button 
+                  type="submit" 
+                  disabled={isSearching || !searchQuery.trim()}
+                  className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-sm font-bold disabled:opacity-50 min-w-[80px]"
+                >
+                  {isSearching ? 'يبحث...' : 'اصطياد'}
+                </button>
+              </form>
+            </div>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {stocks.map((stock, index) => {
-            const isLast = index === stocks.length - 1;
+          {displayedStocks.map((stock, index) => {
+            const isLast = index === displayedStocks.length - 1;
+            const isFav = favorites.includes(stock.symbol);
+
             return (
               <div 
                 key={stock.symbol + index} 
-                ref={isLast ? lastStockElementRef : null}
-                className="bg-gray-900 p-5 rounded-2xl border border-gray-800 shadow-xl flex flex-col justify-between hover:border-blue-500/50 transition-all h-full"
+                ref={(!showFavoritesOnly && isLast) ? lastStockElementRef : null}
+                className={`bg-gray-900 p-5 rounded-2xl border ${isFav ? 'border-yellow-500/30 shadow-[0_0_15px_rgba(234,179,8,0.1)]' : 'border-gray-800 shadow-xl'} flex flex-col justify-between hover:border-blue-500/50 transition-all h-full`}
               >
                 <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <h2 className="text-2xl font-black text-white">{stock.symbol}</h2>
-                    <p className="text-[10px] text-gray-500 mt-1">PE: {stock.peRatio} | PEG: {stock.pegRatio}</p>
+                  <div className="flex items-center gap-2">
+                    {/* نجمة المفضلة */}
+                    <button 
+                      onClick={() => toggleFavorite(stock.symbol)}
+                      className="text-2xl focus:outline-none transition-transform hover:scale-125 pb-1"
+                      title="إضافة/إزالة من المفضلة"
+                    >
+                      {isFav ? '⭐' : <span className="text-gray-600">☆</span>}
+                    </button>
+                    <div>
+                      <h2 className="text-2xl font-black text-white">{stock.symbol}</h2>
+                      <p className="text-[10px] text-gray-500 mt-1">PE: {stock.peRatio} | PEG: {stock.pegRatio}</p>
+                    </div>
                   </div>
                   <span className="bg-blue-950/50 text-blue-400 px-3 py-1.5 rounded-lg text-lg font-bold border border-blue-900/50">
                     ${stock.price}
@@ -167,13 +245,9 @@ export default function StockRadarPage() {
                     ].map((stat, i) => (
                       <div key={i} className="bg-gray-950 p-1 rounded-md border border-gray-800 flex flex-col justify-center items-center h-[52px]">
                         <span className="text-[9px] text-gray-500 leading-tight">{stat.label}</span>
-                        
-                        {/* النسبة المئوية */}
                         <span className={`text-[10px] font-bold ${stat.data?.value === '-' ? 'text-gray-500' : (stat.data?.isPositive ? 'text-green-500' : 'text-red-500')}`}>
                           {stat.data?.value !== '-' ? (stat.data?.isPositive ? '+' : '-') : ''}{stat.data?.value}
                         </span>
-                        
-                        {/* المبلغ المالي المضاف حديثاً أسفل النسبة */}
                         {stat.data?.value !== '-' && (
                           <span className={`text-[8px] font-semibold mt-0.5 opacity-80 ${stat.data?.isPositive ? 'text-green-500' : 'text-red-500'}`}>
                             ${stat.data?.amount}
@@ -183,15 +257,21 @@ export default function StockRadarPage() {
                     ))}
                   </div>
                 </div>
-
               </div>
             );
           })}
         </div>
 
+        {/* عرض رسالة إذا لم يكن هناك مفضلة */}
+        {showFavoritesOnly && displayedStocks.length === 0 && !isLoading && (
+          <div className="text-center py-20 text-gray-500 font-bold text-lg">
+            لا توجد أسهم في المفضلة حالياً. اضغط على أيقونة (☆) بجانب أي سهم لإضافته!
+          </div>
+        )}
+
         {isLoading && (
           <div className="text-center py-10 text-blue-400 font-bold text-lg animate-pulse">
-            جاري جلب الدفعة التالية من الأسهم والتحليل...
+            جاري جلب الأسهم والتحليل...
           </div>
         )}
       </div>
