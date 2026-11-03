@@ -75,11 +75,9 @@ export default function StockRadarPage() {
   const [favorites, setFavorites] = useState<string[]>([]);
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
 
-  // --- حالات محفظة التداول ---
   const [portfolio, setPortfolio] = useState<Portfolio>({ cash: 0, positions: [] });
   const [isPortfolioOpen, setIsPortfolioOpen] = useState(false);
   
-  // حالات الإيداع والسحب
   const [isDepositOpen, setIsDepositOpen] = useState(false);
   const [depositAmount, setDepositAmount] = useState<number>(5000);
   
@@ -231,17 +229,12 @@ export default function StockRadarPage() {
     if (node) observer.current.observe(node);
   }, [isLoading, hasMore, showFavoritesOnly]);
 
-  // --- دوال النظام المالي (تداول / إيداع / سحب) ---
-  
   const handleDeposit = () => {
     if (depositAmount <= 0) {
       alert("الرجاء إدخال مبلغ صحيح للإيداع.");
       return;
     }
-    setPortfolio(prev => ({
-      ...prev,
-      cash: prev.cash + depositAmount
-    }));
+    setPortfolio(prev => ({ ...prev, cash: prev.cash + depositAmount }));
     setIsDepositOpen(false);
     setDepositAmount(5000); 
     alert(`✅ تم إيداع ${depositAmount}$ بنجاح في محفظتك!`);
@@ -256,10 +249,7 @@ export default function StockRadarPage() {
       alert(`❌ رصيدك الحالي (${portfolio.cash.toFixed(2)}$) لا يكفي لإتمام عملية السحب.`);
       return;
     }
-    setPortfolio(prev => ({
-      ...prev,
-      cash: prev.cash - withdrawAmount
-    }));
+    setPortfolio(prev => ({ ...prev, cash: prev.cash - withdrawAmount }));
     setIsWithdrawOpen(false);
     setWithdrawAmount(1000); 
     alert(`✅ تم سحب ${withdrawAmount}$ بنجاح من محفظتك!`);
@@ -278,20 +268,24 @@ export default function StockRadarPage() {
         return;
       }
       
+      // توزيع عمولة الـ 2 دولار على عدد الأسهم المشتراة لتدخل ضمن متوسط التكلفة
+      const effectivePricePerShare = stockPrice + (BROKER_COMMISSION / tradeShares);
+
       setPortfolio(prev => {
         const newPositions = [...prev.positions];
         const existingPos = newPositions.find(p => p.symbol === tradeStock.symbol);
         
         if (existingPos) {
           const previousTotalCost = existingPos.shares * existingPos.avgPrice;
+          const currentTradeTotalCost = tradeShares * effectivePricePerShare;
           existingPos.shares += tradeShares;
-          existingPos.avgPrice = (previousTotalCost + totalSharesValue) / existingPos.shares;
+          existingPos.avgPrice = (previousTotalCost + currentTradeTotalCost) / existingPos.shares;
         } else {
-          newPositions.push({ symbol: tradeStock.symbol, shares: tradeShares, avgPrice: stockPrice });
+          newPositions.push({ symbol: tradeStock.symbol, shares: tradeShares, avgPrice: effectivePricePerShare });
         }
         return { cash: prev.cash - totalCost, positions: newPositions };
       });
-      alert(`✅ تم الشراء بنجاح! تم خصم ${totalCost.toFixed(2)}$ شاملة عمولة الوسيط.`);
+      alert(`✅ تم الشراء بنجاح! تم توزيع العمولة (${BROKER_COMMISSION}$) على الأسهم وتحديث متوسط التكلفة.`);
       
     } else if (type === 'sell') {
       const existingPos = portfolio.positions.find(p => p.symbol === tradeStock.symbol);
@@ -312,7 +306,7 @@ export default function StockRadarPage() {
 
         return { cash: prev.cash + totalProceeds, positions: newPositions };
       });
-      alert(`✅ تم البيع بنجاح! تمت إضافة ${totalProceeds.toFixed(2)}$ لرصيدك بعد خصم العمولة.`);
+      alert(`✅ تم البيع بنجاح! تمت إضافة ${totalProceeds.toFixed(2)}$ لرصيدك بعد خصم العمولة الثابتة.`);
     }
 
     setTradeStock(null);
@@ -326,7 +320,7 @@ export default function StockRadarPage() {
   return (
     <main className="p-4 md:p-8 bg-gray-950 min-h-screen text-right font-sans text-white" dir="rtl">
       
-      {/* --- نافذة الإيداع --- */}
+      {/* نافذة الإيداع */}
       {isDepositOpen && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[60] p-4">
           <div className="bg-gray-900 border border-gray-700 p-6 rounded-2xl shadow-2xl max-w-sm w-full">
@@ -345,17 +339,14 @@ export default function StockRadarPage() {
                 dir="ltr"
               />
             </div>
-            <button 
-              onClick={handleDeposit} 
-              className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg transition-colors shadow-lg"
-            >
+            <button onClick={handleDeposit} className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg transition-colors shadow-lg">
               تأكيد الإيداع
             </button>
           </div>
         </div>
       )}
 
-      {/* --- نافذة السحب (الجديدة) --- */}
+      {/* نافذة السحب */}
       {isWithdrawOpen && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[60] p-4">
           <div className="bg-gray-900 border border-gray-700 p-6 rounded-2xl shadow-2xl max-w-sm w-full">
@@ -376,17 +367,14 @@ export default function StockRadarPage() {
               />
               <p className="text-xs text-gray-500 mt-2">الرصيد المتاح للسحب: <span className="text-green-500">${portfolio.cash.toFixed(2)}</span></p>
             </div>
-            <button 
-              onClick={handleWithdraw} 
-              className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg transition-colors shadow-lg"
-            >
+            <button onClick={handleWithdraw} className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg transition-colors shadow-lg">
               تأكيد السحب
             </button>
           </div>
         </div>
       )}
 
-      {/* --- شاشة التداول السريعة (Modal) --- */}
+      {/* نافذة التداول السريعة */}
       {tradeStock && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
           <div className="bg-gray-900 border border-gray-700 p-6 rounded-2xl shadow-2xl max-w-sm w-full">
@@ -417,12 +405,12 @@ export default function StockRadarPage() {
                 <span>${(tradeShares * parseFloat(tradeStock.price)).toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-yellow-500">
-                <span>عمولة الوسيط (ثابتة):</span> 
+                <span>عمولة الوسيط (تُوزع على الأسهم):</span> 
                 <span>${BROKER_COMMISSION.toFixed(2)}</span>
               </div>
               <div className="flex justify-between font-bold text-white border-t border-gray-800 pt-2 mt-2">
-                <span>الإجمالي تقريباً:</span> 
-                <span>${((tradeShares * parseFloat(tradeStock.price)) + BROKER_COMMISSION).toFixed(2)} للشراء</span>
+                <span>الإجمالي للشراء:</span> 
+                <span>${((tradeShares * parseFloat(tradeStock.price)) + BROKER_COMMISSION).toFixed(2)}</span>
               </div>
             </div>
 
@@ -438,7 +426,7 @@ export default function StockRadarPage() {
         </div>
       )}
 
-      {/* --- محفظة المتدرب (Modal) --- */}
+      {/* محفظة المتدرب */}
       {isPortfolioOpen && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
           <div className="bg-gray-900 border border-gray-700 p-6 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-y-auto custom-scrollbar">
@@ -452,18 +440,11 @@ export default function StockRadarPage() {
                 <p className="text-sm text-gray-400 mb-1">الرصيد النقدي (الكاش)</p>
                 <p className="text-2xl font-black text-green-500">${portfolio.cash.toFixed(2)}</p>
                 
-                {/* أزرار الإيداع والسحب في المحفظة */}
                 <div className="absolute top-4 left-4 flex flex-col gap-1 sm:flex-row sm:gap-2">
-                  <button 
-                    onClick={() => setIsDepositOpen(true)}
-                    className="bg-green-600/20 hover:bg-green-600 text-green-500 hover:text-white px-2 py-1 sm:px-3 rounded text-[10px] sm:text-xs font-bold border border-green-600/50 transition-colors"
-                  >
+                  <button onClick={() => setIsDepositOpen(true)} className="bg-green-600/20 hover:bg-green-600 text-green-500 hover:text-white px-2 py-1 sm:px-3 rounded text-[10px] sm:text-xs font-bold border border-green-600/50 transition-colors">
                     + إيداع
                   </button>
-                  <button 
-                    onClick={() => setIsWithdrawOpen(true)}
-                    className="bg-red-600/20 hover:bg-red-600 text-red-500 hover:text-white px-2 py-1 sm:px-3 rounded text-[10px] sm:text-xs font-bold border border-red-600/50 transition-colors"
-                  >
+                  <button onClick={() => setIsWithdrawOpen(true)} className="bg-red-600/20 hover:bg-red-600 text-red-500 hover:text-white px-2 py-1 sm:px-3 rounded text-[10px] sm:text-xs font-bold border border-red-600/50 transition-colors">
                     - سحب
                   </button>
                 </div>
@@ -479,10 +460,7 @@ export default function StockRadarPage() {
               <div className="text-center text-gray-500 py-10 bg-gray-950 rounded-lg border border-gray-800 flex flex-col items-center gap-3">
                 <span>المحفظة فارغة حالياً.</span>
                 {portfolio.cash === 0 && (
-                  <button 
-                    onClick={() => setIsDepositOpen(true)}
-                    className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg text-sm font-bold"
-                  >
+                  <button onClick={() => setIsDepositOpen(true)} className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg text-sm font-bold">
                     أودع ميزانيتك الأولى للبدء
                   </button>
                 )}
@@ -496,7 +474,7 @@ export default function StockRadarPage() {
                       <p className="text-xs text-gray-400 mt-1">الكمية: {pos.shares} سهم</p>
                     </div>
                     <div className="text-left">
-                      <p className="text-sm font-bold text-gray-300">متوسط التكلفة: <span className="text-yellow-500">${pos.avgPrice.toFixed(2)}</span></p>
+                      <p className="text-sm font-bold text-gray-300">متوسط التكلفة (شامل العمولة): <span className="text-yellow-500">${pos.avgPrice.toFixed(2)}</span></p>
                       <p className="text-xs text-gray-500 mt-1">إجمالي التكلفة: ${(pos.shares * pos.avgPrice).toFixed(2)}</p>
                     </div>
                   </div>
@@ -506,7 +484,6 @@ export default function StockRadarPage() {
           </div>
         </div>
       )}
-
 
       <div className="max-w-7xl mx-auto">
         <div className="mb-8 border-b border-gray-800 pb-6 sticky top-0 bg-gray-950/90 backdrop-blur z-10 p-4 rounded-xl shadow-sm">
