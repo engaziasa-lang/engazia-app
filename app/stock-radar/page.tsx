@@ -97,6 +97,9 @@ export default function StockRadarPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
 
+  // حالة جديدة للتحكم بظهور القائمة العلوية في الجوال
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
   const [favorites, setFavorites] = useState<string[]>([]);
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [showHalalOnly, setShowHalalOnly] = useState(false);
@@ -392,7 +395,7 @@ export default function StockRadarPage() {
   return (
     <main className="p-4 md:p-8 bg-slate-950 min-h-screen text-right font-sans text-slate-200" dir="rtl">
       
-      {/* نافذة تعديل التصنيف الشرعي */}
+      {/* نوافذ التعديلات المنبثقة... */}
       {editingShariaSymbol && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[80] p-4">
           <div className="bg-slate-900 border border-slate-700 p-6 rounded-2xl shadow-2xl max-w-xs w-full text-center">
@@ -427,7 +430,6 @@ export default function StockRadarPage() {
         </div>
       )}
 
-      {/* نافذة المحفظة الجديدة */}
       {isNewPortfolioOpen && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[70] p-4">
           <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-2xl max-w-sm w-full">
@@ -466,7 +468,6 @@ export default function StockRadarPage() {
         </div>
       )}
 
-      {/* نوافذ الإيداع والسحب والتداول */}
       {isDepositOpen && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[60] p-4">
           <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-2xl max-w-sm w-full">
@@ -573,7 +574,6 @@ export default function StockRadarPage() {
         </div>
       )}
 
-      {/* نافذة المحفظة الرئيسية */}
       {isPortfolioOpen && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
           <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto custom-scrollbar">
@@ -699,31 +699,41 @@ export default function StockRadarPage() {
         </div>
       )}
 
+
       {/* --- الشاشة الرئيسية --- */}
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8 border-b border-slate-800/80 pb-6 sticky top-0 bg-slate-950/90 backdrop-blur-md z-10 p-5 rounded-2xl shadow-xl">
-          <div className="flex flex-col xl:flex-row justify-between items-center gap-6">
+        
+        {/* شريط علوي متجاوب (طبيعي للكمبيوتر، وقابل للطي في الجوال) */}
+        <div className="mb-8 border-b border-slate-800/80 pb-4 sticky top-0 bg-slate-950/95 backdrop-blur-md z-10 p-5 rounded-2xl shadow-xl">
+          <div className="flex flex-col xl:flex-row justify-between items-center gap-4">
             
-            <div className="flex items-center gap-4 w-full xl:w-auto justify-between xl:justify-start">
-              <div className="flex items-center gap-3">
-                <div className="bg-blue-600/10 p-2.5 rounded-xl border border-blue-500/20 text-blue-400 text-2xl font-bold shadow-inner">
+            {/* الجزء الخاص بالعنوان وتفاصيل القائمة - يظل ظاهراً دائماً */}
+            <div className="flex items-center justify-between w-full xl:w-auto">
+              <div className="flex items-center gap-4">
+                <div className="bg-blue-600/10 p-2.5 rounded-xl border border-blue-500/20 text-blue-400 text-2xl font-bold shadow-inner hidden sm:block">
                   📈
                 </div>
                 <div>
-                  <h1 className="text-2xl md:text-3xl font-black text-blue-400 tracking-tight">شاشة السوق الشاملة</h1>
-                  <p className="text-xs text-slate-400 mt-1 font-medium">وفق ضوابط الراجحي الشرعية ومحافظ متعددة.</p>
+                  <h1 className="text-xl md:text-3xl font-black text-blue-400 tracking-tight">شاشة السوق الشاملة</h1>
+                  <p className="text-[10px] md:text-xs text-slate-400 mt-1 font-medium">الأسهم: {displayedStocks.length} من {ALL_MARKET_TICKERS.length}</p>
                 </div>
               </div>
-              <div className="text-xs font-bold bg-slate-900/80 px-3 py-2 rounded-xl text-blue-300 border border-slate-700/50 whitespace-nowrap shadow-sm">
-                الأسهم: {displayedStocks.length} من {ALL_MARKET_TICKERS.length}
-              </div>
+              
+              {/* زر إظهار/إخفاء القائمة في شاشات الجوال فقط */}
+              <button 
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="xl:hidden bg-slate-800 text-white p-2 rounded-lg border border-slate-700"
+              >
+                {isMobileMenuOpen ? 'إخفاء الأزرار 🔺' : 'فلاتر وبحث 🔍'}
+              </button>
             </div>
             
-            <div className="flex flex-wrap items-center justify-center xl:justify-end gap-3 w-full xl:w-auto">
+            {/* جزء الأزرار والبحث (يظهر دائماً في الكمبيوتر، ويختفي/يظهر حسب الزر في الجوال) */}
+            <div className={`${isMobileMenuOpen ? 'flex' : 'hidden'} xl:flex flex-col sm:flex-row flex-wrap items-center justify-center xl:justify-end gap-3 w-full xl:w-auto mt-4 xl:mt-0 transition-all`}>
               
               <button
                 onClick={() => setIsPortfolioOpen(true)}
-                className="bg-emerald-600/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-600/20 px-4 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center gap-2 shadow-sm"
+                className="w-full sm:w-auto bg-emerald-600/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-600/20 px-4 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 shadow-sm"
               >
                 <span>💼</span>
                 <span>{activePortfolio.name}</span>
@@ -732,7 +742,7 @@ export default function StockRadarPage() {
 
               <button
                 onClick={handleToggleHalalView}
-                className={`px-4 py-2.5 rounded-xl text-sm font-bold border transition-all flex items-center gap-2 ${
+                className={`w-full sm:w-auto px-4 py-2.5 rounded-xl text-sm font-bold border transition-all flex items-center justify-center gap-2 ${
                   showHalalOnly 
                     ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50 shadow-[0_0_12px_rgba(16,185,129,0.15)]' 
                     : 'bg-slate-900/80 text-slate-300 border-slate-700/50 hover:border-emerald-500/40 hover:text-emerald-400'
@@ -744,7 +754,7 @@ export default function StockRadarPage() {
 
               <button
                 onClick={handleToggleFavoritesView}
-                className={`px-4 py-2.5 rounded-xl text-sm font-bold border transition-all flex items-center gap-2 ${
+                className={`w-full sm:w-auto px-4 py-2.5 rounded-xl text-sm font-bold border transition-all flex items-center justify-center gap-2 ${
                   showFavoritesOnly 
                     ? 'bg-yellow-500/20 text-yellow-300 border-yellow-500/50 shadow-[0_0_12px_rgba(234,179,8,0.15)]' 
                     : 'bg-slate-900/80 text-slate-300 border-slate-700/50 hover:border-yellow-500/40 hover:text-yellow-400'
@@ -759,8 +769,8 @@ export default function StockRadarPage() {
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value.toUpperCase())}
-                  placeholder="ابحث عن رمز سهم..."
-                  className="bg-slate-900/80 border border-slate-700/50 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-blue-500/50 w-full sm:w-44 text-left uppercase text-white placeholder-slate-500 shadow-inner"
+                  placeholder="بحث..."
+                  className="bg-slate-900/80 border border-slate-700/50 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-blue-500/50 w-full sm:w-36 text-left uppercase text-white placeholder-slate-500 shadow-inner"
                   dir="ltr"
                 />
                 <button 
@@ -768,7 +778,7 @@ export default function StockRadarPage() {
                   disabled={isSearching || !searchQuery.trim()}
                   className="bg-blue-600/90 hover:bg-blue-600 px-4 py-2.5 rounded-xl text-sm font-bold disabled:opacity-50 transition-colors whitespace-nowrap shadow-md text-white"
                 >
-                  {isSearching ? 'يبحث...' : 'اصطياد'}
+                  {isSearching ? '...' : 'اصطياد'}
                 </button>
               </form>
 
