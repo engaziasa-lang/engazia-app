@@ -86,7 +86,7 @@ export default function StockRadarPage() {
 
   const [tradeStock, setTradeStock] = useState<any>(null);
   const [tradeShares, setTradeShares] = useState<number>(1);
-  const BROKER_COMMISSION = 2; // عمولة الوسيط
+  const BROKER_COMMISSION = 2;
 
   const currentIndexRef = useRef(0);
   const initialLoadDone = useRef(false);
@@ -268,7 +268,6 @@ export default function StockRadarPage() {
         return;
       }
       
-      // توزيع عمولة الـ 2 دولار على عدد الأسهم المشتراة لتدخل ضمن متوسط التكلفة
       const effectivePricePerShare = stockPrice + (BROKER_COMMISSION / tradeShares);
 
       setPortfolio(prev => {
@@ -312,6 +311,21 @@ export default function StockRadarPage() {
     setTradeStock(null);
     setTradeShares(1);
   };
+
+  // --- حساب إجماليات المحفظة الحقيقية ---
+  let totalStocksMarketValue = 0;
+  let totalCostValue = 0;
+
+  portfolio.positions.forEach(pos => {
+    const liveStock = stocks.find(s => s.symbol === pos.symbol);
+    const currentPrice = liveStock ? parseFloat(liveStock.price) : pos.avgPrice;
+    totalStocksMarketValue += pos.shares * currentPrice;
+    totalCostValue += pos.shares * pos.avgPrice;
+  });
+
+  const totalPortfolioValue = portfolio.cash + totalStocksMarketValue;
+  const unrealizedPL = totalStocksMarketValue - totalCostValue;
+  const unrealizedPLPercent = totalCostValue > 0 ? (unrealizedPL / totalCostValue) * 100 : 0;
 
   const displayedStocks = showFavoritesOnly 
     ? stocks.filter(s => favorites.includes(s.symbol))
@@ -429,35 +443,38 @@ export default function StockRadarPage() {
       {/* محفظة المتدرب */}
       {isPortfolioOpen && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-          <div className="bg-gray-900 border border-gray-700 p-6 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-y-auto custom-scrollbar">
+          <div className="bg-gray-900 border border-gray-700 p-6 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto custom-scrollbar">
             <div className="flex justify-between items-center mb-6 border-b border-gray-800 pb-4">
               <h2 className="text-2xl font-bold text-yellow-500">💼 محفظة التدريب الافتراضية</h2>
               <button onClick={() => setIsPortfolioOpen(false)} className="text-gray-500 hover:text-white text-2xl font-black">×</button>
             </div>
             
-            <div className="grid grid-cols-2 gap-4 mb-6">
+            {/* بطاقات الصناديق العلوية */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
               <div className="bg-gray-950 p-4 rounded-xl border border-gray-800 relative">
                 <p className="text-sm text-gray-400 mb-1">الرصيد النقدي (الكاش)</p>
                 <p className="text-2xl font-black text-green-500">${portfolio.cash.toFixed(2)}</p>
                 
-                <div className="absolute top-4 left-4 flex flex-col gap-1 sm:flex-row sm:gap-2">
-                  <button onClick={() => setIsDepositOpen(true)} className="bg-green-600/20 hover:bg-green-600 text-green-500 hover:text-white px-2 py-1 sm:px-3 rounded text-[10px] sm:text-xs font-bold border border-green-600/50 transition-colors">
+                <div className="absolute top-4 left-4 flex gap-1">
+                  <button onClick={() => setIsDepositOpen(true)} className="bg-green-600/20 hover:bg-green-600 text-green-500 hover:text-white px-2 py-1 rounded text-[10px] font-bold border border-green-600/50 transition-colors">
                     + إيداع
                   </button>
-                  <button onClick={() => setIsWithdrawOpen(true)} className="bg-red-600/20 hover:bg-red-600 text-red-500 hover:text-white px-2 py-1 sm:px-3 rounded text-[10px] sm:text-xs font-bold border border-red-600/50 transition-colors">
+                  <button onClick={() => setIsWithdrawOpen(true)} className="bg-red-600/20 hover:bg-red-600 text-red-500 hover:text-white px-2 py-1 rounded text-[10px] font-bold border border-red-600/50 transition-colors">
                     - سحب
                   </button>
                 </div>
               </div>
+              
               <div className="bg-gray-950 p-4 rounded-xl border border-gray-800">
                 <p className="text-sm text-gray-400 mb-1">إجمالي الأسهم المملوكة</p>
                 <p className="text-2xl font-black text-blue-400">{portfolio.positions.length} شركات</p>
               </div>
             </div>
 
+            {/* قائمة الأسهم الحالية */}
             <h3 className="font-bold text-gray-300 mb-3">الأسهم في محفظتك:</h3>
             {portfolio.positions.length === 0 ? (
-              <div className="text-center text-gray-500 py-10 bg-gray-950 rounded-lg border border-gray-800 flex flex-col items-center gap-3">
+              <div className="text-center text-gray-500 py-8 bg-gray-950 rounded-lg border border-gray-800 flex flex-col items-center gap-3 mb-6">
                 <span>المحفظة فارغة حالياً.</span>
                 {portfolio.cash === 0 && (
                   <button onClick={() => setIsDepositOpen(true)} className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg text-sm font-bold">
@@ -466,21 +483,62 @@ export default function StockRadarPage() {
                 )}
               </div>
             ) : (
-              <div className="space-y-3">
-                {portfolio.positions.map((pos, idx) => (
-                  <div key={idx} className="flex justify-between items-center bg-gray-950 p-4 rounded-lg border border-gray-800">
-                    <div>
-                      <h4 className="font-black text-lg text-white">{pos.symbol}</h4>
-                      <p className="text-xs text-gray-400 mt-1">الكمية: {pos.shares} سهم</p>
+              <div className="space-y-3 mb-6">
+                {portfolio.positions.map((pos, idx) => {
+                  const liveStock = stocks.find(s => s.symbol === pos.symbol);
+                  const currentPrice = liveStock ? parseFloat(liveStock.price) : pos.avgPrice;
+                  const marketVal = pos.shares * currentPrice;
+                  const costVal = pos.shares * pos.avgPrice;
+                  const p/l = marketVal - costVal;
+                  const p/lPct = costVal > 0 ? (p/l / costVal) * 100 : 0;
+                  const isPos = p/l >= 0;
+
+                  return (
+                    <div key={idx} className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-gray-950 p-4 rounded-lg border border-gray-800 gap-2">
+                      <div>
+                        <h4 className="font-black text-lg text-white">{pos.symbol} <span className="text-xs font-normal text-gray-400">({pos.shares} سهم)</span></h4>
+                        <p className="text-xs text-gray-400">متوسط التكلفة: ${pos.avgPrice.toFixed(2)} | الحالي: ${currentPrice.toFixed(2)}</p>
+                      </div>
+                      <div className="text-left w-full sm:w-auto flex sm:flex-col justify-between items-center sm:items-end">
+                        <p className="text-sm font-bold text-white">${marketVal.toFixed(2)}</p>
+                        <p className={`text-xs font-black ${isPos ? 'text-green-500' : 'text-red-500'}`}>
+                          {isPos ? '+' : ''}${p/l.toFixed(2)} ({isPos ? '+' : ''}{p/lPct.toFixed(1)}%)
+                        </p>
+                      </div>
                     </div>
-                    <div className="text-left">
-                      <p className="text-sm font-bold text-gray-300">متوسط التكلفة (شامل العمولة): <span className="text-yellow-500">${pos.avgPrice.toFixed(2)}</span></p>
-                      <p className="text-xs text-gray-500 mt-1">إجمالي التكلفة: ${(pos.shares * pos.avgPrice).toFixed(2)}</p>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
+
+            {/* --- ملخص إجمالي المحفظة (مثل المحافظ الحقيقية) --- */}
+            <div className="bg-gradient-to-r from-gray-950 to-blue-950/40 p-4 rounded-xl border border-blue-900/50 space-y-3">
+              <h3 className="text-xs font-bold text-blue-400 uppercase tracking-wider mb-2">ملخص المحفظة الإجمالي</h3>
+              
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-gray-400">القيمة السوقية للأسهم:</span>
+                <span className="font-bold text-white">${totalStocksMarketValue.toFixed(2)}</span>
+              </div>
+
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-gray-400">الرصيد النقدي (الكاش):</span>
+                <span className="font-bold text-white">${portfolio.cash.toFixed(2)}</span>
+              </div>
+
+              <div className="flex justify-between items-center text-base border-t border-gray-800 pt-2">
+                <span className="font-bold text-gray-300">إجمالي قيمة المحفظة:</span>
+                <span className="font-black text-yellow-400 text-lg">${totalPortfolioValue.toFixed(2)}</span>
+              </div>
+
+              <div className="flex justify-between items-center text-sm border-t border-gray-800 pt-2">
+                <span className="font-bold text-gray-300">الربح / الخسارة غير المحققة:</span>
+                <span className={`font-black flex items-center gap-1 ${unrealizedPL >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                  {unrealizedPL >= 0 ? '+' : ''}${unrealizedPL.toFixed(2)} ({unrealizedPL >= 0 ? '+' : ''}{unrealizedPLPercent.toFixed(1)}%)
+                  {unrealizedPL >= 0 ? ' ▲' : ' ▼'}
+                </span>
+              </div>
+            </div>
+
           </div>
         </div>
       )}
