@@ -3,23 +3,11 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { getStockData } from './actions';
 
-// القائمة الشاملة للأسهم (تضم أكثر من 150 سهماً، ويمكنك إضافة المزيد)
 const ALL_MARKET_TICKERS = [
   'AAPL', 'MSFT', 'NVDA', 'GOOGL', 'AMZN', 'META', 'TSLA', 'V', 'JPM', 'UNH',
   'WMT', 'MA', 'JNJ', 'PG', 'HD', 'AVGO', 'CVX', 'MRK', 'KO', 'PEP',
   'COST', 'ABBV', 'BAC', 'ADBE', 'MCD', 'CRM', 'CSCO', 'ACN', 'TMO', 'NFLX',
-  'ABT', 'LIN', 'ORCL', 'DHR', 'AMD', 'CMCSA', 'WFC', 'DIS', 'INTC', 'TXN',
-  'PFE', 'PM', 'COP', 'UNP', 'CAT', 'BA', 'HON', 'AMGN', 'IBM', 'GE',
-  'NOW', 'QCOM', 'SPGI', 'GS', 'INTU', 'RTX', 'ISRG', 'BKNG', 'SYK', 'MDLZ',
-  'TJX', 'BLK', 'C', 'GILD', 'LMT', 'AXP', 'ZTS', 'MDT', 'ADI', 'SBUX',
-  'CB', 'MMC', 'CI', 'MO', 'VRTX', 'BMY', 'DUK', 'SO', 'PLD', 'CVS',
-  'SLB', 'EOG', 'BDX', 'T', 'GPN', 'PGR', 'KLAC', 'PANW', 'SNPS', 'CDNS',
-  'WM', 'FCX', 'AON', 'ITW', 'APH', 'NKE', 'UBER', 'SQ', 'PYPL', 'SHOP',
-  'SNOW', 'PLTR', 'HOOD', 'COIN', 'ROKU', 'ZM', 'PINS', 'DOCU', 'DDOG', 'TEAM',
-  'MDB', 'CRWD', 'OKTA', 'ZS', 'NET', 'FSLY', 'TWLO', 'U', 'RBLX', 'DKNG',
-  'PTON', 'CHWY', 'ETSY', 'W', 'CVNA', 'LCID', 'RIVN', 'NIO', 'XPEV', 'LI',
-  'F', 'GM', 'STLA', 'TM', 'HMC', 'BABA', 'JD', 'PDD', 'BIDU', 'NTES',
-  'TCEHY', 'TSM', 'ASML', 'LRCX', 'AMAT', 'MU', 'NXPI', 'MRVL', 'MCHP', 'ON'
+  // ... يمكنك لصق باقي الرموز هنا
 ];
 
 export default function StockRadarPage() {
@@ -27,15 +15,11 @@ export default function StockRadarPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [hasMore, setHasMore] = useState(true);
-
   const observer = useRef<IntersectionObserver | null>(null);
-  
-  // عدد الأسهم التي يتم جلبها في كل سحبة شاشة (12 سهماً لتكون سريعة جداً)
   const BATCH_SIZE = 12; 
 
   const loadMoreStocks = async () => {
     if (isLoading || !hasMore) return;
-    
     setIsLoading(true);
     const nextBatch = ALL_MARKET_TICKERS.slice(currentIndex, currentIndex + BATCH_SIZE);
     
@@ -45,43 +29,29 @@ export default function StockRadarPage() {
       return;
     }
 
-    // [الحل الجذري لخطأ Vercel]: تحديد نوع المصفوفة بشكل صريح كـ any[]
     const results: any[] = [];
-    
     for (const ticker of nextBatch) {
       const result = await getStockData(ticker);
-      if (result.success && result.data) {
-        results.push(result.data);
-      }
+      if (result.success && result.data) results.push(result.data);
     }
 
     setStocks(prev => [...prev, ...results]);
     setCurrentIndex(prev => prev + BATCH_SIZE);
-    
-    if (currentIndex + BATCH_SIZE >= ALL_MARKET_TICKERS.length) {
-      setHasMore(false);
-    }
-    
+    if (currentIndex + BATCH_SIZE >= ALL_MARKET_TICKERS.length) setHasMore(false);
     setIsLoading(false);
   };
 
-  // مراقب التمرير اللانهائي (يكتشف وصولك لآخر سهم في الشاشة)
   const lastStockElementRef = useCallback((node: HTMLDivElement | null) => {
     if (isLoading) return;
     if (observer.current) observer.current.disconnect();
     observer.current = new IntersectionObserver(entries => {
-      if (entries[0].isIntersecting && hasMore) {
-        loadMoreStocks();
-      }
+      if (entries[0].isIntersecting && hasMore) loadMoreStocks();
     });
     if (node) observer.current.observe(node);
   }, [isLoading, hasMore]);
 
-  // تحميل الدفعة الأولى عند بداية فتح الصفحة
   useEffect(() => {
-    if (stocks.length === 0) {
-      loadMoreStocks();
-    }
+    if (stocks.length === 0) loadMoreStocks();
   }, []);
 
   return (
@@ -90,10 +60,10 @@ export default function StockRadarPage() {
         <div className="mb-8 border-b border-gray-800 pb-6 flex justify-between items-center sticky top-0 bg-gray-950/90 backdrop-blur z-10 p-4 rounded-xl shadow-sm">
           <div>
             <h1 className="text-3xl font-bold text-blue-500 mb-2">شاشة السوق الشاملة 📈</h1>
-            <p className="text-sm text-gray-400">مرر للأسفل وسيستمر الموقع بجلب أسهم جديدة بلا توقف.</p>
+            <p className="text-sm text-gray-400">تحليل لحظي وتاريخي لآداء الأسهم الاستثمارية.</p>
           </div>
           <div className="text-sm font-bold bg-gray-900 px-4 py-2 rounded-lg text-blue-400 border border-gray-800">
-            الأسهم المعروضة حالياً: {stocks.length}
+            الأسهم المعروضة: {stocks.length}
           </div>
         </div>
 
@@ -104,55 +74,77 @@ export default function StockRadarPage() {
               <div 
                 key={stock.symbol + index} 
                 ref={isLast ? lastStockElementRef : null}
-                className="bg-gray-900 p-5 rounded-2xl border border-gray-800 shadow-xl flex flex-col justify-between hover:border-blue-500/50 transition-all"
+                className="bg-gray-900 p-5 rounded-2xl border border-gray-800 shadow-xl flex flex-col justify-between hover:border-blue-500/50 transition-all h-full"
               >
+                {/* رأس المربع */}
                 <div className="flex justify-between items-start mb-4">
                   <div>
                     <h2 className="text-2xl font-black text-white">{stock.symbol}</h2>
-                    <p className="text-xs text-gray-500 mt-1">PE: {stock.peRatio} | PEG: {stock.pegRatio}</p>
+                    <p className="text-[10px] text-gray-500 mt-1">PE: {stock.peRatio} | PEG: {stock.pegRatio}</p>
                   </div>
                   <span className="bg-blue-950/50 text-blue-400 px-3 py-1.5 rounded-lg text-lg font-bold border border-blue-900/50">
                     ${stock.price}
                   </span>
                 </div>
 
+                {/* رأي الذكاء الاصطناعي */}
                 <div className="bg-gray-800/50 p-3 rounded-lg mb-4 border border-gray-700/50">
                   <p className="text-xs text-gray-300 leading-relaxed">
-                    <span className="text-blue-400 font-bold">💡 رأي Gemini: </span>
-                    {stock.analysis}
+                    <span className="text-blue-400 font-bold">💡 رأي Gemini: </span>{stock.analysis}
                   </p>
                 </div>
 
-                <div className="mt-auto">
-                  <h3 className="text-[10px] font-bold text-gray-500 mb-2">أداء الأيام السابقة:</h3>
-                  <div className="space-y-1.5">
-                    {stock.history?.map((dayRecord: any, idx: number) => (
-                      <div key={idx} className="flex justify-between items-center bg-gray-950 p-2 rounded text-xs border border-gray-800">
+                {/* سجل آخر 30 يوم (صندوق قابل للتمرير Scrollable) */}
+                <div className="bg-gray-950/50 border border-gray-800 rounded-lg p-2 mb-3">
+                  <h3 className="text-[10px] font-bold text-gray-400 mb-2 px-1">سجل التداول (آخر 30 يوم):</h3>
+                  <div className="space-y-1 max-h-32 overflow-y-auto pl-1 custom-scrollbar">
+                    {stock.history30Days?.map((dayRecord: any, idx: number) => (
+                      <div key={idx} className="flex justify-between items-center text-[10px] p-1.5 border-b border-gray-800/50 last:border-0">
                         <span className="text-gray-400">{dayRecord.day}</span>
                         <span className={`font-bold flex items-center gap-1 ${dayRecord.isPositive ? 'text-green-500' : 'text-red-500'}`}>
-                          {dayRecord.status} ${dayRecord.amount}
-                          {dayRecord.isPositive ? '▲' : '▼'}
+                          {dayRecord.status} ${dayRecord.amount} {dayRecord.isPositive ? '▲' : '▼'}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                  {/* مجموع 30 يوم */}
+                  <div className="mt-2 pt-2 border-t border-gray-800 flex justify-between items-center px-1">
+                    <span className="text-xs font-bold text-gray-300">صافي آخر 30 يوم:</span>
+                    <span className={`text-sm font-black flex items-center gap-1 ${stock.isTotalPositive ? 'text-green-500' : 'text-red-500'}`}>
+                      ${stock.total30Days} {stock.isTotalPositive ? 'ربح ▲' : 'خسارة ▼'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* الإحصائيات التاريخية (أشهر وسنوات) */}
+                <div className="mt-auto">
+                  <h3 className="text-[10px] font-bold text-gray-500 mb-2 text-center">العائد التاريخي للسهم</h3>
+                  <div className="grid grid-cols-5 gap-1 text-center">
+                    {[
+                      { label: '3 أشهر', data: stock.stats?.m3 },
+                      { label: '6 أشهر', data: stock.stats?.m6 },
+                      { label: 'سنة', data: stock.stats?.y1 },
+                      { label: 'سنتين', data: stock.stats?.y2 },
+                      { label: '3 سنوات', data: stock.stats?.y3 }
+                    ].map((stat, i) => (
+                      <div key={i} className="bg-gray-950 p-1 rounded-md border border-gray-800 flex flex-col justify-center items-center">
+                        <span className="text-[9px] text-gray-500">{stat.label}</span>
+                        <span className={`text-[10px] font-bold ${stat.data?.value === '-' ? 'text-gray-500' : (stat.data?.isPositive ? 'text-green-500' : 'text-red-500')}`}>
+                          {stat.data?.value !== '-' ? (stat.data?.isPositive ? '+' : '-') : ''}{stat.data?.value}
                         </span>
                       </div>
                     ))}
                   </div>
                 </div>
+
               </div>
             );
           })}
         </div>
 
-        {/* مؤشر التحميل عند التمرير للأسفل */}
         {isLoading && (
-          <div className="text-center py-10 text-blue-400 font-bold text-lg animate-pulse flex justify-center items-center gap-2">
-            <svg className="animate-spin h-6 w-6 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+          <div className="text-center py-10 text-blue-400 font-bold text-lg animate-pulse">
             جاري جلب الدفعة التالية من الأسهم والتحليل...
-          </div>
-        )}
-
-        {!hasMore && stocks.length > 0 && (
-          <div className="text-center py-10 text-gray-500 font-bold">
-            ✅ تم استعراض جميع الأسهم بنجاح.
           </div>
         )}
       </div>
