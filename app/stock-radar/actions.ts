@@ -19,7 +19,7 @@ export async function getStockData(ticker: string) {
     if (!meta || !meta.regularMarketPrice) return { success: false, error: "رمز غير صحيح" };
 
     const price = meta.regularMarketPrice;
-    const priceSAR = (price * 3.75).toFixed(2); // تحويل السعر للريال السعودي
+    const priceSAR = (price * 3.75).toFixed(2);
     
     const peRatio = meta.trailingPE ? Number(meta.trailingPE).toFixed(2) : 'غير متوفر';
     const pegRatio = meta.pegRatio ? Number(meta.pegRatio).toFixed(2) : 'غير متوفر';
@@ -95,17 +95,22 @@ export async function getStockData(ticker: string) {
       }
     } catch (e) {}
 
+    // حساب صافي 30 يوم بالدولار والريال
+    const total30DaysUSD = Math.abs(total30DaysChange);
+    const total30DaysSAR = (total30DaysUSD * 3.75).toFixed(2);
+
     return { 
       success: true, 
       data: { 
         symbol: meta.symbol, 
         price, 
-        priceSAR, // تمرير السعر بالريال
+        priceSAR, 
         peRatio, 
         pegRatio, 
         analysis: aiAnalysis, 
         history30Days, 
-        total30Days: Math.abs(total30DaysChange).toFixed(2),
+        total30Days: total30DaysUSD.toFixed(2),
+        total30DaysSAR, // تمرير الصافي بالريال
         isTotalPositive: total30DaysChange >= 0,
         stats,
         suggestedEntryPrice,
