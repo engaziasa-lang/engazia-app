@@ -97,7 +97,6 @@ export default function StockRadarPage() {
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [showHalalOnly, setShowHalalOnly] = useState(false);
 
-  // --- نظام المحافظ المتعددة ---
   const [portfolios, setPortfolios] = useState<Portfolio[]>([
     { id: '1', name: 'محفظتي الأساسية', cash: 10000, positions: [] }
   ]);
@@ -250,7 +249,6 @@ export default function StockRadarPage() {
     if (node) observer.current.observe(node);
   }, [isLoading, hasMore, showFavoritesOnly, showHalalOnly]);
 
-  // إدارة المحافظ الجديدة
   const handleCreatePortfolio = () => {
     if (!newPortfolioName.trim()) {
       alert("الرجاء إدخال اسم المحفظة.");
@@ -312,7 +310,6 @@ export default function StockRadarPage() {
     const totalSharesValue = stockPrice * sharesNum;
 
     if (type === 'buy') {
-      // الشرط الأساسي: التحقق من عدم تكرار السهم في أي محفظة أخرى
       const isAlreadyOwnedElsewhere = portfolios.some(p => p.id !== activePortfolioId && p.positions.some(pos => pos.symbol === stockSymbol));
       if (isAlreadyOwnedElsewhere) {
         alert(`❌ عذراً، السهم (${stockSymbol}) موجود مسبقاً في محفظة أخرى ولا يمكن تكراره.`);
@@ -376,7 +373,6 @@ export default function StockRadarPage() {
     setIsPortfolioOpen(false);
   };
 
-  // --- حساب إجماليات المحفظة النشطة ---
   let totalStocksMarketValue = 0;
   let totalCostValue = 0;
 
@@ -558,7 +554,6 @@ export default function StockRadarPage() {
               <button onClick={() => setIsPortfolioOpen(false)} className="text-gray-500 hover:text-white text-2xl font-black">×</button>
             </div>
 
-            {/* شريط اختيار المحافظ وإنشاء محفظة جديدة */}
             <div className="flex flex-wrap items-center gap-2 mb-6 bg-gray-950 p-3 rounded-xl border border-gray-800">
               <span className="text-xs text-gray-400 font-bold ml-2">المحفظة النشطة:</span>
               {portfolios.map(p => (
@@ -666,7 +661,6 @@ export default function StockRadarPage() {
               </div>
             )}
 
-            {/* ملخص المحفظة النشطة */}
             <div className="bg-gradient-to-r from-gray-950 to-blue-950/40 p-4 rounded-xl border border-blue-900/50 space-y-3">
               <h3 className="text-xs font-bold text-blue-400 uppercase tracking-wider mb-2">ملخص محفظة ({activePortfolio.name})</h3>
               
@@ -699,76 +693,94 @@ export default function StockRadarPage() {
       )}
 
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8 border-b border-gray-800 pb-6 sticky top-0 bg-gray-950/90 backdrop-blur z-10 p-4 rounded-xl shadow-sm">
-          <div className="flex flex-col lg:flex-row justify-between items-center gap-4">
+        {/* --- الشريط العلوي المعاد ترتيبه وتنسيقه بشكل أنيق واحترافي --- */}
+        <div className="mb-8 border-b border-gray-800 pb-6 sticky top-0 bg-gray-950/95 backdrop-blur z-10 p-4 rounded-xl shadow-lg">
+          <div className="flex flex-col xl:flex-row justify-between items-center gap-6">
             
-            <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-right w-full lg:w-auto">
-              <div>
-                <h1 className="text-3xl font-bold text-blue-500 mb-2">شاشة السوق الشاملة 📈</h1>
-                <p className="text-sm text-gray-400">تحليل لحظي، فلترة شرعية ومحافظ متعددة.</p>
+            {/* عنوان الصفحة ووصفها */}
+            <div className="flex items-center gap-4 w-full xl:w-auto justify-between xl:justify-start">
+              <div className="flex items-center gap-3">
+                <div className="bg-blue-600/20 p-2.5 rounded-xl border border-blue-500/30 text-blue-400 text-2xl font-bold">
+                  📈
+                </div>
+                <div>
+                  <h1 className="text-2xl md:text-3xl font-black text-blue-500 tracking-tight">شاشة السوق الشاملة</h1>
+                  <p className="text-xs text-gray-400 mt-0.5">تحليل لحظي، فلترة شرعية ومحافظ متعددة.</p>
+                </div>
               </div>
-              <div className="text-sm font-bold bg-gray-900 px-4 py-2 rounded-lg text-blue-400 border border-gray-800 whitespace-nowrap">
-                الأسهم المعروضة: {displayedStocks.length} من {ALL_MARKET_TICKERS.length}
+              <div className="text-xs font-bold bg-gray-900 px-3 py-2 rounded-xl text-blue-400 border border-gray-800 whitespace-nowrap">
+                الأسهم: {displayedStocks.length} من {ALL_MARKET_TICKERS.length}
               </div>
             </div>
             
-            <div className="flex flex-wrap w-full lg:w-auto gap-2 items-center justify-center sm:justify-end">
+            {/* الأزرار وأدوات التحكم مرتبة ومنسقة بصفوف متناسقة */}
+            <div className="flex flex-wrap items-center justify-center xl:justify-end gap-3 w-full xl:w-auto">
+              
+              {/* زر المحفظة النشطة */}
               <button
                 onClick={() => setIsPortfolioOpen(true)}
-                className="bg-green-600/20 text-green-500 border border-green-500/50 hover:bg-green-600/30 px-4 py-2 rounded-lg text-sm font-bold transition-colors flex items-center gap-2"
+                className="bg-green-600/20 text-green-400 border border-green-500/40 hover:bg-green-600/30 px-4 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center gap-2 shadow-sm"
               >
-                💼 {activePortfolio.name} (${activePortfolio.cash.toFixed(0)})
+                <span>💼</span>
+                <span>{activePortfolio.name}</span>
+                <span className="bg-green-950 px-2 py-0.5 rounded-lg text-xs text-green-300 border border-green-800/60">${activePortfolio.cash.toFixed(0)}</span>
               </button>
 
+              {/* زر فلتر الأسهم الحلال */}
               <button
                 onClick={handleToggleHalalView}
-                className={`px-4 py-2 rounded-lg text-sm font-bold border transition-colors flex items-center gap-2 ${
+                className={`px-4 py-2.5 rounded-xl text-sm font-bold border transition-all flex items-center gap-2 ${
                   showHalalOnly 
-                    ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/60' 
-                    : 'bg-gray-900 text-gray-400 border-gray-700 hover:border-emerald-500/50 hover:text-emerald-400'
+                    ? 'bg-emerald-500/25 text-emerald-300 border-emerald-500/60 shadow-[0_0_12px_rgba(16,185,129,0.15)]' 
+                    : 'bg-gray-900 text-gray-300 border-gray-800 hover:border-emerald-500/40 hover:text-emerald-400'
                 }`}
               >
-                {showHalalOnly ? '✨ عرض كل الأسهم' : '☪️ الأسهم الحلال فقط'}
+                <span>☪️</span>
+                <span>{showHalalOnly ? 'إلغاء الفلتر' : 'الأسهم الحلال فقط'}</span>
               </button>
 
+              {/* زر المفضلة */}
               <button
                 onClick={handleToggleFavoritesView}
-                className={`px-4 py-2 rounded-lg text-sm font-bold border transition-colors flex items-center gap-2 ${
+                className={`px-4 py-2.5 rounded-xl text-sm font-bold border transition-all flex items-center gap-2 ${
                   showFavoritesOnly 
-                    ? 'bg-yellow-500/20 text-yellow-500 border-yellow-500/50' 
-                    : 'bg-gray-900 text-gray-400 border-gray-700 hover:border-yellow-500/50 hover:text-yellow-500'
+                    ? 'bg-yellow-500/25 text-yellow-300 border-yellow-500/60 shadow-[0_0_12px_rgba(234,179,8,0.15)]' 
+                    : 'bg-gray-900 text-gray-300 border-gray-800 hover:border-yellow-500/40 hover:text-yellow-400'
                 }`}
               >
-                {showFavoritesOnly ? '⭐ عرض كل الأسهم' : '☆ أسهمي المفضلة'}
+                <span>⭐</span>
+                <span>{showFavoritesOnly ? 'إلغاء الفلتر' : 'أسهمي المفضلة'}</span>
               </button>
 
-              <form onSubmit={handleSearch} className="flex gap-2 w-full sm:w-auto mt-2 sm:mt-0">
+              {/* حقل البحث السريع */}
+              <form onSubmit={handleSearch} className="flex gap-2 w-full sm:w-auto">
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value.toUpperCase())}
                   placeholder="ابحث عن رمز سهم..."
-                  className="bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500 w-full sm:w-40 text-left uppercase"
+                  className="bg-gray-900 border border-gray-800 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-blue-500 w-full sm:w-44 text-left uppercase text-white placeholder-gray-500"
                   dir="ltr"
                 />
                 <button 
                   type="submit" 
                   disabled={isSearching || !searchQuery.trim()}
-                  className="bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded-lg text-sm font-bold disabled:opacity-50 min-w-[70px]"
+                  className="bg-blue-600 hover:bg-blue-700 px-4 py-2.5 rounded-xl text-sm font-bold disabled:opacity-50 transition-colors whitespace-nowrap shadow-sm"
                 >
                   {isSearching ? 'يبحث...' : 'اصطياد'}
                 </button>
               </form>
+
             </div>
           </div>
         </div>
 
+        {/* شبكة عرض الأسهم */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {displayedStocks.map((stock, index) => {
             const isLast = index === displayedStocks.length - 1;
             const isFav = favorites.includes(stock.symbol);
             
-            // التحقق هل السهم مملوك في أي محفظة ومن أي محفظة
             const ownerPortfolio = portfolios.find(p => p.positions.some(pos => pos.symbol === stock.symbol));
             const ownedInActive = ownerPortfolio?.id === activePortfolioId;
             const ownedPosition = activePortfolio.positions.find(pos => pos.symbol === stock.symbol);
@@ -890,7 +902,7 @@ export default function StockRadarPage() {
                           {stat.data?.value !== '-' ? (stat.data?.isPositive ? '+' : '-') : ''}{stat.data?.value}
                         </span>
                         
-                        {stat.data=`${stat.data?.value !== '-'}` && stat.data?.value !== '-' && (
+                        {stat.data?.value !== '-' && (
                           <div className="flex flex-col items-center mt-0.5">
                             <span className={`text-[8px] font-semibold opacity-90 ${stat.data?.isPositive ? 'text-green-500' : 'text-red-500'}`}>
                               ${stat.data?.amount}
