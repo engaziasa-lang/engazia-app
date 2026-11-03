@@ -3,11 +3,63 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { getStockData } from './actions';
 
+// قائمة العمالقة: أهم 500 شركة في وول ستريت (الأعلى سيولة وقيمة سوقية)
 const ALL_MARKET_TICKERS = [
-  'AAPL', 'MSFT', 'NVDA', 'GOOGL', 'AMZN', 'META', 'TSLA', 'V', 'JPM', 'UNH',
-  'WMT', 'MA', 'JNJ', 'PG', 'HD', 'AVGO', 'CVX', 'MRK', 'KO', 'PEP',
-  'COST', 'ABBV', 'BAC', 'ADBE', 'MCD', 'CRM', 'CSCO', 'ACN', 'TMO', 'NFLX'
-  // يمكنك إضافة مئات الرموز الأخرى هنا، وسيقوم التمرير بجلبها جميعاً بالتدريج
+  'AAPL', 'MSFT', 'NVDA', 'GOOGL', 'AMZN', 'META', 'TSLA', 'BRK-B', 'LLY', 'V', 
+  'JPM', 'UNH', 'XOM', 'MA', 'JNJ', 'PG', 'HD', 'AVGO', 'CVX', 'MRK', 
+  'KO', 'PEP', 'COST', 'ABBV', 'BAC', 'ADBE', 'MCD', 'CRM', 'CSCO', 'ACN', 
+  'TMO', 'NFLX', 'ABT', 'LIN', 'ORCL', 'DHR', 'AMD', 'CMCSA', 'WFC', 'DIS', 
+  'INTC', 'TXN', 'PFE', 'PM', 'COP', 'UNP', 'CAT', 'BA', 'HON', 'AMGN', 
+  'IBM', 'GE', 'NOW', 'QCOM', 'SPGI', 'GS', 'INTU', 'RTX', 'ISRG', 'BKNG', 
+  'SYK', 'MDLZ', 'TJX', 'BLK', 'C', 'GILD', 'LMT', 'AXP', 'ZTS', 'MDT', 
+  'ADI', 'SBUX', 'CB', 'MMC', 'CI', 'MO', 'VRTX', 'BMY', 'DUK', 'SO', 
+  'PLD', 'CVS', 'SLB', 'EOG', 'BDX', 'T', 'GPN', 'PGR', 'KLAC', 'PANW', 
+  'SNPS', 'CDNS', 'WM', 'FCX', 'AON', 'ITW', 'APH', 'NKE', 'UBER', 'SQ', 
+  'PYPL', 'SHOP', 'SNOW', 'PLTR', 'HOOD', 'COIN', 'ROKU', 'ZM', 'PINS', 'DOCU', 
+  'DDOG', 'TEAM', 'MDB', 'CRWD', 'OKTA', 'ZS', 'NET', 'FSLY', 'TWLO', 'U', 
+  'RBLX', 'DKNG', 'PTON', 'CHWY', 'ETSY', 'W', 'CVNA', 'LCID', 'RIVN', 'NIO', 
+  'XPEV', 'LI', 'F', 'GM', 'STLA', 'TM', 'HMC', 'BABA', 'JD', 'PDD', 
+  'BIDU', 'NTES', 'TCEHY', 'TSM', 'ASML', 'LRCX', 'AMAT', 'MU', 'NXPI', 'MRVL', 
+  'MCHP', 'ON', 'MMM', 'ABMD', 'AAP', 'AES', 'AFL', 'A', 'APD', 'AKAM', 
+  'ALK', 'ALB', 'ARE', 'ALGN', 'ALLE', 'LNT', 'ALL', 'AMCR', 'AEE', 'AAL', 
+  'AEP', 'AIG', 'AMT', 'AWK', 'AMP', 'ABC', 'AME', 'ANSS', 'AOS', 'APA', 
+  'APTV', 'ADM', 'ANET', 'AJG', 'AIZ', 'ATO', 'ADSK', 'ADP', 'AZO', 'AVB', 
+  'AVY', 'BKR', 'BALL', 'BBWI', 'BAX', 'WRB', 'BBY', 'BIO', 'TECH', 'BIIB', 
+  'BK', 'BWA', 'BXP', 'BSX', 'BR', 'BRO', 'BF-B', 'CHRW', 'CZR', 'CPT', 
+  'CPB', 'COF', 'CAH', 'KMX', 'CCL', 'CARR', 'CTLT', 'CBOE', 'CBRE', 'CDW', 
+  'CE', 'CNC', 'CNP', 'CDAY', 'CF', 'CRL', 'SCHW', 'CHTR', 'CMG', 'CHD', 
+  'CINF', 'CTAS', 'CFG', 'CTXS', 'CLX', 'CME', 'CMS', 'CTSH', 'CL', 'CMA', 
+  'CAG', 'ED', 'STZ', 'CEG', 'COO', 'CPRT', 'GLW', 'CTVA', 'CSGP', 'CTRA', 
+  'CCI', 'CSX', 'CMI', 'DHI', 'DRI', 'DVA', 'DE', 'DAL', 'XRAY', 'DVN', 
+  'DXCM', 'FANG', 'DLR', 'DFS', 'DISH', 'DG', 'DLTR', 'D', 'DPZ', 'DOV', 
+  'DOW', 'DTE', 'DRE', 'DD', 'DXC', 'EMN', 'ETN', 'EBAY', 'ECL', 'EIX', 
+  'EW', 'EA', 'EMR', 'ENPH', 'ETR', 'EPAM', 'EQT', 'EFX', 'EQIX', 'EQR', 
+  'ESS', 'EL', 'RE', 'EVRG', 'ES', 'EXC', 'EXPE', 'EXPD', 'EXR', 'FFIV', 
+  'FDS', 'FAST', 'FRT', 'FDX', 'FITB', 'FRC', 'FE', 'FIS', 'FISV', 'FLT', 
+  'FMC', 'FTNT', 'FTV', 'FBHS', 'FOXA', 'FOX', 'BEN', 'GRMN', 'IT', 'GNRC', 
+  'GD', 'GIS', 'GPC', 'GL', 'HAL', 'HIG', 'HAS', 'HCA', 'PEAK', 'HSIC', 
+  'HSY', 'HES', 'HPE', 'HLT', 'HOLX', 'HRL', 'HST', 'HWM', 'HPQ', 'HUM', 
+  'HBAN', 'HII', 'IEX', 'IDXX', 'INFO', 'ILMN', 'INCY', 'IR', 'ICE', 'IP', 
+  'IPG', 'IFF', 'IVZ', 'IPGP', 'IQV', 'IRM', 'JBHT', 'JKHY', 'J', 'JCI', 
+  'JNPR', 'K', 'KEY', 'KEYS', 'KMB', 'KIM', 'KMI', 'KHC', 'KR', 'LHX', 
+  'LH', 'LW', 'LVS', 'LDOS', 'LEN', 'LYB', 'L', 'LOW', 'LUMN', 'LYV', 
+  'MTB', 'MRO', 'MPC', 'MKTX', 'MAR', 'MLM', 'MAS', 'MTCH', 'MKC', 'MCK', 
+  'MET', 'MTD', 'MGM', 'MAA', 'MRNA', 'MHK', 'TAP', 'MPWR', 'MNST', 'MCO', 
+  'MS', 'MOS', 'MSI', 'MSCI', 'NDAQ', 'NTAP', 'NWL', 'NEM', 'NWSA', 'NWS', 
+  'NEE', 'NLSN', 'NI', 'NDSN', 'NSC', 'NTRS', 'NOC', 'NLOK', 'NCLH', 'NRG', 
+  'NUE', 'NVR', 'ORLY', 'ODFL', 'OMC', 'OKE', 'OGN', 'OTIS', 'PCAR', 'PKG', 
+  'PARA', 'PH', 'PAYX', 'PAYC', 'PENN', 'PNR', 'PBCT', 'PKI', 'PRGO', 'PCG', 
+  'PSX', 'PNW', 'PXD', 'PNC', 'POOL', 'PPG', 'PPL', 'PFG', 'PRU', 'PEG', 
+  'PTC', 'PSA', 'PHM', 'PVH', 'QRVO', 'PWR', 'DGX', 'RL', 'RJF', 'O', 
+  'REG', 'REGN', 'RF', 'RSG', 'RMD', 'RHI', 'ROK', 'ROL', 'ROP', 'ROST', 
+  'RCL', 'SBAC', 'STX', 'SEE', 'SRE', 'SHW', 'SBNY', 'SPG', 'SWKS', 'SJM', 
+  'SNA', 'SEDG', 'LUV', 'SWK', 'STT', 'STE', 'SIVB', 'SYF', 'SYY', 'TMUS', 
+  'TROW', 'TTWO', 'TPR', 'TGT', 'TEL', 'TDY', 'TFX', 'TER', 'TXT', 'TSCO', 
+  'TT', 'TDG', 'TRV', 'TRMB', 'TFC', 'TWTR', 'TYL', 'TSN', 'USB', 'UDR', 
+  'ULTA', 'UAA', 'UA', 'UAL', 'UPS', 'URI', 'UHS', 'VLO', 'VTR', 'VRSN', 
+  'VRSK', 'VZ', 'VFC', 'VIAC', 'VTRS', 'VNO', 'VMC', 'WAB', 'WBA', 'WAT', 
+  'WEC', 'WELL', 'WST', 'WDC', 'WU', 'WRK', 'WY', 'WHR', 'WMB', 'WLTW', 
+  'WYNN', 'XEL', 'XLNX', 'XYL', 'YUM', 'ZBRA', 'ZBH', 'ZION'
 ];
 
 export default function StockRadarPage() {
@@ -23,8 +75,9 @@ export default function StockRadarPage() {
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
 
   const observer = useRef<IntersectionObserver | null>(null);
-  const BATCH_SIZE = 12; 
+  const BATCH_SIZE = 12; // تحميل 12 سهم في كل سحبة لضمان الأداء السريع
 
+  // استرجاع وحفظ المفضلة
   useEffect(() => {
     const savedFavs = localStorage.getItem('stockRadarFavorites');
     if (savedFavs) {
@@ -63,6 +116,7 @@ export default function StockRadarPage() {
     }
   };
 
+  // تحميل دفعة جديدة من الأسهم عند التمرير
   const loadMoreStocks = async () => {
     if (isLoading || !hasMore || showFavoritesOnly) return; 
     setIsLoading(true);
@@ -88,6 +142,7 @@ export default function StockRadarPage() {
     setIsLoading(false);
   };
 
+  // البحث السريع
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!searchQuery.trim() || isSearching) return;
@@ -99,11 +154,12 @@ export default function StockRadarPage() {
       setStocks(prev => [result.data, ...prev.filter(s => s.symbol !== result.data.symbol)]);
       setSearchQuery('');
     } else {
-      alert("لم يتم العثور على السهم، تأكد من الرمز.");
+      alert("لم يتم العثور على السهم، تأكد من الرمز (مثال AAPL).");
     }
     setIsSearching(false);
   };
 
+  // مراقب التمرير اللانهائي
   const lastStockElementRef = useCallback((node: HTMLDivElement | null) => {
     if (isLoading || showFavoritesOnly) return; 
     if (observer.current) observer.current.disconnect();
@@ -124,22 +180,21 @@ export default function StockRadarPage() {
   return (
     <main className="p-8 bg-gray-950 min-h-screen text-right font-sans text-white" dir="rtl">
       <div className="max-w-7xl mx-auto">
+        
+        {/* الشريط العلوي الثابت */}
         <div className="mb-8 border-b border-gray-800 pb-6 sticky top-0 bg-gray-950/90 backdrop-blur z-10 p-4 rounded-xl shadow-sm">
           <div className="flex flex-col lg:flex-row justify-between items-center gap-4">
             
-            {/* القسم الأيمن: العنوان والعداد */}
             <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-right w-full lg:w-auto">
               <div>
                 <h1 className="text-3xl font-bold text-blue-500 mb-2">شاشة السوق الشاملة 📈</h1>
                 <p className="text-sm text-gray-400">تحليل لحظي وتاريخي مع تحديد أفضل فرص الدخول.</p>
               </div>
-              {/* تمت إعادة عداد الأسهم هنا */}
               <div className="text-sm font-bold bg-gray-900 px-4 py-2 rounded-lg text-blue-400 border border-gray-800 whitespace-nowrap">
                 الأسهم المعروضة: {displayedStocks.length}
               </div>
             </div>
             
-            {/* القسم الأيسر: أزرار البحث والمفضلة */}
             <div className="flex flex-col sm:flex-row w-full lg:w-auto gap-3 items-center">
               <button
                 onClick={handleToggleFavoritesView}
@@ -158,7 +213,7 @@ export default function StockRadarPage() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value.toUpperCase())}
                   placeholder="ابحث عن رمز سهم..."
-                  className="bg-gray-900 border border-gray-700 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-blue-500 w-full sm:w-48 text-left"
+                  className="bg-gray-900 border border-gray-700 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-blue-500 w-full sm:w-48 text-left uppercase"
                   dir="ltr"
                 />
                 <button 
@@ -170,10 +225,10 @@ export default function StockRadarPage() {
                 </button>
               </form>
             </div>
-
           </div>
         </div>
 
+        {/* شبكة الأسهم */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {displayedStocks.map((stock, index) => {
             const isLast = index === displayedStocks.length - 1;
@@ -185,6 +240,7 @@ export default function StockRadarPage() {
                 ref={(!showFavoritesOnly && isLast) ? lastStockElementRef : null}
                 className={`bg-gray-900 p-5 rounded-2xl border ${isFav ? 'border-yellow-500/30 shadow-[0_0_15px_rgba(234,179,8,0.1)]' : 'border-gray-800 shadow-xl'} flex flex-col justify-between hover:border-blue-500/50 transition-all h-full`}
               >
+                {/* رأس المربع */}
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex items-center gap-2">
                     <button 
@@ -204,6 +260,7 @@ export default function StockRadarPage() {
                   </span>
                 </div>
 
+                {/* تحليل التوصيات */}
                 <div className="bg-gradient-to-r from-gray-800 to-gray-900 p-3 rounded-lg mb-4 border border-gray-700">
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-[11px] font-bold text-gray-400">السعر المحدد للدخول:</span>
@@ -215,6 +272,7 @@ export default function StockRadarPage() {
                   </p>
                 </div>
 
+                {/* تقويم 30 يوم */}
                 <div className="bg-gray-950/50 border border-gray-800 rounded-lg p-2 mb-3">
                   <h3 className="text-[10px] font-bold text-gray-400 mb-2 px-1">سجل التداول (آخر 30 يوم):</h3>
                   <div className="space-y-1 max-h-32 overflow-y-auto pl-1 custom-scrollbar">
@@ -235,6 +293,7 @@ export default function StockRadarPage() {
                   </div>
                 </div>
 
+                {/* العوائد التاريخية */}
                 <div className="mt-auto">
                   <h3 className="text-[10px] font-bold text-gray-500 mb-2 text-center">العائد التاريخي للسهم</h3>
                   <div className="grid grid-cols-5 gap-1 text-center">
@@ -264,6 +323,7 @@ export default function StockRadarPage() {
           })}
         </div>
 
+        {/* حالات الشاشة */}
         {showFavoritesOnly && displayedStocks.length === 0 && !isLoading && (
           <div className="text-center py-20 text-gray-500 font-bold text-lg">
             لا توجد أسهم في المفضلة حالياً. اضغط على أيقونة (☆) بجانب أي سهم لإضافته!
@@ -272,7 +332,7 @@ export default function StockRadarPage() {
 
         {isLoading && (
           <div className="text-center py-10 text-blue-400 font-bold text-lg animate-pulse">
-            جاري جلب الأسهم والتحليل...
+            جاري جلب الأسهم والتحليل المستمر...
           </div>
         )}
       </div>
