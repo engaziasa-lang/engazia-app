@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { getStockData } from './actions';
+import { getStockData, getLivePrices } from './actions';
 
 const ALL_MARKET_TICKERS = [
   'AAPL', 'MSFT', 'NVDA', 'GOOGL', 'AMZN', 'META', 'TSLA', 'BRK-B', 'LLY', 'V', 
@@ -127,7 +127,14 @@ export default function StockRadarPage() {
   const currentIndexRef = useRef(0);
   const initialLoadDone = useRef(false);
   const observer = useRef<IntersectionObserver | null>(null);
+  
+  // حفظ مرجع مباشر للأسهم الحالية لاستخدامه في دالة التحديث اللحظي بدون قطع الـ render
+  const stocksRef = useRef(stocks);
   const BATCH_SIZE = 12;
+
+  useEffect(() => {
+    stocksRef.current = stocks;
+  }, [stocks]);
 
   useEffect(() => {
     const savedFavs = localStorage.getItem('stockRadarFavorites');
@@ -149,6 +156,33 @@ export default function StockRadarPage() {
   useEffect(() => {
     localStorage.setItem('stockRadarCustomSharia', JSON.stringify(customShariaOverrides));
   }, [customShariaOverrides]);
+
+  // --- التحديث اللحظي المباشر للأسعار ---
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      const currentStocks = stocksRef.current;
+      if (currentStocks.length === 0) return;
+      
+      const symbolsToUpdate = currentStocks.map(s => s.symbol);
+      const res = await getLivePrices(symbolsToUpdate);
+      
+      if (res && res.success && res.data) {
+        setStocks(prevStocks => prevStocks.map(stock => {
+          const liveData = res.data[stock.symbol];
+          if (liveData && liveData.price !== stock.price) {
+            return {
+              ...stock,
+              price: liveData.price,
+              priceSAR: liveData.priceSAR
+            };
+          }
+          return stock;
+        }));
+      }
+    }, 20000); // تحديث الأرقام كل 20 ثانية بشكل صامت خلف الكواليس
+    
+    return () => clearInterval(interval);
+  }, []);
 
   const activePortfolio = portfolios.find(p => p.id === activePortfolioId) || portfolios[0];
 
@@ -445,7 +479,16 @@ export default function StockRadarPage() {
                 <div className="bg-blue-600/10 p-2.5 rounded-xl border border-blue-500/20 text-blue-400 text-2xl font-bold hidden sm:block">📈</div>
                 <div>
                   <h1 className="text-xl md:text-3xl font-black text-blue-400 tracking-tight">شاشة السوق الشاملة</h1>
-                  <p className="text-[10px] md:text-xs text-slate-400 mt-1 font-medium">الأسهم: {displayedStocks.length} من {ALL_MARKET_TICKERS.length}</p>
+                  
+                  {/* مؤشر التحديث المباشر للأسعار */}
+                  <div className="flex items-center gap-2 mt-2 bg-emerald-950/40 border border-emerald-900/50 px-2 py-1 rounded-full w-max">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                    </span>
+                    <span className="text-[10px] text-emerald-400 font-bold tracking-wide">الأسعار تتحدث برمجياً (Live)</span>
+                  </div>
+
                 </div>
               </div>
               <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="xl:hidden bg-slate-800 text-white p-2 rounded-lg border border-slate-700">
@@ -499,7 +542,7 @@ export default function StockRadarPage() {
                       <p className="text-[10px] text-slate-500 mt-1 font-medium">PE: {stock.peRatio}</p>
                     </div>
                   </div>
-                  <div className="flex flex-col items-center justify-center bg-blue-950/20 px-3 py-1.5 rounded-lg border border-blue-900/30 min-w-[75px] mt-6">
+                  <div className="flex flex-col items-center justify-center bg-blue-950/20 px-3 py-1.5 rounded-lg border border-blue-900/30 min-w-[75px] mt-6 transition-all duration-500">
                     <span className="text-blue-400 text-lg font-bold leading-tight">${stock.price}</span>
                     <span className="text-slate-400 text-[10px] font-semibold mt-0.5">{stock.priceSAR} ر.س</span>
                   </div>
