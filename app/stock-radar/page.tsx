@@ -274,106 +274,6 @@ export default function StockRadarPage() {
     if (node) observer.current.observe(node);
   }, [isLoading, hasMore, showFavoritesOnly, showHalalOnly]);
 
-  const handleCreatePortfolio = () => {
-    if (!newPortfolioName.trim()) return alert("الرجاء إدخال اسم المحفظة.");
-    const cashVal = Number(newPortfolioCash) || 0;
-    const newPort: Portfolio = { id: Date.now().toString(), name: newPortfolioName.trim(), cash: cashVal, positions: [] };
-    setPortfolios(prev => [...prev, newPort]);
-    setActivePortfolioId(newPort.id);
-    setIsNewPortfolioOpen(false);
-    setNewPortfolioName('');
-    setNewPortfolioCash('');
-  };
-
-  const handleDeposit = () => {
-    const amount = Number(depositAmount);
-    if (!amount || amount <= 0) return alert("الرجاء إدخال مبلغ صحيح للإيداع.");
-    setPortfolios(prev => prev.map(p => p.id === activePortfolioId ? { ...p, cash: p.cash + amount } : p));
-    setIsDepositOpen(false);
-    setDepositAmount('');
-  };
-
-  const handleWithdraw = () => {
-    const amount = Number(withdrawAmount);
-    if (!amount || amount <= 0) return alert("الرجاء إدخال مبلغ صحيح للسحب.");
-    if (amount > activePortfolio.cash) return alert(`❌ رصيد الكاش المتاح (${activePortfolio.cash.toFixed(2)}$) لا يكفي.`);
-    setPortfolios(prev => prev.map(p => p.id === activePortfolioId ? { ...p, cash: p.cash - amount } : p));
-    setIsWithdrawOpen(false);
-    setWithdrawAmount('');
-  };
-
-  const handleExecuteTrade = (type: 'buy' | 'sell') => {
-    const sharesNum = Number(tradeShares);
-    if (!tradeStock || !sharesNum || sharesNum <= 0) return alert("الرجاء إدخال عدد أسهم صحيح.");
-    
-    const stockSymbol = tradeStock.symbol;
-    const stockPrice = parseFloat(tradeStock.price);
-    const totalSharesValue = stockPrice * sharesNum;
-
-    if (type === 'buy') {
-      const isAlreadyOwnedElsewhere = portfolios.some(p => p.id !== activePortfolioId && p.positions.some(pos => pos.symbol === stockSymbol));
-      if (isAlreadyOwnedElsewhere) return alert(`❌ عذراً، السهم (${stockSymbol}) موجود مسبقاً في محفظة أخرى.`);
-
-      const totalCost = totalSharesValue + BROKER_COMMISSION;
-      if (activePortfolio.cash < totalCost) return alert(`❌ رصيدك غير كافٍ. تحتاج إلى ${totalCost.toFixed(2)}$ (شاملة العمولة 2$).`);
-      
-      const commissionPerShare = BROKER_COMMISSION / sharesNum;
-      const effectivePricePerShare = stockPrice + commissionPerShare;
-      const currentDate = new Date().toLocaleDateString('ar-SA', { year: 'numeric', month: 'short', day: 'numeric' });
-
-      setPortfolios(prev => prev.map(p => {
-        if (p.id !== activePortfolioId) return p;
-        const newPositions = [...p.positions];
-        const existingPos = newPositions.find(pos => pos.symbol === stockSymbol);
-        
-        if (existingPos) {
-          const prevTotalCost = existingPos.shares * existingPos.avgPrice;
-          const currentTradeCost = sharesNum * effectivePricePerShare;
-          existingPos.shares += sharesNum;
-          existingPos.avgPrice = (prevTotalCost + currentTradeCost) / existingPos.shares;
-        } else {
-          newPositions.push({ symbol: stockSymbol, shares: sharesNum, avgPrice: effectivePricePerShare, purchaseDate: currentDate });
-        }
-        return { ...p, cash: p.cash - totalCost, positions: newPositions };
-      }));
-      alert(`✅ تم الشراء بنجاح في محفظة "${activePortfolio.name}"!`);
-      
-    } else if (type === 'sell') {
-      const existingPos = activePortfolio.positions.find(pos => pos.symbol === stockSymbol);
-      if (!existingPos || existingPos.shares < sharesNum) return alert("❌ لا تملك هذا العدد من السهم في هذه المحفظة للبيع.");
-
-      const totalProceeds = totalSharesValue - BROKER_COMMISSION;
-      
-      setPortfolios(prev => prev.map(p => {
-        if (p.id !== activePortfolioId) return p;
-        let newPositions = p.positions.map(pos => {
-          if (pos.symbol === stockSymbol) return { ...pos, shares: pos.shares - sharesNum };
-          return pos;
-        }).filter(pos => pos.shares > 0);
-        return { ...p, cash: p.cash + totalProceeds, positions: newPositions };
-      }));
-      alert(`✅ تم البيع بنجاح وتمت إضافة ${totalProceeds.toFixed(2)}$ للكاش.`);
-    }
-
-    setTradeStock(null);
-    setTradeShares('');
-    setIsPortfolioOpen(false);
-  };
-
-  let totalStocksMarketValue = 0;
-  let totalCostValue = 0;
-
-  activePortfolio.positions.forEach(pos => {
-    const liveStock = stocks.find(s => s.symbol === pos.symbol);
-    const currentPrice = liveStock ? parseFloat(liveStock.price) : pos.avgPrice;
-    totalStocksMarketValue += pos.shares * currentPrice;
-    totalCostValue += pos.shares * pos.avgPrice;
-  });
-
-  const totalPortfolioValue = activePortfolio.cash + totalStocksMarketValue;
-  const unrealizedPL = totalStocksMarketValue - totalCostValue;
-  const unrealizedPLPercent = totalCostValue > 0 ? (unrealizedPL / totalCostValue) * 100 : 0;
-
   let displayedStocks = stocks;
   if (showFavoritesOnly) {
     displayedStocks = stocks.filter(s => favorites.includes(s.symbol));
@@ -399,39 +299,6 @@ export default function StockRadarPage() {
         </div>
       )}
 
-      {/* باقي نوافذ المحافظ والتداول */}
-      {isPortfolioOpen && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-6 border-b border-slate-800 pb-4">
-              <h2 className="text-2xl font-bold text-yellow-500">💼 إدارة المحافظ والتداول</h2>
-              <button onClick={() => setIsPortfolioOpen(false)} className="text-slate-500 hover:text-white text-2xl font-black">×</button>
-            </div>
-            <div className="flex flex-wrap items-center gap-2 mb-6 bg-slate-950/50 p-3 rounded-xl border border-slate-800">
-              <span className="text-xs text-slate-400 font-bold ml-2">المحفظة النشطة:</span>
-              {portfolios.map(p => (
-                <button key={p.id} onClick={() => setActivePortfolioId(p.id)} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${p.id === activePortfolioId ? 'bg-blue-600 text-white shadow-md' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}>{p.name}</button>
-              ))}
-              <button onClick={() => setIsNewPortfolioOpen(true)} className="bg-emerald-600/10 hover:bg-emerald-600/30 text-emerald-400 px-3 py-1.5 rounded-lg text-xs font-bold border border-emerald-600/30 transition-colors mr-auto">+ محفظة جديدة</button>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-              <div className="bg-slate-950/50 p-4 rounded-xl border border-slate-800 relative">
-                <p className="text-sm text-slate-400 mb-1">الرصيد النقدي</p>
-                <p className="text-2xl font-black text-emerald-500">${activePortfolio.cash.toFixed(2)}</p>
-                <div className="absolute top-4 left-4 flex gap-1">
-                  <button onClick={() => setIsDepositOpen(true)} className="bg-emerald-600/10 hover:bg-emerald-600 text-emerald-500 hover:text-white px-2 py-1 rounded text-[10px] font-bold border border-emerald-600/30">+ إيداع</button>
-                  <button onClick={() => setIsWithdrawOpen(true)} className="bg-red-600/10 hover:bg-red-600 text-red-500 hover:text-white px-2 py-1 rounded text-[10px] font-bold border border-red-600/30">- سحب</button>
-                </div>
-              </div>
-              <div className="bg-slate-950/50 p-4 rounded-xl border border-slate-800">
-                <p className="text-sm text-slate-400 mb-1">الأسهم المملوكة</p>
-                <p className="text-2xl font-black text-blue-400">{activePortfolio.positions.length} شركات</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
       <div className="max-w-7xl mx-auto">
         <div className="mb-8 border-b border-slate-800/80 pb-4 sticky top-0 bg-slate-950/95 backdrop-blur-md z-10 p-5 rounded-2xl shadow-xl">
           <div className="flex flex-col xl:flex-row justify-between items-center gap-4">
@@ -449,10 +316,6 @@ export default function StockRadarPage() {
             </div>
             
             <div className={`${isMobileMenuOpen ? 'flex' : 'hidden'} xl:flex flex-col sm:flex-row flex-wrap items-center justify-center xl:justify-end gap-3 w-full xl:w-auto mt-4 xl:mt-0 transition-all`}>
-              <button onClick={() => setIsPortfolioOpen(true)} className="w-full sm:w-auto bg-emerald-600/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-600/20 px-4 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 shadow-sm">
-                <span>💼</span><span>{activePortfolio.name}</span>
-                <span className="bg-emerald-950/50 px-2 py-0.5 rounded-lg text-xs text-emerald-300 border border-emerald-800/50">${activePortfolio.cash.toFixed(0)}</span>
-              </button>
               <button onClick={handleToggleHalalView} className={`w-full sm:w-auto px-4 py-2.5 rounded-xl text-sm font-bold border transition-all flex items-center justify-center gap-2 ${showHalalOnly ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50' : 'bg-slate-900/80 text-slate-300 border-slate-700/50'}`}>
                 <span>☪️</span><span>{showHalalOnly ? 'إلغاء الفلتر' : 'الأسهم الحلال فقط'}</span>
               </button>
@@ -471,9 +334,6 @@ export default function StockRadarPage() {
           {displayedStocks.map((stock, index) => {
             const isLast = index === displayedStocks.length - 1;
             const isFav = favorites.includes(stock.symbol);
-            const ownerPortfolio = portfolios.find(p => p.positions.some(pos => pos.symbol === stock.symbol));
-            const ownedInActive = ownerPortfolio?.id === activePortfolioId;
-            const ownedPosition = activePortfolio.positions.find(pos => pos.symbol === stock.symbol);
             const sharia = getShariaStatus(stock.symbol);
 
             return (
@@ -500,39 +360,48 @@ export default function StockRadarPage() {
                   </div>
                 </div>
 
-                <div className="flex gap-2 mb-4">
-                  <button onClick={() => { setTradeStock(stock); setTradeShares(''); }} className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold py-2 rounded-xl border border-slate-700">تداول ⚖️</button>
-                  {ownedInActive && ownedPosition ? (
-                    <button onClick={() => { setTradeStock(stock); setTradeShares(ownedPosition.shares.toString()); }} className="flex-1 bg-red-900/20 hover:bg-red-600 text-red-400 text-xs font-bold py-2 rounded-xl border border-red-800/40">بيع ({ownedPosition.shares})</button>
-                  ) : ownerPortfolio ? (
-                    <div className="flex-1 bg-yellow-950/30 border border-yellow-800/40 rounded-xl flex items-center justify-center text-[10px] font-bold text-yellow-500">مملوك في {ownerPortfolio.name}</div>
-                  ) : (
-                    <div className="flex-1 bg-slate-950/50 border border-slate-800 rounded-xl flex items-center justify-center text-[10px] font-bold text-slate-500">متاح للشراء</div>
-                  )}
-                </div>
-
-                <div className="bg-slate-800/50 p-3 rounded-xl mb-4 border border-slate-700/50">
+                {/* --- تحليل الذكاء الاصطناعي وسعر الدخول المقترح --- */}
+                <div className="bg-gradient-to-r from-slate-800/50 to-slate-900 p-3 rounded-xl mb-4 border border-slate-700/50 shadow-sm">
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-[11px] font-bold text-slate-400">السعر المحدد للدخول:</span>
                     <span className="text-sm font-black text-emerald-400">${stock.suggestedEntryPrice}</span>
                   </div>
                   <p className="text-xs font-bold mb-2 text-slate-200">{stock.entrySignal}</p>
+                  <p className="text-[10px] text-slate-400 leading-relaxed border-t border-slate-700/50 pt-2 mt-2">
+                    <span className="text-blue-400 font-bold">💡 تحليل Gemini: </span>{stock.analysis}
+                  </p>
                 </div>
 
-                <div className="bg-slate-950/40 border border-slate-800/80 rounded-xl p-2.5 mb-3">
+                {/* --- سجل التداول (آخر 30 يوم) مع الأرباح والخسائر --- */}
+                <div className="bg-slate-950/40 border border-slate-800/80 rounded-xl p-2.5 mb-3 shadow-inner">
                   <h3 className="text-[10px] font-bold text-slate-400 mb-2 px-1">سجل التداول (آخر 30 يوم):</h3>
-                  <div className="space-y-1 max-h-48 overflow-y-auto pl-1 custom-scrollbar">
+                  <div className="space-y-1 max-h-40 overflow-y-auto pl-1 custom-scrollbar">
                     {stock.history30Days?.map((dayRecord: any, idx: number) => (
                       <div key={idx} className="flex justify-between items-center text-[10px] p-1.5 border-b border-slate-800/50 last:border-0">
                         <span className="text-slate-400">{dayRecord.day}</span>
-                        <span className={`font-bold ${dayRecord.isPositive ? 'text-emerald-500' : 'text-red-400'}`}>{dayRecord.status} ${dayRecord.amount}</span>
+                        <span className={`font-bold flex items-center gap-1 ${dayRecord.isPositive ? 'text-emerald-500' : 'text-red-400'}`}>
+                          {dayRecord.status} ${dayRecord.amount} {dayRecord.isPositive ? '▲' : '▼'}
+                        </span>
                       </div>
                     ))}
                   </div>
+                  
+                  <div className="mt-2 pt-2 border-t border-slate-800/80 flex justify-between items-center px-1">
+                    <span className="text-xs font-bold text-slate-300">صافي آخر 30 يوم:</span>
+                    <div className={`flex flex-col items-end ${stock.isTotalPositive ? 'text-emerald-500' : 'text-red-400'}`}>
+                      <span className="text-sm font-black flex items-center gap-1">
+                        ${stock.total30Days} {stock.isTotalPositive ? 'ربح ▲' : 'خسارة ▼'}
+                      </span>
+                      <span className="text-[9px] font-bold opacity-80 mt-0.5 text-slate-400">
+                        {stock.total30DaysSAR} ر.س
+                      </span>
+                    </div>
+                  </div>
                 </div>
 
+                {/* --- العائد التاريخي (النسبة، مقدار الربح/الخسارة، والسعر) --- */}
                 <div className="mt-auto">
-                  <h3 className="text-[10px] font-bold text-slate-500 mb-2 text-center">العائد التاريخي</h3>
+                  <h3 className="text-[10px] font-bold text-slate-500 mb-2 text-center">العائد التاريخي (النسبة، الأرباح/الخسائر، والسعر)</h3>
                   <div className="grid grid-cols-3 gap-1.5 text-center">
                     {[
                       { label: '3 أشهر', data: stock.stats?.m3 },
@@ -542,9 +411,20 @@ export default function StockRadarPage() {
                       { label: '3 سنوات', data: stock.stats?.y3 },
                       { label: '5 سنوات', data: stock.stats?.y5 }
                     ].map((stat, i) => (
-                      <div key={i} className="bg-slate-950/40 p-1.5 rounded-lg border border-slate-800/80 flex flex-col justify-center items-center min-h-[64px]">
-                        <span className="text-[9px] text-slate-500">{stat.label}</span>
-                        <span className={`text-[10px] font-bold ${stat.data?.isPositive ? 'text-emerald-500' : 'text-red-400'}`}>{stat.data?.isPositive ? '+' : '-'}{stat.data?.value}</span>
+                      <div key={i} className="bg-slate-950/40 p-1.5 rounded-lg border border-slate-800/80 flex flex-col justify-center items-center min-h-[75px]">
+                        <span className="text-[9px] text-slate-400 font-semibold mb-0.5">{stat.label}</span>
+                        
+                        <span className={`text-[11px] font-black ${stat.data?.isPositive ? 'text-emerald-400' : 'text-red-400'}`}>
+                          {stat.data?.isPositive ? '+' : ''}{stat.data?.value}
+                        </span>
+                        
+                        <span className={`text-[9px] font-bold mt-0.5 ${stat.data?.isPositive ? 'text-emerald-500' : 'text-red-500'}`}>
+                          {stat.data?.isPositive ? 'ربح ' : 'خسارة '}${stat.data?.amount}
+                        </span>
+
+                        <span className="text-[8px] text-slate-400 mt-1 border-t border-slate-800 pt-0.5 w-full">
+                          السعر: ${stat.data?.pastPrice}
+                        </span>
                       </div>
                     ))}
                   </div>
@@ -556,7 +436,7 @@ export default function StockRadarPage() {
 
         {isLoading && (
           <div className="text-center py-10 text-blue-400 font-bold text-lg animate-pulse">
-            جاري تحميل الأسهم والسعار المباشرة...
+            جاري تحميل البيانات المباشرة...
           </div>
         )}
       </div>
