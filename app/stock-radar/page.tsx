@@ -91,8 +91,8 @@ type Portfolio = { id: string; name: string; cash: number; positions: Position[]
 export default function StockRadarPage() {
   const [stocks, setStocks] = useState<any[]>([]);
   
-  const [livePrices, setLivePrices] = useState<Record<string, { price: string, priceSAR: string }>>({});
-  const livePricesRef = useRef<Record<string, { price: string, priceSAR: string }>>({});
+  const [livePrices, setLivePrices] = useState<Record<string, { price: string, priceSAR: string, isUp?: boolean }>>({});
+  const livePricesRef = useRef<Record<string, { price: string, priceSAR: string, isUp?: boolean }>>({});
   
   const [isLoading, setIsLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
@@ -107,7 +107,6 @@ export default function StockRadarPage() {
 
   const [customShariaOverrides, setCustomShariaOverrides] = useState<Record<string, 'halal' | 'mixed' | 'haram'>>({});
   const [editingShariaSymbol, setEditingShariaSymbol] = useState<string | null>(null);
-
   const [updatingSymbol, setUpdatingSymbol] = useState<string | null>(null);
 
   const [portfolios, setPortfolios] = useState<Portfolio[]>([
@@ -136,6 +135,16 @@ export default function StockRadarPage() {
   
   const stocksRef = useRef(stocks);
   const BATCH_SIZE = 12;
+
+  // شريط الإحصائيات (Ticker Tape)
+  const tickerStocks = ['AAPL', 'MSFT', 'NVDA', 'TSLA', 'AMZN', 'META', 'GOOGL'];
+  const tickerData = tickerStocks.map(sym => {
+    const live = livePrices[sym];
+    const gridStock = stocks.find(s => s.symbol === sym);
+    const price = live ? live.price : (gridStock ? gridStock.price : '...');
+    const isUp = live ? live.isUp : true; // افتراضي أخضر حتى يتم الجلب الحقيقي
+    return { sym, price, isUp };
+  });
 
   useEffect(() => {
     livePricesRef.current = livePrices;
@@ -180,11 +189,22 @@ export default function StockRadarPage() {
       if (currentStocks.length === 0) return;
       
       const symbolsToUpdate = currentStocks.map(s => s.symbol);
+      // جلب شريط الأخبار أيضاً
+      tickerStocks.forEach(t => { if(!symbolsToUpdate.includes(t)) symbolsToUpdate.push(t); });
+      
       const res = await getLivePrices(symbolsToUpdate);
       
       if (res && res.success && res.data) {
         setLivePrices(prev => {
-          const newPrices = { ...prev, ...res.data };
+          const newPrices = { ...prev };
+          Object.keys(res.data).forEach(sym => {
+            const oldPrice = prev[sym] ? parseFloat(prev[sym].price) : 0;
+            const newPrice = parseFloat(res.data[sym].price);
+            newPrices[sym] = {
+              ...res.data[sym],
+              isUp: newPrice >= oldPrice
+            };
+          });
           livePricesRef.current = newPrices; 
           return newPrices;
         });
@@ -217,19 +237,16 @@ export default function StockRadarPage() {
         const newData = res.data[symbol];
         
         setLivePrices(prev => {
-          const newPrices = { ...prev, [symbol]: newData };
+          const oldPrice = prev[symbol] ? parseFloat(prev[symbol].price) : 0;
+          const newPrice = parseFloat(newData.price);
+          const newPrices = { ...prev, [symbol]: { ...newData, isUp: newPrice >= oldPrice } };
           livePricesRef.current = newPrices;
           return newPrices;
         });
 
         setStocks(prevStocks => prevStocks.map(stock => {
           if (stock.symbol === symbol) {
-            return {
-              ...stock,
-              price: newData.price,
-              priceSAR: newData.priceSAR,
-              _lastUpdate: Date.now()
-            };
+            return { ...stock, price: newData.price, priceSAR: newData.priceSAR, _lastUpdate: Date.now() };
           }
           return stock;
         }));
@@ -288,13 +305,26 @@ export default function StockRadarPage() {
         const fetchedStocks: any[] = Array.isArray(res.data) ? res.data : [res.data];
         setStocks(fetchedStocks);
         
-        const initialPrices: Record<string, { price: string, priceSAR: string }> = {};
-        fetchedStocks.forEach(s => { initialPrices[s.symbol] = { price: s.price, priceSAR: s.priceSAR }; });
+        const initialPrices: Record<string, { price: string, priceSAR: string, isUp: boolean }> = {};
+        fetchedStocks.forEach(s => { initialPrices[s.symbol] = { price: s.price, priceSAR: s.priceSAR, isUp: true }; });
         setLivePrices(prev => {
           const newPrices = { ...prev, ...initialPrices };
           livePricesRef.current = newPrices;
           return newPrices;
         });
+      }
+      
+      // جلب أسعار شريط الإحصائيات في أول لود
+      const tickerRes = await getLivePrices(tickerStocks);
+      if (tickerRes && tickerRes.success && tickerRes.data) {
+         setLivePrices(prev => {
+             const newPrices = { ...prev };
+             Object.keys(tickerRes.data).forEach(sym => {
+                newPrices[sym] = { ...tickerRes.data[sym], isUp: true };
+             });
+             livePricesRef.current = newPrices;
+             return newPrices;
+         });
       }
     } catch (error) {
       console.error("Error initializing stocks:", error);
@@ -330,8 +360,8 @@ export default function StockRadarPage() {
           return [...prev, ...uniqueNew];
         });
 
-        const newPrices: Record<string, { price: string, priceSAR: string }> = {};
-        fetchedStocks.forEach(s => { newPrices[s.symbol] = { price: s.price, priceSAR: s.priceSAR }; });
+        const newPrices: Record<string, { price: string, priceSAR: string, isUp: boolean }> = {};
+        fetchedStocks.forEach(s => { newPrices[s.symbol] = { price: s.price, priceSAR: s.priceSAR, isUp: true }; });
         setLivePrices(prev => {
           const allPrices = { ...prev, ...newPrices };
           livePricesRef.current = allPrices;
@@ -362,7 +392,7 @@ export default function StockRadarPage() {
         if (searchedStock && searchedStock.symbol) {
            setStocks(prev => [searchedStock, ...prev.filter(s => s.symbol !== searchedStock.symbol)]);
            setLivePrices(prev => {
-             const newPrices = { ...prev, [searchedStock.symbol]: { price: searchedStock.price, priceSAR: searchedStock.priceSAR } };
+             const newPrices = { ...prev, [searchedStock.symbol]: { price: searchedStock.price, priceSAR: searchedStock.priceSAR, isUp: true } };
              livePricesRef.current = newPrices;
              return newPrices;
            });
@@ -435,7 +465,10 @@ export default function StockRadarPage() {
       
       const commissionPerShare = BROKER_COMMISSION / sharesNum;
       const effectivePricePerShare = stockPrice + commissionPerShare;
-      const currentDate = new Date().toLocaleDateString('ar-SA', { year: 'numeric', month: 'short', day: 'numeric' });
+      
+      // كتابة تاريخ الشراء الفعلي
+      const today = new Date();
+      const currentDateStr = `${today.getDate()}-${today.getMonth() + 1}-${today.getFullYear()}`;
 
       setPortfolios(prev => prev.map(p => {
         if (p.id !== activePortfolioId) return p;
@@ -447,8 +480,9 @@ export default function StockRadarPage() {
           const currentTradeCost = sharesNum * effectivePricePerShare;
           existingPos.shares += sharesNum;
           existingPos.avgPrice = (prevTotalCost + currentTradeCost) / existingPos.shares;
+          // إذا كان لديه السهم مسبقاً، نترك تاريخ الشراء الأول أو نحدثه حسب الرغبة. سنتركه ليعبر عن بداية بناء المركز.
         } else {
-          newPositions.push({ symbol: stockSymbol, shares: sharesNum, avgPrice: effectivePricePerShare, purchaseDate: currentDate });
+          newPositions.push({ symbol: stockSymbol, shares: sharesNum, avgPrice: effectivePricePerShare, purchaseDate: currentDateStr });
         }
         return { ...p, cash: p.cash - totalCost, positions: newPositions };
       }));
@@ -476,7 +510,6 @@ export default function StockRadarPage() {
     setIsPortfolioOpen(false);
   };
 
-  // --- حسابات المحفظة الديناميكية اللحظية ---
   let totalStocksMarketValue = 0;
   let totalCostValue = 0;
 
@@ -498,318 +531,358 @@ export default function StockRadarPage() {
   }
 
   return (
-    <main className="p-4 md:p-8 bg-slate-950 min-h-screen text-right font-sans text-slate-200" dir="rtl">
+    <main className="min-h-screen bg-slate-950 font-sans text-slate-200" dir="rtl">
       
-      {/* نافذة تعديل التصنيف الشرعي */}
-      {editingShariaSymbol && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[110] p-4">
-          <div className="bg-slate-900 border border-slate-700 p-6 rounded-2xl shadow-2xl max-w-xs w-full text-center">
-            <h3 className="text-lg font-bold text-white mb-2">تعديل التصنيف الشرعي</h3>
-            <p className="text-sm text-slate-400 mb-6">سهم: <span className="font-black text-blue-400">{editingShariaSymbol}</span></p>
-            <div className="flex flex-col gap-3">
-              <button onClick={() => updateShariaStatus(editingShariaSymbol, 'halal')} className="bg-emerald-900/40 hover:bg-emerald-600 text-emerald-400 hover:text-white py-2.5 rounded-lg border border-emerald-800/50 font-bold transition-colors">متوافق (حلال) 🟢</button>
-              <button onClick={() => updateShariaStatus(editingShariaSymbol, 'mixed')} className="bg-yellow-900/40 hover:bg-yellow-600 text-yellow-400 hover:text-white py-2.5 rounded-lg border border-yellow-800/50 font-bold transition-colors">مختلط 🟡</button>
-              <button onClick={() => updateShariaStatus(editingShariaSymbol, 'haram')} className="bg-red-900/40 hover:bg-red-600 text-red-400 hover:text-white py-2.5 rounded-lg border border-red-800/50 font-bold transition-colors">غير متوافق 🔴</button>
-            </div>
-            <button onClick={() => setEditingShariaSymbol(null)} className="mt-6 text-slate-500 hover:text-white text-sm font-bold">إلغاء</button>
-          </div>
+      {/* شريط الإحصائيات المتحرك (Ticker Tape) */}
+      <div className="bg-slate-900 border-b border-slate-800 py-1.5 overflow-hidden w-full relative z-40">
+        <div className="flex whitespace-nowrap animate-marquee">
+          {tickerData.map((data, i) => (
+             <span key={i} className="mx-6 text-[10px] font-black tracking-widest flex items-center gap-1.5">
+                <span className="text-slate-400">{data.sym}</span>
+                <span className={data.isUp ? 'text-emerald-500' : 'text-red-500'}>${data.price}</span>
+             </span>
+          ))}
+          {/* تكرار الشريط لضمان استمرار الحركة بسلاسة */}
+          {tickerData.map((data, i) => (
+             <span key={i + 'dup'} className="mx-6 text-[10px] font-black tracking-widest flex items-center gap-1.5">
+                <span className="text-slate-400">{data.sym}</span>
+                <span className={data.isUp ? 'text-emerald-500' : 'text-red-500'}>${data.price}</span>
+             </span>
+          ))}
         </div>
-      )}
+      </div>
+      
+      {/* ستايل شريط الأسهم المتحرك */}
+      <style dangerouslySetInnerHTML={{__html: `
+        @keyframes marquee {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(100%); }
+        }
+        .animate-marquee {
+          animation: marquee 30s linear infinite;
+        }
+      `}} />
 
-      {/* نافذة التداول (شراء/بيع) */}
-      {tradeStock && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4">
-          <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-2xl max-w-sm w-full">
-            <div className="flex justify-between items-center mb-4 border-b border-slate-800 pb-3">
-              <h2 className="text-xl font-bold text-white">تداول: {tradeStock.symbol} <span className="text-xs text-yellow-500 font-normal">({activePortfolio.name})</span></h2>
-              <button onClick={() => setTradeStock(null)} className="text-slate-500 hover:text-white text-2xl">×</button>
-            </div>
-            <div className="bg-blue-950/20 p-3 rounded-lg border border-blue-900/30 mb-4 text-center">
-              <p className="text-sm text-slate-400">السعر اللحظي الآن</p>
-              <p className="text-2xl font-black text-blue-400">${getLatestPrice(tradeStock.symbol, tradeStock.price).toFixed(2)}</p>
-            </div>
-            <div className="mb-4">
-              <label className="block text-sm text-slate-400 mb-2">عدد الأسهم:</label>
-              <input type="number" min="1" placeholder="أدخل عدد الأسهم..." value={tradeShares} onChange={(e) => setTradeShares(e.target.value)} className="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg text-white font-bold outline-none" />
-            </div>
-            <div className="text-xs text-slate-400 mb-6 bg-slate-950 p-3 rounded border border-slate-800 space-y-2">
-              <div className="flex justify-between"><span>قيمة الأسهم:</span> <span>${((Number(tradeShares) || 0) * getLatestPrice(tradeStock.symbol, tradeStock.price)).toFixed(2)}</span></div>
-              <div className="flex justify-between text-yellow-500"><span>عمولة الوسيط:</span> <span>${BROKER_COMMISSION.toFixed(2)}</span></div>
-              <div className="flex justify-between font-bold text-white border-t border-slate-800 pt-2 mt-2"><span>الإجمالي:</span> <span>${(((Number(tradeShares) || 0) * getLatestPrice(tradeStock.symbol, tradeStock.price)) + BROKER_COMMISSION).toFixed(2)}</span></div>
-            </div>
-            <div className="flex gap-3">
-              <button onClick={() => handleExecuteTrade('buy')} className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-lg">شراء</button>
-              <button onClick={() => handleExecuteTrade('sell')} className="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg">بيع</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* نوافذ إضافة محفظة والإيداع والسحب */}
-      {isNewPortfolioOpen && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[70] p-4">
-          <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-2xl max-w-sm w-full">
-            <div className="flex justify-between items-center mb-4 border-b border-slate-800 pb-3">
-              <h2 className="text-xl font-bold text-yellow-500">إضافة محفظة جديدة 💼</h2>
-              <button onClick={() => setIsNewPortfolioOpen(false)} className="text-slate-500 hover:text-white text-2xl">×</button>
-            </div>
-            <div className="space-y-4 mb-6">
-              <div>
-                <label className="block text-sm text-slate-400 mb-1">اسم المحفظة:</label>
-                <input type="text" placeholder="مثال: محفظة النمو..." value={newPortfolioName} onChange={(e) => setNewPortfolioName(e.target.value)} className="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg text-white font-bold text-sm outline-none" />
+      <div className="p-4 md:p-8">
+      
+        {/* نافذة تعديل التصنيف الشرعي */}
+        {editingShariaSymbol && (
+          <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[110] p-4">
+            <div className="bg-slate-900 border border-slate-700 p-6 rounded-2xl shadow-2xl max-w-xs w-full text-center">
+              <h3 className="text-lg font-bold text-white mb-2">تعديل التصنيف الشرعي</h3>
+              <p className="text-sm text-slate-400 mb-6">سهم: <span className="font-black text-blue-400">{editingShariaSymbol}</span></p>
+              <div className="flex flex-col gap-3">
+                <button onClick={() => updateShariaStatus(editingShariaSymbol, 'halal')} className="bg-emerald-900/40 hover:bg-emerald-600 text-emerald-400 hover:text-white py-2.5 rounded-lg border border-emerald-800/50 font-bold transition-colors">متوافق (حلال) 🟢</button>
+                <button onClick={() => updateShariaStatus(editingShariaSymbol, 'mixed')} className="bg-yellow-900/40 hover:bg-yellow-600 text-yellow-400 hover:text-white py-2.5 rounded-lg border border-yellow-800/50 font-bold transition-colors">مختلط 🟡</button>
+                <button onClick={() => updateShariaStatus(editingShariaSymbol, 'haram')} className="bg-red-900/40 hover:bg-red-600 text-red-400 hover:text-white py-2.5 rounded-lg border border-red-800/50 font-bold transition-colors">غير متوافق 🔴</button>
               </div>
-              <div>
-                <label className="block text-sm text-slate-400 mb-1">الميزانية الأولية (كاش $):</label>
-                <input type="number" min="0" placeholder="10000" value={newPortfolioCash} onChange={(e) => setNewPortfolioCash(e.target.value)} className="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg text-white font-bold text-lg outline-none text-left" dir="ltr" />
+              <button onClick={() => setEditingShariaSymbol(null)} className="mt-6 text-slate-500 hover:text-white text-sm font-bold">إلغاء</button>
+            </div>
+          </div>
+        )}
+
+        {/* نافذة التداول (شراء/بيع) */}
+        {tradeStock && (
+          <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4">
+            <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-2xl max-w-sm w-full">
+              <div className="flex justify-between items-center mb-4 border-b border-slate-800 pb-3">
+                <h2 className="text-xl font-bold text-white">تداول: {tradeStock.symbol} <span className="text-xs text-yellow-500 font-normal">({activePortfolio.name})</span></h2>
+                <button onClick={() => setTradeStock(null)} className="text-slate-500 hover:text-white text-2xl">×</button>
+              </div>
+              <div className="bg-blue-950/20 p-3 rounded-lg border border-blue-900/30 mb-4 text-center">
+                <p className="text-sm text-slate-400">السعر اللحظي الآن</p>
+                <p className="text-2xl font-black text-blue-400">${getLatestPrice(tradeStock.symbol, tradeStock.price).toFixed(2)}</p>
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm text-slate-400 mb-2">عدد الأسهم:</label>
+                <input type="number" min="1" placeholder="أدخل عدد الأسهم..." value={tradeShares} onChange={(e) => setTradeShares(e.target.value)} className="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg text-white font-bold outline-none" />
+              </div>
+              <div className="text-xs text-slate-400 mb-6 bg-slate-950 p-3 rounded border border-slate-800 space-y-2">
+                <div className="flex justify-between"><span>قيمة الأسهم:</span> <span>${((Number(tradeShares) || 0) * getLatestPrice(tradeStock.symbol, tradeStock.price)).toFixed(2)}</span></div>
+                <div className="flex justify-between text-yellow-500"><span>عمولة الوسيط:</span> <span>${BROKER_COMMISSION.toFixed(2)}</span></div>
+                <div className="flex justify-between font-bold text-white border-t border-slate-800 pt-2 mt-2"><span>الإجمالي:</span> <span>${(((Number(tradeShares) || 0) * getLatestPrice(tradeStock.symbol, tradeStock.price)) + BROKER_COMMISSION).toFixed(2)}</span></div>
+              </div>
+              <div className="flex gap-3">
+                <button onClick={() => handleExecuteTrade('buy')} className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-lg shadow-md transition-colors">شراء السهم</button>
+                <button onClick={() => handleExecuteTrade('sell')} className="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg shadow-md transition-colors">بيع السهم</button>
               </div>
             </div>
-            <button onClick={handleCreatePortfolio} className="w-full bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-3 rounded-lg shadow-lg">إنشاء المحفظة</button>
           </div>
-        </div>
-      )}
+        )}
 
-      {isDepositOpen && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[70] p-4">
-          <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-2xl max-w-sm w-full">
-            <div className="flex justify-between items-center mb-4 border-b border-slate-800 pb-3">
-              <h2 className="text-xl font-bold text-green-500">إيداع في {activePortfolio.name} 💰</h2>
-              <button onClick={() => setIsDepositOpen(false)} className="text-slate-500 hover:text-white text-2xl">×</button>
-            </div>
-            <div className="mb-6">
-              <label className="block text-sm text-slate-400 mb-2">المبلغ المراد إيداعه ($):</label>
-              <input type="number" min="1" placeholder="أدخل المبلغ..." value={depositAmount} onChange={(e) => setDepositAmount(e.target.value)} className="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg text-white font-bold text-lg outline-none text-left" dir="ltr" />
-            </div>
-            <button onClick={handleDeposit} className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg shadow-lg">تأكيد الإيداع</button>
-          </div>
-        </div>
-      )}
-
-      {isWithdrawOpen && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[70] p-4">
-          <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-2xl max-w-sm w-full">
-            <div className="flex justify-between items-center mb-4 border-b border-slate-800 pb-3">
-              <h2 className="text-xl font-bold text-red-500">سحب من {activePortfolio.name} 💳</h2>
-              <button onClick={() => setIsWithdrawOpen(false)} className="text-slate-500 hover:text-white text-2xl">×</button>
-            </div>
-            <div className="mb-6">
-              <label className="block text-sm text-slate-400 mb-2">المبلغ المراد سحبه ($):</label>
-              <input type="number" min="1" max={activePortfolio.cash} placeholder="أدخل المبلغ..." value={withdrawAmount} onChange={(e) => setWithdrawAmount(e.target.value)} className="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg text-white font-bold text-lg outline-none text-left" dir="ltr" />
-              <p className="text-xs text-slate-500 mt-2">المتاح للسحب: <span className="text-green-500">${activePortfolio.cash.toFixed(2)}</span></p>
-            </div>
-            <button onClick={handleWithdraw} className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg shadow-lg">تأكيد السحب</button>
-          </div>
-        </div>
-      )}
-
-      {/* المحفظة الرئيسية */}
-      {isPortfolioOpen && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-2xl max-w-3xl w-full max-h-[85vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-6 border-b border-slate-800 pb-4">
-              <h2 className="text-2xl font-bold text-yellow-500">💼 إدارة المحافظ والتداول</h2>
-              <button onClick={() => setIsPortfolioOpen(false)} className="text-slate-500 hover:text-white text-2xl font-black">×</button>
-            </div>
-            <div className="flex flex-wrap items-center gap-2 mb-6 bg-slate-950/50 p-3 rounded-xl border border-slate-800">
-              <span className="text-xs text-slate-400 font-bold ml-2">المحفظة النشطة:</span>
-              {portfolios.map(p => (
-                <button key={p.id} onClick={() => setActivePortfolioId(p.id)} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${p.id === activePortfolioId ? 'bg-blue-600 text-white shadow-md' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}>{p.name}</button>
-              ))}
-              <button onClick={() => setIsNewPortfolioOpen(true)} className="bg-emerald-600/10 hover:bg-emerald-600/30 text-emerald-400 px-3 py-1.5 rounded-lg text-xs font-bold border border-emerald-600/30 transition-colors mr-auto">+ محفظة جديدة</button>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-              <div className="bg-slate-950/50 p-4 rounded-xl border border-slate-800 relative">
-                <p className="text-sm text-slate-400 mb-1">الرصيد النقدي ({activePortfolio.name})</p>
-                <p className="text-2xl font-black text-emerald-500">${activePortfolio.cash.toFixed(2)}</p>
-                <div className="absolute top-4 left-4 flex gap-1">
-                  <button onClick={() => setIsDepositOpen(true)} className="bg-emerald-600/10 hover:bg-emerald-600 text-emerald-500 hover:text-white px-2 py-1 rounded text-[10px] font-bold border border-emerald-600/30">+ إيداع</button>
-                  <button onClick={() => setIsWithdrawOpen(true)} className="bg-red-600/10 hover:bg-red-600 text-red-500 hover:text-white px-2 py-1 rounded text-[10px] font-bold border border-red-600/30">- سحب</button>
+        {/* نوافذ إنشاء محفظة / إيداع / سحب */}
+        {isNewPortfolioOpen && (
+          <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[70] p-4">
+            <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-2xl max-w-sm w-full">
+              <div className="flex justify-between items-center mb-4 border-b border-slate-800 pb-3">
+                <h2 className="text-xl font-bold text-yellow-500">إضافة محفظة جديدة 💼</h2>
+                <button onClick={() => setIsNewPortfolioOpen(false)} className="text-slate-500 hover:text-white text-2xl">×</button>
+              </div>
+              <div className="space-y-4 mb-6">
+                <div>
+                  <label className="block text-sm text-slate-400 mb-1">اسم المحفظة:</label>
+                  <input type="text" placeholder="مثال: محفظة النمو..." value={newPortfolioName} onChange={(e) => setNewPortfolioName(e.target.value)} className="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg text-white font-bold text-sm outline-none" />
+                </div>
+                <div>
+                  <label className="block text-sm text-slate-400 mb-1">الميزانية الأولية (كاش $):</label>
+                  <input type="number" min="0" placeholder="10000" value={newPortfolioCash} onChange={(e) => setNewPortfolioCash(e.target.value)} className="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg text-white font-bold text-lg outline-none text-left" dir="ltr" />
                 </div>
               </div>
-              <div className="bg-slate-950/50 p-4 rounded-xl border border-slate-800">
-                <p className="text-sm text-slate-400 mb-1">الأسهم المملوكة في هذه المحفظة</p>
-                <p className="text-2xl font-black text-blue-400">{activePortfolio.positions.length} شركات</p>
-              </div>
+              <button onClick={handleCreatePortfolio} className="w-full bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-3 rounded-lg shadow-lg">إنشاء المحفظة</button>
             </div>
-            
-            <h3 className="font-bold text-slate-300 mb-3 border-b border-slate-800/50 pb-2">الأسهم المملوكة والأرباح والخسائر:</h3>
-            {activePortfolio.positions.length === 0 ? (
-              <div className="text-center text-slate-500 py-8 bg-slate-950/50 rounded-lg border border-slate-800 mb-6">المحفظة فارغة حالياً. ابدأ التداول الآن!</div>
-            ) : (
-              <div className="space-y-3 mb-6">
-                {activePortfolio.positions.map((pos, idx) => {
-                  const currentPrice = getLatestPrice(pos.symbol, pos.avgPrice);
-                  const marketVal = pos.shares * currentPrice;
-                  const costVal = pos.shares * pos.avgPrice;
-                  const profitLoss = marketVal - costVal;
-                  const profitLossPct = costVal > 0 ? (profitLoss / costVal) * 100 : 0;
-                  const isPos = profitLoss >= 0;
-                  
-                  return (
-                    <div key={idx} className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-slate-950/50 p-4 rounded-xl border border-slate-800 gap-4">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h4 className="font-black text-lg text-white">{pos.symbol}</h4>
-                          <span className="text-xs bg-blue-900/40 text-blue-400 px-2 py-0.5 rounded-full border border-blue-800/50">{pos.shares} سهم</span>
-                        </div>
-                        <p className="text-[11px] text-slate-400 flex items-center gap-1.5">
-                          تكلفتك: <span className="font-bold text-slate-300">${pos.avgPrice.toFixed(2)}</span> | 
-                          السعر اللحظي: <span className="font-bold text-emerald-400">${currentPrice.toFixed(2)}</span>
-                          <button onClick={() => handleManualPriceUpdate(pos.symbol)} className={`text-[12px] text-blue-500 hover:text-blue-300 transition-all ${updatingSymbol === pos.symbol ? 'animate-spin opacity-50' : ''}`} title="تحديث السعر اللحظي الآن">🔄</button>
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end">
-                        <div className="text-left bg-slate-900 p-2 rounded-lg border border-slate-800/50 min-w-[120px]">
-                          <p className="text-xs text-slate-400 mb-0.5">القيمة الحالية:</p>
-                          <p className="text-sm font-bold text-white">${marketVal.toFixed(2)}</p>
-                          <p className={`text-[11px] font-black mt-0.5 ${isPos ? 'text-emerald-500' : 'text-red-500'}`}>
-                            {isPos ? 'ربح ▲' : 'خسارة ▼'} {isPos ? '+' : ''}{profitLoss.toFixed(2)}$ ({isPos ? '+' : ''}{profitLossPct.toFixed(1)}%)
-                          </p>
-                        </div>
-                        <button onClick={() => { setTradeStock({ symbol: pos.symbol, price: currentPrice }); setTradeShares(pos.shares.toString()); }} className="bg-red-900/40 hover:bg-red-600 text-red-400 hover:text-white px-4 py-2 rounded-lg text-sm font-bold relative z-20 cursor-pointer shadow-sm border border-red-800/50 transition-colors">بيع ⚡</button>
-                      </div>
-                    </div>
-                  );
-                })}
+          </div>
+        )}
+
+        {isDepositOpen && (
+          <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[70] p-4">
+            <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-2xl max-w-sm w-full">
+              <div className="flex justify-between items-center mb-4 border-b border-slate-800 pb-3">
+                <h2 className="text-xl font-bold text-green-500">إيداع في {activePortfolio.name} 💰</h2>
+                <button onClick={() => setIsDepositOpen(false)} className="text-slate-500 hover:text-white text-2xl">×</button>
               </div>
-            )}
-            
-            <div className="bg-gradient-to-r from-slate-950 to-blue-950/20 p-5 rounded-xl border border-blue-900/30 space-y-3">
-              <div className="flex justify-between items-center text-sm"><span className="text-slate-400 font-bold">القيمة السوقية للأسهم المباشرة:</span><span className="font-bold text-white">${totalStocksMarketValue.toFixed(2)}</span></div>
-              <div className="flex justify-between items-center text-sm"><span className="text-slate-400 font-bold">الرصيد النقدي المتبقي (الكاش):</span><span className="font-bold text-white">${activePortfolio.cash.toFixed(2)}</span></div>
-              
-              <div className="flex justify-between items-center text-sm border-t border-slate-800 pt-3">
-                <span className="text-slate-400 font-bold">إجمالي الربح / الخسارة:</span>
-                <span className={`font-black flex items-center gap-1 ${unrealizedPL >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>
-                  {unrealizedPL >= 0 ? '+' : ''}${unrealizedPL.toFixed(2)} ({unrealizedPL >= 0 ? '+' : ''}{unrealizedPLPercent.toFixed(1)}%) {unrealizedPL >= 0 ? '▲' : '▼'}
-                </span>
+              <div className="mb-6">
+                <label className="block text-sm text-slate-400 mb-2">المبلغ المراد إيداعه ($):</label>
+                <input type="number" min="1" placeholder="أدخل المبلغ..." value={depositAmount} onChange={(e) => setDepositAmount(e.target.value)} className="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg text-white font-bold text-lg outline-none text-left" dir="ltr" />
+              </div>
+              <button onClick={handleDeposit} className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg shadow-lg">تأكيد الإيداع</button>
+            </div>
+          </div>
+        )}
+
+        {isWithdrawOpen && (
+          <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[70] p-4">
+            <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-2xl max-w-sm w-full">
+              <div className="flex justify-between items-center mb-4 border-b border-slate-800 pb-3">
+                <h2 className="text-xl font-bold text-red-500">سحب من {activePortfolio.name} 💳</h2>
+                <button onClick={() => setIsWithdrawOpen(false)} className="text-slate-500 hover:text-white text-2xl">×</button>
+              </div>
+              <div className="mb-6">
+                <label className="block text-sm text-slate-400 mb-2">المبلغ المراد سحبه ($):</label>
+                <input type="number" min="1" max={activePortfolio.cash} placeholder="أدخل المبلغ..." value={withdrawAmount} onChange={(e) => setWithdrawAmount(e.target.value)} className="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg text-white font-bold text-lg outline-none text-left" dir="ltr" />
+                <p className="text-xs text-slate-500 mt-2">المتاح للسحب: <span className="text-green-500">${activePortfolio.cash.toFixed(2)}</span></p>
+              </div>
+              <button onClick={handleWithdraw} className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg shadow-lg">تأكيد السحب</button>
+            </div>
+          </div>
+        )}
+
+        {/* المحفظة الرئيسية */}
+        {isPortfolioOpen && (
+          <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-2 sm:p-4">
+            <div className="bg-slate-900 border border-slate-800 p-4 sm:p-6 rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto custom-scrollbar">
+              <div className="flex justify-between items-center mb-6 border-b border-slate-800 pb-4">
+                <h2 className="text-xl sm:text-2xl font-bold text-yellow-500">💼 إدارة المحافظ والتداول</h2>
+                <button onClick={() => setIsPortfolioOpen(false)} className="text-slate-500 hover:text-white text-2xl font-black">×</button>
               </div>
               
-              <div className="flex justify-between items-center text-base border-t border-slate-800 pt-3 mt-1">
-                <span className="font-bold text-slate-300">إجمالي قيمة المحفظة:</span>
-                <span className="font-black text-yellow-400 text-xl">${totalPortfolioValue.toFixed(2)}</span>
+              <div className="flex flex-wrap items-center gap-2 mb-6 bg-slate-950/50 p-2 sm:p-3 rounded-xl border border-slate-800">
+                <span className="text-[10px] sm:text-xs text-slate-400 font-bold ml-2">المحفظة النشطة:</span>
+                {portfolios.map(p => (
+                  <button key={p.id} onClick={() => setActivePortfolioId(p.id)} className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[10px] sm:text-xs font-bold transition-all ${p.id === activePortfolioId ? 'bg-blue-600 text-white shadow-md' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}>{p.name}</button>
+                ))}
+                <button onClick={() => setIsNewPortfolioOpen(true)} className="bg-emerald-600/10 hover:bg-emerald-600/30 text-emerald-400 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[10px] sm:text-xs font-bold border border-emerald-600/30 transition-colors mr-auto">+ إضافة محفظة</button>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-6">
+                <div className="bg-slate-950/50 p-3 sm:p-4 rounded-xl border border-slate-800 relative">
+                  <p className="text-[10px] sm:text-sm text-slate-400 mb-1">الرصيد النقدي المتاح</p>
+                  <p className="text-lg sm:text-2xl font-black text-emerald-500">${activePortfolio.cash.toFixed(2)}</p>
+                  <div className="absolute top-2 left-2 flex gap-1 flex-col sm:flex-row">
+                    <button onClick={() => setIsDepositOpen(true)} className="bg-emerald-600/10 hover:bg-emerald-600 text-emerald-500 hover:text-white px-2 py-0.5 sm:py-1 rounded text-[9px] sm:text-[10px] font-bold border border-emerald-600/30">+ إيداع</button>
+                    <button onClick={() => setIsWithdrawOpen(true)} className="bg-red-600/10 hover:bg-red-600 text-red-500 hover:text-white px-2 py-0.5 sm:py-1 rounded text-[9px] sm:text-[10px] font-bold border border-red-600/30">- سحب</button>
+                  </div>
+                </div>
+                <div className="bg-slate-950/50 p-3 sm:p-4 rounded-xl border border-slate-800">
+                  <p className="text-[10px] sm:text-sm text-slate-400 mb-1">إجمالي عدد الشركات</p>
+                  <p className="text-lg sm:text-2xl font-black text-blue-400">{activePortfolio.positions.length} <span className="text-xs font-normal">شركات</span></p>
+                </div>
+              </div>
+              
+              <h3 className="font-bold text-slate-300 mb-3 border-b border-slate-800/50 pb-2 text-sm sm:text-base">الأسهم المملوكة (الأرباح والخسائر):</h3>
+              {activePortfolio.positions.length === 0 ? (
+                <div className="text-center text-slate-500 py-8 bg-slate-950/50 rounded-lg border border-slate-800 mb-6 text-sm">المحفظة فارغة حالياً. ابدأ التداول الآن!</div>
+              ) : (
+                <div className="space-y-3 mb-6">
+                  {activePortfolio.positions.map((pos, idx) => {
+                    // جلب السعر المباشر للسهم
+                    const currentPrice = getLatestPrice(pos.symbol, pos.avgPrice);
+                    const marketVal = pos.shares * currentPrice;
+                    const costVal = pos.shares * pos.avgPrice;
+                    const profitLoss = marketVal - costVal;
+                    const profitLossPct = costVal > 0 ? (profitLoss / costVal) * 100 : 0;
+                    const isPos = profitLoss >= 0;
+                    
+                    return (
+                      <div key={idx} className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-slate-950/50 p-3 sm:p-4 rounded-xl border border-slate-800 gap-3">
+                        <div className="flex-1 w-full">
+                          <div className="flex justify-between sm:justify-start items-center gap-2 mb-1.5 w-full">
+                            <h4 className="font-black text-base sm:text-lg text-white">{pos.symbol}</h4>
+                            <span className="text-[10px] sm:text-xs bg-blue-900/40 text-blue-400 px-2 py-0.5 rounded-full border border-blue-800/50">{pos.shares} سهم</span>
+                            <span className="text-[9px] text-slate-500 mr-auto sm:ml-4 sm:mr-0 border border-slate-800 px-1.5 py-0.5 rounded opacity-70">
+                              تاريخ: {pos.purchaseDate || 'غير مسجل'}
+                            </span>
+                          </div>
+                          <div className="flex justify-between sm:justify-start items-center text-[10px] sm:text-[11px] text-slate-400 w-full">
+                            <span>التكلفة: <span className="font-bold text-slate-300">${pos.avgPrice.toFixed(2)}</span></span>
+                            <span className="sm:mx-3">السعر الآن: <span className="font-bold text-emerald-400">${currentPrice.toFixed(2)}</span>
+                              <button onClick={() => handleManualPriceUpdate(pos.symbol)} className={`mr-1 text-[12px] text-blue-500 hover:text-blue-300 transition-all ${updatingSymbol === pos.symbol ? 'animate-spin opacity-50' : ''}`} title="تحديث السعر اللحظي الآن">🔄</button>
+                            </span>
+                          </div>
+                        </div>
+                        
+                        {/* تفاصيل الربح والخسارة للموبايل والديسكتوب */}
+                        <div className="flex items-center gap-2 sm:gap-4 w-full sm:w-auto justify-between sm:justify-end border-t border-slate-800/50 sm:border-0 pt-2 sm:pt-0 mt-1 sm:mt-0">
+                          <div className="text-left bg-slate-900 p-2 rounded-lg border border-slate-800/50 min-w-[120px] flex-1 sm:flex-none flex flex-col justify-center">
+                            <div className="flex justify-between items-center sm:block">
+                               <p className="text-[10px] text-slate-400 sm:mb-0.5">القيمة الحالية:</p>
+                               <p className="text-xs sm:text-sm font-bold text-white">${marketVal.toFixed(2)}</p>
+                            </div>
+                            <p className={`text-[10px] sm:text-[11px] font-black mt-1 sm:mt-0.5 ${isPos ? 'text-emerald-500' : 'text-red-500'}`}>
+                              {isPos ? 'ربح ▲' : 'خسارة ▼'} {isPos ? '+' : ''}{profitLoss.toFixed(2)}$ ({isPos ? '+' : ''}{profitLossPct.toFixed(1)}%)
+                            </p>
+                          </div>
+                          <button onClick={() => { setTradeStock({ symbol: pos.symbol, price: currentPrice }); setTradeShares(pos.shares.toString()); }} className="bg-red-900/40 hover:bg-red-600 text-red-400 hover:text-white px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg text-[11px] sm:text-sm font-bold relative z-20 cursor-pointer shadow-sm border border-red-800/50 transition-colors h-full">بيع ⚡</button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+              
+              <div className="bg-gradient-to-r from-slate-950 to-blue-950/20 p-4 sm:p-5 rounded-xl border border-blue-900/30 space-y-2.5 sm:space-y-3">
+                <div className="flex justify-between items-center text-xs sm:text-sm"><span className="text-slate-400 font-bold">القيمة السوقية للأسهم المباشرة:</span><span className="font-bold text-white">${totalStocksMarketValue.toFixed(2)}</span></div>
+                <div className="flex justify-between items-center text-xs sm:text-sm"><span className="text-slate-400 font-bold">الرصيد النقدي المتبقي (الكاش):</span><span className="font-bold text-white">${activePortfolio.cash.toFixed(2)}</span></div>
+                
+                <div className="flex justify-between items-center text-xs sm:text-sm border-t border-slate-800 pt-2 sm:pt-3 mt-1">
+                  <span className="text-slate-400 font-bold">إجمالي الربح / الخسارة:</span>
+                  <span className={`font-black flex items-center gap-1 ${unrealizedPL >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>
+                    {unrealizedPL >= 0 ? '+' : ''}${unrealizedPL.toFixed(2)} ({unrealizedPL >= 0 ? '+' : ''}{unrealizedPLPercent.toFixed(1)}%) {unrealizedPL >= 0 ? '▲' : '▼'}
+                  </span>
+                </div>
+                
+                <div className="flex justify-between items-center text-sm sm:text-base border-t border-slate-800 pt-2 sm:pt-3 mt-1">
+                  <span className="font-bold text-slate-300">إجمالي قيمة المحفظة:</span>
+                  <span className="font-black text-yellow-400 text-lg sm:text-xl">${totalPortfolioValue.toFixed(2)}</span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* الشريط العلوي والشاشة الرئيسية */}
-      <div className="max-w-7xl mx-auto">
-        <div className="mb-8 border-b border-slate-800/80 pb-4 sticky top-0 bg-slate-950/95 backdrop-blur-md z-10 p-5 rounded-2xl shadow-xl">
+        {/* الشريط العلوي للبحث والأدوات */}
+        <div className="mb-8 border-b border-slate-800/80 pb-4 sticky top-0 bg-slate-950/95 backdrop-blur-md z-10 p-4 sm:p-5 rounded-2xl shadow-xl">
           <div className="flex flex-col xl:flex-row justify-between items-center gap-4">
             <div className="flex items-center justify-between w-full xl:w-auto">
-              <div className="flex items-center gap-4">
-                <div className="bg-blue-600/10 p-2.5 rounded-xl border border-blue-500/20 text-blue-400 text-2xl font-bold hidden sm:block">📈</div>
+              <div className="flex items-center gap-3 sm:gap-4">
+                <div className="bg-blue-600/10 p-2 sm:p-2.5 rounded-xl border border-blue-500/20 text-blue-400 text-xl sm:text-2xl font-bold hidden sm:block">📈</div>
                 <div>
-                  <h1 className="text-xl md:text-3xl font-black text-blue-400 tracking-tight">شاشة السوق الشاملة</h1>
-                  <div className="flex items-center gap-2 mt-2 bg-emerald-950/40 border border-emerald-900/50 px-2 py-1 rounded-full w-max">
-                    <span className="relative flex h-2 w-2"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span></span>
-                    <span className="text-[10px] text-emerald-400 font-bold tracking-wide">الأسعار تتحدث برمجياً (Live)</span>
+                  <h1 className="text-lg sm:text-xl md:text-3xl font-black text-blue-400 tracking-tight">شاشة السوق الشاملة</h1>
+                  <div className="flex items-center gap-1 sm:gap-2 mt-1 sm:mt-2 bg-emerald-950/40 border border-emerald-900/50 px-2 py-0.5 sm:py-1 rounded-full w-max">
+                    <span className="relative flex h-1.5 w-1.5 sm:h-2 sm:w-2"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span className="relative inline-flex rounded-full h-1.5 w-1.5 sm:h-2 sm:w-2 bg-emerald-500"></span></span>
+                    <span className="text-[9px] sm:text-[10px] text-emerald-400 font-bold tracking-wide">الأسعار تتحدث برمجياً (Live)</span>
                   </div>
                 </div>
               </div>
-              <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="xl:hidden bg-slate-800 text-white p-2 rounded-lg border border-slate-700">
-                {isMobileMenuOpen ? 'إخفاء الأزرار 🔺' : 'فلاتر وبحث 🔍'}
+              <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="xl:hidden bg-slate-800 text-white p-1.5 sm:p-2 rounded-lg border border-slate-700 text-xs font-bold">
+                {isMobileMenuOpen ? 'إخفاء الأزرار 🔺' : 'فلاتر ومحفظة 🔍'}
               </button>
             </div>
             
-            <div className={`${isMobileMenuOpen ? 'flex' : 'hidden'} xl:flex flex-col sm:flex-row flex-wrap items-center justify-center xl:justify-end gap-3 w-full xl:w-auto mt-4 xl:mt-0 transition-all`}>
-              <button onClick={() => setIsPortfolioOpen(true)} className="w-full sm:w-auto bg-emerald-600/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-600/20 px-4 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 shadow-sm">
+            <div className={`${isMobileMenuOpen ? 'flex' : 'hidden'} xl:flex flex-col sm:flex-row flex-wrap items-center justify-center xl:justify-end gap-2 sm:gap-3 w-full xl:w-auto mt-4 xl:mt-0 transition-all`}>
+              <button onClick={() => setIsPortfolioOpen(true)} className="w-full sm:w-auto bg-emerald-600/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-600/20 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 shadow-sm">
                 <span>💼</span><span>{activePortfolio.name}</span>
-                <span className="bg-emerald-950/50 px-2 py-0.5 rounded-lg text-xs text-emerald-300 border border-emerald-800/50">${activePortfolio.cash.toFixed(0)}</span>
+                <span className="bg-emerald-950/50 px-2 py-0.5 rounded-lg text-[10px] sm:text-xs text-emerald-300 border border-emerald-800/50">${activePortfolio.cash.toFixed(0)}</span>
               </button>
-              <button onClick={handleToggleHalalView} className={`w-full sm:w-auto px-4 py-2.5 rounded-xl text-sm font-bold border transition-all flex items-center justify-center gap-2 ${showHalalOnly ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50' : 'bg-slate-900/80 text-slate-300 border-slate-700/50'}`}>
-                <span>☪️</span><span>{showHalalOnly ? 'إلغاء الفلتر' : 'الأسهم الحلال فقط'}</span>
+              <button onClick={handleToggleHalalView} className={`w-full sm:w-auto px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold border transition-all flex items-center justify-center gap-2 ${showHalalOnly ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50' : 'bg-slate-900/80 text-slate-300 border-slate-700/50'}`}>
+                <span>☪️</span><span>{showHalalOnly ? 'إلغاء الفلتر' : 'الأسهم الحلال'}</span>
               </button>
-              <button onClick={handleToggleFavoritesView} className={`w-full sm:w-auto px-4 py-2.5 rounded-xl text-sm font-bold border transition-all flex items-center justify-center gap-2 ${showFavoritesOnly ? 'bg-yellow-500/20 text-yellow-300 border-yellow-500/50' : 'bg-slate-900/80 text-slate-300 border-slate-700/50'}`}>
-                <span>⭐</span><span>{showFavoritesOnly ? 'إلغاء الفلتر' : 'أسهمي المفضلة'}</span>
+              <button onClick={handleToggleFavoritesView} className={`w-full sm:w-auto px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold border transition-all flex items-center justify-center gap-2 ${showFavoritesOnly ? 'bg-yellow-500/20 text-yellow-300 border-yellow-500/50' : 'bg-slate-900/80 text-slate-300 border-slate-700/50'}`}>
+                <span>⭐</span><span>{showFavoritesOnly ? 'إلغاء الفلتر' : 'المفضلة'}</span>
               </button>
               <form onSubmit={handleSearch} className="flex gap-2 w-full sm:w-auto">
-                <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value.toUpperCase())} placeholder="بحث..." className="bg-slate-900/80 border border-slate-700/50 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-blue-500/50 w-full sm:w-36 text-left uppercase text-white placeholder-slate-500" dir="ltr" />
-                <button type="submit" disabled={isSearching || !searchQuery.trim()} className="bg-blue-600/90 hover:bg-blue-600 px-4 py-2.5 rounded-xl text-sm font-bold disabled:opacity-50 text-white">{isSearching ? '...' : 'اصطياد'}</button>
+                <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value.toUpperCase())} placeholder="بحث..." className="bg-slate-900/80 border border-slate-700/50 rounded-xl px-3 sm:px-3.5 py-2 sm:py-2.5 text-xs sm:text-sm focus:outline-none focus:border-blue-500/50 w-full sm:w-32 text-left uppercase text-white placeholder-slate-500" dir="ltr" />
+                <button type="submit" disabled={isSearching || !searchQuery.trim()} className="bg-blue-600/90 hover:bg-blue-600 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold disabled:opacity-50 text-white">{isSearching ? '...' : 'بحث'}</button>
               </form>
             </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {/* عرض الأسهم */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
           {displayedStocks.map((stock, index) => {
             const isLast = index === displayedStocks.length - 1;
             const isFav = favorites.includes(stock.symbol);
             
-            // جلب المحفظة التي يمتلك المستخدم السهم فيها (إن وجد)
+            // تحقق ما إذا كان السهم مملوكاً في أي محفظة
             const ownerPortfolio = portfolios.find(p => p.positions.some(pos => pos.symbol === stock.symbol));
             const ownedInActive = ownerPortfolio?.id === activePortfolioId;
-            
-            // جلب بيانات السهم من محفظته
-            const ownedPosition = ownerPortfolio?.positions.find(pos => pos.symbol === stock.symbol);
-            
+            const ownedPosition = activePortfolio.positions.find(pos => pos.symbol === stock.symbol);
             const sharia = getShariaStatus(stock.symbol);
             
-            // استخدام دالة getLatestPrice لضمان توحيد الأرقام 
+            // جلب السعر اللحظي الدقيق
             const displayPrice = getLatestPrice(stock.symbol, stock.price);
             const displayPriceSAR = (displayPrice * 3.75).toFixed(2);
 
             return (
-              <div key={stock.symbol + index} ref={(!showFavoritesOnly && !showHalalOnly && isLast) ? lastStockElementRef : null} className={`bg-slate-900 p-5 rounded-2xl border ${isFav ? 'border-yellow-500/30' : 'border-slate-800'} flex flex-col justify-between hover:border-blue-500/40 transition-all h-full relative`}>
-                <div className="absolute top-4 left-4 z-10 cursor-pointer hover:scale-105 transition-transform" onClick={() => setEditingShariaSymbol(stock.symbol)}>
-                  <span className={`text-[10px] font-bold px-2 py-1 rounded-md border ${sharia.class}`} title="تعديل التصنيف الشرعي">
+              <div key={stock.symbol + index} ref={(!showFavoritesOnly && !showHalalOnly && isLast) ? lastStockElementRef : null} className={`bg-slate-900 p-4 sm:p-5 rounded-2xl border ${isFav ? 'border-yellow-500/30' : 'border-slate-800'} flex flex-col justify-between hover:border-blue-500/40 transition-all h-full relative`}>
+                <div className="absolute top-3 sm:top-4 left-3 sm:left-4 z-10 cursor-pointer hover:scale-105 transition-transform" onClick={() => setEditingShariaSymbol(stock.symbol)}>
+                  <span className={`text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md border ${sharia.class}`} title="تعديل التصنيف الشرعي">
                     {sharia.label} ✏️
                   </span>
                 </div>
 
-                <div className="flex justify-between items-start mb-4 pt-1">
-                  <div className="flex items-center gap-2">
-                    <button onClick={() => toggleFavorite(stock.symbol)} className="text-2xl focus:outline-none transition-transform hover:scale-125 pb-1 relative z-20">
+                <div className="flex justify-between items-start mb-3 sm:mb-4 pt-1">
+                  <div className="flex items-center gap-1.5 sm:gap-2">
+                    <button onClick={() => toggleFavorite(stock.symbol)} className="text-xl sm:text-2xl focus:outline-none transition-transform hover:scale-125 pb-1 relative z-20">
                       {isFav ? '⭐' : <span className="text-slate-600">☆</span>}
                     </button>
                     <div>
-                      <h2 className="text-2xl font-black text-white">{stock.symbol}</h2>
-                      <p className="text-[10px] text-slate-500 mt-1 font-medium">PE: {stock.peRatio}</p>
+                      <h2 className="text-xl sm:text-2xl font-black text-white">{stock.symbol}</h2>
+                      <p className="text-[9px] sm:text-[10px] text-slate-500 mt-0.5 sm:mt-1 font-medium">PE: {stock.peRatio}</p>
                     </div>
                   </div>
-                  <div className="flex flex-col items-center justify-center bg-blue-950/20 px-3 py-1.5 rounded-lg border border-blue-900/30 min-w-[75px] mt-6 transition-all duration-500 relative group z-10">
-                    <div className="flex items-center gap-1.5">
+                  <div className="flex flex-col items-center justify-center bg-blue-950/20 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg border border-blue-900/30 min-w-[65px] sm:min-w-[75px] mt-6 transition-all duration-500 relative group z-10">
+                    <div className="flex items-center gap-1 sm:gap-1.5">
                       <button 
                         onClick={() => handleManualPriceUpdate(stock.symbol)}
-                        className={`text-[14px] text-blue-500/50 hover:text-blue-400 transition-all relative z-20 ${updatingSymbol === stock.symbol ? 'animate-spin opacity-50 text-blue-300' : ''}`}
+                        className={`text-[12px] sm:text-[14px] text-blue-500/50 hover:text-blue-400 transition-all relative z-20 ${updatingSymbol === stock.symbol ? 'animate-spin opacity-50 text-blue-300' : ''}`}
                         title="جلب السعر اللحظي الآن"
                       >
                         🔄
                       </button>
-                      <span className="text-blue-400 text-lg font-bold leading-tight">${displayPrice.toFixed(2)}</span>
+                      <span className="text-blue-400 text-base sm:text-lg font-bold leading-tight">${displayPrice.toFixed(2)}</span>
                     </div>
-                    <span className="text-slate-400 text-[10px] font-semibold mt-0.5">{displayPriceSAR} ر.س</span>
+                    <span className="text-slate-400 text-[9px] sm:text-[10px] font-semibold mt-0.5">{displayPriceSAR} ر.س</span>
                   </div>
                 </div>
 
-                <div className="flex gap-2 mb-4">
-                  <button onClick={() => { setTradeStock({...stock, price: displayPrice}); setTradeShares(''); }} className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold py-2 rounded-xl border border-slate-700 cursor-pointer relative z-20">تداول ⚖️</button>
+                <div className="flex gap-1.5 sm:gap-2 mb-3 sm:mb-4">
+                  <button onClick={() => { setTradeStock({...stock, price: displayPrice}); setTradeShares(''); }} className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] sm:text-xs font-bold py-1.5 sm:py-2 rounded-xl border border-slate-700 cursor-pointer relative z-20">تداول ⚖️</button>
                   {ownedInActive && ownedPosition ? (
-                    <button onClick={() => { setTradeStock({...stock, price: displayPrice}); setTradeShares(ownedPosition.shares.toString()); }} className="flex-1 bg-red-900/20 hover:bg-red-600 text-red-400 text-xs font-bold py-2 rounded-xl border border-red-800/40 cursor-pointer relative z-20">بيع ({ownedPosition.shares})</button>
+                    <button onClick={() => { setTradeStock({...stock, price: displayPrice}); setTradeShares(ownedPosition.shares.toString()); }} className="flex-1 bg-red-900/20 hover:bg-red-600 text-red-400 text-[10px] sm:text-xs font-bold py-1.5 sm:py-2 rounded-xl border border-red-800/40 cursor-pointer relative z-20">بيع ({ownedPosition.shares})</button>
                   ) : ownerPortfolio ? (
-                    <div className="flex-1 bg-yellow-950/30 border border-yellow-800/40 rounded-xl flex items-center justify-center text-[10px] font-bold text-yellow-500" title={`للتداول اذهب إلى المحفظة: ${ownerPortfolio.name}`}>مملوك في ({ownerPortfolio.name})</div>
+                    <div className="flex-1 bg-yellow-950/30 border border-yellow-800/40 rounded-xl flex items-center justify-center text-[9px] sm:text-[10px] font-bold text-yellow-500 text-center px-1" title={`للتداول اذهب إلى المحفظة: ${ownerPortfolio.name}`}>مملوك ({ownerPortfolio.name})</div>
                   ) : (
-                    <div className="flex-1 bg-slate-950/50 border border-slate-800 rounded-xl flex items-center justify-center text-[10px] font-bold text-slate-500">متاح للشراء</div>
+                    <div className="flex-1 bg-slate-950/50 border border-slate-800 rounded-xl flex items-center justify-center text-[9px] sm:text-[10px] font-bold text-slate-500">متاح للشراء</div>
                   )}
                 </div>
 
-                <div className="bg-gradient-to-r from-slate-800/50 to-slate-900 p-3 rounded-xl mb-4 border border-slate-700/50 shadow-sm relative z-10">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-[11px] font-bold text-slate-400">السعر المحدد للدخول:</span>
-                    <span className="text-sm font-black text-emerald-400">${stock.suggestedEntryPrice}</span>
+                <div className="bg-gradient-to-r from-slate-800/50 to-slate-900 p-2.5 sm:p-3 rounded-xl mb-3 sm:mb-4 border border-slate-700/50 shadow-sm relative z-10">
+                  <div className="flex justify-between items-center mb-1.5 sm:mb-2">
+                    <span className="text-[10px] sm:text-[11px] font-bold text-slate-400">سعر الدخول المقترح:</span>
+                    <span className="text-xs sm:text-sm font-black text-emerald-400">${stock.suggestedEntryPrice}</span>
                   </div>
-                  <p className="text-xs font-bold mb-2 text-slate-200">{stock.entrySignal}</p>
-                  <p className="text-[10px] text-slate-400 leading-relaxed border-t border-slate-700/50 pt-2 mt-2">
+                  <p className="text-[10px] sm:text-xs font-bold mb-1.5 sm:mb-2 text-slate-200">{stock.entrySignal}</p>
+                  <p className="text-[9px] sm:text-[10px] text-slate-400 leading-relaxed border-t border-slate-700/50 pt-1.5 sm:pt-2 mt-1.5 sm:mt-2">
                     <span className="text-blue-400 font-bold">💡 تحليل Gemini: </span>{stock.analysis}
                   </p>
                 </div>
 
-                <div className="bg-slate-950/40 border border-slate-800/80 rounded-xl p-2.5 mb-3 shadow-inner relative z-10">
-                  <h3 className="text-[10px] font-bold text-slate-400 mb-2 px-1">سجل التداول (آخر 30 يوم):</h3>
-                  <div className="space-y-1 max-h-40 overflow-y-auto pl-1 custom-scrollbar">
+                <div className="bg-slate-950/40 border border-slate-800/80 rounded-xl p-2 sm:p-2.5 mb-3 shadow-inner relative z-10">
+                  <h3 className="text-[9px] sm:text-[10px] font-bold text-slate-400 mb-1.5 sm:mb-2 px-1">سجل التداول (آخر 30 يوم):</h3>
+                  <div className="space-y-1 max-h-32 sm:max-h-40 overflow-y-auto pl-1 custom-scrollbar">
                     {stock.history30Days?.map((dayRecord: any, idx: number) => (
-                      <div key={idx} className="flex justify-between items-center text-[10px] p-1.5 border-b border-slate-800/50 last:border-0">
+                      <div key={idx} className="flex justify-between items-center text-[9px] sm:text-[10px] p-1 sm:p-1.5 border-b border-slate-800/50 last:border-0">
                         <span className="text-slate-400">{dayRecord.day}</span>
                         <span className={`font-bold flex items-center gap-1 ${dayRecord.isPositive ? 'text-emerald-500' : 'text-red-400'}`}>
                           {dayRecord.status} ${dayRecord.amount} {dayRecord.isPositive ? '▲' : '▼'}
@@ -817,13 +890,13 @@ export default function StockRadarPage() {
                       </div>
                     ))}
                   </div>
-                  <div className="mt-2 pt-2 border-t border-slate-800/80 flex justify-between items-center px-1">
-                    <span className="text-xs font-bold text-slate-300">صافي آخر 30 يوم:</span>
+                  <div className="mt-1.5 sm:mt-2 pt-1.5 sm:pt-2 border-t border-slate-800/80 flex justify-between items-center px-1">
+                    <span className="text-[10px] sm:text-xs font-bold text-slate-300">صافي 30 يوم:</span>
                     <div className={`flex flex-col items-end ${stock.isTotalPositive ? 'text-emerald-500' : 'text-red-400'}`}>
-                      <span className="text-sm font-black flex items-center gap-1">
+                      <span className="text-xs sm:text-sm font-black flex items-center gap-1">
                         ${stock.total30Days} {stock.isTotalPositive ? 'ربح ▲' : 'خسارة ▼'}
                       </span>
-                      <span className="text-[9px] font-bold opacity-80 mt-0.5 text-slate-400">
+                      <span className="text-[8px] sm:text-[9px] font-bold opacity-80 mt-0.5 text-slate-400">
                         {stock.total30DaysSAR} ر.س
                       </span>
                     </div>
@@ -831,8 +904,8 @@ export default function StockRadarPage() {
                 </div>
 
                 <div className="mt-auto relative z-10">
-                  <h3 className="text-[10px] font-bold text-slate-500 mb-2 text-center">العائد التاريخي (النسبة، الأرباح/الخسائر، والسعر)</h3>
-                  <div className="grid grid-cols-3 gap-1.5 text-center">
+                  <h3 className="text-[9px] sm:text-[10px] font-bold text-slate-500 mb-1.5 sm:mb-2 text-center">العائد التاريخي 100%</h3>
+                  <div className="grid grid-cols-3 gap-1 sm:gap-1.5 text-center">
                     {[
                       { label: 'شهر', data: stock.stats?.m1 },
                       { label: '3 أشهر', data: stock.stats?.m3 },
@@ -841,15 +914,15 @@ export default function StockRadarPage() {
                       { label: '3 سنوات', data: stock.stats?.y3 },
                       { label: '5 سنوات', data: stock.stats?.y5 }
                     ].map((stat, i) => (
-                      <div key={i} className="bg-slate-950/40 p-1.5 rounded-lg border border-slate-800/80 flex flex-col justify-center items-center min-h-[75px]">
-                        <span className="text-[9px] text-slate-400 font-semibold mb-0.5">{stat.label}</span>
-                        <span className={`text-[11px] font-black ${stat.data?.isPositive ? 'text-emerald-400' : 'text-red-400'}`}>
+                      <div key={i} className="bg-slate-950/40 p-1 sm:p-1.5 rounded-lg border border-slate-800/80 flex flex-col justify-center items-center min-h-[65px] sm:min-h-[75px]">
+                        <span className="text-[8px] sm:text-[9px] text-slate-400 font-semibold mb-0.5">{stat.label}</span>
+                        <span className={`text-[10px] sm:text-[11px] font-black ${stat.data?.isPositive ? 'text-emerald-400' : 'text-red-400'}`}>
                           {stat.data?.isPositive ? '+' : ''}{stat.data?.value}
                         </span>
-                        <span className={`text-[9px] font-bold mt-0.5 ${stat.data?.isPositive ? 'text-emerald-500' : 'text-red-500'}`}>
-                          {stat.data?.isPositive ? 'ربح ' : 'خسارة '}${stat.data?.amount}
+                        <span className={`text-[8px] sm:text-[9px] font-bold mt-0.5 ${stat.data?.isPositive ? 'text-emerald-500' : 'text-red-500'}`}>
+                          {stat.data?.isPositive ? 'ربح' : 'خسر'} ${stat.data?.amount}
                         </span>
-                        <span className="text-[8px] text-slate-400 mt-1 border-t border-slate-800 pt-0.5 w-full">
+                        <span className="text-[7px] sm:text-[8px] text-slate-400 mt-1 border-t border-slate-800 pt-0.5 w-full">
                           السعر: ${stat.data?.pastPrice}
                         </span>
                       </div>
@@ -862,7 +935,7 @@ export default function StockRadarPage() {
         </div>
 
         {isLoading && (
-          <div className="text-center py-10 text-blue-400 font-bold text-lg animate-pulse">
+          <div className="text-center py-6 sm:py-10 text-blue-400 font-bold text-sm sm:text-lg animate-pulse">
             جاري تحميل البيانات المباشرة...
           </div>
         )}
