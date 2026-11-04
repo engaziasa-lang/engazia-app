@@ -9,37 +9,27 @@ export async function getStockData(symbol: string) {
       return { success: false, error: 'الرجاء إدخال رمز السهم' };
     }
 
-    let currentPrice = 0;
-    let previousClose = 0;
-    let peRatio: string | number = '-';
-
-    // محاولة جلب السعر الحقيقي
-    try {
-      const yf: any = yahooFinance;
-      if (yf.suppressNotices) yf.suppressNotices(['yahooSurvey']);
-      
-      const quote: any = await yf.quote(formattedSymbol);
-      
-      if (quote && quote.regularMarketPrice) {
-        currentPrice = quote.regularMarketPrice;
-        previousClose = quote.regularMarketPreviousClose || currentPrice;
-        peRatio = quote.trailingPE ? quote.trailingPE.toFixed(2) : '-';
-      } else {
-        throw new Error("No data");
-      }
-    } catch (e) {
-      // البديل الذكي (Fallback) في حال رفض Yahoo للطلب بسبب الضغط
-      // توليد سعر يحاكي الواقع لكي لا تتعطل المنصة
-      currentPrice = Math.random() * (400 - 50) + 50;
-      previousClose = currentPrice * (1 + (Math.random() * 0.04 - 0.02)); // تذبذب +/- 2%
-      peRatio = (Math.random() * (40 - 10) + 10).toFixed(1);
-    }
+    const yf: any = yahooFinance;
+    if (yf.suppressNotices) yf.suppressNotices(['yahooSurvey']);
     
-    // --- الحسابات بناءً على السعر (الحقيقي أو البديل) ---
+    // جلب البيانات الحقيقية فقط (بدون أي أرقام عشوائية بديلة)
+    const quote: any = await yf.quote(formattedSymbol);
+    
+    if (!quote || !quote.regularMarketPrice) {
+       return { success: false, error: 'لم يتم العثور على بيانات هذا السهم' };
+    }
+
+    const currentPrice = quote.regularMarketPrice; 
+    const previousClose = quote.regularMarketPreviousClose || currentPrice;
+    
     const priceSAR = (currentPrice * 3.75).toFixed(2);
+    
     const dayChange = (currentPrice - previousClose);
     const dayChangePercent = (dayChange / previousClose) * 100;
+
     const suggestedEntryPrice = (currentPrice * 0.98).toFixed(2);
+
+    const peRatio = quote.trailingPE ? quote.trailingPE.toFixed(2) : '-';
     const pegRatio = '-'; 
 
     let entrySignal = '';
@@ -55,6 +45,7 @@ export async function getStockData(symbol: string) {
 
     const analysis = `السعر الحالي للسهم هو $${currentPrice.toFixed(2)}. التغير اليومي: ${dayChange > 0 ? '+' : ''}${dayChangePercent.toFixed(2)}%.`;
 
+    // سجل التداول والإحصائيات (توليد مبني على السعر الحقيقي لتجنب الحظر لتاريخ 500 سهم)
     const generateHistory = () => {
       const history = [];
       let totalAmount = 0;
@@ -116,7 +107,12 @@ export async function getStockData(symbol: string) {
     const stats = {
       m3: generateStats(15),
       m6: generateStats(25),
-      y1: generateStats(40),
+      y1: quote.fiftyTwoWeekLowChangePercent ? {
+        value: `${(quote.fiftyTwoWeekLowChangePercent * 100).toFixed(1)}%`,
+        amount: Math.abs(currentPrice - (quote.fiftyTwoWeekLow || currentPrice)).toFixed(2),
+        pastPrice: quote.fiftyTwoWeekLow?.toFixed(2) || currentPrice.toFixed(2),
+        isPositive: true
+      } : generateStats(40),
       y2: generateStats(60),
       y3: generateStats(90),
       y5: generateStats(150)
@@ -141,10 +137,10 @@ export async function getStockData(symbol: string) {
     };
 
   } catch (error) {
-    console.error('Error in getStockData:', error);
+    console.error(`Error fetching real data for ${symbol}:`, error);
     return {
       success: false,
-      error: 'حدث خطأ غير متوقع.'
+      error: 'لم نتمكن من جلب السعر الحقيقي بسبب ضغط الشبكة.'
     };
   }
 }
