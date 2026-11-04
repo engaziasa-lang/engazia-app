@@ -90,8 +90,6 @@ type Portfolio = { id: string; name: string; cash: number; positions: Position[]
 
 export default function StockRadarPage() {
   const [stocks, setStocks] = useState<any[]>([]);
-  
-  // حالة منفصلة للأسعار اللحظية لضمان تحديث الواجهة فوراً
   const [livePrices, setLivePrices] = useState<Record<string, { price: string, priceSAR: string }>>({});
   
   const [isLoading, setIsLoading] = useState(false);
@@ -107,7 +105,6 @@ export default function StockRadarPage() {
 
   const [customShariaOverrides, setCustomShariaOverrides] = useState<Record<string, 'halal' | 'mixed' | 'haram'>>({});
   const [editingShariaSymbol, setEditingShariaSymbol] = useState<string | null>(null);
-
   const [updatingSymbol, setUpdatingSymbol] = useState<string | null>(null);
 
   const [portfolios, setPortfolios] = useState<Portfolio[]>([
@@ -162,7 +159,14 @@ export default function StockRadarPage() {
     localStorage.setItem('stockRadarCustomSharia', JSON.stringify(customShariaOverrides));
   }, [customShariaOverrides]);
 
-  // دالة التحديث اليدوي الفردية (تم تحديثها لتعديل livePrices مباشرة)
+  // دالة لجلب السعر اللحظي لأي سهم (لتوحيد الحسابات في الشاشة والمحفظة)
+  const getLatestPrice = useCallback((symbol: string, fallbackPrice: string | number) => {
+    if (livePrices[symbol]) return parseFloat(livePrices[symbol].price);
+    const stockInGrid = stocks.find(s => s.symbol === symbol);
+    if (stockInGrid) return parseFloat(stockInGrid.price);
+    return typeof fallbackPrice === 'string' ? parseFloat(fallbackPrice) : fallbackPrice;
+  }, [livePrices, stocks]);
+
   const handleManualPriceUpdate = async (symbol: string) => {
     if (updatingSymbol === symbol) return; 
     setUpdatingSymbol(symbol);
@@ -171,12 +175,7 @@ export default function StockRadarPage() {
       const res = await getLivePrices([symbol]);
       if (res && res.success && res.data && res.data[symbol]) {
         const newData = res.data[symbol];
-        
-        // تحديث حالة الأسعار المنفصلة لإجبار React على إعادة الرسم فوراً
-        setLivePrices(prev => ({
-          ...prev,
-          [symbol]: newData
-        }));
+        setLivePrices(prev => ({ ...prev, [symbol]: newData }));
       }
     } catch (e) {
       console.error("Manual update failed", e);
@@ -194,10 +193,7 @@ export default function StockRadarPage() {
       const res = await getLivePrices(symbolsToUpdate);
       
       if (res && res.success && res.data) {
-        setLivePrices(prev => ({
-          ...prev,
-          ...res.data
-        }));
+        setLivePrices(prev => ({ ...prev, ...res.data }));
       }
     }, 20000); 
     
@@ -251,11 +247,8 @@ export default function StockRadarPage() {
         const fetchedStocks: any[] = Array.isArray(res.data) ? res.data : [res.data];
         setStocks(fetchedStocks);
         
-        // مزامنة الأسعار الأولية مع livePrices
         const initialPrices: Record<string, { price: string, priceSAR: string }> = {};
-        fetchedStocks.forEach(s => {
-          initialPrices[s.symbol] = { price: s.price, priceSAR: s.priceSAR };
-        });
+        fetchedStocks.forEach(s => { initialPrices[s.symbol] = { price: s.price, priceSAR: s.priceSAR }; });
         setLivePrices(prev => ({ ...prev, ...initialPrices }));
       }
     } catch (error) {
@@ -293,9 +286,7 @@ export default function StockRadarPage() {
         });
 
         const newPrices: Record<string, { price: string, priceSAR: string }> = {};
-        fetchedStocks.forEach(s => {
-          newPrices[s.symbol] = { price: s.price, priceSAR: s.priceSAR };
-        });
+        fetchedStocks.forEach(s => { newPrices[s.symbol] = { price: s.price, priceSAR: s.priceSAR }; });
         setLivePrices(prev => ({ ...prev, ...newPrices }));
       }
 
@@ -322,8 +313,7 @@ export default function StockRadarPage() {
         if (searchedStock && searchedStock.symbol) {
            setStocks(prev => [searchedStock, ...prev.filter(s => s.symbol !== searchedStock.symbol)]);
            setLivePrices(prev => ({
-             ...prev, 
-             [searchedStock.symbol]: { price: searchedStock.price, priceSAR: searchedStock.priceSAR }
+             ...prev, [searchedStock.symbol]: { price: searchedStock.price, priceSAR: searchedStock.priceSAR }
            }));
            setSearchQuery('');
         }
@@ -382,9 +372,7 @@ export default function StockRadarPage() {
     if (!tradeStock || !sharesNum || sharesNum <= 0) return alert("الرجاء إدخال عدد أسهم صحيح.");
     
     const stockSymbol = tradeStock.symbol;
-    // جلب أحدث سعر متاح سواء من livePrices أو stock
-    const currentLive = livePrices[stockSymbol];
-    const stockPrice = parseFloat(currentLive ? currentLive.price : tradeStock.price);
+    const stockPrice = getLatestPrice(stockSymbol, tradeStock.price);
     const totalSharesValue = stockPrice * sharesNum;
 
     if (type === 'buy') {
@@ -437,15 +425,12 @@ export default function StockRadarPage() {
     setIsPortfolioOpen(false);
   };
 
+  // --- حسابات المحفظة المباشرة ---
   let totalStocksMarketValue = 0;
   let totalCostValue = 0;
 
   activePortfolio.positions.forEach(pos => {
-    // حساب قيمة المحفظة باستخدام السعر اللحظي إن وجد
-    const currentLive = livePrices[pos.symbol];
-    const liveStock = stocks.find(s => s.symbol === pos.symbol);
-    const currentPrice = currentLive ? parseFloat(currentLive.price) : (liveStock ? parseFloat(liveStock.price) : pos.avgPrice);
-    
+    const currentPrice = getLatestPrice(pos.symbol, pos.avgPrice);
     totalStocksMarketValue += pos.shares * currentPrice;
     totalCostValue += pos.shares * pos.avgPrice;
   });
@@ -466,7 +451,7 @@ export default function StockRadarPage() {
       
       {/* نافذة تعديل التصنيف الشرعي */}
       {editingShariaSymbol && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[80] p-4">
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[110] p-4">
           <div className="bg-slate-900 border border-slate-700 p-6 rounded-2xl shadow-2xl max-w-xs w-full text-center">
             <h3 className="text-lg font-bold text-white mb-2">تعديل التصنيف الشرعي</h3>
             <p className="text-sm text-slate-400 mb-6">سهم: <span className="font-black text-blue-400">{editingShariaSymbol}</span></p>
@@ -480,7 +465,36 @@ export default function StockRadarPage() {
         </div>
       )}
 
-      {/* نوافذ المحافظ */}
+      {/* نافذة التداول (شراء/بيع) - مرفوعة الطبقة لحل مشكلة عدم الاستجابة */}
+      {tradeStock && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4">
+          <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-2xl max-w-sm w-full">
+            <div className="flex justify-between items-center mb-4 border-b border-slate-800 pb-3">
+              <h2 className="text-xl font-bold text-white">تداول: {tradeStock.symbol} <span className="text-xs text-yellow-500 font-normal">({activePortfolio.name})</span></h2>
+              <button onClick={() => setTradeStock(null)} className="text-slate-500 hover:text-white text-2xl">×</button>
+            </div>
+            <div className="bg-blue-950/20 p-3 rounded-lg border border-blue-900/30 mb-4 text-center">
+              <p className="text-sm text-slate-400">السعر اللحظي الآن</p>
+              <p className="text-2xl font-black text-blue-400">${getLatestPrice(tradeStock.symbol, tradeStock.price).toFixed(2)}</p>
+            </div>
+            <div className="mb-4">
+              <label className="block text-sm text-slate-400 mb-2">عدد الأسهم:</label>
+              <input type="number" min="1" placeholder="أدخل عدد الأسهم..." value={tradeShares} onChange={(e) => setTradeShares(e.target.value)} className="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg text-white font-bold outline-none" />
+            </div>
+            <div className="text-xs text-slate-400 mb-6 bg-slate-950 p-3 rounded border border-slate-800 space-y-2">
+              <div className="flex justify-between"><span>قيمة الأسهم:</span> <span>${((Number(tradeShares) || 0) * getLatestPrice(tradeStock.symbol, tradeStock.price)).toFixed(2)}</span></div>
+              <div className="flex justify-between text-yellow-500"><span>عمولة الوسيط:</span> <span>${BROKER_COMMISSION.toFixed(2)}</span></div>
+              <div className="flex justify-between font-bold text-white border-t border-slate-800 pt-2 mt-2"><span>الإجمالي:</span> <span>${(((Number(tradeShares) || 0) * getLatestPrice(tradeStock.symbol, tradeStock.price)) + BROKER_COMMISSION).toFixed(2)}</span></div>
+            </div>
+            <div className="flex gap-3">
+              <button onClick={() => handleExecuteTrade('buy')} className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-lg">شراء</button>
+              <button onClick={() => handleExecuteTrade('sell')} className="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg">بيع</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* نوافذ المحافظ المنسدلة */}
       {isPortfolioOpen && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
           <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto">
@@ -516,9 +530,7 @@ export default function StockRadarPage() {
             ) : (
               <div className="space-y-3 mb-6">
                 {activePortfolio.positions.map((pos, idx) => {
-                  const liveStock = stocks.find(s => s.symbol === pos.symbol);
-                  const currentLive = livePrices[pos.symbol];
-                  const currentPrice = currentLive ? parseFloat(currentLive.price) : (liveStock ? parseFloat(liveStock.price) : pos.avgPrice);
+                  const currentPrice = getLatestPrice(pos.symbol, pos.avgPrice);
                   const marketVal = pos.shares * currentPrice;
                   const costVal = pos.shares * pos.avgPrice;
                   const profitLoss = marketVal - costVal;
@@ -546,7 +558,7 @@ export default function StockRadarPage() {
                           <p className="text-sm font-bold text-white">${marketVal.toFixed(2)}</p>
                           <p className={`text-xs font-black ${isPos ? 'text-emerald-500' : 'text-red-500'}`}>{isPos ? '+' : ''}${profitLoss.toFixed(2)}</p>
                         </div>
-                        <button onClick={() => { setTradeStock(liveStock || { symbol: pos.symbol, price: currentPrice }); setTradeShares(pos.shares.toString()); }} className="bg-red-900/40 hover:bg-red-600 text-red-400 hover:text-white px-3 py-1 rounded text-xs font-bold">بيع ⚡</button>
+                        <button onClick={() => { setTradeStock({ symbol: pos.symbol, price: currentPrice }); setTradeShares(pos.shares.toString()); }} className="bg-red-900/40 hover:bg-red-600 text-red-400 hover:text-white px-3 py-1 rounded text-xs font-bold relative z-20 cursor-pointer">بيع ⚡</button>
                       </div>
                     </div>
                   );
@@ -616,7 +628,7 @@ export default function StockRadarPage() {
             const ownedPosition = activePortfolio.positions.find(pos => pos.symbol === stock.symbol);
             const sharia = getShariaStatus(stock.symbol);
             
-            // استخدام السعر من livePrices إن وجد، وإلا من stock
+            // استخدام المحرك اللحظي الموحد 
             const currentLive = livePrices[stock.symbol];
             const displayPrice = currentLive ? currentLive.price : stock.price;
             const displayPriceSAR = currentLive ? currentLive.priceSAR : stock.priceSAR;
@@ -631,7 +643,7 @@ export default function StockRadarPage() {
 
                 <div className="flex justify-between items-start mb-4 pt-1">
                   <div className="flex items-center gap-2">
-                    <button onClick={() => toggleFavorite(stock.symbol)} className="text-2xl focus:outline-none transition-transform hover:scale-125 pb-1">
+                    <button onClick={() => toggleFavorite(stock.symbol)} className="text-2xl focus:outline-none transition-transform hover:scale-125 pb-1 relative z-20">
                       {isFav ? '⭐' : <span className="text-slate-600">☆</span>}
                     </button>
                     <div>
@@ -639,17 +651,15 @@ export default function StockRadarPage() {
                       <p className="text-[10px] text-slate-500 mt-1 font-medium">PE: {stock.peRatio}</p>
                     </div>
                   </div>
-                  <div className="flex flex-col items-center justify-center bg-blue-950/20 px-3 py-1.5 rounded-lg border border-blue-900/30 min-w-[75px] mt-6 transition-all duration-500 relative group">
+                  <div className="flex flex-col items-center justify-center bg-blue-950/20 px-3 py-1.5 rounded-lg border border-blue-900/30 min-w-[75px] mt-6 transition-all duration-500 relative group z-10">
                     <div className="flex items-center gap-1.5">
-                      
                       <button 
                         onClick={() => handleManualPriceUpdate(stock.symbol)}
-                        className={`text-[14px] text-blue-500/50 hover:text-blue-400 transition-all ${updatingSymbol === stock.symbol ? 'animate-spin opacity-50 text-blue-300' : ''}`}
+                        className={`text-[14px] text-blue-500/50 hover:text-blue-400 transition-all relative z-20 ${updatingSymbol === stock.symbol ? 'animate-spin opacity-50 text-blue-300' : ''}`}
                         title="جلب السعر اللحظي الآن"
                       >
                         🔄
                       </button>
-
                       <span className="text-blue-400 text-lg font-bold leading-tight">${displayPrice}</span>
                     </div>
                     <span className="text-slate-400 text-[10px] font-semibold mt-0.5">{displayPriceSAR} ر.س</span>
@@ -657,9 +667,9 @@ export default function StockRadarPage() {
                 </div>
 
                 <div className="flex gap-2 mb-4">
-                  <button onClick={() => { setTradeStock({...stock, price: displayPrice}); setTradeShares(''); }} className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold py-2 rounded-xl border border-slate-700">تداول ⚖️</button>
+                  <button onClick={() => { setTradeStock({...stock, price: displayPrice}); setTradeShares(''); }} className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold py-2 rounded-xl border border-slate-700 cursor-pointer relative z-20">تداول ⚖️</button>
                   {ownedInActive && ownedPosition ? (
-                    <button onClick={() => { setTradeStock({...stock, price: displayPrice}); setTradeShares(ownedPosition.shares.toString()); }} className="flex-1 bg-red-900/20 hover:bg-red-600 text-red-400 text-xs font-bold py-2 rounded-xl border border-red-800/40">بيع ({ownedPosition.shares})</button>
+                    <button onClick={() => { setTradeStock({...stock, price: displayPrice}); setTradeShares(ownedPosition.shares.toString()); }} className="flex-1 bg-red-900/20 hover:bg-red-600 text-red-400 text-xs font-bold py-2 rounded-xl border border-red-800/40 cursor-pointer relative z-20">بيع ({ownedPosition.shares})</button>
                   ) : ownerPortfolio ? (
                     <div className="flex-1 bg-yellow-950/30 border border-yellow-800/40 rounded-xl flex items-center justify-center text-[10px] font-bold text-yellow-500">مملوك في {ownerPortfolio.name}</div>
                   ) : (
@@ -667,7 +677,7 @@ export default function StockRadarPage() {
                   )}
                 </div>
 
-                <div className="bg-gradient-to-r from-slate-800/50 to-slate-900 p-3 rounded-xl mb-4 border border-slate-700/50 shadow-sm">
+                <div className="bg-gradient-to-r from-slate-800/50 to-slate-900 p-3 rounded-xl mb-4 border border-slate-700/50 shadow-sm relative z-10">
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-[11px] font-bold text-slate-400">السعر المحدد للدخول:</span>
                     <span className="text-sm font-black text-emerald-400">${stock.suggestedEntryPrice}</span>
@@ -678,7 +688,7 @@ export default function StockRadarPage() {
                   </p>
                 </div>
 
-                <div className="bg-slate-950/40 border border-slate-800/80 rounded-xl p-2.5 mb-3 shadow-inner">
+                <div className="bg-slate-950/40 border border-slate-800/80 rounded-xl p-2.5 mb-3 shadow-inner relative z-10">
                   <h3 className="text-[10px] font-bold text-slate-400 mb-2 px-1">سجل التداول (آخر 30 يوم):</h3>
                   <div className="space-y-1 max-h-40 overflow-y-auto pl-1 custom-scrollbar">
                     {stock.history30Days?.map((dayRecord: any, idx: number) => (
@@ -703,7 +713,7 @@ export default function StockRadarPage() {
                   </div>
                 </div>
 
-                <div className="mt-auto">
+                <div className="mt-auto relative z-10">
                   <h3 className="text-[10px] font-bold text-slate-500 mb-2 text-center">العائد التاريخي (النسبة، الأرباح/الخسائر، والسعر)</h3>
                   <div className="grid grid-cols-3 gap-1.5 text-center">
                     {[
