@@ -205,15 +205,14 @@ export default function StockRadarPage() {
     try {
       for (let i = 0; i < batchToLoad.length; i += BATCH_SIZE) {
         const chunk = batchToLoad.slice(i, i + BATCH_SIZE);
-        const validResults = [];
+        const validResults: any[] = []; // إصلاح المشكلة هنا بإضافة النوع any[]
         
-        // جلب البيانات بشكل متسلسل مع فاصل زمني لتجنب حظر Rate Limit
         for (const ticker of chunk) {
           const res = await getStockData(ticker);
           if (res && res.success && res.data) {
             validResults.push(res.data);
           }
-          await new Promise(resolve => setTimeout(resolve, 250)); // تأخير 250 جزء من الثانية لحماية الـ API
+          await new Promise(resolve => setTimeout(resolve, 250)); 
         }
         
         if (validResults.length > 0) {
@@ -249,7 +248,7 @@ export default function StockRadarPage() {
     }
 
     try {
-      const validResults = [];
+      const validResults: any[] = []; // إصلاح المشكلة هنا بإضافة النوع any[]
       for (const ticker of nextBatch) {
         const res = await getStockData(ticker);
         if (res && res.success && res.data) {
@@ -953,7 +952,7 @@ export default function StockRadarPage() {
 
         {isLoading && (
           <div className="text-center py-10 text-blue-400 font-bold text-lg animate-pulse">
-            جاري استرجاع الأسهم الحقيقية...
+            جاري استرجاع الأسهم وتطبيق الفلترة...
           </div>
         )}
       </div>
