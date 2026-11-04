@@ -90,7 +90,10 @@ type Portfolio = { id: string; name: string; cash: number; positions: Position[]
 
 export default function StockRadarPage() {
   const [stocks, setStocks] = useState<any[]>([]);
+  
+  // حفظ الأسعار المباشرة في مرجع وحالة معاً لضمان سرعة الوصول والتحديث
   const [livePrices, setLivePrices] = useState<Record<string, { price: string, priceSAR: string }>>({});
+  const livePricesRef = useRef<Record<string, { price: string, priceSAR: string }>>({});
   
   const [isLoading, setIsLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
@@ -105,6 +108,7 @@ export default function StockRadarPage() {
 
   const [customShariaOverrides, setCustomShariaOverrides] = useState<Record<string, 'halal' | 'mixed' | 'haram'>>({});
   const [editingShariaSymbol, setEditingShariaSymbol] = useState<string | null>(null);
+
   const [updatingSymbol, setUpdatingSymbol] = useState<string | null>(null);
 
   const [portfolios, setPortfolios] = useState<Portfolio[]>([
@@ -134,6 +138,11 @@ export default function StockRadarPage() {
   const stocksRef = useRef(stocks);
   const BATCH_SIZE = 12;
 
+  // مزامنة حالة livePrices مع المرجع لضمان الوصول للبيانات الحديثة دائماً
+  useEffect(() => {
+    livePricesRef.current = livePrices;
+  }, [livePrices]);
+
   useEffect(() => {
     stocksRef.current = stocks;
   }, [stocks]);
@@ -159,31 +168,20 @@ export default function StockRadarPage() {
     localStorage.setItem('stockRadarCustomSharia', JSON.stringify(customShariaOverrides));
   }, [customShariaOverrides]);
 
-  // دالة لجلب السعر اللحظي لأي سهم (لتوحيد الحسابات في الشاشة والمحفظة)
+  // دالة ذكية وموحدة لجلب أحدث سعر من أي مكان في الواجهة
   const getLatestPrice = useCallback((symbol: string, fallbackPrice: string | number) => {
+    // 1. الأولوية الأولى للسعر اللحظي المخزن في المرجع السريع
+    if (livePricesRef.current[symbol]) return parseFloat(livePricesRef.current[symbol].price);
+    // 2. الأولوية الثانية للسعر اللحظي المخزن في الحالة
     if (livePrices[symbol]) return parseFloat(livePrices[symbol].price);
-    const stockInGrid = stocks.find(s => s.symbol === symbol);
+    // 3. الأولوية الثالثة للسعر القادم مع بيانات السهم الأساسية
+    const stockInGrid = stocksRef.current.find(s => s.symbol === symbol);
     if (stockInGrid) return parseFloat(stockInGrid.price);
+    // 4. أخيراً السعر الاحتياطي
     return typeof fallbackPrice === 'string' ? parseFloat(fallbackPrice) : fallbackPrice;
   }, [livePrices, stocks]);
 
-  const handleManualPriceUpdate = async (symbol: string) => {
-    if (updatingSymbol === symbol) return; 
-    setUpdatingSymbol(symbol);
-    
-    try {
-      const res = await getLivePrices([symbol]);
-      if (res && res.success && res.data && res.data[symbol]) {
-        const newData = res.data[symbol];
-        setLivePrices(prev => ({ ...prev, [symbol]: newData }));
-      }
-    } catch (e) {
-      console.error("Manual update failed", e);
-    } finally {
-      setTimeout(() => setUpdatingSymbol(null), 600); 
-    }
-  };
-
+  // --- التحديث المباشر الآلي السريع (كل 10 ثوانٍ بدلاً من 20 لسرعة أعلى) ---
   useEffect(() => {
     const interval = setInterval(async () => {
       const currentStocks = stocksRef.current;
@@ -193,12 +191,67 @@ export default function StockRadarPage() {
       const res = await getLivePrices(symbolsToUpdate);
       
       if (res && res.success && res.data) {
-        setLivePrices(prev => ({ ...prev, ...res.data }));
+        // تحديث حالة الأسعار اللحظية وإجبار الواجهة على إعادة الرسم
+        setLivePrices(prev => {
+          const newPrices = { ...prev, ...res.data };
+          // مزامنة المرجع فوراً
+          livePricesRef.current = newPrices; 
+          return newPrices;
+        });
+
+        // تحديث حالة الأسهم الأساسية أيضاً لضمان المزامنة في جميع المكونات
+        setStocks(prevStocks => prevStocks.map(stock => {
+          const liveData = res.data[stock.symbol];
+          if (liveData && liveData.price !== stock.price) {
+            return {
+              ...stock,
+              price: liveData.price,
+              priceSAR: liveData.priceSAR,
+              _lastUpdate: Date.now() // كسر كاش React الداخلي
+            };
+          }
+          return stock;
+        }));
       }
-    }, 20000); 
+    }, 10000); 
     
     return () => clearInterval(interval);
   }, []);
+
+  const handleManualPriceUpdate = async (symbol: string) => {
+    if (updatingSymbol === symbol) return; 
+    setUpdatingSymbol(symbol);
+    
+    try {
+      const res = await getLivePrices([symbol]);
+      if (res && res.success && res.data && res.data[symbol]) {
+        const newData = res.data[symbol];
+        
+        setLivePrices(prev => {
+          const newPrices = { ...prev, [symbol]: newData };
+          livePricesRef.current = newPrices;
+          return newPrices;
+        });
+
+        setStocks(prevStocks => prevStocks.map(stock => {
+          if (stock.symbol === symbol) {
+            return {
+              ...stock,
+              price: newData.price,
+              priceSAR: newData.priceSAR,
+              _lastUpdate: Date.now()
+            };
+          }
+          return stock;
+        }));
+      }
+    } catch (e) {
+      console.error("Manual update failed", e);
+    } finally {
+      setTimeout(() => setUpdatingSymbol(null), 600); 
+    }
+  };
+
 
   const activePortfolio = portfolios.find(p => p.id === activePortfolioId) || portfolios[0];
 
@@ -249,7 +302,11 @@ export default function StockRadarPage() {
         
         const initialPrices: Record<string, { price: string, priceSAR: string }> = {};
         fetchedStocks.forEach(s => { initialPrices[s.symbol] = { price: s.price, priceSAR: s.priceSAR }; });
-        setLivePrices(prev => ({ ...prev, ...initialPrices }));
+        setLivePrices(prev => {
+          const newPrices = { ...prev, ...initialPrices };
+          livePricesRef.current = newPrices;
+          return newPrices;
+        });
       }
     } catch (error) {
       console.error("Error initializing stocks:", error);
@@ -287,7 +344,11 @@ export default function StockRadarPage() {
 
         const newPrices: Record<string, { price: string, priceSAR: string }> = {};
         fetchedStocks.forEach(s => { newPrices[s.symbol] = { price: s.price, priceSAR: s.priceSAR }; });
-        setLivePrices(prev => ({ ...prev, ...newPrices }));
+        setLivePrices(prev => {
+          const allPrices = { ...prev, ...newPrices };
+          livePricesRef.current = allPrices;
+          return allPrices;
+        });
       }
 
       const newIndex = currentIdx + BATCH_SIZE;
@@ -312,9 +373,11 @@ export default function StockRadarPage() {
         const searchedStock = Array.isArray(dataAny) ? dataAny[0] : dataAny;
         if (searchedStock && searchedStock.symbol) {
            setStocks(prev => [searchedStock, ...prev.filter(s => s.symbol !== searchedStock.symbol)]);
-           setLivePrices(prev => ({
-             ...prev, [searchedStock.symbol]: { price: searchedStock.price, priceSAR: searchedStock.priceSAR }
-           }));
+           setLivePrices(prev => {
+             const newPrices = { ...prev, [searchedStock.symbol]: { price: searchedStock.price, priceSAR: searchedStock.priceSAR } };
+             livePricesRef.current = newPrices;
+             return newPrices;
+           });
            setSearchQuery('');
         }
       } else {
@@ -425,7 +488,7 @@ export default function StockRadarPage() {
     setIsPortfolioOpen(false);
   };
 
-  // --- حسابات المحفظة المباشرة ---
+  // --- حسابات المحفظة الديناميكية اللحظية ---
   let totalStocksMarketValue = 0;
   let totalCostValue = 0;
 
@@ -465,7 +528,7 @@ export default function StockRadarPage() {
         </div>
       )}
 
-      {/* نافذة التداول (شراء/بيع) - مرفوعة الطبقة لحل مشكلة عدم الاستجابة */}
+      {/* نافذة التداول (شراء/بيع) - أولوية عليا */}
       {tradeStock && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4">
           <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-2xl max-w-sm w-full">
@@ -493,6 +556,63 @@ export default function StockRadarPage() {
           </div>
         </div>
       )}
+
+      {/* نافذة إنشاء محفظة / إيداع / سحب */}
+      {isNewPortfolioOpen && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[70] p-4">
+          <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-2xl max-w-sm w-full">
+            <div className="flex justify-between items-center mb-4 border-b border-slate-800 pb-3">
+              <h2 className="text-xl font-bold text-yellow-500">إضافة محفظة جديدة 💼</h2>
+              <button onClick={() => setIsNewPortfolioOpen(false)} className="text-slate-500 hover:text-white text-2xl">×</button>
+            </div>
+            <div className="space-y-4 mb-6">
+              <div>
+                <label className="block text-sm text-slate-400 mb-1">اسم المحفظة:</label>
+                <input type="text" placeholder="مثال: محفظة النمو..." value={newPortfolioName} onChange={(e) => setNewPortfolioName(e.target.value)} className="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg text-white font-bold text-sm outline-none" />
+              </div>
+              <div>
+                <label className="block text-sm text-slate-400 mb-1">الميزانية الأولية (كاش $):</label>
+                <input type="number" min="0" placeholder="10000" value={newPortfolioCash} onChange={(e) => setNewPortfolioCash(e.target.value)} className="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg text-white font-bold text-lg outline-none text-left" dir="ltr" />
+              </div>
+            </div>
+            <button onClick={handleCreatePortfolio} className="w-full bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-3 rounded-lg shadow-lg">إنشاء المحفظة</button>
+          </div>
+        </div>
+      )}
+
+      {isDepositOpen && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[70] p-4">
+          <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-2xl max-w-sm w-full">
+            <div className="flex justify-between items-center mb-4 border-b border-slate-800 pb-3">
+              <h2 className="text-xl font-bold text-green-500">إيداع في {activePortfolio.name} 💰</h2>
+              <button onClick={() => setIsDepositOpen(false)} className="text-slate-500 hover:text-white text-2xl">×</button>
+            </div>
+            <div className="mb-6">
+              <label className="block text-sm text-slate-400 mb-2">المبلغ المراد إيداعه ($):</label>
+              <input type="number" min="1" placeholder="أدخل المبلغ..." value={depositAmount} onChange={(e) => setDepositAmount(e.target.value)} className="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg text-white font-bold text-lg outline-none text-left" dir="ltr" />
+            </div>
+            <button onClick={handleDeposit} className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg shadow-lg">تأكيد الإيداع</button>
+          </div>
+        </div>
+      )}
+
+      {isWithdrawOpen && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[70] p-4">
+          <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-2xl max-w-sm w-full">
+            <div className="flex justify-between items-center mb-4 border-b border-slate-800 pb-3">
+              <h2 className="text-xl font-bold text-red-500">سحب من {activePortfolio.name} 💳</h2>
+              <button onClick={() => setIsWithdrawOpen(false)} className="text-slate-500 hover:text-white text-2xl">×</button>
+            </div>
+            <div className="mb-6">
+              <label className="block text-sm text-slate-400 mb-2">المبلغ المراد سحبه ($):</label>
+              <input type="number" min="1" max={activePortfolio.cash} placeholder="أدخل المبلغ..." value={withdrawAmount} onChange={(e) => setWithdrawAmount(e.target.value)} className="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg text-white font-bold text-lg outline-none text-left" dir="ltr" />
+              <p className="text-xs text-slate-500 mt-2">المتاح للسحب: <span className="text-green-500">${activePortfolio.cash.toFixed(2)}</span></p>
+            </div>
+            <button onClick={handleWithdraw} className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg shadow-lg">تأكيد السحب</button>
+          </div>
+        </div>
+      )}
+
 
       {/* نوافذ المحافظ المنسدلة */}
       {isPortfolioOpen && (
@@ -628,10 +748,9 @@ export default function StockRadarPage() {
             const ownedPosition = activePortfolio.positions.find(pos => pos.symbol === stock.symbol);
             const sharia = getShariaStatus(stock.symbol);
             
-            // استخدام المحرك اللحظي الموحد 
-            const currentLive = livePrices[stock.symbol];
-            const displayPrice = currentLive ? currentLive.price : stock.price;
-            const displayPriceSAR = currentLive ? currentLive.priceSAR : stock.priceSAR;
+            // استخدام دالة getLatestPrice لضمان توحيد الأرقام 
+            const displayPrice = getLatestPrice(stock.symbol, stock.price);
+            const displayPriceSAR = (displayPrice * 3.75).toFixed(2);
 
             return (
               <div key={stock.symbol + index} ref={(!showFavoritesOnly && !showHalalOnly && isLast) ? lastStockElementRef : null} className={`bg-slate-900 p-5 rounded-2xl border ${isFav ? 'border-yellow-500/30' : 'border-slate-800'} flex flex-col justify-between hover:border-blue-500/40 transition-all h-full relative`}>
@@ -660,7 +779,7 @@ export default function StockRadarPage() {
                       >
                         🔄
                       </button>
-                      <span className="text-blue-400 text-lg font-bold leading-tight">${displayPrice}</span>
+                      <span className="text-blue-400 text-lg font-bold leading-tight">${displayPrice.toFixed(2)}</span>
                     </div>
                     <span className="text-slate-400 text-[10px] font-semibold mt-0.5">{displayPriceSAR} ر.س</span>
                   </div>
