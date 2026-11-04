@@ -9,14 +9,14 @@ export async function getStockData(symbol: string) {
       return { success: false, error: 'الرجاء إدخال رمز السهم' };
     }
 
-    // إخفاء التحذيرات مع تخطي فحص التايب سكريبت لهذه التعليمة
-    // @ts-ignore
-    if (yahooFinance.suppressNotices) {
-      yahooFinance.suppressNotices(['yahooSurvey']);
+    // تعريف المكتبة كنوع any لتعمية فحص TypeScript في Vercel وتجنب أخطاء البناء
+    const yf: any = yahooFinance;
+
+    if (yf.suppressNotices) {
+      yf.suppressNotices(['yahooSurvey']);
     }
     
-    // جلب البيانات مع تحديد النوع كـ any لتخطي أخطاء Type Check في Vercel
-    const quote: any = await yahooFinance.quote(formattedSymbol);
+    const quote: any = await yf.quote(formattedSymbol);
     
     if (!quote || !quote.regularMarketPrice) {
        return { success: false, error: 'لم يتم العثور على بيانات هذا السهم' };
