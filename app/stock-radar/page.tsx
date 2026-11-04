@@ -104,7 +104,6 @@ export default function StockRadarPage() {
   const [customShariaOverrides, setCustomShariaOverrides] = useState<Record<string, 'halal' | 'mixed' | 'haram'>>({});
   const [editingShariaSymbol, setEditingShariaSymbol] = useState<string | null>(null);
 
-  // إدارة المحافظ والتداول
   const [portfolios, setPortfolios] = useState<Portfolio[]>([
     { id: '1', name: 'محفظتي الأساسية', cash: 10000, positions: [] }
   ]);
@@ -404,94 +403,7 @@ export default function StockRadarPage() {
         </div>
       )}
 
-      {/* نافذة إنشاء محفظة جديدة */}
-      {isNewPortfolioOpen && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[70] p-4">
-          <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-2xl max-w-sm w-full">
-            <div className="flex justify-between items-center mb-4 border-b border-slate-800 pb-3">
-              <h2 className="text-xl font-bold text-yellow-500">إضافة محفظة جديدة 💼</h2>
-              <button onClick={() => setIsNewPortfolioOpen(false)} className="text-slate-500 hover:text-white text-2xl">×</button>
-            </div>
-            <div className="space-y-4 mb-6">
-              <div>
-                <label className="block text-sm text-slate-400 mb-1">اسم المحفظة:</label>
-                <input type="text" placeholder="مثال: محفظة النمو..." value={newPortfolioName} onChange={(e) => setNewPortfolioName(e.target.value)} className="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg text-white font-bold text-sm outline-none" />
-              </div>
-              <div>
-                <label className="block text-sm text-slate-400 mb-1">الميزانية الأولية (كاش $):</label>
-                <input type="number" min="0" placeholder="10000" value={newPortfolioCash} onChange={(e) => setNewPortfolioCash(e.target.value)} className="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg text-white font-bold text-lg outline-none text-left" dir="ltr" />
-              </div>
-            </div>
-            <button onClick={handleCreatePortfolio} className="w-full bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-3 rounded-lg shadow-lg">إنشاء المحفظة</button>
-          </div>
-        </div>
-      )}
-
-      {/* نافذة الإيداع */}
-      {isDepositOpen && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[60] p-4">
-          <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-2xl max-w-sm w-full">
-            <div className="flex justify-between items-center mb-4 border-b border-slate-800 pb-3">
-              <h2 className="text-xl font-bold text-green-500">إيداع في {activePortfolio.name} 💰</h2>
-              <button onClick={() => setIsDepositOpen(false)} className="text-slate-500 hover:text-white text-2xl">×</button>
-            </div>
-            <div className="mb-6">
-              <label className="block text-sm text-slate-400 mb-2">المبلغ المراد إيداعه ($):</label>
-              <input type="number" min="1" placeholder="أدخل المبلغ..." value={depositAmount} onChange={(e) => setDepositAmount(e.target.value)} className="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg text-white font-bold text-lg outline-none text-left" dir="ltr" />
-            </div>
-            <button onClick={handleDeposit} className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg shadow-lg">تأكيد الإيداع</button>
-          </div>
-        </div>
-      )}
-
-      {/* نافذة السحب */}
-      {isWithdrawOpen && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[60] p-4">
-          <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-2xl max-w-sm w-full">
-            <div className="flex justify-between items-center mb-4 border-b border-slate-800 pb-3">
-              <h2 className="text-xl font-bold text-red-500">سحب من {activePortfolio.name} 💳</h2>
-              <button onClick={() => setIsWithdrawOpen(false)} className="text-slate-500 hover:text-white text-2xl">×</button>
-            </div>
-            <div className="mb-6">
-              <label className="block text-sm text-slate-400 mb-2">المبلغ المراد سحبه ($):</label>
-              <input type="number" min="1" max={activePortfolio.cash} placeholder="أدخل المبلغ..." value={withdrawAmount} onChange={(e) => setWithdrawAmount(e.target.value)} className="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg text-white font-bold text-lg outline-none text-left" dir="ltr" />
-              <p className="text-xs text-slate-500 mt-2">المتاح للسحب: <span className="text-green-500">${activePortfolio.cash.toFixed(2)}</span></p>
-            </div>
-            <button onClick={handleWithdraw} className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg shadow-lg">تأكيد السحب</button>
-          </div>
-        </div>
-      )}
-
-      {/* نافذة التداول (شراء/بيع) */}
-      {tradeStock && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-2xl max-w-sm w-full">
-            <div className="flex justify-between items-center mb-4 border-b border-slate-800 pb-3">
-              <h2 className="text-xl font-bold text-white">تداول: {tradeStock.symbol} <span className="text-xs text-yellow-500 font-normal">({activePortfolio.name})</span></h2>
-              <button onClick={() => setTradeStock(null)} className="text-slate-500 hover:text-white text-2xl">×</button>
-            </div>
-            <div className="bg-blue-950/20 p-3 rounded-lg border border-blue-900/30 mb-4 text-center">
-              <p className="text-sm text-slate-400">السعر الحالي</p>
-              <p className="text-2xl font-black text-blue-400">${tradeStock.price}</p>
-            </div>
-            <div className="mb-4">
-              <label className="block text-sm text-slate-400 mb-2">عدد الأسهم:</label>
-              <input type="number" min="1" placeholder="أدخل عدد الأسهم..." value={tradeShares} onChange={(e) => setTradeShares(e.target.value)} className="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg text-white font-bold outline-none" />
-            </div>
-            <div className="text-xs text-slate-400 mb-6 bg-slate-950 p-3 rounded border border-slate-800 space-y-2">
-              <div className="flex justify-between"><span>قيمة الأسهم:</span> <span>${((Number(tradeShares) || 0) * parseFloat(tradeStock.price)).toFixed(2)}</span></div>
-              <div className="flex justify-between text-yellow-500"><span>عمولة الوسيط:</span> <span>${BROKER_COMMISSION.toFixed(2)}</span></div>
-              <div className="flex justify-between font-bold text-white border-t border-slate-800 pt-2 mt-2"><span>الإجمالي:</span> <span>${(((Number(tradeShares) || 0) * parseFloat(tradeStock.price)) + BROKER_COMMISSION).toFixed(2)}</span></div>
-            </div>
-            <div className="flex gap-3">
-              <button onClick={() => handleExecuteTrade('buy')} className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-lg">شراء</button>
-              <button onClick={() => handleExecuteTrade('sell')} className="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg">بيع</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* نافذة المحفظة الرئيسية */}
+      {/* نوافذ المحافظ */}
       {isPortfolioOpen && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
           <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto">
@@ -502,9 +414,9 @@ export default function StockRadarPage() {
             <div className="flex flex-wrap items-center gap-2 mb-6 bg-slate-950/50 p-3 rounded-xl border border-slate-800">
               <span className="text-xs text-slate-400 font-bold ml-2">المحفظة النشطة:</span>
               {portfolios.map(p => (
-                <button key={p.id} onClick={() => setActivePortfolioId(p.id)} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${p.id === activePortfolioId ? 'bg-blue-600 text-white shadow-md' : 'bg-slate-800 text-slate-400'}`}>{p.name}</button>
+                <button key={p.id} onClick={() => setActivePortfolioId(p.id)} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${p.id === activePortfolioId ? 'bg-blue-600 text-white shadow-md' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}>{p.name}</button>
               ))}
-              <button onClick={() => setIsNewPortfolioOpen(true)} className="bg-emerald-600/10 hover:bg-emerald-600/30 text-emerald-400 px-3 py-1.5 rounded-lg text-xs font-bold border border-emerald-600/30 mr-auto">+ محفظة جديدة</button>
+              <button onClick={() => setIsNewPortfolioOpen(true)} className="bg-emerald-600/10 hover:bg-emerald-600/30 text-emerald-400 px-3 py-1.5 rounded-lg text-xs font-bold border border-emerald-600/30 transition-colors mr-auto">+ محفظة جديدة</button>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
               <div className="bg-slate-950/50 p-4 rounded-xl border border-slate-800 relative">
@@ -520,46 +432,11 @@ export default function StockRadarPage() {
                 <p className="text-2xl font-black text-blue-400">{activePortfolio.positions.length} شركات</p>
               </div>
             </div>
-            <h3 className="font-bold text-slate-300 mb-3">الأسهم في المحفظة:</h3>
-            {activePortfolio.positions.length === 0 ? (
-              <div className="text-center text-slate-500 py-8 bg-slate-950/50 rounded-lg border border-slate-800 mb-6">المحفظة فارغة حالياً.</div>
-            ) : (
-              <div className="space-y-3 mb-6">
-                {activePortfolio.positions.map((pos, idx) => {
-                  const liveStock = stocks.find(s => s.symbol === pos.symbol);
-                  const currentPrice = liveStock ? parseFloat(liveStock.price) : pos.avgPrice;
-                  const marketVal = pos.shares * currentPrice;
-                  const costVal = pos.shares * pos.avgPrice;
-                  const profitLoss = marketVal - costVal;
-                  const isPos = profitLoss >= 0;
-                  return (
-                    <div key={idx} className="flex justify-between items-center bg-slate-950/50 p-4 rounded-xl border border-slate-800">
-                      <div>
-                        <h4 className="font-black text-white">{pos.symbol} <span className="text-xs text-blue-400">({pos.shares} سهم)</span></h4>
-                        <p className="text-[11px] text-slate-400">التكلفة: ${pos.avgPrice.toFixed(2)} | الحالي: ${currentPrice.toFixed(2)}</p>
-                      </div>
-                      <div className="flex items-center gap-4">
-                        <div className="text-left">
-                          <p className="text-sm font-bold text-white">${marketVal.toFixed(2)}</p>
-                          <p className={`text-xs font-black ${isPos ? 'text-emerald-500' : 'text-red-500'}`}>{isPos ? '+' : ''}${profitLoss.toFixed(2)}</p>
-                        </div>
-                        <button onClick={() => { setTradeStock(liveStock || { symbol: pos.symbol, price: currentPrice }); setTradeShares(pos.shares.toString()); }} className="bg-red-900/40 hover:bg-red-600 text-red-400 hover:text-white px-3 py-1 rounded text-xs font-bold">بيع ⚡</button>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-            <div className="bg-gradient-to-r from-slate-950 to-blue-950/20 p-5 rounded-xl border border-blue-900/30 space-y-3">
-              <div className="flex justify-between text-sm"><span className="text-slate-400">القيمة السوقية للأسهم:</span><span className="font-bold text-white">${totalStocksMarketValue.toFixed(2)}</span></div>
-              <div className="flex justify-between text-sm"><span className="text-slate-400">الرصيد النقدي:</span><span className="font-bold text-white">${activePortfolio.cash.toFixed(2)}</span></div>
-              <div className="flex justify-between text-base border-t border-slate-800 pt-2"><span className="font-bold text-slate-300">إجمالي المحفظة:</span><span className="font-black text-yellow-400 text-lg">${totalPortfolioValue.toFixed(2)}</span></div>
-            </div>
           </div>
         </div>
       )}
 
-      {/* الشريط العلوي والشاشة */}
+      {/* الشريط العلوي والشاشة الرئيسية */}
       <div className="max-w-7xl mx-auto">
         <div className="mb-8 border-b border-slate-800/80 pb-4 sticky top-0 bg-slate-950/95 backdrop-blur-md z-10 p-5 rounded-2xl shadow-xl">
           <div className="flex flex-col xl:flex-row justify-between items-center gap-4">
@@ -577,14 +454,10 @@ export default function StockRadarPage() {
             </div>
             
             <div className={`${isMobileMenuOpen ? 'flex' : 'hidden'} xl:flex flex-col sm:flex-row flex-wrap items-center justify-center xl:justify-end gap-3 w-full xl:w-auto mt-4 xl:mt-0 transition-all`}>
-              
-              {/* زر المحفظة النشطة */}
               <button onClick={() => setIsPortfolioOpen(true)} className="w-full sm:w-auto bg-emerald-600/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-600/20 px-4 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 shadow-sm">
-                <span>💼</span>
-                <span>{activePortfolio.name}</span>
+                <span>💼</span><span>{activePortfolio.name}</span>
                 <span className="bg-emerald-950/50 px-2 py-0.5 rounded-lg text-xs text-emerald-300 border border-emerald-800/50">${activePortfolio.cash.toFixed(0)}</span>
               </button>
-
               <button onClick={handleToggleHalalView} className={`w-full sm:w-auto px-4 py-2.5 rounded-xl text-sm font-bold border transition-all flex items-center justify-center gap-2 ${showHalalOnly ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50' : 'bg-slate-900/80 text-slate-300 border-slate-700/50'}`}>
                 <span>☪️</span><span>{showHalalOnly ? 'إلغاء الفلتر' : 'الأسهم الحلال فقط'}</span>
               </button>
@@ -632,7 +505,6 @@ export default function StockRadarPage() {
                   </div>
                 </div>
 
-                {/* أزرار التداول لكل سهم */}
                 <div className="flex gap-2 mb-4">
                   <button onClick={() => { setTradeStock(stock); setTradeShares(''); }} className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold py-2 rounded-xl border border-slate-700">تداول ⚖️</button>
                   {ownedInActive && ownedPosition ? (
@@ -644,8 +516,7 @@ export default function StockRadarPage() {
                   )}
                 </div>
 
-                {/* تحليل الذكاء الاصطناعي */}
-                <div className="bg-gradient-to-r from-slate-800/50 to-slate-900 p-3 rounded-xl mb-4 border border-slate-700/50">
+                <div className="bg-gradient-to-r from-slate-800/50 to-slate-900 p-3 rounded-xl mb-4 border border-slate-700/50 shadow-sm">
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-[11px] font-bold text-slate-400">السعر المحدد للدخول:</span>
                     <span className="text-sm font-black text-emerald-400">${stock.suggestedEntryPrice}</span>
@@ -656,8 +527,7 @@ export default function StockRadarPage() {
                   </p>
                 </div>
 
-                {/* سجل التداول آخر 30 يوم */}
-                <div className="bg-slate-950/40 border border-slate-800/80 rounded-xl p-2.5 mb-3">
+                <div className="bg-slate-950/40 border border-slate-800/80 rounded-xl p-2.5 mb-3 shadow-inner">
                   <h3 className="text-[10px] font-bold text-slate-400 mb-2 px-1">سجل التداول (آخر 30 يوم):</h3>
                   <div className="space-y-1 max-h-40 overflow-y-auto pl-1 custom-scrollbar">
                     {stock.history30Days?.map((dayRecord: any, idx: number) => (
@@ -672,21 +542,24 @@ export default function StockRadarPage() {
                   <div className="mt-2 pt-2 border-t border-slate-800/80 flex justify-between items-center px-1">
                     <span className="text-xs font-bold text-slate-300">صافي آخر 30 يوم:</span>
                     <div className={`flex flex-col items-end ${stock.isTotalPositive ? 'text-emerald-500' : 'text-red-400'}`}>
-                      <span className="text-sm font-black flex items-center gap-1">${stock.total30Days} {stock.isTotalPositive ? 'ربح ▲' : 'خسارة ▼'}</span>
-                      <span className="text-[9px] font-bold opacity-80 mt-0.5 text-slate-400">{stock.total30DaysSAR} ر.س</span>
+                      <span className="text-sm font-black flex items-center gap-1">
+                        ${stock.total30Days} {stock.isTotalPositive ? 'ربح ▲' : 'خسارة ▼'}
+                      </span>
+                      <span className="text-[9px] font-bold opacity-80 mt-0.5 text-slate-400">
+                        {stock.total30DaysSAR} ر.س
+                      </span>
                     </div>
                   </div>
                 </div>
 
-                {/* العائد التاريخي */}
                 <div className="mt-auto">
-                  <h3 className="text-[10px] font-bold text-slate-500 mb-2 text-center">العائد التاريخي</h3>
+                  <h3 className="text-[10px] font-bold text-slate-500 mb-2 text-center">العائد التاريخي (النسبة، الأرباح/الخسائر، والسعر)</h3>
                   <div className="grid grid-cols-3 gap-1.5 text-center">
                     {[
+                      { label: 'شهر', data: stock.stats?.m1 },
                       { label: '3 أشهر', data: stock.stats?.m3 },
                       { label: '6 أشهر', data: stock.stats?.m6 },
                       { label: 'سنة', data: stock.stats?.y1 },
-                      { label: 'سنتين', data: stock.stats?.y2 },
                       { label: '3 سنوات', data: stock.stats?.y3 },
                       { label: '5 سنوات', data: stock.stats?.y5 }
                     ].map((stat, i) => (
