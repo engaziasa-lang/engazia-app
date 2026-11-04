@@ -61,7 +61,6 @@ const ALL_MARKET_TICKERS = [
   'WYNN', 'XEL', 'XLNX', 'XYL', 'YUM', 'ZBRA', 'ZBH', 'ZION'
 ];
 
-// القيم الافتراضية للتصنيف الشرعي
 const DEFAULT_SHARIA_STATUS: Record<string, 'halal' | 'mixed' | 'haram'> = {};
 const initDefaultSharia = () => {
   const haramStocks = [
@@ -97,7 +96,6 @@ export default function StockRadarPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
 
-  // حالة جديدة للتحكم بظهور القائمة العلوية في الجوال
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const [favorites, setFavorites] = useState<string[]>([]);
@@ -395,7 +393,6 @@ export default function StockRadarPage() {
   return (
     <main className="p-4 md:p-8 bg-slate-950 min-h-screen text-right font-sans text-slate-200" dir="rtl">
       
-      {/* نوافذ التعديلات المنبثقة... */}
       {editingShariaSymbol && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[80] p-4">
           <div className="bg-slate-900 border border-slate-700 p-6 rounded-2xl shadow-2xl max-w-xs w-full text-center">
@@ -699,15 +696,10 @@ export default function StockRadarPage() {
         </div>
       )}
 
-
-      {/* --- الشاشة الرئيسية --- */}
       <div className="max-w-7xl mx-auto">
-        
-        {/* شريط علوي متجاوب (طبيعي للكمبيوتر، وقابل للطي في الجوال) */}
         <div className="mb-8 border-b border-slate-800/80 pb-4 sticky top-0 bg-slate-950/95 backdrop-blur-md z-10 p-5 rounded-2xl shadow-xl">
           <div className="flex flex-col xl:flex-row justify-between items-center gap-4">
             
-            {/* الجزء الخاص بالعنوان وتفاصيل القائمة - يظل ظاهراً دائماً */}
             <div className="flex items-center justify-between w-full xl:w-auto">
               <div className="flex items-center gap-4">
                 <div className="bg-blue-600/10 p-2.5 rounded-xl border border-blue-500/20 text-blue-400 text-2xl font-bold shadow-inner hidden sm:block">
@@ -719,7 +711,6 @@ export default function StockRadarPage() {
                 </div>
               </div>
               
-              {/* زر إظهار/إخفاء القائمة في شاشات الجوال فقط */}
               <button 
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 className="xl:hidden bg-slate-800 text-white p-2 rounded-lg border border-slate-700"
@@ -728,7 +719,6 @@ export default function StockRadarPage() {
               </button>
             </div>
             
-            {/* جزء الأزرار والبحث (يظهر دائماً في الكمبيوتر، ويختفي/يظهر حسب الزر في الجوال) */}
             <div className={`${isMobileMenuOpen ? 'flex' : 'hidden'} xl:flex flex-col sm:flex-row flex-wrap items-center justify-center xl:justify-end gap-3 w-full xl:w-auto mt-4 xl:mt-0 transition-all`}>
               
               <button
@@ -869,7 +859,7 @@ export default function StockRadarPage() {
 
                 <div className="bg-slate-950/40 border border-slate-800/80 rounded-xl p-2.5 mb-3 shadow-inner">
                   <h3 className="text-[10px] font-bold text-slate-400 mb-2 px-1">سجل التداول (آخر 30 يوم):</h3>
-                  <div className="space-y-1 max-h-32 overflow-y-auto pl-1 custom-scrollbar">
+                  <div className="space-y-1 max-h-48 overflow-y-auto pl-1 custom-scrollbar">
                     {stock.history30Days?.map((dayRecord: any, idx: number) => (
                       <div key={idx} className="flex justify-between items-center text-[10px] p-1.5 border-b border-slate-800/50 last:border-0">
                         <span className="text-slate-400">{dayRecord.day}</span>
