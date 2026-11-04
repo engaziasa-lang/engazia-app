@@ -129,7 +129,6 @@ export default function StockRadarPage() {
   const initialLoadDone = useRef(false);
   const observer = useRef<IntersectionObserver | null>(null);
   
-  // تم تقليل حجم الدفعة إلى 6 لحماية السيرفر من الحظر وضمان التحميل السريع
   const BATCH_SIZE = 6; 
 
   useEffect(() => {
@@ -206,20 +205,29 @@ export default function StockRadarPage() {
     try {
       for (let i = 0; i < batchToLoad.length; i += BATCH_SIZE) {
         const chunk = batchToLoad.slice(i, i + BATCH_SIZE);
-        const promises = chunk.map(ticker => getStockData(ticker));
-        const chunkResults = await Promise.all(promises);
-        const validResults = chunkResults.filter(r => r && r.success && r.data).map(r => r.data);
+        const validResults = [];
         
-        setStocks(prev => {
-          const uniqueNew = validResults.filter((newStock: any) => newStock && newStock.symbol && !prev.some(s => s.symbol === newStock.symbol));
-          return [...prev, ...uniqueNew];
-        });
+        // جلب البيانات بشكل متسلسل مع فاصل زمني لتجنب حظر Rate Limit
+        for (const ticker of chunk) {
+          const res = await getStockData(ticker);
+          if (res && res.success && res.data) {
+            validResults.push(res.data);
+          }
+          await new Promise(resolve => setTimeout(resolve, 250)); // تأخير 250 جزء من الثانية لحماية الـ API
+        }
+        
+        if (validResults.length > 0) {
+          setStocks(prev => {
+            const uniqueNew = validResults.filter((newStock: any) => newStock && newStock.symbol && !prev.some(s => s.symbol === newStock.symbol));
+            return [...prev, ...uniqueNew];
+          });
+        }
       }
       if (targetCount >= ALL_MARKET_TICKERS.length) setHasMore(false);
     } catch (error) {
       console.error("Error in initializeStocks", error);
     } finally {
-      setIsLoading(false); // تأمين إخفاء مؤشر التحميل
+      setIsLoading(false); 
     }
   };
 
@@ -241,14 +249,21 @@ export default function StockRadarPage() {
     }
 
     try {
-      const promises = nextBatch.map(ticker => getStockData(ticker));
-      const chunkResults = await Promise.all(promises);
-      const validResults = chunkResults.filter(r => r && r.success && r.data).map(r => r.data);
+      const validResults = [];
+      for (const ticker of nextBatch) {
+        const res = await getStockData(ticker);
+        if (res && res.success && res.data) {
+          validResults.push(res.data);
+        }
+        await new Promise(resolve => setTimeout(resolve, 250));
+      }
 
-      setStocks(prev => {
-        const uniqueNew = validResults.filter((newStock: any) => newStock && newStock.symbol && !prev.some(s => s.symbol === newStock.symbol));
-        return [...prev, ...uniqueNew];
-      });
+      if (validResults.length > 0) {
+        setStocks(prev => {
+          const uniqueNew = validResults.filter((newStock: any) => newStock && newStock.symbol && !prev.some(s => s.symbol === newStock.symbol));
+          return [...prev, ...uniqueNew];
+        });
+      }
 
       const newIndex = currentIdx + BATCH_SIZE;
       currentIndexRef.current = newIndex;
@@ -258,7 +273,7 @@ export default function StockRadarPage() {
     } catch (error) {
       console.error("Error loading more stocks", error);
     } finally {
-      setIsLoading(false); // تأمين إخفاء مؤشر التحميل
+      setIsLoading(false);
     }
   };
 
@@ -273,7 +288,7 @@ export default function StockRadarPage() {
         setStocks(prev => [result.data, ...prev.filter(s => s.symbol !== result.data.symbol)]);
         setSearchQuery('');
       } else {
-        alert("لم يتم العثور على السهم، تأكد من الرمز (مثال AAPL).");
+        alert("لم يتم العثور على السهم أو تأكد من الرمز (مثال AAPL).");
       }
     } catch (error) {
       alert("حدث خطأ أثناء البحث.");
@@ -938,7 +953,7 @@ export default function StockRadarPage() {
 
         {isLoading && (
           <div className="text-center py-10 text-blue-400 font-bold text-lg animate-pulse">
-            جاري استرجاع الأسهم وتطبيق الفلترة...
+            جاري استرجاع الأسهم الحقيقية...
           </div>
         )}
       </div>
