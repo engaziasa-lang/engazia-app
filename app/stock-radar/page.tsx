@@ -129,7 +129,6 @@ export default function StockRadarPage() {
   const initialLoadDone = useRef(false);
   const observer = useRef<IntersectionObserver | null>(null);
   
-  // رفع الدفعة إلى 10 لأن الجلب الجماعي سريع جداً
   const BATCH_SIZE = 10; 
 
   useEffect(() => {
@@ -204,14 +203,11 @@ export default function StockRadarPage() {
     const batchToLoad = ALL_MARKET_TICKERS.slice(0, targetCount);
 
     try {
-      // إرسال الحزمة كدفعة واحدة (Bulk Array)
       for (let i = 0; i < batchToLoad.length; i += BATCH_SIZE) {
         const chunk = batchToLoad.slice(i, i + BATCH_SIZE);
-        
         const res = await getStockData(chunk);
         
         if (res && res.success && res.data) {
-          // النتيجة الآن مصفوفة من الأسهم 
           const fetchedStocks: any[] = Array.isArray(res.data) ? res.data : [res.data];
           
           setStocks(prev => {
@@ -274,9 +270,11 @@ export default function StockRadarPage() {
     setIsSearching(true);
     try {
       const result = await getStockData(searchQuery);
-      if (result.success && result.data) {
-        const searchedStock = Array.isArray(result.data) ? result.data[0] : result.data;
-        if (searchedStock) {
+      if (result && result.success && result.data) {
+        // تم استخدام as any لتجاوز فحص الأنواع الصارم في TypeScript
+        const dataAny = result.data as any;
+        const searchedStock = Array.isArray(dataAny) ? dataAny[0] : dataAny;
+        if (searchedStock && searchedStock.symbol) {
            setStocks(prev => [searchedStock, ...prev.filter(s => s.symbol !== searchedStock.symbol)]);
            setSearchQuery('');
         }
