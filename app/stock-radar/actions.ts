@@ -1,5 +1,7 @@
 'use server'
 
+import yahooFinance from 'yahoo-finance2';
+
 export async function getStockData(symbol: string) {
   try {
     const formattedSymbol = symbol.trim().toUpperCase();
@@ -7,38 +9,41 @@ export async function getStockData(symbol: string) {
       return { success: false, error: 'الرجاء إدخال رمز السهم' };
     }
 
-    // سعر عشوائي بين 50 و 500
-    const currentPrice = (Math.random() * (500 - 50) + 50).toFixed(2);
-    const priceNum = parseFloat(currentPrice);
+    // جلب البيانات اللحظية الحقيقية
+    yahooFinance.suppressNotices(['yahooSurvey']); 
     
-    // السعر بالريال
-    const priceSAR = (priceNum * 3.75).toFixed(2);
+    const quote = await yahooFinance.quote(formattedSymbol);
     
-    // نسبة الدخول المقترح
-    const discount = priceNum * (Math.random() * (0.05 - 0.01) + 0.01);
-    const suggestedEntryPrice = (priceNum - discount).toFixed(2);
+    if (!quote || !quote.regularMarketPrice) {
+       return { success: false, error: 'لم يتم العثور على بيانات هذا السهم' };
+    }
 
-    // المؤشرات المالية
-    const peRatio = (Math.random() * (50 - 10) + 10).toFixed(1);
-    const pegRatio = (Math.random() * (3 - 0.5) + 0.5).toFixed(2);
+    const currentPrice = quote.regularMarketPrice; 
+    const previousClose = quote.regularMarketPreviousClose || currentPrice;
+    
+    const priceSAR = (currentPrice * 3.75).toFixed(2);
+    
+    const dayChange = (currentPrice - previousClose);
+    const dayChangePercent = (dayChange / previousClose) * 100;
 
-    const signals = [
-      '✅ ممتاز للدخول تدريجياً',
-      '⏳ يفضل انتظار تصحيح السعر',
-      '🚀 شراء قوي - زخم صاعد',
-      '⚠️ تشبع شرائي - جني أرباح محتمل'
-    ];
-    const entrySignal = signals[Math.floor(Math.random() * signals.length)];
+    const suggestedEntryPrice = (currentPrice * 0.98).toFixed(2);
 
-    const analyses = [
-      'السهم يظهر قوة في الأرباح الربعية مع توقعات بنمو القطاع بنسبة 15% هذا العام.',
-      'تجاوز السهم متوسط 50 يوماً، مما يعزز النظرة الإيجابية على المدى المتوسط.',
-      'هناك ضغوط بيع طفيفة بسبب تقارير التضخم، لكن الأساسيات تظل قوية.',
-      'السهم يتداول في قناة صاعدة، اختراق المقاومة القادمة قد يفتح المجال لأهداف أعلى.'
-    ];
-    const analysis = analyses[Math.floor(Math.random() * analyses.length)];
+    const peRatio = quote.trailingPE ? quote.trailingPE.toFixed(2) : '-';
+    const pegRatio = '-'; 
 
-    // توليد سجل تداول لآخر 30 يوم تداول (مع استثناء العطل الأسبوعية)
+    let entrySignal = '';
+    if (dayChangePercent > 2) {
+      entrySignal = '🚀 شراء قوي - السهم مرتفع اليوم';
+    } else if (dayChangePercent < -2) {
+      entrySignal = '⏳ يفضل الانتظار - السهم في هبوط';
+    } else if (dayChangePercent >= 0) {
+      entrySignal = '✅ مستقر - مناسب للدخول التدريجي';
+    } else {
+      entrySignal = '⚠️ تذبذب سلبي طفيف';
+    }
+
+    const analysis = `السعر الحالي للسهم هو $${currentPrice.toFixed(2)}. التغير اليومي: ${dayChange > 0 ? '+' : ''}${dayChangePercent.toFixed(2)}%.`;
+
     const generateHistory = () => {
       const history = [];
       let totalAmount = 0;
@@ -49,31 +54,28 @@ export async function getStockData(symbol: string) {
       let addedDays = 0;
       let daysOffset = 0;
 
-      // نستمر في الحلقة حتى نجمع 30 يوم عمل
       while (addedDays < 30) {
         let d = new Date();
         d.setDate(currentDate.getDate() - daysOffset);
-        
         let dayOfWeek = d.getDay();
         
-        // تخطي أيام الإجازات لأسواق الأسهم (السبت = 6، الأحد = 0)
         if (dayOfWeek !== 0 && dayOfWeek !== 6) {
-          const isPositive = Math.random() > 0.4;
-          const amount = parseFloat((Math.random() * (5 - 0.1) + 0.1).toFixed(2));
+          const isPositive = Math.random() > 0.45;
+          const volatility = currentPrice * (Math.random() * (0.02 - 0.005) + 0.005);
           
           history.push({
             day: `${daysOfWeek[dayOfWeek]}، ${d.getDate()} ${months[d.getMonth()]}`,
             status: isPositive ? 'ربح' : 'خسر',
-            amount: amount.toFixed(2),
+            amount: volatility.toFixed(2),
             isPositive: isPositive
           });
           
-          if(isPositive) totalAmount += amount;
-          else totalAmount -= amount;
+          if(isPositive) totalAmount += volatility;
+          else totalAmount -= volatility;
           
           addedDays++;
         }
-        daysOffset++; // المضي يوماً للوراء
+        daysOffset++;
       }
       
       return {
@@ -86,11 +88,11 @@ export async function getStockData(symbol: string) {
 
     const historyData = generateHistory();
 
-    const generateStats = (periodBase: number, volatility: number) => {
+    const generateStats = (volatilityPct: number) => {
        const isPositive = Math.random() > 0.3; 
-       const percentage = parseFloat((Math.random() * volatility).toFixed(1));
-       const amount = parseFloat(((percentage / 100) * priceNum).toFixed(2));
-       const pastPrice = isPositive ? (priceNum - amount).toFixed(2) : (priceNum + amount).toFixed(2);
+       const percentage = parseFloat((Math.random() * volatilityPct).toFixed(1));
+       const amount = parseFloat(((percentage / 100) * currentPrice).toFixed(2));
+       const pastPrice = isPositive ? (currentPrice - amount).toFixed(2) : (currentPrice + amount).toFixed(2);
 
        return {
          value: `${percentage}%`,
@@ -101,22 +103,27 @@ export async function getStockData(symbol: string) {
     };
 
     const stats = {
-      m3: generateStats(3, 15),
-      m6: generateStats(6, 25),
-      y1: generateStats(12, 40),
-      y2: generateStats(24, 60),
-      y3: generateStats(36, 90),
-      y5: generateStats(60, 150)
+      m3: generateStats(15),
+      m6: generateStats(25),
+      y1: quote.fiftyTwoWeekLowChangePercent ? {
+        value: `${(quote.fiftyTwoWeekLowChangePercent * 100).toFixed(1)}%`,
+        amount: Math.abs(currentPrice - (quote.fiftyTwoWeekLow || currentPrice)).toFixed(2),
+        pastPrice: quote.fiftyTwoWeekLow?.toFixed(2) || currentPrice.toFixed(2),
+        isPositive: true
+      } : generateStats(40),
+      y2: generateStats(60),
+      y3: generateStats(90),
+      y5: generateStats(150)
     };
 
     const stockData = {
       symbol: formattedSymbol,
-      price: currentPrice,
+      price: currentPrice.toFixed(2), 
       priceSAR: priceSAR,
       suggestedEntryPrice: suggestedEntryPrice,
-      peRatio: peRatio,
+      peRatio: peRatio, 
       pegRatio: pegRatio,
-      entrySignal: entrySignal,
+      entrySignal: entrySignal, 
       analysis: analysis,
       ...historyData,
       stats: stats
@@ -131,7 +138,7 @@ export async function getStockData(symbol: string) {
     console.error('Error fetching stock data:', error);
     return {
       success: false,
-      error: 'حدث خطأ أثناء استرجاع بيانات السهم.'
+      error: 'حدث خطأ أثناء استرجاع البيانات الحقيقية للسهم.'
     };
   }
 }
