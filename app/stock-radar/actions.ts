@@ -13,6 +13,7 @@ export async function getStockData(symbols: string | string[]) {
 
     for (const symbol of formattedSymbols) {
       try {
+        // جلب البيانات الشهرية (للعوائد طويلة الأجل) واليومية (لسجل التداول الحقيقي) في نفس اللحظة
         const [resMonthly, resDaily] = await Promise.all([
           fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=5y&interval=1mo`, {
             headers: { 'User-Agent': 'Mozilla/5.0' },
@@ -27,6 +28,7 @@ export async function getStockData(symbols: string | string[]) {
         const jsonMonthly = await resMonthly.json();
         const jsonDaily = await resDaily.json();
 
+        // --- معالجة البيانات الأساسية ---
         const monthlyResult = jsonMonthly.chart?.result?.[0];
         const meta = monthlyResult?.meta;
         const monthlyCloses = monthlyResult?.indicators?.quote?.[0]?.close;
@@ -55,6 +57,7 @@ export async function getStockData(symbols: string | string[]) {
 
         const analysis = `السعر الحالي للسهم ${symbol} هو $${currentPrice.toFixed(2)}. التغير اليومي: ${dayChange > 0 ? '+' : ''}${dayChangePercent.toFixed(2)}%.`;
 
+        // --- 1. حساب العوائد التاريخية الدقيقة ---
         const getHistoricalPrice = (monthsBack: number) => {
           if (!monthlyCloses || monthlyCloses.length === 0) return currentPrice;
           let targetIndex = Math.max(0, monthlyCloses.length - 1 - monthsBack);
@@ -76,6 +79,7 @@ export async function getStockData(symbols: string | string[]) {
           };
         };
 
+        // --- 2. بناء سجل التداول الحقيقي (آخر 30 جلسة تداول فعلية) ---
         const dailyResult = jsonDaily.chart?.result?.[0];
         const dailyTimestamps = dailyResult?.timestamp || [];
         const dailyCloses = dailyResult?.indicators?.quote?.[0]?.close || [];
@@ -85,10 +89,12 @@ export async function getStockData(symbols: string | string[]) {
         const daysOfWeek = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
         const months = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
         
+        // التراجع من أحدث جلسة تداول متوفرة، وتجاهل الأيام المستقبلية أو العطلات
         for (let i = dailyTimestamps.length - 1; i > 0 && history.length < 30; i--) {
           const currentDayClose = dailyCloses[i];
           const prevDayClose = dailyCloses[i - 1];
           
+          // تجاوز القيم الفارغة الناتجة عن أخطاء السوق
           if (currentDayClose === null || prevDayClose === null) continue;
           
           const diff = currentDayClose - prevDayClose;
@@ -155,8 +161,15 @@ export async function getLivePrices(symbols: string[]) {
       const chunk = symbols.slice(i, i + chunkSize);
       const symbolsStr = chunk.join(',');
       
-      const res = await fetch(`https://query1.finance.yahoo.com/v7/finance/quote?symbols=${symbolsStr}`, {
-        cache: 'no-store' // منع التخزين المؤقت لضمان أحدث سعر
+      // إضافة timestamp لكسر كاش Vercel وإجبار النظام على جلب سعر جديد 100%
+      const timestamp = Date.now();
+      const res = await fetch(`https://query1.finance.yahoo.com/v7/finance/quote?symbols=${symbolsStr}&t=${timestamp}`, {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        }
       });
       
       const json = await res.json();
