@@ -129,7 +129,8 @@ export default function StockRadarPage() {
   const initialLoadDone = useRef(false);
   const observer = useRef<IntersectionObserver | null>(null);
   
-  const BATCH_SIZE = 6; 
+  // رفع الدفعة إلى 10 لأن الجلب الجماعي سريع جداً
+  const BATCH_SIZE = 10; 
 
   useEffect(() => {
     const savedFavs = localStorage.getItem('stockRadarFavorites');
@@ -203,21 +204,18 @@ export default function StockRadarPage() {
     const batchToLoad = ALL_MARKET_TICKERS.slice(0, targetCount);
 
     try {
+      // إرسال الحزمة كدفعة واحدة (Bulk Array)
       for (let i = 0; i < batchToLoad.length; i += BATCH_SIZE) {
         const chunk = batchToLoad.slice(i, i + BATCH_SIZE);
-        const validResults: any[] = []; // إصلاح المشكلة هنا بإضافة النوع any[]
         
-        for (const ticker of chunk) {
-          const res = await getStockData(ticker);
-          if (res && res.success && res.data) {
-            validResults.push(res.data);
-          }
-          await new Promise(resolve => setTimeout(resolve, 250)); 
-        }
+        const res = await getStockData(chunk);
         
-        if (validResults.length > 0) {
+        if (res && res.success && res.data) {
+          // النتيجة الآن مصفوفة من الأسهم 
+          const fetchedStocks: any[] = Array.isArray(res.data) ? res.data : [res.data];
+          
           setStocks(prev => {
-            const uniqueNew = validResults.filter((newStock: any) => newStock && newStock.symbol && !prev.some(s => s.symbol === newStock.symbol));
+            const uniqueNew = fetchedStocks.filter((newStock: any) => newStock && newStock.symbol && !prev.some(s => s.symbol === newStock.symbol));
             return [...prev, ...uniqueNew];
           });
         }
@@ -248,18 +246,11 @@ export default function StockRadarPage() {
     }
 
     try {
-      const validResults: any[] = []; // إصلاح المشكلة هنا بإضافة النوع any[]
-      for (const ticker of nextBatch) {
-        const res = await getStockData(ticker);
-        if (res && res.success && res.data) {
-          validResults.push(res.data);
-        }
-        await new Promise(resolve => setTimeout(resolve, 250));
-      }
-
-      if (validResults.length > 0) {
+      const res = await getStockData(nextBatch);
+      if (res && res.success && res.data) {
+        const fetchedStocks: any[] = Array.isArray(res.data) ? res.data : [res.data];
         setStocks(prev => {
-          const uniqueNew = validResults.filter((newStock: any) => newStock && newStock.symbol && !prev.some(s => s.symbol === newStock.symbol));
+          const uniqueNew = fetchedStocks.filter((newStock: any) => newStock && newStock.symbol && !prev.some(s => s.symbol === newStock.symbol));
           return [...prev, ...uniqueNew];
         });
       }
@@ -284,8 +275,11 @@ export default function StockRadarPage() {
     try {
       const result = await getStockData(searchQuery);
       if (result.success && result.data) {
-        setStocks(prev => [result.data, ...prev.filter(s => s.symbol !== result.data.symbol)]);
-        setSearchQuery('');
+        const searchedStock = Array.isArray(result.data) ? result.data[0] : result.data;
+        if (searchedStock) {
+           setStocks(prev => [searchedStock, ...prev.filter(s => s.symbol !== searchedStock.symbol)]);
+           setSearchQuery('');
+        }
       } else {
         alert("لم يتم العثور على السهم أو تأكد من الرمز (مثال AAPL).");
       }
@@ -952,7 +946,7 @@ export default function StockRadarPage() {
 
         {isLoading && (
           <div className="text-center py-10 text-blue-400 font-bold text-lg animate-pulse">
-            جاري استرجاع الأسهم وتطبيق الفلترة...
+            جاري استرجاع الأسهم الحقيقية...
           </div>
         )}
       </div>
