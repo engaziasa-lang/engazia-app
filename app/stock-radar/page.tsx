@@ -134,25 +134,21 @@ export default function StockRadarPage() {
   const observer = useRef<IntersectionObserver | null>(null);
   
   const stocksRef = useRef(stocks);
+  const portfoliosRef = useRef(portfolios); // حفظ المحافظ في مرجع للوصول السريع
   const BATCH_SIZE = 12;
 
-  // شريط الإحصائيات (Ticker Tape)
   const tickerStocks = ['AAPL', 'MSFT', 'NVDA', 'TSLA', 'AMZN', 'META', 'GOOGL'];
   const tickerData = tickerStocks.map(sym => {
     const live = livePrices[sym];
     const gridStock = stocks.find(s => s.symbol === sym);
     const price = live ? live.price : (gridStock ? gridStock.price : '...');
-    const isUp = live ? live.isUp : true; // افتراضي أخضر حتى يتم الجلب الحقيقي
+    const isUp = live ? live.isUp : true; 
     return { sym, price, isUp };
   });
 
-  useEffect(() => {
-    livePricesRef.current = livePrices;
-  }, [livePrices]);
-
-  useEffect(() => {
-    stocksRef.current = stocks;
-  }, [stocks]);
+  useEffect(() => { livePricesRef.current = livePrices; }, [livePrices]);
+  useEffect(() => { stocksRef.current = stocks; }, [stocks]);
+  useEffect(() => { portfoliosRef.current = portfolios; }, [portfolios]);
 
   useEffect(() => {
     const savedFavs = localStorage.getItem('stockRadarFavorites');
@@ -163,17 +159,9 @@ export default function StockRadarPage() {
     if (savedSharia) setCustomShariaOverrides(JSON.parse(savedSharia));
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem('stockRadarFavorites', JSON.stringify(favorites));
-  }, [favorites]);
-
-  useEffect(() => {
-    localStorage.setItem('stockRadarPortfolios', JSON.stringify(portfolios));
-  }, [portfolios]);
-
-  useEffect(() => {
-    localStorage.setItem('stockRadarCustomSharia', JSON.stringify(customShariaOverrides));
-  }, [customShariaOverrides]);
+  useEffect(() => { localStorage.setItem('stockRadarFavorites', JSON.stringify(favorites)); }, [favorites]);
+  useEffect(() => { localStorage.setItem('stockRadarPortfolios', JSON.stringify(portfolios)); }, [portfolios]);
+  useEffect(() => { localStorage.setItem('stockRadarCustomSharia', JSON.stringify(customShariaOverrides)); }, [customShariaOverrides]);
 
   const getLatestPrice = useCallback((symbol: string, fallbackPrice: string | number) => {
     if (livePricesRef.current[symbol]) return parseFloat(livePricesRef.current[symbol].price);
@@ -183,16 +171,26 @@ export default function StockRadarPage() {
     return typeof fallbackPrice === 'string' ? parseFloat(fallbackPrice) : fallbackPrice;
   }, [livePrices, stocks]);
 
+  // تحديث أسعار كامل المحفظة والشاشة معاً بشكل ذكي
   useEffect(() => {
     const interval = setInterval(async () => {
       const currentStocks = stocksRef.current;
-      if (currentStocks.length === 0) return;
+      const currentPortfolios = portfoliosRef.current;
       
-      const symbolsToUpdate = currentStocks.map(s => s.symbol);
-      // جلب شريط الأخبار أيضاً
-      tickerStocks.forEach(t => { if(!symbolsToUpdate.includes(t)) symbolsToUpdate.push(t); });
+      const symbolsToUpdate = new Set<string>();
       
-      const res = await getLivePrices(symbolsToUpdate);
+      // 1. إضافة أسهم الشاشة الرئيسية
+      currentStocks.forEach(s => symbolsToUpdate.add(s.symbol));
+      // 2. إضافة أسهم شريط الأخبار
+      tickerStocks.forEach(t => symbolsToUpdate.add(t));
+      // 3. إضافة كافة الأسهم الموجودة في أي محفظة يمتلكها المستخدم
+      currentPortfolios.forEach(port => {
+        port.positions.forEach(pos => symbolsToUpdate.add(pos.symbol));
+      });
+      
+      if (symbolsToUpdate.size === 0) return;
+      
+      const res = await getLivePrices(Array.from(symbolsToUpdate));
       
       if (res && res.success && res.data) {
         setLivePrices(prev => {
@@ -314,7 +312,6 @@ export default function StockRadarPage() {
         });
       }
       
-      // جلب أسعار شريط الإحصائيات في أول لود
       const tickerRes = await getLivePrices(tickerStocks);
       if (tickerRes && tickerRes.success && tickerRes.data) {
          setLivePrices(prev => {
@@ -466,7 +463,6 @@ export default function StockRadarPage() {
       const commissionPerShare = BROKER_COMMISSION / sharesNum;
       const effectivePricePerShare = stockPrice + commissionPerShare;
       
-      // كتابة تاريخ الشراء الفعلي
       const today = new Date();
       const currentDateStr = `${today.getDate()}-${today.getMonth() + 1}-${today.getFullYear()}`;
 
@@ -480,7 +476,6 @@ export default function StockRadarPage() {
           const currentTradeCost = sharesNum * effectivePricePerShare;
           existingPos.shares += sharesNum;
           existingPos.avgPrice = (prevTotalCost + currentTradeCost) / existingPos.shares;
-          // إذا كان لديه السهم مسبقاً، نترك تاريخ الشراء الأول أو نحدثه حسب الرغبة. سنتركه ليعبر عن بداية بناء المركز.
         } else {
           newPositions.push({ symbol: stockSymbol, shares: sharesNum, avgPrice: effectivePricePerShare, purchaseDate: currentDateStr });
         }
@@ -531,20 +526,19 @@ export default function StockRadarPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-950 font-sans text-slate-200" dir="rtl">
+    <main className="min-h-screen bg-slate-950 font-sans text-slate-200 pb-10" dir="rtl">
       
       {/* شريط الإحصائيات المتحرك (Ticker Tape) */}
-      <div className="bg-slate-900 border-b border-slate-800 py-1.5 overflow-hidden w-full relative z-40">
+      <div className="bg-slate-900 border-b border-slate-800 py-2 overflow-hidden w-full relative z-40">
         <div className="flex whitespace-nowrap animate-marquee">
           {tickerData.map((data, i) => (
-             <span key={i} className="mx-6 text-[10px] font-black tracking-widest flex items-center gap-1.5">
+             <span key={i} className="mx-6 text-[11px] sm:text-xs font-black tracking-widest flex items-center gap-1.5">
                 <span className="text-slate-400">{data.sym}</span>
                 <span className={data.isUp ? 'text-emerald-500' : 'text-red-500'}>${data.price}</span>
              </span>
           ))}
-          {/* تكرار الشريط لضمان استمرار الحركة بسلاسة */}
           {tickerData.map((data, i) => (
-             <span key={i + 'dup'} className="mx-6 text-[10px] font-black tracking-widest flex items-center gap-1.5">
+             <span key={i + 'dup'} className="mx-6 text-[11px] sm:text-xs font-black tracking-widest flex items-center gap-1.5">
                 <span className="text-slate-400">{data.sym}</span>
                 <span className={data.isUp ? 'text-emerald-500' : 'text-red-500'}>${data.price}</span>
              </span>
@@ -552,7 +546,6 @@ export default function StockRadarPage() {
         </div>
       </div>
       
-      {/* ستايل شريط الأسهم المتحرك */}
       <style dangerouslySetInnerHTML={{__html: `
         @keyframes marquee {
           0% { transform: translateX(0); }
@@ -565,7 +558,6 @@ export default function StockRadarPage() {
 
       <div className="p-4 md:p-8">
       
-        {/* نافذة تعديل التصنيف الشرعي */}
         {editingShariaSymbol && (
           <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[110] p-4">
             <div className="bg-slate-900 border border-slate-700 p-6 rounded-2xl shadow-2xl max-w-xs w-full text-center">
@@ -581,7 +573,6 @@ export default function StockRadarPage() {
           </div>
         )}
 
-        {/* نافذة التداول (شراء/بيع) */}
         {tradeStock && (
           <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4">
             <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-2xl max-w-sm w-full">
@@ -610,7 +601,6 @@ export default function StockRadarPage() {
           </div>
         )}
 
-        {/* نوافذ إنشاء محفظة / إيداع / سحب */}
         {isNewPortfolioOpen && (
           <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[70] p-4">
             <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-2xl max-w-sm w-full">
@@ -704,7 +694,6 @@ export default function StockRadarPage() {
               ) : (
                 <div className="space-y-3 mb-6">
                   {activePortfolio.positions.map((pos, idx) => {
-                    // جلب السعر المباشر للسهم
                     const currentPrice = getLatestPrice(pos.symbol, pos.avgPrice);
                     const marketVal = pos.shares * currentPrice;
                     const costVal = pos.shares * pos.avgPrice;
@@ -719,7 +708,7 @@ export default function StockRadarPage() {
                             <h4 className="font-black text-base sm:text-lg text-white">{pos.symbol}</h4>
                             <span className="text-[10px] sm:text-xs bg-blue-900/40 text-blue-400 px-2 py-0.5 rounded-full border border-blue-800/50">{pos.shares} سهم</span>
                             <span className="text-[9px] text-slate-500 mr-auto sm:ml-4 sm:mr-0 border border-slate-800 px-1.5 py-0.5 rounded opacity-70">
-                              تاريخ: {pos.purchaseDate || 'غير مسجل'}
+                              تاريخ الشراء: {pos.purchaseDate || 'اليوم'}
                             </span>
                           </div>
                           <div className="flex justify-between sm:justify-start items-center text-[10px] sm:text-[11px] text-slate-400 w-full">
@@ -730,7 +719,6 @@ export default function StockRadarPage() {
                           </div>
                         </div>
                         
-                        {/* تفاصيل الربح والخسارة للموبايل والديسكتوب */}
                         <div className="flex items-center gap-2 sm:gap-4 w-full sm:w-auto justify-between sm:justify-end border-t border-slate-800/50 sm:border-0 pt-2 sm:pt-0 mt-1 sm:mt-0">
                           <div className="text-left bg-slate-900 p-2 rounded-lg border border-slate-800/50 min-w-[120px] flex-1 sm:flex-none flex flex-col justify-center">
                             <div className="flex justify-between items-center sm:block">
@@ -750,7 +738,7 @@ export default function StockRadarPage() {
               )}
               
               <div className="bg-gradient-to-r from-slate-950 to-blue-950/20 p-4 sm:p-5 rounded-xl border border-blue-900/30 space-y-2.5 sm:space-y-3">
-                <div className="flex justify-between items-center text-xs sm:text-sm"><span className="text-slate-400 font-bold">القيمة السوقية للأسهم المباشرة:</span><span className="font-bold text-white">${totalStocksMarketValue.toFixed(2)}</span></div>
+                <div className="flex justify-between items-center text-xs sm:text-sm"><span className="text-slate-400 font-bold">القيمة السوقية للأسهم המباشرة:</span><span className="font-bold text-white">${totalStocksMarketValue.toFixed(2)}</span></div>
                 <div className="flex justify-between items-center text-xs sm:text-sm"><span className="text-slate-400 font-bold">الرصيد النقدي المتبقي (الكاش):</span><span className="font-bold text-white">${activePortfolio.cash.toFixed(2)}</span></div>
                 
                 <div className="flex justify-between items-center text-xs sm:text-sm border-t border-slate-800 pt-2 sm:pt-3 mt-1">
@@ -769,8 +757,7 @@ export default function StockRadarPage() {
           </div>
         )}
 
-        {/* الشريط العلوي للبحث والأدوات */}
-        <div className="mb-8 border-b border-slate-800/80 pb-4 sticky top-0 bg-slate-950/95 backdrop-blur-md z-10 p-4 sm:p-5 rounded-2xl shadow-xl">
+        <div className="mb-8 border-b border-slate-800/80 pb-4 sticky top-0 bg-slate-950/95 backdrop-blur-md z-10 p-4 sm:p-5 rounded-2xl shadow-xl mt-4">
           <div className="flex flex-col xl:flex-row justify-between items-center gap-4">
             <div className="flex items-center justify-between w-full xl:w-auto">
               <div className="flex items-center gap-3 sm:gap-4">
@@ -807,19 +794,16 @@ export default function StockRadarPage() {
           </div>
         </div>
 
-        {/* عرض الأسهم */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
           {displayedStocks.map((stock, index) => {
             const isLast = index === displayedStocks.length - 1;
             const isFav = favorites.includes(stock.symbol);
             
-            // تحقق ما إذا كان السهم مملوكاً في أي محفظة
             const ownerPortfolio = portfolios.find(p => p.positions.some(pos => pos.symbol === stock.symbol));
             const ownedInActive = ownerPortfolio?.id === activePortfolioId;
             const ownedPosition = activePortfolio.positions.find(pos => pos.symbol === stock.symbol);
             const sharia = getShariaStatus(stock.symbol);
             
-            // جلب السعر اللحظي الدقيق
             const displayPrice = getLatestPrice(stock.symbol, stock.price);
             const displayPriceSAR = (displayPrice * 3.75).toFixed(2);
 
