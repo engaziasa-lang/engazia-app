@@ -134,7 +134,7 @@ export default function StockRadarPage() {
   const observer = useRef<IntersectionObserver | null>(null);
   
   const stocksRef = useRef(stocks);
-  const portfoliosRef = useRef(portfolios); // حفظ المحافظ في مرجع للوصول السريع
+  const portfoliosRef = useRef(portfolios); 
   const BATCH_SIZE = 12;
 
   const tickerStocks = ['AAPL', 'MSFT', 'NVDA', 'TSLA', 'AMZN', 'META', 'GOOGL'];
@@ -150,28 +150,69 @@ export default function StockRadarPage() {
   useEffect(() => { stocksRef.current = stocks; }, [stocks]);
   useEffect(() => { portfoliosRef.current = portfolios; }, [portfolios]);
 
+  // المزامنة الفورية الذكية للأسهم المخفية في المحفظة عند اللود
   useEffect(() => {
     const savedFavs = localStorage.getItem('stockRadarFavorites');
     if (savedFavs) setFavorites(JSON.parse(savedFavs));
-    const savedPortfolios = localStorage.getItem('stockRadarPortfolios');
-    if (savedPortfolios) setPortfolios(JSON.parse(savedPortfolios));
+    
     const savedSharia = localStorage.getItem('stockRadarCustomSharia');
     if (savedSharia) setCustomShariaOverrides(JSON.parse(savedSharia));
+
+    const savedPortfolios = localStorage.getItem('stockRadarPortfolios');
+    let loadedPorts = portfolios;
+    if (savedPortfolios) {
+      loadedPorts = JSON.parse(savedPortfolios);
+      setPortfolios(loadedPorts);
+    }
+    
+    // إجبار النظام على جلب أسعار المحفظة المخفية في أول ثانية تفتح فيها الصفحة!
+    const symbolsToFetch = new Set<string>();
+    loadedPorts.forEach(p => p.positions.forEach(pos => symbolsToFetch.add(pos.symbol)));
+    if (symbolsToFetch.size > 0) {
+      getLivePrices(Array.from(symbolsToFetch)).then(res => {
+        if (res && res.success && res.data) {
+          setLivePrices(prev => {
+            const newP = { ...prev, ...res.data };
+            livePricesRef.current = newP;
+            return newP;
+          });
+        }
+      });
+    }
   }, []);
+
+  // تحديث أسعار المحفظة فور فتحها لضمان عدم التجمد
+  useEffect(() => {
+    if (isPortfolioOpen) {
+      const symbolsToFetch = new Set<string>();
+      portfolios.forEach(p => p.positions.forEach(pos => symbolsToFetch.add(pos.symbol)));
+      if (symbolsToFetch.size > 0) {
+        getLivePrices(Array.from(symbolsToFetch)).then(res => {
+          if (res && res.success && res.data) {
+            setLivePrices(prev => {
+              const newP = { ...prev, ...res.data };
+              livePricesRef.current = newP;
+              return newP;
+            });
+          }
+        });
+      }
+    }
+  }, [isPortfolioOpen]);
 
   useEffect(() => { localStorage.setItem('stockRadarFavorites', JSON.stringify(favorites)); }, [favorites]);
   useEffect(() => { localStorage.setItem('stockRadarPortfolios', JSON.stringify(portfolios)); }, [portfolios]);
   useEffect(() => { localStorage.setItem('stockRadarCustomSharia', JSON.stringify(customShariaOverrides)); }, [customShariaOverrides]);
 
   const getLatestPrice = useCallback((symbol: string, fallbackPrice: string | number) => {
-    if (livePricesRef.current[symbol]) return parseFloat(livePricesRef.current[symbol].price);
-    if (livePrices[symbol]) return parseFloat(livePrices[symbol].price);
+    if (livePricesRef.current[symbol]?.price) return parseFloat(livePricesRef.current[symbol].price);
+    if (livePrices[symbol]?.price) return parseFloat(livePrices[symbol].price);
     const stockInGrid = stocksRef.current.find(s => s.symbol === symbol);
-    if (stockInGrid) return parseFloat(stockInGrid.price);
+    if (stockInGrid?.price) return parseFloat(stockInGrid.price);
     return typeof fallbackPrice === 'string' ? parseFloat(fallbackPrice) : fallbackPrice;
   }, [livePrices, stocks]);
 
-  // تحديث أسعار كامل المحفظة والشاشة معاً بشكل ذكي
+  // تحديث النبض اللحظي ليشمل أسهم المحفظة
   useEffect(() => {
     const interval = setInterval(async () => {
       const currentStocks = stocksRef.current;
@@ -179,11 +220,8 @@ export default function StockRadarPage() {
       
       const symbolsToUpdate = new Set<string>();
       
-      // 1. إضافة أسهم الشاشة الرئيسية
       currentStocks.forEach(s => symbolsToUpdate.add(s.symbol));
-      // 2. إضافة أسهم شريط الأخبار
       tickerStocks.forEach(t => symbolsToUpdate.add(t));
-      // 3. إضافة كافة الأسهم الموجودة في أي محفظة يمتلكها المستخدم
       currentPortfolios.forEach(port => {
         port.positions.forEach(pos => symbolsToUpdate.add(pos.symbol));
       });
@@ -708,7 +746,7 @@ export default function StockRadarPage() {
                             <h4 className="font-black text-base sm:text-lg text-white">{pos.symbol}</h4>
                             <span className="text-[10px] sm:text-xs bg-blue-900/40 text-blue-400 px-2 py-0.5 rounded-full border border-blue-800/50">{pos.shares} سهم</span>
                             <span className="text-[9px] text-slate-500 mr-auto sm:ml-4 sm:mr-0 border border-slate-800 px-1.5 py-0.5 rounded opacity-70">
-                              تاريخ الشراء: {pos.purchaseDate || 'اليوم'}
+                              تاريخ: {pos.purchaseDate || 'غير مسجل'}
                             </span>
                           </div>
                           <div className="flex justify-between sm:justify-start items-center text-[10px] sm:text-[11px] text-slate-400 w-full">
@@ -738,7 +776,7 @@ export default function StockRadarPage() {
               )}
               
               <div className="bg-gradient-to-r from-slate-950 to-blue-950/20 p-4 sm:p-5 rounded-xl border border-blue-900/30 space-y-2.5 sm:space-y-3">
-                <div className="flex justify-between items-center text-xs sm:text-sm"><span className="text-slate-400 font-bold">القيمة السوقية للأسهم המباشرة:</span><span className="font-bold text-white">${totalStocksMarketValue.toFixed(2)}</span></div>
+                <div className="flex justify-between items-center text-xs sm:text-sm"><span className="text-slate-400 font-bold">القيمة السوقية للأسهم المباشرة:</span><span className="font-bold text-white">${totalStocksMarketValue.toFixed(2)}</span></div>
                 <div className="flex justify-between items-center text-xs sm:text-sm"><span className="text-slate-400 font-bold">الرصيد النقدي المتبقي (الكاش):</span><span className="font-bold text-white">${activePortfolio.cash.toFixed(2)}</span></div>
                 
                 <div className="flex justify-between items-center text-xs sm:text-sm border-t border-slate-800 pt-2 sm:pt-3 mt-1">
@@ -757,7 +795,8 @@ export default function StockRadarPage() {
           </div>
         )}
 
-        <div className="mb-8 border-b border-slate-800/80 pb-4 sticky top-0 bg-slate-950/95 backdrop-blur-md z-10 p-4 sm:p-5 rounded-2xl shadow-xl mt-4">
+        {/* الشريط العلوي للبحث والأدوات */}
+        <div className="mb-8 border-b border-slate-800/80 pb-4 sticky top-0 bg-slate-950/95 backdrop-blur-md z-10 p-4 sm:p-5 rounded-2xl shadow-xl">
           <div className="flex flex-col xl:flex-row justify-between items-center gap-4">
             <div className="flex items-center justify-between w-full xl:w-auto">
               <div className="flex items-center gap-3 sm:gap-4">
@@ -794,6 +833,7 @@ export default function StockRadarPage() {
           </div>
         </div>
 
+        {/* عرض الأسهم */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
           {displayedStocks.map((stock, index) => {
             const isLast = index === displayedStocks.length - 1;
