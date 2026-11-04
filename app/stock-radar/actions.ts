@@ -13,16 +13,25 @@ export async function getStockData(symbols: string | string[]) {
 
     for (const symbol of formattedSymbols) {
       try {
-        // جلب البيانات الحقيقية لآخر 5 سنوات بفاصل زمني شهري
-        const res = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=5y&interval=1mo`, {
-          headers: { 'User-Agent': 'Mozilla/5.0' },
-          next: { revalidate: 60 }
-        });
+        // جلب البيانات الشهرية (للعوائد طويلة الأجل) واليومية (لسجل التداول الحقيقي) في نفس اللحظة
+        const [resMonthly, resDaily] = await Promise.all([
+          fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=5y&interval=1mo`, {
+            headers: { 'User-Agent': 'Mozilla/5.0' },
+            next: { revalidate: 60 }
+          }),
+          fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=2mo&interval=1d`, {
+            headers: { 'User-Agent': 'Mozilla/5.0' },
+            next: { revalidate: 60 }
+          })
+        ]);
         
-        const json = await res.json();
-        const resultData = json.chart?.result?.[0];
-        const meta = resultData?.meta;
-        const closingPrices = resultData?.indicators?.quote?.[0]?.close;
+        const jsonMonthly = await resMonthly.json();
+        const jsonDaily = await resDaily.json();
+
+        // --- معالجة البيانات الأساسية ---
+        const monthlyResult = jsonMonthly.chart?.result?.[0];
+        const meta = monthlyResult?.meta;
+        const monthlyCloses = monthlyResult?.indicators?.quote?.[0]?.close;
 
         if (!meta) continue;
 
@@ -48,27 +57,20 @@ export async function getStockData(symbols: string | string[]) {
 
         const analysis = `السعر الحالي للسهم ${symbol} هو $${currentPrice.toFixed(2)}. التغير اليومي: ${dayChange > 0 ? '+' : ''}${dayChangePercent.toFixed(2)}%.`;
 
-        // دالة مساعدة لجلب السعر التاريخي الحقيقي من مصفوفة الإغلاق
+        // --- 1. حساب العوائد التاريخية الدقيقة ---
         const getHistoricalPrice = (monthsBack: number) => {
-          if (!closingPrices || closingPrices.length === 0) return currentPrice;
-          
-          // تحديد الفهرس (Index) بناءً على عدد الأشهر المطلوبة للوراء
-          let targetIndex = Math.max(0, closingPrices.length - 1 - monthsBack);
-          
-          // تجاوز القيم الفارغة (null) إن وجدت في بعض الأشهر
-          while (closingPrices[targetIndex] === null && targetIndex < closingPrices.length - 1) {
+          if (!monthlyCloses || monthlyCloses.length === 0) return currentPrice;
+          let targetIndex = Math.max(0, monthlyCloses.length - 1 - monthsBack);
+          while (monthlyCloses[targetIndex] === null && targetIndex < monthlyCloses.length - 1) {
             targetIndex++;
           }
-          
-          return closingPrices[targetIndex] || currentPrice;
+          return monthlyCloses[targetIndex] || currentPrice;
         };
 
-        // دالة حساب العائد الدقيق 100%
         const calculateExactReturn = (monthsBack: number) => {
           const pastPrice = getHistoricalPrice(monthsBack);
           const diff = currentPrice - pastPrice;
           const pct = pastPrice > 0 ? (diff / pastPrice) * 100 : 0;
-          
           return {
             value: `${Math.abs(pct).toFixed(1)}%`,
             amount: Math.abs(diff).toFixed(2),
@@ -77,41 +79,40 @@ export async function getStockData(symbols: string | string[]) {
           };
         };
 
-        // توليد سجل الـ 30 يوم بناءً على العائد الحقيقي لآخر شهر ليكون منطقياً
-        const oneMonthReturn = calculateExactReturn(1);
+        // --- 2. بناء سجل التداول الحقيقي (آخر 30 جلسة تداول فعلية) ---
+        const dailyResult = jsonDaily.chart?.result?.[0];
+        const dailyTimestamps = dailyResult?.timestamp || [];
+        const dailyCloses = dailyResult?.indicators?.quote?.[0]?.close || [];
+        
         const history = [];
         let totalAmount = 0;
         const daysOfWeek = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
         const months = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
         
-        let currentDate = new Date();
-        let addedDays = 0;
-        let daysOffset = 0;
-        // توزيع الربح/الخسارة الشهري الحقيقي على أيام التداول
-        const dailyDrift = (oneMonthReturn.isPositive ? 1 : -1) * (Number(oneMonthReturn.amount) / 22);
-
-        while (addedDays < 30) {
-          let d = new Date();
-          d.setDate(currentDate.getDate() - daysOffset);
-          let dayOfWeek = d.getDay();
+        // التراجع من أحدث جلسة تداول متوفرة، وتجاهل الأيام المستقبلية أو العطلات
+        for (let i = dailyTimestamps.length - 1; i > 0 && history.length < 30; i--) {
+          const currentDayClose = dailyCloses[i];
+          const prevDayClose = dailyCloses[i - 1];
           
-          if (dayOfWeek !== 0 && dayOfWeek !== 6) {
-            // تذبذب يومي يميل لاتجاه الشهر الحقيقي
-            const randomNoise = currentPrice * (Math.random() * 0.01 - 0.005);
-            const dailyMove = dailyDrift + randomNoise;
-            const isPositiveDay = dailyMove >= 0;
-            
-            history.push({
-              day: `${daysOfWeek[dayOfWeek]}، ${d.getDate()} ${months[d.getMonth()]}`,
-              status: isPositiveDay ? 'ربح' : 'خسر',
-              amount: Math.abs(dailyMove).toFixed(2),
-              isPositive: isPositiveDay
-            });
-            
-            totalAmount += dailyMove;
-            addedDays++;
-          }
-          daysOffset++;
+          // تجاوز القيم الفارغة الناتجة عن أخطاء السوق
+          if (currentDayClose === null || prevDayClose === null) continue;
+          
+          const diff = currentDayClose - prevDayClose;
+          const isPositive = diff >= 0;
+          
+          const d = new Date(dailyTimestamps[i] * 1000);
+          const dayName = daysOfWeek[d.getDay()];
+          const dayOfMonth = d.getDate();
+          const monthName = months[d.getMonth()];
+          
+          history.push({
+            day: `${dayName}، ${dayOfMonth} ${monthName}`,
+            status: isPositive ? 'ربح' : 'خسر',
+            amount: Math.abs(diff).toFixed(2),
+            isPositive: isPositive
+          });
+          
+          totalAmount += diff;
         }
 
         results.push({
@@ -128,12 +129,12 @@ export async function getStockData(symbols: string | string[]) {
           isTotalPositive: totalAmount >= 0,
           total30DaysSAR: (Math.abs(totalAmount) * 3.75).toFixed(2),
           stats: {
-            m1: calculateExactReturn(1),   // شهر واحد
-            m3: calculateExactReturn(3),   // 3 أشهر
-            m6: calculateExactReturn(6),   // 6 أشهر
-            y1: calculateExactReturn(12),  // سنة (12 شهر)
-            y3: calculateExactReturn(36),  // 3 سنوات (36 شهر)
-            y5: calculateExactReturn(60)   // 5 سنوات (60 شهر)
+            m1: calculateExactReturn(1),
+            m3: calculateExactReturn(3),
+            m6: calculateExactReturn(6),
+            y1: calculateExactReturn(12),
+            y3: calculateExactReturn(36),
+            y5: calculateExactReturn(60)
           }
         });
       } catch (err) {
