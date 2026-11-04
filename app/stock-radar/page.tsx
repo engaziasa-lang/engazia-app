@@ -129,7 +129,8 @@ export default function StockRadarPage() {
   const initialLoadDone = useRef(false);
   const observer = useRef<IntersectionObserver | null>(null);
   
-  const BATCH_SIZE = 12;
+  // تم تقليل حجم الدفعة إلى 6 لحماية السيرفر من الحظر وضمان التحميل السريع
+  const BATCH_SIZE = 6; 
 
   useEffect(() => {
     const savedFavs = localStorage.getItem('stockRadarFavorites');
@@ -202,20 +203,24 @@ export default function StockRadarPage() {
     currentIndexRef.current = targetCount;
     const batchToLoad = ALL_MARKET_TICKERS.slice(0, targetCount);
 
-    for (let i = 0; i < batchToLoad.length; i += BATCH_SIZE) {
-      const chunk = batchToLoad.slice(i, i + BATCH_SIZE);
-      const promises = chunk.map(ticker => getStockData(ticker));
-      const chunkResults = await Promise.all(promises);
-      const validResults = chunkResults.filter(r => r && r.success && r.data).map(r => r.data);
-      
-      setStocks(prev => {
-        const uniqueNew = validResults.filter((newStock: any) => newStock && newStock.symbol && !prev.some(s => s.symbol === newStock.symbol));
-        return [...prev, ...uniqueNew];
-      });
+    try {
+      for (let i = 0; i < batchToLoad.length; i += BATCH_SIZE) {
+        const chunk = batchToLoad.slice(i, i + BATCH_SIZE);
+        const promises = chunk.map(ticker => getStockData(ticker));
+        const chunkResults = await Promise.all(promises);
+        const validResults = chunkResults.filter(r => r && r.success && r.data).map(r => r.data);
+        
+        setStocks(prev => {
+          const uniqueNew = validResults.filter((newStock: any) => newStock && newStock.symbol && !prev.some(s => s.symbol === newStock.symbol));
+          return [...prev, ...uniqueNew];
+        });
+      }
+      if (targetCount >= ALL_MARKET_TICKERS.length) setHasMore(false);
+    } catch (error) {
+      console.error("Error in initializeStocks", error);
+    } finally {
+      setIsLoading(false); // تأمين إخفاء مؤشر التحميل
     }
-
-    if (targetCount >= ALL_MARKET_TICKERS.length) setHasMore(false);
-    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -235,21 +240,26 @@ export default function StockRadarPage() {
       return;
     }
 
-    const promises = nextBatch.map(ticker => getStockData(ticker));
-    const chunkResults = await Promise.all(promises);
-    const validResults = chunkResults.filter(r => r && r.success && r.data).map(r => r.data);
+    try {
+      const promises = nextBatch.map(ticker => getStockData(ticker));
+      const chunkResults = await Promise.all(promises);
+      const validResults = chunkResults.filter(r => r && r.success && r.data).map(r => r.data);
 
-    setStocks(prev => {
-      const uniqueNew = validResults.filter((newStock: any) => newStock && newStock.symbol && !prev.some(s => s.symbol === newStock.symbol));
-      return [...prev, ...uniqueNew];
-    });
+      setStocks(prev => {
+        const uniqueNew = validResults.filter((newStock: any) => newStock && newStock.symbol && !prev.some(s => s.symbol === newStock.symbol));
+        return [...prev, ...uniqueNew];
+      });
 
-    const newIndex = currentIdx + BATCH_SIZE;
-    currentIndexRef.current = newIndex;
-    localStorage.setItem('stockRadarCurrentIndex', newIndex.toString());
-    
-    if (newIndex >= ALL_MARKET_TICKERS.length) setHasMore(false);
-    setIsLoading(false);
+      const newIndex = currentIdx + BATCH_SIZE;
+      currentIndexRef.current = newIndex;
+      localStorage.setItem('stockRadarCurrentIndex', newIndex.toString());
+      
+      if (newIndex >= ALL_MARKET_TICKERS.length) setHasMore(false);
+    } catch (error) {
+      console.error("Error loading more stocks", error);
+    } finally {
+      setIsLoading(false); // تأمين إخفاء مؤشر التحميل
+    }
   };
 
   const handleSearch = async (e: React.FormEvent) => {
@@ -257,15 +267,19 @@ export default function StockRadarPage() {
     if (!searchQuery.trim() || isSearching) return;
     
     setIsSearching(true);
-    const result = await getStockData(searchQuery);
-    
-    if (result.success && result.data) {
-      setStocks(prev => [result.data, ...prev.filter(s => s.symbol !== result.data.symbol)]);
-      setSearchQuery('');
-    } else {
-      alert("لم يتم العثور على السهم، تأكد من الرمز (مثال AAPL).");
+    try {
+      const result = await getStockData(searchQuery);
+      if (result.success && result.data) {
+        setStocks(prev => [result.data, ...prev.filter(s => s.symbol !== result.data.symbol)]);
+        setSearchQuery('');
+      } else {
+        alert("لم يتم العثور على السهم، تأكد من الرمز (مثال AAPL).");
+      }
+    } catch (error) {
+      alert("حدث خطأ أثناء البحث.");
+    } finally {
+      setIsSearching(false);
     }
-    setIsSearching(false);
   };
 
   const lastStockElementRef = useCallback((node: HTMLDivElement | null) => {
