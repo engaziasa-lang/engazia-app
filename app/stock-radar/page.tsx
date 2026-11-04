@@ -104,6 +104,9 @@ export default function StockRadarPage() {
   const [customShariaOverrides, setCustomShariaOverrides] = useState<Record<string, 'halal' | 'mixed' | 'haram'>>({});
   const [editingShariaSymbol, setEditingShariaSymbol] = useState<string | null>(null);
 
+  // حالة لتتبع أي سهم يتم تحديثه حالياً يدوياً (لإظهار أنيميشن الدوران)
+  const [updatingSymbol, setUpdatingSymbol] = useState<string | null>(null);
+
   const [portfolios, setPortfolios] = useState<Portfolio[]>([
     { id: '1', name: 'محفظتي الأساسية', cash: 10000, positions: [] }
   ]);
@@ -128,7 +131,6 @@ export default function StockRadarPage() {
   const initialLoadDone = useRef(false);
   const observer = useRef<IntersectionObserver | null>(null);
   
-  // حفظ مرجع مباشر للأسهم الحالية لاستخدامه في دالة التحديث اللحظي بدون قطع الـ render
   const stocksRef = useRef(stocks);
   const BATCH_SIZE = 12;
 
@@ -157,7 +159,33 @@ export default function StockRadarPage() {
     localStorage.setItem('stockRadarCustomSharia', JSON.stringify(customShariaOverrides));
   }, [customShariaOverrides]);
 
-  // --- التحديث اللحظي المباشر للأسعار ---
+  // دالة التحديث اليدوي الفردية (لأيقونة التحديث بجانب السعر)
+  const handleManualPriceUpdate = async (symbol: string) => {
+    if (updatingSymbol === symbol) return; // منع تكرار الضغط
+    setUpdatingSymbol(symbol);
+    
+    try {
+      const res = await getLivePrices([symbol]);
+      if (res && res.success && res.data && res.data[symbol]) {
+        const liveData = res.data[symbol];
+        setStocks(prevStocks => prevStocks.map(stock => {
+          if (stock.symbol === symbol) {
+            return {
+              ...stock,
+              price: liveData.price,
+              priceSAR: liveData.priceSAR
+            };
+          }
+          return stock;
+        }));
+      }
+    } catch (e) {
+      console.error("Manual update failed", e);
+    } finally {
+      setTimeout(() => setUpdatingSymbol(null), 500); // تأخير بسيط لجمالية الأنيميشن
+    }
+  };
+
   useEffect(() => {
     const interval = setInterval(async () => {
       const currentStocks = stocksRef.current;
@@ -179,7 +207,7 @@ export default function StockRadarPage() {
           return stock;
         }));
       }
-    }, 20000); // تحديث الأرقام كل 20 ثانية بشكل صامت خلف الكواليس
+    }, 20000); 
     
     return () => clearInterval(interval);
   }, []);
@@ -466,6 +494,56 @@ export default function StockRadarPage() {
                 <p className="text-2xl font-black text-blue-400">{activePortfolio.positions.length} شركات</p>
               </div>
             </div>
+            
+            {/* عرض الأسهم داخل المحفظة */}
+            <h3 className="font-bold text-slate-300 mb-3">الأسهم في المحفظة:</h3>
+            {activePortfolio.positions.length === 0 ? (
+              <div className="text-center text-slate-500 py-8 bg-slate-950/50 rounded-lg border border-slate-800 mb-6">المحفظة فارغة حالياً.</div>
+            ) : (
+              <div className="space-y-3 mb-6">
+                {activePortfolio.positions.map((pos, idx) => {
+                  const liveStock = stocks.find(s => s.symbol === pos.symbol);
+                  const currentPrice = liveStock ? parseFloat(liveStock.price) : pos.avgPrice;
+                  const marketVal = pos.shares * currentPrice;
+                  const costVal = pos.shares * pos.avgPrice;
+                  const profitLoss = marketVal - costVal;
+                  const isPos = profitLoss >= 0;
+                  
+                  return (
+                    <div key={idx} className="flex justify-between items-center bg-slate-950/50 p-4 rounded-xl border border-slate-800">
+                      <div>
+                        <h4 className="font-black text-white">{pos.symbol} <span className="text-xs text-blue-400">({pos.shares} سهم)</span></h4>
+                        <p className="text-[11px] text-slate-400 mt-1">التكلفة: ${pos.avgPrice.toFixed(2)} | الحالي: 
+                          <span className="font-bold text-slate-200 ml-1 mr-1">${currentPrice.toFixed(2)}</span>
+                          
+                          {/* أيقونة تحديث السعر في المحفظة */}
+                          <button 
+                            onClick={() => handleManualPriceUpdate(pos.symbol)}
+                            className={`text-[10px] text-blue-400 hover:text-white transition-all ${updatingSymbol === pos.symbol ? 'animate-spin opacity-50' : ''}`}
+                            title="تحديث السعر اللحظي"
+                          >
+                            🔄
+                          </button>
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <div className="text-left">
+                          <p className="text-sm font-bold text-white">${marketVal.toFixed(2)}</p>
+                          <p className={`text-xs font-black ${isPos ? 'text-emerald-500' : 'text-red-500'}`}>{isPos ? '+' : ''}${profitLoss.toFixed(2)}</p>
+                        </div>
+                        <button onClick={() => { setTradeStock(liveStock || { symbol: pos.symbol, price: currentPrice }); setTradeShares(pos.shares.toString()); }} className="bg-red-900/40 hover:bg-red-600 text-red-400 hover:text-white px-3 py-1 rounded text-xs font-bold">بيع ⚡</button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+            
+            <div className="bg-gradient-to-r from-slate-950 to-blue-950/20 p-5 rounded-xl border border-blue-900/30 space-y-3">
+              <div className="flex justify-between text-sm"><span className="text-slate-400">القيمة السوقية للأسهم:</span><span className="font-bold text-white">${totalStocksMarketValue.toFixed(2)}</span></div>
+              <div className="flex justify-between text-sm"><span className="text-slate-400">الرصيد النقدي:</span><span className="font-bold text-white">${activePortfolio.cash.toFixed(2)}</span></div>
+              <div className="flex justify-between text-base border-t border-slate-800 pt-2"><span className="font-bold text-slate-300">إجمالي المحفظة:</span><span className="font-black text-yellow-400 text-lg">${totalPortfolioValue.toFixed(2)}</span></div>
+            </div>
           </div>
         </div>
       )}
@@ -480,7 +558,6 @@ export default function StockRadarPage() {
                 <div>
                   <h1 className="text-xl md:text-3xl font-black text-blue-400 tracking-tight">شاشة السوق الشاملة</h1>
                   
-                  {/* مؤشر التحديث المباشر للأسعار */}
                   <div className="flex items-center gap-2 mt-2 bg-emerald-950/40 border border-emerald-900/50 px-2 py-1 rounded-full w-max">
                     <span className="relative flex h-2 w-2">
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -542,8 +619,20 @@ export default function StockRadarPage() {
                       <p className="text-[10px] text-slate-500 mt-1 font-medium">PE: {stock.peRatio}</p>
                     </div>
                   </div>
-                  <div className="flex flex-col items-center justify-center bg-blue-950/20 px-3 py-1.5 rounded-lg border border-blue-900/30 min-w-[75px] mt-6 transition-all duration-500">
-                    <span className="text-blue-400 text-lg font-bold leading-tight">${stock.price}</span>
+                  <div className="flex flex-col items-center justify-center bg-blue-950/20 px-3 py-1.5 rounded-lg border border-blue-900/30 min-w-[75px] mt-6 transition-all duration-500 relative group">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-blue-400 text-lg font-bold leading-tight">${stock.price}</span>
+                      
+                      {/* أيقونة تحديث السعر الفردية في الكرت الرئيسي */}
+                      <button 
+                        onClick={() => handleManualPriceUpdate(stock.symbol)}
+                        className={`text-xs text-blue-500/50 hover:text-blue-400 transition-all ${updatingSymbol === stock.symbol ? 'animate-spin opacity-50 text-blue-300' : ''}`}
+                        title="جلب السعر اللحظي الآن"
+                      >
+                        🔄
+                      </button>
+
+                    </div>
                     <span className="text-slate-400 text-[10px] font-semibold mt-0.5">{stock.priceSAR} ر.س</span>
                   </div>
                 </div>
