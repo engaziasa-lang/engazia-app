@@ -79,11 +79,11 @@ type Portfolio = { id: string; name: string; cash: number; positions: Position[]
 export default function StockRadarPage() {
   const [stocks, setStocks] = useState<any[]>([]);
   
-  // حالة أسعار شاشة السوق الرئيسية
+  // حالة شاشة السوق الرئيسية 
   const [livePrices, setLivePrices] = useState<Record<string, { price: string, priceSAR: string, isUp: boolean }>>({});
   const livePricesRef = useRef<Record<string, { price: string, priceSAR: string, isUp: boolean }>>({});
   
-  // حالة منفصلة وقوية للمحفظة لضمان دقة الربح والخسارة
+  // حالة المحفظة الحصرية والقوية جداً
   const [portfolioPrices, setPortfolioPrices] = useState<Record<string, number>>({});
   const portfolioPricesRef = useRef<Record<string, number>>({});
   
@@ -166,28 +166,24 @@ export default function StockRadarPage() {
   useEffect(() => { localStorage.setItem('stockRadarPortfolios', JSON.stringify(portfolios)); }, [portfolios]);
   useEffect(() => { localStorage.setItem('stockRadarCustomSharia', JSON.stringify(customShariaOverrides)); }, [customShariaOverrides]);
 
-  const getMarketPrice = useCallback((symbol: string, fallbackPrice: string | number) => {
-    if (livePricesRef.current[symbol]?.price) return parseFloat(livePricesRef.current[symbol].price);
-    if (livePrices[symbol]?.price) return parseFloat(livePrices[symbol].price);
-    const stockInGrid = stocksRef.current.find(s => s.symbol === symbol);
-    if (stockInGrid?.price) return parseFloat(stockInGrid.price);
-    return typeof fallbackPrice === 'string' ? parseFloat(fallbackPrice) : fallbackPrice;
-  }, [livePrices, stocks]);
-
-  // -------------------------------------------------------------
-  // محرك المحفظة المستقل: يركز حصرياً وبقوة على جلب أحدث أسعار أسهمك
-  // -------------------------------------------------------------
+  // -------------------------------------------------------------------------
+  // الحل الجذري: محرك مراقبة المحفظة النشط (Portfolio Watchdog Engine)
+  // -------------------------------------------------------------------------
+  
+  // دالة لجلب أسعار المحفظة بقوة 
   const fetchPortfolioPrices = useCallback(async () => {
     const activePort = portfoliosRef.current.find(p => p.id === activePortfolioId);
     if (!activePort || activePort.positions.length === 0) return;
     
+    // نجمع رموز الأسهم الموجودة في المحفظة حالياً 
     const symbolsToFetch = activePort.positions.map(pos => pos.symbol);
+    
     try {
-      // نرسل طلب تحديث قوي للأسعار لكل أسهم المحفظة
+      // نرسل طلب تحديث مخصص فقط لأسهم المحفظة 
       const res = await getLivePrices(symbolsToFetch);
       if (res && res.success && res.data) {
         
-        // 1. تحديث أسعار المحفظة
+        // 1. تحديث الذاكرة الخاصة بالمحفظة بالأرقام الدقيقة 
         setPortfolioPrices(prev => {
           const newPrices = { ...prev };
           Object.keys(res.data).forEach(sym => {
@@ -197,7 +193,7 @@ export default function StockRadarPage() {
           return newPrices;
         });
         
-        // 2. تحديث الشاشة الرئيسية لضمان التزامن
+        // 2. تحديث الشاشة الرئيسية بالمرة لضمان التزامن
         setLivePrices(prev => {
             const newPrices = { ...prev };
             Object.keys(res.data).forEach(sym => {
@@ -206,21 +202,25 @@ export default function StockRadarPage() {
             livePricesRef.current = { ...livePricesRef.current, ...newPrices };
             return { ...prev, ...newPrices };
         });
-
       }
     } catch (err) {
-      console.error("Error fetching portfolio prices:", err);
+      console.error("Watchdog: Error fetching portfolio prices:", err);
     }
   }, [activePortfolioId]);
 
-  // جلب الأسعار فور فتح المحفظة أو تغيير المحفظة النشطة
+  // 1. تحديث عند فتح المحفظة أو تغيير المحفظة النشطة
   useEffect(() => {
     if (isPortfolioOpen) {
       fetchPortfolioPrices();
     }
   }, [isPortfolioOpen, activePortfolioId, fetchPortfolioPrices]);
 
-  // تحديث دوري (كل 10 ثوانٍ) للمحفظة أثناء فتحها فقط لضمان دقة الأرباح
+  // 2. تحديث عند إجراء أي تغيير على أسهم المحفظة (شراء / بيع)
+  useEffect(() => {
+    fetchPortfolioPrices();
+  }, [portfolios, fetchPortfolioPrices]); // هذا السطر هو كلمة السر الجديدة
+
+  // 3. تحديث دوري (كل 10 ثوانٍ) للمحفظة أثناء فتحها 
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (isPortfolioOpen) {
@@ -232,12 +232,30 @@ export default function StockRadarPage() {
   }, [isPortfolioOpen, fetchPortfolioPrices]);
 
 
+  // دالة ذكية تقرأ أحدث سعر للمحفظة أولاً 
+  const getPortfolioPrice = useCallback((symbol: string, avgCost: number) => {
+    if (portfolioPricesRef.current[symbol]) return portfolioPricesRef.current[symbol];
+    if (portfolioPrices[symbol]) return portfolioPrices[symbol];
+    if (livePricesRef.current[symbol]?.price) return parseFloat(livePricesRef.current[symbol].price);
+    if (livePrices[symbol]?.price) return parseFloat(livePrices[symbol].price);
+    const stockInGrid = stocksRef.current.find(s => s.symbol === symbol);
+    if (stockInGrid?.price) return parseFloat(stockInGrid.price);
+    return avgCost; // أسوأ الاحتمالات: يرجع التكلفة إذا انقطع الاتصال كلياً
+  }, [portfolioPrices, livePrices, stocks]);
+
+  const getMarketPrice = useCallback((symbol: string, fallbackPrice: string | number) => {
+    if (livePricesRef.current[symbol]?.price) return parseFloat(livePricesRef.current[symbol].price);
+    if (livePrices[symbol]?.price) return parseFloat(livePrices[symbol].price);
+    const stockInGrid = stocksRef.current.find(s => s.symbol === symbol);
+    if (stockInGrid?.price) return parseFloat(stockInGrid.price);
+    return typeof fallbackPrice === 'string' ? parseFloat(fallbackPrice) : fallbackPrice;
+  }, [livePrices, stocks]);
+
   // -------------------------------------------------------------
-  // محرك شاشة السوق: يعمل للشاشة الرئيسية والأخبار
+  // محرك شاشة السوق الرئيسي
   // -------------------------------------------------------------
   useEffect(() => {
     const apiInterval = setInterval(async () => {
-      // إذا كانت المحفظة مفتوحة، نوقف تحديث الشاشة الرئيسية لتوفير الموارد
       if (isPortfolioOpen) return;
 
       const currentStocks = stocksRef.current;
@@ -245,10 +263,6 @@ export default function StockRadarPage() {
       
       currentStocks.forEach(s => symbolsToUpdate.add(s.symbol));
       tickerStocks.forEach(t => symbolsToUpdate.add(t));
-      
-      // جلب أسعار المحفظة أيضاً في الخلفية حتى لا تتجمد عندما نعود إليها
-      const currentPortfolios = portfoliosRef.current;
-      currentPortfolios.forEach(port => { port.positions.forEach(pos => symbolsToUpdate.add(pos.symbol)); });
       
       if (symbolsToUpdate.size === 0) return;
       
@@ -268,15 +282,6 @@ export default function StockRadarPage() {
           return newPrices;
         });
 
-        // مزامنة مع المحفظة
-        setPortfolioPrices(prev => {
-          const newPortPrices = { ...prev };
-          Object.keys(res.data).forEach(sym => {
-            newPortPrices[sym] = parseFloat(res.data[sym].price);
-          });
-          return newPortPrices;
-        });
-
         setStocks(prevStocks => prevStocks.map(stock => {
           const liveData = res.data[stock.symbol];
           if (liveData && liveData.price !== stock.price) {
@@ -290,7 +295,6 @@ export default function StockRadarPage() {
     return () => clearInterval(apiInterval);
   }, [isPortfolioOpen]);
 
-  // التحديث اليدوي الشامل لكل أسهم المحفظة
   const handleUpdateEntirePortfolio = async () => {
     setIsUpdatingPortfolio(true);
     await fetchPortfolioPrices();
@@ -394,10 +398,6 @@ export default function StockRadarPage() {
              return newPrices;
          });
       }
-      
-      // تحميل أسعار المحفظة أثناء التهيئة الأولية
-      fetchPortfolioPrices();
-      
     } catch (error) {
       console.error("Error initializing stocks:", error);
     } finally {
@@ -520,7 +520,6 @@ export default function StockRadarPage() {
     
     const stockSymbol = tradeStock.symbol;
     
-    // سحب أحدث سعر حقيقي متوفر قبل التنفيذ 
     let executionPrice = getMarketPrice(stockSymbol, tradeStock.price);
     try {
         const liveRes = await getLivePrices([stockSymbol]);
@@ -563,9 +562,7 @@ export default function StockRadarPage() {
         return { ...p, cash: p.cash - totalCost, positions: newPositions };
       }));
       
-      // إجبار محرك المحفظة على تحديث سعر السهم الجديد فوراً
       setPortfolioPrices(prev => ({ ...prev, [stockSymbol]: executionPrice }));
-      
       alert(`✅ تم الشراء بنجاح في محفظة "${activePortfolio.name}" على سعر ${effectivePricePerShare.toFixed(2)}$`);
       
     } else if (type === 'sell') {
@@ -594,8 +591,8 @@ export default function StockRadarPage() {
   let totalCostValue = 0;
 
   activePortfolio.positions.forEach(pos => {
-    // حساب فوري للقيمة باستخدام السعر من محرك المحفظة الخاص (دقيق 100%)
-    const currentPrice = portfolioPrices[pos.symbol] || getMarketPrice(pos.symbol, pos.avgPrice);
+    // حساب فوري للقيمة باستخدام السعر من محرك المحفظة الخاص 
+    const currentPrice = getPortfolioPrice(pos.symbol, pos.avgPrice);
     totalStocksMarketValue += pos.shares * currentPrice;
     totalCostValue += pos.shares * pos.avgPrice;
   });
@@ -770,7 +767,7 @@ export default function StockRadarPage() {
                       className={`bg-blue-900/30 text-blue-400 hover:text-white hover:bg-blue-600 border border-blue-800/50 px-2 py-0.5 rounded text-[10px] transition-all flex items-center gap-1 ${isUpdatingPortfolio ? 'opacity-50' : ''}`}
                       title="تحديث أسعار كافة أسهم المحفظة الآن"
                     >
-                      <span className={isUpdatingPortfolio ? 'animate-spin' : ''}>🔄</span> تحديث
+                      <span className={isUpdatingPortfolio ? 'animate-spin' : ''}>🔄</span> تحديث الكل
                     </button>
                     
                   </p>
@@ -792,8 +789,8 @@ export default function StockRadarPage() {
               ) : (
                 <div className="space-y-3 mb-6">
                   {activePortfolio.positions.map((pos, idx) => {
-                    // الاعتماد على المحرك المستقل للمحفظة لضمان الدقة
-                    const currentPrice = portfolioPrices[pos.symbol] || getMarketPrice(pos.symbol, pos.avgPrice);
+                    // الدالة الجديدة تضمن استخدام سعر المحفظة إن وجد وإلا سعر السوق
+                    const currentPrice = getPortfolioPrice(pos.symbol, pos.avgPrice);
                     
                     const marketVal = pos.shares * currentPrice;
                     const costVal = pos.shares * pos.avgPrice;
