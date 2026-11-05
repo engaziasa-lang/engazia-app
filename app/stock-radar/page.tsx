@@ -79,11 +79,11 @@ type Portfolio = { id: string; name: string; cash: number; positions: Position[]
 export default function StockRadarPage() {
   const [stocks, setStocks] = useState<any[]>([]);
   
-  // 1. حالة لأسعار شاشة السوق الرئيسية
+  // حالة أسعار شاشة السوق الرئيسية
   const [livePrices, setLivePrices] = useState<Record<string, { price: string, priceSAR: string, isUp: boolean }>>({});
   const livePricesRef = useRef<Record<string, { price: string, priceSAR: string, isUp: boolean }>>({});
   
-  // 2. حالة جديدة ومنفصلة بالكامل للمحفظة تضمن دقة 100%
+  // حالة منفصلة وقوية للمحفظة لضمان دقة الربح والخسارة
   const [portfolioPrices, setPortfolioPrices] = useState<Record<string, number>>({});
   const portfolioPricesRef = useRef<Record<string, number>>({});
   
@@ -175,18 +175,19 @@ export default function StockRadarPage() {
   }, [livePrices, stocks]);
 
   // -------------------------------------------------------------
-  // محرك المحفظة المستقل: يركز حصرياً على جلب أحدث أسعار أسهمك
+  // محرك المحفظة المستقل: يركز حصرياً وبقوة على جلب أحدث أسعار أسهمك
   // -------------------------------------------------------------
-  
-  // دالة لجلب أسعار المحفظة
   const fetchPortfolioPrices = useCallback(async () => {
     const activePort = portfoliosRef.current.find(p => p.id === activePortfolioId);
     if (!activePort || activePort.positions.length === 0) return;
     
     const symbolsToFetch = activePort.positions.map(pos => pos.symbol);
     try {
+      // نرسل طلب تحديث قوي للأسعار لكل أسهم المحفظة
       const res = await getLivePrices(symbolsToFetch);
       if (res && res.success && res.data) {
+        
+        // 1. تحديث أسعار المحفظة
         setPortfolioPrices(prev => {
           const newPrices = { ...prev };
           Object.keys(res.data).forEach(sym => {
@@ -195,6 +196,17 @@ export default function StockRadarPage() {
           portfolioPricesRef.current = newPrices;
           return newPrices;
         });
+        
+        // 2. تحديث الشاشة الرئيسية لضمان التزامن
+        setLivePrices(prev => {
+            const newPrices = { ...prev };
+            Object.keys(res.data).forEach(sym => {
+               newPrices[sym] = { ...res.data[sym], isUp: true };
+            });
+            livePricesRef.current = { ...livePricesRef.current, ...newPrices };
+            return { ...prev, ...newPrices };
+        });
+
       }
     } catch (err) {
       console.error("Error fetching portfolio prices:", err);
@@ -234,6 +246,10 @@ export default function StockRadarPage() {
       currentStocks.forEach(s => symbolsToUpdate.add(s.symbol));
       tickerStocks.forEach(t => symbolsToUpdate.add(t));
       
+      // جلب أسعار المحفظة أيضاً في الخلفية حتى لا تتجمد عندما نعود إليها
+      const currentPortfolios = portfoliosRef.current;
+      currentPortfolios.forEach(port => { port.positions.forEach(pos => symbolsToUpdate.add(pos.symbol)); });
+      
       if (symbolsToUpdate.size === 0) return;
       
       const res = await getLivePrices(Array.from(symbolsToUpdate));
@@ -250,6 +266,15 @@ export default function StockRadarPage() {
             };
           });
           return newPrices;
+        });
+
+        // مزامنة مع المحفظة
+        setPortfolioPrices(prev => {
+          const newPortPrices = { ...prev };
+          Object.keys(res.data).forEach(sym => {
+            newPortPrices[sym] = parseFloat(res.data[sym].price);
+          });
+          return newPortPrices;
         });
 
         setStocks(prevStocks => prevStocks.map(stock => {
@@ -369,6 +394,10 @@ export default function StockRadarPage() {
              return newPrices;
          });
       }
+      
+      // تحميل أسعار المحفظة أثناء التهيئة الأولية
+      fetchPortfolioPrices();
+      
     } catch (error) {
       console.error("Error initializing stocks:", error);
     } finally {
