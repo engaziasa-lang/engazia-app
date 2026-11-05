@@ -79,9 +79,8 @@ type Portfolio = { id: string; name: string; cash: number; positions: Position[]
 export default function StockRadarPage() {
   const [stocks, setStocks] = useState<any[]>([]);
   
-  // حفظ الأسعار المباشرة الصافية القادمة من البورصة
-  const [livePrices, setLivePrices] = useState<Record<string, { price: string, priceSAR: string, isUp: boolean }>>({});
-  const livePricesRef = useRef<Record<string, { price: string, priceSAR: string, isUp: boolean }>>({});
+  const [closingPrices, setClosingPrices] = useState<Record<string, { price: string, priceSAR: string, isUp: boolean }>>({});
+  const closingPricesRef = useRef<Record<string, { price: string, priceSAR: string, isUp: boolean }>>({});
   
   const [isLoading, setIsLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
@@ -96,7 +95,12 @@ export default function StockRadarPage() {
 
   const [customShariaOverrides, setCustomShariaOverrides] = useState<Record<string, 'halal' | 'mixed' | 'haram'>>({});
   const [editingShariaSymbol, setEditingShariaSymbol] = useState<string | null>(null);
+  
+  // حالة تحديث السهم الفردي
   const [updatingSymbol, setUpdatingSymbol] = useState<string | null>(null);
+  
+  // حالة التحديث الشامل للمحفظة
+  const [isUpdatingPortfolio, setIsUpdatingPortfolio] = useState(false);
 
   const [portfolios, setPortfolios] = useState<Portfolio[]>([
     { id: '1', name: 'محفظتي الأساسية', cash: 10000, positions: [] }
@@ -129,14 +133,14 @@ export default function StockRadarPage() {
   // شريط الإحصائيات (Ticker Tape)
   const tickerStocks = ['AAPL', 'MSFT', 'NVDA', 'TSLA', 'AMZN', 'META', 'GOOGL'];
   const tickerData = tickerStocks.map(sym => {
-    const live = livePrices[sym];
+    const live = closingPrices[sym];
     const gridStock = stocks.find(s => s.symbol === sym);
     const price = live ? live.price : (gridStock ? gridStock.price : '...');
     const isUp = live ? live.isUp : true; 
     return { sym, price, isUp };
   });
 
-  useEffect(() => { livePricesRef.current = livePrices; }, [livePrices]);
+  useEffect(() => { closingPricesRef.current = closingPrices; }, [closingPrices]);
   useEffect(() => { stocksRef.current = stocks; }, [stocks]);
   useEffect(() => { portfoliosRef.current = portfolios; }, [portfolios]);
 
@@ -162,7 +166,7 @@ export default function StockRadarPage() {
     if (symbolsToFetch.size > 0) {
       getLivePrices(Array.from(symbolsToFetch)).then(res => {
         if (res && res.success && res.data) {
-          setLivePrices(prev => {
+          setClosingPrices(prev => {
             const newP = { ...prev };
             Object.keys(res.data).forEach(sym => {
                newP[sym] = { ...res.data[sym], isUp: true };
@@ -178,16 +182,15 @@ export default function StockRadarPage() {
   useEffect(() => { localStorage.setItem('stockRadarPortfolios', JSON.stringify(portfolios)); }, [portfolios]);
   useEffect(() => { localStorage.setItem('stockRadarCustomSharia', JSON.stringify(customShariaOverrides)); }, [customShariaOverrides]);
 
-  // دالة ذكية تقرأ أحدث سعر حقيقي فقط
   const getLatestPrice = useCallback((symbol: string, fallbackPrice: string | number) => {
-    if (livePricesRef.current[symbol]?.price) return parseFloat(livePricesRef.current[symbol].price);
-    if (livePrices[symbol]?.price) return parseFloat(livePrices[symbol].price);
+    if (closingPricesRef.current[symbol]?.price) return parseFloat(closingPricesRef.current[symbol].price);
+    if (closingPrices[symbol]?.price) return parseFloat(closingPrices[symbol].price);
     const stockInGrid = stocksRef.current.find(s => s.symbol === symbol);
     if (stockInGrid?.price) return parseFloat(stockInGrid.price);
     return typeof fallbackPrice === 'string' ? parseFloat(fallbackPrice) : fallbackPrice;
-  }, [livePrices, stocks]);
+  }, [closingPrices, stocks]);
 
-  // التحديث الآلي الهادئ (كل 15 ثانية لجلب آخر إغلاق أو السعر المباشر من البورصة)
+  // التحديث الآلي الهادئ (كل 15 ثانية لجلب السعر المباشر من البورصة)
   useEffect(() => {
     const apiInterval = setInterval(async () => {
       const currentStocks = stocksRef.current;
@@ -203,7 +206,7 @@ export default function StockRadarPage() {
       const res = await getLivePrices(Array.from(symbolsToUpdate));
       
       if (res && res.success && res.data) {
-        setLivePrices(prev => {
+        setClosingPrices(prev => {
           const newPrices = { ...prev };
           Object.keys(res.data).forEach(sym => {
             const oldPrice = prev[sym] ? parseFloat(prev[sym].price) : 0;
@@ -229,6 +232,7 @@ export default function StockRadarPage() {
     return () => clearInterval(apiInterval);
   }, []);
 
+  // دالة تحديث السهم الفردي
   const handleManualPriceUpdate = async (symbol: string) => {
     if (updatingSymbol === symbol) return; 
     setUpdatingSymbol(symbol);
@@ -238,7 +242,7 @@ export default function StockRadarPage() {
       if (res && res.success && res.data && res.data[symbol]) {
         const newData = res.data[symbol];
         
-        setLivePrices(prev => {
+        setClosingPrices(prev => {
           const oldPrice = prev[symbol] ? parseFloat(prev[symbol].price) : 0;
           const newPrice = parseFloat(newData.price);
           return { ...prev, [symbol]: { ...newData, isUp: newPrice >= oldPrice } };
@@ -255,6 +259,38 @@ export default function StockRadarPage() {
       console.error("Manual update failed", e);
     } finally {
       setTimeout(() => setUpdatingSymbol(null), 600); 
+    }
+  };
+
+  // دالة التحديث الشامل لكافة أسهم المحفظة
+  const handleUpdateEntirePortfolio = async () => {
+    const activePort = portfolios.find(p => p.id === activePortfolioId);
+    if (!activePort || activePort.positions.length === 0) return;
+    
+    setIsUpdatingPortfolio(true);
+    
+    try {
+      const symbolsToFetch = activePort.positions.map(pos => pos.symbol);
+      const res = await getLivePrices(symbolsToFetch);
+      
+      if (res && res.success && res.data) {
+        setClosingPrices(prev => {
+          const newPrices = { ...prev };
+          Object.keys(res.data).forEach(sym => {
+            const oldPrice = prev[sym] ? parseFloat(prev[sym].price) : 0;
+            const newPrice = parseFloat(res.data[sym].price);
+            newPrices[sym] = {
+              ...res.data[sym],
+              isUp: newPrice >= oldPrice
+            };
+          });
+          return newPrices;
+        });
+      }
+    } catch (error) {
+      console.error("Portfolio update failed", error);
+    } finally {
+      setTimeout(() => setIsUpdatingPortfolio(false), 800);
     }
   };
 
@@ -307,7 +343,7 @@ export default function StockRadarPage() {
         
         const initialPrices: Record<string, { price: string, priceSAR: string, isUp: boolean }> = {};
         fetchedStocks.forEach(s => { initialPrices[s.symbol] = { price: s.price, priceSAR: s.priceSAR, isUp: true }; });
-        setLivePrices(prev => ({ ...prev, ...initialPrices }));
+        setClosingPrices(prev => ({ ...prev, ...initialPrices }));
       }
     } catch (error) {
       console.error("Error initializing stocks:", error);
@@ -345,7 +381,7 @@ export default function StockRadarPage() {
 
         const newPrices: Record<string, { price: string, priceSAR: string, isUp: boolean }> = {};
         fetchedStocks.forEach(s => { newPrices[s.symbol] = { price: s.price, priceSAR: s.priceSAR, isUp: true }; });
-        setLivePrices(prev => ({ ...prev, ...newPrices }));
+        setClosingPrices(prev => ({ ...prev, ...newPrices }));
       }
 
       const newIndex = currentIdx + BATCH_SIZE;
@@ -370,7 +406,7 @@ export default function StockRadarPage() {
         const searchedStock = Array.isArray(dataAny) ? dataAny[0] : dataAny;
         if (searchedStock && searchedStock.symbol) {
            setStocks(prev => [searchedStock, ...prev.filter(s => s.symbol !== searchedStock.symbol)]);
-           setLivePrices(prev => ({
+           setClosingPrices(prev => ({
              ...prev, [searchedStock.symbol]: { price: searchedStock.price, priceSAR: searchedStock.priceSAR, isUp: true }
            }));
            setSearchQuery('');
@@ -430,8 +466,6 @@ export default function StockRadarPage() {
     if (!tradeStock || !sharesNum || sharesNum <= 0) return alert("الرجاء إدخال عدد أسهم صحيح.");
     
     const stockSymbol = tradeStock.symbol;
-    
-    // سحب أحدث سعر حقيقي متوفر لحساب تكلفة الشراء
     const executionPrice = getLatestPrice(stockSymbol, tradeStock.price);
     const totalSharesValue = executionPrice * sharesNum;
 
@@ -660,9 +694,21 @@ export default function StockRadarPage() {
               
               <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-6">
                 <div className="bg-slate-950/50 p-3 sm:p-4 rounded-xl border border-slate-800 relative">
-                  <p className="text-[10px] sm:text-sm text-slate-400 mb-1">الرصيد النقدي المتاح</p>
+                  <p className="text-[10px] sm:text-sm text-slate-400 mb-1 flex justify-between items-center">
+                    <span>الرصيد النقدي المتاح</span>
+                    
+                    {/* أيقونة تحديث المحفظة بالكامل */}
+                    <button 
+                      onClick={handleUpdateEntirePortfolio} 
+                      className={`bg-blue-900/30 text-blue-400 hover:text-white hover:bg-blue-600 border border-blue-800/50 px-2 py-0.5 rounded text-[10px] transition-all flex items-center gap-1 ${isUpdatingPortfolio ? 'opacity-50' : ''}`}
+                      title="تحديث كافة أسهم المحفظة الآن"
+                    >
+                      <span className={isUpdatingPortfolio ? 'animate-spin' : ''}>🔄</span> تحديث الكل
+                    </button>
+                    
+                  </p>
                   <p className="text-lg sm:text-2xl font-black text-emerald-500">${activePortfolio.cash.toFixed(2)}</p>
-                  <div className="absolute top-2 left-2 flex gap-1 flex-col sm:flex-row">
+                  <div className="absolute bottom-2 left-2 flex gap-1 flex-col sm:flex-row">
                     <button onClick={() => setIsDepositOpen(true)} className="bg-emerald-600/10 hover:bg-emerald-600 text-emerald-500 hover:text-white px-2 py-0.5 sm:py-1 rounded text-[9px] sm:text-[10px] font-bold border border-emerald-600/30">+ إيداع</button>
                     <button onClick={() => setIsWithdrawOpen(true)} className="bg-red-600/10 hover:bg-red-600 text-red-500 hover:text-white px-2 py-0.5 sm:py-1 rounded text-[9px] sm:text-[10px] font-bold border border-red-600/30">- سحب</button>
                   </div>
