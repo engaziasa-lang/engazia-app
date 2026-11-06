@@ -79,11 +79,9 @@ type Portfolio = { id: string; name: string; cash: number; positions: Position[]
 export default function StockRadarPage() {
   const [stocks, setStocks] = useState<any[]>([]);
   
-  // حالة أسعار شاشة السوق والمحفظة
   const [livePrices, setLivePrices] = useState<Record<string, { price: string, priceSAR: string, isUp: boolean }>>({});
   const livePricesRef = useRef<Record<string, { price: string, priceSAR: string, isUp: boolean }>>({});
   
-  // المرجع الأساسي لحفظ آخر سعر حقيقي تم سحبه من البورصة بدقة
   const basePricesRef = useRef<Record<string, number>>({});
 
   const [isLoading, setIsLoading] = useState(false);
@@ -145,7 +143,7 @@ export default function StockRadarPage() {
   useEffect(() => { stocksRef.current = stocks; }, [stocks]);
   useEffect(() => { portfoliosRef.current = portfolios; }, [portfolios]);
 
-  // التهيئة واسترجاع البيانات 
+  // الاسترجاع
   useEffect(() => {
     const savedFavs = localStorage.getItem('stockRadarFavorites');
     if (savedFavs) setFavorites(JSON.parse(savedFavs));
@@ -167,9 +165,44 @@ export default function StockRadarPage() {
 
 
   // ----------------------------------------------------------------------------------
-  // 1. محرك المحفظة المدرع (Double-Engine Fetcher)
-  // يضمن جلب كل سهم إما بالجملة، وإذا فشل يجلبهم سهم سهم!
+  // دوال جلب الأسعار الأساسية والمحفظة (تم إصلاح الخطأ البرمجي هنا)
   // ----------------------------------------------------------------------------------
+
+  // دالة لجلب السعر في شاشة التداول وشاشة السوق (هذه هي الدالة التي كانت مفقودة)
+  const getMarketPrice = useCallback((symbol: string, fallbackPrice: string | number) => {
+    if (basePricesRef.current[symbol] && !isNaN(basePricesRef.current[symbol])) {
+       return basePricesRef.current[symbol];
+    }
+    if (livePricesRef.current[symbol]?.price && !isNaN(parseFloat(livePricesRef.current[symbol].price))) {
+       return parseFloat(livePricesRef.current[symbol].price);
+    }
+    if (livePrices[symbol]?.price && !isNaN(parseFloat(livePrices[symbol].price))) {
+       return parseFloat(livePrices[symbol].price);
+    }
+    const stockInGrid = stocksRef.current.find(s => s.symbol === symbol);
+    if (stockInGrid?.price && !isNaN(parseFloat(stockInGrid.price))) {
+       return parseFloat(stockInGrid.price);
+    }
+    return typeof fallbackPrice === 'string' ? parseFloat(fallbackPrice) : fallbackPrice;
+  }, [livePrices, stocks]);
+
+  // دالة لجلب السعر المرجعي الأكيد من الذاكرة لضمان الدقة في المحفظة
+  const getAbsoluteRealPrice = useCallback((symbol: string, avgCost: number) => {
+    if (basePricesRef.current[symbol] && !isNaN(basePricesRef.current[symbol])) {
+       return basePricesRef.current[symbol];
+    }
+    if (livePrices[symbol]?.price && !isNaN(parseFloat(livePrices[symbol].price))) {
+       return parseFloat(livePrices[symbol].price);
+    }
+    const stockInGrid = stocksRef.current.find(s => s.symbol === symbol);
+    if (stockInGrid?.price && !isNaN(parseFloat(stockInGrid.price))) {
+       return parseFloat(stockInGrid.price);
+    }
+    return avgCost;
+  }, [livePrices, stocks]);
+
+
+  // محرك المحفظة المدرع
   const fetchPortfolioPrices = useCallback(async () => {
     const activePort = portfoliosRef.current.find(p => p.id === activePortfolioId);
     if (!activePort || activePort.positions.length === 0) return;
@@ -178,7 +211,6 @@ export default function StockRadarPage() {
     
     try {
       let fetchedAny = false;
-      // المحاولة الأولى: جلب مجمع (سريع)
       const res = await getLivePrices(symbolsToFetch);
       if (res && res.success && res.data && Object.keys(res.data).length > 0) {
         setLivePrices(prev => {
@@ -195,11 +227,9 @@ export default function StockRadarPage() {
         fetchedAny = true;
       }
       
-      // المحاولة الثانية: جلب فردي لكل سهم مفقود أو فشل الجلب المجمع (يمنع التجمد على التكلفة!)
       if (!fetchedAny || (res?.data && Object.keys(res.data).length < symbolsToFetch.length)) {
         for (const sym of symbolsToFetch) {
-          if (res?.data && res.data[sym]) continue; // تخطي الأسهم التي تم جلبها بنجاح
-
+          if (res?.data && res.data[sym]) continue;
           try {
             const singleRes = await getStockData(sym);
             if (singleRes && singleRes.success && singleRes.data) {
@@ -214,14 +244,10 @@ export default function StockRadarPage() {
                  });
               }
             }
-          } catch(err) {
-            console.error(`Fallback fetch failed for ${sym}`, err);
-          }
+          } catch(err) {}
         }
       }
     } catch (err) {
-      console.error("Portfolio Master Fetch Error:", err);
-      // حماية أخيرة: لو فشل الإنترنت، نحاول جلبهم فردياً
       for (const sym of symbolsToFetch) {
         try {
           const singleRes = await getStockData(sym);
@@ -238,29 +264,24 @@ export default function StockRadarPage() {
     }
   }, [activePortfolioId]);
 
-  // تحديث عند فتح المحفظة
   useEffect(() => {
     if (isPortfolioOpen) {
       fetchPortfolioPrices();
     }
   }, [isPortfolioOpen, fetchPortfolioPrices]);
 
-  // تحديث دوري للمحفظة 
   useEffect(() => {
     let apiInterval: NodeJS.Timeout;
     if (isPortfolioOpen) {
-      apiInterval = setInterval(fetchPortfolioPrices, 15000); // تحديث هادئ كل 15 ثانية
+      apiInterval = setInterval(fetchPortfolioPrices, 15000); 
     }
     return () => { if (apiInterval) clearInterval(apiInterval); };
   }, [isPortfolioOpen, fetchPortfolioPrices]);
 
-
-  // ----------------------------------------------------------------------------------
-  // 2. تحديث أسعار الشاشة الرئيسية والأخبار بهدوء في الخلفية
-  // ----------------------------------------------------------------------------------
+  // تحديث أسعار الشاشة الرئيسية والأخبار بهدوء
   useEffect(() => {
     const mainApiInterval = setInterval(async () => {
-      if (isPortfolioOpen) return; // توفير الموارد
+      if (isPortfolioOpen) return; 
 
       const currentStocks = stocksRef.current;
       const symbolsToUpdate = new Set<string>();
@@ -300,38 +321,12 @@ export default function StockRadarPage() {
     return () => clearInterval(mainApiInterval);
   }, [isPortfolioOpen]);
 
-
-  // ----------------------------------------------------------------------------------
-  // التفاعلات والدوال المساعدة
-  // ----------------------------------------------------------------------------------
-
-  // دالة لجلب السعر المرجعي الأكيد من الذاكرة لضمان الدقة
-  const getAbsoluteRealPrice = useCallback((symbol: string, avgCost: number) => {
-    // 1. الأولوية الأولى لآخر سعر حقيقي مسجل في البورصة بنجاح
-    if (basePricesRef.current[symbol] && !isNaN(basePricesRef.current[symbol])) {
-       return basePricesRef.current[symbol];
-    }
-    // 2. السعر من بيانات الواجهة اللحظية
-    if (livePrices[symbol]?.price && !isNaN(parseFloat(livePrices[symbol].price))) {
-       return parseFloat(livePrices[symbol].price);
-    }
-    // 3. السعر الأساسي للشركة
-    const stockInGrid = stocksRef.current.find(s => s.symbol === symbol);
-    if (stockInGrid?.price && !isNaN(parseFloat(stockInGrid.price))) {
-       return parseFloat(stockInGrid.price);
-    }
-    // 4. الحماية الأخيرة جداً: التكلفة (لن تحدث بفضل المحرك المزدوج)
-    return avgCost;
-  }, [livePrices, stocks]);
-
-  // تحديث محفظة كامل يدوي
   const handleUpdateEntirePortfolio = async () => {
     setIsUpdatingPortfolio(true);
     await fetchPortfolioPrices();
     setTimeout(() => setIsUpdatingPortfolio(false), 800);
   };
 
-  // تحديث سهم فردي باستخدام المحرك المزدوج
   const handleManualPriceUpdate = async (symbol: string) => {
     if (updatingSymbol === symbol) return; 
     setUpdatingSymbol(symbol);
@@ -340,12 +335,10 @@ export default function StockRadarPage() {
     try {
       let finalData = null;
       
-      // 1. المحاولة الأولى (الدفعة)
       const res = await getLivePrices([symbol]);
       if (res && res.success && res.data && res.data[symbol]) {
          finalData = res.data[symbol];
       } else {
-         // 2. المحاولة الثانية (سهم مفرد)
          const singleRes = await getStockData(symbol);
          if (singleRes && singleRes.success && singleRes.data) {
             finalData = Array.isArray(singleRes.data) ? singleRes.data[0] : singleRes.data;
@@ -355,7 +348,7 @@ export default function StockRadarPage() {
       if (finalData) {
         const parsedPrice = parseFloat(finalData.price);
         if (!isNaN(parsedPrice)) {
-           basePricesRef.current[symbol] = parsedPrice; // تثبيت السعر
+           basePricesRef.current[symbol] = parsedPrice;
            setLivePrices(prev => ({
              ...prev, 
              [symbol]: { price: finalData.price, priceSAR: finalData.priceSAR, isUp: true }
@@ -575,7 +568,7 @@ export default function StockRadarPage() {
     const stockSymbol = tradeStock.symbol;
     
     // سحب أحدث سعر حقيقي قبل الشراء بالمحرك المزدوج
-    let executionPrice = getAbsoluteRealPrice(stockSymbol, tradeStock.price);
+    let executionPrice = getMarketPrice(stockSymbol, tradeStock.price);
     try {
         let finalData = null;
         const liveRes = await getLivePrices([stockSymbol]);
@@ -655,7 +648,6 @@ export default function StockRadarPage() {
   let totalCostValue = 0;
 
   activePortfolio.positions.forEach(pos => {
-    // حساب القيمة الصارمة للمحفظة 
     const currentPrice = getAbsoluteRealPrice(pos.symbol, pos.avgPrice);
     totalStocksMarketValue += pos.shares * currentPrice;
     totalCostValue += pos.shares * pos.avgPrice;
@@ -729,16 +721,16 @@ export default function StockRadarPage() {
               </div>
               <div className="bg-blue-950/20 p-3 rounded-lg border border-blue-900/30 mb-4 text-center">
                 <p className="text-sm text-slate-400">سعر التنفيذ المقدر</p>
-                <p className="text-2xl font-black text-blue-400">${getAbsoluteRealPrice(tradeStock.symbol, tradeStock.price).toFixed(2)}</p>
+                <p className="text-2xl font-black text-blue-400">${getMarketPrice(tradeStock.symbol, tradeStock.price).toFixed(2)}</p>
               </div>
               <div className="mb-4">
                 <label className="block text-sm text-slate-400 mb-2">عدد الأسهم:</label>
                 <input type="number" min="1" placeholder="أدخل عدد الأسهم..." value={tradeShares} onChange={(e) => setTradeShares(e.target.value)} className="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg text-white font-bold outline-none" />
               </div>
               <div className="text-xs text-slate-400 mb-6 bg-slate-950 p-3 rounded border border-slate-800 space-y-2">
-                <div className="flex justify-between"><span>قيمة الأسهم:</span> <span>${((Number(tradeShares) || 0) * getAbsoluteRealPrice(tradeStock.symbol, tradeStock.price)).toFixed(2)}</span></div>
+                <div className="flex justify-between"><span>قيمة الأسهم:</span> <span>${((Number(tradeShares) || 0) * getMarketPrice(tradeStock.symbol, tradeStock.price)).toFixed(2)}</span></div>
                 <div className="flex justify-between text-yellow-500"><span>عمولة الوسيط:</span> <span>${BROKER_COMMISSION.toFixed(2)}</span></div>
-                <div className="flex justify-between font-bold text-white border-t border-slate-800 pt-2 mt-2"><span>الإجمالي:</span> <span>${(((Number(tradeShares) || 0) * getAbsoluteRealPrice(tradeStock.symbol, tradeStock.price)) + BROKER_COMMISSION).toFixed(2)}</span></div>
+                <div className="flex justify-between font-bold text-white border-t border-slate-800 pt-2 mt-2"><span>الإجمالي:</span> <span>${(((Number(tradeShares) || 0) * getMarketPrice(tradeStock.symbol, tradeStock.price)) + BROKER_COMMISSION).toFixed(2)}</span></div>
               </div>
               <div className="flex gap-3">
                 <button onClick={() => handleExecuteTrade('buy')} className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-lg shadow-md transition-colors">تأكيد الشراء</button>
