@@ -12,6 +12,9 @@ export default function RootLayout({
       <head>
         <title>منصة كليك قدرات - التدريب الأذكى لاختبار القدرات</title>
         <meta name="description" content="منصة كليك قدرات - منصة تدريبية متقدمة لاختبارات القدرات العامة" />
+        
+        {/* كود إثبات ملكية جوجل Search Console */}
+        <meta name="google-site-verification" content="ZVVequa-9RPcw5v1AIWUlm2fR1jUrfAxvRtWCTliW_4" />
       </head>
       <body className="bg-gray-50 text-gray-900 antialiased min-h-screen flex flex-col font-sans">
         
